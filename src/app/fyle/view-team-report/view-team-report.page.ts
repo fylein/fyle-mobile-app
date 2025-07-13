@@ -444,7 +444,7 @@ export class ViewTeamReportPage {
             this.router.navigate(['/', 'enterprise', 'team_reports']);
             this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
               if (showNpsSurvey) {
-                this.refinerService.startSurvey({ actionName: 'Approve Report' });
+                // this.refinerService.startSurvey({ actionName: 'Approve Report' });
               }
             });
           });

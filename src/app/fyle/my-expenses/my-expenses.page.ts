@@ -2,6 +2,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { InAppReview } from '@capacitor-community/in-app-review';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { cloneDeep, isEqual, isNumber } from 'lodash';
@@ -87,6 +88,7 @@ import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-par
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -240,7 +242,8 @@ export class MyExpensesPage implements OnInit {
     private utilityService: UtilityService,
     private featureConfigService: FeatureConfigService,
     private extendQueryParamsService: ExtendQueryParamsService,
-    private footerService: FooterService
+    private footerService: FooterService,
+    private refinerService: RefinerService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -470,6 +473,9 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.refinerService.startSurvey({ actionName: 'My Expenses' }).subscribe((nps) => {
+      InAppReview.requestReview();
+    });
     this.isNewReportsFlowEnabled = false;
     this.initClassObservables();
 
