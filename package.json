@@ -20,9 +20,6 @@
     "lint:diff:local": "eslint --fix -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/master | grep  -E '(.js$|.ts$|.tsx$)')",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org fyle-technologies-private-limi --project fyle-mobile-app-prod ./www && sentry-cli sourcemaps upload --org fyle-technologies-private-limi --project fyle-mobile-app-prod ./www"
   },
-  "engines": {
-    "node": "22.13.1"
-  },
   "resolutions": {
     "webpack": "^5.0.0"
   },
