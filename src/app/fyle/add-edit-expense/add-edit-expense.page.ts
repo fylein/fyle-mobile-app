@@ -3645,7 +3645,7 @@ export class AddEditExpensePage implements OnInit {
   triggerNpsSurvey(): void {
     this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
       if (showNpsSurvey) {
-        this.refinerService.startSurvey({ actionName: 'Save Expense' });
+        // this.refinerService.startSurvey({ actionName: 'Save Expense' });
       }
     });
   }

@@ -3,10 +3,10 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Device } from '@capacitor/device';
 import { NetworkService } from './network.service';
-import { forkJoin, from, merge, Observable, of } from 'rxjs';
+import { forkJoin, from, merge, Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { map, take } from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
 import { OrgUserService } from './org-user.service';
 import { RefinerProperties } from '../models/refiner_properties.model';
 import { CurrencyService } from './currency.service';
@@ -244,41 +244,71 @@ export class RefinerService {
     return isSwitchedToDelegator$.pipe(map((isSwitchedToDelegator) => isNonDemoOrg && !isSwitchedToDelegator));
   }
 
-  startSurvey(properties: RefinerProperties): void {
-    forkJoin({
+  startSurvey(properties: RefinerProperties): Observable<string | null> {
+    return forkJoin({
       isConnected: this.isConnected$.pipe(take(1)),
       eou: this.authService.getEou(),
       homeCurrency: this.currencyService.getHomeCurrency(),
       deviceInfo: Device.getInfo(),
       clusterDomain: this.tokenService.getClusterDomain(),
-    }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo, clusterDomain }) => {
-      if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
-        const device = deviceInfo.operatingSystem.toUpperCase();
-        (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
-          'identifyUser',
-          {
-            id: eou.us.id, // Replace with your user ID
-            orgUserId: eou.ou.id,
-            orgId: eou.ou.org_id,
-            clusterDomain,
-            account: {
-              company_id: eou.ou.org_id,
-              region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
-            },
-            source: `Mobile - ${device}`,
-            is_admin: eou?.ou?.roles?.some((role) => !['FYLER', 'APPROVER'].includes(role)) ? 'T' : 'F',
-            action_name: properties.actionName,
-          }
-        );
-        (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
-          'setProject',
-          environment.REFINER_NPS_FORM_PROJECT
-        );
-        (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
-          'showForm',
-          environment.REFINER_NPS_FORM_ID
-        );
-      }
-    });
+    }).pipe(
+      switchMap(({ isConnected, eou, homeCurrency, deviceInfo, clusterDomain }) => 
+        this.canStartSurvey(homeCurrency, eou).pipe(
+          switchMap((canStart) => {
+            if (canStart && isConnected) {
+              // Create a Promise that resolves when the survey is completed
+              const npsPromise = new Promise<string | null>((resolve) => {
+                let nps = null;
+                // Set up the onComplete callback
+                (window as typeof window & { _refiner: (eventName: string, payload: (formId: string, responseData: {nps: string}) => void) => void })._refiner(
+                  'onComplete', 
+                  function(formId, responseData) {
+                    nps = responseData.nps;
+                  }
+                );
+                (window as typeof window & { _refiner: (eventName: string, payload: (formId: string) => void) => void })._refiner('onClose', function(formId) {
+                  resolve(nps);
+                 });
+              });
+
+              const device = deviceInfo.operatingSystem.toUpperCase();
+              
+              // Identify user
+              (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
+                'identifyUser',
+                {
+                  id: eou.us.id,
+                  orgUserId: eou.ou.id,
+                  orgId: eou.ou.org_id,
+                  clusterDomain,
+                  account: {
+                    company_id: eou.ou.org_id,
+                    region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
+                  },
+                  source: `Mobile - ${device}`,
+                  is_admin: eou?.ou?.roles?.some((role) => !['FYLER', 'APPROVER'].includes(role)) ? 'T' : 'F',
+                  action_name: properties.actionName,
+                }
+              );
+
+              // Set project and show form
+              (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
+                'setProject',
+                environment.REFINER_NPS_FORM_PROJECT
+              );
+              (window as typeof window & { _refiner: (eventName: string, payload: string, force: boolean) => void })._refiner(
+                'showForm',
+                environment.REFINER_NPS_FORM_ID,
+                true
+              );
+
+              // Convert Promise to Observable
+              return from(npsPromise);
+            }
+            return of(null);
+          })
+        )
+      )
+    );
   }
 }
