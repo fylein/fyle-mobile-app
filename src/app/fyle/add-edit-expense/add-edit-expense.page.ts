@@ -65,7 +65,6 @@ import { Currency } from 'src/app/core/models/currency.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -2893,7 +2892,7 @@ export class AddEditExpensePage implements OnInit {
 
   getCCCpaymentMode(): void {
     this.isCCCPaymentModeSelected$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      map((paymentMode: ExtendedAccount) => paymentMode?.acc?.type === AccountType.CCC)
+      map((paymentMode: PlatformAccount) => paymentMode?.type === AccountType.CCC)
     );
   }
 

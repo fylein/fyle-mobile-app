@@ -48,7 +48,6 @@ import {
 } from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { ExtendedAccount } from '../models/extended-account.model';
 import { cloneDeep } from 'lodash';
 import { TranslocoService } from '@jsverse/transloco';
 
