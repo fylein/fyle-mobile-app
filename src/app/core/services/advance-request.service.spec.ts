@@ -483,8 +483,9 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('pullBackAdvanceRequest(): should pull back an advance requests', (done) => {
-    apiService.post.and.returnValue(of(pullBackAdvancedRequests));
+  it('pullBackAdvanceRequest(): should pull back an advance request using platform API', (done) => {
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    spenderService.post.and.returnValue(of(mockPlatformResponse));
 
     const payloadParam = {
       status: {
@@ -496,8 +497,14 @@ describe('AdvanceRequestService', () => {
     const advanceID = 'areqMP09oaYXBf';
 
     advanceRequestService.pullBackAdvanceRequest(advanceID, payloadParam).subscribe((res) => {
-      expect(res).toEqual(pullBackAdvancedRequests);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advanceID}/pull_back`, payloadParam);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/pull_back', {
+        data: {
+          id: advanceID,
+          comment: 'sdf',
+          notify: false,
+        },
+      });
       done();
     });
   });
