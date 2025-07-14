@@ -29,7 +29,7 @@ import { environment } from 'src/environments/environment';
 import { TranslocoHttpLoader } from './transloco-http-loader';
 
 export class MyHammerConfig extends HammerGestureConfig {
-  overrides = {
+  override overrides = {
     pinch: { enable: false },
     rotate: { enable: false },
   };

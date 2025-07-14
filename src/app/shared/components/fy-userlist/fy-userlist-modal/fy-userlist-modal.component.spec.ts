@@ -21,7 +21,7 @@ import {
   filteredDataRes,
   searchedUserListRes,
 } from 'src/app/core/mock-data/employee.data';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { By } from '@angular/platform-browser';

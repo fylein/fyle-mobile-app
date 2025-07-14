@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { UntypedFormBuilder, FormsModule } from '@angular/forms';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule } from '@ionic/angular';

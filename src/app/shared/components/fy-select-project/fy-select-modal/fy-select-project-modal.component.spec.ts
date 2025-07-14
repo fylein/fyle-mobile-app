@@ -12,9 +12,9 @@ import { FyProjectSelectModalComponent } from './fy-select-project-modal.compone
 import { ChangeDetectorRef } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { map, of } from 'rxjs';
 import { orgSettingsData, orgSettingsDataWithoutAdvPro } from 'src/app/core/test-data/accounts.service.spec.data';

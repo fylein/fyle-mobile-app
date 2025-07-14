@@ -14,7 +14,7 @@ import {
   MatLegacySnackBar as MatSnackBar,
   MatLegacySnackBarRef as MatSnackBarRef,
 } from '@angular/material/legacy-snack-bar';
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';

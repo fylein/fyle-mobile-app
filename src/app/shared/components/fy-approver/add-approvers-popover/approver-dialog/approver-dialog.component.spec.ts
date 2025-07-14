@@ -14,7 +14,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
 

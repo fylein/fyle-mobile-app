@@ -5,12 +5,12 @@ import { FyMultiselectModalComponent } from './fy-multiselect-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatLegacyChipInputEvent as MatChipInputEvent,
   MatLegacyChipsModule as MatChipsModule,
 } from '@angular/material/legacy-chips';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';

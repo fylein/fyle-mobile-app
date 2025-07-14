@@ -7,20 +7,27 @@
     "declaration": false,
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "lib": [
-      "es2018",
+      "ES2022",
       "dom"
     ],
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
   },
   "angularCompilerOptions": {
-    "fullTemplateTypeCheck": true,
-    "strictInjectionParameters": true
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
   },
 }
