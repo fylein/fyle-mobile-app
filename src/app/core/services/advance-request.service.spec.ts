@@ -509,19 +509,22 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('addApprover(): should add approver to an advance request', (done) => {
-    apiService.post.and.returnValue(of(pullBackAdvancedRequests));
+  it('addApprover(): should add approver to an advance request using platform API', (done) => {
+    const mockPlatformResponse = { data: pullBackAdvancedRequests };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
     const advanceID = 'areqMP09oaYXBf';
 
-    const data = {
-      advance_request_id: advanceID,
-      approver_email: 'ajain@fyle.in',
-      comment: 'a comment',
+    const payload = {
+      data: {
+        id: advanceID,
+        approver_email: 'ajain@fyle.in',
+        comment: 'a comment',
+      },
     };
 
-    advanceRequestService.addApprover(advanceID, data.approver_email, data.comment).subscribe((res) => {
+    advanceRequestService.addApprover(advanceID, payload.data.approver_email, payload.data.comment).subscribe((res) => {
       expect(res).toEqual(pullBackAdvancedRequests);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/add_approver', data);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/add_approver', payload);
       done();
     });
   });

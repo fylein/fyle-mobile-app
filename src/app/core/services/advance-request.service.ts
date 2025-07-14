@@ -167,13 +167,16 @@ export class AdvanceRequestService {
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
   addApprover(advanceRequestId: string, approverEmail: string, comment: string): Observable<AdvanceRequests> {
-    const data = {
-      advance_request_id: advanceRequestId,
-      approver_email: approverEmail,
-      comment,
+    const payload = {
+      data: {
+        id: advanceRequestId,
+        approver_email: approverEmail,
+        comment,
+      },
     };
-
-    return this.apiService.post('/advance_requests/add_approver', data);
+    return this.approverService
+      .post<PlatformApiResponse<AdvanceRequests>>('/advance_requests/add_approver', payload)
+      .pipe(map((response) => response.data));
   }
 
   @CacheBuster({
