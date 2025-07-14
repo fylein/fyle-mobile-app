@@ -2,16 +2,14 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent } from 'rxjs';
 import { concatMap, distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { Delegator } from 'src/app/core/models/platform/delegator.model';
-import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { EouApiResponse } from 'src/app/core/models/eou-api-response.model';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -34,8 +32,13 @@ export class DelegatedAccountsPage {
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private navController: NavController
   ) {}
+
+  goBack(): void {
+    this.navController.back();
+  }
 
   switchToDelegatee(delegator: Delegator): void {
     from(this.loaderService.showLoader('Switching Account'))

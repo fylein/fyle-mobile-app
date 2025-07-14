@@ -299,15 +299,15 @@
                         <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                           <div>
                             <div class="add-edit-mileage--payment-mode-header">{{label}}</div>
-                            <ng-container *ngIf="paymentMode?.acc">
+                            <ng-container *ngIf="paymentMode">
                               <div
-                                *ngIf="paymentMode.acc.isReimbursable"
+                                *ngIf="paymentMode.isReimbursable"
                                 class="add-edit-mileage--payment-mode-section"
                               >
                                 (Reimbursable)
                               </div>
                               <div
-                                *ngIf="!paymentMode.acc.isReimbursable"
+                                *ngIf="!paymentMode.isReimbursable"
                                 class="add-edit-mileage--payment-mode-section"
                               >
                                 (Non reimbursable)
