@@ -36,6 +36,11 @@ import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import SwiperCore, { Pagination, Autoplay } from 'swiper';
+import { PaginationOptions } from 'swiper/types';
+
+// install Swiper modules
+SwiperCore.use([Pagination, Autoplay]);
 
 @Component({
   selector: 'app-dashboard',
@@ -75,6 +80,8 @@ export class DashboardPage {
 
   canShowOptInBanner$: Observable<boolean>;
 
+  canShowEmailOptInBanner$: Observable<boolean>;
+
   eou$: Observable<ExtendedOrgUser>;
 
   isUserFromINCluster$: Observable<boolean>;
@@ -93,6 +100,13 @@ export class DashboardPage {
   walkthroughOverlayStartIndex = 0;
 
   userName = '';
+
+  optInBannerPagination: PaginationOptions = {
+    dynamicBullets: true,
+    renderBullet(index, className): string {
+      return '<span class="opt-in-banners ' + className + '"> </span>';
+    },
+  };
 
   constructor(
     private currencyService: CurrencyService,
@@ -306,6 +320,29 @@ export class DashboardPage {
     );
   }
 
+  setShowEmailOptInBanner(): void {
+    const optInBannerConfig = {
+      feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+      key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+    };
+
+    const isBannerShown$ = this.featureConfigService
+      .getConfiguration(optInBannerConfig)
+      .pipe(map((config) => config?.value));
+
+    this.canShowEmailOptInBanner$ = forkJoin({
+      isBannerShown: isBannerShown$,
+    }).pipe(
+      map(({ isBannerShown }) => {
+        if (isBannerShown) {
+          return false;
+        }
+
+        return true;
+      })
+    );
+  }
+
   async openSMSOptInDialog(extendedOrgUser: ExtendedOrgUser): Promise<void> {
     const optInModal = await this.modalController.create({
       component: FyOptInComponent,
@@ -372,6 +409,7 @@ export class DashboardPage {
     }
 
     this.setShowOptInBanner();
+    this.setShowEmailOptInBanner();
 
     if (openSMSOptInDialog === 'true') {
       this.eou$
@@ -649,6 +687,24 @@ export class DashboardPage {
       this.tasksComponent.doRefresh();
     } else {
       this.trackingService.skipOptInFromDashboardBanner();
+    }
+  }
+
+  toggleEmailOptInBanner(data: { optedIn: boolean }): void {
+    this.canShowEmailOptInBanner$ = of(false);
+
+    const optInBannerConfig = {
+      feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+      key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+      value: true,
+    };
+
+    this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
+
+    if (data.optedIn) {
+      this.trackingService.optedInFromDashboardEmailOptInBanner();
+    } else {
+      this.trackingService.skipOptInFromDashboardEmailOptInBanner();
     }
   }
 
