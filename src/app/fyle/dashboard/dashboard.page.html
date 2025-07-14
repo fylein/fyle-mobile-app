@@ -72,7 +72,7 @@
                   <app-dashboard-opt-in [extendedOrgUser]="eou" (toggleOptInBanner)="toggleOptInBanner($event)">
                   </app-dashboard-opt-in>
                 </ng-template>
-                <ng-template swiperSlide>
+                <ng-template *ngIf="canShowEmailOptInBanner$ | async" swiperSlide>
                   <app-dashboard-email-opt-in (toggleEmailOptInBanner)="toggleEmailOptInBanner($event)">
                   </app-dashboard-email-opt-in>
                 </ng-template>
