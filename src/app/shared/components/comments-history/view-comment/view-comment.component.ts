@@ -231,9 +231,13 @@ export class ViewCommentComponent implements OnInit {
         return comments$.pipe(
           map((res) =>
             res.map((status) => {
-              status.isBotComment = ['SYSTEM', 'POLICY'].includes(status?.st_org_user_id);
-              status.isSelfComment = userId === status?.st_org_user_id;
-              status.isOthersComment = userId !== status?.st_org_user_id;
+              // For advance requests, the flags are already correctly set by the service
+              // Only override them for non-advance-request objects
+              if (this.objectType !== 'advance_requests') {
+                status.isBotComment = ['SYSTEM', 'POLICY'].includes(status?.st_org_user_id);
+                status.isSelfComment = userId === status?.st_org_user_id;
+                status.isOthersComment = userId !== status?.st_org_user_id;
+              }
               return status;
             })
           ),
@@ -248,7 +252,7 @@ export class ViewCommentComponent implements OnInit {
     );
 
     this.estatuses$.subscribe((estatuses) => {
-      this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
+      this.systemComments = estatuses.filter((status) => status.isBotComment);
 
       this.type =
         this.objectType.toLowerCase() === 'transactions'
@@ -275,7 +279,7 @@ export class ViewCommentComponent implements OnInit {
     });
 
     this.totalCommentsCount$ = this.estatuses$.pipe(
-      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
+      map((res) => res.filter((estatus) => !estatus.isBotComment).length)
     );
   }
 
