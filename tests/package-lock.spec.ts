@@ -66,14 +66,19 @@ describe('package-lock.json structure and integrity', () => {
   it('should not have duplicate package entries', () => {
     const seen = new Set();
     for (const pkgName in lockFile.packages) {
-      expect(seen.has(pkgName)).toBeFalse();
-      seen.add(pkgName);
+      if (Object.prototype.hasOwnProperty.call(lockFile.packages, pkgName)) {
+        expect(seen.has(pkgName)).toBeFalse();
+        seen.add(pkgName);
+      }
     }
   });
 
   it('should have valid integrity and resolved fields for node_modules packages', () => {
     for (const pkgName in lockFile.packages) {
-      if (pkgName.startsWith('node_modules/')) {
+      if (
+        Object.prototype.hasOwnProperty.call(lockFile.packages, pkgName) &&
+        pkgName.startsWith('node_modules/')
+      ) {
         const pkg = lockFile.packages[pkgName];
         expect(pkg.version).toBeDefined();
         expect(pkg.resolved).toMatch(/^https?:\/\//);
@@ -91,34 +96,42 @@ describe('package-lock.json structure and integrity', () => {
 
   it('should not have any empty dependency objects', () => {
     for (const pkgName in lockFile.packages) {
-      const pkg = lockFile.packages[pkgName];
-      if (pkg.dependencies) {
-        expect(Object.keys(pkg.dependencies).length).toBeGreaterThan(0);
+      if (Object.prototype.hasOwnProperty.call(lockFile.packages, pkgName)) {
+        const pkg = lockFile.packages[pkgName];
+        if (pkg.dependencies) {
+          expect(Object.keys(pkg.dependencies).length).toBeGreaterThan(0);
+        }
       }
     }
   });
 
   it('should have all required fields for each package entry', () => {
     for (const pkgName in lockFile.packages) {
-      const pkg = lockFile.packages[pkgName];
-      expect(pkg.version).toBeDefined();
-      // dev field is optional, but if present should be boolean
-      if ('dev' in pkg) {
-        expect(typeof pkg.dev).toBe('boolean');
-      }
-      // license field is optional, but if present should be string
-      if ('license' in pkg) {
-        expect(typeof pkg.license).toBe('string');
+      if (Object.prototype.hasOwnProperty.call(lockFile.packages, pkgName)) {
+        const pkg = lockFile.packages[pkgName];
+        expect(pkg.version).toBeDefined();
+        // dev field is optional, but if present should be boolean
+        if ('dev' in pkg) {
+          expect(typeof pkg.dev).toBe('boolean');
+        }
+        // license field is optional, but if present should be string
+        if ('license' in pkg) {
+          expect(typeof pkg.license).toBe('string');
+        }
       }
     }
   });
 
   it('should not have any dependencies with empty version strings', () => {
     for (const pkgName in lockFile.packages) {
-      const pkg = lockFile.packages[pkgName];
-      if (pkg.dependencies) {
-        for (const dep in pkg.dependencies) {
-          expect(pkg.dependencies[dep]).not.toEqual('');
+      if (Object.prototype.hasOwnProperty.call(lockFile.packages, pkgName)) {
+        const pkg = lockFile.packages[pkgName];
+        if (pkg.dependencies) {
+          for (const dep in pkg.dependencies) {
+            if (Object.prototype.hasOwnProperty.call(pkg.dependencies, dep)) {
+              expect(pkg.dependencies[dep]).not.toEqual('');
+            }
+          }
         }
       }
     }
@@ -132,11 +145,13 @@ describe('package-lock.json structure and integrity', () => {
   it('should have consistent versions for critical dependencies', () => {
     // Example: All rxjs versions should match the root version
     const root = lockFile.packages[''];
-    const rxjsVersion = root.dependencies['rxjs'];
+    const rxjsVersion = root.dependencies.rxjs;
     for (const pkgName in lockFile.packages) {
-      const pkg = lockFile.packages[pkgName];
-      if (pkg.dependencies && pkg.dependencies['rxjs']) {
-        expect(pkg.dependencies['rxjs']).toBe(rxjsVersion);
+      if (Object.prototype.hasOwnProperty.call(lockFile.packages, pkgName)) {
+        const pkg = lockFile.packages[pkgName];
+        if (pkg.dependencies && pkg.dependencies.rxjs) {
+          expect(pkg.dependencies.rxjs).toBe(rxjsVersion);
+        }
       }
     }
   });
