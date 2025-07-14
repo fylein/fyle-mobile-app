@@ -4,9 +4,9 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import {
-  MatLegacyChipInputEvent as MatChipInputEvent,
-  MatLegacyChipsModule as MatChipsModule,
-} from '@angular/material/legacy-chips';
+  MatChipInputEvent,
+  MatChipsModule,
+} from '@angular/material/chips';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { ModalController } from '@ionic/angular';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';

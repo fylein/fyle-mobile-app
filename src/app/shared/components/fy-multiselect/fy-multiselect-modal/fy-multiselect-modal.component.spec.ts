@@ -7,9 +7,9 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
-  MatLegacyChipInputEvent as MatChipInputEvent,
-  MatLegacyChipsModule as MatChipsModule,
-} from '@angular/material/legacy-chips';
+  MatChipInputEvent,
+  MatChipsModule,
+} from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';

@@ -8,9 +8,9 @@ import { ApproverDialogComponent } from './approver-dialog.component';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import {
-  MatLegacyChipInputEvent as MatChipInputEvent,
-  MatLegacyChipsModule as MatChipsModule,
-} from '@angular/material/legacy-chips';
+  MatChipInputEvent,
+  MatChipsModule,
+} from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';

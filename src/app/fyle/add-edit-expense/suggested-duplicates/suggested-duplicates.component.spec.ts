@@ -11,9 +11,9 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Router } from '@angular/router';
 import {
-  MatLegacySnackBar as MatSnackBar,
-  MatLegacySnackBarRef as MatSnackBarRef,
-} from '@angular/material/legacy-snack-bar';
+  MatSnackBar,
+  MatSnackBarRef,
+} from '@angular/material/snack-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';

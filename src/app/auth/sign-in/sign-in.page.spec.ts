@@ -21,9 +21,9 @@ import { ErrorComponent } from './error/error.component';
 import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/core/mock-data/auth-response.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import {
-  MatLegacyButton as MatButton,
-  MatLegacyButtonModule as MatButtonModule,
-} from '@angular/material/legacy-button';
+  MatButton,
+  MatButtonModule,
+} from '@angular/material/button';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';

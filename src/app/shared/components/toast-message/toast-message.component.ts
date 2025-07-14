@@ -1,8 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import {
-  MatLegacySnackBarRef as MatSnackBarRef,
+  MatSnackBarRef,
   MAT_LEGACY_SNACK_BAR_DATA as MAT_SNACK_BAR_DATA,
-} from '@angular/material/legacy-snack-bar';
+} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-toast-message',
