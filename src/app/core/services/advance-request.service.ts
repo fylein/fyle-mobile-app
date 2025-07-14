@@ -503,7 +503,7 @@ export class AdvanceRequestService {
         } else {
           return of(null).pipe(
             map(() => ({
-              files: res.files,
+              files: [],
               advanceReq: res.advanceReq,
             }))
           );
@@ -537,7 +537,7 @@ export class AdvanceRequestService {
         } else {
           return of(null).pipe(
             map(() => ({
-              files: res.files,
+              files: [],
               advanceReq: res.advanceReq,
             }))
           );

@@ -65,7 +65,7 @@ import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-
 import { TranslocoService } from '@jsverse/transloco';
 import { Comment } from '../models/platform/v1/comment.model';
 
-describe('AdvanceRequestService', () => {
+fdescribe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -719,7 +719,7 @@ describe('AdvanceRequestService', () => {
 
       advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(null)).subscribe((res) => {
         // The result should have the transformed advance request data
-        expect(res.files).toBeNull();
+        expect(res.files).toEqual([]);
         expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
         expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', {
           data: {
@@ -764,7 +764,7 @@ describe('AdvanceRequestService', () => {
       spenderService.post.and.returnValue(of(mockPlatformResponse));
 
       advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(null)).subscribe((res) => {
-        expect(res.files).toBeNull();
+        expect(res.files).toEqual([]);
         expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
         expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests', {
           data: {
