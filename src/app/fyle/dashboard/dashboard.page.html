@@ -66,9 +66,9 @@
                   disableOnInteraction: false,
                   pauseOnMouseEnter: false
                 } : false"
-                [loop]="(canShowOptInBanner$ | async) && (canShowEmailOptInBanner$ | async)"
+                [loop]="((canShowOptInBanner$ | async) && (canShowEmailOptInBanner$ | async)) ? true : false"
               >
-                <ng-template *ngIf="canShowOptInBanner$ | async" swiperSlide>
+                <ng-template *ngIf="(canShowOptInBanner$ | async)" swiperSlide>
                   <app-dashboard-opt-in [extendedOrgUser]="eou" (toggleOptInBanner)="toggleOptInBanner($event)">
                   </app-dashboard-opt-in>
                 </ng-template>
