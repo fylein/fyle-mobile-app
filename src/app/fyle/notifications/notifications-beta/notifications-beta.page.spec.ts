@@ -346,6 +346,8 @@ describe('NotificationsBetaPage', () => {
           unsubscribedEventsByUser: component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
         },
         ...properties,
+        initialBreakpoint: 0.5,
+        breakpoints: [0, 0.5, 1],
       });
       expect(notificationModalSpy.present).toHaveBeenCalledTimes(1);
       expect(notificationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
@@ -372,6 +374,8 @@ describe('NotificationsBetaPage', () => {
           unsubscribedEventsByUser: component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
         },
         ...properties,
+        initialBreakpoint: 0.5,
+        breakpoints: [0, 0.5, 1],
       });
       expect(notificationModalSpy.present).toHaveBeenCalledTimes(1);
       expect(notificationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
