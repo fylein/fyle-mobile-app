@@ -5,6 +5,36 @@
     box-shadow: 0 0 8px $black-shadow;
   }
 
+  &--zero-state-container {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    padding: 0 24px;
+    box-sizing: border-box;
+  }
+
+  &--zero-state-img {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 32px;
+    margin-top: 0;
+    display: block;
+  }
+
+  &--zero-state-subheading {
+    color: $blue-black;
+    font-size: 16px;
+    line-height: 1.5;
+    max-width: 320px;
+    margin: 0 auto;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
   &--toolbar-title {
     color: $black;
     font-size: 20px;
