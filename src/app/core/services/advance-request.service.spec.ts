@@ -379,25 +379,56 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('submit(): should submit an advance request', (done) => {
-    apiService.post.and.returnValue(of(advanceRequests));
+  it('submit(): should submit an advance request using platform API', (done) => {
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    spenderService.post.and.returnValue(of(mockPlatformResponse));
 
-    advanceRequestService.submit(advanceRequests).subscribe((res) => {
-      expect(res).toEqual(advanceRequests);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', advanceRequests);
+    advanceRequestService.submit(advanceRequests, false).subscribe((res) => {
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', {
+        data: {
+          ...advanceRequests,
+          custom_fields: advanceRequests.custom_field_values.map((field) => ({
+            ...field,
+            type: (field as any).type || 'TEXT',
+          })),
+        },
+      });
+      done();
+    });
+  });
+
+  it('submit(): should submit an advance request using platform API for approver', (done) => {
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
+
+    advanceRequestService.submit(advanceRequests, true).subscribe((res) => {
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', {
+        data: {
+          ...advanceRequests,
+          custom_fields: advanceRequests.custom_field_values.map((field) => ({
+            ...field,
+            type: (field as any).type || 'TEXT',
+          })),
+        },
+      });
       done();
     });
   });
 
   it('post(): should save a draft advance request', (done) => {
-    spenderService.post.and.returnValue(of({ data: draftAdvancedRequestRes }));
+    spenderService.post.and.returnValue(of({ data: advanceRequestPlatform.data[0] }));
 
     advanceRequestService.post(draftAdvancedRequestParam).subscribe((res) => {
-      expect(res).toEqual(draftAdvancedRequestRes);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
       expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests', {
         data: {
           ...draftAdvancedRequestParam,
-          custom_fields: draftAdvancedRequestParam.custom_field_values,
+          custom_fields: draftAdvancedRequestParam.custom_field_values.map((field) => ({
+            ...field,
+            type: (field as any).type || 'TEXT',
+          })),
         },
       });
       done();
@@ -653,23 +684,45 @@ describe('AdvanceRequestService', () => {
   describe('createAdvReqWithFilesAndSubmit():', () => {
     it('should create advanced request and submit it with the file', (done) => {
       fileService.post.and.returnValue(of(fileObjectData3));
-      spyOn(advanceRequestService, 'submit').and.returnValue(of(advanceRequests));
+      const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+      spenderService.post.and.returnValue(of(mockPlatformResponse));
 
       const mockFileObject = cloneDeep(fileData1);
       advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(mockFileObject)).subscribe((res) => {
-        expect(res).toEqual(advRequestFile);
-        expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advanceRequests);
+        // The result should have the transformed advance request data
+        expect(res.files[0].advance_request_id).toBe(advanceRequestPlatform.data[0].id);
+        expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', {
+          data: {
+            ...advanceRequests,
+            custom_fields: advanceRequests.custom_field_values.map((field) => ({
+              ...field,
+              type: field.type || 'TEXT',
+            })),
+          },
+        });
         expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
 
     it('should create advanced request and submit it without the file', (done) => {
-      spyOn(advanceRequestService, 'submit').and.returnValue(of(advanceRequests));
+      const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+      spenderService.post.and.returnValue(of(mockPlatformResponse));
 
       advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(null)).subscribe((res) => {
-        expect(res).toEqual({ ...advRequestFile, files: null });
-        expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advanceRequests);
+        // The result should have the transformed advance request data
+        expect(res.files).toBeNull();
+        expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', {
+          data: {
+            ...advanceRequests,
+            custom_fields: advanceRequests.custom_field_values.map((field) => ({
+              ...field,
+              type: field.type || 'TEXT',
+            })),
+          },
+        });
         done();
       });
     });
@@ -678,23 +731,43 @@ describe('AdvanceRequestService', () => {
   describe('saveDraftAdvReqWithFiles():', () => {
     it('should save draft advance request along with the file', (done) => {
       fileService.post.and.returnValue(of(fileObjectData4));
-      spyOn(advanceRequestService, 'post').and.returnValue(of(advancedRequests2));
+      const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+      spenderService.post.and.returnValue(of(mockPlatformResponse));
 
       const mockFileObject = cloneDeep(fileData2);
       advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(mockFileObject)).subscribe((res) => {
-        expect(res).toEqual(advRequestFile2);
-        expect(advanceRequestService.post).toHaveBeenCalledOnceWith(advancedRequests2);
+        expect(res.files[0].advance_request_id).toBe(advanceRequestPlatform.data[0].id);
+        expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests', {
+          data: {
+            ...advancedRequests2,
+            custom_fields: advancedRequests2.custom_field_values.map((field) => ({
+              ...field,
+              type: field.type || 'TEXT',
+            })),
+          },
+        });
         expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
 
     it('should save draft advance request without the file', (done) => {
-      spyOn(advanceRequestService, 'post').and.returnValue(of(advancedRequests2));
+      const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+      spenderService.post.and.returnValue(of(mockPlatformResponse));
 
       advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(null)).subscribe((res) => {
-        expect(res).toEqual({ ...advRequestFile2, files: null });
-        expect(advanceRequestService.post).toHaveBeenCalledOnceWith(advancedRequests2);
+        expect(res.files).toBeNull();
+        expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests', {
+          data: {
+            ...advancedRequests2,
+            custom_fields: advancedRequests2.custom_field_values.map((field) => ({
+              ...field,
+              type: field.type || 'TEXT',
+            })),
+          },
+        });
         done();
       });
     });

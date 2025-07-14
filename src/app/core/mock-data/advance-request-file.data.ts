@@ -1,6 +1,7 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { AdvanceRequestFile } from '../models/advance-request-file.model';
+import { advanceRequestPlatform } from './platform/v1/advance-request-platform.data';
 
 export const advRequestFile: AdvanceRequestFile = deepFreeze({
   files: [
@@ -20,80 +21,7 @@ export const advRequestFile: AdvanceRequestFile = deepFreeze({
       fyle_sub_url: '/api/files/fi1w2IE6JeqS/download',
     },
   ],
-  advanceReq: {
-    id: 'areqMP09oaYXBf',
-    created_at: new Date('2023-02-23T16:24:01.335Z'),
-    approved_at: null,
-    purpose: 'some',
-    notes: null,
-    state: 'DRAFT',
-    currency: 'USD',
-    amount: 150,
-    org_user_id: 'ouX8dwsbLCLv',
-    advance_id: null,
-    policy_amount: null,
-    policy_flag: null,
-    policy_state: 'SUCCESS',
-    project_id: null,
-    custom_field_values: [
-      {
-        id: 111,
-        name: 'Test Number',
-        value: 1,
-      },
-      {
-        id: 112,
-        name: 'Test Select',
-        value: null,
-      },
-      {
-        id: 113,
-        name: 'test bool',
-        value: false,
-      },
-      {
-        id: 114,
-        name: 'test multi',
-        value: null,
-      },
-      {
-        id: 115,
-        name: 'test date',
-        value: null,
-      },
-      {
-        id: 134,
-        name: 'Project Name',
-        value: null,
-      },
-      {
-        id: 136,
-        name: '231',
-        value: false,
-      },
-      {
-        id: 150,
-        name: 'checking',
-        value: false,
-      },
-      {
-        id: 151,
-        name: '123',
-        value: null,
-      },
-      {
-        id: 152,
-        name: 'Okay?',
-        value: false,
-      },
-    ],
-    updated_at: new Date('2023-02-23T11:46:17.569Z'),
-    source: 'MOBILE',
-    advance_request_number: 'AR/2023/02/R/3',
-    updated_by: null,
-    is_sent_back: false,
-    is_pulled_back: true,
-  },
+  advanceReq: advanceRequestPlatform.data[0],
 });
 
 export const advRequestFile2: AdvanceRequestFile = deepFreeze({
@@ -114,78 +42,5 @@ export const advRequestFile2: AdvanceRequestFile = deepFreeze({
       fyle_sub_url: '/api/files/fiK7c69UDJNb/download',
     },
   ],
-  advanceReq: {
-    id: 'areq99bN9mZgu1',
-    created_at: new Date('2023-02-23T16:24:01.335Z'),
-    approved_at: null,
-    purpose: 'some',
-    notes: null,
-    state: 'DRAFT',
-    currency: 'USD',
-    amount: 150,
-    org_user_id: 'ouX8dwsbLCLv',
-    advance_id: null,
-    policy_amount: null,
-    policy_flag: null,
-    policy_state: 'SUCCESS',
-    project_id: null,
-    custom_field_values: [
-      {
-        id: 111,
-        name: 'Test Number',
-        value: 1,
-      },
-      {
-        id: 112,
-        name: 'Test Select',
-        value: null,
-      },
-      {
-        id: 113,
-        name: 'test bool',
-        value: false,
-      },
-      {
-        id: 114,
-        name: 'test multi',
-        value: null,
-      },
-      {
-        id: 115,
-        name: 'test date',
-        value: null,
-      },
-      {
-        id: 134,
-        name: 'Project Name',
-        value: null,
-      },
-      {
-        id: 136,
-        name: '231',
-        value: false,
-      },
-      {
-        id: 150,
-        name: 'checking',
-        value: false,
-      },
-      {
-        id: 151,
-        name: '123',
-        value: null,
-      },
-      {
-        id: 152,
-        name: 'Okay?',
-        value: false,
-      },
-    ],
-    updated_at: new Date('2023-02-23T11:46:17.569Z'),
-    source: 'MOBILE',
-    advance_request_number: 'AR/2023/02/R/3',
-    updated_by: null,
-    is_sent_back: false,
-    is_pulled_back: true,
-  },
+  advanceReq: advanceRequestPlatform.data[0],
 });
