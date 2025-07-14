@@ -45,6 +45,8 @@ export class NotificationsBetaPage implements OnInit {
 
   orgSettings: OrgSettings;
 
+  isNotificationsDisabled = true;
+
   private router = inject(Router);
 
   private notificationsBetaPageService = inject(NotificationsBetaPageService);
@@ -83,6 +85,11 @@ export class NotificationsBetaPage implements OnInit {
     this.expenseNotificationsConfig = emailNotificationsConfig.expenseNotificationsConfig;
     this.expenseReportNotificationsConfig = emailNotificationsConfig.expenseReportNotificationsConfig;
     this.advanceNotificationsConfig = emailNotificationsConfig.advanceNotificationsConfig;
+
+    this.isNotificationsDisabled =
+      this.expenseNotificationsConfig.notifications.length === 0 &&
+      this.expenseReportNotificationsConfig.notifications.length === 0 &&
+      this.advanceNotificationsConfig.notifications.length === 0;
   }
 
   getOrgSettings(): Observable<{ orgSettings: OrgSettings; employeeSettings: EmployeeSettings }> {
@@ -127,7 +134,9 @@ export class NotificationsBetaPage implements OnInit {
         employeeSettings: this.employeeSettings,
         unsubscribedEventsByUser,
       },
-      ...this.modalPropertiesService.getModalDefaultProperties('email-notifications-modal'),
+      ...this.modalPropertiesService.getModalDefaultProperties(),
+      initialBreakpoint: 0.5,
+      breakpoints: [0, 0.5, 1],
     });
 
     await emailNotificationsModal.present();

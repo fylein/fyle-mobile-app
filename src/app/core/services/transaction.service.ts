@@ -10,7 +10,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { Expense } from '../models/expense.model';
 import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
-import { UndoMerge } from '../models/undo-merge.model';
+
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { PAGINATION_SIZE } from 'src/app/constants';
@@ -39,6 +39,7 @@ import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { FilterState } from '../enums/filter-state.enum';
 import { PaymentMode } from '../models/payment-mode.model';
 import { TrackingService } from './tracking.service';
+import { UnlinkCardTransactionResponse } from '../models/platform/unlink-card-transaction-response.model';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
@@ -387,11 +388,13 @@ export class TransactionService {
     return dialogBody;
   }
 
-  removeCorporateCardExpense(txnId: string): Observable<UndoMerge> {
-    const data: Object = {
-      txn_id: txnId,
+  removeCorporateCardExpense(txnId: string): Observable<UnlinkCardTransactionResponse> {
+    const payload = {
+      data: {
+        id: txnId,
+      },
     };
-    return this.apiService.post('/transactions/unlink_card_expense', data);
+    return this.spenderPlatformV1ApiService.post('/expenses/unlink_card_transaction', payload);
   }
 
   isMergeAllowed(expenses: Partial<Expense>[]): boolean {

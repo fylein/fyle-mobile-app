@@ -10,7 +10,7 @@
     "main.ts",
     "eslint-custom-rules/**/*"
   ],
-  "plugins": ["max-params-no-constructor", "custom-rules"],
+  "plugins": ["max-params-no-constructor", "custom-rules", "@fyle"],
   "overrides": [
     {
       "files": ["*.ts"],
@@ -88,14 +88,18 @@
         "no-console": ["error", { "allow": [""] }],
         "custom-rules/one-interface-per-file": "error",
         "custom-rules/one-enum-per-file": "error",
-        "custom-rules/prefer-semantic-extension-name": "error"
+        "custom-rules/prefer-semantic-extension-name": "error",
+        "@fyle/i18n-key-naming-convention": "error",
+        "@fyle/no-hardcoded-strings": "warn"
       }
     },
     {
       "files": ["*.html"],
       "extends": ["plugin:@angular-eslint/template/recommended"],
       "rules": {
-        "@angular-eslint/template/no-negated-async": "off"
+        "@angular-eslint/template/no-negated-async": "off",
+        "@fyle/i18n-key-naming-convention": "error",
+        "@fyle/no-hardcoded-strings": "warn"
       }
     },
     {

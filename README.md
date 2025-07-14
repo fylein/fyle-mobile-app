@@ -22,7 +22,7 @@ This repository holds the codebase for the Fyle Mobile App. This document provid
 
 ## 🔧 Prerequisites
 
-- Node.js: Install Node.js (v14.17.2 or higher) using [nvm](https://github.com/nvm-sh/nvm).
+- Node.js: Install Node.js (v22.17.0) using [nvm](https://github.com/nvm-sh/nvm).
 
 - Ionic CLI: Follow the instructions [here](https://ionicframework.com/docs/cli) and Install Ionic globally with `npm` by running:
 

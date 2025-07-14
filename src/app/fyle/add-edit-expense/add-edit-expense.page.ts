@@ -83,7 +83,7 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
-import { UndoMerge } from 'src/app/core/models/undo-merge.model';
+
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
@@ -154,6 +154,7 @@ import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/c
 import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
+import { UnlinkCardTransactionResponse } from 'src/app/core/models/platform/unlink-card-transaction-response.model';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -852,7 +853,7 @@ export class AddEditExpensePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<UndoMerge>;
+      deleteMethod: () => Observable<UnlinkCardTransactionResponse>;
     };
   } {
     return {
@@ -864,7 +865,7 @@ export class AddEditExpensePage implements OnInit {
         body,
         ctaText,
         ctaLoadingText,
-        deleteMethod: (): Observable<UndoMerge> =>
+        deleteMethod: (): Observable<UnlinkCardTransactionResponse> =>
           this.transactionService.removeCorporateCardExpense(this.activatedRoute.snapshot.params.id as string),
       },
     };
