@@ -308,7 +308,7 @@ describe('ViewCommentComponent', () => {
   });
 
   describe('onInit():', () => {
-    it('should set estatuses$ and totalCommentsCount$ properties correctly', fakeAsync(() => {
+    it('should set estatuses$ and totalCommentsCount$ properties correctly for expenses', fakeAsync(() => {
       const updatedApiCommentsResponse = apiCommentsResponse.map((comment) => ({
         ...comment,
         us_full_name: 'Dummy Name',
@@ -320,7 +320,8 @@ describe('ViewCommentComponent', () => {
         scrollToBottom: jasmine.createSpy('scrollToBottom'),
       } as any;
 
-      const totalCommentsCount = 33;
+      // Calculate expected count: total comments minus bot comments
+      const totalCommentsCount = updatedApiCommentsResponse.filter((comment) => !comment.isBotComment).length;
       authService.getEou.and.resolveTo(apiEouRes);
       approverExpenseCommentService.getTransformedComments.and.returnValue(of(updatedApiCommentsResponse));
       statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
@@ -342,6 +343,71 @@ describe('ViewCommentComponent', () => {
       expect(statusService.createStatusMap).toHaveBeenCalledWith(component.systemComments, component.type);
     }));
 
+    it('should not override flags for advance requests', fakeAsync(() => {
+      const advanceRequestComments = [
+        {
+          st_id: 'st1',
+          st_created_at: new Date('2022-10-28T05:54:01.537Z'),
+          st_org_user_id: 'us123',
+          st_comment: 'User comment',
+          st_diff: null,
+          st_state: null,
+          st_transaction_id: null,
+          st_report_id: null,
+          st_advance_request_id: 'areq123',
+          us_full_name: 'John Doe',
+          us_email: 'john@example.com',
+          isBotComment: false,
+          isSelfComment: true,
+          isOthersComment: false,
+        },
+        {
+          st_id: 'st2',
+          st_created_at: new Date('2022-10-28T05:54:42.948Z'),
+          st_org_user_id: null,
+          st_comment: 'System comment',
+          st_diff: null,
+          st_state: null,
+          st_transaction_id: null,
+          st_report_id: null,
+          st_advance_request_id: 'areq123',
+          us_full_name: null,
+          us_email: null,
+          isBotComment: true,
+          isSelfComment: false,
+          isOthersComment: false,
+        },
+      ];
+
+      // Mock the content element
+      component.content = {
+        scrollToBottom: jasmine.createSpy('scrollToBottom'),
+      } as any;
+
+      component.objectType = 'advance_requests';
+      component.objectId = 'areq123';
+      authService.getEou.and.resolveTo(apiEouRes);
+      advanceRequestService.getCommentsByAdvanceRequestIdPlatform.and.returnValue(of(advanceRequestComments));
+      statusService.createStatusMap.and.returnValue([]);
+
+      component.ngOnInit();
+      tick(500);
+
+      component.estatuses$.subscribe((res) => {
+        // Flags should remain as set by the service, not overridden
+        expect(res[0].isBotComment).toBeFalse();
+        expect(res[0].isSelfComment).toBeTrue();
+        expect(res[0].isOthersComment).toBeFalse();
+        expect(res[1].isBotComment).toBeTrue();
+        expect(res[1].isSelfComment).toBeFalse();
+        expect(res[1].isOthersComment).toBeFalse();
+      });
+
+      tick(500);
+      expect(authService.getEou).toHaveBeenCalled();
+      expect(advanceRequestService.getCommentsByAdvanceRequestIdPlatform).toHaveBeenCalledWith(component.objectId);
+    }));
+
     it('should set type correctly for a given objectType', fakeAsync(() => {
       // Mock the content element
       component.content = {
@@ -352,6 +418,88 @@ describe('ViewCommentComponent', () => {
       component.ngOnInit();
       tick(500);
       expect(component.type).toEqual('Expense');
+    }));
+
+    it('should filter system comments correctly using isBotComment flag', fakeAsync(() => {
+      const mixedComments = [
+        {
+          st_id: 'st1',
+          st_created_at: new Date('2022-10-28T05:54:01.537Z'),
+          st_org_user_id: 'us123',
+          st_comment: 'User comment',
+          st_diff: null,
+          st_state: null,
+          st_transaction_id: null,
+          st_report_id: null,
+          st_advance_request_id: 'areq123',
+          us_full_name: 'John Doe',
+          us_email: 'john@example.com',
+          isBotComment: false,
+          isSelfComment: true,
+          isOthersComment: false,
+        },
+        {
+          st_id: 'st2',
+          st_created_at: new Date('2022-10-28T05:54:42.948Z'),
+          st_org_user_id: null,
+          st_comment: 'System comment',
+          st_diff: null,
+          st_state: null,
+          st_transaction_id: null,
+          st_report_id: null,
+          st_advance_request_id: 'areq123',
+          us_full_name: null,
+          us_email: null,
+          isBotComment: true,
+          isSelfComment: false,
+          isOthersComment: false,
+        },
+        {
+          st_id: 'st3',
+          st_created_at: new Date('2022-10-28T05:55:00.000Z'),
+          st_org_user_id: 'us456',
+          st_comment: 'Another user comment',
+          st_diff: null,
+          st_state: null,
+          st_transaction_id: null,
+          st_report_id: null,
+          st_advance_request_id: 'areq123',
+          us_full_name: 'Jane Doe',
+          us_email: 'jane@example.com',
+          isBotComment: false,
+          isSelfComment: false,
+          isOthersComment: true,
+        },
+      ];
+
+      // Mock the content element
+      component.content = {
+        scrollToBottom: jasmine.createSpy('scrollToBottom'),
+      } as any;
+
+      component.objectType = 'advance_requests';
+      component.objectId = 'areq123';
+      authService.getEou.and.resolveTo(apiEouRes);
+      advanceRequestService.getCommentsByAdvanceRequestIdPlatform.and.returnValue(of(mixedComments));
+      statusService.createStatusMap.and.returnValue([]);
+
+      component.ngOnInit();
+      tick(500);
+
+      // Wait for the subscription to process
+      setTimeout(() => {
+        // systemComments should only contain comments with isBotComment: true
+        expect(component.systemComments.length).toBe(1);
+        expect(component.systemComments[0].st_id).toBe('st2');
+        expect(component.systemComments[0].isBotComment).toBeTrue();
+
+        // userComments should only contain comments with us_full_name
+        expect(component.userComments.length).toBe(2);
+        expect(component.userComments[0].st_id).toBe('st1');
+        expect(component.userComments[1].st_id).toBe('st3');
+      }, 100);
+
+      tick(100);
     }));
   });
 
