@@ -1,5 +1,10 @@
 <ion-header mode="md">
   <ion-toolbar mode="md" class="delegated--toolbar">
+    <ion-buttons mode="md" slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <mat-form-field class="delegated--form-field" appearance="outline">
       <span class="material-icons delegated--search-icon" matPrefix> search </span>
       <input

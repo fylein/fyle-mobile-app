@@ -119,8 +119,8 @@ describe('GenericFieldsFormComponent', () => {
     it('should emit paymentModeChanged event if payment mode option changes', () => {
       spyOn(component.paymentModeChanged, 'emit');
       component.ngOnInit();
-      component.genericFieldsFormGroup.controls.paymentMode.setValue(AllowedPaymentModes.PERSONAL_ACCOUNT);
-      expect(component.paymentModeChanged.emit).toHaveBeenCalledOnceWith(AllowedPaymentModes.PERSONAL_ACCOUNT);
+      component.genericFieldsFormGroup.controls.paymentMode.setValue(AllowedPaymentModes.PERSONAL_CASH_ACCOUNT);
+      expect(component.paymentModeChanged.emit).toHaveBeenCalledOnceWith(AllowedPaymentModes.PERSONAL_CASH_ACCOUNT);
     });
 
     it('should emit receiptChanged event if receipt option changes', () => {
