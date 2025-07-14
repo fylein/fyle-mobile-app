@@ -1,0 +1,118 @@
+@import '../../../../theme/colors.scss';
+
+.dashboard-opt-in {
+  &--container {
+    background: linear-gradient(80deg, rgb(236 245 255 / 21%) 54.75%, rgb(255 237 252 / 30%) 86.07%);
+    border-bottom: 2px solid $pure-white;
+    border-radius: 0 0 40px 40px;
+    margin-bottom: 24px;
+    margin-top: 6px;
+  }
+
+  &--content-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 78px;
+  }
+
+  &__skip {
+    text-decoration: underline;
+    color: $dark-grey;
+    text-align: end;
+    position: relative;
+    bottom: 35px;
+
+    &--text {
+      padding: 32px;
+    }
+  }
+
+  &__demo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__demo {
+    width: 50%;
+  }
+
+  &__try-ai-text-container {
+    margin-top: 32px;
+  }
+
+  &__try-ai-text {
+    margin-left: 8px;
+  }
+
+  &__description {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+    width: 80%;
+    margin: 12px auto 18px auto;
+  }
+
+  &__instant-text-decoration {
+    position: relative;
+
+    &:after {
+      background-color: $bright-yellow;
+      content: ' ';
+      height: 14px;
+      width: 68px;
+      position: absolute;
+      left: 0;
+      top: 45%;
+      z-index: -1;
+      transform: rotate(-2deg);
+    }
+  }
+
+  &__opt-in-btn {
+    border-radius: 50%;
+    position: relative;
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(313.56deg, #2c304e 45.19%, rgba(44, 48, 78, 0.4) 153.45%);
+    z-index: 2;
+    top: 58px;
+
+    &:before,
+    &:after {
+      position: absolute;
+      content: '';
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(313.56deg, #2c304e 45.19%, rgba(44, 48, 78, 0.4) 153.45%);
+      top: 0;
+      right: 0;
+      animation: wave-animate 1.5s infinite ease-out;
+      z-index: 1;
+    }
+    &:after {
+      animation-delay: 0.5s;
+    }
+
+    @keyframes wave-animate {
+      0% {
+        transform: scale(1);
+        opacity: 0.4;
+      }
+      100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+  }
+
+  &__arrow-icon {
+    z-index: 2;
+    position: relative;
+    right: 2px;
+    bottom: 1px;
+  }
+}

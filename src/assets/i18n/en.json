@@ -1058,6 +1058,15 @@
     "tryAI": "Try AI",
     "description": "Text receipts for <span class=\"dashboard-opt-in__instant-text-decoration\">instant</span> <span class=\"dashboard-opt-in__underline\"></span> expense submission"
   },
+  "dashboardEmailOptIn": {
+    "skip": "Skip",
+    "altOptInToEmailReceipts": "Opt in to email receipts",
+    "dashboardEmailOptInDescription": "Forward your email receipts for <span class=\"dashboard-opt-in__instant-text-decoration\">instant</span> <span class=\"dashboard-opt-in__underline\"></span> expense creation",
+    "skipEmailOptInMessage": "<div> <p>Forwarding receipts to your unique email ID makes expense creation quick and hassle free.</p> <p>Are you sure you want to skip?<p>  </div>",
+    "areYouSure": "Are you sure?",
+    "yesSkipEmailOptIn": "Yes, skip",
+    "noGoBack": "No, go back"
+  },
   "fySelectCommuteDetails": {
     "saving": "Saving",
     "save": "Save",
