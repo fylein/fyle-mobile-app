@@ -4,6 +4,7 @@
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
   "scripts": {
+    "test:readme": "jest tests/readme.validation.test.js --testTimeout=10000",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build && npm run sentry:sourcemaps",
@@ -98,6 +99,7 @@
     "zone.js": "^0.13.3"
   },
   "devDependencies": {
+    "jest": "^29.0.0",
     "@angular-devkit/build-angular": "^16.2.16",
     "@angular-eslint/builder": "^15.2.1",
     "@angular-eslint/eslint-plugin": "^15.2.1",
