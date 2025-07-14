@@ -2,7 +2,7 @@ import { Component, EventEmitter } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, concat, forkJoin, from, noop, take, finalize } from 'rxjs';
+import { Observable, Subscription, concat, forkJoin, from, noop, finalize } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
@@ -46,7 +46,6 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { CommonEmployeeSettings } from 'src/app/core/models/common-employee-settings.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -130,27 +129,8 @@ export class MyProfilePage {
     private orgUserService: OrgUserService,
     private spenderOnboardingService: SpenderOnboardingService,
     private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private router: Router,
-    private launchDarklyService: LaunchDarklyService
+    private router: Router
   ) {}
-
-  goToNotificationsPage(): void {
-    this.launchDarklyService
-      .getVariation('update_admin_notifs_design', false)
-      .pipe(take(1))
-      .subscribe({
-        next: (goToNotificationsPageBeta) => {
-          if (goToNotificationsPageBeta) {
-            this.router.navigate(['/enterprise', 'notifications', 'beta']);
-          } else {
-            this.router.navigate(['/enterprise', 'notifications']);
-          }
-        },
-        error: () => {
-          this.router.navigate(['/enterprise', 'notifications']);
-        },
-      });
-  }
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
