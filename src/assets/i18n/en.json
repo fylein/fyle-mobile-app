@@ -1049,7 +1049,7 @@
     "expenses": " Expenses"
   },
   "dashboardOptIn": {
-    "skipOptInMessage": "<div> <p>You can't send receipts and expense details via text message if you don't opt in.</p> <p>Are you sure you want to skip?<p>  </div>",
+    "skipOptInMessage": "<div> <p>You can't send receipts and expense details via text message if you don't opt in.</p> <p>Are you sure you want to skip?</p>  </div>",
     "areYouSure": "Are you sure?",
     "yesSkipOptIn": "Yes, skip opt in",
     "noGoBack": "No, go back",
@@ -1062,7 +1062,7 @@
     "skip": "Skip",
     "altOptInToEmailReceipts": "Opt in to email receipts",
     "dashboardEmailOptInDescription": "Forward your email receipts for <span class=\"dashboard-opt-in__instant-text-decoration\">instant</span> <span class=\"dashboard-opt-in__underline\"></span> expense creation",
-    "skipEmailOptInMessage": "<div> <p>Forwarding receipts to your unique email ID makes expense creation quick and hassle free.</p> <p>Are you sure you want to skip?<p>  </div>",
+    "skipEmailOptInMessage": "<div> <p>Forwarding receipts to your unique email ID makes expense creation quick and hassle free.</p> <p>Are you sure you want to skip?</p>  </div>",
     "areYouSure": "Are you sure?",
     "yesSkipEmailOptIn": "Yes, skip",
     "noGoBack": "No, go back"
