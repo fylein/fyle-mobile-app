@@ -65,7 +65,7 @@ import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-
 import { TranslocoService } from '@jsverse/transloco';
 import { Comment } from '../models/platform/v1/comment.model';
 
-fdescribe('AdvanceRequestService', () => {
+describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
