@@ -40,8 +40,6 @@ export class DashboardEmailOptInComponent {
   async skip(event: Event): Promise<void> {
     event.stopPropagation();
 
-    this.trackingService.skippedDashboardEmailOptInBanner();
-
     const title = this.translocoService.translate('dashboardEmailOptIn.areYouSure');
     const optOutPopover = await this.popoverController.create({
       component: PopupAlertComponent,

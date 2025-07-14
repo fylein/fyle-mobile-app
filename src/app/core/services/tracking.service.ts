@@ -887,10 +887,6 @@ export class TrackingService {
     this.eventTrack('Clicked On Dashboard Email Opt In Banner');
   }
 
-  skippedDashboardEmailOptInBanner(): void {
-    this.eventTrack('Skipped Dashboard Email Opt In Banner');
-  }
-
   // Track receipt scan duration event
   receiptScanTime(properties: { duration: number; fileType: string }): void {
     this.eventTrack('Receipt Scan Time', properties);
