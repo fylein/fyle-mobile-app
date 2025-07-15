@@ -14,6 +14,9 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { EmailNotificationsComponent } from '../email-notifications/email-notifications.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
   selector: 'app-notifications-beta',
@@ -35,6 +38,8 @@ export class NotificationsBetaPage implements OnInit {
 
   isAdvancesEnabled = false;
 
+  isExpenseMarkedPersonalEventEnabled = false;
+
   expenseNotificationsConfig: NotificationConfig;
 
   expenseReportNotificationsConfig: NotificationConfig;
@@ -44,6 +49,8 @@ export class NotificationsBetaPage implements OnInit {
   employeeSettings: EmployeeSettings;
 
   orgSettings: OrgSettings;
+
+  currentEou: ExtendedOrgUser;
 
   isNotificationsDisabled = true;
 
@@ -65,21 +72,31 @@ export class NotificationsBetaPage implements OnInit {
 
   private trackingService = inject(TrackingService);
 
-  ngOnInit(): void {
-    this.getOrgSettings().subscribe(({ orgSettings, employeeSettings }) => {
-      this.orgSettings = orgSettings;
-      this.employeeSettings = employeeSettings;
-      this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
+  private launchDarklyService = inject(LaunchDarklyService);
 
-      this.initializeEmailNotificationsConfig();
-      this.initializeDelegateNotification();
-    });
+  private loaderService = inject(LoaderService);
+
+  ngOnInit(): void {
+    this.getOrgSettings().subscribe(
+      ({ orgSettings, employeeSettings, currentEou, isExpenseMarkedPersonalEventEnabled }) => {
+        this.orgSettings = orgSettings;
+        this.employeeSettings = employeeSettings;
+        this.currentEou = currentEou;
+        this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
+        this.isExpenseMarkedPersonalEventEnabled = isExpenseMarkedPersonalEventEnabled;
+
+        this.initializeEmailNotificationsConfig();
+        this.initializeDelegateNotification();
+      }
+    );
   }
 
   initializeEmailNotificationsConfig(): void {
     const emailNotificationsConfig = this.notificationsBetaPageService.getEmailNotificationsConfig(
       this.orgSettings,
-      this.employeeSettings
+      this.employeeSettings,
+      this.currentEou,
+      this.isExpenseMarkedPersonalEventEnabled
     );
 
     this.expenseNotificationsConfig = emailNotificationsConfig.expenseNotificationsConfig;
@@ -92,21 +109,32 @@ export class NotificationsBetaPage implements OnInit {
       this.advanceNotificationsConfig.notifications.length === 0;
   }
 
-  getOrgSettings(): Observable<{ orgSettings: OrgSettings; employeeSettings: EmployeeSettings }> {
-    this.isLoading = true;
-    return forkJoin({
-      orgSettings: this.orgSettingsService.get(),
-      employeeSettings: this.platformEmployeeSettingsService.get(),
-    }).pipe(
-      finalize(() => {
-        this.isLoading = false;
-      })
+  getOrgSettings(): Observable<{
+    orgSettings: OrgSettings;
+    employeeSettings: EmployeeSettings;
+    currentEou: ExtendedOrgUser;
+    isExpenseMarkedPersonalEventEnabled: boolean;
+  }> {
+    return from(this.loaderService.showLoader()).pipe(
+      switchMap(() =>
+        forkJoin({
+          orgSettings: this.orgSettingsService.get(),
+          employeeSettings: this.platformEmployeeSettingsService.get(),
+          currentEou: from(this.authService.getEou()),
+          isExpenseMarkedPersonalEventEnabled: this.launchDarklyService.checkIfExpenseMarkedPersonalEventIsEnabled(),
+        })
+      ),
+      finalize(() => from(this.loaderService.hideLoader()))
     );
   }
 
   initializeDelegateNotification(): void {
-    this.isDelegateePresent$ = from(this.authService.getEou()).pipe(
-      switchMap((res) => this.employeesService.getByParams({ user_id: `eq.${res.us.id}` })),
+    if (!this.currentEou?.us?.id) {
+      this.isDelegateePresent$ = from(Promise.resolve(false));
+      return;
+    }
+
+    this.isDelegateePresent$ = from(this.employeesService.getByParams({ user_id: `eq.${this.currentEou.us.id}` })).pipe(
       map((employeesResponse) => employeesResponse?.data[0]?.delegatees?.length > 0),
       tap((isDelegateePresent) => {
         if (isDelegateePresent) {
