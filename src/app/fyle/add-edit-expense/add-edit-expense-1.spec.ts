@@ -74,7 +74,6 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
-import { reportData1 } from 'src/app/core/mock-data/report.data';
 import { sortedCategory } from 'src/app/core/mock-data/org-category.data';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';

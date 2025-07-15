@@ -7,7 +7,6 @@ import { MyProfilePage } from './my-profile.page';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from '../../shared/shared.module';
-import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PreferenceSettingComponent } from './preference-setting/preference-setting.component';
@@ -34,7 +33,6 @@ import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobil
   ],
   declarations: [
     MyProfilePage,
-    SelectCurrencyComponent,
     PreferenceSettingComponent,
     EmployeeDetailsCardComponent,
     VerifyNumberPopoverComponent,
