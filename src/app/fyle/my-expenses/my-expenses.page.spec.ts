@@ -65,7 +65,7 @@ import {
 import { fyModalProperties } from 'src/app/core/mock-data/model-properties.data';
 import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
 import {
-  orgSettingsParamsWithSimplifiedReport,
+
   orgSettingsPendingRestrictions,
   orgSettingsRes,
 } from 'src/app/core/mock-data/org-settings.data';
@@ -2786,7 +2786,7 @@ describe('MyExpensesPage', () => {
       component.showOldReportsMatBottomSheet();
 
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
-        data: { openReports: expectedReportsSinglePageSubmitted, isNewReportsFlowEnabled: true },
+        data: { openReports: expectedReportsSinglePageSubmitted },
         panelClass: ['mat-bottom-sheet-1'],
       });
       expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(expectedReportsSinglePageSubmitted[2], [
@@ -2813,7 +2813,7 @@ describe('MyExpensesPage', () => {
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
-        data: { openReports: mockReportData, isNewReportsFlowEnabled: true },
+        data: { openReports: mockReportData },
         panelClass: ['mat-bottom-sheet-1'],
       });
 
@@ -2838,7 +2838,7 @@ describe('MyExpensesPage', () => {
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
-        data: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
+        data: { openReports: expectedReportsSinglePage },
         panelClass: ['mat-bottom-sheet-1'],
       });
 

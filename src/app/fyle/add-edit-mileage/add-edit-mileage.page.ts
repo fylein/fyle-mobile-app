@@ -1083,12 +1083,6 @@ export class AddEditMileagePage implements OnInit {
       .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
   }
 
-  checkNewReportsFlow(orgSettings$: Observable<OrgSettings>): void {
-    orgSettings$.subscribe((orgSettings) => {
-              
-    });
-  }
-
   getRecentlyUsedValues(): Observable<RecentlyUsed | null> {
     return this.isConnected$.pipe(
       take(1),
@@ -1530,8 +1524,6 @@ export class AddEditMileagePage implements OnInit {
           orgSettings.advanced_projects?.allowed && orgSettings.advanced_projects.enable_category_restriction
       )
     );
-
-    this.checkNewReportsFlow(orgSettings$);
 
     this.setupNetworkWatcher();
 

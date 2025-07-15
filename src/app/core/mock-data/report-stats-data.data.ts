@@ -9,7 +9,3 @@ export const reportStatsData1: ReportStatsData = deepFreeze({
   currencySymbol: '₹',
   isNonReimbursableOrg: false,
 });
-
-export const reportStatsData2: ReportStatsData = deepFreeze({
-  ...reportStatsData1,
-});

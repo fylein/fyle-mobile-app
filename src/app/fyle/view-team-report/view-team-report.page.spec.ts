@@ -350,37 +350,11 @@ describe('ViewTeamReportPageV2', () => {
     });
   });
 
-  describe('getReportClosureSettings():', () => {
-    it('should return closure settings', () => {
-      const result = component.getReportClosureSettings({
-        ...orgSettingsData,
-        simplified_report_closure_settings: {
-          enabled: true,
-        },
-      });
-      expect(result).toBeTrue();
-    });
-
-    it('should return undefined if approval settings not present', () => {
-      const result = component.getReportClosureSettings({
-        ...orgSettingsData,
-        simplified_report_closure_settings: undefined,
-      });
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined if org settings are not present', () => {
-      const result = component.getReportClosureSettings(undefined);
-      expect(result).toBeUndefined();
-    });
-  });
-
   describe('ionViewWillEnter():', () => {
     it('should initialize the variables and load reports and statuses', fakeAsync(() => {
       spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
-      spyOn(component, 'getReportClosureSettings').and.returnValue(true);
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
@@ -405,12 +379,6 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
-
-      component.simplifyReportsSettings$.subscribe((res) => {
-        expect(res).toEqual({
-          enabled: true,
-        });
-      });
 
       expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
@@ -469,7 +437,6 @@ describe('ViewTeamReportPageV2', () => {
       component.objectType = 'Transactions';
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(false);
-      spyOn(component, 'getReportClosureSettings').and.returnValue(true);
       loaderService.showLoader.and.resolveTo();
       spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       loaderService.hideLoader.and.resolveTo();
@@ -495,12 +462,6 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
-
-      component.simplifyReportsSettings$.subscribe((res) => {
-        expect(res).toEqual({
-          enabled: true,
-        });
-      });
 
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(

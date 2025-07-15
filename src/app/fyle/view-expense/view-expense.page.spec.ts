@@ -60,8 +60,6 @@ import {
 } from 'src/app/core/mock-data/platform-report.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
-import { cloneDeep } from 'lodash';
-import { orgSettingsData, orgSettingsWoMileage } from 'src/app/core/mock-data/org-settings.data';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -799,22 +797,6 @@ describe('ViewExpensePage', () => {
         expect(component.isNumber).toHaveBeenCalledWith(mockExpenseData.policy_amount);
         expect(component.isNumber).toHaveBeenCalledTimes(2);
         done();
-      });
-    });
-
-    it('should get all the org setting and return false if simplified_report_closure_settings is not present in orgSettings', () => {
-      orgSettingsService.get.and.returnValue(
-        of({
-          ...cloneDeep(orgSettingsData),
-          simplified_report_closure_settings: null,
-        })
-      );
-      component.ionViewWillEnter();
-      tick(100);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(component.orgSettings).toEqual({
-        ...cloneDeep(orgSettingsData),
-        simplified_report_closure_settings: null,
       });
     });
 

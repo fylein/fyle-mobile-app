@@ -70,9 +70,8 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
-import {
-  orgSettingsParamsWithSimplifiedReport,
-  orgSettingsRes,
+  import {
+    orgSettingsRes,
   orgSettingsWoTax,
   orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
@@ -491,8 +490,8 @@ export function TestCases2(getTestBed) {
         expect(component.isExpandedView).toBeTrue();
       }));
 
-      it('should call orgSettingsService.get, employeeSettingsService.get, perDiemService.getRates and reportService.getAutoSubmissionReportName once and update isNewReportsFlowEnabled', () => {
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+      it('should call orgSettingsService.get, employeeSettingsService.get, perDiemService.getRates and reportService.getAutoSubmissionReportName once', () => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         component.ionViewWillEnter();
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
@@ -501,7 +500,6 @@ export function TestCases2(getTestBed) {
         component.autoSubmissionReportName$.subscribe((res) => {
           expect(res).toEqual('#1: Aug 2023');
         });
-        expect(component.isNewReportsFlowEnabled).toBeTrue();
       });
 
       it('should set individualPerDiemRatesEnabled$ and recentlyUsedValues$', () => {

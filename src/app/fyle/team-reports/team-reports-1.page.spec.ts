@@ -17,7 +17,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
-import { orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import {
   tasksQueryParamsWithFiltersData,
   tasksQueryParamsWithFiltersData2,
@@ -129,7 +129,7 @@ export function TestCases1(getTestBed) {
       let mockAddNewFiltersToParams: jasmine.Spy;
       beforeEach(() => {
         tasksService.getTeamReportsTaskCount.and.returnValue(of(10));
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         authService.getEou.and.resolveTo(apiEouRes);
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
@@ -196,7 +196,7 @@ export function TestCases1(getTestBed) {
 
       it('should call approverReporsService.getReportsByParams and update acc', fakeAsync(() => {
         mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         launchDarklyService.getVariation.and.returnValue(of(false));
         component.eou$ = of(apiEouRes);
         extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({

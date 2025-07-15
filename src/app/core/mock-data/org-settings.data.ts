@@ -1238,10 +1238,6 @@ export const orgSettingsCCCEnabled: OrgSettings = deepFreeze({
   },
 });
 
-export const orgSettingsParamsWithSimplifiedReport: OrgSettings = deepFreeze({
-  ...orgSettingsRes,
-});
-
 export const orgSettingsParamsWithAdvanceWallet: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   advances: {
