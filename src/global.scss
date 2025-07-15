@@ -1291,7 +1291,7 @@ ion-popover.delete-button-class {
   text-align: center;
   transition: 300ms opacity;
   z-index: 10;
-  top: 80%;
+  top: 78%;
   bottom: 16px;
   left: 16px;
   margin-left: 0;
@@ -1299,6 +1299,7 @@ ion-popover.delete-button-class {
 
 .opt-in-banners__swiper .swiper-wrapper {
   margin-top: 0;
+  padding-bottom: 16px;
 }
 
 .opt-in-banners.swiper-pagination-bullet {
