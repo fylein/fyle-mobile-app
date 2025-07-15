@@ -13,9 +13,9 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReportStates } from '../stat-badge/report-states.enum';
 import { of } from 'rxjs';
 import { EventEmitter } from '@angular/core';
-import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
-import { reportStatsData1, reportStatsData2 } from 'src/app/core/mock-data/report-stats-data.data';
+import { reportStatsData1 } from 'src/app/core/mock-data/report-stats-data.data';
 import { expectedIncompleteExpStats, expectedUnreportedExpStats } from 'src/app/core/mock-data/stats.data';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
@@ -167,7 +167,7 @@ describe('StatsComponent', () => {
 
   describe('initializeReportStats():', () => {
     beforeEach(() => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       paymentModeService.isNonReimbursableOrg.and.returnValue(false);
       dashboardService.getReportsStats.and.returnValue(of(expectedReportStats));
       component.currencySymbol$ = of('₹');
@@ -183,23 +183,8 @@ describe('StatsComponent', () => {
         expect(dashboardService.getReportsStats).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(paymentModeService.isNonReimbursableOrg).toHaveBeenCalledOnceWith(
-          orgSettingsParamsWithSimplifiedReport.payment_mode_settings
+          orgSettingsRes.payment_mode_settings
         );
-        expect(component.reportStatsLoading).toBeFalse();
-        done();
-      });
-    });
-
-    it('should initialize reportStatsData$ with enabled as undefined if simplified_report_closure_settings is undefined', (done) => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      component.initializeReportStats();
-
-      expect(component.reportStatsLoading).toBeTrue();
-      component.reportStatsData$.subscribe((res) => {
-        expect(res).toEqual(reportStatsData2);
-        expect(dashboardService.getReportsStats).toHaveBeenCalledTimes(1);
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(paymentModeService.isNonReimbursableOrg).toHaveBeenCalledOnceWith(orgSettingsRes.payment_mode_settings);
         expect(component.reportStatsLoading).toBeFalse();
         done();
       });

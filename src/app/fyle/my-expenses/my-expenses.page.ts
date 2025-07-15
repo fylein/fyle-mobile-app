@@ -196,7 +196,7 @@ export class MyExpensesPage implements OnInit {
 
   hardwareBackButton: Subscription;
 
-  isNewReportsFlowEnabled = false;
+
 
   isDeleteDisabled = false;
 
@@ -470,7 +470,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.isNewReportsFlowEnabled = false;
+
     this.initClassObservables();
 
     this.checkDeleteDisabled().pipe(takeUntil(this.onPageExit$)).subscribe();
@@ -495,7 +495,6 @@ export class MyExpensesPage implements OnInit {
     this.isPerDiemEnabled$ = this.orgSettings$.pipe(map((orgSettings) => orgSettings?.per_diem?.enabled));
 
     this.orgSettings$.subscribe((orgSettings) => {
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       this.restrictPendingTransactionsEnabled =
         (orgSettings?.corporate_credit_card_settings?.enabled &&
           orgSettings.pending_cct_expense_restriction?.enabled) ||
@@ -1492,7 +1491,7 @@ export class MyExpensesPage implements OnInit {
       .pipe(
         switchMap((openReports) => {
           const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
-            data: { openReports, isNewReportsFlowEnabled: this.isNewReportsFlowEnabled },
+            data: { openReports },
             panelClass: ['mat-bottom-sheet-1'],
           });
           return addTxnToReportDialog.afterDismissed() as Observable<{ report: Report }>;

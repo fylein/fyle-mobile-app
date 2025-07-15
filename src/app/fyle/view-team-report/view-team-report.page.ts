@@ -119,7 +119,7 @@ export class ViewTeamReportPage {
 
   canShowTooltip = false;
 
-  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
 
   loadReportDetails$ = new BehaviorSubject<void>(null);
 
@@ -211,9 +211,7 @@ export class ViewTeamReportPage {
     return orgSettings?.approval_settings?.enable_sequential_approvers;
   }
 
-  getReportClosureSettings(orgSettings: OrgSettings): boolean {
-    return orgSettings?.simplified_report_closure_settings?.enabled;
-  }
+
 
   convertToEstatus(comments: ExtendedComment[]): ExtendedStatus[] {
     return comments.map((comment) => {
@@ -299,10 +297,7 @@ export class ViewTeamReportPage {
 
     this.eou$.subscribe((eou) => (this.eou = eou));
 
-    const orgSettings$ = this.orgSettingsService.get();
-    this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: this.getReportClosureSettings(orgSettings) }))
-    );
+
 
     this.report$ = this.refreshApprovals$.pipe(
       switchMap(() =>

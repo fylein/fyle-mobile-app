@@ -88,7 +88,7 @@ export class MyReportsPage {
 
   filterPills = [];
 
-  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
 
   nonReimbursableOrg$: Observable<boolean>;
 
@@ -239,11 +239,7 @@ export class MyReportsPage {
     );
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({
-        enabled: orgSettings?.simplified_report_closure_settings?.enabled,
-      }))
-    );
+
     this.nonReimbursableOrg$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
@@ -1006,10 +1002,9 @@ export class MyReportsPage {
                 value: 'nameZToA',
               },
             ],
-          } as FilterOptions<string>,
-        ],
-        simplifyReportsSettings$: this.simplifyReportsSettings$,
-        nonReimbursableOrg$: this.nonReimbursableOrg$,
+                  } as FilterOptions<string>,
+      ],
+      nonReimbursableOrg$: this.nonReimbursableOrg$,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },

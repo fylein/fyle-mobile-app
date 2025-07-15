@@ -86,7 +86,7 @@ export class TeamReportsPage implements OnInit {
 
   teamReportsTaskCount = 0;
 
-  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
 
   eou$: Observable<ExtendedOrgUser>;
 
@@ -129,11 +129,6 @@ export class TeamReportsPage implements OnInit {
     this.tasksService.getTeamReportsTaskCount().subscribe((teamReportsTaskCount) => {
       this.teamReportsTaskCount = teamReportsTaskCount;
     });
-
-    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
-    );
 
     this.eou$.subscribe((eou: ExtendedOrgUser) => {
       this.loadData$ = new BehaviorSubject({
@@ -853,7 +848,6 @@ export class TeamReportsPage implements OnInit {
             ],
           } as FilterOptions<string>,
         ],
-        simplifyReportsSettings$: this.simplifyReportsSettings$,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },

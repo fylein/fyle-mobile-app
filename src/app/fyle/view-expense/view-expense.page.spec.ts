@@ -800,38 +800,6 @@ describe('ViewExpensePage', () => {
       });
     });
 
-    it('should get all the org setting and return true if new reports Flow Enabled ', () => {
-      const mockOrgSettings = {
-        ...orgSettingsGetData,
-        simplified_report_closure_settings: {
-          allowed: false,
-          enabled: true,
-        },
-      };
-      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
-      component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeTrue();
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-    });
-
-    it('should get all the org setting and return false if there are no report closure settings ', () => {
-      const mockOrgSettings = {
-        ...orgSettingsGetData,
-        simplified_report_closure_settings: null,
-      };
-      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
-      component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-    });
-
-    it('should get all the org setting and return false if simplified_report_closure_settings is not present in orgSettings', () => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
-      component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-    });
-
     it('should set isRTFEnabled to true if only visa rtf is enabled', () => {
       const mockOrgSettings: OrgSettings = {
         ...orgSettingsGetData,

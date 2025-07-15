@@ -86,7 +86,7 @@ export class ViewPerDiemPage {
 
   projectFieldName: string;
 
-  isNewReportsFlowEnabled = false;
+
 
   expenseFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
@@ -255,7 +255,7 @@ export class ViewPerDiemPage {
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;
-        this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+
       });
 
     this.perDiemCustomFields$ = this.perDiemExpense$.pipe(

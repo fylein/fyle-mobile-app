@@ -436,10 +436,6 @@ export const orgSettingsGetData: OrgSettings = deepFreeze({
     allowed: true,
     enabled: true,
   },
-  simplified_report_closure_settings: {
-    allowed: false,
-    enabled: false,
-  },
   mobile_app_my_expenses_beta_enabled: false,
   amex_feed_enrollment_settings: {
     allowed: true,
@@ -877,10 +873,6 @@ export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
   settlements_excel_settings: {
     allowed: true,
     cost_center_wise_split: true,
-  },
-  simplified_report_closure_settings: {
-    allowed: false,
-    enabled: false,
   },
   mobile_app_my_expenses_beta_enabled: false,
   amex_feed_enrollment_settings: {

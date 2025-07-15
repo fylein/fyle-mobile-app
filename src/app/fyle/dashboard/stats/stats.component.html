@@ -58,9 +58,7 @@
             <app-stat-badge
               [currency]="reportStatsData.homeCurrency"
               [currencySymbol]="reportStatsData.currencySymbol"
-              [name]="
-                (reportStatsData.simplifyReportsSettings.enabled ? 'stats.submitted' : 'stats.reported') | transloco
-              "
+              [name]="'stats.submitted' | transloco"
               [reportState]="ReportStates.APPROVER_PENDING"
               [count]="reportStatsData.reportStats?.report?.count"
               [value]="reportStatsData.reportStats?.report?.total_amount"
@@ -87,28 +85,15 @@
             class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__bottom"
             size="6"
           >
-            <ng-container *ngIf="reportStatsData.simplifyReportsSettings.enabled; else simplifyReportsDisabled">
-              <app-stat-badge
-                [currency]="reportStatsData.homeCurrency"
-                [currencySymbol]="reportStatsData.currencySymbol"
-                [name]="'stats.processing' | transloco"
-                [reportState]="ReportStates.PAYMENT_PROCESSING"
-                [count]="reportStatsData.reportStats?.processing?.count"
-                [value]="reportStatsData.reportStats?.processing?.total_amount"
-                (badgeClicked)="goToReportsPage($event)"
-              ></app-stat-badge>
-            </ng-container>
-            <ng-template #simplifyReportsDisabled>
-              <app-stat-badge
-                [currency]="reportStatsData.homeCurrency"
-                [currencySymbol]="reportStatsData.currencySymbol"
-                [name]="'stats.paymentPending' | transloco"
-                [reportState]="ReportStates.PAYMENT_PENDING"
-                [count]="reportStatsData.reportStats?.paymentPending?.count"
-                [value]="reportStatsData.reportStats?.paymentPending?.total_amount"
-                (badgeClicked)="goToReportsPage($event)"
-              ></app-stat-badge>
-            </ng-template>
+            <app-stat-badge
+              [currency]="reportStatsData.homeCurrency"
+              [currencySymbol]="reportStatsData.currencySymbol"
+              [name]="'stats.processing' | transloco"
+              [reportState]="ReportStates.PAYMENT_PROCESSING"
+              [count]="reportStatsData.reportStats?.processing?.count"
+              [value]="reportStatsData.reportStats?.processing?.total_amount"
+              (badgeClicked)="goToReportsPage($event)"
+            ></app-stat-badge>
           </ion-col>
         </ion-row>
       </ng-container>

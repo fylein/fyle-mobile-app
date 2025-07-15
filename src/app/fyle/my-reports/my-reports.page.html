@@ -101,17 +101,15 @@
     </div>
 
     <ng-container *ngIf="!isLoading; else loading">
-      <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading">
-        <div *ngFor="let report of myReports$ | async as list; let i = index">
-          <app-reports-card
-            [report]="report"
-            [prevDate]="list[i-1]?.created_at"
-            [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
+      <div *ngFor="let report of myReports$ | async as list; let i = index">
+        <app-reports-card
+          [report]="report"
+          [prevDate]="list[i-1]?.created_at"
+          [simplifyReportsEnabled]="true"
             (gotoReport)="onReportClick($event)"
             (viewComments)="onViewCommentsClick()"
           ></app-reports-card>
         </div>
-      </ng-container>
     </ng-container>
     <ng-container *ngIf="isConnected$|async">
       <ng-container *ngIf="isLoadingDataInInfiniteScroll">

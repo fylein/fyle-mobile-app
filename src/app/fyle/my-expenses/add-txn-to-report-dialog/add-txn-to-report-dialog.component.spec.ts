@@ -87,7 +87,7 @@ describe('AddTxnToReportDialogComponent', () => {
         },
         {
           provide: MAT_BOTTOM_SHEET_DATA,
-          useValue: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
+          useValue: { openReports: expectedReportsSinglePage },
         },
         {
           provide: TranslocoService,

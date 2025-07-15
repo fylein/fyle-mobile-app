@@ -281,34 +281,6 @@ describe('MyViewReportPage', () => {
     expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
   });
 
-  describe('getSimplifyReportSettings():', () => {
-    it('should return simplify report settings', () => {
-      const result = component.getSimplifyReportSettings({
-        ...orgSettingsData,
-        simplified_report_closure_settings: {
-          enabled: true,
-        },
-      });
-
-      expect(result).toBeTrue();
-    });
-
-    it('should return undefined if settings not present', () => {
-      const result = component.getSimplifyReportSettings({
-        ...orgSettingsData,
-        simplified_report_closure_settings: null,
-      });
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined if settings not provided', () => {
-      const result = component.getSimplifyReportSettings(null);
-
-      expect(result).toBeUndefined();
-    });
-  });
-
   describe('ionViewWillEnter():', () => {
     it('should load report and report status', fakeAsync(() => {
       const report = cloneDeep(sentBackReportData);
@@ -322,7 +294,6 @@ describe('MyViewReportPage', () => {
       spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
 
       component.ionViewWillEnter();
       tick(2000);
@@ -381,18 +352,10 @@ describe('MyViewReportPage', () => {
       });
       expect(orgSettingsService.get).toHaveBeenCalled();
 
-      component.simplifyReportsSettings$.subscribe((res) => {
-        expect(res).toEqual({
-          enabled: true,
-        });
-      });
-
-      expect(component.getSimplifyReportSettings).toHaveBeenCalledOnceWith(orgSettingsData);
     }));
 
     it('should change object type and other properties if not present', fakeAsync(() => {
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
       component.objectType = 'transactions';
       loaderService.showLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
@@ -456,16 +419,10 @@ describe('MyViewReportPage', () => {
       });
 
       expect(orgSettingsService.get).toHaveBeenCalled();
-
-      component.simplifyReportsSettings$.subscribe((res) => {
-        expect(res).toEqual({ enabled: true });
-      });
-      expect(component.getSimplifyReportSettings).toHaveBeenCalledOnceWith(orgSettingsData);
     }));
 
     it('should should filter pending transactions and from unreportedExpenses', fakeAsync(() => {
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
       component.objectType = 'transactions';
       loaderService.showLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
