@@ -12,6 +12,24 @@ export class WalkthroughService {
 
   constructor(private translocoService: TranslocoService) {}
 
+  getDashboardAddExpenseWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '#dashboard-add-expense-button',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.dashboardAddExpenseDescription'),
+          side: 'bottom',
+          align: 'end',
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 4;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
   getNavBarWalkthroughConfig(isApprover: boolean): DriveStep[] {
     const steps: DriveStep[] = [
       {

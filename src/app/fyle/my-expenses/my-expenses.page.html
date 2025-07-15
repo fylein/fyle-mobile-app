@@ -144,10 +144,24 @@
       <div *ngIf="!(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-subheader">
         <ng-container *ngIf="isNewUser$|async; else isOldUser">
           <div class="my-expenses--zero-state-content">You have no expenses right now</div>
+          <button
+            type="button"
+            (click)="openActionSheet()"
+            class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
+          >
+            Add Expense
+          </button>
         </ng-container>
         <ng-template #isOldUser>
           <div class="my-expenses--zero-state-subheader__title">
             <div class="my-expenses--zero-state-content">You have no expenses right now</div>
+            <button
+              type="button"
+              (click)="openActionSheet()"
+              class="my-expenses--cta-button my-expenses--primary-cta my-expenses--zero-state-cta text-center"
+            >
+              Add Expense
+            </button>
           </div>
         </ng-template>
       </div>

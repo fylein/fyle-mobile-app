@@ -82,6 +82,13 @@
         image="../../../assets/images/zero-states/reports.png"
         message="You have no reports right now"
       ></app-fy-zero-state>
+      <button
+        type="button"
+        [routerLink]="['/', 'enterprise', 'my_create_report']"
+        class="my-reports--zero-state-cta text-center"
+      >
+        Create expense report
+      </button>
       <app-fy-zero-state
         *ngIf="(filters?.state || filters?.date)"
         [unscaledImage]="true"

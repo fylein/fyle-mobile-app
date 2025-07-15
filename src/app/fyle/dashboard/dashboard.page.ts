@@ -137,6 +137,75 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
+  startDashboardAddExpenseWalkthrough(): void {
+    const dashboardAddExpenseWalkthroughSteps = this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.5,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 6,
+      stagePadding: 4,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Ok',
+      showButtons: ['close', 'next'],
+      onDestroyed: () => {
+        this.setDashboardAddExpenseWalkthroughFeatureConfigFlag();
+      },
+    });
+
+    driverInstance.setSteps(dashboardAddExpenseWalkthroughSteps);
+    driverInstance.drive();
+  }
+
+  setDashboardAddExpenseWalkthroughFeatureConfigFlag(): void {
+    const featureConfigParams = {
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_ADD_EXPENSE',
+    };
+
+    const eventTrackName = 'Dashboard Add Expense Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: true,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  showDashboardAddExpenseWalkthrough(): void {
+    this.featureConfigService
+      .getConfiguration<{
+        isShown?: boolean;
+        isFinished?: boolean;
+      }>({
+        feature: 'WALKTHROUGH',
+        key: 'DASHBOARD_ADD_EXPENSE',
+      })
+      .subscribe((config) => {
+        const featureConfigValue = config?.value || {};
+        const isFinished = featureConfigValue?.isFinished || false;
+
+        if (!isFinished) {
+          setTimeout(() => {
+            this.startDashboardAddExpenseWalkthrough();
+          }, 1000);
+        }
+      });
+  }
+
   setNavbarWalkthroughFeatureConfigFlag(overlayClicked: boolean): void {
     const featureConfigParams = {
       feature: 'WALKTHROUGH',
@@ -330,6 +399,7 @@ export class DashboardPage {
     this.isWalkthroughPaused = false;
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
+    this.showDashboardAddExpenseWalkthrough();
     this.smartlookService.init();
     this.footerService.footerCurrentStateIndex$.subscribe((index) => {
       this.currentStateIndex = index;
