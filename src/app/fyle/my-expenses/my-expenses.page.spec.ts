@@ -88,7 +88,7 @@ import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transacti
 import { uniqueCardsData } from 'src/app/core/mock-data/unique-cards.data';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -2794,7 +2794,7 @@ describe('MyExpensesPage', () => {
           of({
             report: expectedReportsSinglePageSubmitted[2],
           }),
-      } as MatBottomSheetRef<ExtendedReport>);
+      } as MatBottomSheetRef<{report: Report}>);
 
       component.showOldReportsMatBottomSheet();
 
@@ -2822,7 +2822,7 @@ describe('MyExpensesPage', () => {
           of({
             report: mockReportData[0],
           }),
-      } as MatBottomSheetRef<ExtendedReport>);
+      } as MatBottomSheetRef<{report: Report}>);
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
@@ -2847,7 +2847,7 @@ describe('MyExpensesPage', () => {
           of({
             report: null,
           }),
-      } as MatBottomSheetRef<ExtendedReport>);
+      } as MatBottomSheetRef<{report: Report}>);
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
