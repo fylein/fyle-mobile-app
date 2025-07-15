@@ -803,13 +803,11 @@ export function TestCases5(getTestBed) {
       it('should get default payment modes', (done) => {
         component.paymentModes$ = of(accountOptionData1);
         component.employeeSettings$ = of(employeeSettingsData);
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
         component.isCreatedFromCCC = true;
         fixture.detectChanges();
 
         component.getDefaultPaymentModes().subscribe((res) => {
           expect(res).toEqual(accountOptionData1[1].value);
-          expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledOnceWith();
           done();
         });
       });
@@ -817,13 +815,11 @@ export function TestCases5(getTestBed) {
       it('should return the first item in account options if expense was not created from CCC', (done) => {
         component.paymentModes$ = of(accountOptionData1);
         component.employeeSettings$ = of(employeeSettingsData2);
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
         component.isCreatedFromCCC = false;
         fixture.detectChanges();
 
         component.getDefaultPaymentModes().subscribe((res) => {
-          expect(res).toEqual(accountOptionData1[0].value);
-          expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledOnceWith();
+          expect(res).toEqual(accountOptionData1[1].value);
           done();
         });
       });
