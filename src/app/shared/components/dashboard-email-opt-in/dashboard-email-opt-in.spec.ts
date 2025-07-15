@@ -93,7 +93,7 @@ describe('DashboardEmailOptInComponent', () => {
         'my_profile',
         {
           navigate_back: true,
-          show_email_walkthrough: false,
+          show_email_walkthrough: true,
         },
       ]);
     });
