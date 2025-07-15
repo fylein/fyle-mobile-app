@@ -52,7 +52,7 @@ export class NotificationsBetaPage implements OnInit {
 
   currentEou: ExtendedOrgUser;
 
-  isNotificationsDisabled = true;
+  isNotificationsDisabled = false;
 
   private router = inject(Router);
 
