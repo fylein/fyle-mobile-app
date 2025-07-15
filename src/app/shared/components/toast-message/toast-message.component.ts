@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import {
   MatSnackBarRef,
-  MAT_LEGACY_SNACK_BAR_DATA as MAT_SNACK_BAR_DATA,
+  MAT_SNACK_BAR_DATA,
 } from '@angular/material/snack-bar';
 
 @Component({
