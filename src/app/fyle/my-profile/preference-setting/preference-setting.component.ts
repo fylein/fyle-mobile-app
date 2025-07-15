@@ -1,19 +1,11 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { Currency } from 'src/app/core/models/currency.model';
-
-type EventData = {
-  key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
-  isEnabled: boolean;
-  selectedCurrency?: Currency;
-};
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { EventData } from './event-data.model';
 @Component({
   selector: 'app-preference-setting',
   templateUrl: './preference-setting.component.html',
   styleUrls: ['./preference-setting.component.scss'],
 })
-export class PreferenceSettingComponent implements OnInit {
+export class PreferenceSettingComponent {
   @Input() title: string;
 
   @Input() content: string;
@@ -26,11 +18,7 @@ export class PreferenceSettingComponent implements OnInit {
 
   @Output() preferenceChanged = new EventEmitter<EventData>();
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
-
-  ngOnInit(): void {}
-
-  onChange() {
+  onChange(): void {
     this.preferenceChanged.emit({ key: this.key, isEnabled: this.isEnabled });
   }
 }
