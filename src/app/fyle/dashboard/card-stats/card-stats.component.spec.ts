@@ -424,7 +424,7 @@ describe('CardStatsComponent', () => {
         'onDidDismiss',
       ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
 
-      popoverController.create.and.returnValue(Promise.resolve(cardAddedPopoverSpy));
+      popoverController.create.and.resolveTo(cardAddedPopoverSpy);
       corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
       spyOn(component.cardAdded, 'emit');
 
