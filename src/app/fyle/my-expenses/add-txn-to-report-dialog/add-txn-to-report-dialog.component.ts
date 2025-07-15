@@ -17,6 +17,7 @@ export class AddTxnToReportDialogComponent implements OnInit {
   constructor(
     private currencyService: CurrencyService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: { openReports: Report[] },
+
     private matBottomsheet: MatBottomSheet,
     private router: Router
   ) {}
