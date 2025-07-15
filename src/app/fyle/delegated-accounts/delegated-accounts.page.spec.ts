@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, NavController } from '@ionic/angular';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +28,7 @@ describe('DelegatedAccountsPage', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
+  let navController: jasmine.SpyObj<NavController>;
 
   beforeEach(waitForAsync(() => {
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', [
@@ -45,6 +46,7 @@ describe('DelegatedAccountsPage', () => {
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', [
       'clearRecentLocalStorageCache',
     ]);
+    const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
       declarations: [DelegatedAccountsPage],
@@ -88,6 +90,10 @@ describe('DelegatedAccountsPage', () => {
           provide: RecentLocalStorageItemsService,
           useValue: recentLocalStorageItemsServiceSpy,
         },
+        {
+          provide: NavController,
+          useValue: navControllerSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -105,6 +111,7 @@ describe('DelegatedAccountsPage', () => {
       RecentLocalStorageItemsService
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+    navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
 
     fixture.detectChanges();
   }));

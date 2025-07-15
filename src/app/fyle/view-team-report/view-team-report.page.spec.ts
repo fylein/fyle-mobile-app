@@ -577,6 +577,7 @@ describe('ViewTeamReportPageV2', () => {
             comment: '',
             created_at: undefined,
             creator_user: null,
+            creator_type: 'USER',
             id: '',
           },
         ],
