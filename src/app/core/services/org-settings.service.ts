@@ -414,10 +414,6 @@ export class OrgSettingsService {
         allowed: incoming.company_expenses_beta_settings && incoming.company_expenses_beta_settings.allowed,
         enabled: incoming.company_expenses_beta_settings && incoming.company_expenses_beta_settings.enabled,
       },
-      simplified_report_closure_settings: {
-        allowed: incoming?.simplified_report_closure_settings?.allowed,
-        enabled: incoming?.simplified_report_closure_settings?.enabled,
-      },
       mobile_app_my_expenses_beta_enabled: incoming?.mobile_app_my_expenses_beta_enabled,
       amex_feed_enrollment_settings: {
         allowed: incoming?.amex_feed_enrollment_settings?.allowed,
@@ -584,7 +580,6 @@ export class OrgSettingsService {
       company_expenses_beta_settings: outgoing.company_expenses_beta_settings,
       visa_enrollment_settings: outgoing.visa_enrollment_settings,
       mastercard_enrollment_settings: outgoing.mastercard_enrollment_settings,
-      simplified_report_closure_settings: outgoing.simplified_report_closure_settings,
       mobile_app_my_expenses_beta_enabled: outgoing.mobile_app_my_expenses_beta_enabled,
       amex_feed_enrollment_settings: outgoing.amex_feed_enrollment_settings,
     };

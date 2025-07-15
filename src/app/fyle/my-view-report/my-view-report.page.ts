@@ -106,7 +106,7 @@ export class MyViewReportPage {
 
   segmentValue = ReportPageSegment.EXPENSES;
 
-  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
 
   eou: ExtendedOrgUser;
 
@@ -172,9 +172,7 @@ export class MyViewReportPage {
     this.onPageExit.next(null);
   }
 
-  getSimplifyReportSettings(orgSettings: OrgSettings): boolean {
-    return orgSettings?.simplified_report_closure_settings?.enabled;
-  }
+
 
   convertToEstatus(comments: ExtendedComment[]): ExtendedStatus[] {
     return comments.map((comment) => {
@@ -346,9 +344,6 @@ export class MyViewReportPage {
       .subscribe(noop);
 
     const orgSettings$ = this.orgSettingsService.get();
-    this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
-    );
 
     orgSettings$.subscribe((orgSettings) => {
       this.showViewApproverModal =

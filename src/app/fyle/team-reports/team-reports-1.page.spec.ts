@@ -162,50 +162,7 @@ export function TestCases1(getTestBed) {
         expect(component.teamReportsTaskCount).toBe(10);
       });
 
-      it('should set simplifyReportsSettings$.enabled from orgSettingsService', () => {
-        component.ionViewWillEnter();
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        component.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
-          expect(simplifyReportsSettings).toEqual({
-            enabled: true,
-          });
-        });
-      });
 
-      it('should set simplifyReportsSettings$.enabled to false if enabled is false in orgSettings.simplified_report_closure_settings', () => {
-        const mockOrgSettings = cloneDeep(orgSettingsParamsWithSimplifiedReport);
-        mockOrgSettings.simplified_report_closure_settings.enabled = false;
-        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
-        component.ionViewWillEnter();
-        component.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
-          expect(simplifyReportsSettings).toEqual({
-            enabled: false,
-          });
-        });
-      });
-
-      it('should set simplifyReportsSettings$.enabled to undefined if enabled is undefined in orgSettings.simplified_report_closure_settings', () => {
-        const mockOrgSettings = cloneDeep(orgSettingsParamsWithSimplifiedReport);
-        mockOrgSettings.simplified_report_closure_settings = undefined;
-        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
-        component.ionViewWillEnter();
-        component.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
-          expect(simplifyReportsSettings).toEqual({
-            enabled: undefined,
-          });
-        });
-      });
-
-      it('should set simplifyReportsSettings$.enabled to undefined if orgSettings is undefined', () => {
-        const mockOrgSettings = undefined;
-        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
-        component.ionViewWillEnter();
-        component.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
-          expect(simplifyReportsSettings).toEqual({
-            enabled: undefined,
-          });
-        });
-      });
 
       it('should set filters in queryParams if filters is not defined in activatedRoute.snapshot.queryParams', (done) => {
         activatedRoute.snapshot.queryParams = {};

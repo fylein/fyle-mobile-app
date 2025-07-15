@@ -352,7 +352,7 @@ export const teamReportsModalControllerParams = {
         ],
       } as FilterOptions<string>,
     ],
-    simplifyReportsSettings$: undefined,
+
     selectedFilterValues: selectedFilters4,
     activeFilterInitialName: 'State',
   },
@@ -388,7 +388,6 @@ export const addToReportModalControllerParams = {
     subheader: 'All',
     enableSearch: false,
     autoSubmissionReportName: '#Aug 1',
-    isNewReportsFlowEnabled: false,
   },
   mode: 'ios' as Mode,
   cssClass: 'fy-modal',

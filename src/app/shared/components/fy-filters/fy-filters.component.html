@@ -64,7 +64,7 @@
       <ion-col size="6">
         <ng-container *ngIf="activeFilter.optionType === FilterOptionType.multiselect">
           <ng-container
-            *ngIf="(simplifyReportsSettings$ | async) !== null && (nonReimbursableOrg$ | async) !== null; else loading"
+            *ngIf="(nonReimbursableOrg$ | async) !== null; else loading"
           >
             <ion-item
               class="fy-filters--filter-option"

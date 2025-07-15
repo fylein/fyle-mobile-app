@@ -34,6 +34,7 @@ import {
   taxSettingsData2,
   orgSettingsParamsWithAdvanceWallet,
   orgSettingsWithProjectCategoryRestrictions,
+  orgSettingsParamsWithSimplifiedReport,
 } from 'src/app/core/mock-data/org-settings.data';
 import {
   employeeSettingsData,
@@ -1976,6 +1977,21 @@ export function TestCases5(getTestBed) {
         expect(component.getCCCSettings).toHaveBeenCalledTimes(2);
 
         done();
+      });
+    });
+
+    describe('checkNewReportsFlow():', () => {
+      it('should check for new reports flow, if simplified report closure setting is not enabled', () => {
+        component.checkNewReportsFlow(orgSettings$);
+        tick(500);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      });
+
+      it('should check for new reports flow, if simplified report closure setting is enabled', () => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+        component.checkNewReportsFlow(orgSettings$);
+        tick(500);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       });
     });
   });

@@ -462,12 +462,11 @@ describe('ViewPerDiemPage', () => {
       expect(component.isProjectShown).toBeUndefined();
     }));
 
-    it('should set orgSettings and isNewReportsFlowEnabled', fakeAsync(() => {
+    it('should set orgSettings', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(100);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.orgSettings).toEqual(orgSettingsData);
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
     }));
 
     it('should set perDiemCustomFields$ and perDiemRate$', (done) => {

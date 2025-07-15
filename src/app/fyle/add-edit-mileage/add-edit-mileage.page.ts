@@ -256,7 +256,7 @@ export class AddEditMileagePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
-  isNewReportsFlowEnabled = false;
+
 
   onPageExit$: Subject<void>;
 
@@ -969,7 +969,6 @@ export class AddEditMileagePage implements OnInit {
   }
 
   initClassObservables(): void {
-    this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
@@ -1086,7 +1085,7 @@ export class AddEditMileagePage implements OnInit {
 
   checkNewReportsFlow(orgSettings$: Observable<OrgSettings>): void {
     orgSettings$.subscribe((orgSettings) => {
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings.enabled || false;
+              
     });
   }
 

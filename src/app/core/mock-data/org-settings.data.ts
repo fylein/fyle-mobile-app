@@ -1240,10 +1240,6 @@ export const orgSettingsCCCEnabled: OrgSettings = deepFreeze({
 
 export const orgSettingsParamsWithSimplifiedReport: OrgSettings = deepFreeze({
   ...orgSettingsRes,
-  simplified_report_closure_settings: {
-    allowed: true,
-    enabled: true,
-  },
 });
 
 export const orgSettingsParamsWithAdvanceWallet: OrgSettings = deepFreeze({
@@ -1293,9 +1289,6 @@ export const orgSettingsWoTax: OrgSettings = deepFreeze({
   ...orgSettingsData,
   tax_settings: { ...orgSettingsData.tax_settings, enabled: false },
   advances: null,
-  simplified_report_closure_settings: {
-    enabled: true,
-  },
   corporate_credit_card_settings: {
     allowed: true,
     enabled: true,

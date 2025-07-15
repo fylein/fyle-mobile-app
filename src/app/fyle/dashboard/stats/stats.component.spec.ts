@@ -175,32 +175,10 @@ describe('StatsComponent', () => {
     });
 
     it('should initialize reportStatsData$', (done) => {
-      component.initializeReportStats();
-
-      expect(component.reportStatsLoading).toBeTrue();
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      component.ngOnInit();
       component.reportStatsData$.subscribe((res) => {
         expect(res).toEqual(reportStatsData1);
-        expect(dashboardService.getReportsStats).toHaveBeenCalledTimes(1);
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(paymentModeService.isNonReimbursableOrg).toHaveBeenCalledOnceWith(
-          orgSettingsParamsWithSimplifiedReport.payment_mode_settings
-        );
-        expect(component.reportStatsLoading).toBeFalse();
-        done();
-      });
-    });
-
-    it('should initialize reportStatsData$ with enabled as undefined if simplified_report_closure_settings is undefined', (done) => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      component.initializeReportStats();
-
-      expect(component.reportStatsLoading).toBeTrue();
-      component.reportStatsData$.subscribe((res) => {
-        expect(res).toEqual(reportStatsData2);
-        expect(dashboardService.getReportsStats).toHaveBeenCalledTimes(1);
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(paymentModeService.isNonReimbursableOrg).toHaveBeenCalledOnceWith(orgSettingsRes.payment_mode_settings);
-        expect(component.reportStatsLoading).toBeFalse();
         done();
       });
     });

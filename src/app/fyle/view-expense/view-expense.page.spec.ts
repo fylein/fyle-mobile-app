@@ -60,6 +60,8 @@ import {
 } from 'src/app/core/mock-data/platform-report.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { cloneDeep } from 'lodash';
+import { orgSettingsData, orgSettingsWoMileage } from 'src/app/core/mock-data/org-settings.data';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -800,36 +802,20 @@ describe('ViewExpensePage', () => {
       });
     });
 
-    it('should get all the org setting and return true if new reports Flow Enabled ', () => {
-      const mockOrgSettings = {
-        ...orgSettingsGetData,
-        simplified_report_closure_settings: {
-          allowed: false,
-          enabled: true,
-        },
-      };
-      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
-      component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeTrue();
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-    });
-
-    it('should get all the org setting and return false if there are no report closure settings ', () => {
-      const mockOrgSettings = {
-        ...orgSettingsGetData,
-        simplified_report_closure_settings: null,
-      };
-      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
-      component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-    });
-
     it('should get all the org setting and return false if simplified_report_closure_settings is not present in orgSettings', () => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+      orgSettingsService.get.and.returnValue(
+        of({
+          ...cloneDeep(orgSettingsData),
+          simplified_report_closure_settings: null,
+        })
+      );
       component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
+      tick(100);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(component.orgSettings).toEqual({
+        ...cloneDeep(orgSettingsData),
+        simplified_report_closure_settings: null,
+      });
     });
 
     it('should set isRTFEnabled to true if only visa rtf is enabled', () => {

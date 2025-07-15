@@ -285,9 +285,6 @@ describe('MyViewReportPage', () => {
     it('should return simplify report settings', () => {
       const result = component.getSimplifyReportSettings({
         ...orgSettingsData,
-        simplified_report_closure_settings: {
-          enabled: true,
-        },
       });
 
       expect(result).toBeTrue();

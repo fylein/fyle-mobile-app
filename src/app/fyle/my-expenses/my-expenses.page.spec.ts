@@ -522,11 +522,10 @@ describe('MyExpensesPage', () => {
       inputElement = component.simpleSearchInput.nativeElement;
     });
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and employeeSettings properties are enabled', fakeAsync(() => {
+    it('should set isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and employeeSettings properties are enabled', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
 
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
@@ -541,7 +540,7 @@ describe('MyExpensesPage', () => {
       });
     }));
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and employeeSettings properties are disabled', fakeAsync(() => {
+    it('should set isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and employeeSettings properties are disabled', fakeAsync(() => {
       const mockEmployeeSettingsData = cloneDeep(employeeSettingsData);
       const mockOrgSettingsData = cloneDeep(orgSettingsRes);
       mockEmployeeSettingsData.insta_fyle_settings.enabled = false;
@@ -553,7 +552,6 @@ describe('MyExpensesPage', () => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
 
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
@@ -568,7 +566,7 @@ describe('MyExpensesPage', () => {
       });
     }));
 
-    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and employeeSettings properties are not allowed', fakeAsync(() => {
+    it('should set isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and employeeSettings properties are not allowed', fakeAsync(() => {
       const mockEmployeeSettingsData = cloneDeep(employeeSettingsData);
       mockEmployeeSettingsData.insta_fyle_settings.allowed = false;
       platformEmployeeSettingsService.get.and.returnValue(of(mockEmployeeSettingsData));
@@ -576,7 +574,6 @@ describe('MyExpensesPage', () => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
 
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
@@ -598,8 +595,6 @@ describe('MyExpensesPage', () => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.expensesTaskCount).toBe(10);
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
@@ -634,14 +629,7 @@ describe('MyExpensesPage', () => {
       expect(component.restrictPendingTransactionsEnabled).toBeTrue();
     }));
 
-    it('should set isNewReportFlowEnabled to true if simplified_report_closure_settings is defined ', fakeAsync(() => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
 
-      component.ionViewWillEnter();
-      tick(500);
-
-      expect(component.isNewReportsFlowEnabled).toBeTrue();
-    }));
 
     it('should call setupActionSheet once', fakeAsync(() => {
       component.ionViewWillEnter();
@@ -2779,7 +2767,6 @@ describe('MyExpensesPage', () => {
   describe('showOldReportsMatBottomSheet(): ', () => {
     beforeEach(() => {
       component.selectedElements = apiExpenses1;
-      component.isNewReportsFlowEnabled = true;
       component.openReports$ = of(expectedReportsSinglePage);
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       spyOn(component, 'showAddToReportSuccessToast');

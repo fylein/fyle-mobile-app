@@ -47,7 +47,7 @@ export class StatsComponent implements OnInit {
 
   isIncompleteExpensesStatsLoading = true;
 
-  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
 
   reportStatsLoading = true;
 
@@ -91,17 +91,12 @@ export class StatsComponent implements OnInit {
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
-    const simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings.simplified_report_closure_settings?.enabled }))
-    );
-
     const isNonReimbursableOrg$ = orgSettings$.pipe(
       map((orgSettings) => this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings))
     );
 
     this.reportStatsData$ = forkJoin({
       reportStats: reportStats$,
-      simplifyReportsSettings: simplifyReportsSettings$,
       homeCurrency: this.homeCurrency$,
       currencySymbol: this.currencySymbol$,
       isNonReimbursableOrg: isNonReimbursableOrg$,
