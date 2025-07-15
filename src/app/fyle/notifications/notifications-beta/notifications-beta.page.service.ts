@@ -4,6 +4,7 @@ import { NotificationEventItem } from 'src/app/core/models/notification-event-it
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +21,11 @@ export class NotificationsBetaPageService {
     }
   }
 
-  getExpenseNotifications(): NotificationEventItem[] {
-    return [
+  getExpenseNotifications(
+    currentEou: ExtendedOrgUser,
+    isExpenseMarkedPersonalEventEnabled: boolean
+  ): NotificationEventItem[] {
+    const expenseNotifications = [
       {
         event: 'When an expense is created via email',
         email: true,
@@ -43,10 +47,21 @@ export class NotificationsBetaPageService {
         eventEnum: NotificationEventsEnum.ETXNS_ADMIN_UPDATED,
       },
     ];
+
+    const allowedRoles = ['ADMIN', 'FINANCE'];
+    if (isExpenseMarkedPersonalEventEnabled && currentEou.ou.roles.some((role) => allowedRoles.includes(role))) {
+      expenseNotifications.push({
+        event: 'When an expense is marked as personal',
+        email: true,
+        eventEnum: NotificationEventsEnum.ETXNS_MARKED_PERSONAL,
+      });
+    }
+
+    return expenseNotifications;
   }
 
-  getReportNotifications(): NotificationEventItem[] {
-    return [
+  getReportNotifications(currentEou: ExtendedOrgUser): NotificationEventItem[] {
+    const reportNotifications = [
       {
         event: 'When an expense report is submitted',
         email: true,
@@ -73,6 +88,17 @@ export class NotificationsBetaPageService {
         eventEnum: NotificationEventsEnum.EREIMBURSEMENTS_COMPLETED,
       },
     ];
+
+    const allowedRoles = ['ADMIN', 'FINANCE', 'PAYMENT_PROCESSOR'];
+    if (currentEou.ou.roles.some((role) => allowedRoles.includes(role))) {
+      reportNotifications.push({
+        event: 'When an expense report is ready to process',
+        email: true,
+        eventEnum: NotificationEventsEnum.ERPTS_READY_TO_PROCESS,
+      });
+    }
+
+    return reportNotifications;
   }
 
   getAdvanceNotifications(): NotificationEventItem[] {
@@ -112,7 +138,9 @@ export class NotificationsBetaPageService {
 
   getEmailNotificationsConfig(
     orgSettings: OrgSettings,
-    employeeSettings: EmployeeSettings
+    employeeSettings: EmployeeSettings,
+    currentEou: ExtendedOrgUser,
+    isExpenseMarkedPersonalEventEnabled: boolean
   ): {
     expenseNotificationsConfig: NotificationConfig;
     expenseReportNotificationsConfig: NotificationConfig;
@@ -130,8 +158,10 @@ export class NotificationsBetaPageService {
           email: !unsubscribedEventsByUser.includes(notification.eventEnum),
         }));
 
-    const expenseNotifications = processNotifications(this.getExpenseNotifications());
-    const reportNotifications = processNotifications(this.getReportNotifications());
+    const expenseNotifications = processNotifications(
+      this.getExpenseNotifications(currentEou, isExpenseMarkedPersonalEventEnabled)
+    );
+    const reportNotifications = processNotifications(this.getReportNotifications(currentEou));
     const advanceNotifications = processNotifications(this.getAdvanceNotifications());
 
     const expenseNotificationsConfig = {

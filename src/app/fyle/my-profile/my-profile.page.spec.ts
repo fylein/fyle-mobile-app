@@ -1,14 +1,13 @@
 import { EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
-import { BehaviorSubject, of, throwError } from 'rxjs';
-import { selectedCurrencies } from 'src/app/core/mock-data/currency.data';
+import { of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
-import { apiEouRes, eouRes2, eouRes3, eouWithNoAttempts } from 'src/app/core/mock-data/extended-org-user.data';
+import { apiEouRes, eouRes2, eouWithNoAttempts } from 'src/app/core/mock-data/extended-org-user.data';
 import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -36,6 +35,8 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -60,6 +61,7 @@ describe('MyProfilePage', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
+  let employeesService: jasmine.SpyObj<EmployeesService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -95,6 +97,7 @@ describe('MyProfilePage', () => {
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
+    const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -190,6 +193,10 @@ describe('MyProfilePage', () => {
           provide: SpenderOnboardingService,
           useValue: spenderOnboardingServiceSpy,
         },
+        {
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
+        },
         SpenderService,
       ],
     }).compileComponents();
@@ -219,6 +226,7 @@ describe('MyProfilePage', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
+    employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     component.eou$ = of(apiEouRes);
 
     fixture.detectChanges();
@@ -714,4 +722,45 @@ describe('MyProfilePage', () => {
     expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile number updated successfully', 'success');
   }));
+
+  describe('setCommuteDetails():', () => {
+    it('should set commute details and mileage distance unit when API returns data', fakeAsync(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+
+      component.setCommuteDetails();
+      tick(100);
+
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(apiEouRes);
+      expect(component.commuteDetails).toEqual(commuteDetailsResponseData.data[0].commute_details);
+      expect(component.mileageDistanceUnit).toEqual('KM');
+    }));
+
+    it('should set mileage distance unit to Miles when distance_unit is MILES', fakeAsync(() => {
+      const commuteDetailsWithMiles = {
+        ...commuteDetailsResponseData,
+        data: [
+          {
+            ...commuteDetailsResponseData.data[0],
+            commute_details: {
+              ...commuteDetailsResponseData.data[0].commute_details,
+              distance_unit: 'MILES',
+            },
+          },
+        ],
+      };
+
+      authService.getEou.and.resolveTo(apiEouRes);
+      employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsWithMiles));
+
+      component.setCommuteDetails();
+      tick(100);
+
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(apiEouRes);
+      expect(component.commuteDetails).toEqual(commuteDetailsWithMiles.data[0].commute_details);
+      expect(component.mileageDistanceUnit).toEqual('Miles');
+    }));
+  });
 });
