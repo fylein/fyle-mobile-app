@@ -15,12 +15,6 @@ export interface ExtendedReport {
   ou_status: string;
   ou_sub_department: string;
   ou_title: string;
-  report_approvals?: {
-    [id: string]: {
-      rank: number;
-      state: string;
-    };
-  };
   rp_amount: number;
   rp_approval_state?: string;
   rp_approved_at?: Date;

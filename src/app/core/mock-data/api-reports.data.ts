@@ -24,7 +24,6 @@ export const apiReportRes: ApiV2Response<ExtendedReport> = deepFreeze({
       ou_status: '"ACTIVE"',
       ou_sub_department: null,
       ou_title: 'director',
-      report_approvals: null,
       rp_amount: 0,
       rp_approval_state: null,
       rp_approved_at: null,
@@ -75,12 +74,6 @@ export const apiReportRes: ApiV2Response<ExtendedReport> = deepFreeze({
       ou_status: '"ACTIVE"',
       ou_sub_department: null,
       ou_title: 'director',
-      report_approvals: {
-        ouX8dwsbLCLv: {
-          rank: 99,
-          state: 'APPROVAL_PENDING',
-        },
-      },
       rp_amount: 9400,
       rp_approval_state: 'APPROVAL_PENDING',
       rp_approved_at: null,
@@ -131,12 +124,6 @@ export const apiReportRes: ApiV2Response<ExtendedReport> = deepFreeze({
       ou_status: '"ACTIVE"',
       ou_sub_department: null,
       ou_title: 'director',
-      report_approvals: {
-        ouX8dwsbLCLv: {
-          rank: 99,
-          state: 'APPROVAL_DONE',
-        },
-      },
       rp_amount: 324,
       rp_approval_state: 'APPROVAL_DONE',
       rp_approved_at: new Date('2023-01-17T06:33:29.049'),
@@ -187,12 +174,6 @@ export const apiReportRes: ApiV2Response<ExtendedReport> = deepFreeze({
       ou_status: '"ACTIVE"',
       ou_sub_department: null,
       ou_title: 'director',
-      report_approvals: {
-        ouX8dwsbLCLv: {
-          rank: 99,
-          state: 'APPROVAL_PENDING',
-        },
-      },
       rp_amount: 10121.24,
       rp_approval_state: 'APPROVAL_PENDING',
       rp_approved_at: null,
