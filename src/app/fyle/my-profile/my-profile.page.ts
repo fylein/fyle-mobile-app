@@ -166,7 +166,6 @@ export class MyProfilePage {
           this.setEmailHighlightFeatureConfigFlag(true);
           driverInstance.destroy();
         } else {
-          this.setEmailHighlightFeatureConfigFlag(false);
           driverInstance.destroy();
         }
       },
