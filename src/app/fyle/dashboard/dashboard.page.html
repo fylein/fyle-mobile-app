@@ -58,12 +58,12 @@
                 [spaceBetween]="0"
                 [pagination]="optInBannerPagination"
                 [centeredSlides]="true"
-                [autoplay]="(canShowOptInBanner$ | async) && (canShowEmailOptInBanner$ | async) ? {
+                [autoplay]=" {
                   delay: 4000,
                   disableOnInteraction: false,
                   pauseOnMouseEnter: false
-                } : false"
-                [loop]="((canShowOptInBanner$ | async) && (canShowEmailOptInBanner$ | async)) ? true : false"
+                }"
+                [loop]="true"
               >
                 <ng-template *ngIf="(canShowOptInBanner$ | async)" swiperSlide>
                   <app-dashboard-opt-in [extendedOrgUser]="eou" (toggleOptInBanner)="toggleOptInBanner($event)">
