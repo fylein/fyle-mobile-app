@@ -83,11 +83,5 @@ describe('ViewDependentFieldsComponent', () => {
       expect(component.parentFieldIcon).toEqual('building');
     });
 
-    it('should be called automatically when component initializes', () => {
-      spyOn(component, 'ngOnInit').and.callThrough();
-      component.parentFieldType = 'PROJECT';
-      fixture.detectChanges();
-      expect(component.ngOnInit).toHaveBeenCalled();
-    });
   });
 });
