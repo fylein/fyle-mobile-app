@@ -46,6 +46,9 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { CommonEmployeeSettings } from 'src/app/core/models/common-employee-settings.model';
+import { driver } from 'driver.js';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -104,6 +107,8 @@ export class MyProfilePage {
 
   onboardingPending$: Observable<{ hideOtherOptions: boolean }>;
 
+  overlayClickCount = 0;
+
   constructor(
     private authService: AuthService,
     private userEventService: UserEventService,
@@ -129,8 +134,113 @@ export class MyProfilePage {
     private orgUserService: OrgUserService,
     private spenderOnboardingService: SpenderOnboardingService,
     private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private router: Router
+    private router: Router,
+    private walkthroughService: WalkthroughService,
+    private featureConfigService: FeatureConfigService
   ) {}
+
+  emailOptInWalkthrough(): void {
+    const emailOptInWalkthroughSteps = this.walkthroughService.getProfileEmailOptInWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.5,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      stageRadius: 6,
+      stagePadding: 4,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Ok',
+      showButtons: ['close', 'next'],
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setEmailHighlightFeatureConfigFlag(false);
+        driverInstance.destroy();
+      },
+      onNextClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setEmailHighlightFeatureConfigFlag(false);
+        driverInstance.destroy();
+      },
+      onDestroyStarted: () => {
+        if (this.walkthroughService.getIsOverlayClicked()) {
+          this.setEmailHighlightFeatureConfigFlag(true);
+          driverInstance.destroy();
+        } else {
+          this.setEmailHighlightFeatureConfigFlag(false);
+          driverInstance.destroy();
+        }
+      },
+    });
+
+    try {
+      driverInstance.setSteps(emailOptInWalkthroughSteps);
+      driverInstance.drive();
+    } catch (error) {
+      this.showToastMessage('Something went wrong. Please try again later.', 'failure');
+    }
+  }
+
+  setEmailHighlightFeatureConfigFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'PROFILE_WALKTHROUGH',
+      key: 'PROFILE_EMAIL_OPT_IN',
+    };
+
+    const eventTrackName =
+      overlayClicked && this.overlayClickCount < 1
+        ? 'Profile Email Opt In Walkthrough Skipped'
+        : 'Profile Email Opt In Walkthrough Completed';
+
+    const featureConfigValue =
+      overlayClicked && this.overlayClickCount < 1
+        ? {
+            isShown: true,
+            isFinished: false,
+            overlayClickCount: this.overlayClickCount + 1,
+          }
+        : {
+            isShown: true,
+            isFinished: true,
+          };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'Profile',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  showEmailOptInWalkthrough(): void {
+    const showEmailOptInWalkthroughConfig = {
+      feature: 'PROFILE_WALKTHROUGH',
+      key: 'PROFILE_EMAIL_OPT_IN',
+    };
+
+    this.featureConfigService
+      .getConfiguration<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+      }>(showEmailOptInWalkthroughConfig)
+      .subscribe((config) => {
+        const featureConfigValue = config?.value || {};
+        const isFinished = featureConfigValue?.isFinished || false;
+        this.overlayClickCount = featureConfigValue?.overlayClickCount || 0;
+
+        if (!isFinished) {
+          // Call walkthrough after DOM is rendered
+          setTimeout(() => {
+            this.emailOptInWalkthrough();
+          }, 100);
+        }
+      });
+  }
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -203,6 +313,7 @@ export class MyProfilePage {
   }
 
   reset(): void {
+    this.showEmailOptInWalkthrough();
     const employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();

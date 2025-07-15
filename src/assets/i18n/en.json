@@ -74,7 +74,8 @@
       "navBarDescription": "Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!",
       "expensesTabDescription": "Tap here to quickly access and manage your expenses!",
       "reportsTabDescription": "Tap here to quickly access and manage your expense reports!",
-      "approverDescription": "Easily manage and approve reports — Access your team's reports right from the home page!"
+      "approverDescription": "Easily manage and approve reports — Access your team's reports right from the home page!",
+      "profileEmailOptInDescription": "Just copy this email ID and forward your receipts to it — your expenses will be created quickly and hassle-free!"
     },
     "customInputs": {
       "deletedSuffix": " (Deleted)",
