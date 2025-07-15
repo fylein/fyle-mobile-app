@@ -375,14 +375,14 @@
                     <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                       <div>
                         <div class="add-edit-expense--payment-mode-header">{{label}}</div>
-                        <ng-container *ngIf="paymentMode?.acc">
-                          <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
+                        <ng-container *ngIf="paymentMode">
+                          <ng-container *ngIf="paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT'">
                             <div class="add-edit-expense--payment-mode-section">{{paymentMode.advance.purpose}}</div>
                           </ng-container>
-                          <div *ngIf="paymentMode.acc.isReimbursable" class="add-edit-expense--payment-mode-section">
+                          <div *ngIf="paymentMode.isReimbursable" class="add-edit-expense--payment-mode-section">
                             (Reimbursable)
                           </div>
-                          <div *ngIf="!paymentMode.acc.isReimbursable" class="add-edit-expense--payment-mode-section">
+                          <div *ngIf="!paymentMode.isReimbursable" class="add-edit-expense--payment-mode-section">
                             (Non Reimbursable)
                           </div>
                         </ng-container>

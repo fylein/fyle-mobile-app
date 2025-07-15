@@ -3,7 +3,7 @@ import { AccountsService } from './accounts.service';
 import { map } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
 import { AccountType } from '../enums/account-type.enum';
-import { ExtendedAccount } from '../models/extended-account.model';
+import { PlatformAccount } from '../models/platform-account.model';
 import { EmployeeSettings } from '../models/employee-settings.model';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -39,9 +39,9 @@ export class PaymentModesService {
 
   getDefaultAccount(
     orgSettings: OrgSettings,
-    accounts: ExtendedAccount[],
+    accounts: PlatformAccount[],
     employeeSettings: EmployeeSettings
-  ): Observable<ExtendedAccount> {
+  ): Observable<PlatformAccount> {
     return forkJoin({
       allowedPaymentModes: this.platformEmployeeSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.checkIfPaymentModeConfigurationsIsEnabled(),
@@ -65,12 +65,12 @@ export class PaymentModesService {
         const defaultAccount = accounts.find((account) => {
           /*
            * Accounts array does not have anything called COMPANY_ACCOUNT
-           * We map PERSONAL_ACCOUNT to 'Peronsal Card/Cash' and 'Paid by Company' in the frontend
+           * We use PERSONAL_CASH_ACCOUNT directly in the frontend
            * which happens in the setAccountProperties() method below
            */
           const mappedAccountType =
             defaultAccountType === AccountType.COMPANY ? AccountType.PERSONAL : defaultAccountType;
-          return account.acc.type === mappedAccountType;
+          return account.type === mappedAccountType;
         });
         return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
       })

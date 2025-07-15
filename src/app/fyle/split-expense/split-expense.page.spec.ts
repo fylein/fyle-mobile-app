@@ -1058,6 +1058,7 @@ describe('SplitExpensePage', () => {
     it('should set the amount and currency when orig currency and amount are not present', () => {
       const mockCurrencyObj = {
         ...unflattenedAccount3Data,
+        amount: 23213,
         orig_amount: null,
         orig_currency: null,
       };
