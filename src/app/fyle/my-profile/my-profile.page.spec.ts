@@ -36,6 +36,9 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { FeatureConfig } from 'src/app/core/models/feature-config.model';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -60,6 +63,8 @@ describe('MyProfilePage', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
+  let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
+  let walkthroughService: jasmine.SpyObj<WalkthroughService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -94,6 +99,15 @@ describe('MyProfilePage', () => {
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postOrgUser']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
+    ]);
+    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', [
+      'getConfiguration',
+      'saveConfiguration',
+    ]);
+    const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
+      'setIsOverlayClicked',
+      'getIsOverlayClicked',
+      'getProfileEmailOptInWalkthroughConfig',
     ]);
 
     TestBed.configureTestingModule({
@@ -190,6 +204,14 @@ describe('MyProfilePage', () => {
           provide: SpenderOnboardingService,
           useValue: spenderOnboardingServiceSpy,
         },
+        {
+          provide: FeatureConfigService,
+          useValue: featureConfigServiceSpy,
+        },
+        {
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
+        },
         SpenderService,
       ],
     }).compileComponents();
@@ -219,6 +241,9 @@ describe('MyProfilePage', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
+    featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
+    walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
+
     component.eou$ = of(apiEouRes);
 
     fixture.detectChanges();
@@ -367,6 +392,24 @@ describe('MyProfilePage', () => {
   });
 
   it('reset(): should reset all settings', fakeAsync(() => {
+    featureConfigService.getConfiguration.and.returnValue(
+      of({ value: { isFinished: false } } as FeatureConfig<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+      }>)
+    );
+    walkthroughService.getProfileEmailOptInWalkthroughConfig.and.returnValue([
+      {
+        element: '#profile-email-opt-in-walkthrough',
+        popover: {
+          description: 'Test description',
+          side: 'top',
+          align: 'center',
+        },
+        onHighlightStarted: jasmine.createSpy('onHighlightStarted'),
+      },
+    ]);
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
