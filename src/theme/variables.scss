@@ -7,7 +7,7 @@
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
-$custom-typography: mat.define-legacy-typography-config(
+$custom-typography: mat.define-typography-config(
   $font-family: '"aktiv-grotesk", "Lato", sans-serif',
 );
 // TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
@@ -17,9 +17,9 @@ $custom-typography: mat.define-legacy-typography-config(
 //  If you specify typography styles for the components you use elsewhere, you should delete this line.
 //  If you don't need the default component typographies but still want the hierarchy styles,
 //  you can delete this line and instead use:
-//    `@include mat.legacy-typography-hierarchy($custom-typography);`
-@include mat.all-legacy-component-typographies($custom-typography);
-@include mat.legacy-core();
+//    `@include mat.typography-hierarchy($custom-typography);`
+@include mat.all-component-typographies($custom-typography);
+@include mat.core();
 
 /// warning color palette
 $fy-warning: (
@@ -66,7 +66,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
-@include mat.all-legacy-component-themes($fy-theme);
+@include mat.all-component-themes($fy-theme);
 
 // // Ionic Variables and Theming. For more info, please see:
 // // http://ionicframework.com/docs/theming/
