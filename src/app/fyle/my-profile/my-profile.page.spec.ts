@@ -442,6 +442,75 @@ describe('MyProfilePage', () => {
     expect(component.defaultPaymentMode).toEqual('Personal Cash/Card');
   }));
 
+  it('reset(): should show email opt-in walkthrough when show_email_walkthrough parameter is true', fakeAsync(() => {
+    // Mock route params with show_email_walkthrough as 'true'
+    const mockActivatedRoute = TestBed.inject(ActivatedRoute);
+    mockActivatedRoute.snapshot.params = { show_email_walkthrough: 'true' };
+
+    spyOn(component, 'showEmailOptInWalkthrough');
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    spyOn(component, 'setInfoCardsData');
+    spyOn(component, 'setPreferenceSettings');
+    spyOn(component, 'setCCCFlags');
+    paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
+    fixture.detectChanges();
+
+    component.reset();
+    tick(500);
+
+    expect(component.showEmailOptInWalkthrough).toHaveBeenCalledTimes(1);
+  }));
+
+  it('reset(): should not show email opt-in walkthrough when show_email_walkthrough parameter is not true', fakeAsync(() => {
+    // Mock route params with show_email_walkthrough as 'false'
+    const mockActivatedRoute = TestBed.inject(ActivatedRoute);
+    mockActivatedRoute.snapshot.params = { show_email_walkthrough: 'false' };
+
+    spyOn(component, 'showEmailOptInWalkthrough');
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    spyOn(component, 'setInfoCardsData');
+    spyOn(component, 'setPreferenceSettings');
+    spyOn(component, 'setCCCFlags');
+    paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
+    fixture.detectChanges();
+
+    component.reset();
+    tick(500);
+
+    expect(component.showEmailOptInWalkthrough).not.toHaveBeenCalled();
+  }));
+
+  it('reset(): should not show email opt-in walkthrough when show_email_walkthrough parameter is not present', fakeAsync(() => {
+    // Mock route params without show_email_walkthrough parameter
+    const mockActivatedRoute = TestBed.inject(ActivatedRoute);
+    mockActivatedRoute.snapshot.params = {};
+
+    spyOn(component, 'showEmailOptInWalkthrough');
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    spyOn(component, 'setInfoCardsData');
+    spyOn(component, 'setPreferenceSettings');
+    spyOn(component, 'setCCCFlags');
+    paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
+    fixture.detectChanges();
+
+    component.reset();
+    tick(500);
+
+    expect(component.showEmailOptInWalkthrough).not.toHaveBeenCalled();
+  }));
+
   it('setCCCFlags(): should set ccc flags as per the org and org user settings', () => {
     component.orgSettings = orgSettingsData;
 

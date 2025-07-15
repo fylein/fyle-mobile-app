@@ -29,6 +29,7 @@ export class DashboardEmailOptInComponent {
       'my_profile',
       {
         navigate_back: true,
+        show_email_walkthrough: true,
       },
     ]);
   }

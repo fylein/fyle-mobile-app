@@ -313,7 +313,11 @@ export class MyProfilePage {
   }
 
   reset(): void {
-    this.showEmailOptInWalkthrough();
+    // Check if we should show email opt-in walkthrough from route parameter
+    const routeParams = this.activatedRoute.snapshot.params;
+    if (routeParams.show_email_walkthrough === 'true') {
+      this.showEmailOptInWalkthrough();
+    }
     const employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
