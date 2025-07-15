@@ -13,7 +13,7 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center">
-    <mat-form-field appearance="none" class="dependent-field-modal__form-field mat-form-field-no-padding">
+    <mat-form-field appearance="outline" class="dependent-field-modal__form-field mat-form-field-no-padding">
       <mat-icon class="dependent-field-modal__search-icon" matPrefix svgIcon="search"></mat-icon>
       <input
         #searchBar
@@ -33,7 +33,6 @@
         class="dependent-field-modal__clear-button"
         *ngIf="value && !isLoading"
         [attr.aria-label]="'dependentFieldModal.clear' | transloco"
-        mat-button
         mat-icon-button
         matSuffix
       >
