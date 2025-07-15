@@ -8,7 +8,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';

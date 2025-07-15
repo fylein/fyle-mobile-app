@@ -18,9 +18,9 @@ import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-s
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import {
-  MatLegacySnackBar as MatSnackBar,
-  MatLegacySnackBarRef as MatSnackBarRef,
-} from '@angular/material/legacy-snack-bar';
+  MatSnackBar,
+  MatSnackBarRef,
+} from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';

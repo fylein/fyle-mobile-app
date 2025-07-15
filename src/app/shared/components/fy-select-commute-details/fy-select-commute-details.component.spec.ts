@@ -7,7 +7,7 @@ import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { LocationService } from 'src/app/core/services/location.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { commuteDetailsData } from 'src/app/core/mock-data/commute-details.data';

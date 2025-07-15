@@ -6,7 +6,7 @@ import { switchMap, map, finalize, startWith, distinctUntilChanged } from 'rxjs/
 import { ModalController } from '@ionic/angular';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { MatChipInputEvent } from '@angular/material/chips';
 import { Approver } from '../models/approver.model';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
 import { TranslocoService } from '@jsverse/transloco';

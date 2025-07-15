@@ -11,7 +11,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController } from '@ionic/angular';
 import { NgOtpInputComponent, NgOtpInputConfig } from 'ng-otp-input';
 import { finalize, from, Subscription, switchMap } from 'rxjs';

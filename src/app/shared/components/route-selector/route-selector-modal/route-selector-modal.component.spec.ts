@@ -11,7 +11,7 @@ import { FyLocationComponent } from '../../fy-location/fy-location.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { of } from 'rxjs';
 
 describe('RouteSelectorModalComponent', () => {

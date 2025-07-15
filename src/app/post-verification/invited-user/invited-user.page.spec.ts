@@ -8,7 +8,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, UrlSerializer } from '@angular/router';
 import { TrackingService } from '../../core/services/tracking.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { InvitedUserPage } from './invited-user.page';
 import { UntypedFormBuilder } from '@angular/forms';

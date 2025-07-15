@@ -3,7 +3,7 @@ import { PaymentModesService } from './payment-modes.service';
 import { AccountsService } from './accounts.service';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TrackingService } from './tracking.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from './snackbar-properties.service';
 import { of } from 'rxjs';
 import { orgSettingsRes, orgSettingsParamWoCCC } from '../mock-data/org-settings.data';

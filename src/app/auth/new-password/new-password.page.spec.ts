@@ -16,7 +16,7 @@ import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-devi
 import { RouterTestingModule } from '@angular/router/testing';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 

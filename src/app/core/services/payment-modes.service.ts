@@ -6,7 +6,7 @@ import { AccountType } from '../enums/account-type.enum';
 import { PlatformAccount } from '../models/platform-account.model';
 import { EmployeeSettings } from '../models/employee-settings.model';
 import { TrackingService } from '../../core/services/tracking.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { OrgSettings, PaymentmodeSettings } from '../models/org-settings.model';

@@ -30,7 +30,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { Observable, finalize, of } from 'rxjs';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
