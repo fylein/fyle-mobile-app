@@ -749,7 +749,6 @@ export class MyExpensesPage implements OnInit {
       map((openReports) =>
         openReports.filter(
           (openReport) =>
-            // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
             !openReport.approvals ||
             (openReport.approvals &&
               !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
