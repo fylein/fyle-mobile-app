@@ -183,7 +183,7 @@ describe('StatsComponent', () => {
         expect(dashboardService.getReportsStats).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(paymentModeService.isNonReimbursableOrg).toHaveBeenCalledOnceWith(
-          orgSettingsParamsWithSimplifiedReport.payment_mode_settings
+          orgSettingsRes.payment_mode_settings
         );
         expect(component.reportStatsLoading).toBeFalse();
         done();

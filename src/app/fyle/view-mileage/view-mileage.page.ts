@@ -374,7 +374,6 @@ export class ViewMileagePage {
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;
-        
       });
 
     this.mileageCustomFields$ = this.mileageExpense$.pipe(

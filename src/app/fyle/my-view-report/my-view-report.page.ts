@@ -23,7 +23,6 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
-import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';

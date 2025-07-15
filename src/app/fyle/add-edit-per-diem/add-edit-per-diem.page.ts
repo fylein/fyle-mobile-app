@@ -892,10 +892,6 @@ export class AddEditPerDiemPage implements OnInit {
       map((orgSettings) => orgSettings.advanced_per_diems_settings?.enable_employee_restriction)
     );
 
-    orgSettings$.subscribe((orgSettings) => {
-
-    });
-
     this.setupNetworkWatcher();
 
     this.recentlyUsedValues$ = this.isConnected$.pipe(

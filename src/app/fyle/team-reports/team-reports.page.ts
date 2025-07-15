@@ -130,9 +130,6 @@ export class TeamReportsPage implements OnInit {
       this.teamReportsTaskCount = teamReportsTaskCount;
     });
 
-    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-
-
     this.eou$.subscribe((eou: ExtendedOrgUser) => {
       this.loadData$ = new BehaviorSubject({
         pageNumber: 1,

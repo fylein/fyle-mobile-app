@@ -395,7 +395,6 @@ export class ViewExpensePage {
       this.isRTFEnabled =
         (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
         (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled);
-              
     });
 
     this.expenseFieldsService

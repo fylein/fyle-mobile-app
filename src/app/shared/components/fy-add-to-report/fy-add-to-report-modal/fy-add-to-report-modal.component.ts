@@ -51,7 +51,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     private currencyService: CurrencyService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (this.currentSelection) {
       this.options = this.options
         .map((option) =>
@@ -65,23 +65,23 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.cdr.detectChanges();
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option: Option) {
+  onElementSelect(option: Option): void {
     this.modalController.dismiss(option);
   }
 
-  createDraftReport() {
+  createDraftReport(): void {
     this.modalController.dismiss({ createDraftReport: true });
   }
 
-  dismissModal(event: { srcElement: { innerText: string } }) {
+  dismissModal(event: { srcElement: { innerText: string } }): void {
     this.modalController.dismiss({
       label: event.srcElement.innerText,
       value: null,

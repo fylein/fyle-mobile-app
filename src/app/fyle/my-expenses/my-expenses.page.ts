@@ -495,7 +495,6 @@ export class MyExpensesPage implements OnInit {
     this.isPerDiemEnabled$ = this.orgSettings$.pipe(map((orgSettings) => orgSettings?.per_diem?.enabled));
 
     this.orgSettings$.subscribe((orgSettings) => {
-  
       this.restrictPendingTransactionsEnabled =
         (orgSettings?.corporate_credit_card_settings?.enabled &&
           orgSettings.pending_cct_expense_restriction?.enabled) ||
