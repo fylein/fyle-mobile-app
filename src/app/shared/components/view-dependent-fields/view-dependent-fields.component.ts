@@ -19,8 +19,6 @@ export class ViewDependentFieldsComponent implements OnInit {
 
   parentFieldIcon: string;
 
-  constructor() {}
-
   ngOnInit() {
     this.parentFieldIcon = this.parentFieldType === 'PROJECT' ? 'list' : 'building';
   }
