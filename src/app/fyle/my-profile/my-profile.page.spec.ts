@@ -86,6 +86,7 @@ describe('MyProfilePage', () => {
       'optInClickedFromProfile',
       'updateMobileNumberClicked',
       'optedInFromProfile',
+      'eventTrack',
     ]);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -510,6 +511,187 @@ describe('MyProfilePage', () => {
 
     expect(component.showEmailOptInWalkthrough).not.toHaveBeenCalled();
   }));
+
+  describe('emailOptInWalkthrough():', () => {
+    it('should create driver instance and start walkthrough successfully', () => {
+      const mockWalkthroughSteps = [
+        {
+          element: '#profile-email-opt-in-walkthrough',
+          popover: {
+            description: 'Test description',
+            side: 'top' as any,
+            align: 'center' as any,
+          },
+        },
+      ];
+
+      walkthroughService.getProfileEmailOptInWalkthroughConfig.and.returnValue(mockWalkthroughSteps);
+      walkthroughService.setIsOverlayClicked.and.returnValue();
+      spyOn(component, 'setEmailHighlightFeatureConfigFlag');
+
+      component.emailOptInWalkthrough();
+
+      expect(walkthroughService.getProfileEmailOptInWalkthroughConfig).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('setEmailHighlightFeatureConfigFlag():', () => {
+    beforeEach(() => {
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+    });
+
+    it('should save skipped configuration when overlay is clicked and click count is less than 1', () => {
+      component.overlayClickCount = 0;
+
+      component.setEmailHighlightFeatureConfigFlag(true);
+
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Profile Email Opt In Walkthrough Skipped', {
+        Asset: 'Mobile',
+        from: 'Profile',
+      });
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+        value: {
+          isShown: true,
+          isFinished: false,
+          overlayClickCount: 1,
+        },
+      });
+    });
+
+    it('should save completed configuration when overlay is clicked and click count is 1 or more', () => {
+      component.overlayClickCount = 1;
+
+      component.setEmailHighlightFeatureConfigFlag(true);
+
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Profile Email Opt In Walkthrough Completed', {
+        Asset: 'Mobile',
+        from: 'Profile',
+      });
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+        value: {
+          isShown: true,
+          isFinished: true,
+        },
+      });
+    });
+
+    it('should save completed configuration when overlay is not clicked', () => {
+      component.overlayClickCount = 0;
+
+      component.setEmailHighlightFeatureConfigFlag(false);
+
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Profile Email Opt In Walkthrough Completed', {
+        Asset: 'Mobile',
+        from: 'Profile',
+      });
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+        value: {
+          isShown: true,
+          isFinished: true,
+        },
+      });
+    });
+  });
+
+  describe('showEmailOptInWalkthrough():', () => {
+    it('should call emailOptInWalkthrough when config is not finished', fakeAsync(() => {
+      const mockConfig = {
+        value: {
+          isShown: true,
+          isFinished: false,
+          overlayClickCount: 0,
+        },
+      } as FeatureConfig<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+      }>;
+
+      featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+      spyOn(component, 'emailOptInWalkthrough');
+
+      component.showEmailOptInWalkthrough();
+      tick(100);
+
+      expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+      });
+      expect(component.emailOptInWalkthrough).toHaveBeenCalledTimes(1);
+      expect(component.overlayClickCount).toBe(0);
+    }));
+
+    it('should not call emailOptInWalkthrough when config is finished', fakeAsync(() => {
+      const mockConfig = {
+        value: {
+          isShown: true,
+          isFinished: true,
+          overlayClickCount: 2,
+        },
+      } as FeatureConfig<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+      }>;
+
+      featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+      spyOn(component, 'emailOptInWalkthrough');
+
+      component.showEmailOptInWalkthrough();
+      tick(100);
+
+      expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+      });
+      expect(component.emailOptInWalkthrough).not.toHaveBeenCalled();
+      expect(component.overlayClickCount).toBe(2);
+    }));
+
+    it('should call emailOptInWalkthrough when config value is null', fakeAsync(() => {
+      const mockConfig = {
+        value: null,
+      } as FeatureConfig<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+      }>;
+
+      featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+      spyOn(component, 'emailOptInWalkthrough');
+
+      component.showEmailOptInWalkthrough();
+      tick(100);
+
+      expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+      });
+      expect(component.emailOptInWalkthrough).toHaveBeenCalledTimes(1);
+      expect(component.overlayClickCount).toBe(0);
+    }));
+
+    it('should call emailOptInWalkthrough when config is undefined', fakeAsync(() => {
+      featureConfigService.getConfiguration.and.returnValue(of(undefined));
+      spyOn(component, 'emailOptInWalkthrough');
+
+      component.showEmailOptInWalkthrough();
+      tick(100);
+
+      expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+      });
+      expect(component.emailOptInWalkthrough).toHaveBeenCalledTimes(1);
+      expect(component.overlayClickCount).toBe(0);
+    }));
+  });
 
   it('setCCCFlags(): should set ccc flags as per the org and org user settings', () => {
     component.orgSettings = orgSettingsData;
