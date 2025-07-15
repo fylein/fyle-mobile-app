@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { SelectCurrencyComponent } from '../select-currency/select-currency.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
 
@@ -33,29 +32,5 @@ export class PreferenceSettingComponent implements OnInit {
 
   onChange() {
     this.preferenceChanged.emit({ key: this.key, isEnabled: this.isEnabled });
-  }
-
-  async openCurrencyModal() {
-    const modal = await this.modalController.create({
-      component: SelectCurrencyComponent,
-      componentProps: {
-        currentSelection: this.defaultCurrency,
-      },
-      mode: 'ios',
-      ...this.modalProperties.getModalDefaultProperties(),
-    });
-
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss();
-
-    if (data && data.selectedCurrency) {
-      this.defaultCurrency = data.selectedCurrency.shortCode;
-      this.preferenceChanged.emit({
-        key: this.key,
-        isEnabled: this.isEnabled,
-        selectedCurrency: data.selectedCurrency,
-      });
-    }
   }
 }
