@@ -1547,7 +1547,7 @@ export class MyExpensesPage implements OnInit {
   async openActionSheet(): Promise<void> {
     const that = this;
     const actionSheet = await this.actionSheetController.create({
-      header: this.translocoService.translate('myExpensesPage.actionSheet.addExpense'),
+      header: this.translocoService.translate('myExpensesPage.actionSheet.header'),
       mode: 'md',
       cssClass: 'fy-action-sheet',
       buttons: that.actionSheetButtons,
