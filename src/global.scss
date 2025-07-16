@@ -590,7 +590,7 @@ input {
 }
 
 .mat-form-field-appearance-outline .mat-mdc-form-field-flex {
-  padding: 0 .75em;
+  padding: 0 0.75em;
   margin-top: -0.25em;
   position: relative;
 }
@@ -599,7 +599,8 @@ html {
   --mdc-outlined-text-field-focus-outline-color: #5a5d72;
 }
 
-.mat-mdc-form-field-icon-prefix>.mat-icon, .mat-mdc-form-field-icon-suffix>.mat-icon {
+.mat-mdc-form-field-icon-prefix > .mat-icon,
+.mat-mdc-form-field-icon-suffix > .mat-icon {
   padding: 0 !important;
 }
 
@@ -644,7 +645,7 @@ html {
 }
 
 .mat-mdc-form-field-subscript-wrapper {
-  height: 0!important;
+  height: 0 !important;
 }
 
 .selection-modal--form-field,
@@ -881,7 +882,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .dashboard {
   &--tabs {
-    .mat-tab-header {
+    .mat-mdc-tab-header {
       display: none;
     }
   }
