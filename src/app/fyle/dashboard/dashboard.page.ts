@@ -71,6 +71,8 @@ export class DashboardPage {
 
   optInShowTimer;
 
+  dashboardAddExpenseWalkthroughTimer;
+
   navigationSubscription: Subscription;
 
   canShowOptInBanner$: Observable<boolean>;
@@ -82,6 +84,8 @@ export class DashboardPage {
   isWalkthroughComplete = false;
 
   isWalkthroughPaused = false;
+
+  isWalkThroughOver = false; // used to check if the walkthrough is over for that momemnt by the user so we can show the add expense walkthrough
 
   // variable to check for the overlay bg click for the walkthrough
   // This needs to be true at the start as driver.js does not have a default overlay click event
@@ -198,8 +202,9 @@ export class DashboardPage {
         const featureConfigValue = config?.value || {};
         const isFinished = featureConfigValue?.isFinished || false;
 
-        if (!isFinished) {
-          setTimeout(() => {
+        // Only show add expense walkthrough if navbar walkthrough is finished or over for that moment by the user
+        if (!isFinished && (this.isWalkthroughComplete || this.isWalkThroughOver)) {
+          this.dashboardAddExpenseWalkthroughTimer = setTimeout(() => {
             this.startDashboardAddExpenseWalkthrough();
           }, 1000);
         }
@@ -207,6 +212,9 @@ export class DashboardPage {
   }
 
   setNavbarWalkthroughFeatureConfigFlag(overlayClicked: boolean): void {
+    this.isWalkThroughOver = true;
+    // now call the dashboard add expense walkthrough
+    this.showDashboardAddExpenseWalkthrough();
     const featureConfigParams = {
       feature: 'WALKTHROUGH',
       key: 'DASHBOARD_SHOW_NAVBAR',
@@ -319,6 +327,10 @@ export class DashboardPage {
         this.walkthroughOverlayStartIndex = featureConfigValue?.currentStepIndex || 0;
         this.isWalkthroughComplete = isFinished;
 
+        if (isFinished) {
+          this.showDashboardAddExpenseWalkthrough();
+        }
+
         if (!isFinished) {
           this.startTour(isApprover);
         }
@@ -333,6 +345,7 @@ export class DashboardPage {
       driver().destroy();
     }
     clearTimeout(this.optInShowTimer as number);
+    clearTimeout(this.dashboardAddExpenseWalkthroughTimer as number);
     this.navigationSubscription?.unsubscribe();
     this.utilityService.toggleShowOptInAfterAddingCard(false);
     this.onPageExit$.next(null);
@@ -399,7 +412,6 @@ export class DashboardPage {
     this.isWalkthroughPaused = false;
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
-    this.showDashboardAddExpenseWalkthrough();
     this.smartlookService.init();
     this.footerService.footerCurrentStateIndex$.subscribe((index) => {
       this.currentStateIndex = index;
