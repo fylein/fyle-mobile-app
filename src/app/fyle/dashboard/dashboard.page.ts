@@ -190,6 +190,9 @@ export class DashboardPage {
   }
 
   showDashboardAddExpenseWalkthrough(): void {
+    // Clear any existing timer to prevent multiple timers running simultaneously
+    clearTimeout(this.dashboardAddExpenseWalkthroughTimer as number);
+
     this.featureConfigService
       .getConfiguration<{
         isShown?: boolean;
