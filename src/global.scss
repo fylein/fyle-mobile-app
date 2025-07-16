@@ -582,27 +582,29 @@ input {
   }
 }
 
-.expense-report-search {
-  width: 100%;
-
-  .mat-form-field-appearance-outline .mat-form-field-infix {
-    padding-top: 0 !important;
-    padding-bottom: 6px !important;
-  }
+.mdc-text-field--outlined .mat-mdc-form-field-infix,
+.mdc-text-field--no-label .mat-mdc-form-field-infix {
+  --mat-form-field-container-vertical-padding: 10px;
+  --mat-form-field-container-horizontal-padding: 8px;
+  --mat-form-field-container-height: 42px;
 }
 
-.switch-org-search {
-  width: 100%;
-  padding: 0 10px;
-
-  .mat-form-field-appearance-outline .mat-form-field-infix {
-    padding-top: 0 !important;
-    padding-bottom: 6px !important;
-  }
+.mat-form-field-appearance-outline .mat-mdc-form-field-flex {
+  padding: 0 .75em;
+  margin-top: -0.25em;
+  position: relative;
 }
 
-.mat-form-field-appearance-outline .mat-form-field-infix {
-  padding: 0.3em 0 1em 0;
+html {
+  --mdc-outlined-text-field-focus-outline-color: #5a5d72;
+}
+
+.mat-mdc-form-field-icon-prefix>.mat-icon, .mat-mdc-form-field-icon-suffix>.mat-icon {
+  padding: 0 !important;
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+  height: 0!important;
 }
 
 .selection-modal--form-field,

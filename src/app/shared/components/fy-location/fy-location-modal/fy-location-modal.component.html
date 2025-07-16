@@ -9,26 +9,24 @@
       appearance="outline"
       class="mat-form-field-no-padding selection-modal--simple-search selection-modal--simple-search-container"
     >
-      <div class="selection-modal--simple-search-block">
-        <input
-          #searchBar
-          [(ngModel)]="value"
-          class="selection-modal--simple-search-input smartlook-show"
-          matInput
-          [placeholder]="'fyLocationModal.search' | transloco"
-        />
-        <mat-icon *ngIf="loader" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix> </mat-icon>
-        <button
-          (click)="clearValue()"
-          *ngIf="value"
-          [attr.aria-label]="'fyLocationModal.clear' | transloco"
-          class="selection-modal--simple-search-close"
-          mat-icon-button
-          matSuffix
-        >
-          <mat-icon class="selection-modal--simple-search-icon" svgIcon="clear"></mat-icon>
-        </button>
-      </div>
+      <input
+        #searchBar
+        [(ngModel)]="value"
+        class="selection-modal--simple-search-input smartlook-show"
+        matInput
+        [placeholder]="'fyLocationModal.search' | transloco"
+      />
+      <mat-icon *ngIf="loader" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix> </mat-icon>
+      <button
+        (click)="clearValue()"
+        *ngIf="!loader && value"
+        [attr.aria-label]="'fyLocationModal.clear' | transloco"
+        class="selection-modal--simple-search-close"
+        mat-icon-button
+        matSuffix
+      >
+        <mat-icon class="selection-modal--simple-search-icon" svgIcon="clear"></mat-icon>
+      </button>
     </mat-form-field>
     <ion-buttons *ngIf="!disableEnteringManualLocation" mode="md" slot="end">
       <ion-button
