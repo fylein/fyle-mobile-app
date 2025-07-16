@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { IonicModule, Platform } from '@ionic/angular';
+import { IonicModule, Platform, MenuController } from '@ionic/angular';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -19,6 +19,9 @@ import { FooterState } from './shared/components/footer/footer-state.enum';
 import { TrackingService } from './core/services/tracking.service';
 import { NavController } from '@ionic/angular';
 import { TranslocoService } from '@jsverse/transloco';
+import { UserEventService } from './core/services/user-event.service';
+import { DeviceService } from './core/services/device.service';
+import { GmapsService } from './core/services/gmaps.service';
 
 describe('AppComponent', () => {
   let platformReadySpy;
@@ -36,6 +39,10 @@ describe('AppComponent', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let navController: jasmine.SpyObj<NavController>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+  let userEventService: jasmine.SpyObj<UserEventService>;
+  let deviceService: jasmine.SpyObj<DeviceService>;
+  let gmapsService: jasmine.SpyObj<GmapsService>;
+  let menuController: jasmine.SpyObj<MenuController>;
   beforeEach(waitForAsync(() => {
     platformReadySpy = Promise.resolve();
     platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
@@ -57,6 +64,7 @@ describe('AppComponent', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['logout']);
     const appVersionServiceSpy = jasmine.createSpyObj('AppVersionService', ['load', 'getUserAppVersionDetails']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['isLoggedIn']);
+    routerAuthServiceSpy.isLoggedIn.and.returnValue(of(true));
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline'], {
       isOnline$: of(true),
     });
@@ -79,6 +87,14 @@ describe('AppComponent', () => {
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateRoot', 'back']);
     spenderOnboardingServiceSpy.setOnboardingStatusAsComplete.and.returnValue(of(null));
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onSetToken', 'onLogout']);
+    const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
+    const gmapsServiceSpy = jasmine.createSpyObj('GmapsService', ['loadLibrary']);
+    const menuControllerSpy = jasmine.createSpyObj('MenuController', ['swipeGesture']);
+
+    // Configure tracking service with missing methods
+    trackingServiceSpy.updateIdentityIfNotPresent = jasmine.createSpy('updateIdentityIfNotPresent').and.resolveTo();
+    trackingServiceSpy.onSignOut = jasmine.createSpy('onSignOut');
     TestBed.configureTestingModule({
       declarations: [AppComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -107,6 +123,10 @@ describe('AppComponent', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: NavController, useValue: navControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
+        { provide: UserEventService, useValue: userEventServiceSpy },
+        { provide: DeviceService, useValue: deviceServiceSpy },
+        { provide: GmapsService, useValue: gmapsServiceSpy },
+        { provide: MenuController, useValue: menuControllerSpy },
       ],
       imports: [IonicModule.forRoot()],
     }).compileComponents();
@@ -125,6 +145,10 @@ describe('AppComponent', () => {
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     // adding transloco service to the testbed
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
+    deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
+    gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;
+    menuController = TestBed.inject(MenuController) as jasmine.SpyObj<MenuController>;
   }));
 
   it('should create the app', async () => {
@@ -297,5 +321,97 @@ describe('AppComponent', () => {
     component.isConnected$ = of(false);
     (component as any).getTotalTasksCount();
     expect(component.totalTasksCount).toBe(0);
+  });
+
+  describe('ngOnInit', () => {
+    it('should initialize basic properties and call required methods', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'getShowFooter');
+
+      // Mock sidemenuRef to prevent undefined errors
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+
+      // Mock required properties
+      component.isConnected$ = of(true);
+
+      // Setup router events
+      (router as any).events = of(new NavigationEnd(1, '/test', '/test'));
+
+      component.ngOnInit();
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalled();
+      expect(component.totalTasksCount).toBe(0);
+      expect(component.setSidenavPostOnboarding).toHaveBeenCalled();
+      expect(component.getShowFooter).toHaveBeenCalled();
+      expect(gmapsService.loadLibrary).toHaveBeenCalled();
+    });
+
+    it('should handle footer selection mode changes', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'getShowFooter');
+
+      // Mock sidemenuRef to prevent undefined errors
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+
+      // Mock required properties
+      component.isConnected$ = of(true);
+
+      // Setup router events
+      (router as any).events = of(new NavigationEnd(1, '/test', '/test'));
+
+      // Test selection mode subscription
+      footerService.selectionMode$ = of(true);
+
+      component.ngOnInit();
+
+      // Test with selection mode disabled
+      footerService.selectionMode$ = of(false);
+      component.ngOnInit();
+
+      expect(component.showFooter).toBeTrue();
+    });
+
+    it('should set isOnline property based on network status', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'getShowFooter');
+
+      // Mock sidemenuRef to prevent undefined errors
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+
+      // Test with online status
+      component.isConnected$ = of(true);
+      (router as any).events = of(new NavigationEnd(1, '/test', '/test'));
+
+      component.ngOnInit();
+
+      expect(component.isOnline).toBeTrue();
+
+      // Test with offline status
+      component.isConnected$ = of(false);
+      component.ngOnInit();
+
+      expect(component.isOnline).toBeFalse();
+    });
   });
 });
