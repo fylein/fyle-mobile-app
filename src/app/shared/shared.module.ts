@@ -100,7 +100,6 @@ import { SidemenuContentComponent } from './components/sidemenu/sidemenu-content
 import { SidemenuContentItemComponent } from './components/sidemenu/sidemenu-content/sidemenu-content-item/sidemenu-content-item.component';
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
-import { SendEmailComponent } from './components/send-email/send-email.component';
 import { CaptureReceiptComponent } from './components/capture-receipt/capture-receipt.component';
 import { ReceiptPreviewComponent } from './components/capture-receipt/receipt-preview/receipt-preview.component';
 import { AddMorePopupComponent } from './components/capture-receipt/add-more-popup/add-more-popup.component';
@@ -240,7 +239,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     SidemenuContentComponent,
     SidemenuContentItemComponent,
     FyNavFooterComponent,
-    SendEmailComponent,
     CaptureReceiptComponent,
     ReceiptPreviewComponent,
     AddMorePopupComponent,
@@ -381,7 +379,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     FyMsgPopoverComponent,
     SidemenuComponent,
     FyNavFooterComponent,
-    SendEmailComponent,
     CaptureReceiptComponent,
     ReceiptPreviewComponent,
     AddMorePopupComponent,

@@ -59,8 +59,7 @@ $sub-title: #ababab;
 }
 
 %fy-select-search-input {
-  padding: 0 12px;
-  font-size: 14px;
+  padding: 0 8px;
   line-height: 18px;
   margin-top: -4px;
 }
@@ -74,7 +73,7 @@ $sub-title: #ababab;
 }
 
 %fy-select-mat-form-field {
-  font-size: 11px;
+  font-size: 14px;
   width: 94%;
   padding: 4px;
 }
@@ -98,4 +97,5 @@ $sub-title: #ababab;
   height: 16px;
   width: 16px;
   margin-left: 10px;
+  padding: 0;
 }

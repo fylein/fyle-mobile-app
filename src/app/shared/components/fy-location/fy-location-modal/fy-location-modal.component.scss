@@ -34,7 +34,6 @@
       font-size: 18px;
       margin-right: 8px;
       color: $black-light;
-      height: auto;
     }
 
     &-close {
@@ -46,11 +45,6 @@
 
   &--simple-search-input {
     margin-right: 12px;
-  }
-
-  &--simple-search-block {
-    display: flex;
-    vertical-align: baseline;
   }
 
   &--list-element-icon {
@@ -133,9 +127,7 @@
 
   &--autocomplete-loader {
     @extend %autocomplete-loader;
-    margin-right: 16px;
     margin-top: 2px;
-    height: 12px;
   }
 
   &--cta-button {

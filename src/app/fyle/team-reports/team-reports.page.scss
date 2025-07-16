@@ -47,7 +47,6 @@
     font-size: 14px;
 
     &-icon {
-      width: 14px;
       font-size: 18px;
       margin-right: 6px;
       color: #aaa;
@@ -57,11 +56,6 @@
       margin: -10px;
       font-size: 18px;
     }
-  }
-
-  &--simple-search-block {
-    display: flex;
-    vertical-align: baseline;
   }
 
   &--primary-cta {

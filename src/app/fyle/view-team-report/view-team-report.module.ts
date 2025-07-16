@@ -10,7 +10,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ViewTeamReportPage } from './view-team-report.page';
 import { ViewTeamReportPageRoutingModule } from './view-team-report-routing.module';
-import { ShareReportComponent } from './share-report/share-report.component';
 
 @NgModule({
   imports: [
@@ -25,6 +24,6 @@ import { ShareReportComponent } from './share-report/share-report.component';
     MatFormFieldModule,
     MatSnackBarModule,
   ],
-  declarations: [ViewTeamReportPage, ShareReportComponent],
+  declarations: [ViewTeamReportPage],
 })
 export class ViewTeamReportPageModule {}
