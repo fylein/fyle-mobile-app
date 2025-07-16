@@ -603,6 +603,46 @@ html {
   padding: 0 !important;
 }
 
+// material chips
+.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) {
+  background-color: white !important;
+}
+
+.mat-mdc-chip-grid .mdc-evolution-chip-set__chips {
+  display: flex;
+  align-items: center;
+}
+
+.mat-mdc-chip.mat-mdc-standard-chip {
+  --mdc-chip-container-height: 20px;
+  border: 1px solid $grey-lighter;
+}
+
+.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay {
+  --mdc-chip-focus-state-layer-color: $grey-lighter;
+}
+
+.mat-mdc-standard-chip {
+  min-height: 20px !important;
+  font-size: 12px;
+  color: $black-light !important;
+  padding-right: 0 !important;
+  font-weight: 500 !important;
+}
+
+.mat-mdc-chip.mat-mdc-standard-chip .mat-mdc-chip-remove {
+  color: $grey-lighter !important;
+  font-size: 16px;
+  opacity: 1;
+  margin: 4px 3px 3px 4px;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.mat-mdc-standard-chip .mat-mdc-chip-remove.mat-icon {
+  width: 16px !important;
+}
+
 .mat-mdc-form-field-subscript-wrapper {
   height: 0!important;
 }
@@ -1121,29 +1161,6 @@ ion-modal.promote-opt-in-modal {
       max-height: 80%;
     }
   }
-}
-
-.mat-chip.mat-standard-chip {
-  background-color: $pure-white;
-  border: 1px solid $grey-lighter;
-}
-
-.mat-standard-chip {
-  min-height: 20px !important;
-  font-size: 12px;
-  color: $black-light !important;
-  padding-right: 0 !important;
-}
-
-.mat-chip.mat-standard-chip .mat-chip-remove {
-  color: $grey-lighter !important;
-  font-size: 16px;
-  opacity: 1;
-  margin: 4px 3px 3px 4px;
-}
-
-.mat-standard-chip .mat-chip-remove.mat-icon {
-  width: 16px !important;
 }
 
 .selection-modal--form-container {

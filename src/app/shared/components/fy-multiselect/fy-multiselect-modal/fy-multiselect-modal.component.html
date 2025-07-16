@@ -21,19 +21,16 @@
     <mat-form-field
       class="selection-modal--form-container mat-form-field-no-padding"
       appearance="outline"
-      [ngClass]="{ 'selection-modal--form-container__chips': currentSelections?.length > 0 }"
     >
-      <mat-chip-list #chipList [attr.aria-label]="'fyMultiselectModal.multiSelect' | transloco">
-        <mat-chip
+      <mat-chip-grid class="selection-modal--form-container__chip-grid" #chipList [attr.aria-label]="'fyMultiselectModal.multiSelect' | transloco">
+        <mat-chip-row
           data-testid="chips"
           *ngFor="let item of currentSelections"
-          [selectable]="selectable"
-          [removable]="removable"
           (removed)="removeChip(item)"
         >
           {{ item }}
-          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-        </mat-chip>
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip-row>
         <mat-icon
           *ngIf="!(currentSelections?.length > 0)"
           class="selection-modal--search-icon"
@@ -51,7 +48,7 @@
           (matChipInputTokenEnd)="addChip($event)"
           [placeholder]="!(currentSelections?.length > 0) ? ('fyMultiselectModal.search' | transloco) : ''"
         />
-      </mat-chip-list>
+      </mat-chip-grid>
     </mat-form-field>
     <div class="selection-modal--selected-count" *ngIf="currentSelections?.length > 0">
       {{ 'fyMultiselectModal.countSelected' | transloco : { count: currentSelections.length } }}
