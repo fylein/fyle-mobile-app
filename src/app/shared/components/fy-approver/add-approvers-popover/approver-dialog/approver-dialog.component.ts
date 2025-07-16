@@ -39,10 +39,6 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   areApproversAdded = true;
 
-  selectable = true;
-
-  removable = true;
-
   addOnBlur = true;
 
   selectedApproversDict = {};

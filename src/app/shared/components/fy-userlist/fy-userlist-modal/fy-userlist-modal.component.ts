@@ -42,8 +42,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   selectable = true;
 
-  removable = true;
-
   addOnBlur = true;
 
   selectedItemDict = {};
