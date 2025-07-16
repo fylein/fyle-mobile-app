@@ -2,7 +2,7 @@
   [ngClass]="{'d-none': isCameraPreviewStarted}"
   [currentState]="headerState"
   [navigateBack]="navigateBack"
-  [title]="'My expenses'"
+  [title]="'myExpensesPage.title' | transloco"
   (simpleSearchCancel)="onSimpleSearchCancel()"
   (multiselectBack)="switchSelectionMode()"
 >
@@ -44,7 +44,7 @@
             [(ngModel)]="simpleSearchText"
             class="my-expenses--simple-search-input smartlook-show"
             matInput
-            placeholder="Search"
+            [placeholder]="'myExpensesPage.searchPlaceholder' | transloco"
             (focus)="onSearchBarFocus()"
           />
           <button
@@ -66,7 +66,10 @@
     <ng-container *ngIf="homeCurrency$ | async as homeCurrency">
       <ng-container *ngIf="allExpensesStats$ | async as allExpensesStats">
         <div class="my-expenses--multiselect-title page-title">
-          <span>{{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? 'expenses' : 'expense'}}</span>
+          <span
+            >{{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? ('myExpensesPage.expenses' | transloco) :
+            ('myExpensesPage.expense' | transloco)}}</span
+          >
           <span class="my-expenses--multiselect-amount">
             ({{ { value: allExpensesStats.amount || 0, currencyCode: homeCurrency } | exactCurrency }})
           </span>
@@ -85,7 +88,7 @@
   <ng-container multiselectSelectAll>
     <ion-item class="my-expenses--select-all-container">
       <mat-checkbox class="custom-mat-checkbox" [(ngModel)]="selectAll" (ngModelChange)="onSelectAll($event)">
-        Select all
+        {{ 'myExpensesPage.selectAll' | transloco }}
       </mat-checkbox>
     </ion-item>
   </ng-container>
@@ -143,36 +146,39 @@
       />
       <div *ngIf="!(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-subheader">
         <ng-container *ngIf="isNewUser$|async; else isOldUser">
-          <div class="my-expenses--zero-state-content">You have no expenses right now</div>
+          <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noExpenses' | transloco }}</div>
           <button
             type="button"
             (click)="openActionSheet()"
             class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
           >
-            Add Expense
+            {{ 'myExpensesPage.addExpense' | transloco }}
           </button>
         </ng-container>
         <ng-template #isOldUser>
           <div class="my-expenses--zero-state-subheader__title">
-            <div class="my-expenses--zero-state-content">You have no expenses right now</div>
+            <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noExpenses' | transloco }}</div>
             <button
               type="button"
               (click)="openActionSheet()"
               class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
             >
-              Add Expense
+              {{ 'myExpensesPage.addExpense' | transloco }}
             </button>
           </div>
         </ng-template>
       </div>
 
       <div *ngIf="(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
-        <div class="my-expenses--zero-state-content">You have no expenses</div>
-        <div class="my-expenses--zero-state-content">matching the applied filters</div>
+        <div class="my-expenses--zero-state-content">
+          {{ 'myExpensesPage.zeroState.noExpensesMatchingFilters' | transloco }}
+        </div>
       </div>
       <div *ngIf="!filters?.state && !filters?.date && simpleSearchText" class="my-expenses--zero-state-header">
-        <div class="my-expenses--zero-state-content">No results found</div>
-        <div class="my-expenses--zero-state-content">Try a different keyword</div>
+        <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noResultsFound' | transloco }}</div>
+        <div class="my-expenses--zero-state-content">
+          {{ 'myExpensesPage.zeroState.tryDifferentKeyword' | transloco }}
+        </div>
       </div>
     </div>
     <ng-container *ngIf="!(isConnected$|async)">
@@ -180,7 +186,7 @@
         <div class="my-expenses--syncing">
           <app-fy-alert-info
             [type]="'information'"
-            [message]="'Data will sync once you are connected to internet'"
+            [message]="'myExpensesPage.offline.syncMessage' | transloco"
           ></app-fy-alert-info>
         </div>
       </ng-container>
@@ -190,8 +196,8 @@
           <app-fy-zero-state
             class="stats--zero-state"
             image="../../../../assets/images/no-internet.svg"
-            header="You're Offline!"
-            message="Fear not, you can still add expenses offline."
+            [header]="'myExpensesPage.offline.offlineHeader' | transloco"
+            [message]="'myExpensesPage.offline.offlineMessage' | transloco"
             [unscaledImage]="true"
             [useNewStyling]="true"
           ></app-fy-zero-state>
@@ -269,7 +275,7 @@
           [ngClass]="{'my-expenses--secondary-cta__disabled': !isReportableExpensesSelected || (openReports.length === 0)}"
           (click)="openCreateReportWithSelectedIds('oldReport')"
         >
-          Add to reports
+          {{ 'myExpensesPage.addToReports' | transloco }}
         </button>
 
         <button
@@ -278,7 +284,7 @@
           [ngClass]="{'my-expenses--primary-cta__disabled': !isReportableExpensesSelected}"
           (click)="openCreateReportWithSelectedIds('newReport')"
         >
-          Create new report
+          {{ 'myExpensesPage.createNewReport' | transloco }}
         </button>
       </div>
     </ng-container>
@@ -289,7 +295,7 @@
           class="my-expenses--cta-button my-expenses--primary-cta text-center"
           (click)="openReviewExpenses()"
         >
-          Start review
+          {{ 'myExpensesPage.startReview' | transloco }}
         </button>
       </div>
     </ng-container>
