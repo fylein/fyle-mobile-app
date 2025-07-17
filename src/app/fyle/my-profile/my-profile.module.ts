@@ -12,7 +12,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PreferenceSettingComponent } from './preference-setting/preference-setting.component';
 import { EmployeeDetailsCardComponent } from './employee-details-card/employee-details-card.component';
 import { MatRippleModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
@@ -29,7 +28,6 @@ import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobil
     MatButtonModule,
     MatSnackBarModule,
     MatRippleModule,
-    MatTooltipModule,
   ],
   declarations: [
     MyProfilePage,
