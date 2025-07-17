@@ -13,9 +13,7 @@ export const reimbursableOnlyPaymentModeSettingsParam: PaymentmodeSettings = dee
   allowed: true,
   enabled: true,
   payment_modes_order: [AllowedPaymentModes.PERSONAL_CASH_ACCOUNT],
-  allowed_payment_modes: [
-    AllowedPaymentModes.PERSONAL_CASH_ACCOUNT,
-  ],
+  allowed_payment_modes: [AllowedPaymentModes.PERSONAL_CASH_ACCOUNT],
 });
 
 export const cccAndReimbursablePaymentModeSettingsParam: PaymentmodeSettings = deepFreeze({

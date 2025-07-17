@@ -2794,7 +2794,7 @@ describe('MyExpensesPage', () => {
           of({
             report: expectedReportsSinglePageSubmitted[2],
           }),
-      } as MatBottomSheetRef<{report: Report}>);
+      } as MatBottomSheetRef<{ report: Report }>);
 
       component.showOldReportsMatBottomSheet();
 
@@ -2822,7 +2822,7 @@ describe('MyExpensesPage', () => {
           of({
             report: mockReportData[0],
           }),
-      } as MatBottomSheetRef<{report: Report}>);
+      } as MatBottomSheetRef<{ report: Report }>);
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
@@ -2847,7 +2847,7 @@ describe('MyExpensesPage', () => {
           of({
             report: null,
           }),
-      } as MatBottomSheetRef<{report: Report}>);
+      } as MatBottomSheetRef<{ report: Report }>);
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {

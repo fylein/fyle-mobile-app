@@ -1,0 +1,25 @@
+<div class="dashboard-opt-in--container">
+  <div (click)="emailOptInClick()">
+    <div class="dashboard-opt-in__demo-container">
+      <img
+        class="dashboard-opt-in__demo"
+        src="../../../../assets/images/email-forward-opt-in-banner.png"
+        [alt]="'dashboardEmailOptIn.altOptInToEmailReceipts' | transloco"
+      />
+    </div>
+    <div
+      class="dashboard-opt-in__description"
+      [innerHTML]="'dashboardEmailOptIn.dashboardEmailOptInDescription' | transloco"
+    ></div>
+    <div class="dashboard-opt-in--content-center">
+      <button class="dashboard-opt-in__opt-in-btn">
+        <mat-icon class="fy-icon dashboard-opt-in__arrow-icon" svgIcon="arrow-tail-right"></mat-icon>
+      </button>
+    </div>
+  </div>
+  <div class="dashboard-opt-in__skip">
+    <span class="dashboard-opt-in__skip--text" (click)="skip($event)">{{
+      'dashboardEmailOptIn.skip' | transloco
+    }}</span>
+  </div>
+</div>

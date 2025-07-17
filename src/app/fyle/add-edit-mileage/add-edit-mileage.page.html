@@ -300,16 +300,10 @@
                           <div>
                             <div class="add-edit-mileage--payment-mode-header">{{label}}</div>
                             <ng-container *ngIf="paymentMode">
-                              <div
-                                *ngIf="paymentMode.isReimbursable"
-                                class="add-edit-mileage--payment-mode-section"
-                              >
+                              <div *ngIf="paymentMode.isReimbursable" class="add-edit-mileage--payment-mode-section">
                                 (Reimbursable)
                               </div>
-                              <div
-                                *ngIf="!paymentMode.isReimbursable"
-                                class="add-edit-mileage--payment-mode-section"
-                              >
+                              <div *ngIf="!paymentMode.isReimbursable" class="add-edit-mileage--payment-mode-section">
                                 (Non reimbursable)
                               </div>
                             </ng-container>

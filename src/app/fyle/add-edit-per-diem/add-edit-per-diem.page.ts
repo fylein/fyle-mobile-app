@@ -1574,8 +1574,7 @@ export class AddEditPerDiemPage implements OnInit {
         };
 
         let skipReimbursement =
-          (formValue?.paymentMode?.type === AccountType.PERSONAL &&
-            !formValue?.paymentMode?.isReimbursable) ||
+          (formValue?.paymentMode?.type === AccountType.PERSONAL && !formValue?.paymentMode?.isReimbursable) ||
           !!formValue?.paymentMode?.id;
 
         // Handle payment mode type and source account
