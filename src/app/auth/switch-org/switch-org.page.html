@@ -97,7 +97,7 @@
       @if (filteredOrgs$ | async; as filteredOrgs) {
         @if (filteredOrgs.length) {
           @if (primaryOrg$ | async; as primaryOrg) {
-            @for (org of filteredOrgs; track org) {
+            @for (org of filteredOrgs; track org.id) {
               <app-org-card
                 data-test="org-cards"
                 [org]="org"
