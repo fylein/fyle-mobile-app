@@ -13,6 +13,8 @@
     text-decoration: underline;
     color: $dark-grey;
     text-align: end;
+    position: relative;
+    bottom: 35px;
 
     &--text {
       padding: 32px;
@@ -69,7 +71,7 @@
     height: 45px;
     background: linear-gradient(313.56deg, #2c304e 45.19%, rgba(44, 48, 78, 0.4) 153.45%);
     z-index: 2;
-    top: 22px;
+    top: 40px;
 
     &:before,
     &:after {
