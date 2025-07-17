@@ -521,19 +521,19 @@ ion-popover.camera-options-popover {
   padding: 18px 0 18px 12px;
 }
 
-.mat-checkbox-checked.mat-accent {
-  .mat-checkbox-background {
+.mat-mdc-checkbox-checked.mat-accent {
+  .mdc-checkbox__background {
     background-color: $blue-black !important;
   }
 }
 
-.mat-checkbox-checkmark {
+.mdc-checkbox__checkmark {
+  color: $white !important;
   padding: 2px;
 }
 
 mat-checkbox {
-  .mat-checkbox-background,
-  .mat-checkbox-frame {
+  .mdc-checkbox__background {
     border-radius: 4px !important;
     border-color: $black-2 !important;
     border-width: 1.5px !important;
@@ -547,16 +547,7 @@ mat-checkbox {
 }
 
 .custom-mat-checkbox {
-  .mat-checkbox-inner-container {
-    height: 20px;
-    width: 20px;
-    .mat-checkbox-background,
-    .mat-checkbox-frame {
-      border-radius: 6px !important;
-    }
-  }
-
-  .mat-checkbox-label {
+  .mdc-label {
     font-size: 14px;
     font-weight: 400;
     color: $blue-black;
