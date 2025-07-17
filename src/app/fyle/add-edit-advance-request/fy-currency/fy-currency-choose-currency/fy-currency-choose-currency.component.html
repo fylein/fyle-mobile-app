@@ -37,7 +37,7 @@
 
 <ion-content>
   <div class="selection-modal--sub-title">{{ 'fyCurrencyChooseCurrency.allCurrencies' | transloco }}</div>
-  <ng-container *ngFor="let currency of filteredCurrencies$ | async as list">
+  @for (currency of filteredCurrencies$ | async; track currency) {
     <div
       matRipple
       class="selection-modal--list-element"
@@ -49,5 +49,5 @@
         <mat-icon class="selection-modal--check"> check </mat-icon>
       }
     </div>
-  </ng-container>
+  }
 </ion-content>

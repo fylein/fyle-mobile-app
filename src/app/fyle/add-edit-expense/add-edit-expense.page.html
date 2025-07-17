@@ -1148,7 +1148,7 @@
           </div>
           @if (isConnected$|async; as isConnected) {
             <div class="add-edit-expense--primary-block">
-              <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
+              @for (customInput of this.customInputs$ | async; track customInput) {
                 @if (customInput.mandatory || isExpandedView) {
                   <div
                     [ngClass]="{'add-edit-expense--internal-block__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
@@ -1274,7 +1274,7 @@
                     </div>
                   }
                 }
-              </ng-container>
+              }
             </div>
           }
           <!-- Hide in offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
@@ -1356,17 +1356,6 @@
               }
             }
           }
-          <!-- <div>
-          <div *ngIf="canChangeMatchingCCCTransaction">
-            Corporate card transaction cannot be unmatched since the report is already submitted.
-          </div>
-        </div>
-        <div>
-          <div>
-            Card transaction cannot be unmatched as one of the associated split expenses is already submitted in a report.
-          </div>
-        </div>
-        -->
       </form>
     }
   </ion-content>

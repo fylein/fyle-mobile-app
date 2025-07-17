@@ -6,129 +6,123 @@
       </ion-button>
     </ion-buttons>
     <ion-title class="fy-filters--title" mode="md"> {{ 'fyFilters.title' | transloco }} </ion-title>
-    <ion-buttons *ngIf="getNoOfFilters()" mode="md" slot="end">
-      <ion-button class="fy-filters--clear-all" mode="md" color="fy-primary" (click)="clearAll()">
-        {{ 'fyFilters.clearAll' | transloco }}
-      </ion-button>
-    </ion-buttons>
+    @if (getNoOfFilters()) {
+      <ion-buttons mode="md" slot="end">
+        <ion-button class="fy-filters--clear-all" mode="md" color="fy-primary" (click)="clearAll()">
+          {{ 'fyFilters.clearAll' | transloco }}
+        </ion-button>
+      </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 <ion-content>
   <ion-grid class="fy-filters--grid">
     <ion-row class="fy-filters--row">
       <ion-col size="6" class="fy-filters--filter-col">
-        <ion-item
-          mode="md"
-          class="fy-filters--filter-item"
-          [ngClass]="{ 'fy-filters--filter-item__active': activeFilter.name === filterDefinition.name }"
-          *ngFor="let filterDefinition of filterOptions"
-          button
-          (click)="onFilterClick(filterDefinition)"
-        >
-          <ion-label>
-            <div class="fy-filters--filter-item-label">
-              <div>
-                {{ filterDefinition.name }}
-              </div>
-              <div>
-                <ng-container
-                  *ngIf="
+        @for (filterDefinition of filterOptions; track filterDefinition) {
+          <ion-item
+            mode="md"
+            class="fy-filters--filter-item"
+            [ngClass]="{ 'fy-filters--filter-item__active': activeFilter.name === filterDefinition.name }"
+            button
+            (click)="onFilterClick(filterDefinition)"
+            >
+            <ion-label>
+              <div class="fy-filters--filter-item-label">
+                <div>
+                  {{ filterDefinition.name }}
+                </div>
+                <div>
+                  @if (
                     filterDefinition.optionType === FilterOptionType.singleselect &&
                     currentFilterValueMap[filterDefinition.name]
-                  "
-                >
-                  1
-                </ng-container>
-                <ng-container
-                  *ngIf="
+                    ) {
+                    1
+                  }
+                  @if (
                     filterDefinition.optionType === FilterOptionType.date &&
                     currentFilterValueMap[filterDefinition.name]
-                  "
-                >
-                  1
-                </ng-container>
-                <ng-container
-                  *ngIf="
+                    ) {
+                    1
+                  }
+                  @if (
                     filterDefinition.optionType === FilterOptionType.multiselect &&
                     currentFilterValueMap[filterDefinition.name]?.length
-                  "
-                >
-                  {{ currentFilterValueMap[filterDefinition.name]?.length }}
-                </ng-container>
+                    ) {
+                    {{ currentFilterValueMap[filterDefinition.name]?.length }}
+                  }
+                </div>
               </div>
-            </div>
-          </ion-label>
-        </ion-item>
+            </ion-label>
+          </ion-item>
+        }
       </ion-col>
 
       <ion-col size="6">
-        <ng-container *ngIf="activeFilter.optionType === FilterOptionType.multiselect">
-          <ng-container
-            *ngIf="(simplifyReportsSettings$ | async) !== null && (nonReimbursableOrg$ | async) !== null; else loading"
-          >
+        @if (activeFilter.optionType === FilterOptionType.multiselect) {
+          @if ((simplifyReportsSettings$ | async) !== null && (nonReimbursableOrg$ | async) !== null) {
+            @for (option of activeFilter.options; track option) {
+              <ion-item
+                class="fy-filters--filter-option"
+                mode="md"
+                button
+                (click)="switchFilter(activeFilter, option)"
+                >
+                @if (currentFilterValueMap[activeFilter.name]?.includes(option.value)) {
+                  <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/check-square-fill.svg"></ion-icon>
+                } @else {
+                  <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/square-outline.svg"></ion-icon>
+                }
+                {{ option.label }}
+              </ion-item>
+            }
+          } @else {
+            @for (option of activeFilter.options; track option) {
+              <ion-item class="fy-filters--filter-option">
+                <ion-skeleton-text
+                  class="fy-filters--skeleton-loader fy-filters--skeleton-loader__width-large"
+                  animated
+                ></ion-skeleton-text>
+              </ion-item>
+            }
+          }
+        }
+
+        @if (activeFilter.optionType === FilterOptionType.singleselect) {
+          @for (option of activeFilter.options; track option) {
             <ion-item
               class="fy-filters--filter-option"
               mode="md"
-              *ngFor="let option of activeFilter.options"
               button
               (click)="switchFilter(activeFilter, option)"
-            >
-              <ng-container
-                *ngIf="currentFilterValueMap[activeFilter.name]?.includes(option.value); else uncheckedCheckbox"
               >
-                <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/check-square-fill.svg"></ion-icon>
-              </ng-container>
-              <ng-template #uncheckedCheckbox>
-                <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/square-outline.svg"></ion-icon>
-              </ng-template>
+              @if (currentFilterValueMap[activeFilter.name] === option.value) {
+                <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-fill.svg"></ion-icon>
+              } @else {
+                <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-outline.svg"></ion-icon>
+              }
               {{ option.label }}
             </ion-item>
-          </ng-container>
-          <ng-template #loading>
-            <ion-item *ngFor="let option of activeFilter.options" class="fy-filters--filter-option">
-              <ion-skeleton-text
-                class="fy-filters--skeleton-loader fy-filters--skeleton-loader__width-large"
-                animated
-              ></ion-skeleton-text>
+          }
+        }
+
+        @if (activeFilter.optionType === FilterOptionType.date) {
+          @for (option of activeFilter.options; track option) {
+            <ion-item
+              class="fy-filters--filter-option"
+              mode="md"
+              button
+              (click)="switchFilter(activeFilter, option)"
+              >
+              @if (currentFilterValueMap[activeFilter.name] === option.value) {
+                <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-fill.svg"></ion-icon>
+              } @else {
+                <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-outline.svg"></ion-icon>
+              }
+              {{ option.label }}
             </ion-item>
-          </ng-template>
-        </ng-container>
-
-        <ng-container *ngIf="activeFilter.optionType === FilterOptionType.singleselect">
-          <ion-item
-            class="fy-filters--filter-option"
-            mode="md"
-            *ngFor="let option of activeFilter.options"
-            button
-            (click)="switchFilter(activeFilter, option)"
-          >
-            <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === option.value; else uncheckedSSRadioBtn">
-              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-fill.svg"></ion-icon>
-            </ng-container>
-            <ng-template #uncheckedSSRadioBtn>
-              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-outline.svg"></ion-icon>
-            </ng-template>
-            {{ option.label }}
-          </ion-item>
-        </ng-container>
-
-        <ng-container *ngIf="activeFilter.optionType === FilterOptionType.date">
-          <ion-item
-            class="fy-filters--filter-option"
-            mode="md"
-            *ngFor="let option of activeFilter.options"
-            button
-            (click)="switchFilter(activeFilter, option)"
-          >
-            <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === option.value; else uncheckedSSRadioBtn">
-              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-fill.svg"></ion-icon>
-            </ng-container>
-            <ng-template #uncheckedSSRadioBtn>
-              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-outline.svg"></ion-icon>
-            </ng-template>
-            {{ option.label }}
-          </ion-item>
-          <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === 'custom'">
+          }
+          @if (currentFilterValueMap[activeFilter.name] === 'custom') {
             <div class="fy-filters--custom-date-filters">
               <mat-form-field>
                 <mat-label>{{ 'fyFilters.startDate' | transloco }}</mat-label>
@@ -138,11 +132,10 @@
                   [(ngModel)]="startDate"
                   (ngModelChange)="onDateChange()"
                   [matDatepicker]="picker1"
-                />
+                  />
                 <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                 <mat-datepicker #picker1></mat-datepicker>
               </mat-form-field>
-
               <mat-form-field>
                 <mat-label>{{ 'fyFilters.endDate' | transloco }}</mat-label>
                 <input
@@ -151,13 +144,13 @@
                   [(ngModel)]="endDate"
                   (ngModelChange)="onDateChange()"
                   [matDatepicker]="picker2"
-                />
+                  />
                 <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
                 <mat-datepicker #picker2></mat-datepicker>
               </mat-form-field>
             </div>
-          </ng-container>
-        </ng-container>
+          }
+        }
       </ion-col>
     </ion-row>
   </ion-grid>

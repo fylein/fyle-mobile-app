@@ -74,40 +74,42 @@
       <ion-spinner name="crescent"></ion-spinner>
     </div>
   }
-  <div
-    matRipple
-    class="selection-modal--list-element"
-    *ngFor="let filteredListItem of recentItemsFilteredList$ | async as list"
-    (click)="onRecentItemSelect(filteredListItem.display)"
-    >
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="clock"> </mat-icon>
-    <div>
-      <div class="selection-modal--location-main-text">
-        {{ filteredListItem.display }}
-      </div>
-      <div class="selection-modal--location-description">
-        {{ filteredListItem.display }}
-      </div>
-    </div>
-  </div>
-  <div
-    matRipple
-    class="selection-modal--list-element"
-    *ngFor="let filteredListItem of filteredList$ | async as list"
-    (click)="onElementSelect(filteredListItem)"
-    >
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
-    <div>
-      @if (filteredListItem.structured_formatting?.main_text) {
+  @for (filteredListItem of recentItemsFilteredList$ | async; track filteredListItem) {
+    <div
+      matRipple
+      class="selection-modal--list-element"
+      (click)="onRecentItemSelect(filteredListItem.display)"
+      >
+      <mat-icon class="selection-modal--list-element-icon" svgIcon="clock"> </mat-icon>
+      <div>
         <div class="selection-modal--location-main-text">
-          {{ filteredListItem.structured_formatting?.main_text || filteredListItem.description }}
+          {{ filteredListItem.display }}
         </div>
-      }
-      <div class="selection-modal--location-description">
-        {{ filteredListItem.description }}
+        <div class="selection-modal--location-description">
+          {{ filteredListItem.display }}
+        </div>
       </div>
     </div>
-  </div>
+  }
+  @for (filteredListItem of filteredList$ | async; track filteredListItem) {
+    <div
+      matRipple
+      class="selection-modal--list-element"
+      (click)="onElementSelect(filteredListItem)"
+      >
+      <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
+      <div>
+        @if (filteredListItem.structured_formatting?.main_text) {
+          <div class="selection-modal--location-main-text">
+            {{ filteredListItem.structured_formatting?.main_text || filteredListItem.description }}
+          </div>
+        }
+        <div class="selection-modal--location-description">
+          {{ filteredListItem.description }}
+        </div>
+      </div>
+    </div>
+  }
   @if (!loader && isDeviceLocationEnabled) {
     <div
       matRipple

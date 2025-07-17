@@ -27,31 +27,35 @@
     </div>
   </div>
 
-  <div class="add-expense-popover-internal--element" matRipple (click)="createMileage($event)" *ngIf="isMileageEnabled">
-    <div>
-      <img
-        class="add-expense-popover-internal--icon"
-        src="../../../../assets/svg/create-mileage.svg"
-        [alt]="'addExpensePopover.createMileageAltText' | transloco"
-      />
+  @if (isMileageEnabled) {
+    <div class="add-expense-popover-internal--element" matRipple (click)="createMileage($event)">
+      <div>
+        <img
+          class="add-expense-popover-internal--icon"
+          src="../../../../assets/svg/create-mileage.svg"
+          [alt]="'addExpensePopover.createMileageAltText' | transloco"
+        />
+      </div>
+      <div class="add-expense-popover-internal--content">
+        <div class="add-expense-popover-internal--head">{{ 'addExpensePopover.addMileage' | transloco }}</div>
+        <div class="add-expense-popover-internal--info">{{ 'addExpensePopover.mileageInfo' | transloco }}</div>
+      </div>
     </div>
-    <div class="add-expense-popover-internal--content">
-      <div class="add-expense-popover-internal--head">{{ 'addExpensePopover.addMileage' | transloco }}</div>
-      <div class="add-expense-popover-internal--info">{{ 'addExpensePopover.mileageInfo' | transloco }}</div>
-    </div>
-  </div>
+  }
 
-  <div class="add-expense-popover-internal--element" matRipple (click)="createPerDiem($event)" *ngIf="isPerDiemEnabled">
-    <div>
-      <img
-        class="add-expense-popover-internal--icon"
-        src="../../../../assets/svg/create-per-diem.svg"
-        [alt]="'addExpensePopover.createPerDiemAltText' | transloco"
-      />
+  @if (isPerDiemEnabled) {
+    <div class="add-expense-popover-internal--element" matRipple (click)="createPerDiem($event)" >
+      <div>
+        <img
+          class="add-expense-popover-internal--icon"
+          src="../../../../assets/svg/create-per-diem.svg"
+          [alt]="'addExpensePopover.createPerDiemAltText' | transloco"
+        />
+      </div>
+      <div class="add-expense-popover-internal--content">
+        <div class="add-expense-popover-internal--head">{{ 'addExpensePopover.addPerDiem' | transloco }}</div>
+        <div class="add-expense-popover-internal--info">{{ 'addExpensePopover.perDiemInfo' | transloco }}</div>
+      </div>
     </div>
-    <div class="add-expense-popover-internal--content">
-      <div class="add-expense-popover-internal--head">{{ 'addExpensePopover.addPerDiem' | transloco }}</div>
-      <div class="add-expense-popover-internal--info">{{ 'addExpensePopover.perDiemInfo' | transloco }}</div>
-    </div>
-  </div>
+  }
 </div>

@@ -552,7 +552,7 @@
                   }
                 }
               }
-              <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
+              @for (customInput of this.customInputs$ | async; track customInput) {
                 @if (customInput.mandatory || isExpandedView) {
                   @if (customInput.type !== 'USER_LIST') {
                     <div class="add-edit-mileage--internal-block">
@@ -661,7 +661,7 @@
                     </div>
                   }
                 }
-              </ng-container>
+              }
               @if (isConnected$|async) {
                 <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
                 @if (reports$|async; as reports) {
