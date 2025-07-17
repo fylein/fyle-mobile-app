@@ -99,33 +99,39 @@ ion-popover.error-popover {
 }
 
 .msb-success {
-  color: $pure-white;
-  background-color: $green;
-  border-radius: 8px !important;
-  margin: 0 16px 30px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #24a148;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 30px !important;
+  }
 }
 
 .msb-failure {
-  color: $pure-white;
-  background-color: $red;
-  border-radius: 8px !important;
-  margin: 0 16px 30px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #da1e28;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 30px !important;
+  }
 }
 
 .msb-info {
-  color: $pure-white;
-  background-color: $dark-blue;
-  border-radius: 8px !important;
-  margin: 0 16px 30px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #1c1f36;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 30px !important;
+  }
 }
 
 .msb-bulkfyle-prompt {
-  color: $pure-white;
-  background-color: $dark-blue;
-  border-radius: 8px !important;
-  margin: 0 16px calc(124px + env(safe-area-inset-bottom)) !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #1c1f36;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px calc(124px + env(safe-area-inset-bottom)) !important;
+  }
 
   &::after {
     content: '';
@@ -141,51 +147,63 @@ ion-popover.error-popover {
 }
 
 .msb-success-with-camera-icon {
-  color: $pure-white;
-  background-color: $green;
-  border-radius: 8px !important;
-  margin: 0 16px 133px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #24a148;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 133px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .msb-success-with-camera-icon-for-split-exp {
-  color: $pure-white;
-  background-color: $green;
-  border-radius: 8px !important;
-  margin: 0 16px 24px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #24a148;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 24px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .msb-failure-with-camera-icon-for-split-exp {
-  color: $pure-white;
-  background-color: $red;
-  border-radius: 8px !important;
-  margin: 0 16px 24px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #da1e28;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 24px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .msb-failure-with-camera-icon {
-  color: $pure-white;
-  background-color: $red;
-  border-radius: 8px !important;
-  margin: 0 16px 133px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #da1e28;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 133px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .msb-success-with-report-btn {
-  color: $pure-white;
-  background-color: $green;
-  border-radius: 8px !important;
-  margin: 0 16px 84px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #24a148;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 84px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .msb-failure-with-report-btn {
-  color: $pure-white;
-  background-color: $red;
-  border-radius: 8px !important;
-  margin: 0 16px 96px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #da1e28;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 96px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .icon--toast-danger {
@@ -657,25 +675,6 @@ html {
 
 .no-keyboard-adjust {
   --keyboard-offset: 0 !important;
-}
-
-.mat-radio-button {
-  &.mat-radio-checked {
-    .mat-radio-outer-circle {
-      border-color: #1978f7 !important;
-    }
-
-    .mat-radio-label-content {
-      color: #f36;
-    }
-  }
-  .mat-radio-inner-circle {
-    background-color: #1978f7 !important;
-  }
-
-  .mat-ripple-element {
-    background-color: #fff !important;
-  }
 }
 
 .switch-org--form-field,
@@ -1397,10 +1396,6 @@ ion-toggle.toggle-checked::before {
     color: $blue-black;
     font-size: 12px;
   }
-}
-
-.mat-snack-bar-handset .mat-snack-bar-container {
-  margin-bottom: 133px;
 }
 
 .hide-modal {
