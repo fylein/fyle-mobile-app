@@ -1,16 +1,17 @@
-<div
-  *ngIf="expense && showDt"
-  class="expenses-card--date"
-  [ngClass]="{ 'expenses-card--date__from-reports': isFromReports }"
->
-  <ng-container *ngIf="{ isConnected: isConnected$ | async } as data">
-    <ng-container *ngIf="expense.tx_id && data.isConnected; else isOffline">
-      {{ expense.tx_txn_dt || expense.tx_created_at | dateFormat }}
-    </ng-container>
-
-    <ng-template #isOffline> {{ 'expensesCard.offlineExpenses' | transloco }} </ng-template>
-  </ng-container>
-</div>
+@if (expense && showDt) {
+  <div
+    class="expenses-card--date"
+    [ngClass]="{ 'expenses-card--date__from-reports': isFromReports }"
+    >
+    @if ({ isConnected: isConnected$ | async }; as data) {
+      @if (expense.tx_id && data.isConnected) {
+        {{ expense.tx_txn_dt || expense.tx_created_at | dateFormat }}
+      } @else {
+        {{ 'expensesCard.offlineExpenses' | transloco }}
+      }
+    }
+  </div>
+}
 
 <div
   class="expenses-card--body"
@@ -18,270 +19,295 @@
   (click)="onGoToTransaction()"
   (tap)="onTapTransaction()"
   (press)="onSetMultiselectMode()"
->
-  <div class="expenses-card--divider" *ngIf="!showDt"></div>
+  >
+  @if (!showDt) {
+    <div class="expenses-card--divider"></div>
+  }
   <ng-container>
     <div class="d-flex">
-      <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
-        <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled>
-        </mat-checkbox>
-      </div>
-      <ng-container *ngIf="!isReceiptPresent && !attachmentUploadInProgress">
-        <div
-          class="expenses-card--receipt-container"
-          *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
-          (click)="addAttachments($event)"
-        >
-          <input
-            *ngIf="isIos"
-            type="file"
-            id="ios-file-upload"
-            #fileUpload
-            accept="application/pdf,image/*"
-            class="d-none"
-          />
-          <ion-icon
-            class="expenses-card--receipt-icon"
-            [src]="receiptIcon"
+      @if (isSelectionModeEnabled) {
+        <div class="expenses-card--checkbox-container">
+          <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled>
+          </mat-checkbox>
+        </div>
+      }
+      @if (!isReceiptPresent && !attachmentUploadInProgress) {
+        @if (!isOutboxExpense) {
+          <div
+            class="expenses-card--receipt-container"
+            (click)="addAttachments($event)"
+            >
+            @if (isIos) {
+              <input
+                type="file"
+                id="ios-file-upload"
+                #fileUpload
+                accept="application/pdf,image/*"
+                class="d-none"
+                />
+            }
+            <ion-icon
+              class="expenses-card--receipt-icon"
+              [src]="receiptIcon"
             [ngClass]="{
               'expenses-card--receipt-icon__pdf': receiptIcon === 'assets/svg/file-pdf.svg',
               'expenses-card--receipt-icon__image': receiptIcon === 'assets/svg/list-plus.svg'
             }"
-          ></ion-icon>
-        </div>
-      </ng-container>
+            ></ion-icon>
+          </div>
+        } @else {
+          @if (isSycing$ | async) {
+            <div
+              class="expenses-card--receipt-container expenses-card--with-image"
+            [ngStyle]="{
+              'background-image':
+                expense.tx_dataUrls?.length > 0 &&
+                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
+            }"
+              >
+              <div class="expenses-card--spinner-placeholder">
+                <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
+              </div>
+            </div>
+          } @else {
+            <div
+              class="expenses-card--receipt-container expenses-card--with-image"
+            [ngStyle]="{
+              'background-image':
+                expense.tx_dataUrls?.length > 0 &&
+                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
+            }"
+              >
+              @if (!expense.tx_dataUrls?.length) {
+                <ion-icon
+                  class="expenses-card--receipt-icon"
+                  [src]="'../../../../assets/svg/list.svg'"
+                ></ion-icon>
+              }
+            </div>
+          }
+        }
+      }
 
-      <div
-        class="expenses-card--receipt-image-container expenses-card--with-image"
+      @if (isReceiptPresent) {
+        <div
+          class="expenses-card--receipt-image-container expenses-card--with-image"
         [ngStyle]="{
           'background-image': isScanInProgress ? imageTransperencyOverlay : ''
         }"
-        *ngIf="isReceiptPresent"
-      >
-        <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
-        <ion-icon *ngIf="isScanInProgress" class="expenses-card--scanning-icon" src="assets/svg/fy-scan.svg"></ion-icon>
-      </div>
+          >
+          <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
+          @if (isScanInProgress) {
+            <ion-icon class="expenses-card--scanning-icon" src="assets/svg/fy-scan.svg"></ion-icon>
+          }
+        </div>
+      }
 
-      <div
-        class="expenses-card--receipt-container expenses-card--with-image"
-        *ngIf="attachmentUploadInProgress"
+      @if (attachmentUploadInProgress) {
+        <div
+          class="expenses-card--receipt-container expenses-card--with-image"
         [ngStyle]="{
           'background-image':
             inlineReceiptDataUrl &&
             imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
         }"
-      >
-        <div class="expenses-card--spinner-placeholder">
-          <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
+          >
+          <div class="expenses-card--spinner-placeholder">
+            <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
+          </div>
         </div>
-      </div>
+      }
 
-      <ng-template #outboxExpenseDisplay>
-        <ng-container *ngIf="isSycing$ | async; else defaultState">
-          <div
-            class="expenses-card--receipt-container expenses-card--with-image"
-            [ngStyle]="{
-              'background-image':
-                expense.tx_dataUrls?.length > 0 &&
-                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
-            }"
-          >
-            <div class="expenses-card--spinner-placeholder">
-              <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
-            </div>
-          </div>
-        </ng-container>
-        <ng-template #defaultState>
-          <div
-            class="expenses-card--receipt-container expenses-card--with-image"
-            [ngStyle]="{
-              'background-image':
-                expense.tx_dataUrls?.length > 0 &&
-                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
-            }"
-          >
-            <ion-icon
-              class="expenses-card--receipt-icon"
-              *ngIf="!expense.tx_dataUrls?.length"
-              [src]="'../../../../assets/svg/list.svg'"
-            ></ion-icon>
-          </div>
-        </ng-template>
-      </ng-template>
 
       <div class="d-flex expenses-card--deatils-block">
-        <ng-container *ngIf="isConnected$ | async; else expenseCardDefaultView">
-          <ng-container *ngIf="isSycing$ | async; else expenseCardScanning">
+        @if (isConnected$ | async) {
+          @if (isSycing$ | async) {
             <div class="expenses-card--scaning-receipt__container">
               <div class="expenses-card--scaning-receipt__header">
-                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem">
+                @if (category === 'mileage') {
                   {{ 'expensesCard.syncingMileage' | transloco }}
-                </ng-container>
-                <ng-template #uploadPerDiem>
-                  <ng-container *ngIf="category === 'per diem'; else uploadDefault">
+                } @else {
+                  @if (category === 'per diem') {
                     {{ 'expensesCard.syncingPerDiem' | transloco }}
-                  </ng-container>
-                </ng-template>
-                <ng-template #uploadDefault>
-                  {{
+                  } @else {
+                    {{
                     expense.tx_amount || expense.tx_user_amount
-                      ? ('expensesCard.syncingReceipt' | transloco)
-                      : ('expensesCard.uploadingReceipt' | transloco)
-                  }}
-                </ng-template>
+                    ? ('expensesCard.syncingReceipt' | transloco)
+                    : ('expensesCard.uploadingReceipt' | transloco)
+                    }}
+                  }
+                }
               </div>
               <div class="expenses-card--scaning-receipt__content">
                 {{ 'expensesCard.your' | transloco }}
-                <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else receiptContent">
-                  <ng-container [ngSwitch]="category">
-                    <ng-container *ngSwitchCase="'mileage'">{{ 'expensesCard.mileage' | transloco }}</ng-container>
-                    <ng-container *ngSwitchCase="'per diem'">{{ 'expensesCard.perDiem' | transloco }}</ng-container>
-                  </ng-container>
-                </ng-container>
-                <ng-template #receiptContent> {{ 'expensesCard.receipt' | transloco }} </ng-template>
+                @if (category === 'mileage' || category === 'per diem') {
+                  @switch (category) {
+                    @case ('mileage') {
+                      {{ 'expensesCard.mileage' | transloco }}
+                    }
+                    @case ('per diem') {
+                      {{ 'expensesCard.perDiem' | transloco }}
+                    }
+                  }
+                } @else {
+                  {{ 'expensesCard.receipt' | transloco }}
+                }
                 {{ 'expensesCard.addedShortly' | transloco }}
               </div>
             </div>
-          </ng-container>
-        </ng-container>
-
-        <ng-template #expenseCardScanning>
-          <ng-container *ngIf="!isScanCompleted; else expenseCardDefaultView">
-            <ng-container *ngIf="isScanInProgress; else scanFailed">
-              <div class="expenses-card--scaning-receipt__container">
-                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-scanning">
-                  {{ 'expensesCard.scanningReceipt' | transloco }}
+          } @else {
+            @if (!isScanCompleted) {
+              @if (isScanInProgress) {
+                <div class="expenses-card--scaning-receipt__container">
+                  <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-scanning">
+                    {{ 'expensesCard.scanningReceipt' | transloco }}
+                  </div>
+                  <div class="expenses-card--scaning-receipt__content">
+                    {{ 'expensesCard.takesShortWhile' | transloco }}
+                  </div>
                 </div>
-                <div class="expenses-card--scaning-receipt__content">
-                  {{ 'expensesCard.takesShortWhile' | transloco }}
+              } @else {
+                <div class="expenses-card--scaning-receipt__container expenses-card--scaning-receipt__container-error">
+                  <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">
+                    {{ 'expensesCard.scanFailed' | transloco }}
+                  </div>
                 </div>
-              </div>
-            </ng-container>
-            <ng-template #scanFailed>
-              <div class="expenses-card--scaning-receipt__container expenses-card--scaning-receipt__container-error">
-                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">
-                  {{ 'expensesCard.scanFailed' | transloco }}
-                </div>
-              </div>
-              <div *ngIf="expense.isDraft && !isFromViewReports">
-                <div
+                @if (expense.isDraft && !isFromViewReports) {
+                  <div>
+                    <div
                   class="expenses-card--state-container expenses-card--state-container__center state-pill state-{{
                     expense.tx_state | expenseState | lowercase
                   }}"
-                >
-                  <span>
-                    {{ expense.tx_state | expenseState | titlecase }}
-                  </span>
-                </div>
-              </div>
-            </ng-template>
-          </ng-container>
-        </ng-template>
-
+                      >
+                      <span>
+                        {{ expense.tx_state | expenseState | titlecase }}
+                      </span>
+                    </div>
+                  </div>
+                }
+              }
+            } @else {
+              <ng-container ngTemplateOutlet="expenseCardDefaultView"></ng-container>
+            }
+          }
+        } @else {
+          <ng-container ngTemplateOutlet="expenseCardDefaultView"></ng-container>
+        }
         <ng-template #expenseCardDefaultView>
-          <div *ngIf="!expense.isDraft" class="expenses-card--category-vendor-project-container">
-            <div class="d-flex expenses-card--category-icon-container">
-              <div
-                class="expenses-card--category"
-                [ngClass]="{ 'expenses-card--category__small': isSelectionModeEnabled }"
-              >
-                <ng-container
-                  *ngIf="
-                    expense?.tx_org_category && expense?.tx_org_category.toLowerCase() !== 'unspecified';
-                    else unspecifiedCategory
-                  "
-                >
-                  {{ expense?.tx_org_category }}
-                </ng-container>
-                <ng-template #unspecifiedCategory> {{ 'expensesCard.unspecifiedCategory' | transloco }} </ng-template>
-              </div>
-              <div class="expenses-card--icons">
-                <mat-icon
-                  *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
-                  class="expenses-card--icons__policy-violated-icon"
-                  >error</mat-icon
-                >
-                <mat-icon
-                  *ngIf="expense.tx_is_split_expense"
-                  class="expenses-card--icons__split-icon"
-                  svgIcon="split"
-                ></mat-icon>
-              </div>
-            </div>
-
-            <div
-              class="expenses-card--vendor"
+          @if (!expense.isDraft) {
+            <div class="expenses-card--category-vendor-project-container">
+              <div class="d-flex expenses-card--category-icon-container">
+                <div
+                  class="expenses-card--category"
+                  [ngClass]="{ 'expenses-card--category__small': isSelectionModeEnabled }"
+                  >
+                  @if (
+                    expense?.tx_org_category && expense?.tx_org_category.toLowerCase() !== 'unspecified') {
+                    {{ expense?.tx_org_category }}
+                  } @else {
+                    {{ 'expensesCard.unspecifiedCategory' | transloco }}
+                  }
+                </div>
+                <div class="expenses-card--icons">
+                  @if (expense.isCriticalPolicyViolated || expense.isPolicyViolated) {
+                    <mat-icon
+                      class="expenses-card--icons__policy-violated-icon"
+                      >error</mat-icon
+                      >
+                    }
+                    @if (expense.tx_is_split_expense) {
+                      <mat-icon
+                        class="expenses-card--icons__split-icon"
+                        svgIcon="split"
+                      ></mat-icon>
+                    }
+                  </div>
+                </div>
+                <div
+                  class="expenses-card--vendor"
               [ngClass]="{
                 'expenses-card--vendor__not-filled': !expense.vendorDetails,
                 'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'
               }"
-            >
-              {{ expense.vendorDetails }}
-            </div>
-            <div
-              *ngIf="expenseFields && isProjectEnabled$ | async"
-              class="expenses-card--project"
-              [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
-            >
-              <div *ngIf="expense?.tx_project_name?.length > 0">
-                <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
-                {{
-                  expense?.tx_project_name ? expense?.tx_project_name : ('expensesCard.unspecifiedProject' | transloco)
-                }}
+                  >
+                  {{ expense.vendorDetails }}
+                </div>
+                @if (expenseFields && isProjectEnabled$ | async) {
+                  <div
+                    class="expenses-card--project"
+                    [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
+                    >
+                    @if (expense?.tx_project_name?.length > 0) {
+                      <div>
+                        <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
+                        {{
+                        expense?.tx_project_name ? expense?.tx_project_name : ('expensesCard.unspecifiedProject' | transloco)
+                        }}
+                      </div>
+                    }
+                  </div>
+                }
               </div>
+            }
+            @if (expense.isDraft) {
+              <div
+                class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
+                >
+                <div>{{ 'expensesCard.expenseInfo' | transloco }}</div>
+                <div>{{ 'expensesCard.missing' | transloco }}</div>
+              </div>
+            }
+            <div class="expenses-card--default-view-container">
+              <div class="expenses-card--currency-amount-container ion-text-right">
+                <span class="expenses-card--currency">
+                  {{ (expense.tx_currency | currencySymbol : 'wide') || (homeCurrency | currencySymbol : 'wide') }}
+                </span>
+
+                <span class="expenses-card--amount">
+                  @if (expense.tx_currency) {
+                    {{ expense.tx_amount | humanizeCurrency : expense.tx_currency : true }}
+                  } @else {
+                    {{ expense.tx_amount | humanizeCurrency : homeCurrency : true }}
+                  }
+                </span>
+                @if (showPaymentModeIcon) {
+                  <mat-icon class="expenses-card--icon" svgIcon="cash"></mat-icon>
+                }
+              </div>
+
+              @if (expense.tx_orig_currency && expense.tx_orig_amount) {
+                <div
+                  class="expenses-card--exchange-rate ion-text-right"
+                  >
+                  ({{ expense.tx_orig_amount | humanizeCurrency : expense.tx_orig_currency }}
+                  {{ 'expensesCard.at' | transloco }}
+                  {{ expense.tx_amount / expense.tx_orig_amount | currency : expense.tx_currency : 'code' }})
+                </div>
+              }
+
+              @if (expense.isDraft && !isFromViewReports) {
+                <div
+                  class="expenses-card--state-container state-pill state-{{ expense.tx_state | expenseState }}"
+                  >
+                  <span>
+                    {{ expense.tx_state | expenseState | titlecase }}
+                  </span>
+                </div>
+              }
+
+              @if (expense.isCriticalPolicyViolated) {
+                <div class="expenses-card--critical-policy-violatios">
+                  {{ 'expensesCard.criticalPolicyViolations' | transloco }}
+                </div>
+              }
             </div>
+          </ng-template>
+        </div>
+        @if (isDismissable) {
+          <div (click)="dismiss($event)">
+            <ion-icon class="expenses-card--dismiss" [src]="'assets/svg/cross.svg'" slot="icon-only"></ion-icon>
           </div>
-          <div
-            *ngIf="expense.isDraft"
-            class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
-          >
-            <div>{{ 'expensesCard.expenseInfo' | transloco }}</div>
-            <div>{{ 'expensesCard.missing' | transloco }}</div>
-          </div>
-          <div class="expenses-card--default-view-container">
-            <div class="expenses-card--currency-amount-container ion-text-right">
-              <span class="expenses-card--currency">
-                {{ (expense.tx_currency | currencySymbol : 'wide') || (homeCurrency | currencySymbol : 'wide') }}
-              </span>
-
-              <span class="expenses-card--amount">
-                <ng-container *ngIf="expense.tx_currency">
-                  {{ expense.tx_amount | humanizeCurrency : expense.tx_currency : true }}
-                </ng-container>
-                <ng-container *ngIf="!expense.tx_currency">
-                  {{ expense.tx_amount | humanizeCurrency : homeCurrency : true }}
-                </ng-container>
-              </span>
-              <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="cash"></mat-icon>
-            </div>
-
-            <div
-              *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
-              class="expenses-card--exchange-rate ion-text-right"
-            >
-              ({{ expense.tx_orig_amount | humanizeCurrency : expense.tx_orig_currency }}
-              {{ 'expensesCard.at' | transloco }}
-              {{ expense.tx_amount / expense.tx_orig_amount | currency : expense.tx_currency : 'code' }})
-            </div>
-
-            <div
-              *ngIf="expense.isDraft && !isFromViewReports"
-              class="expenses-card--state-container state-pill state-{{ expense.tx_state | expenseState }}"
-            >
-              <span>
-                {{ expense.tx_state | expenseState | titlecase }}
-              </span>
-            </div>
-
-            <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
-              {{ 'expensesCard.criticalPolicyViolations' | transloco }}
-            </div>
-          </div>
-        </ng-template>
+        }
       </div>
-      <div *ngIf="isDismissable" (click)="dismiss($event)">
-        <ion-icon class="expenses-card--dismiss" [src]="'assets/svg/cross.svg'" slot="icon-only"></ion-icon>
-      </div>
-    </div>
-  </ng-container>
-</div>
+    </ng-container>
+  </div>
