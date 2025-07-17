@@ -947,6 +947,7 @@ describe('DashboardPage', () => {
   it('should set the config when the navbar walkthrough is finished', fakeAsync(() => {
     featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
     featureConfigService.saveConfiguration.and.returnValue(of(null));
+    spyOn(component, 'showDashboardAddExpenseWalkthrough').and.stub();
     component.setNavbarWalkthroughFeatureConfigFlag(false);
     tick();
 
@@ -964,6 +965,7 @@ describe('DashboardPage', () => {
     featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
     component.eou$ = of(apiEouRes);
     spyOn(component, 'startTour');
+    spyOn(component, 'showDashboardAddExpenseWalkthrough').and.stub();
     component.showNavbarWalkthrough(true);
     tick();
 
