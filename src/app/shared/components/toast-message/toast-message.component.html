@@ -1,5 +1,5 @@
 <div class="toast-message--container d-flex">
-  <div class="d-flex">
+  <div matSnackBarLabel class="d-flex">
     <mat-icon
       *ngIf="data.icon"
       class="toast-message--left-icon icon--toast-danger"
@@ -8,11 +8,11 @@
     <span class="toast-message--body" [innerHTML]="data.message"></span>
   </div>
 
-  <div class="d-flex ion-text-right">
-    <span *ngIf="data.redirectionText" class="toast-message--redirection ion-text-right" (click)="actionEvent()">{{
+  <div matSnackBarActions class="d-flex ion-text-right">
+    <span matSnackBarAction *ngIf="data.redirectionText" class="toast-message--redirection ion-text-right" (click)="actionEvent()">{{
       data.redirectionText
     }}</span>
-    <mat-icon *ngIf="data.showCloseButton" class="toast-message--right-icon ion-text-right" (click)="closeEvent()"
+    <mat-icon matSnackBarAction *ngIf="data.showCloseButton" class="toast-message--right-icon ion-text-right" (click)="closeEvent()"
       >close</mat-icon
     >
   </div>

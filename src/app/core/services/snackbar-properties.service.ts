@@ -33,7 +33,7 @@ export class SnackbarPropertiesService {
         showCloseButton: true,
         ...toastMessageData,
       },
-      duration: 3000,
+      duration: 300000,
     };
   }
 }

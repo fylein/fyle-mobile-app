@@ -6,7 +6,6 @@ import { SwitchOrgPageRoutingModule } from './switch-org-routing.module';
 import { SwitchOrgPage } from './switch-org.page';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatRippleModule } from '@angular/material/core';
 import { ActiveOrgCardComponent } from './active-org-card/active-org-card.component';
@@ -20,7 +19,6 @@ import { OrgCardComponent } from './org-card/org-card.component';
     SwitchOrgPageRoutingModule,
     MatFormFieldModule,
     MatInputModule,
-    MatListModule,
     MatRippleModule,
     SharedModule,
   ],

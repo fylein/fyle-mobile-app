@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { SwiperModule } from 'swiper/angular';
@@ -77,7 +76,6 @@ import { ToastMessageComponent } from './components/toast-message/toast-message.
 import { FyHeaderComponent } from './components/fy-header/fy-header.component';
 import { FyDeleteDialogComponent } from './components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyFiltersComponent } from './components/fy-filters/fy-filters.component';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FyFilterPillsComponent } from './components/fy-filter-pills/fy-filter-pills.component';
 import { DateFormatPipe } from './pipes/date-format.pipe';
@@ -306,7 +304,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     PinchZoomModule,
     PdfViewerModule,
     MatRippleModule,
-    MatRadioModule,
     MatDatepickerModule,
     MatChipsModule,
     MatChipsModule,
@@ -338,7 +335,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     AuditHistoryComponent,
     StatusesDiffComponent,
     FormButtonValidationDirective,
-    MatProgressSpinnerModule,
     FyZeroStateComponent,
     FyPopupComponent,
     FyApproverComponent,
