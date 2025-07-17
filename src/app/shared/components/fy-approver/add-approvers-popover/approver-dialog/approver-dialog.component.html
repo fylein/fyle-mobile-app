@@ -19,22 +19,24 @@
     <mat-form-field
       class="selection-modal--form-container mat-form-field-no-padding"
       appearance="outline"
-    >
+      >
       <mat-chip-grid class="selection-modal--form-container__chip-grid" #chipList [attr.aria-label]="'approverDialog.multiSelect' | transloco">
-        <mat-chip-row
-          *ngFor="let approver of selectedApproversList"
-          data-testid="approvers"
-          (removed)="removeApprover(approver)"
-        >
-          {{ approver.name }}
-          <mat-icon matChipRemove>cancel</mat-icon>
-        </mat-chip-row>
-        <mat-icon
-          *ngIf="!(selectedApproversList?.length > 0)"
-          class="selection-modal--search-icon"
-          matPrefix
-          svgIcon="search"
-        ></mat-icon>
+        @for (approver of selectedApproversList; track approver) {
+          <mat-chip-row
+            data-testid="approvers"
+            (removed)="removeApprover(approver)"
+            >
+            {{ approver.name }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip-row>
+        }
+        @if (!(selectedApproversList?.length > 0)) {
+          <mat-icon
+            class="selection-modal--search-icon"
+            matPrefix
+            svgIcon="search"
+          ></mat-icon>
+        }
         <input
           #searchBar
           [(ngModel)]="value"
@@ -45,12 +47,14 @@
           [matChipInputAddOnBlur]="addOnBlur"
           (matChipInputTokenEnd)="addChip($event)"
           [placeholder]="!(selectedApproversList?.length > 0) ? ('approverDialog.search' | transloco) : ''"
-        />
+          />
       </mat-chip-grid>
     </mat-form-field>
-    <div class="selection-modal--selected-count" *ngIf="selectedApproversList?.length > 0">
-      {{ selectedApproversList.length }} {{ 'approverDialog.selected' | transloco }}
-    </div>
+    @if (selectedApproversList?.length > 0) {
+      <div class="selection-modal--selected-count">
+        {{ selectedApproversList.length }} {{ 'approverDialog.selected' | transloco }}
+      </div>
+    }
   </ion-toolbar>
 </ion-header>
 

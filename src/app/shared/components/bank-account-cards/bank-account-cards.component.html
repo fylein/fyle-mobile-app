@@ -1,21 +1,24 @@
 <div
   class="bank-accounts"
   [ngClass]="{ 'bank-accounts--minimal': minimal, 'bank-accounts--single-card': linkedAccounts.length === 1 }"
->
-  <swiper
-    #swiper
-    class="bank-accounts--swiper"
-    *ngIf="linkedAccounts"
-    [slidesPerView]="1.1"
-    [spaceBetween]="5"
-    [centeredSlides]="true"
-    [pagination]="pagination"
-    (afterInit)="onCardChange($event)"
-    (activeIndexChange)="onCardChange($event)"
   >
-    <ng-template *ngFor="let linkedAccount of linkedAccounts" swiperSlide>
-      <app-bank-account-card [accountDetails]="linkedAccount" [minimal]="minimal" (deleted)="onDeleted()">
-      </app-bank-account-card>
-    </ng-template>
-  </swiper>
+  @if (linkedAccounts) {
+    <swiper
+      #swiper
+      class="bank-accounts--swiper"
+      [slidesPerView]="1.1"
+      [spaceBetween]="5"
+      [centeredSlides]="true"
+      [pagination]="pagination"
+      (afterInit)="onCardChange($event)"
+      (activeIndexChange)="onCardChange($event)"
+      >
+      @for (linkedAccount of linkedAccounts; track linkedAccount) {
+        <ng-template swiperSlide>
+          <app-bank-account-card [accountDetails]="linkedAccount" [minimal]="minimal" (deleted)="onDeleted()">
+          </app-bank-account-card>
+        </ng-template>
+      }
+    </swiper>
+  }
 </div>
