@@ -83,15 +83,19 @@
         Hi there, {{ userName }}! <span class="dashboard--handwave">👋</span>
       </div>
       <div (click)="onPendingTaskStatClick()" class="dashboard--pending-task-stat" *ngIf="taskCount > 0">
-        <div class="dashboard--pending-task-stat-icon">
-          <mat-icon class="dashboard--pending-task-stat-icon-icon" svgIcon="bell-outline"></mat-icon>
-          <div *ngIf="taskCount > 0" class="dashboard--pending-task-stat-icon-pill">{{ taskCount }}</div>
-        </div>
-        <div class="dashboard--pending-task-stat-text">
-          <span>{{ 'dashboard.pendingTasks' | transloco : { count: taskCount } }}</span>
-        </div>
-        <div class="dashboard--pending-task-stat-arrow-button">
-          <mat-icon svgIcon="arrow-right"></mat-icon>
+        <div class="dashboard--pending-task-stat-container">
+          <div class="dashboard--pending-task-stat-content">
+            <div class="dashboard--pending-task-stat-icon">
+              <mat-icon class="dashboard--pending-task-stat-icon-icon" svgIcon="bell-outline"></mat-icon>
+              <div *ngIf="taskCount > 0" class="dashboard--pending-task-stat-icon-pill">{{ taskCount }}</div>
+            </div>
+            <div class="dashboard--pending-task-stat-text">
+              <span>{{ 'dashboard.pendingTasks' | transloco : { count: taskCount } }}</span>
+            </div>
+          </div>
+          <div class="dashboard--pending-task-stat-arrow-button">
+            <mat-icon svgIcon="arrow-right"></mat-icon>
+          </div>
         </div>
       </div>
       <app-stats></app-stats>

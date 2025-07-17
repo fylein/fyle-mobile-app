@@ -58,6 +58,20 @@
     margin: 14px 16px 0 16px;
   }
 
+  &--pending-task-stat-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  &--pending-task-stat-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   &--pending-task-stat-icon {
     position: relative;
     display: flex;
@@ -91,10 +105,7 @@
 
   &--pending-task-stat-arrow-button {
     display: flex;
-    justify-content: center;
-    align-items: center;
     position: relative;
-    left: 40%;
     color: $black-light;
   }
 
