@@ -20,7 +20,7 @@ import { HeaderState } from 'src/app/shared/components/fy-header/header-state.en
 import { NetworkService } from 'src/app/core/services/network.service';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from 'src/app/core/services/date.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';

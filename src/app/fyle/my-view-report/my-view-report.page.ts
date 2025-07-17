@@ -15,7 +15,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { getCurrencySymbol } from '@angular/common';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { cloneDeep, isNumber } from 'lodash';

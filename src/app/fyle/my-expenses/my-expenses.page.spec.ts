@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActionSheetController, IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
 
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
