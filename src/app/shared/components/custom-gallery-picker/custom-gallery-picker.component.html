@@ -1,0 +1,85 @@
+<ion-header mode="md">
+  <ion-toolbar mode="md" class="custom-gallery__toolbar">
+    <!-- Left: Cancel Button -->
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()" class="custom-gallery__btn custom-gallery__btn--cancel">
+        <span class="custom-gallery__btn-text">Cancel</span>
+      </ion-button>
+    </ion-buttons>
+
+    <!-- Center: Counter and Message -->
+    <ion-title class="custom-gallery__title">
+      <div class="custom-gallery__counter">
+        {{ selectedCount }}/{{ maxImages }}
+      </div>
+      <div class="custom-gallery__message">
+        Select up to {{ maxImages }} images
+      </div>
+    </ion-title>
+
+    <!-- Right: Files Button -->
+    <ion-buttons slot="end">
+      <ion-button (click)="openFileExplorer()" class="custom-gallery__btn custom-gallery__btn--files">
+        <span class="custom-gallery__btn-text">Files</span>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="custom-gallery__content">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="custom-gallery__loading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <div class="custom-gallery__loading-text">Loading gallery...</div>
+  </div>
+
+  <!-- Image Grid -->
+  <div *ngIf="!loading" class="custom-gallery__grid" #imageContainer>
+    <div 
+      *ngFor="let image of images; trackBy: trackByImageId"
+      class="custom-gallery__image-item"
+      [ngClass]="{ 'custom-gallery__image-item--selected': image.selected }"
+      (click)="toggleImageSelection(image)"
+    >
+      <img 
+        [src]="image.base64" 
+        [alt]="'Gallery image'"
+        class="custom-gallery__image"
+        loading="lazy"
+      />
+      
+      <!-- Selection Overlay -->
+      <div class="custom-gallery__selection-overlay">
+        <div class="custom-gallery__selection-indicator">
+          <ion-icon name="checkmark-circle" class="custom-gallery__check-icon"></ion-icon>
+        </div>
+      </div>
+
+      <!-- Disabled Overlay when limit reached -->
+      <div 
+        *ngIf="!canSelectMore && !image.selected" 
+        class="custom-gallery__disabled-overlay"
+      >
+        <div class="custom-gallery__limit-message">
+          Max {{ maxImages }} images
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && images.length === 0" class="custom-gallery__empty">
+    <ion-icon name="images-outline" class="custom-gallery__empty-icon"></ion-icon>
+    <div class="custom-gallery__empty-text">No images found</div>
+  </div>
+</ion-content>
+
+<!-- Floating Upload Button -->
+<div 
+  *ngIf="selectedCount > 0" 
+  class="custom-gallery__upload-btn"
+  (click)="uploadSelectedImages()"
+>
+  <ion-icon name="arrow-up" class="custom-gallery__upload-icon"></ion-icon>
+  <span class="custom-gallery__upload-text">Upload {{ selectedCount }}</span>
+</div> 
