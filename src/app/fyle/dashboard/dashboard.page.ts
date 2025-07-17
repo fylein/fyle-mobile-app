@@ -450,12 +450,19 @@ export class DashboardPage {
   }
 
   onPendingTaskStatClick(): void {
-    this.currentStateIndex = 1;
     const queryParams: Params = { state: 'tasks' };
-    this.router.navigate([], {
-      relativeTo: this.activatedRoute,
-      queryParams,
-    });
+    if (this.activatedRoute.snapshot.params.openSMSOptInDialog) {
+      this.currentStateIndex = 1;
+      this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+        queryParams,
+      });
+    } else {
+      this.currentStateIndex = 1;
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams,
+      });
+    }
 
     this.trackingService.dashboardPendingTasksNotificationClicked({
       Asset: 'Mobile',
@@ -587,12 +594,20 @@ export class DashboardPage {
   }
 
   onTaskClicked(): void {
-    this.currentStateIndex = 1;
     const queryParams: Params = { state: 'tasks' };
-    this.router.navigate([], {
-      relativeTo: this.activatedRoute,
-      queryParams,
-    });
+    if (this.activatedRoute.snapshot.params.openSMSOptInDialog) {
+      this.currentStateIndex = 1;
+      this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+        queryParams,
+      });
+    } else {
+      this.currentStateIndex = 1;
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams,
+      });
+    }
+
     this.trackingService.tasksPageOpened({
       Asset: 'Mobile',
       from: 'Dashboard',
