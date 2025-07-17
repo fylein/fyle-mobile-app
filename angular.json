@@ -11,15 +11,12 @@
       "schematics": {},
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular-devkit/build-angular:browser-esbuild",
           "options": {
-            "outputPath": {
-              "base": "www"
-            },
+            "outputPath": "www",
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -45,16 +42,12 @@
             ],
             "scripts": [],
             "aot": false,
+            "vendorChunk": true,
             "extractLicenses": false,
+            "buildOptimizer": false,
             "sourceMap": true,
             "optimization": false,
-            "namedChunks": true,
-            "browser": "src/main.ts",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "."
-              ]
-            }
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -70,6 +63,8 @@
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -95,14 +90,14 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "app:build"
+            "browserTarget": "app:build"
           },
           "configurations": {
             "production": {
-              "buildTarget": "app:build:production"
+              "browserTarget": "app:build:production"
             },
             "staging": {
-              "buildTarget": "app:build:staging"
+              "browserTarget": "app:build:staging"
             },
             "ci": {
             }
@@ -111,7 +106,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "app:build"
+            "browserTarget": "app:build"
           }
         },
         "test": {
