@@ -32,7 +32,7 @@
               'symbol-narrow' }}
             </div>
           }
-          <ng-container *ngFor="let expense of duplicatesSet as list; let i = index;">
+          @for (expense of duplicatesSet; track expense; let i = $index) {
             @if (setIndex === selectedSet) {
               <app-expense-card-v2
                 [showDt]="false"
@@ -44,7 +44,7 @@
                 >
               </app-expense-card-v2>
             }
-          </ng-container>
+          }
         }
       </div>
     }

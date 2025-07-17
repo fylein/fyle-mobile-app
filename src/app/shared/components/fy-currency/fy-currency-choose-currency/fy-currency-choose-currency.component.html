@@ -38,28 +38,29 @@
   <div class="selection-modal--container">
     @if ((recentlyUsedCurrencies$ | async)?.length > 0) {
       <div class="selection-modal--recently-used-block">
-        <div
-          matRipple
-          class="selection-modal--list-element"
-          *ngFor="let recentlyUsedItem of recentlyUsedCurrencies$ | async as list"
-          (click)="onCurrencySelect(recentlyUsedItem)"
-          >
-          <ng-template #defaultSelectionElement let-label="shortCode" let-currency="longName" let-selected="selected">
-            <div class="selection-modal--recently-used-item-content">
-              <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
-              <span class="selection-modal--label">
-                <app-fy-highlight-text [fullText]="label + ' - ' + currency" [queryText]="value"> </app-fy-highlight-text>
-              </span>
-            </div>
-            @if (selected) {
-              <mat-icon class="selection-modal--check"> check </mat-icon>
-            }
-          </ng-template>
-          <ng-container
-            *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElement; context: recentlyUsedItem"
+        @for (recentlyUsedItem of recentlyUsedCurrencies$ | async; track recentlyUsedItem) {
+          <div
+            matRipple
+            class="selection-modal--list-element"
+            (click)="onCurrencySelect(recentlyUsedItem)"
             >
-          </ng-container>
-        </div>
+            <ng-template #defaultSelectionElement let-label="shortCode" let-currency="longName" let-selected="selected">
+              <div class="selection-modal--recently-used-item-content">
+                <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
+                <span class="selection-modal--label">
+                  <app-fy-highlight-text [fullText]="label + ' - ' + currency" [queryText]="value"> </app-fy-highlight-text>
+                </span>
+              </div>
+              @if (selected) {
+                <mat-icon class="selection-modal--check"> check </mat-icon>
+              }
+            </ng-template>
+            <ng-container
+              *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElement; context: recentlyUsedItem"
+              >
+            </ng-container>
+          </div>
+        }
       </div>
     }
     @if (filteredCurrencies$ | async; as filteredCurrencies) {
