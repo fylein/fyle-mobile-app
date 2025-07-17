@@ -187,11 +187,11 @@
                 }
               }
             } @else {
-              <ng-container ngTemplateOutlet="expenseCardDefaultView"></ng-container>
+              <ng-container *ngTemplateOutlet="expenseCardDefaultView"></ng-container>
             }
           }
         } @else {
-          <ng-container ngTemplateOutlet="expenseCardDefaultView"></ng-container>
+          <ng-container *ngTemplateOutlet="expenseCardDefaultView"></ng-container>
         }
         <ng-template #expenseCardDefaultView>
           @if (!expense.isDraft) {
