@@ -252,12 +252,14 @@ export class RefinerService {
       deviceInfo: Device.getInfo(),
       clusterDomain: this.tokenService.getClusterDomain(),
     }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo, clusterDomain }) => {
-      this.canStartSurvey(homeCurrency, eou).pipe(take(1)).subscribe((canStart) => {
-        if (canStart && isConnected) {
-          const device = deviceInfo.operatingSystem.toUpperCase();
-          (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
-            'identifyUser',
-            {
+      this.canStartSurvey(homeCurrency, eou)
+        .pipe(take(1))
+        .subscribe((canStart) => {
+          if (canStart && isConnected) {
+            const device = deviceInfo.operatingSystem.toUpperCase();
+            (
+              window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void }
+            )._refiner('identifyUser', {
               id: eou.us.id, // Replace with your user ID
               orgUserId: eou.ou.id,
               orgId: eou.ou.org_id,
@@ -269,18 +271,17 @@ export class RefinerService {
               source: `Mobile - ${device}`,
               is_admin: eou?.ou?.roles?.some((role) => !['FYLER', 'APPROVER'].includes(role)) ? 'T' : 'F',
               action_name: properties.actionName,
-            }
-          );
-          (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
-            'setProject',
-            environment.REFINER_NPS_FORM_PROJECT
-          );
-          (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
-            'showForm',
-            environment.REFINER_NPS_FORM_ID
-          );
-        }
-      });
+            });
+            (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
+              'setProject',
+              environment.REFINER_NPS_FORM_PROJECT
+            );
+            (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
+              'showForm',
+              environment.REFINER_NPS_FORM_ID
+            );
+          }
+        });
     });
   }
 }

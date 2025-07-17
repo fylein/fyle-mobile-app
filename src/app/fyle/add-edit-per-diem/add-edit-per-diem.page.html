@@ -282,10 +282,7 @@
                             <div *ngIf="paymentMode.isReimbursable" class="add-edit-per-diem--payment-mode-section">
                               (Reimbursable)
                             </div>
-                            <div
-                              *ngIf="!paymentMode.isReimbursable"
-                              class="add-edit-per-diem--payment-mode-section"
-                            >
+                            <div *ngIf="!paymentMode.isReimbursable" class="add-edit-per-diem--payment-mode-section">
                               (Non reimbursable)
                             </div>
                           </ng-container>

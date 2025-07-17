@@ -9,6 +9,13 @@
     margin-top: 6px;
   }
 
+  &--content-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 78px;
+  }
+
   &__skip {
     text-decoration: underline;
     color: $dark-grey;
@@ -71,7 +78,7 @@
     height: 45px;
     background: linear-gradient(313.56deg, #2c304e 45.19%, rgba(44, 48, 78, 0.4) 153.45%);
     z-index: 2;
-    top: 40px;
+    top: 58px;
 
     &:before,
     &:after {

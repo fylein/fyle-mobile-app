@@ -855,6 +855,14 @@ export class TrackingService {
     this.eventTrack('Opted In From Dashboard Banner');
   }
 
+  optedInFromDashboardEmailOptInBanner(): void {
+    this.eventTrack('Opted In From Dashboard Email Opt In Banner');
+  }
+
+  skipOptInFromDashboardEmailOptInBanner(): void {
+    this.eventTrack('Skip Opt In From Dashboard Email Opt In Banner');
+  }
+
   skipOptInFromDashboardBanner(): void {
     this.eventTrack('Skip Opt In From Dashboard Banner');
   }
@@ -873,6 +881,10 @@ export class TrackingService {
 
   clickedOnDashboardBanner(): void {
     this.eventTrack('Clicked On Dashboard Banner');
+  }
+
+  clickedOnDashboardEmailOptInBanner(): void {
+    this.eventTrack('Clicked On Dashboard Email Opt In Banner');
   }
 
   // Track receipt scan duration event
