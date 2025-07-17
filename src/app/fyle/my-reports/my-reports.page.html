@@ -1,7 +1,7 @@
 <app-fy-header
   [currentState]="headerState"
   [navigateBack]="navigateBack"
-  [title]="'My expense reports'"
+  [title]="'myReportsPage.title' | transloco"
   (simpleSearchCancel)="onSimpleSearchCancel()"
 >
   <ng-container base>
@@ -33,7 +33,7 @@
             [(ngModel)]="simpleSearchText"
             class="my-reports--simple-search-input smartlook-show"
             matInput
-            placeholder="Search"
+            [placeholder]="'myReportsPage.searchPlaceholder' | transloco"
             (focus)="onSearchBarFocus()"
           />
           <button
@@ -80,30 +80,30 @@
         [unscaledImage]="true"
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/reports.png"
-        message="You have no reports right now"
+        [message]="'myReportsPage.zeroState.noReports' | transloco"
       ></app-fy-zero-state>
       <button
         type="button"
         [routerLink]="['/', 'enterprise', 'my_create_report']"
         class="my-reports--zero-state-cta text-center"
       >
-        Create expense report
+        {{ 'myReportsPage.createExpenseReport' | transloco }}
       </button>
       <app-fy-zero-state
         *ngIf="(filters?.state || filters?.date)"
         [unscaledImage]="true"
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/reports.png"
-        message="You have no reports"
-        submessage="matching the applied filters"
+        [message]="'myReportsPage.zeroState.noReportsMatchingFilters' | transloco"
+        [submessage]="'myReportsPage.zeroState.matchingAppliedFilters' | transloco"
       ></app-fy-zero-state>
       <app-fy-zero-state
         *ngIf="!filters?.state && !filters?.date && simpleSearchText"
         [unscaledImage]="true"
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/search.png"
-        message="No results found"
-        submessage="Try a different keyword"
+        [message]="'myReportsPage.zeroState.noResultsFound' | transloco"
+        [submessage]="'myReportsPage.zeroState.tryDifferentKeyword' | transloco"
       ></app-fy-zero-state>
     </div>
 
@@ -132,7 +132,10 @@
     threshold="100px"
     (ionInfinite)="loadData($event)"
   >
-    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      [loadingText]="'myReportsPage.loading.loadingMoreData' | transloco"
+    >
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>
