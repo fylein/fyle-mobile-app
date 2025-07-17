@@ -34,6 +34,7 @@ import {
   takeWhile,
   timeout,
 } from 'rxjs/operators';
+import { TranslocoService } from '@jsverse/transloco';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Expense } from 'src/app/core/models/expense.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -240,7 +241,8 @@ export class MyExpensesPage implements OnInit {
     private utilityService: UtilityService,
     private featureConfigService: FeatureConfigService,
     private extendQueryParamsService: ExtendQueryParamsService,
-    private footerService: FooterService
+    private footerService: FooterService,
+    private translocoService: TranslocoService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -398,13 +400,13 @@ export class MyExpensesPage implements OnInit {
     const isPerDiemEnabled = orgSettings.per_diem.enabled && allowedExpenseTypes.perDiem;
     that.actionSheetButtons = [
       {
-        text: 'Capture receipt',
+        text: this.translocoService.translate('myExpensesPage.actionSheet.captureReceipt'),
         icon: 'assets/svg/camera.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
-        text: 'Add manually',
+        text: this.translocoService.translate('myExpensesPage.actionSheet.addManually'),
         icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
@@ -413,7 +415,7 @@ export class MyExpensesPage implements OnInit {
 
     if (mileageEnabled) {
       that.actionSheetButtons.push({
-        text: 'Add mileage',
+        text: this.translocoService.translate('myExpensesPage.actionSheet.addMileage'),
         icon: 'assets/svg/mileage.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add mileage', 'add_edit_mileage'),
@@ -422,7 +424,7 @@ export class MyExpensesPage implements OnInit {
 
     if (isPerDiemEnabled) {
       that.actionSheetButtons.push({
-        text: 'Add per diem',
+        text: this.translocoService.translate('myExpensesPage.actionSheet.addPerDiem'),
         icon: 'assets/svg/calendar.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add per diem', 'add_edit_per_diem'),
@@ -745,16 +747,18 @@ export class MyExpensesPage implements OnInit {
 
     const queryParams = { state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' };
 
-    this.openReports$ = this.spenderReportsService.getAllReportsByParams(queryParams).pipe(
-      map((openReports) =>
-        openReports.filter(
-          (openReport) =>
-            !openReport.approvals ||
-            (openReport.approvals &&
-              !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
+    this.openReports$ = this.spenderReportsService
+      .getAllReportsByParams(queryParams)
+      .pipe(
+        map((openReports) =>
+          openReports.filter(
+            (openReport) =>
+              !openReport.approvals ||
+              (openReport.approvals &&
+                !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
+          )
         )
-      )
-    );
+      );
     this.doRefresh();
 
     const optInModalPostExpenseCreationFeatureConfig = {
@@ -986,7 +990,7 @@ export class MyExpensesPage implements OnInit {
     const filterMain = this.myExpensesService.getFilters();
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
-        name: 'Cards ending in...',
+        name: this.translocoService.translate('myExpensesPage.filters.cardsEndingIn'),
         optionType: FilterOptionType.multiselect,
         options: this.cardNumbers,
       } as FilterOptions<string>);
@@ -1146,11 +1150,11 @@ export class MyExpensesPage implements OnInit {
         title: config.title,
         message: config.message,
         primaryCta: {
-          text: 'Exclude and Continue',
+          text: this.translocoService.translate('myExpensesPage.criticalPolicyViolation.excludeAndContinue'),
           action: 'continue',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('myExpensesPage.criticalPolicyViolation.cancel'),
           action: 'cancel',
         },
       },
@@ -1200,13 +1204,13 @@ export class MyExpensesPage implements OnInit {
     // This Map contains different messages based on different conditions , the first character in map key is draft, second is policy violation, third is pending transactions
     // draft, policy, pending
     const toastMessage = new Map([
-      ['111', "You can't add draft expenses and expenses with critical policy violation & pending transactions."],
-      ['110', "You can't add draft expenses & expenses with critical policy violations to a report."],
-      ['101', "You can't add draft expenses & expenses with pending transactions to a report."],
-      ['011', "You can't add expenses with critical policy violation & pending transactions to a report."],
-      ['100', "You can't add draft expenses to a report."],
-      ['010', "You can't add expenses with critical policy violations to a report."],
-      ['001', "You can't add expenses with pending transactions to a report."],
+      ['111', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message111')],
+      ['110', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message110')],
+      ['101', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message101')],
+      ['011', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message011')],
+      ['100', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message100')],
+      ['010', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message010')],
+      ['001', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message001')],
     ]);
     const messageConfig = `${draftCount > 0 ? 1 : 0}${policyViolationsCount > 0 ? 1 : 0}${
       pendingTransactionsCount > 0 ? 1 : 0
@@ -1226,21 +1230,33 @@ export class MyExpensesPage implements OnInit {
     pendingTransactionsCount: number,
     reportType: 'oldReport' | 'newReport'
   ): void {
-    const title = "Can't add these expenses...";
+    const title = this.translocoService.translate(
+      'myExpensesPage.reportableExpenseDialogHandler.cantAddTheseExpensesTitle'
+    );
     let message = '';
 
     if (draftCount > 0) {
-      message += `${draftCount} ${draftCount > 1 ? 'expenses are' : 'expense is'} in draft state.`;
+      message += `${draftCount} ${
+        draftCount > 1
+          ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expensesAre')
+          : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenseIs')
+      } ${this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.inDraftState')}.`;
     }
     if (pendingTransactionsCount > 0) {
       message += `${message.length ? '<br><br>' : ''}${pendingTransactionsCount} ${
-        pendingTransactionsCount > 1 ? 'expenses' : 'expense'
-      } with pending transactions.`;
+        pendingTransactionsCount > 1
+          ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
+          : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
+      } ${this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.withPendingTransactions')}.`;
     }
     if (policyViolationsCount > 0) {
       message += `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
-        policyViolationsCount > 1 ? 'expenses' : 'expense'
-      } with Critical Policy Violations.`;
+        policyViolationsCount > 1
+          ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
+          : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
+      } ${this.translocoService.translate(
+        'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations'
+      )}.`;
     }
 
     this.openCriticalPolicyViolationPopOver({ title, message, reportType });
@@ -1251,7 +1267,11 @@ export class MyExpensesPage implements OnInit {
     // Removing offline expenses from the list
     selectedElements = selectedElements.filter((expense) => expense.id);
     if (!selectedElements.length) {
-      this.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
+      this.showNonReportableExpenseSelectedToast(
+        this.translocoService.translate(
+          'myExpensesPage.openCreateReportWithSelectedIds.pleaseSelectExpensesToBeReported'
+        )
+      );
       return;
     }
     const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
@@ -1453,7 +1473,7 @@ export class MyExpensesPage implements OnInit {
   showAddToReportSuccessToast(config: { message: string; report: Report }): void {
     const toastMessageData = {
       message: config.message,
-      redirectionText: 'View Report',
+      redirectionText: this.translocoService.translate('myExpensesPage.showAddToReportSuccessToast.viewReport'),
     };
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
@@ -1475,7 +1495,9 @@ export class MyExpensesPage implements OnInit {
   }
 
   addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
-    return from(this.loaderService.showLoader('Adding expense to report')).pipe(
+    return from(
+      this.loaderService.showLoader(this.translocoService.translate('myExpensesPage.loader.addingExpenseToReport'))
+    ).pipe(
       switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
@@ -1509,9 +1531,13 @@ export class MyExpensesPage implements OnInit {
         if (report) {
           let message = '';
           if (report.state.toLowerCase() === 'draft') {
-            message = 'Expenses added to an existing draft report';
+            message = this.translocoService.translate(
+              'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToExistingDraftReport'
+            );
           } else {
-            message = 'Expenses added to report successfully';
+            message = this.translocoService.translate(
+              'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToReportSuccess'
+            );
           }
           this.showAddToReportSuccessToast({ message, report });
         }
@@ -1521,7 +1547,7 @@ export class MyExpensesPage implements OnInit {
   async openActionSheet(): Promise<void> {
     const that = this;
     const actionSheet = await this.actionSheetController.create({
-      header: 'ADD EXPENSE',
+      header: this.translocoService.translate('myExpensesPage.actionSheet.header'),
       mode: 'md',
       cssClass: 'fy-action-sheet',
       buttons: that.actionSheetButtons,
@@ -1560,19 +1586,25 @@ export class MyExpensesPage implements OnInit {
       totalDeleteLength = this.expensesToBeDeleted?.length;
     }
 
+    const header = this.translocoService.translate('myExpensesPage.openDeleteExpensesPopover.deleteExpense');
+    const ctaText =
+      totalDeleteLength > 0 && this.cccExpenses > 0
+        ? this.translocoService.translate('myExpensesPage.openDeleteExpensesPopover.excludeAndDelete')
+        : this.translocoService.translate('myExpensesPage.openDeleteExpensesPopover.delete');
+
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
-        header: 'Delete Expense',
+        header,
         body: this.sharedExpenseService.getDeleteDialogBody(
           totalDeleteLength,
           this.cccExpenses,
           expenseDeletionMessage,
           cccExpensesMessage
         ),
-        ctaText: totalDeleteLength > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
+        ctaText,
         disableDelete: totalDeleteLength === 0 ? true : false,
         deleteMethod: () => this.deleteSelectedExpenses(offlineExpenses),
       },
@@ -1597,15 +1629,19 @@ export class MyExpensesPage implements OnInit {
 
         const message =
           totalNoOfSelectedExpenses === 1
-            ? '1 expense has been deleted'
-            : `${totalNoOfSelectedExpenses} expenses have been deleted`;
+            ? this.translocoService.translate('myExpensesPage.openDeleteExpensesPopover.oneExpenseDeleted')
+            : this.translocoService.translate('myExpensesPage.openDeleteExpensesPopover.expensesDeleted', {
+                count: totalNoOfSelectedExpenses,
+              });
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
           panelClass: ['msb-success-with-camera-icon'],
         });
         this.trackingService.showToastMessage({ ToastContent: message });
       } else {
-        const message = 'We could not delete the expenses. Please try again';
+        const message = this.translocoService.translate(
+          'myExpensesPage.openDeleteExpensesPopover.couldNotDeleteExpenses'
+        );
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
           panelClass: ['msb-failure-with-camera-icon'],
@@ -1726,7 +1762,7 @@ export class MyExpensesPage implements OnInit {
     });
 
     this.trackingService.footerHomeTabClicked({
-      page: 'Expenses',
+      page: this.translocoService.translate('myExpensesPage.onHomeClicked.page'),
     });
   }
 
@@ -1737,7 +1773,7 @@ export class MyExpensesPage implements OnInit {
     });
     this.trackingService.tasksPageOpened({
       Asset: 'Mobile',
-      from: 'My Expenses',
+      from: this.translocoService.translate('myExpensesPage.onTaskClicked.from'),
     });
   }
 

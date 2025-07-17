@@ -119,7 +119,7 @@ describe('DashboardOptInComponent', () => {
     popover.onWillDismiss.and.resolveTo({ data: { action: 'continue' } });
     spyOn(component.toggleOptInBanner, 'emit');
 
-    await component.skip();
+    await component.skip(new Event('click'));
     expect(popover.present).toHaveBeenCalledTimes(1);
     expect(component.toggleOptInBanner.emit).toHaveBeenCalledWith({ optedIn: false });
   });
