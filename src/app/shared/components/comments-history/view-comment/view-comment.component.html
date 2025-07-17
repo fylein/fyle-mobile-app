@@ -1,5 +1,7 @@
 <ion-header>
-  <mat-icon *ngIf="!platform.is('android')" class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  @if (!platform.is('android')) {
+    <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  }
   <ion-toolbar class="view-comment--toolbar fy-modal-toolbar">
     <ion-buttons slot="start" (click)="closeCommentModal()">
       <mat-icon class="fy-icon-close view-comment--btn-close" svgIcon="cross"></mat-icon>
@@ -15,118 +17,134 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content
-  (swipe)="swipeRightToHistory($event)"
-  class="view-comment--container"
-  *ngIf="isCommentsView && userComments && userComments.length > 0"
->
-  <div *ngFor="let estatus of userComments">
-    <div *ngIf="estatus.show_dt">
-      <div class="view-comment--date text-center">{{ estatus.st_created_at | dateWithTimezone }}</div>
-    </div>
-    <div
-      class="view-comment--block"
-      *ngIf="estatus.isSelfComment"
-      [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
+@if (isCommentsView && userComments && userComments.length > 0) {
+  <ion-content
+    (swipe)="swipeRightToHistory($event)"
+    class="view-comment--container"
     >
-      <ion-grid class="view-comment--card view-comment--self-comment text-right">
-        <ion-row>
-          <ion-col size="12">
-            <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12">
-            <div
-              *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-              class="view-comment--comment-detail"
+    @for (estatus of userComments; track estatus) {
+      <div>
+        @if (estatus.show_dt) {
+          <div>
+            <div class="view-comment--date text-center">{{ estatus.st_created_at | dateWithTimezone }}</div>
+          </div>
+        }
+        @if (estatus.isSelfComment) {
+          <div
+            class="view-comment--block"
+            [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
             >
-              {{ estatus.st_comment }}
+            <ion-grid class="view-comment--card view-comment--self-comment text-right">
+              <ion-row>
+                <ion-col size="12">
+                  <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12">
+                  @if (!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)) {
+                    <div
+                      class="view-comment--comment-detail"
+                      >
+                      {{ estatus.st_comment }}
+                    </div>
+                  }
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12">
+                  <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | dateWithTimezone : 'h:mm a' }}</div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+            <div class="view-comment--profile view-comment--self-profile">
+              <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
             </div>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12">
-            <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | dateWithTimezone : 'h:mm a' }}</div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-      <div class="view-comment--profile view-comment--self-profile">
-        <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
+          </div>
+        }
+        @if (!estatus.isSelfComment) {
+          <div
+            class="view-comment--block"
+            [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
+            >
+            <div class="view-comment--profile view-comment--others-profile">
+              <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
+            </div>
+            <ion-grid class="view-comment--card view-comment--others-comment text-left">
+              <ion-row>
+                <ion-col size="12">
+                  <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12">
+                  @if (!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)) {
+                    <div
+                      class="view-comment--comment-detail"
+                      >
+                      {{ estatus.st_comment }}
+                    </div>
+                  }
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12">
+                  <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | dateWithTimezone : 'h:mm a' }}</div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+        }
       </div>
-    </div>
-    <div
-      class="view-comment--block"
-      *ngIf="!estatus.isSelfComment"
-      [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
+    }
+  </ion-content>
+}
+
+@if (isCommentsView && userComments && userComments.length === 0) {
+  <ion-content
+    (swipe)="swipeRightToHistory($event)"
+    class="view-comment--zero-state-block"
     >
-      <div class="view-comment--profile view-comment--others-profile">
-        <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
-      </div>
-      <ion-grid class="view-comment--card view-comment--others-comment text-left">
-        <ion-row>
-          <ion-col size="12">
-            <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12">
-            <div
-              *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-              class="view-comment--comment-detail"
-            >
-              {{ estatus.st_comment }}
-            </div>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12">
-            <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | dateWithTimezone : 'h:mm a' }}</div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+    <div class="view-comment--zero-state">
+      <img class="view-comment--zero-state__img" src="../../../assets/images/zero-states/new-comments.png" />
+      <div class="view-comment--zero-state__content">{{ 'viewComment.clarificationPrompt' | transloco }}</div>
+      <div class="view-comment--zero-state__content">{{ 'viewComment.postCommentPrompt' | transloco }}</div>
     </div>
-  </div>
-</ion-content>
+  </ion-content>
+}
 
-<ion-content
-  (swipe)="swipeRightToHistory($event)"
-  class="view-comment--zero-state-block"
-  *ngIf="isCommentsView && userComments && userComments.length === 0"
->
-  <div class="view-comment--zero-state">
-    <img class="view-comment--zero-state__img" src="../../../assets/images/zero-states/new-comments.png" />
-    <div class="view-comment--zero-state__content">{{ 'viewComment.clarificationPrompt' | transloco }}</div>
-    <div class="view-comment--zero-state__content">{{ 'viewComment.postCommentPrompt' | transloco }}</div>
-  </div>
-</ion-content>
+@if (isCommentsView && !userComments) {
+  <ion-content>
+    <div class="view-comment--spinner">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  </ion-content>
+}
 
-<ion-content *ngIf="isCommentsView && !userComments">
-  <div class="view-comment--spinner">
-    <ion-spinner name="crescent"></ion-spinner>
-  </div>
-</ion-content>
+@if (!isCommentsView) {
+  <ion-content (swipe)="swipeLeftToComments($event)">
+    @if (systemEstatuses) {
+      <app-audit-history [estatuses]="systemEstatuses"></app-audit-history>
+    }
+  </ion-content>
+}
 
-<ion-content *ngIf="!isCommentsView" (swipe)="swipeLeftToComments($event)">
-  <ng-container *ngIf="systemEstatuses">
-    <app-audit-history [estatuses]="systemEstatuses"></app-audit-history>
-  </ng-container>
-</ion-content>
-
-<ion-footer class="ion-no-border" *ngIf="isCommentsView">
-  <div class="view-comment--add-comment-container">
-    <ion-toolbar mode="md">
-      <div class="view-comment--type-comment-block">
-        <textarea
-          #commentInput
-          class="view-comment--text-area"
-          rows="1"
-          matInput
-          [placeholder]="'viewComment.commentPlaceholder' | transloco"
-          [(ngModel)]="newComment"
-        ></textarea>
-        <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send-fill"></mat-icon>
-      </div>
-    </ion-toolbar>
-  </div>
-</ion-footer>
+@if (isCommentsView) {
+  <ion-footer class="ion-no-border">
+    <div class="view-comment--add-comment-container">
+      <ion-toolbar mode="md">
+        <div class="view-comment--type-comment-block">
+          <textarea
+            #commentInput
+            class="view-comment--text-area"
+            rows="1"
+            matInput
+            [placeholder]="'viewComment.commentPlaceholder' | transloco"
+            [(ngModel)]="newComment"
+          ></textarea>
+          <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send-fill"></mat-icon>
+        </div>
+      </ion-toolbar>
+    </div>
+  </ion-footer>
+}

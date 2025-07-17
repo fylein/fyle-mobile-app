@@ -19,17 +19,18 @@
         matInput
         [placeholder]="'fyCurrencyChooseCurrency.search' | transloco"
         [(ngModel)]="value"
-      />
-      <button
-        *ngIf="value"
-        matSuffix
-        mat-icon-button
-        [attr.aria-label]="'fyCurrencyChooseCurrency.clear' | transloco"
-        class="selection-modal--clear"
-        (click)="clearValue()"
-      >
-        <mat-icon>close</mat-icon>
-      </button>
+        />
+      @if (value) {
+        <button
+          matSuffix
+          mat-icon-button
+          [attr.aria-label]="'fyCurrencyChooseCurrency.clear' | transloco"
+          class="selection-modal--clear"
+          (click)="clearValue()"
+          >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
@@ -42,9 +43,11 @@
       class="selection-modal--list-element"
       [attr.id]="'currency' + currency.shortCode"
       (click)="onCurrencySelect(currency)"
-    >
+      >
       <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
+      @if (currency.shortCode === currentSelection) {
+        <mat-icon class="selection-modal--check"> check </mat-icon>
+      }
     </div>
   </ng-container>
 </ion-content>

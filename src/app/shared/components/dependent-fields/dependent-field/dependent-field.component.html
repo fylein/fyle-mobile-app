@@ -1,7 +1,9 @@
 <label class="dependent-field__label">
   <div class="dependent-field__label-content">
     {{ label }}
-    <span *ngIf="mandatory" class="dependent-field__mandatory"> * </span>
+    @if (mandatory) {
+      <span class="dependent-field__mandatory"> * </span>
+    }
   </div>
   <div class="dependent-field__input-container" [ngClass]="{ 'dependent-field__input-invalid': !valid }">
     <input
@@ -11,11 +13,13 @@
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
-    />
+      />
     <mat-icon class="dependent-field__icon" svgIcon="arrow-down"></mat-icon>
   </div>
 </label>
 
-<div *ngIf="!valid" class="dependent-field__error">
-  {{ 'dependentField.validationError' | transloco : { label: label } }}
-</div>
+@if (!valid) {
+  <div class="dependent-field__error">
+    {{ 'dependentField.validationError' | transloco : { label: label } }}
+  </div>
+}

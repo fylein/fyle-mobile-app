@@ -3,7 +3,9 @@
     <span>
       {{ label }}
     </span>
-    <span *ngIf="mandatory" class="fy-location--mandatory"> * </span>
+    @if (mandatory) {
+      <span class="fy-location--mandatory"> * </span>
+    }
   </div>
   <div class="fy-location--input-container" [ngClass]="{ 'fy-location--input-invalid': !valid }">
     <input
@@ -13,8 +15,10 @@
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
-    />
-    <mat-icon *ngIf="!hideSuffix" class="fy-location--icon" svgIcon="arrow-down"></mat-icon>
+      />
+    @if (!hideSuffix) {
+      <mat-icon class="fy-location--icon" svgIcon="arrow-down"></mat-icon>
+    }
   </div>
   <ng-content></ng-content>
 </label>

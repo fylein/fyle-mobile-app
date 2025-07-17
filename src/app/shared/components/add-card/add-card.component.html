@@ -1,6 +1,8 @@
 <div class="add-card-container" (click)="addCardClick.emit($event)" data-testid="add-card-container">
   <img class="add-card-container__img" src="../../../../assets/images/cards.svg" />
-  <span *ngIf="showZeroStateMessage" data-testid="zero-state-message">{{ 'addCard.noCardAddedYet' | transloco }}</span>
+  @if (showZeroStateMessage) {
+    <span data-testid="zero-state-message">{{ 'addCard.noCardAddedYet' | transloco }}</span>
+  }
 
   <div class="add-card-container__cta">
     <ion-icon class="add-card-container__cta-icon" src="../../../../assets/svg/plus-square.svg"></ion-icon>

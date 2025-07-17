@@ -3,61 +3,80 @@
     <ion-grid class="stat-badge--grid">
       <ion-row class="stat-badge--grid-row">
         <ion-col class="stat-badge--count-col">
-          <div *ngIf="!loading && reportState">
-            <div
-              *ngIf="!loading"
-              [ngClass]="'stat-badge--count stat-badge--count__' + reportState.toString().toLowerCase()"
-            >
-              {{ count }}
+          @if (!loading && reportState) {
+            <div>
+              @if (!loading) {
+                <div
+                  [ngClass]="'stat-badge--count stat-badge--count__' + reportState.toString().toLowerCase()"
+                  >
+                  {{ count }}
+                </div>
+              }
             </div>
-          </div>
-          <div *ngIf="!loading && expenseState">
-            <div
-              *ngIf="!loading"
-              [ngClass]="'stat-badge--count stat-badge--count__' + expenseState.toString().toLowerCase()"
-            >
-              {{ count }}
+          }
+          @if (!loading && expenseState) {
+            <div>
+              @if (!loading) {
+                <div
+                  [ngClass]="'stat-badge--count stat-badge--count__' + expenseState.toString().toLowerCase()"
+                  >
+                  {{ count }}
+                </div>
+              }
             </div>
-          </div>
-          <div class="stat-badge--count-loader" *ngIf="loading">
-            <ion-skeleton-text animated></ion-skeleton-text>
-          </div>
+          }
+          @if (loading) {
+            <div class="stat-badge--count-loader">
+              <ion-skeleton-text animated></ion-skeleton-text>
+            </div>
+          }
         </ion-col>
         <ion-col class="stat-badge--grid-outer-col">
           <ion-grid class="stat-badge--grid">
             <ion-row>
               <ion-col class="stat-badge--grid-col">
-                <div *ngIf="!loading" class="stat-badge--name">
-                  {{ name }}
-                </div>
-                <div *ngIf="loading">
-                  <ion-skeleton-text
-                    class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-large"
-                    animated
-                  ></ion-skeleton-text>
-                </div>
+                @if (!loading) {
+                  <div class="stat-badge--name">
+                    {{ name }}
+                  </div>
+                }
+                @if (loading) {
+                  <div>
+                    <ion-skeleton-text
+                      class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-large"
+                      animated
+                    ></ion-skeleton-text>
+                  </div>
+                }
               </ion-col>
             </ion-row>
             <ion-row>
               <ion-col class="stat-badge--grid-col">
-                <div *ngIf="!loading" class="stat-badge--amount">
-                  {{ currencySymbol
-                  }}<ng-container *ngIf="shouldDisplayExact; else humanize">{{
+                @if (!loading) {
+                  <div class="stat-badge--amount">
+                    {{ currencySymbol
+                    }}@if (shouldDisplayExact) {
+                    {{
                     { value: value, currencyCode: currency, skipSymbol: true } | exactCurrency
-                  }}</ng-container>
-                  <ng-template #humanize>{{ value | humanizeCurrency : currency : true }}</ng-template>
+                    }}
+                  } @else {
+                    {{ value | humanizeCurrency : currency : true }}
+                  }
                 </div>
-                <div *ngIf="loading">
+              }
+              @if (loading) {
+                <div>
                   <ion-skeleton-text
                     class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-medium"
                     animated
                   ></ion-skeleton-text>
                 </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
+              }
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</div>
 </div>

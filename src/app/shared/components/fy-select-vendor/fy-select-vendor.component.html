@@ -3,7 +3,9 @@
     <span data-testid="label">
       {{ label }}
     </span>
-    <span *ngIf="mandatory" class="fy-select-vendor--mandatory"> * </span>
+    @if (mandatory) {
+      <span class="fy-select-vendor--mandatory"> * </span>
+    }
   </div>
   <div class="fy-select-vendor--input-container" [ngClass]="{ 'fy-select-vendor--input-invalid': !valid }">
     <input
@@ -13,7 +15,7 @@
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
-    />
+      />
     <mat-icon class="fy-select-vendor--icon" svgIcon="arrow-down"></mat-icon>
   </div>
 </label>

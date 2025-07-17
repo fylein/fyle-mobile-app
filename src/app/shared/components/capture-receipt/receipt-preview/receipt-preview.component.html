@@ -3,12 +3,14 @@
     mode="md"
     class="receipt-preview__toolbar"
     [ngClass]="{ 'receipt-preview__toolbar--no-index': base64ImagesWithSource.length === 1 }"
-  >
+    >
     <ion-title [ngClass]="{ 'receipt-preview__title--with-delete': base64ImagesWithSource.length > 1 }">
       <div class="receipt-preview__title">{{ 'receiptPreview.receiptPreviews' | transloco }}</div>
-      <div *ngIf="base64ImagesWithSource.length > 1" class="receipt-preview__sub-title">
-        {{ activeIndex + 1 }}/{{ base64ImagesWithSource.length }}
-      </div>
+      @if (base64ImagesWithSource.length > 1) {
+        <div class="receipt-preview__sub-title">
+          {{ activeIndex + 1 }}/{{ base64ImagesWithSource.length }}
+        </div>
+      }
     </ion-title>
     <ion-buttons class="receipt-preview__btn" slot="start">
       <ion-button (click)="closeModal()">
@@ -17,28 +19,30 @@
     </ion-buttons>
     <ion-buttons class="receipt-preview__btn" slot="end">
       <!-- Show only right rotation on small screens -->
-      <ion-button
-        *ngIf="isSmallScreen; else rotateCTAs"
-        class="receipt-preview__btn--rotate"
-        (click)="rotateImage(RotationDirection.RIGHT)"
-      >
-        <ion-icon src="../../../../assets/svg/arrow-clockwise.svg"></ion-icon>
-      </ion-button>
-      <!-- Show both left and right rotation icons on larger screens -->
-      <ng-template #rotateCTAs>
+      @if (isSmallScreen) {
+        <ion-button
+          class="receipt-preview__btn--rotate"
+          (click)="rotateImage(RotationDirection.RIGHT)"
+          >
+          <ion-icon src="../../../../assets/svg/arrow-clockwise.svg"></ion-icon>
+        </ion-button>
+      } @else {
         <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.LEFT)">
           <ion-icon src="../../../../assets/svg/arrow-anticlockwise.svg"></ion-icon>
         </ion-button>
         <ion-button class="receipt-preview__btn--rotate" (click)="rotateImage(RotationDirection.RIGHT)">
           <ion-icon src="../../../../assets/svg/arrow-clockwise.svg"></ion-icon>
         </ion-button>
-      </ng-template>
+      }
+      <!-- Show both left and right rotation icons on larger screens -->
       <ion-button class="receipt-preview__btn--crop" (click)="openCropReceiptModal()">
         <ion-icon src="../../../../assets/svg/crop.svg"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="base64ImagesWithSource.length > 1" (click)="deleteReceipt()">
-        <ion-icon src="../../../../assets/svg/bin-dark.svg"></ion-icon>
-      </ion-button>
+      @if (base64ImagesWithSource.length > 1) {
+        <ion-button (click)="deleteReceipt()">
+          <ion-icon src="../../../../assets/svg/bin-dark.svg"></ion-icon>
+        </ion-button>
+      }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -50,53 +54,60 @@
     [centeredSlides]="true"
     [pagination]="false"
     (activeIndexChange)="ionSlideDidChange()"
-  >
-    <ng-template *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i" swiperSlide>
-      <pinch-zoom class="receipt-preview__image-container">
-        <img
-          [src]="base64ImageWithSource.base64Image"
+    >
+    @for (base64ImageWithSource of base64ImagesWithSource; track base64ImageWithSource; let i = $index) {
+      <ng-template swiperSlide>
+        <pinch-zoom class="receipt-preview__image-container">
+          <img
+            [src]="base64ImageWithSource.base64Image"
           [ngClass]="{
             'receipt-preview__image--arrow-anticlockwise':
               rotatingDirection === RotationDirection.LEFT && i === activeIndex,
             'receipt-preview__image--arrow-clockwise':
               rotatingDirection === RotationDirection.RIGHT && i === activeIndex
           }"
-        />
-      </pinch-zoom>
-    </ng-template>
+            />
+        </pinch-zoom>
+      </ng-template>
+    }
   </swiper>
 
-  <div class="receipt-preview__controls" *ngIf="base64ImagesWithSource.length > 1">
-    <div
-      *ngIf="activeIndex > 0"
-      class="receipt-preview__controls__btn receipt-preview__controls__btn--back"
-      (click)="goToPrevSlide()"
-    >
-      <mat-icon class="receipt-preview__controls__btn__icon"> arrow_back_ios</mat-icon>
+  @if (base64ImagesWithSource.length > 1) {
+    <div class="receipt-preview__controls">
+      @if (activeIndex > 0) {
+        <div
+          class="receipt-preview__controls__btn receipt-preview__controls__btn--back"
+          (click)="goToPrevSlide()"
+          >
+          <mat-icon class="receipt-preview__controls__btn__icon"> arrow_back_ios</mat-icon>
+        </div>
+      }
+      @if (activeIndex < base64ImagesWithSource.length - 1) {
+        <div
+          class="receipt-preview__controls__btn receipt-preview__controls__btn--forward"
+          (click)="goToNextSlide()"
+          >
+          <mat-icon class="receipt-preview__controls__btn__icon">arrow_forward_ios</mat-icon>
+        </div>
+      }
     </div>
-    <div
-      class="receipt-preview__controls__btn receipt-preview__controls__btn--forward"
-      *ngIf="activeIndex < base64ImagesWithSource.length - 1"
-      (click)="goToNextSlide()"
-    >
-      <mat-icon class="receipt-preview__controls__btn__icon">arrow_forward_ios</mat-icon>
-    </div>
-  </div>
+  }
 </ion-content>
 
 <ion-footer>
   <ion-toolbar mode="md" class="pb-0">
     <div class="receipt-preview__cta-container">
-      <ng-container *ngIf="mode === 'single' && base64ImagesWithSource.length === 1; else bulkMode">
+      @if (mode === 'single' && base64ImagesWithSource.length === 1) {
         <button type="button" class="btn-secondary" (click)="retake()">
           {{ 'receiptPreview.retake' | transloco }}
         </button>
-      </ng-container>
-      <ng-template #bulkMode>
-        <button *ngIf="base64ImagesWithSource.length < 20" type="button" class="btn-secondary" (click)="addMore()">
-          {{ 'receiptPreview.addMore' | transloco }}
-        </button>
-      </ng-template>
+      } @else {
+        @if (base64ImagesWithSource.length < 20) {
+          <button type="button" class="btn-secondary" (click)="addMore()">
+            {{ 'receiptPreview.addMore' | transloco }}
+          </button>
+        }
+      }
       <button type="submit" class="btn-primary" (click)="saveReceipt()">
         {{ 'receiptPreview.finish' | transloco }}
       </button>

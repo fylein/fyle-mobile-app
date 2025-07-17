@@ -1,21 +1,29 @@
 <div class="summary-tile--card-container">
   <div class="d-flex">
     <div class="summary-tile--card-container__block">
-      <div *ngIf="category" class="summary-tile--card-container__category">
-        {{ category }}
-      </div>
+      @if (category) {
+        <div class="summary-tile--card-container__category">
+          {{ category }}
+        </div>
+      }
 
-      <div *ngIf="purpose" class="summary-tile--card-container__purpose">
-        {{ purpose | ellipsis : 25 }}
-      </div>
+      @if (purpose) {
+        <div class="summary-tile--card-container__purpose">
+          {{ purpose | ellipsis : 25 }}
+        </div>
+      }
 
-      <div *ngIf="merchant" class="summary-tile--card-container__merchant">
-        {{ merchant }}
-      </div>
+      @if (merchant) {
+        <div class="summary-tile--card-container__merchant">
+          {{ merchant }}
+        </div>
+      }
 
-      <div *ngIf="project" class="summary-tile--card-container__project">
-        {{ 'fySummaryTile.projectLabel' | transloco }} {{ project }}
-      </div>
+      @if (project) {
+        <div class="summary-tile--card-container__project">
+          {{ 'fySummaryTile.projectLabel' | transloco }} {{ project }}
+        </div>
+      }
 
       <div class="summary-tile--card-container__amount_container">
         <span class="summary-tile--card-container__amount">
@@ -27,7 +35,7 @@
       <div
         class="ion-text-right"
         [ngClass]="{ 'summary-tile--card-container__no-exchange': !orig_currency && project }"
-      >
+        >
         <div class="summary-tile--card-container__state-pill state-pill state-{{ status | lowercase }}">
           {{ status | snakeCaseToSpaceCase | titlecase }}
         </div>
@@ -36,37 +44,44 @@
   </div>
 </div>
 
-<div *ngIf="approvals?.length > 0" class="summary-tile--approval-container">
-  <div class="summary-tile--approval-state-block">
-    <div class="summary-tile--approval-state-block-header">
-      <div class="summary-tile--approvers">{{ 'fySummaryTile.approvers' | transloco }}</div>
-      <div class="summary-tile--approvers-add-approver">
-        <app-fy-approver
-          *ngIf="actions?.can_add_approver"
-          [approverEmailsList]="approverEmails"
-          [id]="id"
-          [ownerEmail]="ownerEmail"
-          [type]="'ADVANCE_REQUEST'"
-        ></app-fy-approver>
-      </div>
-    </div>
-    <div *ngFor="let ap of approvals">
-      <div class="summary-tile--approvers-list">
-        <div class="summary-tile--approver-name">{{ ap.approver_name }}</div>
-        <div class="summary-tile--approver-state-section">
-          <div class="summary-tile--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
-            <span>{{ ap.updated_at | date : 'MMM dd, YYYY' }}</span>
-          </div>
-          <div
-            class="summary-tile--approver-state-pill summary-tile--approver-state-pill__{{ ap.state | lowercase }}"
-          ></div>
-          <span>{{
-            ap.state === 'APPROVAL_DONE'
-              ? ('fySummaryTile.approved' | transloco)
-              : (ap.state | titlecase | snakeCaseToSpaceCase)
-          }}</span>
+@if (approvals?.length > 0) {
+  <div class="summary-tile--approval-container">
+    <div class="summary-tile--approval-state-block">
+      <div class="summary-tile--approval-state-block-header">
+        <div class="summary-tile--approvers">{{ 'fySummaryTile.approvers' | transloco }}</div>
+        <div class="summary-tile--approvers-add-approver">
+          @if (actions?.can_add_approver) {
+            <app-fy-approver
+              [approverEmailsList]="approverEmails"
+              [id]="id"
+              [ownerEmail]="ownerEmail"
+              [type]="'ADVANCE_REQUEST'"
+            ></app-fy-approver>
+          }
         </div>
       </div>
+      @for (ap of approvals; track ap) {
+        <div>
+          <div class="summary-tile--approvers-list">
+            <div class="summary-tile--approver-name">{{ ap.approver_name }}</div>
+            <div class="summary-tile--approver-state-section">
+              @if (ap.state === 'APPROVAL_DONE') {
+                <div class="summary-tile--approver-state-section__date">
+                  <span>{{ ap.updated_at | date : 'MMM dd, YYYY' }}</span>
+                </div>
+              }
+              <div
+                class="summary-tile--approver-state-pill summary-tile--approver-state-pill__{{ ap.state | lowercase }}"
+              ></div>
+              <span>{{
+                ap.state === 'APPROVAL_DONE'
+                ? ('fySummaryTile.approved' | transloco)
+                : (ap.state | titlecase | snakeCaseToSpaceCase)
+              }}</span>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   </div>
-</div>
+}

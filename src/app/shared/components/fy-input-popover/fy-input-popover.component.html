@@ -19,7 +19,9 @@
 <div class="input-popover--input-container">
   <div class="input-popover--input-container__label">
     <span> {{ inputLabel }} </span>
-    <span *ngIf="isRequired" class="input-popover--input-container__mandatory"> * </span>
+    @if (isRequired) {
+      <span class="input-popover--input-container__mandatory"> * </span>
+    }
   </div>
   <input
     #input
@@ -36,6 +38,8 @@
     [type]="inputType"
     [maxlength]="inputType === 'tel' ? 15 : null"
     [minlength]="inputType === 'tel' ? 7 : null"
-  />
-  <span *ngIf="error?.length" class="input-popover--input-container__error">{{ error }}</span>
+    />
+  @if (error?.length) {
+    <span class="input-popover--input-container__error">{{ error }}</span>
+  }
 </div>

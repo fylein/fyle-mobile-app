@@ -1,237 +1,247 @@
 <form [formGroup]="categoryDependentFormGroup">
-  <div
-    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.location_1.value }"
-    class="merge-expenses--internal-block"
-    *ngIf="location1OptionsData?.options?.length > 0"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'categoryDependentFieldsForm.from' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
+  @if (location1OptionsData?.options?.length > 0) {
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.location_1.value }"
+      class="merge-expenses--internal-block"
+      >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'categoryDependentFieldsForm.from' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
       [disabled]="
         disableFormElements || location1OptionsData?.options?.length === 0 || location1OptionsData?.areSameValues
       "
-      [options]="location1OptionsData?.options"
-      [selectModalHeader]="'categoryDependentFieldsForm.selectFrom' | transloco"
-      formControlName="location_1"
-      [touchedInParent]="categoryDependentFormGroup.controls.location_1.touched"
-      [validInParent]="categoryDependentFormGroup.controls.location_1.valid"
-    >
-    </app-fy-select>
-  </div>
+        [options]="location1OptionsData?.options"
+        [selectModalHeader]="'categoryDependentFieldsForm.selectFrom' | transloco"
+        formControlName="location_1"
+        [touchedInParent]="categoryDependentFormGroup.controls.location_1.touched"
+        [validInParent]="categoryDependentFormGroup.controls.location_1.valid"
+        >
+      </app-fy-select>
+    </div>
+  }
 
-  <div
-    class="merge-expenses--internal-block"
-    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.location_2.value }"
-    *ngIf="location2OptionsData?.options?.length > 0"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'categoryDependentFieldsForm.to' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
+  @if (location2OptionsData?.options?.length > 0) {
+    <div
+      class="merge-expenses--internal-block"
+      [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.location_2.value }"
+      >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'categoryDependentFieldsForm.to' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
       [disabled]="
         disableFormElements || location2OptionsData?.options?.length === 0 || location2OptionsData?.areSameValues
       "
-      [options]="location2OptionsData?.options"
-      [selectModalHeader]="'categoryDependentFieldsForm.selectTo' | transloco"
-      formControlName="location_2"
-      [touchedInParent]="categoryDependentFormGroup.controls.location_2.touched"
-      [validInParent]="categoryDependentFormGroup.controls.location_2.valid"
-    >
-    </app-fy-select>
-  </div>
+        [options]="location2OptionsData?.options"
+        [selectModalHeader]="'categoryDependentFieldsForm.selectTo' | transloco"
+        formControlName="location_2"
+        [touchedInParent]="categoryDependentFormGroup.controls.location_2.touched"
+        [validInParent]="categoryDependentFormGroup.controls.location_2.valid"
+        >
+      </app-fy-select>
+    </div>
+  }
 
-  <div
-    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.from_dt.value }"
-    class="merge-expenses--internal-block"
-    *ngIf="onwardDateOptionsData?.options?.length > 0"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'categoryDependentFieldsForm.onwardDate' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
+  @if (onwardDateOptionsData?.options?.length > 0) {
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.from_dt.value }"
+      class="merge-expenses--internal-block"
+      >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'categoryDependentFieldsForm.onwardDate' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
       [disabled]="
         disableFormElements || onwardDateOptionsData?.options?.length === 0 || onwardDateOptionsData?.areSameValues
       "
-      [options]="onwardDateOptionsData?.options"
-      [selectModalHeader]="'categoryDependentFieldsForm.selectOnwardDate' | transloco"
-      formControlName="from_dt"
-      [touchedInParent]="categoryDependentFormGroup.controls.from_dt.touched"
-      [validInParent]="categoryDependentFormGroup.controls.from_dt.valid"
-    >
-    </app-fy-select>
-  </div>
+        [options]="onwardDateOptionsData?.options"
+        [selectModalHeader]="'categoryDependentFieldsForm.selectOnwardDate' | transloco"
+        formControlName="from_dt"
+        [touchedInParent]="categoryDependentFormGroup.controls.from_dt.touched"
+        [validInParent]="categoryDependentFormGroup.controls.from_dt.valid"
+        >
+      </app-fy-select>
+    </div>
+  }
 
-  <div
-    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.to_dt.value }"
-    class="merge-expenses--internal-block"
-    *ngIf="returnDateOptionsData?.options?.length > 0"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'categoryDependentFieldsForm.returnDate' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
+  @if (returnDateOptionsData?.options?.length > 0) {
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.to_dt.value }"
+      class="merge-expenses--internal-block"
+      >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'categoryDependentFieldsForm.returnDate' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
       [disabled]="
         disableFormElements || returnDateOptionsData?.options?.length === 0 || returnDateOptionsData?.areSameValues
       "
-      [options]="returnDateOptionsData?.options"
-      [selectModalHeader]="'categoryDependentFieldsForm.selectReturnDate' | transloco"
-      formControlName="to_dt"
-      [touchedInParent]="categoryDependentFormGroup.controls.to_dt.touched"
-      [validInParent]="categoryDependentFormGroup.controls.to_dt.valid"
-    >
-    </app-fy-select>
-  </div>
+        [options]="returnDateOptionsData?.options"
+        [selectModalHeader]="'categoryDependentFieldsForm.selectReturnDate' | transloco"
+        formControlName="to_dt"
+        [touchedInParent]="categoryDependentFormGroup.controls.to_dt.touched"
+        [validInParent]="categoryDependentFormGroup.controls.to_dt.valid"
+        >
+      </app-fy-select>
+    </div>
+  }
 
-  <div
+  @if (flightJourneyTravelClassOptionsData?.options?.length > 0) {
+    <div
     [ngClass]="{
       'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.flight_journey_travel_class.value
     }"
-    class="merge-expenses--internal-block"
-    *ngIf="flightJourneyTravelClassOptionsData?.options?.length > 0"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'categoryDependentFieldsForm.travelClass' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
+      class="merge-expenses--internal-block"
+      >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'categoryDependentFieldsForm.travelClass' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
       [disabled]="
         disableFormElements ||
         flightJourneyTravelClassOptionsData?.options?.length === 0 ||
         flightJourneyTravelClassOptionsData?.areSameValues
       "
-      [options]="flightJourneyTravelClassOptionsData?.options"
-      [selectModalHeader]="'categoryDependentFieldsForm.selectTravelClass' | transloco"
-      formControlName="flight_journey_travel_class"
-      [touchedInParent]="categoryDependentFormGroup.controls.flight_journey_travel_class.touched"
-      [validInParent]="categoryDependentFormGroup.controls.flight_journey_travel_class.valid"
-    >
-    </app-fy-select>
-  </div>
+        [options]="flightJourneyTravelClassOptionsData?.options"
+        [selectModalHeader]="'categoryDependentFieldsForm.selectTravelClass' | transloco"
+        formControlName="flight_journey_travel_class"
+        [touchedInParent]="categoryDependentFormGroup.controls.flight_journey_travel_class.touched"
+        [validInParent]="categoryDependentFormGroup.controls.flight_journey_travel_class.valid"
+        >
+      </app-fy-select>
+    </div>
+  }
 
-  <div
+  @if (flightReturnTravelClassOptionsData?.options?.length > 0) {
+    <div
     [ngClass]="{
       'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.flight_return_travel_class.value
     }"
-    class="merge-expenses--internal-block"
-    *ngIf="flightReturnTravelClassOptionsData?.options?.length > 0"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'categoryDependentFieldsForm.returnTravelClass' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
+      class="merge-expenses--internal-block"
+      >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'categoryDependentFieldsForm.returnTravelClass' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
       [disabled]="
         disableFormElements ||
         flightReturnTravelClassOptionsData?.options?.length === 0 ||
         flightReturnTravelClassOptionsData?.areSameValues
       "
-      [options]="flightReturnTravelClassOptionsData?.options"
-      [selectModalHeader]="'categoryDependentFieldsForm.selectReturnTravelClass' | transloco"
-      formControlName="flight_return_travel_class"
-      [touchedInParent]="categoryDependentFormGroup.controls.flight_return_travel_class.touched"
-      [validInParent]="categoryDependentFormGroup.controls.flight_return_travel_class.valid"
-    >
-    </app-fy-select>
-  </div>
+        [options]="flightReturnTravelClassOptionsData?.options"
+        [selectModalHeader]="'categoryDependentFieldsForm.selectReturnTravelClass' | transloco"
+        formControlName="flight_return_travel_class"
+        [touchedInParent]="categoryDependentFormGroup.controls.flight_return_travel_class.touched"
+        [validInParent]="categoryDependentFormGroup.controls.flight_return_travel_class.valid"
+        >
+      </app-fy-select>
+    </div>
+  }
 
-  <div
+  @if (trainTravelClassOptionsData?.options?.length > 0) {
+    <div
     [ngClass]="{
       'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.train_travel_class.value
     }"
-    class="merge-expenses--internal-block"
-    *ngIf="trainTravelClassOptionsData?.options?.length > 0"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'categoryDependentFieldsForm.travelClass' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
+      class="merge-expenses--internal-block"
+      >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'categoryDependentFieldsForm.travelClass' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
       [disabled]="
         disableFormElements ||
         trainTravelClassOptionsData?.options?.length === 0 ||
         trainTravelClassOptionsData?.areSameValues
       "
-      [options]="trainTravelClassOptionsData?.options"
-      [selectModalHeader]="'categoryDependentFieldsForm.selectTravelClass' | transloco"
-      formControlName="train_travel_class"
-      [touchedInParent]="categoryDependentFormGroup.controls.train_travel_class.touched"
-      [validInParent]="categoryDependentFormGroup.controls.train_travel_class.valid"
-    >
-    </app-fy-select>
-  </div>
+        [options]="trainTravelClassOptionsData?.options"
+        [selectModalHeader]="'categoryDependentFieldsForm.selectTravelClass' | transloco"
+        formControlName="train_travel_class"
+        [touchedInParent]="categoryDependentFormGroup.controls.train_travel_class.touched"
+        [validInParent]="categoryDependentFormGroup.controls.train_travel_class.valid"
+        >
+      </app-fy-select>
+    </div>
+  }
 
-  <div
+  @if (busTravelClassOptionsData?.options?.length > 0) {
+    <div
     [ngClass]="{
       'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.bus_travel_class.value
     }"
-    class="merge-expenses--internal-block"
-    *ngIf="busTravelClassOptionsData?.options?.length > 0"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'categoryDependentFieldsForm.travelClass' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
+      class="merge-expenses--internal-block"
+      >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'categoryDependentFieldsForm.travelClass' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
       [disabled]="
         disableFormElements ||
         busTravelClassOptionsData?.options?.length === 0 ||
         busTravelClassOptionsData?.areSameValues
       "
-      [options]="busTravelClassOptionsData?.options"
-      [selectModalHeader]="'categoryDependentFieldsForm.selectTravelClass' | transloco"
-      formControlName="bus_travel_class"
-      [touchedInParent]="categoryDependentFormGroup.controls.bus_travel_class.touched"
-      [validInParent]="categoryDependentFormGroup.controls.bus_travel_class.valid"
-    >
-    </app-fy-select>
-  </div>
+        [options]="busTravelClassOptionsData?.options"
+        [selectModalHeader]="'categoryDependentFieldsForm.selectTravelClass' | transloco"
+        formControlName="bus_travel_class"
+        [touchedInParent]="categoryDependentFormGroup.controls.bus_travel_class.touched"
+        [validInParent]="categoryDependentFormGroup.controls.bus_travel_class.valid"
+        >
+      </app-fy-select>
+    </div>
+  }
 
-  <div
-    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.distance.value }"
-    class="merge-expenses--internal-block"
-    *ngIf="distanceOptionsData?.options?.length > 0"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'categoryDependentFieldsForm.distance' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
+  @if (distanceOptionsData?.options?.length > 0) {
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.distance.value }"
+      class="merge-expenses--internal-block"
+      >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'categoryDependentFieldsForm.distance' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
       [disabled]="
         disableFormElements || distanceOptionsData?.options?.length === 0 || distanceOptionsData?.areSameValues
       "
-      [options]="distanceOptionsData?.options"
-      [selectModalHeader]="'categoryDependentFieldsForm.selectDistance' | transloco"
-      formControlName="distance"
-      [touchedInParent]="categoryDependentFormGroup.controls.distance.touched"
-      [validInParent]="categoryDependentFormGroup.controls.distance.valid"
-    >
-    </app-fy-select>
-  </div>
+        [options]="distanceOptionsData?.options"
+        [selectModalHeader]="'categoryDependentFieldsForm.selectDistance' | transloco"
+        formControlName="distance"
+        [touchedInParent]="categoryDependentFormGroup.controls.distance.touched"
+        [validInParent]="categoryDependentFormGroup.controls.distance.valid"
+        >
+      </app-fy-select>
+    </div>
+  }
 
-  <div
-    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.distance_unit.value }"
-    class="merge-expenses--internal-block"
-    *ngIf="distanceUnitOptionsData?.options?.length > 0"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'categoryDependentFieldsForm.distance' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
+  @if (distanceUnitOptionsData?.options?.length > 0) {
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.distance_unit.value }"
+      class="merge-expenses--internal-block"
+      >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'categoryDependentFieldsForm.distance' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
       [disabled]="
         disableFormElements || distanceUnitOptionsData?.options?.length === 0 || distanceUnitOptionsData?.areSameValues
       "
-      [options]="distanceUnitOptionsData?.options"
-      [selectModalHeader]="'categoryDependentFieldsForm.selectDistanceUnit' | transloco"
-      formControlName="distance_unit"
-      [touchedInParent]="categoryDependentFormGroup.controls.distance_unit.touched"
-      [validInParent]="categoryDependentFormGroup.controls.distance_unit.valid"
-    >
-    </app-fy-select>
-  </div>
+        [options]="distanceUnitOptionsData?.options"
+        [selectModalHeader]="'categoryDependentFieldsForm.selectDistanceUnit' | transloco"
+        formControlName="distance_unit"
+        [touchedInParent]="categoryDependentFormGroup.controls.distance_unit.touched"
+        [validInParent]="categoryDependentFormGroup.controls.distance_unit.valid"
+        >
+      </app-fy-select>
+    </div>
+  }
 </form>

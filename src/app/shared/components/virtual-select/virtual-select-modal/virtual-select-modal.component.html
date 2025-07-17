@@ -12,28 +12,31 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar *ngIf="enableSearch" class="text-center">
-    <mat-form-field appearance="outline" class="selection-modal--form-field mat-form-field-no-padding">
-      <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
-      <input
-        #searchBar
-        [(ngModel)]="value"
-        class="selection-modal--search-input smartlook-show"
-        id="election-modal--search-input"
-        matInput
-        [placeholder]="placeholder || ('virtualSelectModal.searchPlaceholder' | transloco)"
-      />
-      <button
-        (click)="clearValue()"
-        *ngIf="value"
-        [attr.aria-label]="'virtualSelectModal.clearLabel' | transloco"
-        mat-icon-button
-        matSuffix
-      >
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-form-field>
-  </ion-toolbar>
+  @if (enableSearch) {
+    <ion-toolbar class="text-center">
+      <mat-form-field appearance="outline" class="selection-modal--form-field mat-form-field-no-padding">
+        <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
+        <input
+          #searchBar
+          [(ngModel)]="value"
+          class="selection-modal--search-input smartlook-show"
+          id="election-modal--search-input"
+          matInput
+          [placeholder]="placeholder || ('virtualSelectModal.searchPlaceholder' | transloco)"
+          />
+        @if (value) {
+          <button
+            (click)="clearValue()"
+            [attr.aria-label]="'virtualSelectModal.clearLabel' | transloco"
+            mat-icon-button
+            matSuffix
+            >
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+    </ion-toolbar>
+  }
 </ion-header>
 
 <ion-content>
@@ -42,63 +45,74 @@
     itemSize="56"
     minBufferPx="900"
     maxBufferPx="1350"
-  >
+    >
     <div class="selection-modal--container">
-      <div *ngIf="selectableOptions.length === 0">
-        <app-fy-zero-state
-          [header]="'virtualSelectModal.noResultsHeader' | transloco : { label: label }"
-          [submessage]="'virtualSelectModal.noResultsSubmessage' | transloco : { label: label }"
-          [image]="'../../../../assets/images/zero-states/search.png'"
-          [unscaledImage]="true"
-          [useNewStyling]="true"
-        ></app-fy-zero-state>
-      </div>
+      @if (selectableOptions.length === 0) {
+        <div>
+          <app-fy-zero-state
+            [header]="'virtualSelectModal.noResultsHeader' | transloco : { label: label }"
+            [submessage]="'virtualSelectModal.noResultsSubmessage' | transloco : { label: label }"
+            [image]="'../../../../assets/images/zero-states/search.png'"
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
+        </div>
+      }
 
-      <div *ngIf="selectableOptions.length > 0">
-        <ng-container *cdkVirtualFor="let filteredListItem of selectableOptions">
-          <div
-            (click)="onElementSelect(filteredListItem)"
-            *ngIf="filteredListItem.label.length > 0"
-            class="selection-modal--list-element"
-            matRipple
-          >
-            <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-              <div *ngIf="filteredListItem.isRecentlyUsed" class="selection-modal--recently-used-item-content">
-                <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
-                <span class="selection-modal--label">
-                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-                </span>
-                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-              </div>
-
-              <ng-container *ngIf="!filteredListItem.isRecentlyUsed">
-                <div class="selection-modal--label">
-                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-                </div>
-                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-              </ng-container>
-            </ng-template>
-
-            <ng-container
+      @if (selectableOptions.length > 0) {
+        <div>
+          <ng-container *cdkVirtualFor="let filteredListItem of selectableOptions">
+            @if (filteredListItem.label.length > 0) {
+              <div
+                (click)="onElementSelect(filteredListItem)"
+                class="selection-modal--list-element"
+                matRipple
+                >
+                <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
+                  @if (filteredListItem.isRecentlyUsed) {
+                    <div class="selection-modal--recently-used-item-content">
+                      <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
+                      <span class="selection-modal--label">
+                        <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                      </span>
+                      @if (selected) {
+                        <mat-icon class="selection-modal--check"> check </mat-icon>
+                      }
+                    </div>
+                  }
+                  @if (!filteredListItem.isRecentlyUsed) {
+                    <div class="selection-modal--label">
+                      <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                    </div>
+                    @if (selected) {
+                      <mat-icon class="selection-modal--check"> check </mat-icon>
+                    }
+                  }
+                </ng-template>
+                <ng-container
               *ngTemplateOutlet="
                 selectionElement ? selectionElement : defaultSelectionElement;
                 context: filteredListItem
               "
-            >
-            </ng-container>
-          </div>
-        </ng-container>
-      </div>
+                  >
+                </ng-container>
+              </div>
+            }
+          </ng-container>
+        </div>
+      }
     </div>
   </cdk-virtual-scroll-viewport>
 </ion-content>
 
-<ion-footer *ngIf="showSaveButton">
-  <ion-toolbar>
-    <div class="selection-modal--cta-container">
-      <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
-        {{ 'virtualSelectModal.saveButton' | transloco }}
-      </ion-button>
-    </div>
-  </ion-toolbar>
-</ion-footer>
+@if (showSaveButton) {
+  <ion-footer>
+    <ion-toolbar>
+      <div class="selection-modal--cta-container">
+        <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
+          {{ 'virtualSelectModal.saveButton' | transloco }}
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

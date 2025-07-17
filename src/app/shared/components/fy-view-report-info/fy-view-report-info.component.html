@@ -1,5 +1,7 @@
 <ion-header>
-  <mat-icon *ngIf="platform.is('ios')" class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  @if (platform.is('ios')) {
+    <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  }
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar view-info--toolbar">
     <ion-buttons slot="start">
       <ion-button (click)="closeModal()">
@@ -16,114 +18,139 @@
       class="segment-block view-info--segment-block-container__segment"
       (ionChange)="segmentChanged($event)"
       value="report"
-    >
+      >
       <ion-segment-button value="report" class="view-info--segment-block-container__btn text-capitalize">
         {{ 'fyViewReportInfo.report' | transloco }}
       </ion-segment-button>
       <ion-segment-button value="amount" class="view-info--segment-block-container__btn text-capitalize">
         {{ 'fyViewReportInfo.amount' | transloco }}
       </ion-segment-button>
-      <ion-segment-button
-        *ngIf="view === ExpenseView.team"
-        value="employee"
-        class="view-info--segment-block-container__btn text-capitalize"
-      >
-        {{ 'fyViewReportInfo.employee' | transloco }}
-      </ion-segment-button>
+      @if (view === ExpenseView.team) {
+        <ion-segment-button
+          value="employee"
+          class="view-info--segment-block-container__btn text-capitalize"
+          >
+          {{ 'fyViewReportInfo.employee' | transloco }}
+        </ion-segment-button>
+      }
     </ion-segment>
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="isReportView && !isEmployeeView" (swipe)="onSwipeReport($event)">
-  <ion-grid class="view-info--body-container">
-    <ion-row *ngFor="let item of reportDetails | keyvalue : originalOrder" class="view-info--body-container__content">
-      <ion-col size="5">
-        <div class="view-info--body-container__title">
-          {{ item.key }}
-        </div>
-      </ion-col>
-      <ion-col size="7">
-        <div class="view-info--body-container__value smartlook-hide">
-          {{ item.value }}
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-</ion-content>
-
-<ion-content *ngIf="!isReportView && !isEmployeeView" (swipe)="onSwipeAmount($event)">
-  <p class="view-info--section-header">{{ 'fyViewReportInfo.componentWiseSplit' | transloco }}</p>
-  <ion-grid class="view-info--body-container">
-    <ion-row
-      *ngFor="let item of amountComponentWiseDetails | keyvalue : originalOrder"
-      class="view-info--body-container__content"
-    >
-      <ion-col size="5">
-        <div class="view-info--body-container__title">
-          <ng-container [ngSwitch]="item.key">
-            <ng-container *ngSwitchCase="'CCC'">{{ 'fyViewReportInfo.ccc' | transloco }}</ng-container>
-            <ng-container *ngSwitchCase="'Advance'">{{ 'fyViewReportInfo.advance' | transloco }}</ng-container>
-            <ng-container *ngSwitchDefault>{{ item.key }}</ng-container>
-          </ng-container>
-        </div>
-        <div *ngIf="item && (item.key === 'Advance' || item.key === 'CCC')" class="view-info--body-container__subtitle">
-          {{ 'fyViewReportInfo.nonReimbursable' | transloco }}
-        </div>
-      </ion-col>
-      <ion-col size="7">
-        <div class="view-info--body-container__value smartlook-hide">
-          {{ item.value | currency : reportCurrency : 'symbol-narrow' }}
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-  <div *ngIf="isForeignCurrency">
-    <p class="view-info--section-header view-info--section-header__currency">
-      {{ 'fyViewReportInfo.currencyWiseSplit' | transloco }}
-    </p>
+@if (isReportView && !isEmployeeView) {
+  <ion-content (swipe)="onSwipeReport($event)">
     <ion-grid class="view-info--body-container">
-      <ion-row *ngFor="let item of amountCurrencyWiseDetails" class="view-info--body-container__content">
-        <ion-col size="5">
-          <div class="view-info--body-container__title">
-            {{ item.name }}
-          </div>
-          <div class="view-info--body-container__subtitle">
-            {{
-              item.count === 1
-                ? ('fyViewReportInfo.oneExpense' | transloco)
-                : item.count + ('fyViewReportInfo.expenses' | transloco)
-            }}
-          </div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="view-info--body-container__value smartlook-hide">
-            <ng-container *ngIf="item.currency !== reportCurrency; else origAmountOnly">
-              {{ item.origAmount | currency : item.currency : 'code' }} =
-              {{ item.amount | currency : reportCurrency : 'code' }}
-            </ng-container>
-            <ng-template #origAmountOnly> {{ item.origAmount | currency : item.currency : 'code' }} </ng-template>
-          </div>
-        </ion-col>
-      </ion-row>
+      @for (item of reportDetails | keyvalue : originalOrder; track item) {
+        <ion-row class="view-info--body-container__content">
+          <ion-col size="5">
+            <div class="view-info--body-container__title">
+              {{ item.key }}
+            </div>
+          </ion-col>
+          <ion-col size="7">
+            <div class="view-info--body-container__value smartlook-hide">
+              {{ item.value }}
+            </div>
+          </ion-col>
+        </ion-row>
+      }
     </ion-grid>
-  </div>
-</ion-content>
+  </ion-content>
+}
 
-<ion-content *ngIf="view === ExpenseView.team && isEmployeeView && !isReportView" (swipe)="onSwipeEmployee($event)">
-  <ion-grid class="view-info--body-container">
-    <ng-container *ngFor="let item of employeeDetails | keyvalue : originalOrder">
-      <ion-row *ngIf="item && item.value && item.value.length" class="view-info--body-container__content">
-        <ion-col size="5">
-          <div class="view-info--body-container__title">
-            {{ item.key }}
-          </div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="view-info--body-container__value smartlook-hide">
-            {{ item.value }}
-          </div>
-        </ion-col>
-      </ion-row>
-    </ng-container>
-  </ion-grid>
-</ion-content>
+@if (!isReportView && !isEmployeeView) {
+  <ion-content (swipe)="onSwipeAmount($event)">
+    <p class="view-info--section-header">{{ 'fyViewReportInfo.componentWiseSplit' | transloco }}</p>
+    <ion-grid class="view-info--body-container">
+      @for (item of amountComponentWiseDetails | keyvalue : originalOrder; track item) {
+        <ion-row
+          class="view-info--body-container__content"
+          >
+          <ion-col size="5">
+            <div class="view-info--body-container__title">
+              @switch (item.key) {
+                @case ('CCC') {
+                  {{ 'fyViewReportInfo.ccc' | transloco }}
+                }
+                @case ('Advance') {
+                  {{ 'fyViewReportInfo.advance' | transloco }}
+                }
+                @default {
+                  {{ item.key }}
+                }
+              }
+            </div>
+            @if (item && (item.key === 'Advance' || item.key === 'CCC')) {
+              <div class="view-info--body-container__subtitle">
+                {{ 'fyViewReportInfo.nonReimbursable' | transloco }}
+              </div>
+            }
+          </ion-col>
+          <ion-col size="7">
+            <div class="view-info--body-container__value smartlook-hide">
+              {{ item.value | currency : reportCurrency : 'symbol-narrow' }}
+            </div>
+          </ion-col>
+        </ion-row>
+      }
+    </ion-grid>
+    @if (isForeignCurrency) {
+      <div>
+        <p class="view-info--section-header view-info--section-header__currency">
+          {{ 'fyViewReportInfo.currencyWiseSplit' | transloco }}
+        </p>
+        <ion-grid class="view-info--body-container">
+          @for (item of amountCurrencyWiseDetails; track item) {
+            <ion-row class="view-info--body-container__content">
+              <ion-col size="5">
+                <div class="view-info--body-container__title">
+                  {{ item.name }}
+                </div>
+                <div class="view-info--body-container__subtitle">
+                  {{
+                  item.count === 1
+                  ? ('fyViewReportInfo.oneExpense' | transloco)
+                  : item.count + ('fyViewReportInfo.expenses' | transloco)
+                  }}
+                </div>
+              </ion-col>
+              <ion-col size="7">
+                <div class="view-info--body-container__value smartlook-hide">
+                  @if (item.currency !== reportCurrency) {
+                    {{ item.origAmount | currency : item.currency : 'code' }} =
+                    {{ item.amount | currency : reportCurrency : 'code' }}
+                  } @else {
+                    {{ item.origAmount | currency : item.currency : 'code' }}
+                  }
+                </div>
+              </ion-col>
+            </ion-row>
+          }
+        </ion-grid>
+      </div>
+    }
+  </ion-content>
+}
+
+@if (view === ExpenseView.team && isEmployeeView && !isReportView) {
+  <ion-content (swipe)="onSwipeEmployee($event)">
+    <ion-grid class="view-info--body-container">
+      @for (item of employeeDetails | keyvalue : originalOrder; track item) {
+        @if (item && item.value && item.value.length) {
+          <ion-row class="view-info--body-container__content">
+            <ion-col size="5">
+              <div class="view-info--body-container__title">
+                {{ item.key }}
+              </div>
+            </ion-col>
+            <ion-col size="7">
+              <div class="view-info--body-container__value smartlook-hide">
+                {{ item.value }}
+              </div>
+            </ion-col>
+          </ion-row>
+        }
+      }
+    </ion-grid>
+  </ion-content>
+}

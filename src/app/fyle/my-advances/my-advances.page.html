@@ -1,20 +1,23 @@
 <ion-header mode="md">
   <ion-toolbar mode="md" class="my-advances--toolbar-header">
-    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
-      <app-fy-menu-icon></app-fy-menu-icon>
-    </ion-buttons>
-    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
-      <ion-back-button mode="md"></ion-back-button>
-    </ion-buttons>
+    @if (!navigateBack) {
+      <ion-buttons mode="md" slot="start">
+        <app-fy-menu-icon></app-fy-menu-icon>
+      </ion-buttons>
+    }
+    @if (navigateBack) {
+      <ion-buttons mode="md" slot="start">
+        <ion-back-button mode="md"></ion-back-button>
+      </ion-buttons>
+    }
     <ion-title class="page-title" mode="md">My advances</ion-title>
     <ion-buttons mode="md" slot="end">
       <ion-button class="my-advances--header-btn" (click)="openFilters()">
-        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+        @if (filterPills?.length) {
           <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
-        </ng-container>
-        <ng-template #noFilterAppliedIcon>
+        } @else {
           <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
-        </ng-template>
+        }
       </ion-button>
       <ion-button class="my-advances--header-btn" (click)="goToAddEditAdvanceRequest()">
         <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
@@ -24,7 +27,7 @@
 </ion-header>
 
 <ion-content class="my-advances--content">
-  <ng-container *ngIf="filterPills?.length">
+  @if (filterPills?.length) {
     <div class="filter-pills-container">
       <app-fy-filter-pills
         class="filter-pills"
@@ -34,44 +37,48 @@
         [filterPills]="filterPills"
       ></app-fy-filter-pills>
     </div>
-  </ng-container>
+  }
 
-  <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
+  @if (isLoading) {
+    <app-fy-loading-screen></app-fy-loading-screen>
+  }
   <div class="my-advances--body" [ngClass]="{'my-advances--zero-state-body': (advances$|async)?.length === 0 }">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ng-container *ngIf="(advances$ | async)?.length === 0">
+    @if ((advances$ | async)?.length === 0) {
       <div class="my-advances--zero-state">
-        <app-fy-zero-state
-          *ngIf="(filterParams$ | async)?.state && !(filterParams$ | async)?.date"
-          [unscaledImage]="true"
-          [useNewStyling]="true"
-          image="../../../assets/images/zero-states/advances.png"
-          message="You have no advances"
-          submessage="matching the applied filters"
-        ></app-fy-zero-state>
-        <app-fy-zero-state
-          *ngIf="!(filterParams$ | async)?.state && !(filterParams$ | async)?.date"
-          [unscaledImage]="true"
-          [useNewStyling]="true"
-          image="../../../assets/images/zero-states/advances.png"
-          message="You have no advances right now"
-        ></app-fy-zero-state>
+        @if ((filterParams$ | async)?.state && !(filterParams$ | async)?.date) {
+          <app-fy-zero-state
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+            image="../../../assets/images/zero-states/advances.png"
+            message="You have no advances"
+            submessage="matching the applied filters"
+          ></app-fy-zero-state>
+        }
+        @if (!(filterParams$ | async)?.state && !(filterParams$ | async)?.date) {
+          <app-fy-zero-state
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+            image="../../../assets/images/zero-states/advances.png"
+            message="You have no advances right now"
+          ></app-fy-zero-state>
+        }
       </div>
-    </ng-container>
+    }
 
-    <ng-container *ngIf="!isLoading">
+    @if (!isLoading) {
       <div *ngFor="let advances of advances$ | async as list; let i=index">
         <app-my-advances-card
           [advanceRequest]="advances"
           [prevDate]="list[i-1]?.created_at"
           (advanceClick)="onAdvanceClick($event)"
-        >
+          >
         </app-my-advances-card>
       </div>
-    </ng-container>
+    }
   </div>
 </ion-content>
 

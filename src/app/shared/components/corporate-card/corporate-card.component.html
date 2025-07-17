@@ -2,7 +2,9 @@
   <ion-row class="ion-align-items-center">
     <ion-col class="p-0">
       <ion-row class="corporate-card__row">
-        <div class="corporate-card__bank-name" *ngIf="card?.bank_name">{{ card.bank_name }}</div>
+        @if (card?.bank_name) {
+          <div class="corporate-card__bank-name">{{ card.bank_name }}</div>
+        }
         <div class="corporate-card-badge-container">
           <span class="corporate-card-badge">{{ 'corporateCard.badge' | transloco }}</span>
         </div>
@@ -10,17 +12,18 @@
     </ion-col>
 
     <ion-col size="auto" class="p-0">
-      <button
-        *ngIf="showCardOptionsMenu"
-        class="corporate-card__more-options-btn"
-        (click)="cardOptionsClick.emit(card)"
-        data-testid="more-options-btn"
-      >
-        <ion-icon
-          class="corporate-card__more-options-btn-icon"
-          src="../../../../assets/svg/vertical-dots-menu.svg"
-        ></ion-icon>
-      </button>
+      @if (showCardOptionsMenu) {
+        <button
+          class="corporate-card__more-options-btn"
+          (click)="cardOptionsClick.emit(card)"
+          data-testid="more-options-btn"
+          >
+          <ion-icon
+            class="corporate-card__more-options-btn-icon"
+            src="../../../../assets/svg/vertical-dots-menu.svg"
+          ></ion-icon>
+        </button>
+      }
     </ion-col>
   </ion-row>
 
@@ -30,64 +33,64 @@
 
   <div class="corporate-card__feed">
     <div class="corporate-card__status">
-      <ng-container *ngIf="isCardConnectedToRTF">
+      @if (isCardConnectedToRTF) {
         <span class="corporate-card__feed-label">{{ 'corporateCard.transactionsFeed' | transloco }}</span>
         <div class="corporate-card__feed-value corporate-card__feed-live">
           <div class="corporate-card__feed-live-dot"></div>
           <span data-testid="feed-info">{{ 'corporateCard.live' | transloco }}</span>
         </div>
-      </ng-container>
+      }
 
-      <ng-container
-        *ngIf="
-          card.data_feed_source === dataFeedSourceTypes.YODLEE ||
-          card.data_feed_source === dataFeedSourceTypes.AMEX_FEED
-        "
-      >
+      @if (
+        card.data_feed_source === dataFeedSourceTypes.YODLEE ||
+        card.data_feed_source === dataFeedSourceTypes.AMEX_FEED
+        ) {
         <span class="corporate-card__feed-label">{{ 'corporateCard.lastSynced' | transloco }}</span>
         <span class="corporate-card__feed-value" data-testid="feed-info">{{
           card.last_synced_at | date : 'MMM dd, YYYY'
         }}</span>
-      </ng-container>
+      }
 
-      <ng-container
-        *ngIf="
-          (card.data_feed_source === dataFeedSourceTypes.STATEMENT_UPLOAD && !isCardConnectedToRTF) ||
-          isCardConnectedToBankFeed
-        "
-      >
+      @if (
+        (card.data_feed_source === dataFeedSourceTypes.STATEMENT_UPLOAD && !isCardConnectedToRTF) ||
+        isCardConnectedToBankFeed
+        ) {
         <span class="corporate-card__feed-label">{{ 'corporateCard.syncedUsing' | transloco }}</span>
         <span class="corporate-card__feed-label" data-testid="feed-info">{{
           (card.data_feed_source === 'STATEMENT_UPLOAD' ? 'corporateCard.statementUpload' : 'corporateCard.bankFeed')
-            | transloco
+          | transloco
         }}</span>
-      </ng-container>
+      }
     </div>
     <div>
-      <ng-container *ngIf="!isCardConnectedToRTF" class="corporate-card__logo--default">
-        <ng-container *ngIf="card.data_feed_source === dataFeedSourceTypes.AMEX_FEED">
-          <img
-            src="../../../../assets/images/amex-logo.png"
-            class="corporate-card__logo--amex__icon"
-            data-testid="amex-icon"
-          />
+      @if (!isCardConnectedToRTF) {
+        <ng-container class="corporate-card__logo--default">
+          @if (card.data_feed_source === dataFeedSourceTypes.AMEX_FEED) {
+            <img
+              src="../../../../assets/images/amex-logo.png"
+              class="corporate-card__logo--amex__icon"
+              data-testid="amex-icon"
+              />
+          }
         </ng-container>
-      </ng-container>
+      }
 
-      <ng-container *ngIf="isCardConnectedToRTF">
-        <img
-          *ngIf="card.is_visa_enrolled"
-          src="../../../../assets/images/visa-logo.png"
-          class="corporate-card__logo--visa__icon"
-          data-testid="visa-icon"
-        />
-        <img
-          *ngIf="card.is_mastercard_enrolled"
-          src="../../../../assets/images/mastercard-logo.png"
-          class="corporate-card__logo--mastercard__icon"
-          data-testid="mastercard-icon"
-        />
-      </ng-container>
+      @if (isCardConnectedToRTF) {
+        @if (card.is_visa_enrolled) {
+          <img
+            src="../../../../assets/images/visa-logo.png"
+            class="corporate-card__logo--visa__icon"
+            data-testid="visa-icon"
+            />
+        }
+        @if (card.is_mastercard_enrolled) {
+          <img
+            src="../../../../assets/images/mastercard-logo.png"
+            class="corporate-card__logo--mastercard__icon"
+            data-testid="mastercard-icon"
+            />
+        }
+      }
     </div>
   </div>
 </div>

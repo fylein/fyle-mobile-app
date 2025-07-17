@@ -11,12 +11,14 @@
           (click)="openCurrencyModal()"
           formControlName="currency"
           (blur)="onBlur()"
-        />
+          />
       </div>
-      <div *ngIf="currencyAutoCodeMessage" class="fy-currency__auto-coded">
-        <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
-        {{ currencyAutoCodeMessage }}
-      </div>
+      @if (currencyAutoCodeMessage) {
+        <div class="fy-currency__auto-coded">
+          <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
+          {{ currencyAutoCodeMessage }}
+        </div>
+      }
     </div>
     <div class="fy-currency--input-wrapper fy-currency--amount-block">
       <div class="fy-currency--input-container" [ngClass]="{ 'fy-currency__invalid': !valid }">
@@ -28,33 +30,35 @@
           [placeholder]="'fyCurrency.amountPlaceholder' | transloco"
           formControlName="amount"
           [isAmount]="true"
-        >
+          >
         </app-fy-number>
       </div>
-      <div *ngIf="amountAutoCodeMessage" class="fy-currency__auto-coded">
-        <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
-        {{ amountAutoCodeMessage }}
-      </div>
+      @if (amountAutoCodeMessage) {
+        <div class="fy-currency__auto-coded">
+          <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
+          {{ amountAutoCodeMessage }}
+        </div>
+      }
     </div>
   </form>
 </div>
-<ng-container *ngIf="value?.currency && value?.orig_currency">
+@if (value?.currency && value?.orig_currency) {
   <div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
     <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="info-circle-fill"></mat-icon>
     <div class="fy-currency--exchange-rate-message">
       <strong>{{ value.amount | currency : value.currency : 'code' }}</strong>
       {{
-        'fyCurrency.exchangeRateInfo'
-          | transloco
-            : {
-                exchangeRate: (exchangeRate | number : '1.0-6'),
-                currency: value.currency,
-                origCurrency: value.orig_currency
-              }
-      }}
-    </div>
-    <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">
-      {{ 'fyCurrency.modifyButton' | transloco }}
-    </button>
+      'fyCurrency.exchangeRateInfo'
+      | transloco
+      : {
+      exchangeRate: (exchangeRate | number : '1.0-6'),
+      currency: value.currency,
+      origCurrency: value.orig_currency
+    }
+    }}
   </div>
-</ng-container>
+  <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">
+    {{ 'fyCurrency.modifyButton' | transloco }}
+  </button>
+</div>
+}

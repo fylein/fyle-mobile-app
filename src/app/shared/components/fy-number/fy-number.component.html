@@ -1,4 +1,4 @@
-<ng-container *ngIf="isIos && isAmount && isNegativeExpensePluginEnabled; else isAndroidNegativeExpensePlugin">
+@if (isIos && isAmount && isNegativeExpensePluginEnabled) {
   <input
     class="fy-number--input smartlook-show"
     [min]="min"
@@ -9,11 +9,9 @@
     type="number"
     [(ngModel)]="negativeExpense"
     (keydown)="handleNegativeExpenseChange($event)"
-  />
-</ng-container>
-
-<ng-template #isAndroidNegativeExpensePlugin>
-  <ng-container *ngIf="isAndroid && isAmount && isAndroidNegativeExpensePluginEnabled; else inputWithKeyboardPlugin">
+    />
+} @else {
+  @if (isAndroid && isAmount && isAndroidNegativeExpensePluginEnabled) {
     <input
       class="fy-number--input smartlook-show"
       [min]="min"
@@ -24,35 +22,34 @@
       type="text"
       inputmode="numeric"
       [(ngModel)]="negativeExpense"
-    />
-  </ng-container>
-</ng-template>
+      />
+  } @else {
+    @if (isIos && isKeyboardPluginEnabled) {
+      <input
+        class="fy-number--input smartlook-show"
+        [min]="min"
+        [disabled]="disabled"
+        [formControl]="fc"
+        [placeholder]="placeholder || ''"
+        (blur)="(onBlur)"
+        type="number"
+        inputmode="decimal"
+        (keyup)="handleChange($event)"
+        />
+    } @else {
+      <input
+        class="fy-number--input smartlook-show"
+        [min]="min"
+        [disabled]="disabled"
+        [formControl]="fc"
+        [placeholder]="placeholder || ''"
+        (blur)="(onBlur)"
+        type="number"
+        inputmode="decimal"
+        />
+    }
+  }
+}
 
-<ng-template #inputWithKeyboardPlugin>
-  <ng-container *ngIf="isIos && isKeyboardPluginEnabled; else inputWithoutPlugin">
-    <input
-      class="fy-number--input smartlook-show"
-      [min]="min"
-      [disabled]="disabled"
-      [formControl]="fc"
-      [placeholder]="placeholder || ''"
-      (blur)="(onBlur)"
-      type="number"
-      inputmode="decimal"
-      (keyup)="handleChange($event)"
-    />
-  </ng-container>
-</ng-template>
 
-<ng-template #inputWithoutPlugin>
-  <input
-    class="fy-number--input smartlook-show"
-    [min]="min"
-    [disabled]="disabled"
-    [formControl]="fc"
-    [placeholder]="placeholder || ''"
-    (blur)="(onBlur)"
-    type="number"
-    inputmode="decimal"
-  />
-</ng-template>
+

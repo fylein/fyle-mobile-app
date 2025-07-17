@@ -1,13 +1,15 @@
-<div *ngIf="transactionDetails" class="card-transaction">
-  <div class="card-transaction--header">{{ 'cardTransactionPreview.header' | transloco }}</div>
-  <div class="card-transaction--matching-card">
-    <mat-icon svgIcon="card" class="card-transaction--icon-corporate-card"></mat-icon>
-    <div class="card-transaction--matching-content card-transaction--ccc-expense">
-      <span class="text-capitalize"
-        >{{ transactionDetails.merchant || transactionDetails.description | ellipsis : 20 }},
-      </span>
-      <span>{{ transactionDetails.spent_at | date : 'MMM dd, YYYY' }} - </span>
-      <span>{{ transactionDetails.amount | currency : transactionDetails.currency : 'symbol-narrow' }}</span>
+@if (transactionDetails) {
+  <div class="card-transaction">
+    <div class="card-transaction--header">{{ 'cardTransactionPreview.header' | transloco }}</div>
+    <div class="card-transaction--matching-card">
+      <mat-icon svgIcon="card" class="card-transaction--icon-corporate-card"></mat-icon>
+      <div class="card-transaction--matching-content card-transaction--ccc-expense">
+        <span class="text-capitalize"
+          >{{ transactionDetails.merchant || transactionDetails.description | ellipsis : 20 }},
+        </span>
+        <span>{{ transactionDetails.spent_at | date : 'MMM dd, YYYY' }} - </span>
+        <span>{{ transactionDetails.amount | currency : transactionDetails.currency : 'symbol-narrow' }}</span>
+      </div>
     </div>
   </div>
-</div>
+}

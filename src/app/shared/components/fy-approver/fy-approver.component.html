@@ -1,15 +1,18 @@
-<div
-  *ngIf="type !== 'TEAM_REPORT' && type !== 'ADVANCE_REQUEST'"
-  class="approver--card"
-  (click)="openApproverListDialog()"
->
-  <div class="approver--card-action">
-    <mat-icon class="approver--card-action-icon">add_circle</mat-icon>
-    <div class="approver--card-action-text approver--card-action-text__comment">
-      {{ 'fyApprover.addApprover' | transloco }}
+@if (type !== 'TEAM_REPORT' && type !== 'ADVANCE_REQUEST') {
+  <div
+    class="approver--card"
+    (click)="openApproverListDialog()"
+    >
+    <div class="approver--card-action">
+      <mat-icon class="approver--card-action-icon">add_circle</mat-icon>
+      <div class="approver--card-action-text approver--card-action-text__comment">
+        {{ 'fyApprover.addApprover' | transloco }}
+      </div>
     </div>
   </div>
-</div>
-<div *ngIf="type === 'TEAM_REPORT' || type === 'ADVANCE_REQUEST'" (click)="openApproverListDialog()">
-  <ion-icon [src]="'../../../../assets/svg/edit.svg'" class="approver--icon" slot="icon-only"></ion-icon>
-</div>
+}
+@if (type === 'TEAM_REPORT' || type === 'ADVANCE_REQUEST') {
+  <div (click)="openApproverListDialog()">
+    <ion-icon [src]="'../../../../assets/svg/edit.svg'" class="approver--icon" slot="icon-only"></ion-icon>
+  </div>
+}

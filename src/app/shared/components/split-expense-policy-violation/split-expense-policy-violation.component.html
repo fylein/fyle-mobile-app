@@ -8,125 +8,144 @@
 </ion-header>
 
 <ion-content>
-  <div *ngIf="isSplitBlocked" class="split-expense-policy-violation--header-msg">
-    <span>{{ 'splitExpensePolicyViolation.splitBlockedMessage' | transloco }}</span>
-    <span>{{ 'splitExpensePolicyViolation.resolveViolationsMessage' | transloco }}</span>
-  </div>
-  <ng-container *ngIf="policyViolations && transactionIDs" class="policy-violation--body">
-    <ng-container *ngFor="let transaction of transactionIDs; let i = index">
-      <div *ngIf="policyViolations[transaction]?.rules?.length > 0" class="split-expense-policy-violation--accordion">
-        <div (click)="toggleExpansion(transaction)">
-          <div class="split-expense-policy-violation--header-slot">
-            <div class="split-expense-policy-violation--violations-count">
-              {{ policyViolations[transaction].rules.length }}
-              <span *ngIf="policyViolations[transaction].isCriticalPolicyViolation">
-                {{ 'splitExpensePolicyViolation.critical' | transloco }}
-              </span>
-              {{ 'splitExpensePolicyViolation.policyViolation' | transloco
-              }}<span *ngIf="policyViolations[transaction].rules.length > 1">{{
-                'splitExpensePolicyViolation.pluralS' | transloco
-              }}</span>
-            </div>
-            <span class="split-expense-policy-violation--dropdown-icon">
-              <ion-icon
-                class="split-expense-policy-violation--dropdown-container__icon"
+  @if (isSplitBlocked) {
+    <div class="split-expense-policy-violation--header-msg">
+      <span>{{ 'splitExpensePolicyViolation.splitBlockedMessage' | transloco }}</span>
+      <span>{{ 'splitExpensePolicyViolation.resolveViolationsMessage' | transloco }}</span>
+    </div>
+  }
+  @if (policyViolations && transactionIDs) {
+    <ng-container class="policy-violation--body">
+      @for (transaction of transactionIDs; track transaction; let i = $index) {
+        @if (policyViolations[transaction]?.rules?.length > 0) {
+          <div class="split-expense-policy-violation--accordion">
+            <div (click)="toggleExpansion(transaction)">
+              <div class="split-expense-policy-violation--header-slot">
+                <div class="split-expense-policy-violation--violations-count">
+                  {{ policyViolations[transaction].rules.length }}
+                  @if (policyViolations[transaction].isCriticalPolicyViolation) {
+                    <span>
+                      {{ 'splitExpensePolicyViolation.critical' | transloco }}
+                    </span>
+                  }
+                  {{ 'splitExpensePolicyViolation.policyViolation' | transloco
+                  }}@if (policyViolations[transaction].rules.length > 1) {
+                  <span>{{
+                    'splitExpensePolicyViolation.pluralS' | transloco
+                  }}</span>
+                }
+              </div>
+              <span class="split-expense-policy-violation--dropdown-icon">
+                <ion-icon
+                  class="split-expense-policy-violation--dropdown-container__icon"
                 [ngClass]="{
                   'split-expense-policy-violation--dropdown-container__icon--rotate':
                     !policyViolations[transaction].isExpanded
                 }"
-                [src]="'../../../../assets/svg/arrow-down.svg'"
-              ></ion-icon>
-            </span>
-          </div>
-          <div class="split-expense-policy-violation--sub-header-slot">
-            <div class="split-expense-policy-violation--split-by-type-container">
-              <div *ngIf="policyViolations[transaction]?.inputFieldInfo">
-                <div
-                  *ngFor="let input of policyViolations[transaction].inputFieldInfo | keyvalue"
-                  class="split-expense-policy-violation--placeholder"
-                >
-                  {{ input.key }} :
-                  <span class="split-expense-policy-violation--value">{{ input.value }}</span>
+                  [src]="'../../../../assets/svg/arrow-down.svg'"
+                ></ion-icon>
+              </span>
+            </div>
+            <div class="split-expense-policy-violation--sub-header-slot">
+              <div class="split-expense-policy-violation--split-by-type-container">
+                @if (policyViolations[transaction]?.inputFieldInfo) {
+                  <div>
+                    @for (input of policyViolations[transaction].inputFieldInfo | keyvalue; track input) {
+                      <div
+                        class="split-expense-policy-violation--placeholder"
+                        >
+                        {{ input.key }} :
+                        <span class="split-expense-policy-violation--value">{{ input.value }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="split-expense-policy-violation--policy-amount-container">
+                <div class="split-expense-policy-violation--value text-right">
+                  {{
+                  policyViolations[transaction].amount
+                  | currency : policyViolations[transaction].currency : 'symbol-narrow'
+                  }}
                 </div>
               </div>
             </div>
-            <div class="split-expense-policy-violation--policy-amount-container">
-              <div class="split-expense-policy-violation--value text-right">
-                {{
-                  policyViolations[transaction].amount
-                    | currency : policyViolations[transaction].currency : 'symbol-narrow'
-                }}
-              </div>
-            </div>
           </div>
-        </div>
-        <div class="split-expense-policy-violation--dropdown-items" *ngIf="policyViolations[transaction].isExpanded">
-          <ng-container>
-            <ng-container *ngIf="!policyViolations[transaction].isCriticalPolicyViolation">
-              <div class="split-expense-policy-violation--content-container">
-                <app-fy-policy-violation
-                  [policyViolationMessages]="policyViolations[transaction].rules"
-                  [showHeader]="false"
-                  [showCTA]="false"
-                  [showComment]="false"
-                  [policyAction]="policyViolations[transaction].action.final_desired_state"
-                ></app-fy-policy-violation>
-                <ng-container *ngIf="!isSplitBlocked">
-                  <form [formGroup]="form">
-                    <div formArrayName="comments">
-                      <div [formGroup]="formComments.controls[i]">
-                        <div>
-                          <p class="split-expense-policy-violation--additional-details-header">
-                            {{ 'splitExpensePolicyViolation.additionalDetailsHeader' | transloco }}
-                          </p>
+          @if (policyViolations[transaction].isExpanded) {
+            <div class="split-expense-policy-violation--dropdown-items">
+              <ng-container>
+                @if (!policyViolations[transaction].isCriticalPolicyViolation) {
+                  <div class="split-expense-policy-violation--content-container">
+                    <app-fy-policy-violation
+                      [policyViolationMessages]="policyViolations[transaction].rules"
+                      [showHeader]="false"
+                      [showCTA]="false"
+                      [showComment]="false"
+                      [policyAction]="policyViolations[transaction].action.final_desired_state"
+                    ></app-fy-policy-violation>
+                    @if (!isSplitBlocked) {
+                      <form [formGroup]="form">
+                        <div formArrayName="comments">
+                          <div [formGroup]="formComments.controls[i]">
+                            <div>
+                              <p class="split-expense-policy-violation--additional-details-header">
+                                {{ 'splitExpensePolicyViolation.additionalDetailsHeader' | transloco }}
+                              </p>
+                            </div>
+                            <textarea
+                              #comment
+                              maxlength="500"
+                              class="split-expense-policy-violation--textarea"
+                              formControlName="comment"
+                              [placeholder]="'splitExpensePolicyViolation.detailsPlaceholder' | transloco"
+                            ></textarea>
+                            <div class="split-expense-policy-violation--additional-details-comment-length">
+                              {{ form.value.comments[i].comment.length }} / {{ comment.maxLength }}
+                            </div>
+                          </div>
                         </div>
-                        <textarea
-                          #comment
-                          maxlength="500"
-                          class="split-expense-policy-violation--textarea"
-                          formControlName="comment"
-                          [placeholder]="'splitExpensePolicyViolation.detailsPlaceholder' | transloco"
-                        ></textarea>
-                        <div class="split-expense-policy-violation--additional-details-comment-length">
-                          {{ form.value.comments[i].comment.length }} / {{ comment.maxLength }}
-                        </div>
-                      </div>
-                    </div>
-                  </form>
-                </ng-container>
-              </div>
-            </ng-container>
-            <ng-container *ngIf="policyViolations[transaction].isCriticalPolicyViolation">
-              <app-fy-critical-policy-violation
-                [criticalViolationMessages]="policyViolations[transaction].rules"
-                [showHeader]="false"
-                [showCTA]="false"
-                [isSplitBlocked]="isSplitBlocked"
-                [isReceiptMissing]="policyViolations[transaction].action.final_desired_state?.is_receipt_mandatory"
-              ></app-fy-critical-policy-violation>
-            </ng-container>
-          </ng-container>
+                      </form>
+                    }
+                  </div>
+                }
+                @if (policyViolations[transaction].isCriticalPolicyViolation) {
+                  <app-fy-critical-policy-violation
+                    [criticalViolationMessages]="policyViolations[transaction].rules"
+                    [showHeader]="false"
+                    [showCTA]="false"
+                    [isSplitBlocked]="isSplitBlocked"
+                    [isReceiptMissing]="policyViolations[transaction].action.final_desired_state?.is_receipt_mandatory"
+                  ></app-fy-critical-policy-violation>
+                }
+              </ng-container>
+            </div>
+          }
         </div>
-      </div>
-    </ng-container>
+      }
+    }
   </ng-container>
+}
 </ion-content>
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <div *ngIf="!isSplitBlocked" class="fy-footer-cta-container">
-      <ion-button class="fy-footer-cta fy-footer-cta--outline-secondary" (click)="cancel()">
-        {{ 'splitExpensePolicyViolation.cancel' | transloco }}
-      </ion-button>
-      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()">
-        {{ 'splitExpensePolicyViolation.continue' | transloco }}
-      </ion-button>
-    </div>
+    @if (!isSplitBlocked) {
+      <div class="fy-footer-cta-container">
+        <ion-button class="fy-footer-cta fy-footer-cta--outline-secondary" (click)="cancel()">
+          {{ 'splitExpensePolicyViolation.cancel' | transloco }}
+        </ion-button>
+        <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()">
+          {{ 'splitExpensePolicyViolation.continue' | transloco }}
+        </ion-button>
+      </div>
+    }
 
-    <div *ngIf="isSplitBlocked" class="fy-footer-cta-container">
-      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="cancel()">
-        {{ 'splitExpensePolicyViolation.gotIt' | transloco }}
-      </ion-button>
-    </div>
+    @if (isSplitBlocked) {
+      <div class="fy-footer-cta-container">
+        <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="cancel()">
+          {{ 'splitExpensePolicyViolation.gotIt' | transloco }}
+        </ion-button>
+      </div>
+    }
   </ion-toolbar>
 </ion-footer>
