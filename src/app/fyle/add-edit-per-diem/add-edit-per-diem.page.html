@@ -278,14 +278,11 @@
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                         <div>
                           <div class="add-edit-per-diem--payment-mode-header">{{label}}</div>
-                          <ng-container *ngIf="paymentMode?.acc">
-                            <div *ngIf="paymentMode.acc.isReimbursable" class="add-edit-per-diem--payment-mode-section">
+                          <ng-container *ngIf="paymentMode">
+                            <div *ngIf="paymentMode.isReimbursable" class="add-edit-per-diem--payment-mode-section">
                               (Reimbursable)
                             </div>
-                            <div
-                              *ngIf="!paymentMode.acc.isReimbursable"
-                              class="add-edit-per-diem--payment-mode-section"
-                            >
+                            <div *ngIf="!paymentMode.isReimbursable" class="add-edit-per-diem--payment-mode-section">
                               (Non reimbursable)
                             </div>
                           </ng-container>

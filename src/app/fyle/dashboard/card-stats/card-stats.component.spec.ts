@@ -26,6 +26,7 @@ import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service
 import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-spent-cards',
@@ -410,6 +411,110 @@ describe('CardStatsComponent', () => {
         cssClass: 'pop-up-in-center',
       });
       expect(cardAddedPopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(component.loadCardDetails$.next).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('handleEnrollmentSuccess', () => {
+    let cardAddedPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+
+    beforeEach(() => {
+      cardAddedPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
+        'present',
+        'onDidDismiss',
+      ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
+
+      popoverController.create.and.resolveTo(cardAddedPopoverSpy);
+      corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+      spyOn(component.cardAdded, 'emit');
+
+      component.ngOnInit();
+      component.init();
+    });
+
+    it('should clear cache, show card added modal, emit event and reload cards on successful enrollment', fakeAsync(() => {
+      // Call the private method directly using any type assertion
+      (component as any).handleEnrollmentSuccess();
+
+      tick();
+
+      expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: CardAddedComponent,
+        cssClass: 'pop-up-in-center',
+      });
+      expect(cardAddedPopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(cardAddedPopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(component.cardAdded.emit).toHaveBeenCalledTimes(1);
+      expect(component.loadCardDetails$.next).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should execute all steps in the correct order', fakeAsync(() => {
+      const executionOrder: string[] = [];
+
+      corporateCreditCardExpenseService.clearCache.and.returnValue(
+        of(null).pipe(tap(() => executionOrder.push('cache_cleared')))
+      );
+
+      popoverController.create.and.returnValue(
+        Promise.resolve(cardAddedPopoverSpy).then(() => {
+          executionOrder.push('popover_created');
+          return cardAddedPopoverSpy;
+        })
+      );
+
+      cardAddedPopoverSpy.present.and.returnValue(
+        Promise.resolve().then(() => {
+          executionOrder.push('popover_presented');
+        })
+      );
+
+      cardAddedPopoverSpy.onDidDismiss.and.returnValue(
+        Promise.resolve({}).then(() => {
+          executionOrder.push('popover_dismissed');
+          return {};
+        })
+      );
+
+      // Call the private method directly using any type assertion
+      (component as any).handleEnrollmentSuccess();
+
+      tick();
+
+      expect(executionOrder).toEqual(['cache_cleared', 'popover_created', 'popover_presented', 'popover_dismissed']);
+      expect(component.cardAdded.emit).toHaveBeenCalledTimes(1);
+      expect(component.loadCardDetails$.next).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should emit cardAdded event after popover is dismissed', fakeAsync(() => {
+      // Reset the spy call count
+      (component.cardAdded.emit as jasmine.Spy).calls.reset();
+
+      // Call the private method directly using any type assertion
+      (component as any).handleEnrollmentSuccess();
+
+      // Before tick, emit should not be called
+      expect(component.cardAdded.emit).not.toHaveBeenCalled();
+
+      tick();
+
+      // After tick, emit should be called
+      expect(component.cardAdded.emit).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should reload card details after popover is dismissed', fakeAsync(() => {
+      // Reset the spy call count
+      (component.loadCardDetails$.next as jasmine.Spy).calls.reset();
+
+      // Call the private method directly using any type assertion
+      (component as any).handleEnrollmentSuccess();
+
+      // Before tick, reload should not be called
+      expect(component.loadCardDetails$.next).not.toHaveBeenCalled();
+
+      tick();
+
+      // After tick, reload should be called
       expect(component.loadCardDetails$.next).toHaveBeenCalledTimes(1);
     }));
   });

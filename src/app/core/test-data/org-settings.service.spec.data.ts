@@ -1208,7 +1208,7 @@ export const orgSettingsData: OrgSettings = deepFreeze({
     allowed: true,
     enabled: true,
     payment_modes_order: [
-      AllowedPaymentModes.PERSONAL_ACCOUNT,
+      AllowedPaymentModes.PERSONAL_CASH_ACCOUNT,
       AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
       AllowedPaymentModes.COMPANY_ACCOUNT,
     ],

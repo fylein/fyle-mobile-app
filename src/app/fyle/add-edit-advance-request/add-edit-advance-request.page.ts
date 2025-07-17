@@ -174,7 +174,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   submitAdvanceRequest(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequestFile> {
     const fileObjPromises = this.fileAttachments();
-    return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest, fileObjPromises);
+    const isApprover = this.from === 'TEAM_ADVANCE';
+    return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest, fileObjPromises, isApprover);
   }
 
   saveDraftAdvanceRequest(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequestFile> {

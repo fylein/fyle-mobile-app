@@ -6,7 +6,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule } from '@ionic/angular';
 import { of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { FyZeroStateComponent } from 'src/app/shared/components/fy-zero-state/fy-zero-state.component';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';

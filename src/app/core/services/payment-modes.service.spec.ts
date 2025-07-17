@@ -237,7 +237,7 @@ describe('PaymentModesService', () => {
     });
 
     it('should return Personal Cash/Card if payment mode is not PERSONAL_ADVANCE_ACCOUNT or PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', () => {
-      const paymentMode = AllowedPaymentModes.PERSONAL_ACCOUNT;
+      const paymentMode = AllowedPaymentModes.PERSONAL_CASH_ACCOUNT;
       expect(paymentModesService.getPaymentModeDisplayName(paymentMode)).toEqual('Personal Cash/Card');
     });
   });

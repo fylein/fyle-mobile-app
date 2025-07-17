@@ -1,7 +1,7 @@
 import { CustomInput } from './custom-input.model';
-import { ExtendedAccount } from './extended-account.model';
 import { Report } from './platform/v1/report.model';
 import { AdvanceWallet } from './platform/v1/advance-wallet.model';
+import { PlatformAccount } from './platform-account.model';
 import { TxnCustomProperties } from './txn-custom-properties.model';
 import { CostCenter } from './v1/cost-center.model';
 import { OrgCategory } from './v1/org-category.model';
@@ -15,7 +15,7 @@ export interface PerDiemFormValue {
     orig_currency: string;
     orig_amount: number;
   };
-  paymentMode: ExtendedAccount | AdvanceWallet;
+  paymentMode: PlatformAccount | AdvanceWallet;
   project: ProjectV2;
   sub_category: OrgCategory;
   purpose: string;

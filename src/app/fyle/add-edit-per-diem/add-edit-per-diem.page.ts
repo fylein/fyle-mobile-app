@@ -1574,8 +1574,7 @@ export class AddEditPerDiemPage implements OnInit {
         };
 
         let skipReimbursement =
-          (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL &&
-            !formValue?.paymentMode?.acc?.isReimbursable) ||
+          (formValue?.paymentMode?.type === AccountType.PERSONAL && !formValue?.paymentMode?.isReimbursable) ||
           !!formValue?.paymentMode?.id;
 
         // Handle payment mode type and source account
@@ -1585,7 +1584,7 @@ export class AddEditPerDiemPage implements OnInit {
         if (paymentMode) {
           if (paymentMode.type === 'PERSONAL_CASH_ACCOUNT') {
             sourceAccountId = paymentMode.id;
-            if (paymentMode.acc?.displayName === 'Paid by Company' || !paymentMode.isReimbursable) {
+            if (!paymentMode.isReimbursable) {
               skipReimbursement = true;
             } else {
               skipReimbursement = false;

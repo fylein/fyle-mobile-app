@@ -188,7 +188,8 @@ export function TestCases1(getTestBed) {
       expect(component.fileAttachments).toHaveBeenCalledTimes(1);
       expect(advanceRequestService.createAdvReqWithFilesAndSubmit).toHaveBeenCalledOnceWith(
         advanceRequests,
-        mockFileData
+        mockFileData,
+        false
       );
       result.subscribe((res) => {
         expect(res).toEqual(advRequestFile);

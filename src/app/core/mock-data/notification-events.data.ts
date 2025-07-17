@@ -686,6 +686,11 @@ export const expenseReportNotifications: NotificationEventItem[] = deepFreeze([
     email: true,
     eventEnum: NotificationEventsEnum.EREIMBURSEMENTS_COMPLETED,
   },
+  {
+    event: 'When an expense report is ready to process',
+    email: true,
+    eventEnum: NotificationEventsEnum.ERPTS_READY_TO_PROCESS,
+  },
 ]);
 
 export const advanceNotifications: NotificationEventItem[] = deepFreeze([

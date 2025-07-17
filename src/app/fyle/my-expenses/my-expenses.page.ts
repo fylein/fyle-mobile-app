@@ -745,17 +745,18 @@ export class MyExpensesPage implements OnInit {
 
     const queryParams = { state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' };
 
-    this.openReports$ = this.spenderReportsService.getAllReportsByParams(queryParams).pipe(
-      map((openReports) =>
-        openReports.filter(
-          (openReport) =>
-            // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
-            !openReport.approvals ||
-            (openReport.approvals &&
-              !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
+    this.openReports$ = this.spenderReportsService
+      .getAllReportsByParams(queryParams)
+      .pipe(
+        map((openReports) =>
+          openReports.filter(
+            (openReport) =>
+              !openReport.approvals ||
+              (openReport.approvals &&
+                !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
+          )
         )
-      )
-    );
+      );
     this.doRefresh();
 
     const optInModalPostExpenseCreationFeatureConfig = {

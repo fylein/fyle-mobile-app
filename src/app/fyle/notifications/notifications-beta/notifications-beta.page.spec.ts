@@ -28,6 +28,8 @@ import {
 } from 'src/app/core/mock-data/notification-events.data';
 import { EmailNotificationsComponent } from '../email-notifications/email-notifications.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 describe('NotificationsBetaPage', () => {
   let component: NotificationsBetaPage;
@@ -41,6 +43,8 @@ describe('NotificationsBetaPage', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+  let loaderService: jasmine.SpyObj<LoaderService>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -59,6 +63,10 @@ describe('NotificationsBetaPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfExpenseMarkedPersonalEventIsEnabled',
+    ]);
+    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
       declarations: [NotificationsBetaPage],
@@ -100,6 +108,14 @@ describe('NotificationsBetaPage', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
+        {
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -120,6 +136,8 @@ describe('NotificationsBetaPage', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalPropertiesService = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
 
     // Setup default mock responses
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
@@ -128,6 +146,9 @@ describe('NotificationsBetaPage', () => {
     employeesService.getByParams.and.returnValue(of(null));
     notificationsBetaPageService.getEmailNotificationsConfig.and.returnValue(mockEmailNotificationsConfig);
     notificationsBetaPageService.getInitialDelegateNotificationPreference.and.returnValue('onlyMe');
+    launchDarklyService.checkIfExpenseMarkedPersonalEventIsEnabled.and.returnValue(of(false));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
   }));
 
   it('should create', () => {
@@ -141,62 +162,49 @@ describe('NotificationsBetaPage', () => {
   });
 
   describe('ngOnInit():', () => {
-    it('ngOnInit(): should initialize the component with org settings and user settings', (done) => {
+    it('ngOnInit(): should initialize the component with org settings and user settings', fakeAsync(() => {
       spyOn(component, 'initializeEmailNotificationsConfig');
       spyOn(component, 'initializeDelegateNotification');
 
       component.ngOnInit();
+      tick();
 
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(component.isAdvancesEnabled).toBe(orgSettingsData.advances?.allowed && orgSettingsData.advances?.enabled);
+      expect(component.initializeEmailNotificationsConfig).toHaveBeenCalledTimes(1);
+      expect(component.initializeDelegateNotification).toHaveBeenCalledTimes(1);
+    }));
 
-      component.getOrgSettings().subscribe(({ orgSettings, employeeSettings }) => {
-        expect(orgSettings).toEqual(orgSettingsData);
-        expect(employeeSettings).toEqual(employeeSettingsData);
-        expect(component.isAdvancesEnabled).toBe(
-          orgSettingsData.advances?.allowed && orgSettingsData.advances?.enabled
-        );
-        expect(component.initializeEmailNotificationsConfig).toHaveBeenCalledTimes(1);
-        expect(component.initializeDelegateNotification).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-
-    it('ngOnInit(): should set isAdvancesEnabled to false when advances are not allowed', (done) => {
+    it('ngOnInit(): should set isAdvancesEnabled to false when advances are not allowed', fakeAsync(() => {
       const orgSettingsWithoutAdvances = { ...orgSettingsData, advances: { allowed: false, enabled: false } };
       orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAdvances));
       spyOn(component, 'initializeEmailNotificationsConfig');
       spyOn(component, 'initializeDelegateNotification');
 
       component.ngOnInit();
+      tick();
 
-      component.getOrgSettings().subscribe(({ orgSettings }) => {
-        expect(orgSettings).toEqual(orgSettingsWithoutAdvances);
-        expect(component.orgSettings).toEqual(orgSettingsWithoutAdvances);
-        expect(component.isAdvancesEnabled).toBeFalse();
-        expect(component.initializeEmailNotificationsConfig).toHaveBeenCalledTimes(1);
-        expect(component.initializeDelegateNotification).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
+      expect(component.orgSettings).toEqual(orgSettingsWithoutAdvances);
+      expect(component.isAdvancesEnabled).toBeFalse();
+      expect(component.initializeEmailNotificationsConfig).toHaveBeenCalledTimes(1);
+      expect(component.initializeDelegateNotification).toHaveBeenCalledTimes(1);
+    }));
 
-    it('ngOnInit(): should set isAdvancesEnabled to true when advances are allowed and enabled', (done) => {
+    it('ngOnInit(): should set isAdvancesEnabled to true when advances are allowed and enabled', fakeAsync(() => {
       const orgSettingsWithAdvances = { ...orgSettingsData, advances: { allowed: true, enabled: true } };
       orgSettingsService.get.and.returnValue(of(orgSettingsWithAdvances));
       spyOn(component, 'initializeEmailNotificationsConfig');
       spyOn(component, 'initializeDelegateNotification');
 
       component.ngOnInit();
+      tick();
 
-      component.getOrgSettings().subscribe(({ orgSettings }) => {
-        expect(orgSettings).toEqual(orgSettingsWithAdvances);
-        expect(component.orgSettings).toEqual(orgSettingsWithAdvances);
-        expect(component.isAdvancesEnabled).toBeTrue();
-        expect(component.initializeEmailNotificationsConfig).toHaveBeenCalledTimes(1);
-        expect(component.initializeDelegateNotification).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
+      expect(component.orgSettings).toEqual(orgSettingsWithAdvances);
+      expect(component.isAdvancesEnabled).toBeTrue();
+      expect(component.initializeEmailNotificationsConfig).toHaveBeenCalledTimes(1);
+      expect(component.initializeDelegateNotification).toHaveBeenCalledTimes(1);
+    }));
   });
 
   describe('initializeEmailNotificationsConfig():', () => {
@@ -205,12 +213,16 @@ describe('NotificationsBetaPage', () => {
 
       component.orgSettings = orgSettingsData;
       component.employeeSettings = employeeSettingsData;
+      component.isExpenseMarkedPersonalEventEnabled = false;
+      component.currentEou = apiEouRes;
 
       component.initializeEmailNotificationsConfig();
 
       expect(notificationsBetaPageService.getEmailNotificationsConfig).toHaveBeenCalledOnceWith(
         orgSettingsData,
-        employeeSettingsData
+        employeeSettingsData,
+        apiEouRes,
+        false
       );
       expect(component.expenseNotificationsConfig).toEqual(mockEmailNotificationsConfig2.expenseNotificationsConfig);
       expect(component.expenseReportNotificationsConfig).toEqual(
@@ -225,16 +237,17 @@ describe('NotificationsBetaPage', () => {
       component.getOrgSettings().subscribe(({ orgSettings, employeeSettings }) => {
         expect(orgSettings).toEqual(orgSettingsData);
         expect(employeeSettings).toEqual(employeeSettingsData);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
 
         done();
       });
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('initializeDelegateNotification():', () => {
     it('should initialize delegate notification when user has delegatees', (done) => {
+      component.currentEou = apiEouRes;
       employeesService.getByParams.and.returnValue(of(platformEmployeeResponse));
       spyOn(component, 'initializeSelectedPreference');
 
@@ -242,7 +255,6 @@ describe('NotificationsBetaPage', () => {
 
       component.isDelegateePresent$.subscribe((isDelegateePresent) => {
         expect(isDelegateePresent).toBeTrue();
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(employeesService.getByParams).toHaveBeenCalledWith({ user_id: `eq.${apiEouRes.us.id}` });
         expect(component.initializeSelectedPreference).toHaveBeenCalledTimes(1);
         done();
@@ -250,6 +262,7 @@ describe('NotificationsBetaPage', () => {
     });
 
     it('should not initialize delegate notification when user has no delegatees', (done) => {
+      component.currentEou = apiEouRes;
       const mockEmployeesResponseWithoutDelegatees = {
         ...platformEmployeeResponse,
         data: [
@@ -267,7 +280,6 @@ describe('NotificationsBetaPage', () => {
 
       component.isDelegateePresent$.subscribe((isDelegateePresent) => {
         expect(isDelegateePresent).toBeFalse();
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(employeesService.getByParams).toHaveBeenCalledWith({ user_id: `eq.${apiEouRes.us.id}` });
         expect(component.initializeSelectedPreference).not.toHaveBeenCalled();
         done();

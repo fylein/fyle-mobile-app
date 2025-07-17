@@ -1,12 +1,10 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PreferenceSettingComponent } from './preference-setting.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { SelectCurrencyComponent } from '../select-currency/select-currency.component';
-import { Currency } from 'src/app/core/models/currency.model';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
@@ -81,26 +79,6 @@ describe('PreferenceSettingComponent', () => {
     component.onChange();
     expect(component.preferenceChanged.emit).toHaveBeenCalledOnceWith({ key: 'instaFyle', isEnabled: true });
   });
-
-  it('openCurrencyModal(): should open the currency modal', fakeAsync(() => {
-    const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
-    const selectedCurrency: Currency = { shortCode: 'ARS', longName: 'Argentine Peso' };
-    modalController.create.and.resolveTo(modalSpy);
-    modalSpy.onWillDismiss.and.resolveTo({ data: { selectedCurrency } } as any);
-
-    component.openCurrencyModal();
-    tick();
-    expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: SelectCurrencyComponent,
-      componentProps: {
-        currentSelection: component.defaultCurrency,
-      },
-      mode: 'ios',
-      ...modalProperties.getModalDefaultProperties(),
-    });
-    expect(modalSpy.present).toHaveBeenCalledTimes(1);
-    expect(component.defaultCurrency).toEqual(selectedCurrency.shortCode);
-  }));
 
   it('should render the correct title and content', () => {
     const title = 'Default Currency';
