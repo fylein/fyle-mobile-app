@@ -453,9 +453,19 @@ export class DashboardPage {
     const queryParams: Params = { state: 'tasks' };
     if (this.activatedRoute.snapshot.params.openSMSOptInDialog) {
       this.currentStateIndex = 1;
-      this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
-        queryParams,
-      });
+      this.router.navigate(
+        [
+          '/',
+          'enterprise',
+          'my_dashboard',
+          {
+            navigate_back: true,
+          },
+        ],
+        {
+          queryParams,
+        }
+      );
     } else {
       this.currentStateIndex = 1;
       this.router.navigate([], {
@@ -594,20 +604,12 @@ export class DashboardPage {
   }
 
   onTaskClicked(): void {
+    this.currentStateIndex = 1;
     const queryParams: Params = { state: 'tasks' };
-    if (this.activatedRoute.snapshot.params.openSMSOptInDialog) {
-      this.currentStateIndex = 1;
-      this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
-        queryParams,
-      });
-    } else {
-      this.currentStateIndex = 1;
-      this.router.navigate([], {
-        relativeTo: this.activatedRoute,
-        queryParams,
-      });
-    }
-
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams,
+    });
     this.trackingService.tasksPageOpened({
       Asset: 'Mobile',
       from: 'Dashboard',
