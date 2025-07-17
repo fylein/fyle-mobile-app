@@ -896,8 +896,8 @@ export class TrackingService {
     this.eventTrack('Receipt Scan Time InstaFyle', properties);
   }
 
-  dashboardPendingTasksNotificationClicked(): void {
-    this.eventTrack('Dashboard Pending Tasks Notification Clicked');
+  dashboardPendingTasksNotificationClicked(properties = {} as TaskPageOpenProperties): void {
+    this.eventTrack('Dashboard Pending Tasks Notification Clicked', properties);
   }
 
   private isDemoAccount(eou: ExtendedOrgUser): boolean {

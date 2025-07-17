@@ -450,13 +450,17 @@ export class DashboardPage {
   }
 
   onPendingTaskStatClick(): void {
+    this.currentStateIndex = 1;
     const queryParams: Params = { state: 'tasks' };
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
       queryParams,
     });
 
-    this.trackingService.dashboardPendingTasksNotificationClicked();
+    this.trackingService.dashboardPendingTasksNotificationClicked({
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
   }
 
   ionViewWillEnter(): void {
