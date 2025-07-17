@@ -20,7 +20,7 @@ class MockNavParams {
   }
 }
 
-fdescribe('SupportDialogPage', () => {
+describe('SupportDialogPage', () => {
   let component: SupportDialogPage;
   let fixture: ComponentFixture<SupportDialogPage>;
   let modalController: jasmine.SpyObj<ModalController>;
