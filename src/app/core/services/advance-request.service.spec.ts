@@ -435,8 +435,9 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('reject(): should reject an advance request', (done) => {
-    apiService.post.and.returnValue(of(rejectedAdvReqRes));
+  it('reject(): should reject an advance request using platform API', (done) => {
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
 
     const advReq = 'areqVU0Xr5suPC';
     const payload = {
@@ -447,8 +448,13 @@ describe('AdvanceRequestService', () => {
     };
 
     advanceRequestService.reject(advReq, payload).subscribe((res) => {
-      expect(res).toEqual(rejectedAdvReqRes);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advReq}/reject`, payload);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/reject', {
+        data: {
+          id: advReq,
+          comment: 'a comment',
+        },
+      });
       done();
     });
   });

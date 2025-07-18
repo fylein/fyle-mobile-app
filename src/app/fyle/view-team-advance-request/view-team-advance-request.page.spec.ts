@@ -420,7 +420,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const showApproverSpy = jasmine.createSpyObj('showApprover', ['present', 'onWillDismiss']);
     showApproverSpy.onWillDismiss.and.resolveTo({ data: { comment: 'comment' } });
     popoverController.create.and.resolveTo(showApproverSpy);
-    advanceRequestService.reject.and.returnValue(of(advanceRequests));
+    advanceRequestService.reject.and.returnValue(of(advanceRequestPlatform.data[0]));
 
     component.showRejectAdvanceSummaryPopup();
     tick(100);
