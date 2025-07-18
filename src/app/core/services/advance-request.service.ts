@@ -211,8 +211,19 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  sendBack(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/inquire', addStatusPayload);
+  sendBack(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequestPlatform> {
+    const comment = addStatusPayload.status?.comment || '';
+    const notify = addStatusPayload.notify || false;
+    const payload = {
+      data: {
+        id: advanceRequestId,
+        comment,
+        notify,
+      },
+    };
+    return this.approverService
+      .post<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests/inquire', payload)
+      .pipe(map((response) => response.data));
   }
 
   @CacheBuster({
