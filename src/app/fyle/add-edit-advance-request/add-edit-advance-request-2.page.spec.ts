@@ -324,7 +324,7 @@ export function TestCases2(getTestBed) {
         advanceRequestService.getApproverPermissions.and.returnValue(of(apiAdvanceRequestAction));
         loaderService.showLoader.and.resolveTo(undefined);
         loaderService.hideLoader.and.resolveTo(undefined);
-        advanceRequestService.getEReqFromPlatform.and.returnValue(of(unflattenedAdvanceRequestData));
+        advanceRequestService.getEReq.and.returnValue(of(unflattenedAdvanceRequestData));
         advanceRequestService.getEReq.and.returnValue(of(unflattenedAdvanceRequestData));
         projectsService.getbyId.and.returnValue(of(projects[0]));
         spyOn(component, 'modifyAdvanceRequestCustomFields');
@@ -420,13 +420,13 @@ export function TestCases2(getTestBed) {
         component.from = 'ADVANCE';
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
         mockAdvanceRequest.areq.project_id = '3019';
-        advanceRequestService.getEReqFromPlatform.and.returnValue(of(mockAdvanceRequest));
+        advanceRequestService.getEReq.and.returnValue(of(mockAdvanceRequest));
         fixture.detectChanges();
         component.ionViewWillEnter();
         tick(100);
         component.extendedAdvanceRequest$.subscribe((res) => {
           expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-          expect(advanceRequestService.getEReqFromPlatform).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(advanceRequestService.getEReq).toHaveBeenCalledWith('areqR1cyLgXdND');
           expect(component.fg.value.currencyObj).toEqual({
             currency: 'USD',
             amount: 2,
