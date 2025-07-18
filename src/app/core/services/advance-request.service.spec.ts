@@ -379,7 +379,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('submit(): should submit an advance request using platform API', (done) => {
+  it('submit(): should submit an advance request', (done) => {
     const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     spenderService.post.and.returnValue(of(mockPlatformResponse));
 
@@ -398,7 +398,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('submit(): should submit an advance request using platform API for approver', (done) => {
+  it('submit(): should submit an advance request API for approver', (done) => {
     const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     approverService.post.and.returnValue(of(mockPlatformResponse));
 
@@ -435,7 +435,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('reject(): should reject an advance request using platform API', (done) => {
+  it('reject(): should reject an advance request', (done) => {
     const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     approverService.post.and.returnValue(of(mockPlatformResponse));
 
@@ -459,7 +459,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('approve(): should approve an advance request using platform API', (done) => {
+  it('approve(): should approve an advance request', (done) => {
     const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     approverService.post.and.returnValue(of(mockPlatformResponse));
 
@@ -478,7 +478,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('sendBack(): should send back an advance request using platform API', (done) => {
+  it('sendBack(): should send back an advance request', (done) => {
     const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     approverService.post.and.returnValue(of(mockPlatformResponse));
 
@@ -503,7 +503,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('pullBackAdvanceRequest(): should pull back an advance request using platform API', (done) => {
+  it('pullBackAdvanceRequest(): should pull back an advance request', (done) => {
     const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     spenderService.post.and.returnValue(of(mockPlatformResponse));
 
@@ -529,7 +529,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('addApprover(): should add approver to an advance request using platform API', (done) => {
+  it('addApprover(): should add approver to an advance request', (done) => {
     const mockPlatformResponse = { data: pullBackAdvancedRequests };
     approverService.post.and.returnValue(of(mockPlatformResponse));
     const advanceID = 'areqMP09oaYXBf';
@@ -602,7 +602,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getActiveApproversByAdvanceRequestIdPlatformForApprover(): should get active approvers for team advance request using platform API', (done) => {
+  it('getActiveApproversByAdvanceRequestIdPlatformForApprover(): should get active approvers for team advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
     //@ts-ignore
     approverService.get.and.returnValue(of(advanceRequestPlatform));
@@ -625,7 +625,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getCommentsByAdvanceRequestIdPlatformForApprover(): should get comments for team advance request using platform API', (done) => {
+  it('getCommentsByAdvanceRequestIdPlatformForApprover(): should get comments for team advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
     //@ts-ignore
     approverService.get.and.returnValue(of(advanceRequestPlatform));
@@ -668,7 +668,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getCommentsByAdvanceRequestIdPlatform(): should get comments for spender advance request using platform API', (done) => {
+  it('getCommentsByAdvanceRequestIdPlatform(): should get comments for spender advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
     //@ts-ignore
     spenderService.get.and.returnValue(of(advanceRequestPlatform));
