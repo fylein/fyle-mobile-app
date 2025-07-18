@@ -191,51 +191,40 @@ describe('RouteVisualizerComponent', () => {
     });
   });
 
-  xdescribe('renderMap', () => {
-    it('should set the map directions based on the route provided to render the map', () => {
-      locationService.getDirections.and.returnValue(of(directionsResponse1));
-      component.mileageLocations = mileageLocationData1;
-
-      fixture.detectChanges();
-      component.ngOnChanges();
-
-      expect(component.directionsPolyline$).toBeDefined();
-      expect(locationService.getDirections).toHaveBeenCalledTimes(1);
-      expect(locationService.getDirections).toHaveBeenCalledWith(
-        mileageRoute1.origin,
-        mileageRoute1.destination,
-        mileageRoute1.waypoints
-      );
-    });
-
-    it('should generate a directions map image url', () => {
-      locationService.getDirections.and.returnValue(of(directionsResponse1));
-      component.mileageLocations = mileageLocationData1;
-
-      fixture.detectChanges();
-      component.ngOnChanges();
-      fixture.detectChanges();
-
-      expect(component.directionsMapUrl$).toBeDefined();
-      expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledTimes(1);
-
-      const updatedMileageRoute = {
-        ...mileageRoute1,
-        directionsPolyline: directionsResponse1,
+  describe('renderMap', () => {
+    it('should set directionsPolyline$ and directionsMapUrl$ based on the provided mileageRoute', (done) => {
+      const mileageRoute: MileageRoute = {
+        origin: { lat: 1, lng: 2 },
+        destination: { lat: 3, lng: 4 },
+        waypoints: [],
       };
+      const mockPolyline = 'mock_polyline';
+      const mockMapUrl = 'mock_map_url';
+      locationService.getDirections.and.returnValue(of(mockPolyline));
+      gmapsService.generateDirectionsMapUrl.and.returnValue(mockMapUrl);
 
-      expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledWith(updatedMileageRoute);
-    });
+      // @ts-ignore
+      component.renderMap(mileageRoute);
 
-    it('should not generate a directions map image url if the directions api didnt return any results', () => {
-      locationService.getDirections.and.returnValue(throwError(() => directionsResponse2));
-      component.mileageLocations = mileageLocationData1;
+      // directionsPolyline$ should emit mockPolyline
+      component.directionsPolyline$.subscribe((polyline) => {
+        expect(polyline).toBe(mockPolyline);
+      });
 
-      fixture.detectChanges();
-      component.ngOnChanges();
-      fixture.detectChanges();
-
-      expect(gmapsService.generateDirectionsMapUrl).not.toHaveBeenCalled();
+      // directionsMapUrl$ should emit mockMapUrl
+      component.directionsMapUrl$.subscribe((url) => {
+        expect(url).toBe(mockMapUrl);
+        expect(locationService.getDirections).toHaveBeenCalledWith(
+          mileageRoute.origin,
+          mileageRoute.destination,
+          mileageRoute.waypoints
+        );
+        expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledWith({
+          ...mileageRoute,
+          directionsPolyline: mockPolyline,
+        });
+        done();
+      });
     });
   });
 

@@ -42,6 +42,24 @@ export class ExpenseFieldsService {
     );
   }
 
+  // function to get all the mandatory expense fields for a given org
+  getMandatoryExpenseFields(): Observable<ExpenseField[]> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) =>
+        this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
+          params: {
+            org_id: `eq.${eou.ou.org_id}`,
+            is_mandatory: 'eq.true',
+            is_enabled: 'eq.true',
+            order: 'seq.asc',
+          },
+        })
+      ),
+      map((res) => this.transformFrom(res.data)),
+      map((res) => this.dateService.fixDates(res))
+    );
+  }
+
   getColumnName(columnName: string, seq?: number): string {
     //Mapping of platform to legacy column name
     const columnNameMapping = {

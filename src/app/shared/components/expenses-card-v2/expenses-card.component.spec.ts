@@ -45,6 +45,7 @@ import {
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { mandatoryExpenseFields } from 'src/app/core/mock-data/expense-field.data';
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
@@ -100,7 +101,10 @@ describe('ExpensesCardComponent', () => {
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addAttachment', 'showToastMessage']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
+    const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', [
+      'getAllMap',
+      'getMandatoryExpenseFields',
+    ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
@@ -167,6 +171,7 @@ describe('ExpensesCardComponent', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
     transactionsOutboxService.isSyncInProgress.and.returnValue(true);
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
+    expenseFieldsService.getMandatoryExpenseFields.and.returnValue(of(mandatoryExpenseFields));
     sharedExpenseService.getVendorDetails.and.returnValue('asd');
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
     sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValue(false);
@@ -211,6 +216,8 @@ describe('ExpensesCardComponent', () => {
         'expensesCard.missing': 'missing',
         'expensesCard.at': 'at',
         'expensesCard.countSelected': '{{count}} selected',
+        'expensesCard.add': 'Add',
+        'expensesCard.more': 'more',
       };
       let translation = translations[key] || key;
 
@@ -957,5 +964,77 @@ describe('ExpensesCardComponent', () => {
       const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeFalse();
     });
+  });
+});
+
+describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
+  let component: ExpensesCardComponent;
+
+  beforeEach(() => {
+    // Provide minimal mocks for all constructor dependencies
+    component = new ExpensesCardComponent(
+      {} as any, // TransactionService
+      {} as any, // SharedExpenseService
+      {} as any, // PlatformEmployeeSettingsService
+      {} as any, // FileService
+      {} as any, // PopoverController
+      {} as any, // NetworkService
+      {} as any, // TransactionsOutboxService
+      {} as any, // ModalController
+      { is: () => false } as any, // Platform
+      {} as any, // MatSnackBar
+      { setSnackbarProperties: () => ({}) } as any, // SnackbarPropertiesService
+      { addAttachment: () => {}, showToastMessage: () => {} } as any, // TrackingService
+      { getHomeCurrency: () => {} } as any, // CurrencyService
+      { getAllMap: () => {}, getMandatoryExpenseFields: () => {} } as any, // ExpenseFieldsService
+      { get: () => {} } as any, // OrgSettingsService
+      {} as any, // ExpensesService
+      { translate: () => '' } as any // TranslocoService
+    );
+    // Set up a default map for testing
+    component.mandatoryFieldsMap = { 1: 'Project', 2: 'Cost Center', 3: 'Department' };
+  });
+
+  it('should set and get cached mandatory fields map correctly', () => {
+    const testMap = { 1: 'Project', 2: 'Cost Center' };
+    // @ts-ignore
+    component.setCachedMandatoryFieldsMap(testMap);
+    // @ts-ignore
+    const result = component.getCachedMandatoryFieldsMap();
+    expect(result).toEqual(testMap);
+  });
+
+  it('should return empty object for invalid cached JSON', () => {
+    localStorage.setItem('mandatory_expense_fields_cache', 'not-json');
+    // @ts-ignore
+    const result = component.getCachedMandatoryFieldsMap();
+    expect(result).toEqual({});
+  });
+
+  it('should return correct missing mandatory field names', () => {
+    component.missingMandatoryFields = {
+      receipt: true,
+      currency: false,
+      amount: true,
+      expense_field_ids: [1, 2],
+    };
+    component.mandatoryFieldsMap = { 1: 'Project', 2: 'Cost Center' };
+    // @ts-ignore
+    const names = component.getMissingMandatoryFieldNames();
+    expect(names).toEqual(['receipt', 'amount', 'Project', 'Cost Center']);
+  });
+
+  it('should process missing fields for display with ellipsis and limits', () => {
+    component.missingMandatoryFieldNames = [
+      'VeryLongFieldNameThatNeedsEllipsis',
+      'Short',
+      'AnotherLongFieldName',
+      'ExtraField',
+    ];
+    // @ts-ignore
+    component.processMissingFieldsForDisplay(20, 10);
+    // Should only include as many as fit, with ellipsis, and set remainingFieldsCount
+    expect(component.missingFieldsDisplayText).toContain('veryLon..., short');
+    expect(component.remainingFieldsCount).toBeGreaterThanOrEqual(1);
   });
 });
