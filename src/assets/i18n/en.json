@@ -1614,5 +1614,8 @@
       "page": "Reports",
       "from": "My Reports"
     }
+  },
+  "dashboard": {
+    "pendingTasks": "You have {{count}} pending tasks"
   }
 }

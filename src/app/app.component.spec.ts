@@ -76,7 +76,18 @@ describe('AppComponent', () => {
       selectionMode$: of(false),
       footerCurrentStateIndex$: of(1),
     });
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'parseUrl']);
+    // Configure parseUrl to return a mock UrlTree
+    routerSpy.parseUrl.and.returnValue({
+      root: {
+        children: {
+          primary: {
+            segments: [{ path: 'my_dashboard', parameters: {} }],
+          },
+        },
+      },
+      queryParams: { state: 'home' },
+    });
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'tasksPageOpened',
