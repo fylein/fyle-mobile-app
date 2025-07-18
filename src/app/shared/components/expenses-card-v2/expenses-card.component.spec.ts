@@ -29,7 +29,7 @@ import { fileObjectAdv, fileObjectData } from 'src/app/core/mock-data/file-objec
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { cloneDeep } from 'lodash';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';

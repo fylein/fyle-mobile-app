@@ -92,7 +92,7 @@ import * as lodash from 'lodash';
 import { projectsV1Data } from '../test-data/projects.spec.data';
 import { ccTransactionResponseData } from '../mock-data/corporate-card-transaction-response.data';
 import { customInputData } from '../test-data/custom-inputs.spec.data';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { expectedOrgCategoryByName2, orgCategoryData1 } from '../mock-data/org-category.data';
 import { taxGroupData } from '../mock-data/tax-group.data';
 import { cloneDeep } from 'lodash';

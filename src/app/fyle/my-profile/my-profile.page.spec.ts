@@ -29,7 +29,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MyProfilePage } from './my-profile.page';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -37,6 +37,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -100,106 +101,108 @@ describe('MyProfilePage', () => {
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
 
     TestBed.configureTestingModule({
-      declarations: [MyProfilePage],
-      imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule],
-      providers: [
+    declarations: [MyProfilePage],
+    imports: [IonicModule.forRoot(), RouterTestingModule],
+    providers: [
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                openPopover: '',
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        openPopover: '',
+                    },
+                },
             },
-          },
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
         {
-          provide: PlatformEmployeeSettingsService,
-          useValue: platformEmployeeSettingsServiceSpy,
+            provide: PlatformEmployeeSettingsService,
+            useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-          provide: UserEventService,
-          useValue: userEventServiceSpy,
+            provide: UserEventService,
+            useValue: userEventServiceSpy,
         },
         {
-          provide: SecureStorageService,
-          useValue: secureStorageServiceSpy,
+            provide: SecureStorageService,
+            useValue: secureStorageServiceSpy,
         },
         {
-          provide: StorageService,
-          useValue: storageServiceSpy,
+            provide: StorageService,
+            useValue: storageServiceSpy,
         },
         {
-          provide: DeviceService,
-          useValue: deviceServiceSpy,
+            provide: DeviceService,
+            useValue: deviceServiceSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: TokenService,
-          useValue: tokenServiceSpy,
+            provide: TokenService,
+            useValue: tokenServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: OrgService,
-          useValue: orgServiceSpy,
+            provide: OrgService,
+            useValue: orgServiceSpy,
         },
         {
-          provide: NetworkService,
-          useValue: networkServiceSpy,
+            provide: NetworkService,
+            useValue: networkServiceSpy,
         },
         {
-          provide: OrgSettingsService,
-          useValue: orgSettingsServiceSpy,
+            provide: OrgSettingsService,
+            useValue: orgSettingsServiceSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: MatSnackBar,
-          useValue: matSnackBarSpy,
+            provide: MatSnackBar,
+            useValue: matSnackBarSpy,
         },
         {
-          provide: SnackbarPropertiesService,
-          useValue: snackbarPropertiesSpy,
+            provide: SnackbarPropertiesService,
+            useValue: snackbarPropertiesSpy,
         },
         {
-          provide: PaymentModesService,
-          useValue: paymentModeServiceSpy,
+            provide: PaymentModesService,
+            useValue: paymentModeServiceSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: UtilityService,
-          useValue: utilityServiceSpy,
+            provide: UtilityService,
+            useValue: utilityServiceSpy,
         },
         {
-          provide: OrgUserService,
-          useValue: orgUserServiceSpy,
+            provide: OrgUserService,
+            useValue: orgUserServiceSpy,
         },
         {
-          provide: SpenderOnboardingService,
-          useValue: spenderOnboardingServiceSpy,
+            provide: SpenderOnboardingService,
+            useValue: spenderOnboardingServiceSpy,
         },
         {
-          provide: EmployeesService,
-          useValue: employeesServiceSpy,
+            provide: EmployeesService,
+            useValue: employeesServiceSpy,
         },
         SpenderService,
-      ],
-    }).compileComponents();
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+}).compileComponents();
 
     fixture = TestBed.createComponent(MyProfilePage);
     component = fixture.componentInstance;

@@ -16,7 +16,7 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';

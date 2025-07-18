@@ -9,7 +9,7 @@ import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { MyAdvancesCardComponent } from './my-advances-card.component';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { of } from 'rxjs';

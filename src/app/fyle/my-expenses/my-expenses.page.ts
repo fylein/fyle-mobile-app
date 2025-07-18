@@ -81,7 +81,7 @@ import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-op
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';

@@ -1,4 +1,4 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -25,6 +25,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ReportStates } from './stat-badge/report-states.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { TranslocoService } from '@jsverse/transloco';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -55,36 +56,38 @@ describe('DashboardService', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [
+    imports: [],
+    providers: [
         DashboardService,
         CorporateCreditCardExpenseService,
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
         {
-          provide: ExpensesService,
-          useValue: expensesServiceSpy,
+            provide: ExpensesService,
+            useValue: expensesServiceSpy,
         },
         {
-          provide: SpenderReportsService,
-          useValue: spenderReportsServiceSpy,
+            provide: SpenderReportsService,
+            useValue: spenderReportsServiceSpy,
         },
         {
-          provide: ApproverReportsService,
-          useValue: approverReportServiceSpy,
+            provide: ApproverReportsService,
+            useValue: approverReportServiceSpy,
         },
         {
-          provide: SpenderPlatformV1ApiService,
-          useValue: spenderPlatformV1ApiServiceSpy,
+            provide: SpenderPlatformV1ApiService,
+            useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    });
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+});
     dashboardService = TestBed.inject(DashboardService);
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;

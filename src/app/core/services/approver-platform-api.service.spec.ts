@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
-import { HttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { of } from 'rxjs';
 
 const requestObj = {
@@ -22,15 +22,17 @@ describe('ApproverPlatformApiService', () => {
     const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [
+    imports: [],
+    providers: [
         ApproverPlatformApiService,
         {
-          provide: HttpClient,
-          useValue: httpClientSpy,
+            provide: HttpClient,
+            useValue: httpClientSpy,
         },
-      ],
-    });
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+});
     approverPlatformApiService = TestBed.inject(ApproverPlatformApiService);
     httpTestingController = TestBed.inject(HttpTestingController);
     httpClient = TestBed.inject(HttpClient) as jasmine.SpyObj<HttpClient>;

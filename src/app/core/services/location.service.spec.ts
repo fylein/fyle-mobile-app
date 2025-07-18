@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { of, delay } from 'rxjs';
 import { LocationService } from './location.service';
 import { locationData1, locationData2, locationData4, predictedLocation1 } from '../mock-data/location.data';
-import { HttpParams } from '@angular/common/http';
+import { HttpParams, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { cloneDeep } from 'lodash';
 
 describe('LocationService', () => {
@@ -21,9 +21,9 @@ describe('LocationService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [LocationService],
-    });
+    imports: [],
+    providers: [LocationService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+});
 
     locationService = TestBed.inject(LocationService);
     httpMock = TestBed.inject(HttpTestingController);

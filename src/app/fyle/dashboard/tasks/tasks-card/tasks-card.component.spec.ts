@@ -6,11 +6,12 @@ import { IonicModule } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatRippleModule } from '@angular/material/core';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import { TaskIcon } from 'src/app/core/models/task-icon.enum';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('TasksCardComponent', () => {
   let component: TasksCardComponent;
@@ -29,10 +30,10 @@ describe('TasksCardComponent', () => {
       return translations[key] || key;
     });
     TestBed.configureTestingModule({
-      declarations: [TasksCardComponent],
-      imports: [IonicModule.forRoot(), MatRippleModule, MatIconModule, MatIconTestingModule, HttpClientTestingModule],
-      providers: [{ provide: TranslocoService, useValue: translocoService }],
-    }).compileComponents();
+    declarations: [TasksCardComponent],
+    imports: [IonicModule.forRoot(), MatRippleModule, MatIconModule, MatIconTestingModule],
+    providers: [{ provide: TranslocoService, useValue: translocoService }, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+}).compileComponents();
 
     fixture = TestBed.createComponent(TasksCardComponent);
     component = fixture.componentInstance;

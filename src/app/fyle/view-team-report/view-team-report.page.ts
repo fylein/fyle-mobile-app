@@ -16,7 +16,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { getCurrencySymbol } from '@angular/common';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';

@@ -1,4 +1,4 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { expenseList2 } from '../mock-data/expense.data';
 import { txnData2 } from '../mock-data/transaction.data';
@@ -16,6 +16,7 @@ import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { parsedResponseData1 } from '../mock-data/parsed-response.data';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -45,8 +46,8 @@ describe('TransactionsOutboxService', () => {
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [
+    imports: [],
+    providers: [
         TransactionsOutboxService,
         { provide: StorageService, useValue: storageServiceSpy },
         { provide: DateService, useValue: dateServiceSpy },
@@ -57,8 +58,10 @@ describe('TransactionsOutboxService', () => {
         { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
-      ],
-    });
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+});
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService);
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;

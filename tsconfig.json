@@ -5,7 +5,7 @@
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "module": "ES2022",
     "moduleResolution": "bundler",
@@ -16,7 +16,6 @@
       "dom"
     ],
     "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
     "useDefineForClassFields": false,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true

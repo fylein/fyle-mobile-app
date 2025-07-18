@@ -8,7 +8,7 @@ import { DateService } from './date.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { PersonalCardDateFilter } from '../models/personal-card-date-filter.model';
 import { PlatformPersonalCardFilterParams } from '../models/platform/platform-personal-card-filter-params.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';

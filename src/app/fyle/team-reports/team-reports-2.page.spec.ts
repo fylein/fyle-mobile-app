@@ -24,7 +24,7 @@ import {
   teamReportsQueryParams3,
 } from 'src/app/core/mock-data/get-tasks-query-params.data';
 import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { TranslocoService } from '@jsverse/transloco';

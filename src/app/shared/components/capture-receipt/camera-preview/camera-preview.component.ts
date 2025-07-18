@@ -5,7 +5,7 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import { CameraState } from 'src/app/core/enums/camera-state.enum';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { CameraService } from 'src/app/core/services/camera.service';
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 
 @Component({
   selector: 'app-camera-preview',

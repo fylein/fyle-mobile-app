@@ -41,7 +41,7 @@ import {
 } from '@angular/forms';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { DateService } from 'src/app/core/services/date.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { cloneDeep, isEmpty, isEqual, isNumber } from 'lodash';
