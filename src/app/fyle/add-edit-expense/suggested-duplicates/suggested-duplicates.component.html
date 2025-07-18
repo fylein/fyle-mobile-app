@@ -9,14 +9,14 @@
         {{ duplicateExpenses.length }} {{ 'suggestedDuplicates.expensesFor' | transloco }}
         {{ duplicateExpenses[0]?.amount | currency : duplicateExpenses[0]?.currency : 'symbol-narrow' }}
       </div>
-      <ng-container *ngFor="let expense of duplicateExpenses as list; let i = index">
-        <app-expense-card-v2
-          [previousExpenseTxnDate]="list[i - 1]?.spent_at"
-          [previousExpenseCreatedAt]="list[i - 1]?.created_at"
-          [expense]="expense"
-          >
-        </app-expense-card-v2>
-      </ng-container>
+      @for (expense of duplicateExpenses; track expense.id; let i = $index) {
+      <app-expense-card-v2
+        [previousExpenseTxnDate]="duplicateExpenses[i - 1]?.spent_at"
+        [previousExpenseCreatedAt]="duplicateExpenses[i - 1]?.created_at"
+        [expense]="expense"
+        >
+      </app-expense-card-v2>
+      }
     </div>
   </div>
 </ion-content>

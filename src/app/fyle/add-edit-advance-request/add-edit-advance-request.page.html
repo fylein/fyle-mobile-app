@@ -147,7 +147,7 @@
         @if (customFields$ | async; as customFields) {
           @if (customFields.length > 0) {
             <div class="add-edit-advance-request--primary-block">
-              @for (customInput of customFields; track customInput; let i = $index) {
+              @for (customInput of customFields; track customInput.id; let i = $index) {
                 <div class="add-edit-advance-request--custom-field-internal-block">
                   <form [formGroup]="customInput.control">
                     @if (customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION') {

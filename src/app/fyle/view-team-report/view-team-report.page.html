@@ -214,18 +214,19 @@
                         <div>
                           <div class="view-reports--divider"></div>
                           <div class="view-reports-expense-card-block">
-                            <div *ngFor="let expense of expenses$|async as list; let i = index;">
+                            @let expenses = expenses$|async
+                            @for (expense of expenses; track expense.id; let id = $index) {
                               <app-expense-card-v2
                                 [expense]="expense"
                                 [expenseIndex]="i"
-                                [previousExpenseTxnDate]="list[i-1]?.spent_at"
-                                [previousExpenseCreatedAt]="list[i-1]?.created_at"
+                                [previousExpenseTxnDate]="expenses[i-1]?.spent_at"
+                                [previousExpenseCreatedAt]="expenses[i-1]?.created_at"
                                 (goToTransaction)="goToTransaction($event)"
                                 [isFromReports]="true"
                                 [isFromViewReports]="true"
                                 >
                               </app-expense-card-v2>
-                            </div>
+                            }
                           </div>
                           <ng-template #ExpensesLoader>
                             <ion-spinner name="crescent"></ion-spinner>

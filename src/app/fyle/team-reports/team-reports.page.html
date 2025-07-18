@@ -68,15 +68,16 @@
 
     @if (!isLoading) {
       @if ((simplifyReportsSettings$ | async); as simplifyReportsSettings) {
-        <div *ngFor="let report of teamReports$ | async as list; let i = index">
+        @let teamReports = teamReports$ | async
+        @for (report of teamReports; track report.id; let i = $index) {
           <app-reports-card
             [report]="report"
-            [prevDate]="list[i-1]?.created_at"
+            [prevDate]="teamReports[i-1]?.created_at"
             [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
             (gotoReport)="onReportClick($event)"
             >
           </app-reports-card>
-        </div>
+        }
       } @else {
         <app-fy-loading-screen class="reports--shimmers"></app-fy-loading-screen>
       }

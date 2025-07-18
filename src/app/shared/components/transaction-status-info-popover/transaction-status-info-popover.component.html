@@ -19,9 +19,7 @@
   <ion-content class="transaction-status-info-popover__content">
     <div class="transaction-status-info-popover__body" data-testid="content">
       @if (transactionStatus === 'PENDING') {
-        {{
-        'transactionStatusInfoPopover.pendingStatusInfo' | transloco
-        }}
+        {{ 'transactionStatusInfoPopover.pendingStatusInfo' | transloco }}
       } @else {
         {{ 'transactionStatusInfoPopover.postedStatusInfo' | transloco }}
       }

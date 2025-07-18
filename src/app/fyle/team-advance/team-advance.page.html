@@ -37,14 +37,15 @@
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
       @if (!isLoading) {
-        <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async as list; let i=index">
+        @let teamAdvancerequests = teamAdvancerequests$ | async
+        @for (teamAdvancerequest of teamAdvancerequests; track teamAdvancerequest.areq_id; let i = $index) {
           <app-team-adv-card
             [advanceRequest]="teamAdvancerequest"
-            [prevDate]="list[i-1]?.areq_created_at"
+            [prevDate]="teamAdvancerequests[i-1]?.areq_created_at"
             (gotoAdvance)="onAdvanceClick($event)"
             >
           </app-team-adv-card>
-        </div>
+        }
       }
     </div>
   } @else {
