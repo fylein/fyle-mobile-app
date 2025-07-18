@@ -204,8 +204,17 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  approve(advanceRequestId: string): Observable<AdvanceRequests> {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/approve');
+  approve(advanceRequestId: string): Observable<AdvanceRequestPlatform> {
+    const payload = {
+      data: [
+        {
+          id: advanceRequestId,
+        },
+      ],
+    };
+    return this.approverService
+      .post<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests/approve/bulk', payload)
+      .pipe(map((response) => response.data));
   }
 
   @CacheBuster({
