@@ -70,14 +70,15 @@
     }
 
     @if (!isLoading) {
-      <div *ngFor="let advances of advances$ | async as list; let i=index">
+      @let advances = advances$ | async
+      @for (advance of advances; track advance.id; let i = $index) {
         <app-my-advances-card
-          [advanceRequest]="advances"
-          [prevDate]="list[i-1]?.created_at"
+          [advanceRequest]="advance"
+          [prevDate]="advances[i-1]?.created_at"
           (advanceClick)="onAdvanceClick($event)"
           >
         </app-my-advances-card>
-      </div>
+      }
     }
   </div>
 </ion-content>

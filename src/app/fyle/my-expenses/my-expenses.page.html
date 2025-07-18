@@ -194,12 +194,12 @@
 
     @if (!(filters?.state || filters?.date || simpleSearchText) && !isLoading) {
       <div>
-        <div *ngFor="let pendingTransactions of pendingTransactions as list; let i = index">
+        @for (pendingTransactions of pendingTransactions; track pendingTransactions.tx_id; let i = $index) {
           <app-expense-card
-            [expense]="pendingTransactions"
+            [expense]="pendingTransaction"
             [isFirstOfflineExpense]="i === 0"
-            [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
-            [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+            [previousExpenseTxnDate]="pendingTransactions[i-1]?.tx_txn_dt"
+            [previousExpenseCreatedAt]="pendingTransactions[i-1]?.tx_created_at"
             [isSelectionModeEnabled]="selectionMode"
             [selectedElements]="selectedOutboxExpenses"
             [isOutboxExpense]="true"
@@ -207,16 +207,17 @@
             (cardClickedForSelection)="selectOutboxExpense($event)"
             >
           </app-expense-card>
-        </div>
+        }
       </div>
     }
 
     @if (isConnected$|async) {
-      <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
+      @let myExpenses = myExpenses$ | async
+      @for (expense of myExpenses; track expense.id; let i = $index) {
         <app-expense-card-v2
           [expense]="expense"
-          [previousExpenseTxnDate]="list[i-1]?.spent_at"
-          [previousExpenseCreatedAt]="list[i-1]?.created_at"
+          [previousExpenseTxnDate]="myExpenses[i-1]?.spent_at"
+          [previousExpenseCreatedAt]="myExpenses[i-1]?.created_at"
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
           (goToTransaction)="goToTransaction($event)"
@@ -225,7 +226,7 @@
           (showCamera)="showCamera($event)"
           >
         </app-expense-card-v2>
-      </div>
+      }
     }
     @if (isConnected$|async) {
       @if (isLoadingDataInInfiniteScroll) {
