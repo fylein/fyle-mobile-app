@@ -448,7 +448,7 @@ describe('CaptureReceiptComponent', () => {
       spyOn(component, 'onSingleCaptureOffline').and.returnValue(null);
       fixture.detectChanges();
 
-      component.saveSingleCapture();
+      component.saveSingleCapture(false);
       expect(component.onSingleCaptureOffline).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.incrementSingleCaptureCount).toHaveBeenCalledTimes(1);
     });
@@ -459,7 +459,7 @@ describe('CaptureReceiptComponent', () => {
       spyOn(component, 'navigateToExpenseForm').and.returnValue(null);
       fixture.detectChanges();
 
-      component.saveSingleCapture();
+      component.saveSingleCapture(false);
       expect(component.navigateToExpenseForm).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.incrementSingleCaptureCount).toHaveBeenCalledTimes(1);
     });

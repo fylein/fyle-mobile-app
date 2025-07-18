@@ -88,8 +88,8 @@
   <ion-toolbar mode="md" class="pb-0">
     <div class="receipt-preview__cta-container">
       <ng-container *ngIf="mode === 'single' && base64ImagesWithSource.length === 1; else bulkMode">
-        <button type="button" class="btn-secondary" (click)="retake()">
-          {{ 'receiptPreview.retake' | transloco }}
+        <button type="button" class="btn-secondary" (click)="saveReceiptForLater()">
+          {{ 'receiptPreview.saveReceiptForLater' | transloco }}
         </button>
       </ng-container>
       <ng-template #bulkMode>

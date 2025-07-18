@@ -61,6 +61,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isBulkModePromptShown = false;
 
+  isSaveReceiptForLater = false;
+
   bulkModeToastMessageRef: MatSnackBarRef<ToastMessageComponent>;
 
   nativeSettings = NativeSettings;
@@ -204,9 +206,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  saveSingleCapture(): void {
+  saveSingleCapture(isSaveReceiptForLater: boolean): void {
     this.isOffline$.pipe(take(1)).subscribe((isOffline) => {
-      if (isOffline) {
+      if (isOffline || isSaveReceiptForLater) {
         this.onSingleCaptureOffline();
       } else {
         this.navigateToExpenseForm();
@@ -222,7 +224,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       shareReplay(1),
       tap((receiptPreviewModal) => receiptPreviewModal.present()),
       switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss<ReceiptPreviewData>()),
-      map((receiptPreviewData) => receiptPreviewData?.data),
+      map((receiptPreviewData) => {
+        this.isSaveReceiptForLater = receiptPreviewData?.data?.isSaveReceiptForLater;
+        return receiptPreviewData?.data;
+      }),
       filter((receiptPreviewDetails) => !!receiptPreviewDetails)
     );
 
@@ -260,7 +265,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         }, 0);
       });
 
-    saveReceipt$.pipe(filter((isModal) => !isModal)).subscribe(() => this.saveSingleCapture());
+    saveReceipt$
+      .pipe(filter((isModal) => !isModal))
+      .subscribe(() => this.saveSingleCapture(this.isSaveReceiptForLater));
   }
 
   addPerformanceTrackers(): void {
