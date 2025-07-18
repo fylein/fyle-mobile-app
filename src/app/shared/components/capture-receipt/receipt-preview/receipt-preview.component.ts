@@ -274,6 +274,13 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     });
   }
 
+  saveReceiptForLater(): void {
+    this.modalController.dismiss({
+      base64ImagesWithSource: this.base64ImagesWithSource,
+      saveReceiptForLater: true,
+    });
+  }
+
   async goToNextSlide(): Promise<void> {
     await this.swiper?.swiperRef.slideNext();
     await this.swiper?.swiperRef.update();

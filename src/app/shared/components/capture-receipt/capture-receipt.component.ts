@@ -172,7 +172,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  onSingleCaptureOffline(): void {
+  saveReceiptToQueue(): void {
     this.loaderService.showLoader();
     this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
       .pipe(finalize(() => this.loaderService.hideLoader()))
@@ -204,10 +204,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  saveSingleCapture(): void {
+  saveSingleCapture(receiptPreviewDetails?: ReceiptPreviewData): void {
     this.isOffline$.pipe(take(1)).subscribe((isOffline) => {
-      if (isOffline) {
-        this.onSingleCaptureOffline();
+      if (isOffline || receiptPreviewDetails?.saveReceiptForLater) {
+        this.saveReceiptToQueue();
       } else {
         this.navigateToExpenseForm();
       }
@@ -260,7 +260,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         }, 0);
       });
 
-    saveReceipt$.pipe(filter((isModal) => !isModal)).subscribe(() => this.saveSingleCapture());
+    saveReceipt$.pipe(filter((isModal) => !isModal)).subscribe(() => {
+      receiptPreviewDetails$.pipe(take(1)).subscribe((receiptPreviewDetails) => {
+        this.saveSingleCapture(receiptPreviewDetails);
+      });
+    });
   }
 
   addPerformanceTrackers(): void {

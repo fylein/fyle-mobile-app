@@ -521,7 +521,7 @@
   },
   "receiptPreview": {
     "receiptPreviews": "Receipt Previews",
-    "retake": "Retake",
+    "saveReceiptForLater": "Save receipt for later",
     "addMore": "Add more",
     "finish": "Finish",
     "discardReceiptTitle": "Discard Receipt",

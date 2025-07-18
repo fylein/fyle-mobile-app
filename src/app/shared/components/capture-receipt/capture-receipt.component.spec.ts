@@ -384,14 +384,14 @@ describe('CaptureReceiptComponent', () => {
     });
   });
 
-  it('onSingleCaptureOffline(): should capture single receipt offline', () => {
+  it('saveReceiptToQueue(): should save receipt to queue for offline or save for later', () => {
     loaderService.showLoader.and.callThrough();
     loaderService.hideLoader.and.callThrough();
     spyOn(component, 'addMultipleExpensesToQueue').and.returnValue(of(null));
     component.isModal = true;
     fixture.detectChanges();
 
-    component.onSingleCaptureOffline();
+    component.saveReceiptToQueue();
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(component.addMultipleExpensesToQueue).toHaveBeenCalledOnceWith(component.base64ImagesWithSource);
@@ -445,11 +445,11 @@ describe('CaptureReceiptComponent', () => {
     it('should save a single receipt if offline', async () => {
       component.isOffline$ = of(true);
       transactionsOutboxService.incrementSingleCaptureCount.and.callThrough();
-      spyOn(component, 'onSingleCaptureOffline').and.returnValue(null);
+      spyOn(component, 'saveReceiptToQueue').and.returnValue(null);
       fixture.detectChanges();
 
       component.saveSingleCapture();
-      expect(component.onSingleCaptureOffline).toHaveBeenCalledTimes(1);
+      expect(component.saveReceiptToQueue).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.incrementSingleCaptureCount).toHaveBeenCalledTimes(1);
     });
 
@@ -461,6 +461,22 @@ describe('CaptureReceiptComponent', () => {
 
       component.saveSingleCapture();
       expect(component.navigateToExpenseForm).toHaveBeenCalledTimes(1);
+      expect(transactionsOutboxService.incrementSingleCaptureCount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should save receipt to queue if saveReceiptForLater is true', async () => {
+      component.isOffline$ = of(false);
+      transactionsOutboxService.incrementSingleCaptureCount.and.callThrough();
+      spyOn(component, 'saveReceiptToQueue').and.returnValue(null);
+      fixture.detectChanges();
+
+      const receiptPreviewDetails = {
+        base64ImagesWithSource: [],
+        saveReceiptForLater: true,
+      };
+
+      component.saveSingleCapture(receiptPreviewDetails);
+      expect(component.saveReceiptToQueue).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.incrementSingleCaptureCount).toHaveBeenCalledTimes(1);
     });
   });
