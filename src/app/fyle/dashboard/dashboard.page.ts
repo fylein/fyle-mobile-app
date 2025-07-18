@@ -451,28 +451,11 @@ export class DashboardPage {
 
   onPendingTaskStatClick(): void {
     const queryParams: Params = { state: 'tasks' };
-    if (this.activatedRoute.snapshot.params.openSMSOptInDialog) {
-      this.currentStateIndex = 1;
-      this.router.navigate(
-        [
-          '/',
-          'enterprise',
-          'my_dashboard',
-          {
-            navigate_back: true,
-          },
-        ],
-        {
-          queryParams,
-        }
-      );
-    } else {
-      this.currentStateIndex = 1;
-      this.router.navigate([], {
-        relativeTo: this.activatedRoute,
-        queryParams,
-      });
-    }
+    this.currentStateIndex = 1;
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams,
+    });
 
     this.trackingService.dashboardPendingTasksNotificationClicked({
       Asset: 'Mobile',
