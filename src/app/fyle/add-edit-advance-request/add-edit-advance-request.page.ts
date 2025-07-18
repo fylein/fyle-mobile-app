@@ -473,7 +473,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',
-        deleteMethod: (): Observable<AdvanceRequests> =>
+        deleteMethod: (): Observable<{}> =>
           this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id as string),
       },
     };
@@ -516,10 +516,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
       switchMap(() => {
         const isEditFromTeamView = this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE';
         if (isEditFromTeamView) {
-          // this logic will run for team view for edit Advance requests
-          return this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string);
+          // Team view uses approver API (/platform/v1/approver/advance_requests)
+          return this.advanceRequestService.getEReqFromApprover(this.activatedRoute.snapshot.params.id as string);
         } else {
-          return this.advanceRequestService.getEReqFromPlatform(this.activatedRoute.snapshot.params.id as string);
+          // Spender view uses spender API (/platform/v1/spender/advance_requests)
+          return this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string);
         }
       }),
       map((res) => {
