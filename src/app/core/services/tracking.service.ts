@@ -900,6 +900,14 @@ export class TrackingService {
     this.eventTrack('Dashboard Pending Tasks Notification Clicked', properties);
   }
 
+  saveReceiptForLater(): void {
+    this.eventTrack('Save receipt for later clicked');
+  }
+
+  discardReceipt(): void {
+    this.eventTrack('Discard receipt clicked from receipt preview');
+  }
+
   private isDemoAccount(eou: ExtendedOrgUser): boolean {
     const email = eou.us.email.toLowerCase();
     const orgName = eou.ou.org_name.toLowerCase();

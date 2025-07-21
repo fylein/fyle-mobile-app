@@ -521,11 +521,12 @@
     "cancel": "Cancel"
   },
   "receiptPreview": {
-    "receiptPreviews": "Receipt Previews",
+    "receiptPreviews": "Receipt previews",
     "retake": "Retake",
+    "saveReceiptForLater": "Save receipt for later",
     "addMore": "Add more",
     "finish": "Finish",
-    "discardReceiptTitle": "Discard Receipt",
+    "discardReceiptTitle": "Discard receipt",
     "discardMultipleReceiptsMessage": "Are you sure you want to discard the {{count}} receipts you just captured?",
     "discardSingleReceiptMessage": "Not a good picture? No worries. Discard and click again.",
     "discard": "Discard",
@@ -624,7 +625,9 @@
     "unspecifiedProject": "Unspecified",
     "expenseInfo": "Expense information",
     "missing": "missing",
-    "at": "at"
+    "at": "at",
+    "add": "Add",
+    "more": "more"
   },
   "transactionStatusInfoPopover": {
     "title": "Transaction status:",
