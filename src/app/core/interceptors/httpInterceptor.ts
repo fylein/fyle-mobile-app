@@ -1,12 +1,4 @@
-import {
-  HttpErrorResponse,
-  HttpEvent,
-  HttpHandler,
-  HttpInterceptor,
-  HttpParameterCodec,
-  HttpParams,
-  HttpRequest,
-} from '@angular/common/http';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpParameterCodec, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { BehaviorSubject, EMPTY, Observable, forkJoin, from, iif, of, throwError } from 'rxjs';
@@ -14,7 +6,7 @@ import { catchError, concatMap, filter, mergeMap, take } from 'rxjs/operators';
 
 import { JwtHelperService } from '../services/jwt-helper.service';
 
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { DeviceService } from '../services/device.service';
 import { RouterAuthService } from '../services/router-auth.service';

@@ -8,102 +8,116 @@
     <mat-form-field
       appearance="outline"
       class="mat-form-field-no-padding selection-modal--simple-search selection-modal--simple-search-container"
-    >
-      <div class="selection-modal--simple-search-block">
-        <input
-          #searchBar
-          [(ngModel)]="value"
-          class="selection-modal--simple-search-input smartlook-show"
-          matInput
-          [placeholder]="'fyLocationModal.search' | transloco"
+      >
+      <input
+        #searchBar
+        [(ngModel)]="value"
+        class="selection-modal--simple-search-input smartlook-show"
+        matInput
+        [placeholder]="'fyLocationModal.search' | transloco"
         />
-        <mat-icon *ngIf="loader" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix> </mat-icon>
+      @if (loader) {
+        <mat-icon class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix> </mat-icon>
+      }
+      @if (!loader && value) {
         <button
           (click)="clearValue()"
-          *ngIf="value"
           [attr.aria-label]="'fyLocationModal.clear' | transloco"
           class="selection-modal--simple-search-close"
           mat-icon-button
           matSuffix
-        >
+          >
           <mat-icon class="selection-modal--simple-search-icon" svgIcon="clear"></mat-icon>
         </button>
-      </div>
+      }
     </mat-form-field>
-    <ion-buttons *ngIf="!disableEnteringManualLocation" mode="md" slot="end">
-      <ion-button
-        color="fy-primary"
-        class="text-capitalize selection-modal--cta-button"
-        mode="md"
-        (click)="onDoneClick()"
-      >
-        {{ 'fyLocationModal.save' | transloco }}
-      </ion-button>
-    </ion-buttons>
+    @if (!disableEnteringManualLocation) {
+      <ion-buttons mode="md" slot="end">
+        <ion-button
+          color="fy-primary"
+          class="text-capitalize selection-modal--cta-button"
+          mode="md"
+          (click)="onDoneClick()"
+          >
+          {{ 'fyLocationModal.save' | transloco }}
+        </ion-button>
+      </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div *ngIf="header" class="selection-modal--header">
-    {{ header | lowercase }}
-  </div>
-  <div class="selection-modal--current-location-getter" *ngIf="!isDeviceLocationEnabled">
-    <app-fy-alert-info
-      [message]="'fyLocationModal.enableLocationFromSettings' | transloco"
-      [type]="'information'"
-      [showActionButton]="true"
-      (actionClick)="askForEnableLocationSettings()"
-      [actionButtonContent]="'fyLocationModal.enable' | transloco"
-    >
-    </app-fy-alert-info>
-  </div>
-  <div class="selection-modal--error-lookup" *ngIf="lookupFailed">
-    <app-fy-alert-info [message]="'fyLocationModal.locationError' | transloco" [type]="'warning'"></app-fy-alert-info>
-  </div>
-  <ng-container *ngIf="loader">
+  @if (header) {
+    <div class="selection-modal--header">
+      {{ header | lowercase }}
+    </div>
+  }
+  @if (!isDeviceLocationEnabled) {
+    <div class="selection-modal--current-location-getter">
+      <app-fy-alert-info
+        [message]="'fyLocationModal.enableLocationFromSettings' | transloco"
+        [type]="'information'"
+        [showActionButton]="true"
+        (actionClick)="askForEnableLocationSettings()"
+        [actionButtonContent]="'fyLocationModal.enable' | transloco"
+        >
+      </app-fy-alert-info>
+    </div>
+  }
+  @if (lookupFailed) {
+    <div class="selection-modal--error-lookup">
+      <app-fy-alert-info [message]="'fyLocationModal.locationError' | transloco" [type]="'warning'"></app-fy-alert-info>
+    </div>
+  }
+  @if (loader) {
     <div class="selection-modal--spinner">
       <ion-spinner name="crescent"></ion-spinner>
     </div>
-  </ng-container>
-  <div
-    matRipple
-    class="selection-modal--list-element"
-    *ngFor="let filteredListItem of recentItemsFilteredList$ | async as list"
-    (click)="onRecentItemSelect(filteredListItem.display)"
-  >
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="clock"> </mat-icon>
-    <div>
-      <div class="selection-modal--location-main-text">
-        {{ filteredListItem.display }}
-      </div>
-      <div class="selection-modal--location-description">
-        {{ filteredListItem.display }}
-      </div>
-    </div>
-  </div>
-  <div
-    matRipple
-    class="selection-modal--list-element"
-    *ngFor="let filteredListItem of filteredList$ | async as list"
-    (click)="onElementSelect(filteredListItem)"
-  >
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
-    <div>
-      <div class="selection-modal--location-main-text" *ngIf="filteredListItem.structured_formatting?.main_text">
-        {{ filteredListItem.structured_formatting?.main_text || filteredListItem.description }}
-      </div>
-      <div class="selection-modal--location-description">
-        {{ filteredListItem.description }}
+  }
+  @for (filteredListItem of recentItemsFilteredList$ | async; track filteredListItem) {
+    <div
+      matRipple
+      class="selection-modal--list-element"
+      (click)="onRecentItemSelect(filteredListItem.display)"
+      >
+      <mat-icon class="selection-modal--list-element-icon" svgIcon="clock"> </mat-icon>
+      <div>
+        <div class="selection-modal--location-main-text">
+          {{ filteredListItem.display }}
+        </div>
+        <div class="selection-modal--location-description">
+          {{ filteredListItem.display }}
+        </div>
       </div>
     </div>
-  </div>
-  <div
-    *ngIf="!loader && isDeviceLocationEnabled"
-    matRipple
-    class="selection-modal--list-element selection-modal--list-element__current-location"
-    (click)="getCurrentLocation()"
-  >
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
-    <div class="selection-modal--location-main-text">{{ 'fyLocationModal.useCurrentLocation' | transloco }}</div>
-  </div>
+  }
+  @for (filteredListItem of filteredList$ | async; track filteredListItem) {
+    <div
+      matRipple
+      class="selection-modal--list-element"
+      (click)="onElementSelect(filteredListItem)"
+      >
+      <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
+      <div>
+        @if (filteredListItem.structured_formatting?.main_text) {
+          <div class="selection-modal--location-main-text">
+            {{ filteredListItem.structured_formatting?.main_text || filteredListItem.description }}
+          </div>
+        }
+        <div class="selection-modal--location-description">
+          {{ filteredListItem.description }}
+        </div>
+      </div>
+    </div>
+  }
+  @if (!loader && isDeviceLocationEnabled) {
+    <div
+      matRipple
+      class="selection-modal--list-element selection-modal--list-element__current-location"
+      (click)="getCurrentLocation()"
+      >
+      <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
+      <div class="selection-modal--location-main-text">{{ 'fyLocationModal.useCurrentLocation' | transloco }}</div>
+    </div>
+  }
 </ion-content>

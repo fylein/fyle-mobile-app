@@ -26,10 +26,6 @@ export class FyMultiselectModalComponent implements AfterViewInit {
 
   value = '';
 
-  selectable = true;
-
-  removable = true;
-
   addOnBlur = true;
 
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();

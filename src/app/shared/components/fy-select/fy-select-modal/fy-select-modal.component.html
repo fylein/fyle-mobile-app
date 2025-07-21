@@ -12,125 +12,146 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar *ngIf="enableSearch" class="text-center">
-    <mat-form-field appearance="none" class="selection-modal--form-field mat-form-field-no-padding">
-      <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
-      <input
-        #searchBar
-        [(ngModel)]="value"
-        class="selection-modal--search-input smartlook-show"
-        id="election-modal--search-input"
-        matInput
-        [placeholder]="placeholder || ('fySelectModal.search' | transloco)"
-      />
-      <button
-        (click)="clearValue()"
-        *ngIf="value"
-        [attr.aria-label]="'fySelectModal.clear' | transloco"
-        mat-icon-button
-        matSuffix
-      >
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-form-field>
-  </ion-toolbar>
+  @if (enableSearch) {
+    <ion-toolbar class="text-center">
+      <mat-form-field appearance="outline" class="selection-modal--form-field mat-form-field-no-padding">
+        <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
+        <input
+          #searchBar
+          [(ngModel)]="value"
+          class="selection-modal--search-input smartlook-show"
+          id="election-modal--search-input"
+          matInput
+          [placeholder]="placeholder || ('fySelectModal.search' | transloco)"
+          />
+        @if (value) {
+          <button
+            (click)="clearValue()"
+            [attr.aria-label]="'fySelectModal.clear' | transloco"
+            mat-icon-button
+            matSuffix
+            >
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+    </ion-toolbar>
+  }
 </ion-header>
 
 <ion-content>
   <div class="selection-modal--container">
-    <ng-container *ngIf="filteredOptions$ | async as filteredOptions">
-      <div *ngIf="filteredOptions.length === 0">
-        <app-fy-zero-state
-          [header]="'fySelectModal.noResultsHeader' | transloco : { label: label }"
-          [submessage]="'fySelectModal.noResultsSubmessage' | transloco : { label: label }"
-          [image]="'../../../../assets/images/zero-states/search.png'"
-          [unscaledImage]="true"
-          [useNewStyling]="true"
-        ></app-fy-zero-state>
-      </div>
-    </ng-container>
-
-    <div *ngIf="customInput && (filteredOptions$ | async)?.length > 0" class="selection-modal--single-element-block">
-      <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
-        <div
-          (click)="onElementSelect(filteredListItem)"
-          *ngIf="!filteredListItem.value && filteredListItem?.label?.length > 0"
-          class="selection-modal--list-element"
-          matRipple
-        >
-          <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-            <div class="selection-modal--label">
-              <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-            </div>
-            <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-          </ng-template>
-          <ng-container
-            *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElement; context: filteredListItem"
-          >
-          </ng-container>
+    @if (filteredOptions$ | async; as filteredOptions) {
+      @if (filteredOptions.length === 0) {
+        <div>
+          <app-fy-zero-state
+            [header]="'fySelectModal.noResultsHeader' | transloco : { label: label }"
+            [submessage]="'fySelectModal.noResultsSubmessage' | transloco : { label: label }"
+            [image]="'../../../../assets/images/zero-states/search.png'"
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
         </div>
-      </ng-container>
-    </div>
+      }
+    }
 
-    <div
-      *ngIf="cacheName && (recentrecentlyUsedItems$ | async)?.length > 0"
-      class="selection-modal--recently-used-block"
-    >
+    @if (customInput && (filteredOptions$ | async)?.length > 0) {
+      <div class="selection-modal--single-element-block">
+        @for (filteredListItem of filteredOptions$ | async; track filteredListItem) {
+          @if (!filteredListItem.value && filteredListItem?.label?.length > 0) {
+            <div
+              (click)="onElementSelect(filteredListItem)"
+              class="selection-modal--list-element"
+              matRipple
+              >
+              <ng-template #defaultSelectionElementFiltered let-label="label" let-selected="selected">
+                <div class="selection-modal--label">
+                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                </div>
+                @if (selected) {
+                  <mat-icon class="selection-modal--check"> check </mat-icon>
+                }
+              </ng-template>
+              <ng-container
+                *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElementFiltered; context: filteredListItem"
+                >
+              </ng-container>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    @if (cacheName && (recentrecentlyUsedItems$ | async)?.length > 0) {
       <div
-        (click)="onElementSelect(recentrecentlyUsedItem)"
-        *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list"
-        class="selection-modal--list-element"
-        matRipple
-      >
-        <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-          <div class="selection-modal--recently-used-item-content">
-            <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
-            <span class="selection-modal--label">
-              <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-            </span>
-          </div>
-          <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-        </ng-template>
-        <ng-container
+        class="selection-modal--recently-used-block"
+        >
+        @for (recentrecentlyUsedItem of recentrecentlyUsedItems$ | async; track recentrecentlyUsedItem) {
+          <div
+            (click)="onElementSelect(recentrecentlyUsedItem)"
+            class="selection-modal--list-element"
+            matRipple
+            >
+            <ng-template #defaultSelectionElementRecentlyUsed let-label="label" let-selected="selected">
+              <div class="selection-modal--recently-used-item-content">
+                <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
+                <span class="selection-modal--label">
+                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                </span>
+              </div>
+              @if (selected) {
+                <mat-icon class="selection-modal--check"> check </mat-icon>
+              }
+            </ng-template>
+            <ng-container
           *ngTemplateOutlet="
-            selectionElement ? selectionElement : defaultSelectionElement;
+            selectionElement ? selectionElement : defaultSelectionElementRecentlyUsed;
             context: recentrecentlyUsedItem
           "
-        >
-        </ng-container>
+              >
+            </ng-container>
+          </div>
+        }
       </div>
-    </div>
+    }
 
-    <div *ngIf="(filteredOptions$ | async)?.length > 0 && !customInput">
-      <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
-        <div
-          (click)="onElementSelect(filteredListItem)"
-          *ngIf="filteredListItem?.label?.length > 0"
-          class="selection-modal--list-element"
-          matRipple
-        >
-          <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-            <div class="selection-modal--label">
-              <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+    @if ((filteredOptions$ | async)?.length > 0 && !customInput) {
+      <div>
+        @for (filteredListItem of filteredOptions$ | async; track filteredListItem) {
+          @if (filteredListItem?.label?.length > 0) {
+            <div
+              (click)="onElementSelect(filteredListItem)"
+              class="selection-modal--list-element"
+              matRipple
+              >
+              <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
+                <div class="selection-modal--label">
+                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                </div>
+                @if (selected) {
+                  <mat-icon class="selection-modal--check"> check </mat-icon>
+                }
+              </ng-template>
+              <ng-container
+                *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElement; context: filteredListItem"
+                >
+              </ng-container>
             </div>
-            <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-          </ng-template>
-          <ng-container
-            *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElement; context: filteredListItem"
-          >
-          </ng-container>
-        </div>
-      </ng-container>
-    </div>
+          }
+        }
+      </div>
+    }
   </div>
 </ion-content>
 
-<ion-footer *ngIf="showSaveButton">
-  <ion-toolbar>
-    <div class="selection-modal--cta-container">
-      <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
-        {{ 'fySelectModal.save' | transloco }}
-      </ion-button>
-    </div>
-  </ion-toolbar>
-</ion-footer>
+@if (showSaveButton) {
+  <ion-footer>
+    <ion-toolbar>
+      <div class="selection-modal--cta-container">
+        <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
+          {{ 'fySelectModal.save' | transloco }}
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

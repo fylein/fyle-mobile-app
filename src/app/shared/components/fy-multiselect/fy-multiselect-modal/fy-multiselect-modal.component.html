@@ -20,26 +20,25 @@
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': currentSelections?.length > 0 }">
     <mat-form-field
       class="selection-modal--form-container mat-form-field-no-padding"
-      appearance="none"
-      [ngClass]="{ 'selection-modal--form-container__chips': currentSelections?.length > 0 }"
-    >
-      <mat-chip-list #chipList [attr.aria-label]="'fyMultiselectModal.multiSelect' | transloco">
-        <mat-chip
-          data-testid="chips"
-          *ngFor="let item of currentSelections"
-          [selectable]="selectable"
-          [removable]="removable"
-          (removed)="removeChip(item)"
-        >
-          {{ item }}
-          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-        </mat-chip>
-        <mat-icon
-          *ngIf="!(currentSelections?.length > 0)"
-          class="selection-modal--search-icon"
-          matPrefix
-          svgIcon="search"
-        ></mat-icon>
+      appearance="outline"
+      >
+      <mat-chip-grid class="selection-modal--form-container__chip-grid" #chipList [attr.aria-label]="'fyMultiselectModal.multiSelect' | transloco">
+        @for (item of currentSelections; track item) {
+          <mat-chip-row
+            data-testid="chips"
+            (removed)="removeChip(item)"
+            >
+            {{ item }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip-row>
+        }
+        @if (!(currentSelections?.length > 0)) {
+          <mat-icon
+            class="selection-modal--search-icon"
+            matPrefix
+            svgIcon="search"
+          ></mat-icon>
+        }
         <input
           #searchBar
           [(ngModel)]="value"
@@ -50,24 +49,27 @@
           [matChipInputAddOnBlur]="addOnBlur"
           (matChipInputTokenEnd)="addChip($event)"
           [placeholder]="!(currentSelections?.length > 0) ? ('fyMultiselectModal.search' | transloco) : ''"
-        />
-      </mat-chip-list>
+          />
+      </mat-chip-grid>
     </mat-form-field>
-    <div class="selection-modal--selected-count" *ngIf="currentSelections?.length > 0">
-      {{ 'fyMultiselectModal.countSelected' | transloco : { count: currentSelections.length } }}
-    </div>
+    @if (currentSelections?.length > 0) {
+      <div class="selection-modal--selected-count">
+        {{ 'fyMultiselectModal.countSelected' | transloco : { count: currentSelections.length } }}
+      </div>
+    }
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="selection-modal--container">
-    <mat-checkbox
-      class="selection-modal--list-element"
-      *ngFor="let filteredListItem of filteredOptions$ | async as list"
-      [(ngModel)]="filteredListItem.selected"
-      (ngModelChange)="onElementSelected(filteredListItem)"
-    >
-      {{ filteredListItem.label }}
-    </mat-checkbox>
+    @for (filteredListItem of filteredOptions$ | async; track filteredListItem) {
+      <mat-checkbox
+        class="selection-modal--list-element"
+        [(ngModel)]="filteredListItem.selected"
+        (ngModelChange)="onElementSelected(filteredListItem)"
+        >
+        {{ filteredListItem.label }}
+      </mat-checkbox>
+    }
   </div>
 </ion-content>

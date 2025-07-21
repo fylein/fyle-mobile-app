@@ -1,7 +1,7 @@
 import { Inject, Injectable, Pipe, PipeTransform } from '@angular/core';
-import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { TIMEZONE } from 'src/app/constants';
 import { BehaviorSubject } from 'rxjs';
 

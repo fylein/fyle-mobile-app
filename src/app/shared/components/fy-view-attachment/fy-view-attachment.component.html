@@ -15,23 +15,30 @@
         <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-buttons *ngIf="canEdit" class="view-attachments--ion-buttons" slot="end">
+    @if (canEdit) {
+    <ion-buttons class="view-attachments--ion-buttons" slot="end">
       <ion-button (click)="addAttachments($event)">
         <mat-icon class="view-attachments--ion-buttons__add" svgIcon="plus-square"></mat-icon>
       </ion-button>
     </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="view-attachments--controls" *ngIf="attachments.length > 1">
-    <div *ngIf="activeIndex !== 0" class="view-attachments--go-back" (click)="goToPrevSlide()">
+  @if (attachments.length > 1) {
+  <div class="view-attachments--controls">
+    @if (activeIndex !== 0) {
+    <div class="view-attachments--go-back" (click)="goToPrevSlide()">
       <mat-icon class="view-attachments--go-back__btn"> arrow_back_ios </mat-icon>
     </div>
-    <div *ngIf="activeIndex !== attachments.length - 1" class="view-attachments--go-forward" (click)="goToNextSlide()">
+    } @if (activeIndex !== attachments.length - 1) {
+    <div class="view-attachments--go-forward" (click)="goToNextSlide()">
       <mat-icon class="view-attachments--go-forward__btn"> arrow_forward_ios </mat-icon>
     </div>
+    }
   </div>
+  }
 
   <swiper
     #swiper
@@ -41,9 +48,11 @@
     (activeIndexChange)="getActiveIndex()"
     (onSwiper)="getActiveIndex()"
   >
-    <ng-template *ngFor="let attachment of attachments" swiperSlide>
+    @for (attachment of attachments; track attachment.id) {
+    <ng-template swiperSlide>
       <div>
-        <pinch-zoom *ngIf="attachment?.type !== 'pdf'" class="view-attachments--container">
+        @if (attachment?.type !== 'pdf') {
+        <pinch-zoom class="view-attachments--container">
           <img
             [src]="attachment?.url"
             [ngClass]="{
@@ -54,8 +63,8 @@
             }"
           />
         </pinch-zoom>
-
-        <div class="view-attachments--container" *ngIf="attachment?.type === 'pdf'">
+        } @if (attachment?.type === 'pdf') {
+        <div class="view-attachments--container">
           <pdf-viewer
             [src]="attachment?.url"
             [fit-to-page]="true"
@@ -71,8 +80,10 @@
             <mat-icon class="view-attachments--seconady-action-icons" (click)="resetZoom()">zoom_out_map</mat-icon>
           </div>
         </div>
+        }
       </div>
     </ng-template>
+    }
   </swiper>
 </ion-content>
 
@@ -80,39 +91,34 @@
   <div class="view-attachments--footer-content">
     <!-- Left side buttons: rotate left, rotate right, delete -->
     <div class="view-attachments--footer-left-buttons">
+      @if (attachments[activeIndex]?.type !== 'pdf' && attachment.id) {
       <div
-        *ngIf="attachments[activeIndex]?.type !== 'pdf' && attachment.id"
         class="icon-button"
         (click)="!loading && !saving && rotateAttachment(RotationDirection.LEFT)"
         [class.disabled]="loading || saving"
       >
         <ion-icon src="assets/svg/arrow-anticlockwise.svg"></ion-icon>
       </div>
-
+      } @if (attachments[activeIndex]?.type !== 'pdf' && attachment.id) {
       <div
-        *ngIf="attachments[activeIndex]?.type !== 'pdf' && attachment.id"
         class="icon-button"
         (click)="!loading && !saving && rotateAttachment(RotationDirection.RIGHT)"
         [class.disabled]="loading || saving"
       >
         <ion-icon src="assets/svg/arrow-clockwise.svg"></ion-icon>
       </div>
-
-      <div
-        *ngIf="canEdit"
-        class="icon-button"
-        (click)="!loading && !saving && deleteAttachment()"
-        [class.disabled]="loading || saving"
-      >
+      } @if (canEdit) {
+      <div class="icon-button" (click)="!loading && !saving && deleteAttachment()" [class.disabled]="loading || saving">
         <mat-icon class="view-attachments--ion-buttons__delete" svgIcon="bin"></mat-icon>
       </div>
+      }
     </div>
 
     <!-- Right side: save or saved text -->
     <div class="view-attachments--footer-right-buttons">
       <ion-buttons>
+        @if (isImageDirty[activeIndex]) {
         <ion-button
-          *ngIf="isImageDirty[activeIndex]"
           (click)="saveRotatedImage()"
           [disabled]="saving"
           [loadingText]="'fyViewAttachment.saving' | transloco"
@@ -120,12 +126,15 @@
           appFormButtonValidation
           class="btn-primary action-button"
         >
-          <span *ngIf="!saving">{{ 'fyViewAttachment.saveChanges' | transloco }}</span>
+          @if (!saving) {
+          <span>{{ 'fyViewAttachment.saveChanges' | transloco }}</span>
+          }
         </ion-button>
+        }
       </ion-buttons>
-      <span *ngIf="saveComplete[activeIndex]" class="saved-text btn-text-primary">{{
-        'fyViewAttachment.saved' | transloco
-      }}</span>
+      @if (saveComplete[activeIndex]) {
+      <span class="saved-text btn-text-primary">{{ 'fyViewAttachment.saved' | transloco }}</span>
+      }
     </div>
   </div>
 </ion-footer>

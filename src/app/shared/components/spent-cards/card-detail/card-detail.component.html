@@ -1,18 +1,20 @@
 <div class="stats--ccc-card-details" [ngClass]="{ 'stats--ccc-virtual-card-details': cardDetail.card.virtual_card_id }">
-  <app-corporate-card
-    *ngIf="!cardDetail.card.virtual_card_id"
-    [card]="cardDetail.card"
-    [hideOptionsMenu]="true"
-  ></app-corporate-card>
-  <app-virtual-card
-    *ngIf="cardDetail.card.virtual_card_id"
-    [cardStatus]="cardDetail.card.virtual_card_state"
-    [cardNumber]="cardDetail.virtualCardDetail?.full_card_number"
-    [expiry]="cardDetail.virtualCardDetail?.expiry_date"
-    [availableAmount]="cardDetail.virtualCardDetail?.current_amount"
-    [cardNickname]="cardDetail.virtualCardDetail?.nick_name"
-    [cvv]="cardDetail.virtualCardDetail?.cvv"
-  ></app-virtual-card>
+  @if (!cardDetail.card.virtual_card_id) {
+    <app-corporate-card
+      [card]="cardDetail.card"
+      [hideOptionsMenu]="true"
+    ></app-corporate-card>
+  }
+  @if (cardDetail.card.virtual_card_id) {
+    <app-virtual-card
+      [cardStatus]="cardDetail.card.virtual_card_state"
+      [cardNumber]="cardDetail.virtualCardDetail?.full_card_number"
+      [expiry]="cardDetail.virtualCardDetail?.expiry_date"
+      [availableAmount]="cardDetail.virtualCardDetail?.current_amount"
+      [cardNickname]="cardDetail.virtualCardDetail?.nick_name"
+      [cvv]="cardDetail.virtualCardDetail?.cvv"
+    ></app-virtual-card>
+  }
 </div>
 <div class="stats--ccc-stats">
   <div>
@@ -23,63 +25,59 @@
         </div>
         <div class="stats--ccc-classified-amount">
           {{ currencySymbol
-          }}<ng-container
-            *ngIf="
-              !isSmallScreen &&
-                cardDetail.stats.totalDraftAmount > -1000000000 &&
-                cardDetail.stats.totalDraftAmount < 1000000000;
-              else humanizeDraftAmount
-            "
-            >{{
-              { value: cardDetail.stats.totalDraftAmount, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
-            }}</ng-container
-          >
-          <ng-template #humanizeDraftAmount>{{
-            cardDetail.stats.totalDraftAmount | humanizeCurrency : homeCurrency : true
-          }}</ng-template>
-        </div>
-      </div>
-      <div class="stats--ccc-stats-title">
-        {{
-          cardDetail.stats.totalDraftTxns < 1
-            ? ('cardDetail.incompleteCardExpenseSingular' | transloco)
-            : ('cardDetail.incompleteCardExpensePlural' | transloco)
-        }}
+          }}@if (
+          !isSmallScreen &&
+          cardDetail.stats.totalDraftAmount > -1000000000 &&
+          cardDetail.stats.totalDraftAmount < 1000000000) {
+          {{
+          { value: cardDetail.stats.totalDraftAmount, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
+          }}
+        } @else {
+          {{
+          cardDetail.stats.totalDraftAmount | humanizeCurrency : homeCurrency : true
+          }}
+        }
       </div>
     </div>
-
-    <hr class="stats--ccc-stats-divider" />
-    <div (click)="goToExpensesPage('completeExpenses', cardDetail)">
-      <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
-        <div class="stats--ccc-classified-count">
-          {{ cardDetail.stats.totalCompleteTxns }}
-        </div>
-        <div class="stats--ccc-classified-amount">
-          {{ currencySymbol
-          }}<ng-container
-            *ngIf="
-              !isSmallScreen &&
-                cardDetail.stats.totalCompleteExpensesAmount > -1000000000 &&
-                cardDetail.stats.totalCompleteExpensesAmount < 1000000000;
-              else humanizeTotalAmount
-            "
-            >{{
-              { value: cardDetail.stats.totalCompleteExpensesAmount, currencyCode: homeCurrency, skipSymbol: true }
-                | exactCurrency
-            }}</ng-container
-          >
-          <ng-template #humanizeTotalAmount>{{
-            cardDetail.stats.totalCompleteExpensesAmount | humanizeCurrency : homeCurrency : true
-          }}</ng-template>
-        </div>
-      </div>
-      <div class="stats--ccc-stats-title">
-        {{
-          cardDetail.stats.totalCompleteTxns < 1
-            ? ('cardDetail.completeCardExpenseSingular' | transloco)
-            : ('cardDetail.completeCardExpensePlural' | transloco)
-        }}
-      </div>
+    <div class="stats--ccc-stats-title">
+      {{
+      cardDetail.stats.totalDraftTxns < 1
+      ? ('cardDetail.incompleteCardExpenseSingular' | transloco)
+      : ('cardDetail.incompleteCardExpensePlural' | transloco)
+      }}
     </div>
   </div>
+
+  <hr class="stats--ccc-stats-divider" />
+  <div (click)="goToExpensesPage('completeExpenses', cardDetail)">
+    <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
+      <div class="stats--ccc-classified-count">
+        {{ cardDetail.stats.totalCompleteTxns }}
+      </div>
+      <div class="stats--ccc-classified-amount">
+        {{ currencySymbol
+        }}@if (
+        !isSmallScreen &&
+        cardDetail.stats.totalCompleteExpensesAmount > -1000000000 &&
+        cardDetail.stats.totalCompleteExpensesAmount < 1000000000) {
+        {{
+        { value: cardDetail.stats.totalCompleteExpensesAmount, currencyCode: homeCurrency, skipSymbol: true }
+        | exactCurrency
+        }}
+      } @else {
+        {{
+        cardDetail.stats.totalCompleteExpensesAmount | humanizeCurrency : homeCurrency : true
+        }}
+      }
+    </div>
+  </div>
+  <div class="stats--ccc-stats-title">
+    {{
+    cardDetail.stats.totalCompleteTxns < 1
+    ? ('cardDetail.completeCardExpenseSingular' | transloco)
+    : ('cardDetail.completeCardExpensePlural' | transloco)
+    }}
+  </div>
+</div>
+</div>
 </div>
