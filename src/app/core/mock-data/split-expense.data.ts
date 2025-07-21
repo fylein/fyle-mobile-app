@@ -1,6 +1,6 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { SplitExpense } from '../models/split-expense.model';
 
 export const splitExpense1: SplitExpense = deepFreeze({

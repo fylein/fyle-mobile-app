@@ -7,7 +7,7 @@ import { ExpensesInfo } from '../models/expenses-info.model';
 import { FileService } from './file.service';
 import { SpenderFileService } from './platform/v1/spender/file.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ProjectsService } from './projects.service';
 import { CategoriesService } from './categories.service';

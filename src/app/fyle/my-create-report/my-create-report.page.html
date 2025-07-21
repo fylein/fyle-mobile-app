@@ -34,84 +34,79 @@
         required
         (ngModelChange)="detectTitleChange()"
         #reportTitleInput="ngModel"
-        />
+      />
     </div>
     @if (showReportNameError) {
-      <div class="my-create-report--error-message">Please enter expense report name.</div>
-    }
-
-    @if (readyToReportExpenses?.length === 0) {
-      <div class="my-create-report--zero-state">
-        <div>
-          <img
-            alt="Create First Expenses"
-            class="my-create-report--zero-state-img"
-            src="../../../assets/images/zero-states/new-expenses.png"
-            />
-          <div class="my-create-report--zero-state-text">You have no reportable</div>
-          <div class="my-create-report--zero-state-text">expenses right now</div>
-        </div>
+    <div class="my-create-report--error-message">Please enter expense report name.</div>
+    } @if (readyToReportExpenses?.length === 0) {
+    <div class="my-create-report--zero-state">
+      <div>
+        <img
+          alt="Create First Expenses"
+          class="my-create-report--zero-state-img"
+          src="../../../assets/images/zero-states/new-expenses.png"
+        />
+        <div class="my-create-report--zero-state-text">You have no reportable</div>
+        <div class="my-create-report--zero-state-text">expenses right now</div>
       </div>
-    }
-
-    @if (readyToReportExpenses?.length > 0) {
-      <div class="my-create-report--heading">Expenses</div>
-    }
-    @if (readyToReportExpenses?.length > 0) {
-      <div class="my-create-report--select-all-checkbox">
-        <mat-checkbox
-          class="custom-mat-checkbox create-new-report--checkbox"
-          [(ngModel)]="isSelectedAll"
-          (ngModelChange)="toggleSelectAll($event)"
-          >
-          Select all</mat-checkbox
-          >
-        </div>
-      }
-
-      @if (readyToReportExpenses) {
-        <div>
-          <div *ngFor="let etxn of readyToReportExpenses as list; let i = index">
-            <app-expense-card-v2
-              [expense]="etxn"
-              [previousExpenseTxnDate]="readyToReportExpenses[i - 1]?.spent_at"
-              [previousExpenseCreatedAt]="readyToReportExpenses[i - 1]?.created_at"
-              [showDt]="checkShowDt(etxn,i)"
-              [isSelectionModeEnabled]="true"
-              [selectedElements]="selectedElements"
-              (cardClickedForSelection)="selectExpense($event)"
-              [isFromReports]="true"
-              >
-            </app-expense-card-v2>
-          </div>
-        </div>
+    </div>
+    } @if (readyToReportExpenses?.length > 0) {
+    <div class="my-create-report--heading">Expenses</div>
+    } @if (readyToReportExpenses?.length > 0) {
+    <div class="my-create-report--select-all-checkbox">
+      <mat-checkbox
+        class="custom-mat-checkbox create-new-report--checkbox"
+        [(ngModel)]="isSelectedAll"
+        (ngModelChange)="toggleSelectAll($event)"
+      >
+        Select all</mat-checkbox
+      >
+    </div>
+    } @if (readyToReportExpenses) {
+    <div>
+      @for (etxn of readyToReportExpenses; track etxn.id; let i = $index) {
+      <div>
+        <app-expense-card-v2
+          [expense]="etxn"
+          [previousExpenseTxnDate]="readyToReportExpenses[i - 1]?.spent_at"
+          [previousExpenseCreatedAt]="readyToReportExpenses[i - 1]?.created_at"
+          [showDt]="checkShowDt(etxn,i)"
+          [isSelectionModeEnabled]="true"
+          [selectedElements]="selectedElements"
+          (cardClickedForSelection)="selectExpense($event)"
+          [isFromReports]="true"
+        >
+        </app-expense-card-v2>
+      </div>
       }
     </div>
-  </ion-content>
+    }
+  </div>
+</ion-content>
 
-  <ion-footer>
-    <ion-toolbar mode="md">
-      <div class="fy-footer-cta-container">
-        <ion-button
-          class="fy-footer-cta fy-footer-cta--tertiary-secondary"
-          (click)="ctaClickedEvent('create_draft_report')"
-          appFormButtonValidation
-          [loading]="saveDraftReportLoading"
-          [loadingText]="'Saving Report'"
-          [disabled]="emptyInput"
-          >
-          Save as draft
-        </ion-button>
-        <ion-button
-          class="fy-footer-cta fy-footer-cta--primary"
-          (click)="ctaClickedEvent('submit_report')"
-          appFormButtonValidation
-          [loading]="saveReportLoading"
-          [loadingText]="'Submitting Report'"
-          [disabled]="(this.selectedElements?.length === 0) || saveDraftReportLoading  || saveReportLoading"
-          >
-          Submit report
-        </ion-button>
-      </div>
-    </ion-toolbar>
-  </ion-footer>
+<ion-footer>
+  <ion-toolbar mode="md">
+    <div class="fy-footer-cta-container">
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--tertiary-secondary"
+        (click)="ctaClickedEvent('create_draft_report')"
+        appFormButtonValidation
+        [loading]="saveDraftReportLoading"
+        [loadingText]="'Saving Report'"
+        [disabled]="emptyInput"
+      >
+        Save as draft
+      </ion-button>
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        (click)="ctaClickedEvent('submit_report')"
+        appFormButtonValidation
+        [loading]="saveReportLoading"
+        [loadingText]="'Submitting Report'"
+        [disabled]="(this.selectedElements?.length === 0) || saveDraftReportLoading  || saveReportLoading"
+      >
+        Submit report
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

@@ -543,7 +543,7 @@
                         }
                       }
                     }
-                    <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
+                    @for (customInput of this.customInputs$ | async; track customInput) {
                       @if (customInput.mandatory || isExpandedView) {
                         @if (customInput.type !== 'USER_LIST') {
                           <div
@@ -658,7 +658,7 @@
                           </div>
                         }
                       }
-                    </ng-container>
+                    }
                     @if (isConnected$|async) {
                       @if (reports$|async; as reports) {
                         @if (etxn$|async; as etxn) {

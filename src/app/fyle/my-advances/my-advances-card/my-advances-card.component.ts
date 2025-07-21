@@ -2,7 +2,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Component({

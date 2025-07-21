@@ -61,19 +61,20 @@
         }
         @if (filteredOptions.length > 0) {
           <div class="dependent-field-modal__single-element-block">
-            <div
-              (click)="onElementSelect(filteredListItem)"
-              *ngFor="let filteredListItem of filteredOptions as list"
-              class="dependent-field-modal__list-element"
-              matRipple
-              >
-              <div class="dependent-field-modal__label">
-                <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
+            @for (filteredListItem of filteredOptions; track filteredListItem) {
+              <div
+                (click)="onElementSelect(filteredListItem)"
+                class="dependent-field-modal__list-element"
+                matRipple
+                >
+                <div class="dependent-field-modal__label">
+                  <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
+                </div>
+                @if (filteredListItem.selected) {
+                  <mat-icon class="dependent-field-modal__check"> check </mat-icon>
+                }
               </div>
-              @if (filteredListItem.selected) {
-                <mat-icon class="dependent-field-modal__check"> check </mat-icon>
-              }
-            </div>
+            }
           </div>
         }
       }

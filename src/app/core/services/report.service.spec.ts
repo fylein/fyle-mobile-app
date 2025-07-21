@@ -13,9 +13,10 @@ import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { platformReportData } from '../mock-data/platform-report.data';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { cloneDeep } from 'lodash';
 import { TranslocoService } from '@jsverse/transloco';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 describe('ReportService', () => {
   let reportService: ReportService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
@@ -48,41 +49,43 @@ describe('ReportService', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [
+    imports: [],
+    providers: [
         ReportService,
         DatePipe,
         LaunchDarklyService,
         {
-          provide: TransactionService,
-          useValue: transactionServiceSpy,
+            provide: TransactionService,
+            useValue: transactionServiceSpy,
         },
         {
-          provide: UserEventService,
-          useValue: userEventServiceSpy,
+            provide: UserEventService,
+            useValue: userEventServiceSpy,
         },
         {
-          provide: SpenderPlatformV1ApiService,
-          useValue: spenderPlatformV1ApiServiceSpy,
+            provide: SpenderPlatformV1ApiService,
+            useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
-          provide: ApproverPlatformApiService,
-          useValue: approverPlatformApiServiceSpy,
+            provide: ApproverPlatformApiService,
+            useValue: approverPlatformApiServiceSpy,
         },
         {
-          provide: PermissionsService,
-          useValue: permissionsServiceSpy,
+            provide: PermissionsService,
+            useValue: permissionsServiceSpy,
         },
         {
-          provide: PAGINATION_SIZE,
-          useValue: 2,
+            provide: PAGINATION_SIZE,
+            useValue: 2,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    });
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+});
 
     reportService = TestBed.inject(ReportService);
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
