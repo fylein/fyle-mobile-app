@@ -8,12 +8,14 @@
             {{ 'mobileNumberCard.description' | transloco }}
           </div>
         </div>
-        <span *ngIf="!mobileNumber" class="mobile-number-card__add-btn">{{
-          'mobileNumberCard.addButton' | transloco
-        }}</span>
+        @if (!mobileNumber) {
+          <span class="mobile-number-card__add-btn">{{
+            'mobileNumberCard.addButton' | transloco
+          }}</span>
+        }
       </div>
 
-      <ng-container *ngIf="mobileNumber">
+      @if (mobileNumber) {
         <div class="mobile-number-card__divider"></div>
         <div class="mobile-number-card__mobile">
           <span class="mobile-number-card__mobile__text">{{ 'mobileNumberCard.mobileNumberLabel' | transloco }}</span>
@@ -37,7 +39,7 @@
             </span>
           </div>
         </div>
-      </ng-container>
+      }
     </div>
   </div>
 </ng-container>

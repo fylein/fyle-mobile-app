@@ -6,20 +6,21 @@
     </ion-col>
   </ion-row>
 
-  <ng-container *ngFor="let row of rows; let i = index">
-    <ion-row class="skeleton-row">
-      <ion-col size="auto">
-        <div class="skeleton-row__icon">
-          <ion-skeleton-text animated></ion-skeleton-text>
-        </div>
-      </ion-col>
-      <ion-col size="auto" class="skeleton-row__content-container">
-        <ion-skeleton-text animated class="skeleton-row__content-container__header"></ion-skeleton-text>
-        <ion-skeleton-text animated class="skeleton-row__content-container__sub-header"></ion-skeleton-text>
-      </ion-col>
-    </ion-row>
-    <ion-row *ngIf="i === 2" class="skeleton-divider">
-      <ion-col></ion-col>
-    </ion-row>
-  </ng-container>
+  @for (row of rows; track $index; let i = $index) {
+  <ion-row class="skeleton-row">
+    <ion-col size="auto">
+      <div class="skeleton-row__icon">
+        <ion-skeleton-text animated></ion-skeleton-text>
+      </div>
+    </ion-col>
+    <ion-col size="auto" class="skeleton-row__content-container">
+      <ion-skeleton-text animated class="skeleton-row__content-container__header"></ion-skeleton-text>
+      <ion-skeleton-text animated class="skeleton-row__content-container__sub-header"></ion-skeleton-text>
+    </ion-col>
+  </ion-row>
+  @if (i === 2) {
+  <ion-row class="skeleton-divider">
+    <ion-col></ion-col>
+  </ion-row>
+  } }
 </ion-grid>
