@@ -30,12 +30,17 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { driver } from 'driver.js';
+import { driver, DriveStep } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import SwiperCore, { Pagination, Autoplay } from 'swiper';
+import { PaginationOptions } from 'swiper/types';
+
+// install Swiper modules
+SwiperCore.use([Pagination, Autoplay]);
 
 @Component({
   selector: 'app-dashboard',
@@ -71,9 +76,13 @@ export class DashboardPage {
 
   optInShowTimer;
 
+  dashboardAddExpenseWalkthroughTimer;
+
   navigationSubscription: Subscription;
 
   canShowOptInBanner$: Observable<boolean>;
+
+  canShowEmailOptInBanner$: Observable<boolean>;
 
   eou$: Observable<ExtendedOrgUser>;
 
@@ -82,6 +91,8 @@ export class DashboardPage {
   isWalkthroughComplete = false;
 
   isWalkthroughPaused = false;
+
+  isWalkThroughOver = false; // used to check if the walkthrough is over for that momemnt by the user so we can show the add expense walkthrough
 
   // variable to check for the overlay bg click for the walkthrough
   // This needs to be true at the start as driver.js does not have a default overlay click event
@@ -93,6 +104,13 @@ export class DashboardPage {
   walkthroughOverlayStartIndex = 0;
 
   userName = '';
+
+  optInBannerPagination: PaginationOptions = {
+    dynamicBullets: true,
+    renderBullet(index, className): string {
+      return '<span class="opt-in-banners ' + className + '"> </span>';
+    },
+  };
 
   constructor(
     private currencyService: CurrencyService,
@@ -137,7 +155,84 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
+  startDashboardAddExpenseWalkthrough(): void {
+    const dashboardAddExpenseWalkthroughSteps: DriveStep[] =
+      this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.5,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 6,
+      stagePadding: 4,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Ok',
+      showButtons: ['close', 'next'],
+      onDestroyed: () => {
+        this.setDashboardAddExpenseWalkthroughFeatureConfigFlag();
+      },
+    });
+
+    driverInstance.setSteps(dashboardAddExpenseWalkthroughSteps);
+    driverInstance.drive();
+  }
+
+  setDashboardAddExpenseWalkthroughFeatureConfigFlag(): void {
+    const featureConfigParams = {
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_ADD_EXPENSE',
+    };
+
+    const eventTrackName = 'Dashboard Add Expense Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: true,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  showDashboardAddExpenseWalkthrough(): void {
+    // Clear any existing timer to prevent multiple timers running simultaneously
+    clearTimeout(this.dashboardAddExpenseWalkthroughTimer as number);
+
+    this.featureConfigService
+      .getConfiguration<{
+        isShown?: boolean;
+        isFinished?: boolean;
+      }>({
+        feature: 'WALKTHROUGH',
+        key: 'DASHBOARD_ADD_EXPENSE',
+      })
+      .subscribe((config) => {
+        const featureConfigValue = config?.value || {};
+        const isFinished = featureConfigValue?.isFinished || false;
+
+        // Only show add expense walkthrough if navbar walkthrough is finished or over for that moment by the user
+        if (!isFinished && (this.isWalkthroughComplete || this.isWalkThroughOver)) {
+          this.dashboardAddExpenseWalkthroughTimer = setTimeout(() => {
+            this.startDashboardAddExpenseWalkthrough();
+          }, 1000);
+        }
+      });
+  }
+
   setNavbarWalkthroughFeatureConfigFlag(overlayClicked: boolean): void {
+    this.isWalkThroughOver = true;
+    // now call the dashboard add expense walkthrough
+    this.showDashboardAddExpenseWalkthrough();
     const featureConfigParams = {
       feature: 'WALKTHROUGH',
       key: 'DASHBOARD_SHOW_NAVBAR',
@@ -250,6 +345,10 @@ export class DashboardPage {
         this.walkthroughOverlayStartIndex = featureConfigValue?.currentStepIndex || 0;
         this.isWalkthroughComplete = isFinished;
 
+        if (isFinished) {
+          this.showDashboardAddExpenseWalkthrough();
+        }
+
         if (!isFinished) {
           this.startTour(isApprover);
         }
@@ -264,6 +363,7 @@ export class DashboardPage {
       driver().destroy();
     }
     clearTimeout(this.optInShowTimer as number);
+    clearTimeout(this.dashboardAddExpenseWalkthroughTimer as number);
     this.navigationSubscription?.unsubscribe();
     this.utilityService.toggleShowOptInAfterAddingCard(false);
     this.onPageExit$.next(null);
@@ -306,6 +406,29 @@ export class DashboardPage {
     );
   }
 
+  setShowEmailOptInBanner(): void {
+    const optInBannerConfig = {
+      feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+      key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+    };
+
+    const isBannerShown$ = this.featureConfigService
+      .getConfiguration(optInBannerConfig)
+      .pipe(map((config) => config?.value));
+
+    this.canShowEmailOptInBanner$ = forkJoin({
+      isBannerShown: isBannerShown$,
+    }).pipe(
+      map(({ isBannerShown }) => {
+        if (isBannerShown) {
+          return false;
+        }
+
+        return true;
+      })
+    );
+  }
+
   async openSMSOptInDialog(extendedOrgUser: ExtendedOrgUser): Promise<void> {
     const optInModal = await this.modalController.create({
       component: FyOptInComponent,
@@ -324,6 +447,20 @@ export class DashboardPage {
       panelClass,
     });
     this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  onPendingTasksStatClick(): void {
+    const queryParams: Params = { state: 'tasks' };
+    this.currentStateIndex = 1;
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams,
+    });
+
+    this.trackingService.dashboardPendingTasksNotificationClicked({
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
   }
 
   ionViewWillEnter(): void {
@@ -372,6 +509,7 @@ export class DashboardPage {
     }
 
     this.setShowOptInBanner();
+    this.setShowEmailOptInBanner();
 
     if (openSMSOptInDialog === 'true') {
       this.eou$
@@ -649,6 +787,24 @@ export class DashboardPage {
       this.tasksComponent.doRefresh();
     } else {
       this.trackingService.skipOptInFromDashboardBanner();
+    }
+  }
+
+  toggleEmailOptInBanner(data: { optedIn: boolean }): void {
+    this.canShowEmailOptInBanner$ = of(false);
+
+    const optInBannerConfig = {
+      feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+      key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+      value: true,
+    };
+
+    this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
+
+    if (data.optedIn) {
+      this.trackingService.optedInFromDashboardEmailOptInBanner();
+    } else {
+      this.trackingService.skipOptInFromDashboardEmailOptInBanner();
     }
   }
 

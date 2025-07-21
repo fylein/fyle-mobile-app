@@ -2,7 +2,7 @@ import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/cor
 import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
-import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params } from '@angular/router';
+import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params, UrlTree } from '@angular/router';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { AppVersionService } from './core/services/app-version.service';
@@ -370,13 +370,28 @@ export class AppComponent implements OnInit {
       .pipe(
         filter((event) => event instanceof NavigationEnd),
         map((event: NavigationEnd) => {
-          const segments = event.urlAfterRedirects.split(';')[0].split('/');
-          return segments.pop();
+          // Parse the URL using Angular's router
+          const urlTree: UrlTree = this.router.parseUrl(event.urlAfterRedirects);
+
+          // Get the last segment of the primary outlet (e.g., 'my_dashboard')
+          const segments = urlTree.root.children.primary?.segments as
+            | { path: string; parameters: { [key: string]: string } }[]
+            | undefined;
+          const lastSegment: string = segments && segments.length > 0 ? segments[segments.length - 1].path : '';
+
+          // Get matrix params for the last segment
+          const matrixParams: { [key: string]: string } =
+            segments && segments.length > 0 ? segments[segments.length - 1].parameters : {};
+
+          // Get query params (e.g., state)
+          const queryParams: { [key: string]: string } = urlTree.queryParams;
+
+          return { lastSegment, matrixParams, queryParams };
         })
       )
-      .subscribe((path) => {
-        this.currentPath = path.split('?')[0];
-        const state = this.getStateFromPath(path);
+      .subscribe(({ lastSegment, queryParams }: { lastSegment: string; queryParams: { [key: string]: string } }) => {
+        this.currentPath = lastSegment;
+        const state = queryParams.state || this.getStateFromPath(String(lastSegment));
         this.showFooter = this.routesWithFooter.includes(this.currentPath);
         this.updateFooterState(state);
       });

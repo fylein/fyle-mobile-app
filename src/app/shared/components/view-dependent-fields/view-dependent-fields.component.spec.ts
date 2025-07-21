@@ -82,6 +82,5 @@ describe('ViewDependentFieldsComponent', () => {
       component.ngOnInit();
       expect(component.parentFieldIcon).toEqual('building');
     });
-
   });
 });

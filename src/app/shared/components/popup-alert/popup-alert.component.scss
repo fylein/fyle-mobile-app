@@ -21,8 +21,9 @@ $small-screen: 700px;
   }
 
   &--cta-container {
-    margin-top: 16px;
+    margin-top: 28px;
     display: flex;
+    gap: 8px;
     justify-content: space-between;
     &__single-content {
       justify-content: center;
@@ -47,7 +48,8 @@ $small-screen: 700px;
     color: $black;
     font-size: 14px;
     line-height: 1.3;
-    min-width: 40%;
+    min-width: 50%;
+    border: 1px solid $grey-lightest;
   }
 
   &--primary-cta {
@@ -57,7 +59,7 @@ $small-screen: 700px;
     font-size: 12px;
     line-height: 1.25;
     border-radius: 4px;
-    padding: 10px 12px;
+    padding: 16px 12px;
     min-width: 50%;
     width: 100%;
 

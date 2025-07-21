@@ -37,7 +37,9 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { FeatureConfig } from 'src/app/core/models/feature-config.model';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -63,6 +65,8 @@ describe('MyProfilePage', () => {
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
+  let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
+  let walkthroughService: jasmine.SpyObj<WalkthroughService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -84,6 +88,7 @@ describe('MyProfilePage', () => {
       'optInClickedFromProfile',
       'updateMobileNumberClicked',
       'optedInFromProfile',
+      'eventTrack',
     ]);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -99,6 +104,15 @@ describe('MyProfilePage', () => {
       'checkForRedirectionToOnboarding',
     ]);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
+    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', [
+      'getConfiguration',
+      'saveConfiguration',
+    ]);
+    const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
+      'setIsOverlayClicked',
+      'getIsOverlayClicked',
+      'getProfileEmailOptInWalkthroughConfig',
+    ]);
 
     TestBed.configureTestingModule({
     declarations: [MyProfilePage],
@@ -198,8 +212,15 @@ describe('MyProfilePage', () => {
             provide: EmployeesService,
             useValue: employeesServiceSpy,
         },
+        {
+          provide: FeatureConfigService,
+          useValue: featureConfigServiceSpy,
+        },
+        {
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
+        },
         SpenderService,
-        provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
     ]
 }).compileComponents();
@@ -230,6 +251,9 @@ describe('MyProfilePage', () => {
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
+    featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
+    walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
+
     component.eou$ = of(apiEouRes);
 
     fixture.detectChanges();
@@ -378,6 +402,24 @@ describe('MyProfilePage', () => {
   });
 
   it('reset(): should reset all settings', fakeAsync(() => {
+    featureConfigService.getConfiguration.and.returnValue(
+      of({ value: { isFinished: false } } as FeatureConfig<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+      }>)
+    );
+    walkthroughService.getProfileEmailOptInWalkthroughConfig.and.returnValue([
+      {
+        element: '#profile-email-opt-in-walkthrough',
+        popover: {
+          description: 'Test description',
+          side: 'top',
+          align: 'center',
+        },
+        onHighlightStarted: jasmine.createSpy('onHighlightStarted'),
+      },
+    ]);
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -409,6 +451,256 @@ describe('MyProfilePage', () => {
     );
     expect(component.defaultPaymentMode).toEqual('Personal Cash/Card');
   }));
+
+  it('reset(): should show email opt-in walkthrough when show_email_walkthrough parameter is true', fakeAsync(() => {
+    // Mock route params with show_email_walkthrough as 'true'
+    const mockActivatedRoute = TestBed.inject(ActivatedRoute);
+    mockActivatedRoute.snapshot.params = { show_email_walkthrough: 'true' };
+
+    spyOn(component, 'showEmailOptInWalkthrough');
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    spyOn(component, 'setInfoCardsData');
+    spyOn(component, 'setPreferenceSettings');
+    spyOn(component, 'setCCCFlags');
+    paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
+    fixture.detectChanges();
+
+    component.reset();
+    tick(500);
+
+    expect(component.showEmailOptInWalkthrough).toHaveBeenCalledTimes(1);
+  }));
+
+  it('reset(): should not show email opt-in walkthrough when show_email_walkthrough parameter is not true', fakeAsync(() => {
+    // Mock route params with show_email_walkthrough as 'false'
+    const mockActivatedRoute = TestBed.inject(ActivatedRoute);
+    mockActivatedRoute.snapshot.params = { show_email_walkthrough: 'false' };
+
+    spyOn(component, 'showEmailOptInWalkthrough');
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    spyOn(component, 'setInfoCardsData');
+    spyOn(component, 'setPreferenceSettings');
+    spyOn(component, 'setCCCFlags');
+    paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
+    fixture.detectChanges();
+
+    component.reset();
+    tick(500);
+
+    expect(component.showEmailOptInWalkthrough).not.toHaveBeenCalled();
+  }));
+
+  it('reset(): should not show email opt-in walkthrough when show_email_walkthrough parameter is not present', fakeAsync(() => {
+    // Mock route params without show_email_walkthrough parameter
+    const mockActivatedRoute = TestBed.inject(ActivatedRoute);
+    mockActivatedRoute.snapshot.params = {};
+
+    spyOn(component, 'showEmailOptInWalkthrough');
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    spyOn(component, 'setInfoCardsData');
+    spyOn(component, 'setPreferenceSettings');
+    spyOn(component, 'setCCCFlags');
+    paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
+    fixture.detectChanges();
+
+    component.reset();
+    tick(500);
+
+    expect(component.showEmailOptInWalkthrough).not.toHaveBeenCalled();
+  }));
+
+  describe('emailOptInWalkthrough():', () => {
+    it('should create driver instance and start walkthrough successfully', () => {
+      const mockWalkthroughSteps = [
+        {
+          element: '#profile-email-opt-in-walkthrough',
+          popover: {
+            description: 'Test description',
+            side: 'top' as any,
+            align: 'center' as any,
+          },
+        },
+      ];
+
+      walkthroughService.getProfileEmailOptInWalkthroughConfig.and.returnValue(mockWalkthroughSteps);
+      walkthroughService.setIsOverlayClicked.and.returnValue();
+      spyOn(component, 'setEmailHighlightFeatureConfigFlag');
+
+      component.emailOptInWalkthrough();
+
+      expect(walkthroughService.getProfileEmailOptInWalkthroughConfig).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('setEmailHighlightFeatureConfigFlag():', () => {
+    beforeEach(() => {
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+    });
+
+    it('should save skipped configuration when overlay is clicked and click count is less than 1', () => {
+      component.overlayClickCount = 0;
+
+      component.setEmailHighlightFeatureConfigFlag(true);
+
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Profile Email Opt In Walkthrough Skipped', {
+        Asset: 'Mobile',
+        from: 'Profile',
+      });
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+        value: {
+          isShown: true,
+          isFinished: false,
+          overlayClickCount: 1,
+        },
+      });
+    });
+
+    it('should save completed configuration when overlay is clicked and click count is 1 or more', () => {
+      component.overlayClickCount = 1;
+
+      component.setEmailHighlightFeatureConfigFlag(true);
+
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Profile Email Opt In Walkthrough Completed', {
+        Asset: 'Mobile',
+        from: 'Profile',
+      });
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+        value: {
+          isShown: true,
+          isFinished: true,
+        },
+      });
+    });
+
+    it('should save completed configuration when overlay is not clicked', () => {
+      component.overlayClickCount = 0;
+
+      component.setEmailHighlightFeatureConfigFlag(false);
+
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Profile Email Opt In Walkthrough Completed', {
+        Asset: 'Mobile',
+        from: 'Profile',
+      });
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+        value: {
+          isShown: true,
+          isFinished: true,
+        },
+      });
+    });
+  });
+
+  describe('showEmailOptInWalkthrough():', () => {
+    it('should call emailOptInWalkthrough when config is not finished', fakeAsync(() => {
+      const mockConfig = {
+        value: {
+          isShown: true,
+          isFinished: false,
+          overlayClickCount: 0,
+        },
+      } as FeatureConfig<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+      }>;
+
+      featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+      spyOn(component, 'emailOptInWalkthrough');
+
+      component.showEmailOptInWalkthrough();
+      tick(100);
+
+      expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+      });
+      expect(component.emailOptInWalkthrough).toHaveBeenCalledTimes(1);
+      expect(component.overlayClickCount).toBe(0);
+    }));
+
+    it('should not call emailOptInWalkthrough when config is finished', fakeAsync(() => {
+      const mockConfig = {
+        value: {
+          isShown: true,
+          isFinished: true,
+          overlayClickCount: 2,
+        },
+      } as FeatureConfig<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+      }>;
+
+      featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+      spyOn(component, 'emailOptInWalkthrough');
+
+      component.showEmailOptInWalkthrough();
+      tick(100);
+
+      expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+      });
+      expect(component.emailOptInWalkthrough).not.toHaveBeenCalled();
+      expect(component.overlayClickCount).toBe(2);
+    }));
+
+    it('should call emailOptInWalkthrough when config value is null', fakeAsync(() => {
+      const mockConfig = {
+        value: null,
+      } as FeatureConfig<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+      }>;
+
+      featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+      spyOn(component, 'emailOptInWalkthrough');
+
+      component.showEmailOptInWalkthrough();
+      tick(100);
+
+      expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+      });
+      expect(component.emailOptInWalkthrough).toHaveBeenCalledTimes(1);
+      expect(component.overlayClickCount).toBe(0);
+    }));
+
+    it('should call emailOptInWalkthrough when config is undefined', fakeAsync(() => {
+      featureConfigService.getConfiguration.and.returnValue(of(undefined));
+      spyOn(component, 'emailOptInWalkthrough');
+
+      component.showEmailOptInWalkthrough();
+      tick(100);
+
+      expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'PROFILE_WALKTHROUGH',
+        key: 'PROFILE_EMAIL_OPT_IN',
+      });
+      expect(component.emailOptInWalkthrough).toHaveBeenCalledTimes(1);
+      expect(component.overlayClickCount).toBe(0);
+    }));
+  });
 
   it('setCCCFlags(): should set ccc flags as per the org and org user settings', () => {
     component.orgSettings = orgSettingsData;

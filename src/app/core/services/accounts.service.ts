@@ -36,9 +36,7 @@ export class AccountsService {
   getMyAccounts(): Observable<PlatformAccount[]> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformAccount[]>>('/accounts')
-      .pipe(
-        map((response: PlatformApiResponse<PlatformAccount[]>) => response.data)
-      );
+      .pipe(map((response: PlatformApiResponse<PlatformAccount[]>) => response.data));
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
@@ -54,9 +52,7 @@ export class AccountsService {
   ): AccountOption[] {
     const { etxn, expenseType } = config;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
-    const userAccounts = accounts.filter((account) =>
-      [AccountType.PERSONAL, AccountType.CCC].includes(account.type)
-    );
+    const userAccounts = accounts.filter((account) => [AccountType.PERSONAL, AccountType.CCC].includes(account.type));
 
     const allowedAccounts = this.getAllowedAccountsWithAdvanceWallets(
       userAccounts,

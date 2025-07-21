@@ -84,8 +84,8 @@ import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-repor
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportState as PlatformReportState } from 'src/app/core/models/platform/v1/report.model';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
-import { TranslocoService } from '@jsverse/transloco';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -144,11 +144,18 @@ describe('MyReportsPage', () => {
       'getReportsCount',
       'getReportsByParams',
     ]);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
+
     TestBed.configureTestingModule({
     declarations: [MyReportsPage, ReportState],
     schemas: [NO_ERRORS_SCHEMA],
-    imports: [IonicModule.forRoot(), RouterTestingModule],
+    imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
     providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
@@ -194,7 +201,6 @@ describe('MyReportsPage', () => {
             provide: SpenderReportsService,
             useValue: spenderReportsServiceSpy,
         },
-        ReportState,
         { provide: TranslocoService, useValue: translocoServiceSpy },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -239,6 +245,52 @@ describe('MyReportsPage', () => {
         'pipes.reportState.closed': 'closed',
         'pipes.reportState.cancelled': 'cancelled',
         'pipes.reportState.disabled': 'disabled',
+        'myReportsPage.title': 'My expense reports',
+        'myReportsPage.searchPlaceholder': 'Search',
+        'myReportsPage.createExpenseReport': 'Create expense report',
+        'myReportsPage.zeroState.noReports': 'You have no reports right now',
+        'myReportsPage.zeroState.noReportsMatchingFilters': 'You have no reports',
+        'myReportsPage.zeroState.matchingAppliedFilters': 'matching the applied filters',
+        'myReportsPage.zeroState.noResultsFound': 'No results found',
+        'myReportsPage.zeroState.tryDifferentKeyword': 'Try a different keyword',
+        'myReportsPage.loading.loadingMoreData': 'Loading more data...',
+        'myReportsPage.filters.state': 'State',
+        'myReportsPage.filters.date': 'Date',
+        'myReportsPage.filters.sortBy': 'Sort by',
+        'myReportsPage.stateOptions.draft': 'Draft',
+        'myReportsPage.stateOptions.reported': 'Reported',
+        'myReportsPage.stateOptions.sentBack': 'Sent Back',
+        'myReportsPage.stateOptions.approved': 'Approved',
+        'myReportsPage.stateOptions.paymentPending': 'Payment Pending',
+        'myReportsPage.stateOptions.paymentProcessing': 'Payment Processing',
+        'myReportsPage.stateOptions.paid': 'Paid',
+        'myReportsPage.stateOptions.submitted': 'Submitted',
+        'myReportsPage.stateOptions.processing': 'Processing',
+        'myReportsPage.stateOptions.closed': 'Closed',
+        'myReportsPage.dateOptions.all': 'All',
+        'myReportsPage.dateOptions.thisWeek': 'This Week',
+        'myReportsPage.dateOptions.thisMonth': 'This Month',
+        'myReportsPage.dateOptions.lastMonth': 'Last Month',
+        'myReportsPage.dateOptions.custom': 'Custom',
+        'myReportsPage.sortOptions.dateNewToOld': 'Date - New to Old',
+        'myReportsPage.sortOptions.dateOldToNew': 'Date - Old to New',
+        'myReportsPage.sortOptions.amountHighToLow': 'Amount - High to Low',
+        'myReportsPage.sortOptions.amountLowToHigh': 'Amount - Low to High',
+        'myReportsPage.sortOptions.nameAToZ': 'Name - A to Z',
+        'myReportsPage.sortOptions.nameZToA': 'Name - Z to A',
+        'myReportsPage.filterPills.thisWeek': 'this Week',
+        'myReportsPage.filterPills.thisMonth': 'this Month',
+        'myReportsPage.filterPills.all': 'All',
+        'myReportsPage.filterPills.lastMonth': 'Last Month',
+        'myReportsPage.filterPills.dateOldToNew': 'date - old to new',
+        'myReportsPage.filterPills.dateNewToOld': 'date - new to old',
+        'myReportsPage.filterPills.amountHighToLow': 'amount - high to low',
+        'myReportsPage.filterPills.amountLowToHigh': 'amount - low to high',
+        'myReportsPage.filterPills.nameAToZ': 'Name - a to z',
+        'myReportsPage.filterPills.nameZToA': 'Name - z to a',
+        'myReportsPage.filterPills.dateTo': 'to',
+        'myReportsPage.tracking.page': 'Reports',
+        'myReportsPage.tracking.from': 'My Reports',
       };
       return translations[key] || key;
     });

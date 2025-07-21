@@ -33,8 +33,8 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import { featureConfigOptInData } from 'src/app/core/mock-data/feature-config.data';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { featureConfigOptInData, featureConfigEmailOptInData } from 'src/app/core/mock-data/feature-config.data';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import {
   featureConfigWalkthroughFinishData,
@@ -83,6 +83,8 @@ describe('DashboardPage', () => {
       'optInFromPostPostCardAdditionInDashboard',
       'optedInFromDashboardBanner',
       'skipOptInFromDashboardBanner',
+      'optedInFromDashboardEmailOptInBanner',
+      'skipOptInFromDashboardEmailOptInBanner',
       'eventTrack',
     ]);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
@@ -300,6 +302,7 @@ describe('DashboardPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       utilityService.isUserFromINCluster.and.resolveTo(false);
       spyOn(component, 'setShowOptInBanner');
+      spyOn(component, 'setShowEmailOptInBanner');
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
       featureConfigService.saveConfiguration.and.returnValue(of(null));
     });
@@ -397,6 +400,7 @@ describe('DashboardPage', () => {
         expect(res).toBeFalse();
       });
       expect(component.setShowOptInBanner).toHaveBeenCalledTimes(1);
+      expect(component.setShowEmailOptInBanner).toHaveBeenCalledTimes(1);
     });
 
     it('should start navbar walkthrough', fakeAsync(() => {
@@ -870,9 +874,80 @@ describe('DashboardPage', () => {
     });
   });
 
+  describe('setShowEmailOptInBanner():', () => {
+    beforeEach(() => {
+      featureConfigService.getConfiguration.and.returnValue(of(featureConfigEmailOptInData));
+    });
+
+    it('should set canShowEmailOptInBanner to false if feature config value is true', () => {
+      const mockFeatureConfig = cloneDeep(featureConfigEmailOptInData);
+      mockFeatureConfig.value = true;
+      featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
+
+      component.setShowEmailOptInBanner();
+
+      component.canShowEmailOptInBanner$.subscribe((res) => {
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+          key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+        });
+        expect(res).toBeFalse();
+      });
+    });
+
+    it('should set canShowEmailOptInBanner to true if feature config data is null', () => {
+      featureConfigService.getConfiguration.and.returnValue(of(null));
+
+      component.setShowEmailOptInBanner();
+
+      component.canShowEmailOptInBanner$.subscribe((res) => {
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+          key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+        });
+        expect(res).toBeTrue();
+      });
+    });
+  });
+
+  describe('toggleEmailOptInBanner():', () => {
+    beforeEach(() => {
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+    });
+
+    it('should set canShowEmailOptInBanner$ to false and save feature config value as true', () => {
+      component.toggleEmailOptInBanner({ optedIn: true });
+
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+        key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+        value: true,
+      });
+
+      component.canShowEmailOptInBanner$.subscribe((res) => {
+        expect(res).toBeFalse();
+      });
+    });
+
+    it('should track opt in event if user opted in', () => {
+      component.toggleEmailOptInBanner({ optedIn: true });
+
+      expect(trackingService.optedInFromDashboardEmailOptInBanner).toHaveBeenCalledTimes(1);
+      expect(trackingService.skipOptInFromDashboardEmailOptInBanner).not.toHaveBeenCalled();
+    });
+
+    it('should track skip opt in event if user skipped opt in', () => {
+      component.toggleEmailOptInBanner({ optedIn: false });
+
+      expect(trackingService.skipOptInFromDashboardEmailOptInBanner).toHaveBeenCalledTimes(1);
+      expect(trackingService.optedInFromDashboardEmailOptInBanner).not.toHaveBeenCalled();
+    });
+  });
+
   it('should set the config when the navbar walkthrough is finished', fakeAsync(() => {
     featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
     featureConfigService.saveConfiguration.and.returnValue(of(null));
+    spyOn(component, 'showDashboardAddExpenseWalkthrough').and.stub();
     component.setNavbarWalkthroughFeatureConfigFlag(false);
     tick();
 
@@ -890,6 +965,7 @@ describe('DashboardPage', () => {
     featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
     component.eou$ = of(apiEouRes);
     spyOn(component, 'startTour');
+    spyOn(component, 'showDashboardAddExpenseWalkthrough').and.stub();
     component.showNavbarWalkthrough(true);
     tick();
 

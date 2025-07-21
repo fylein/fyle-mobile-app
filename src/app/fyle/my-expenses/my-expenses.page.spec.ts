@@ -133,8 +133,8 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { TranslocoService } from '@jsverse/transloco';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -304,11 +304,123 @@ describe('MyExpensesPage', () => {
     ]);
     const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['saveConfiguration']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
+
+    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'myExpensesPage.title': 'My expenses',
+        'myExpensesPage.searchPlaceholder': 'Search',
+        'myExpensesPage.addExpense': 'Add Expense',
+        'myExpensesPage.selectAll': 'Select all',
+        'myExpensesPage.expense': 'expense',
+        'myExpensesPage.expenses': 'expenses',
+        'myExpensesPage.createNewReport': 'Create new report',
+        'myExpensesPage.addToReports': 'Add to reports',
+        'myExpensesPage.startReview': 'Start review',
+        'myExpensesPage.zeroState.noExpenses': 'You have no expenses right now',
+        'myExpensesPage.zeroState.noResultsFound': 'No results found',
+        'myExpensesPage.zeroState.tryDifferentKeyword': 'Try a different keyword',
+        'myExpensesPage.zeroState.noExpensesMatchingFilters': 'You have no expenses matching the applied filters',
+        'myExpensesPage.offline.syncMessage': 'Data will sync once you are connected to internet',
+        'myExpensesPage.offline.offlineHeader': "You're Offline!",
+        'myExpensesPage.offline.offlineMessage': 'Fear not, you can still add expenses offline.',
+        'myExpensesPage.actionSheet.header': 'ADD EXPENSE',
+        'myExpensesPage.actionSheet.captureReceipt': 'Capture receipt',
+        'myExpensesPage.actionSheet.addManually': 'Add manually',
+        'myExpensesPage.actionSheet.addMileage': 'Add mileage',
+        'myExpensesPage.actionSheet.addPerDiem': 'Add per diem',
+        'myExpensesPage.loader.addingExpenseToReport': 'Adding expense to report',
+        'myExpensesPage.filters.cardsEndingIn': 'Cards ending in...',
+        'myExpensesPage.criticalPolicyViolation.excludeAndContinue': 'Exclude and Continue',
+        'myExpensesPage.criticalPolicyViolation.cancel': 'Cancel',
+        'myExpensesPage.errors.selectExpensesToReport': 'Please select one or more expenses to be reported',
+        'myExpensesPage.errors.cantAddExpenses': "Can't add these expenses...",
+        'myExpensesPage.errors.cantAddDraftExpenses': "You can't add draft expenses to a report.",
+        'myExpensesPage.errors.cantAddPolicyViolatedExpenses':
+          "You can't add expenses with critical policy violations to a report.",
+        'myExpensesPage.errors.cantAddPendingTransactions':
+          "You can't add expenses with pending transactions to a report.",
+        'myExpensesPage.errors.cantAddDraftAndPolicyViolated':
+          "You can't add draft expenses & expenses with critical policy violations to a report.",
+        'myExpensesPage.errors.cantAddDraftAndPendingTransactions':
+          "You can't add draft expenses & expenses with pending transactions to a report.",
+        'myExpensesPage.errors.cantAddPolicyViolatedAndPendingTransactions':
+          "You can't add expenses with critical policy violation & pending transactions to a report.",
+        'myExpensesPage.errors.cantAddDraftPolicyViolatedAndPendingTransactions':
+          "You can't add draft expenses and expenses with critical policy violation & pending transactions.",
+        'myExpensesPage.errors.couldNotDeleteExpenses': 'We could not delete the expenses. Please try again',
+        'myExpensesPage.errors.expensesInDraftState': '{{count}} {{expenseText}} in draft state.',
+        'myExpensesPage.errors.expensesWithPendingTransactions': '{{count}} {{expenseText}} with pending transactions.',
+        'myExpensesPage.errors.expensesWithCriticalPolicyViolations':
+          '{{count}} {{expenseText}} with Critical Policy Violations.',
+        'myExpensesPage.unreportableExpenseExceptionHandler.message111':
+          "You can't add draft expenses and expenses with critical policy violation & pending transactions.",
+        'myExpensesPage.unreportableExpenseExceptionHandler.message110':
+          "You can't add draft expenses & expenses with critical policy violations to a report.",
+        'myExpensesPage.unreportableExpenseExceptionHandler.message101':
+          "You can't add draft expenses & expenses with pending transactions to a report.",
+        'myExpensesPage.unreportableExpenseExceptionHandler.message011':
+          "You can't add expenses with critical policy violation & pending transactions to a report.",
+        'myExpensesPage.unreportableExpenseExceptionHandler.message100': "You can't add draft expenses to a report.",
+        'myExpensesPage.unreportableExpenseExceptionHandler.message010':
+          "You can't add expenses with critical policy violations to a report.",
+        'myExpensesPage.unreportableExpenseExceptionHandler.message001':
+          "You can't add expenses with pending transactions to a report.",
+        'myExpensesPage.reportableExpenseDialogHandler.cantAddTheseExpensesTitle': "Can't add these expenses...",
+        'myExpensesPage.reportableExpenseDialogHandler.expensesAre': 'expenses are',
+        'myExpensesPage.reportableExpenseDialogHandler.expenseIs': 'expense is',
+        'myExpensesPage.reportableExpenseDialogHandler.expenses': 'expenses',
+        'myExpensesPage.reportableExpenseDialogHandler.expense': 'expense',
+        'myExpensesPage.reportableExpenseDialogHandler.inDraftState': 'in draft state',
+        'myExpensesPage.reportableExpenseDialogHandler.withPendingTransactions': 'with pending transactions',
+        'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations': 'with Critical Policy Violations',
+        'myExpensesPage.openCreateReportWithSelectedIds.pleaseSelectExpensesToBeReported':
+          'Please select one or more expenses to be reported',
+        'myExpensesPage.showAddToReportSuccessToast.viewReport': 'View Report',
+        'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToExistingDraftReport':
+          'Expenses added to an existing draft report',
+        'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToReportSuccess':
+          'Expenses added to report successfully',
+        'myExpensesPage.openDeleteExpensesPopover.deleteExpense': 'Delete Expense',
+        'myExpensesPage.openDeleteExpensesPopover.excludeAndDelete': 'Exclude and Delete',
+        'myExpensesPage.openDeleteExpensesPopover.delete': 'Delete',
+        'myExpensesPage.openDeleteExpensesPopover.oneExpenseDeleted': '1 expense has been deleted',
+        'myExpensesPage.openDeleteExpensesPopover.expensesDeleted': '{{count}} expenses have been deleted',
+        'myExpensesPage.openDeleteExpensesPopover.couldNotDeleteExpenses':
+          'We could not delete the expenses. Please try again',
+        'myExpensesPage.onHomeClicked.page': 'Expenses',
+        'myExpensesPage.onTaskClicked.from': 'My Expenses',
+        'myExpensesPage.actions.excludeAndContinue': 'Exclude and Continue',
+        'myExpensesPage.actions.cancel': 'Cancel',
+        'myExpensesPage.success.expenseDeleted': '1 expense has been deleted',
+        'myExpensesPage.success.expensesDeleted': '{{count}} expenses have been deleted',
+        'myExpensesPage.success.expensesAddedToExistingDraft': 'Expenses added to an existing draft report',
+        'myExpensesPage.success.expensesAddedToReport': 'Expenses added to report successfully',
+        'myExpensesPage.tracking.page': 'Expenses',
+        'myExpensesPage.tracking.from': 'My Expenses',
+        'myExpensesPage.actionSheet.addExpense': 'ADD EXPENSE',
+      };
+      let translation = translations[key] || key;
+
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     TestBed.configureTestingModule({
     declarations: [MyExpensesPage, ReportState, MaskNumber],
     schemas: [NO_ERRORS_SCHEMA],
-    imports: [IonicModule.forRoot(), RouterTestingModule],
+    imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
     providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
@@ -2797,7 +2909,7 @@ describe('MyExpensesPage', () => {
           of({
             report: expectedReportsSinglePageSubmitted[2],
           }),
-      } as MatBottomSheetRef<{report: Report}>);
+      } as MatBottomSheetRef<{ report: Report }>);
 
       component.showOldReportsMatBottomSheet();
 
@@ -2825,7 +2937,7 @@ describe('MyExpensesPage', () => {
           of({
             report: mockReportData[0],
           }),
-      } as MatBottomSheetRef<{report: Report}>);
+      } as MatBottomSheetRef<{ report: Report }>);
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
@@ -2850,7 +2962,7 @@ describe('MyExpensesPage', () => {
           of({
             report: null,
           }),
-      } as MatBottomSheetRef<{report: Report}>);
+      } as MatBottomSheetRef<{ report: Report }>);
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {

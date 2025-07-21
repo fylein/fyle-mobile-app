@@ -1568,9 +1568,7 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       etxn: this.etxn$,
       paymentModes: this.paymentModes$,
-    }).pipe(
-      map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes))
-    );
+    }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
   }
 
   getDefaultPaymentModes(): Observable<PlatformAccount | AdvanceWallet> {
@@ -3448,7 +3446,9 @@ export class AddEditExpensePage implements OnInit {
     const formValue = this.getFormValues();
     const paymentMode = formValue?.paymentMode;
     // If it's an advance wallet (has id but no acc property), skip reimbursement
-    if (paymentMode?.id && !paymentMode?.type) {return true;}
+    if (paymentMode?.id && !paymentMode?.type) {
+      return true;
+    }
     // If it's a personal account that's not reimbursable, skip reimbursement
     return paymentMode?.type === AccountType.PERSONAL && !paymentMode.isReimbursable;
   }
