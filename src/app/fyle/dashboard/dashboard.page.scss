@@ -47,6 +47,68 @@
     color: $black-light;
   }
 
+  &--pending-tasks-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: map-get($fdl-state-bg-map, 'submitted');
+    border-radius: 8px;
+    border: 1px solid $highlight-blue;
+    margin: 14px 16px 0 16px;
+  }
+
+  &--pending-tasks-stat-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  &--pending-tasks-stat-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &--pending-tasks-stat-icon {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+  }
+
+  &--pending-tasks-stat-icon-pill {
+    position: absolute;
+    background-color: $brand-primary;
+    color: $pure-white;
+    line-height: 8px;
+    top: -6px;
+    margin-left: 10px;
+    font-size: 75%;
+    font-weight: 700;
+    text-align: center;
+    padding: 4px;
+    border-radius: 20px;
+    white-space: nowrap;
+    min-width: 16px;
+  }
+
+  &--pending-tasks-stat-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: $black-light;
+  }
+
+  &--pending-tasks-stat-arrow-button {
+    display: flex;
+    position: relative;
+    color: $black-light;
+  }
+
   &--handwave {
     display: inline-block;
     transform-origin: 70% 70%;
