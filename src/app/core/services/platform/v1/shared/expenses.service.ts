@@ -131,10 +131,10 @@ export class ExpensesService {
       );
     } else {
       return expenses.filter(
-        (expense) => 
-          !this.isCriticalPolicyViolatedExpense(expense) && 
-          !this.isExpenseInDraft(expense) && 
-          !this.isExpenseUnreportable(expense) && 
+        (expense) =>
+          !this.isCriticalPolicyViolatedExpense(expense) &&
+          !this.isExpenseInDraft(expense) &&
+          !this.isExpenseUnreportable(expense) &&
           expense.id
       );
     }

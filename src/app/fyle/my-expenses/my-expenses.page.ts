@@ -1302,8 +1302,8 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.trackingService.addToReport();
       const totalUnreportableCount =
-        noOfExpensesInDraftState + 
-        noOfExpensesWithCriticalPolicyViolations + 
+        noOfExpensesInDraftState +
+        noOfExpensesWithCriticalPolicyViolations +
         noOfExpensesWithPendingTransactions;
 
       if (totalUnreportableCount > 0) {
