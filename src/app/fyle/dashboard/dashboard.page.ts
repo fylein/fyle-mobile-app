@@ -449,7 +449,7 @@ export class DashboardPage {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
-  onPendingTaskStatClick(): void {
+  onPendingTasksStatClick(): void {
     const queryParams: Params = { state: 'tasks' };
     this.currentStateIndex = 1;
     this.router.navigate([], {

@@ -47,7 +47,7 @@
     color: $black-light;
   }
 
-  &--pending-task-stat {
+  &--pending-tasks-stat {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -58,7 +58,7 @@
     margin: 14px 16px 0 16px;
   }
 
-  &--pending-task-stat-container {
+  &--pending-tasks-stat-container {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -66,13 +66,13 @@
     justify-content: space-between;
   }
 
-  &--pending-task-stat-content {
+  &--pending-tasks-stat-content {
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
-  &--pending-task-stat-icon {
+  &--pending-tasks-stat-icon {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -81,7 +81,7 @@
     min-height: 100%;
   }
 
-  &--pending-task-stat-icon-pill {
+  &--pending-tasks-stat-icon-pill {
     position: absolute;
     background-color: $brand-primary;
     color: $pure-white;
@@ -97,13 +97,13 @@
     min-width: 16px;
   }
 
-  &--pending-task-stat-text {
+  &--pending-tasks-stat-text {
     font-size: 14px;
     font-weight: 500;
     color: $black-light;
   }
 
-  &--pending-task-stat-arrow-button {
+  &--pending-tasks-stat-arrow-button {
     display: flex;
     position: relative;
     color: $black-light;
