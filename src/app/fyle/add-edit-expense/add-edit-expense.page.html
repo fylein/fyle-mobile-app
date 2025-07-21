@@ -103,10 +103,13 @@
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="mode === 'edit' && etxn.tx.policy_flag">
             <ng-container *ngIf="policyDetails">
-              <app-fy-policy-violation-info
-                [policyDetails]="policyDetails"
-                [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
-              ></app-fy-policy-violation-info>
+              <ng-container *ngIf="platformExpense$|async as expense">
+                <app-fy-policy-violation-info
+                  [policyDetails]="policyDetails"
+                  [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+                  [expense]="expense"
+                ></app-fy-policy-violation-info>
+              </ng-container>
             </ng-container>
           </ng-container>
 
@@ -491,7 +494,7 @@
           </ng-container>
 
           <ng-container *ngIf="txnFields$|async as txnFields">
-            <ng-container *ngIf="isConnected$|async">
+            <ng-container *ngIf="isConnected$|async as isConnected">
               <ng-container *ngIf="filteredCategories$|async as categories">
                 <ng-container *ngIf="categories.length">
                   <div

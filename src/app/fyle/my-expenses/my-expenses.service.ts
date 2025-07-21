@@ -249,8 +249,8 @@ export class MyExpensesService {
             return this.translocoService.translate('services.myExpenses.complete');
           } else if (state === 'POLICY_VIOLATED') {
             return this.translocoService.translate('services.myExpenses.policyViolatedPill');
-          } else if (state === 'CANNOT_REPORT') {
-            return this.translocoService.translate('services.myExpenses.cannotReportPill');
+          } else if (state === 'BLOCKED') {
+            return this.translocoService.translate('services.myExpenses.blockedPill');
           } else {
             return state.replace(/_/g, ' ').toLowerCase();
           }
@@ -297,16 +297,16 @@ export class MyExpensesService {
             value: 'READY_TO_REPORT',
           },
           {
-            label: this.translocoService.translate('services.myExpenses.policyViolated'),
-            value: 'POLICY_VIOLATED',
-          },
-          {
-            label: this.translocoService.translate('services.myExpenses.cannotReport'),
-            value: 'CANNOT_REPORT',
-          },
-          {
             label: this.translocoService.translate('services.myExpenses.incomplete'),
             value: 'DRAFT',
+          },
+          {
+            label: this.translocoService.translate('services.myExpenses.blocked'),
+            value: 'BLOCKED',
+          },
+          {
+            label: this.translocoService.translate('services.myExpenses.policyViolated'),
+            value: 'POLICY_VIOLATED',
           },
         ],
       } as FilterOptions<string>,

@@ -306,7 +306,11 @@ export class TransactionService {
 
   getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses?.filter(
-      (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
+      (expense) => 
+        !this.getIsCriticalPolicyViolated(expense) && 
+        !this.getIsDraft(expense) && 
+        !this.getIsUnreportable(expense) && 
+        expense.tx_id
     );
   }
 
@@ -316,6 +320,10 @@ export class TransactionService {
 
   getIsDraft(expense: Partial<Expense>): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
+  }
+
+  getIsUnreportable(expense: Partial<Expense>): boolean {
+    return expense.tx_state && expense.tx_state === 'UNREPORTABLE';
   }
 
   excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
@@ -877,8 +885,9 @@ export class TransactionService {
         stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
       }
 
-      if (filters.state.includes(FilterState.CANNOT_REPORT)) {
+      if (filters.state.includes(FilterState.BLOCKED)) {
         stateOrFilter.push('tx_policy_amount.lt.0.0001');
+        stateOrFilter.push('tx_state.in.(UNREPORTABLE)');
       }
 
       if (filters.state.includes(FilterState.DRAFT)) {

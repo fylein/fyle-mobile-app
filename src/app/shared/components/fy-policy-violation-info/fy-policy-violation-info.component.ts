@@ -3,6 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Component({
   selector: 'app-fy-policy-violation-info',
@@ -13,6 +14,8 @@ export class FyPolicyViolationInfoComponent implements OnInit {
   @Input() policyDetails;
 
   @Input() criticalPolicyViolated;
+
+  @Input() expense: Expense | any;
 
   policyViolations;
 
@@ -29,7 +32,14 @@ export class FyPolicyViolationInfoComponent implements OnInit {
   }
 
   async openPolicyViolationDetails() {
-    const componentProperties = this.criticalPolicyViolated
+    // Check if expense is unreportable based on different possible structures
+    const isUnreportable = 
+      this.expense?.unreportable || 
+      this.expense?.tx?.state === 'UNREPORTABLE' ||
+      this.expense?.state === 'UNREPORTABLE' ||
+      this.criticalPolicyViolated;
+    
+    const componentProperties = isUnreportable
       ? { criticalViolationMessages: this.policyViolations, showCTA: false, showDragBar: false, showCloseIcon: true }
       : {
           policyViolationMessages: this.policyViolations,
@@ -39,7 +49,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
           showCloseIcon: true,
         };
     const policyDetailsModal = await this.modalController.create({
-      component: this.criticalPolicyViolated ? FyCriticalPolicyViolationComponent : FyPolicyViolationComponent,
+      component: isUnreportable ? FyCriticalPolicyViolationComponent : FyPolicyViolationComponent,
       componentProps: componentProperties,
       ...this.modalProperties.getModalDefaultProperties('auto-height'),
     });

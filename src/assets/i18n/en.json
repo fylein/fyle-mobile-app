@@ -8,7 +8,8 @@
       "expenseRuleApplied": "Expense Rule Applied",
       "typeCreated": "{{type}} Created",
       "typeEdited": "{{type}} Edited",
-      "policyViolation": "Policy Violation",
+      "policyViolation": "Policy violation",
+      "criticalPolicyViolation": "Critical policy violation found",
       "expenseAdded": "Expense added",
       "receiptAttached": "Receipt Attached",
       "reportSubmitted": "Report Submitted",
@@ -282,7 +283,7 @@
       "yes": "Yes",
       "no": "No",
       "policyViolated": "Policy Violated",
-      "cannotReport": "Cannot Report",
+      "blocked": "Blocked",
       "dateNewToOldSort": "Date - New to Old",
       "dateOldToNewSort": "Date - Old to New",
       "amountHighToLowSort": "Amount - High to Low",
@@ -292,7 +293,7 @@
       "categoryAToZPill": "category - a to z",
       "categoryZToAPill": "category - z to a",
       "policyViolatedPill": "policy violated",
-      "cannotReportPill": "cannot report"
+      "blockedPill": "blocked"
     },
     "categories": {
       "bus": "Bus",
@@ -391,7 +392,8 @@
       "approved": "approved",
       "paymentPending": "payment_pending",
       "processing": "processing",
-      "closed": "closed"
+      "closed": "closed",
+      "blocked": "blocked"
     },
     "mileageRateName": {
       "twoWheeler": "Two Wheeler",
@@ -1070,12 +1072,11 @@
     "saveError": "We were unable to save your commute details. Please enter correct home and work location."
   },
   "fyPolicyViolationInfo": {
-    "policy": "Policy",
+    "critical": "Critical",
+    "policy": "policy",
+    "policies": "policies",
     "violation": "violation",
-    "violations": "violations",
-    "found": "found.",
-    "viewDetails": "View details",
-    "criticalViolationNotice": "This expense has a critical policy violation. It cannot be added to a report until resolved."
+    "viewDetails": "View details"
   },
   "passwordCheckTooltip": {
     "heading": "Password should contain:",

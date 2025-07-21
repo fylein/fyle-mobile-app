@@ -356,7 +356,7 @@ export class MyExpensesPage implements OnInit {
         const queryParams = cloneDeep(params.queryParams) || {};
 
         queryParams.report_id = (queryParams.report_id || 'is.null') as string;
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
 
         if (queryParams.or) {
           const hasExpenseState =
@@ -595,7 +595,7 @@ export class MyExpensesPage implements OnInit {
         let queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
 
         if (params.searchString) {
           queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
@@ -657,7 +657,7 @@ export class MyExpensesPage implements OnInit {
         const queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
         return this.expenseService.getExpensesCount(queryParams);
       }),
       shareReplay(1)
@@ -676,7 +676,7 @@ export class MyExpensesPage implements OnInit {
     this.allExpenseCountHeader$ = this.loadExpenses$.pipe(
       switchMap(() =>
         this.expenseService.getExpenseStats({
-          state: 'in.(COMPLETE,DRAFT)',
+          state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
           report_id: 'is.null',
         })
       ),
@@ -1255,7 +1255,8 @@ export class MyExpensesPage implements OnInit {
       return;
     }
     const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
-      this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense)
+      this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense) ||
+      this.sharedExpenseService.isExpenseUnreportable(expense)
     );
     const expensesInDraftState = selectedElements.filter((expense) =>
       this.sharedExpenseService.isExpenseInDraft(expense)
@@ -1281,7 +1282,9 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.trackingService.addToReport();
       const totalUnreportableCount =
-        noOfExpensesInDraftState + noOfExpensesWithCriticalPolicyViolations + noOfExpensesWithPendingTransactions;
+        noOfExpensesInDraftState + 
+        noOfExpensesWithCriticalPolicyViolations + 
+        noOfExpensesWithPendingTransactions;
 
       if (totalUnreportableCount > 0) {
         this.reportableExpenseDialogHandler(
@@ -1337,7 +1340,7 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.report_id = queryParams.report_id || 'is.null';
 
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
 
         const orderByParams =
           params.sortParam && params.sortDir
@@ -1641,7 +1644,7 @@ export class MyExpensesPage implements OnInit {
               const queryParams = params.queryParams || {};
 
               queryParams.report_id = queryParams.report_id || 'is.null';
-              queryParams.state = 'in.(COMPLETE,DRAFT)';
+              queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
               if (params.searchString) {
                 queryParams.q = params?.searchString + ':*';
               }

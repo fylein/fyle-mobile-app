@@ -1,26 +1,23 @@
 <div *ngIf="showPolicyInfo" class="policy-violation-info--container">
   <div class="policy-violation-info--block">
-    <mat-icon class="icon--alert-warning" svgIcon="warning-fill"></mat-icon>
+    <mat-icon class="policy-violation-info--icons__policy-violated-icon">error</mat-icon>
     <div class="policy-violation-info--list-container">
-      <ul
+      <div
         class="policy-violation-info--list"
         [ngClass]="{ 'policy-violation-info--list__no-bullet': !criticalPolicyViolated }"
       >
-        <li *ngIf="policyViolations.length >= 1">
+        <div *ngIf="policyViolations.length >= 1">
           <span class="policy-violation-info--content"
-            >{{ 'fyPolicyViolationInfo.policy' | transloco }}
-            <span *ngIf="policyViolations.length === 1">{{ 'fyPolicyViolationInfo.violation' | transloco }}</span>
-            <span *ngIf="policyViolations.length > 1">{{ 'fyPolicyViolationInfo.violations' | transloco }}</span>
-            {{ 'fyPolicyViolationInfo.found' | transloco }}</span
+            >{{ 'fyPolicyViolationInfo.critical' | transloco }}
+            <span *ngIf="policyViolations.length === 1">{{ 'fyPolicyViolationInfo.policy' | transloco }}</span>
+            <span *ngIf="policyViolations.length > 1">{{ 'fyPolicyViolationInfo.policies' | transloco }}</span>
+            {{ 'fyPolicyViolationInfo.violation' | transloco }}</span
           >
           <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">{{
             'fyPolicyViolationInfo.viewDetails' | transloco
           }}</span>
-        </li>
-        <li *ngIf="criticalPolicyViolated" class="policy-violation-info--content">
-          {{ 'fyPolicyViolationInfo.criticalViolationNotice' | transloco }}
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
   </div>
 </div>
