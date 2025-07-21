@@ -24,7 +24,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.policyViolations = [];
     this.policyViolations = this.policyDetails
       ?.filter((ids) => ids.run_status === 'VIOLATED_ACTION_SUCCESS')
@@ -32,7 +32,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
     this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated;
   }
 
-  async openPolicyViolationDetails() {
+  async openPolicyViolationDetails(): Promise<void> {
     // Check if expense is unreportable based on different possible structures
     const isUnreportable = 
       this.isExpenseWithUnreportable(this.expense) ||
