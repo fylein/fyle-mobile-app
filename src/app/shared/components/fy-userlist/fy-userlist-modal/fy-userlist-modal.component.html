@@ -22,7 +22,7 @@
         #chipList
         [attr.aria-label]="'fyUserlistModal.multiSelectAriaLabel' | transloco"
       >
-        @for (item of currentSelections; track newlyAddedItem) {
+        @for (item of currentSelections; track item) {
         <mat-chip-row (removed)="removeChip(item)">
           {{ item }}
           <mat-icon matChipRemove>cancel</mat-icon>

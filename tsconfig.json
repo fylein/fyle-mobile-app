@@ -5,25 +5,21 @@
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
-    "esModuleInterop": true,
+    "downlevelIteration": true,
     "experimentalDecorators": true,
-    "module": "ES2022",
-    "moduleResolution": "bundler",
+    "module": "esnext",
+    "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2022",
     "lib": [
-      "ES2022",
+      "es2018",
       "dom"
     ],
     "skipLibCheck": true,
-    "useDefineForClassFields": false,
-    "noImplicitOverride": true,
-    "noFallthroughCasesInSwitch": true
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
-    "enableI18nLegacyMessageIdFormat": false,
-    "strictInjectionParameters": true,
-    "strictInputAccessModifiers": true,
-    "strictTemplates": true
+    "strictInjectionParameters": true
   },
 }
