@@ -305,8 +305,8 @@
                 {{ expense.state | expenseState | titlecase }}
               </span>
             </div>
-            <!-- Should remove this after confirmation -->
-            <div class="expenses-card--critical-policy-violatios" *ngIf="isCriticalPolicyViolated">
+            <!-- TODO: Should remove this after confirmation -->
+            <div class="expenses-card--critical-policy-violations" *ngIf="isCriticalPolicyViolated">
               {{ 'expensesCard.criticalPolicyViolations' | transloco }}
             </div>
           </div>
