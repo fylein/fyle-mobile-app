@@ -4,6 +4,7 @@ import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-vio
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 
 @Component({
   selector: 'app-fy-policy-violation-info',
@@ -15,7 +16,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   @Input() criticalPolicyViolated;
 
-  @Input() expense: Expense | any;
+  @Input() expense: Expense | UnflattenedTransaction;
 
   policyViolations;
 
@@ -34,9 +35,9 @@ export class FyPolicyViolationInfoComponent implements OnInit {
   async openPolicyViolationDetails() {
     // Check if expense is unreportable based on different possible structures
     const isUnreportable = 
-      this.expense?.unreportable || 
-      this.expense?.tx?.state === 'UNREPORTABLE' ||
-      this.expense?.state === 'UNREPORTABLE' ||
+      this.isExpenseWithUnreportable(this.expense) ||
+      this.isUnflattenedTransactionWithUnreportableState(this.expense) ||
+      this.isExpenseWithUnreportableState(this.expense) ||
       this.criticalPolicyViolated;
     
     const componentProperties = isUnreportable
@@ -55,5 +56,17 @@ export class FyPolicyViolationInfoComponent implements OnInit {
     });
 
     await policyDetailsModal.present();
+  }
+
+  private isExpenseWithUnreportable(expense: Expense | UnflattenedTransaction): expense is Expense {
+    return 'unreportable' in expense && expense.unreportable === true;
+  }
+
+  private isUnflattenedTransactionWithUnreportableState(expense: Expense | UnflattenedTransaction): expense is UnflattenedTransaction {
+    return 'tx' in expense && expense.tx && 'state' in expense.tx && expense.tx.state === 'UNREPORTABLE';
+  }
+
+  private isExpenseWithUnreportableState(expense: Expense | UnflattenedTransaction): expense is Expense {
+    return 'state' in expense && expense.state === 'UNREPORTABLE';
   }
 }
