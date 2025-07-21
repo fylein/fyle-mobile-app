@@ -11,13 +11,13 @@
     "test": "ng test --watch=false --browsers=ChromeHeadless",
     "test-basic": "ng test",
     "test:no-parallel": "ng test",
-    "lint": "eslint -c .eslintrc.json",
+    "lint": "eslint -c eslint.config.mjs --fix",
+    "lint:check": "eslint -c eslint.config.mjs",
     "e2e": "ng e2e",
     "postinstall": "npx jetify",
-    "format:check": "prettier --write ./src",
+    "format": "prettier --write ./src",
+    "format:check": "prettier --check ./src",
     "prepare": "husky install",
-    "lint:diff": "eslint -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/$GITHUB_BASE_REF | grep  -E \"(.js$|.ts$|.tsx$)\")",
-    "lint:diff:local": "eslint --fix -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/master | grep  -E '(.js$|.ts$|.tsx$)')",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org fyle-technologies-private-limi --project fyle-mobile-app-prod ./www && sentry-cli sourcemaps upload --org fyle-technologies-private-limi --project fyle-mobile-app-prod ./www"
   },
   "resolutions": {
@@ -99,15 +99,17 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.20",
-    "@angular-eslint/builder": "^17.5.2",
-    "@angular-eslint/eslint-plugin": "^17.5.2",
-    "@angular-eslint/eslint-plugin-template": "^17.5.2",
-    "@angular-eslint/template-parser": "^17.5.2",
+    "@angular-eslint/builder": "^18.4.3",
+    "@angular-eslint/eslint-plugin": "^18.4.3",
+    "@angular-eslint/eslint-plugin-template": "^18.4.3",
+    "@angular-eslint/template-parser": "^18.4.3",
     "@angular/cli": "^18.2.20",
     "@angular/compiler": "^18.2.13",
     "@angular/compiler-cli": "^18.2.13",
     "@angular/language-service": "^18.2.13",
     "@capacitor/cli": "^7.0.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.31.0",
     "@fyle/eslint-plugin": "github:fylein/fyle-eslint-plugin#v1.0.1",
     "@ionic/angular-toolkit": "^10.1.1",
     "@types/deep-freeze-strict": "^1.1.2",
@@ -115,12 +117,14 @@
     "@types/lodash": "^4.14.162",
     "@types/mixpanel-browser": "^2.49.1",
     "@types/node": "^12.11.1",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
+    "@typescript-eslint/utils": "^8.37.0",
     "deep-freeze-strict": "^1.1.1",
     "eslint": "^9.31.0",
     "eslint-plugin-custom-rules": "file:eslint-custom-rules",
-    "eslint-plugin-import": "2.25.2",
+    "eslint-plugin-diff": "^2.0.3",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsdoc": "^46.9.0",
     "eslint-plugin-max-params-no-constructor": "^0.0.4",
     "eslint-plugin-prefer-arrow": "latest",
@@ -166,7 +170,7 @@
   "lint-staged": {
     "*.{ts,scss,html}": "prettier --write",
     "*.{ts,html}": [
-      "eslint --fix"
+      "npm run lint:check"
     ]
   }
 }

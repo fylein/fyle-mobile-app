@@ -33,7 +33,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { SignInPageState } from './sign-in-page-state.enum';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 describe('SignInPage', () => {
   let component: SignInPage;
@@ -75,7 +74,7 @@ describe('SignInPage', () => {
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
     TestBed.configureTestingModule({
-      declarations: [SignInPage, MatButton],
+      declarations: [SignInPage],
       imports: [
         IonicModule.forRoot(),
         FormsModule,

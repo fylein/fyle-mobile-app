@@ -6,25 +6,22 @@
         (click)="closePopover()"
         class="transaction-status-info-popover__toolbar-close-btn"
         data-testid="close-btn"
-        >
+      >
         <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
     <ion-title class="text-center transaction-status-info-popover__toolbar-title" data-testid="title"
       >{{ 'transactionStatusInfoPopover.title' | transloco }} {{ transactionStatus | titlecase }}</ion-title
-      >
-    </ion-toolbar>
-  </ion-header>
+    >
+  </ion-toolbar>
+</ion-header>
 
-  <ion-content class="transaction-status-info-popover__content">
-    <div class="transaction-status-info-popover__body" data-testid="content">
-      @if (transactionStatus === 'PENDING') {
-        {{
-        'transactionStatusInfoPopover.pendingStatusInfo' | transloco
-        }}
-      } @else {
-        {{ 'transactionStatusInfoPopover.postedStatusInfo' | transloco }}
-      }
-
-    </div>
-  </ion-content>
+<ion-content class="transaction-status-info-popover__content">
+  <div class="transaction-status-info-popover__body" data-testid="content">
+    @if (transactionStatus === 'PENDING') {
+    <span>{{ 'transactionStatusInfoPopover.pendingStatusInfo' | transloco }}</span>
+    } @else {
+    <span>{{ 'transactionStatusInfoPopover.postedStatusInfo' | transloco }}</span>
+    }
+  </div>
+</ion-content>
