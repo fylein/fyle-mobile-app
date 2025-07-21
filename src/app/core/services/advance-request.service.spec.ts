@@ -379,7 +379,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('submit(): should submit an advance request using platform API', (done) => {
+  it('submit(): should submit an advance request', (done) => {
     const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     spenderService.post.and.returnValue(of(mockPlatformResponse));
 
@@ -398,7 +398,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('submit(): should submit an advance request using platform API for approver', (done) => {
+  it('submit(): should submit an advance request API for approver', (done) => {
     const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     approverService.post.and.returnValue(of(mockPlatformResponse));
 
@@ -436,7 +436,8 @@ describe('AdvanceRequestService', () => {
   });
 
   it('reject(): should reject an advance request', (done) => {
-    apiService.post.and.returnValue(of(rejectedAdvReqRes));
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
 
     const advReq = 'areqVU0Xr5suPC';
     const payload = {
@@ -447,26 +448,39 @@ describe('AdvanceRequestService', () => {
     };
 
     advanceRequestService.reject(advReq, payload).subscribe((res) => {
-      expect(res).toEqual(rejectedAdvReqRes);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advReq}/reject`, payload);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/reject', {
+        data: {
+          id: advReq,
+          comment: 'a comment',
+        },
+      });
       done();
     });
   });
 
-  it('approve(): should approve an advanced request', (done) => {
-    apiService.post.and.returnValue(of(rejectedAdvReqRes));
+  it('approve(): should approve an advance request', (done) => {
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
 
     const advReq = 'areqVU0Xr5suPC';
 
     advanceRequestService.approve(advReq).subscribe((res) => {
-      expect(res).toEqual(rejectedAdvReqRes);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advReq}/approve`);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/approve/bulk', {
+        data: [
+          {
+            id: advReq,
+          },
+        ],
+      });
       done();
     });
   });
 
   it('sendBack(): should send back an advance request', (done) => {
-    apiService.post.and.returnValue(of(rejectedAdvReqRes));
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
 
     const advReq = 'areqVU0Xr5suPC';
     const payload = {
@@ -477,13 +491,19 @@ describe('AdvanceRequestService', () => {
     };
 
     advanceRequestService.sendBack(advReq, payload).subscribe((res) => {
-      expect(res).toEqual(rejectedAdvReqRes);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advReq}/inquire`, payload);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/inquire', {
+        data: {
+          id: advReq,
+          comment: 'a comment',
+          notify: false,
+        },
+      });
       done();
     });
   });
 
-  it('pullBackAdvanceRequest(): should pull back an advance request using platform API', (done) => {
+  it('pullBackAdvanceRequest(): should pull back an advance request', (done) => {
     const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     spenderService.post.and.returnValue(of(mockPlatformResponse));
 
@@ -509,7 +529,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('addApprover(): should add approver to an advance request using platform API', (done) => {
+  it('addApprover(): should add approver to an advance request', (done) => {
     const mockPlatformResponse = { data: pullBackAdvancedRequests };
     approverService.post.and.returnValue(of(mockPlatformResponse));
     const advanceID = 'areqMP09oaYXBf';
@@ -582,7 +602,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getActiveApproversByAdvanceRequestIdPlatformForApprover(): should get active approvers for team advance request using platform API', (done) => {
+  it('getActiveApproversByAdvanceRequestIdPlatformForApprover(): should get active approvers for team advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
     //@ts-ignore
     approverService.get.and.returnValue(of(advanceRequestPlatform));
@@ -605,7 +625,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getCommentsByAdvanceRequestIdPlatformForApprover(): should get comments for team advance request using platform API', (done) => {
+  it('getCommentsByAdvanceRequestIdPlatformForApprover(): should get comments for team advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
     //@ts-ignore
     approverService.get.and.returnValue(of(advanceRequestPlatform));
@@ -648,7 +668,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getCommentsByAdvanceRequestIdPlatform(): should get comments for spender advance request using platform API', (done) => {
+  it('getCommentsByAdvanceRequestIdPlatform(): should get comments for spender advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
     //@ts-ignore
     spenderService.get.and.returnValue(of(advanceRequestPlatform));
