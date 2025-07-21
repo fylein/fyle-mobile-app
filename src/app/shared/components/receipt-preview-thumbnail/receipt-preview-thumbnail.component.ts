@@ -2,7 +2,6 @@ import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck } fr
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { Swiper } from 'swiper';
 import { SwiperComponent } from 'swiper/angular';
 @Component({
   selector: 'app-receipt-preview-thumbnail',
@@ -24,7 +23,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   @Input() isMileageExpense: boolean;
 
-  @Output() addMoreAttachments: EventEmitter<void> = new EventEmitter();
+  @Output() addMoreAttachments: EventEmitter<Event> = new EventEmitter<Event>();
 
   @Output() viewAttachments: EventEmitter<void> = new EventEmitter();
 
@@ -54,7 +53,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
     this.imageSlides.swiperRef.slidePrev(100);
   }
 
-  addAttachments(event) {
+  addAttachments(event: Event): void {
     this.addMoreAttachments.emit(event);
     this.trackingService.addMoreFilesClicked({ mode: this.mode });
   }
