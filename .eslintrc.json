@@ -13,6 +13,7 @@
       "files": ["*.ts"],
       "excludedFiles": ["*.spec.ts", "*.e2e-spec.ts", "*.po.ts"],
       "extends": [
+        "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended"
       ],
       "rules": {
@@ -20,6 +21,13 @@
           "error",
           {
             "suffixes": ["Page", "Component"]
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "off",
+          {
+            "selector": "variable",
+            "format": ["camelCase"]
           }
         ],
         "@angular-eslint/component-selector": [
@@ -37,11 +45,29 @@
             "prefix": "app"
           }
         ],
+        "indent": "off",
         "semi": "error",
+        "no-underscore-dangle": "off",
+        "@angular-eslint/template/no-negated-async": "off",
+        "@typescript-eslint/prefer-for-of": "off",
+        "prefer-arrow/prefer-arrow-functions": "off",
+        "@typescript-eslint/ban-types": "off",
+        "@typescript-eslint/consistent-type-assertions": "off",
+        "@angular-eslint/no-conflicting-lifecycle": "off",
         "lines-between-class-members": ["error", "always"],
+        "@typescript-eslint/no-shadow": "off",
         "complexity": [2, 10],
         "max-depth": ["error", 4],
         "max-params-no-constructor/max-params-no-constructor": ["error", 4],
+        "max-len": "off",
+        "space-before-function-paren": "off",
+        "@typescript-eslint/quotes": "off",
+        "@typescript-eslint/no-unused-vars": ["error"],
+        "@typescript-eslint/no-explicit-any": ["error"],
+        "@typescript-eslint/no-empty-function": ["error"],
+        "@typescript-eslint/no-empty-interface": ["error"],
+        "@typescript-eslint/no-inferrable-types": ["error"],
+        "no-unused-expressions": ["error"],
         "no-console": ["error", { "allow": [""] }],
         "custom-rules/one-interface-per-file": "error",
         "custom-rules/one-enum-per-file": "error",
@@ -54,6 +80,7 @@
       "files": ["*.html"],
       "extends": ["plugin:@angular-eslint/template/recommended"],
       "rules": {
+        "@angular-eslint/template/no-negated-async": "off",
         "@fyle/i18n-key-naming-convention": "error",
         "@fyle/no-hardcoded-strings": "warn"
       }
@@ -67,17 +94,37 @@
     {
       "files": ["*.spec.ts"],
       "extends": [
+        "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended"
       ],
       "rules": {
         "@angular-eslint/component-class-suffix": "off",
+        "@typescript-eslint/naming-convention": "off",
         "@angular-eslint/component-selector": "off",
         "@angular-eslint/directive-selector": "off",
+        "indent": "off",
         "semi": "off",
+        "no-underscore-dangle": "off",
+        "@angular-eslint/template/no-negated-async": "off",
+        "@typescript-eslint/prefer-for-of": "off",
+        "prefer-arrow/prefer-arrow-functions": "off",
+        "@typescript-eslint/ban-types": "off",
+        "@typescript-eslint/consistent-type-assertions": "off",
+        "@angular-eslint/no-conflicting-lifecycle": "off",
         "lines-between-class-members": "off",
+        "@typescript-eslint/no-shadow": "off",
         "complexity": "off",
         "max-depth": "off",
         "max-params-no-constructor/max-params-no-constructor": "off",
+        "max-len": "off",
+        "space-before-function-paren": "off",
+        "@typescript-eslint/quotes": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "no-unused-expressions": "off",
         "no-console": "off",
         "custom-rules/one-interface-per-file": "off",
         "custom-rules/one-enum-per-file": "off",
