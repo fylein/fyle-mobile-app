@@ -214,7 +214,7 @@
                         <div>
                           <div class="view-reports--divider"></div>
                           <div class="view-reports-expense-card-block">
-                            @let expenses = expenses$|async
+                            @let expenses = expenses$|async;
                             @for (expense of expenses; track expense.id; let id = $index) {
                               <app-expense-card-v2
                                 [expense]="expense"

@@ -68,7 +68,7 @@
 
     @if (!isLoading) {
       @if ((simplifyReportsSettings$ | async); as simplifyReportsSettings) {
-        @let teamReports = teamReports$ | async
+        @let teamReports = teamReports$ | async;
         @for (report of teamReports; track report.id; let i = $index) {
           <app-reports-card
             [report]="report"

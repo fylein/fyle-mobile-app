@@ -212,7 +212,7 @@
     }
 
     @if (isConnected$|async) {
-      @let myExpenses = myExpenses$ | async
+      @let myExpenses = myExpenses$ | async;
       @for (expense of myExpenses; track expense.id; let i = $index) {
         <app-expense-card-v2
           [expense]="expense"

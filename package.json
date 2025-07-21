@@ -118,7 +118,6 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "deep-freeze-strict": "^1.1.1",
-    "eslint": "^9.31.0",
     "eslint-plugin-custom-rules": "file:eslint-custom-rules",
     "eslint-plugin-import": "2.25.2",
     "eslint-plugin-jsdoc": "^46.9.0",

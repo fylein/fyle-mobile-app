@@ -70,7 +70,7 @@
     }
 
     @if (!isLoading) {
-      @let advances = advances$ | async
+      @let advances = advances$ | async;
       @for (advance of advances; track advance.id; let i = $index) {
         <app-my-advances-card
           [advanceRequest]="advance"

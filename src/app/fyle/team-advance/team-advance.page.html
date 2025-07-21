@@ -37,7 +37,7 @@
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
       @if (!isLoading) {
-        @let teamAdvancerequests = teamAdvancerequests$ | async
+        @let teamAdvancerequests = teamAdvancerequests$ | async;
         @for (teamAdvancerequest of teamAdvancerequests; track teamAdvancerequest.areq_id; let i = $index) {
           <app-team-adv-card
             [advanceRequest]="teamAdvancerequest"
