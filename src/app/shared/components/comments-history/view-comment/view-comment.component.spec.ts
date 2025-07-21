@@ -16,7 +16,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { BehaviorSubject, of } from 'rxjs';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -29,6 +29,7 @@ import { cloneDeep } from 'lodash';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { TIMEZONE } from 'src/app/constants';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
@@ -78,16 +79,13 @@ describe('ViewCommentComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
-      imports: [
-        IonicModule.forRoot(),
+    declarations: [ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
+    imports: [IonicModule.forRoot(),
         MatIconModule,
         MatIconTestingModule,
         FormsModule,
-        TranslocoModule,
-        HttpClientTestingModule,
-      ],
-      providers: [
+        TranslocoModule],
+    providers: [
         { provide: StatusService, useValue: statusService },
         { provide: AuthService, useValue: authService },
         { provide: ModalController, useValue: modalController },
@@ -102,8 +100,10 @@ describe('ViewCommentComponent', () => {
         { provide: ApproverExpenseCommentService, useValue: approverExpenseCommentService },
         { provide: TranslocoService, useValue: translocoServiceSpy },
         { provide: AdvanceRequestService, useValue: advanceRequestService },
-      ],
-    }).compileComponents();
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+}).compileComponents();
 
     authService.getEou.and.resolveTo(apiEouRes);
     const mockCommentResponse = cloneDeep(apiCommentsResponse);

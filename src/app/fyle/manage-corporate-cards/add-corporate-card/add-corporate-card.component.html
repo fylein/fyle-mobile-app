@@ -22,7 +22,7 @@
       <div
         class="add-corporate-card__input-inner-container"
         [ngClass]="{ 'add-corporate-card__input-inner-container--error': cardForm.touched && cardForm.invalid }"
-        >
+      >
         <input
           class="smartlook-show add-corporate-card__card-number-input pl-0"
           inputmode="numeric"
@@ -32,142 +32,118 @@
           appAutofocus
           [timeout]="500"
           required
-          />
+        />
 
         @if (!cardType || cardType === cardNetworkTypes.OTHERS) {
-          <ion-icon
-            src="../../../../assets/svg/card.svg"
-            class="add-corporate-card__input-default-icon"
-            data-testid="default-icon"
-          ></ion-icon>
-        }
-
-        @if (cardType === cardNetworkTypes.VISA) {
-          <img
-            src="../../../../assets/images/visa-logo.png"
-            class="add-corporate-card__input-visa-icon"
-            data-testid="visa-icon"
-            />
-        }
-
-        @if (cardType === cardNetworkTypes.MASTERCARD) {
-          <img
-            src="../../../../assets/images/mastercard-logo.png"
-            class="add-corporate-card__input-mastercard-icon"
-            data-testid="mastercard-icon"
-            />
+        <ion-icon
+          src="../../../../assets/svg/card.svg"
+          class="add-corporate-card__input-default-icon"
+          data-testid="default-icon"
+        ></ion-icon>
+        } @if (cardType === cardNetworkTypes.VISA) {
+        <img
+          src="../../../../assets/images/visa-logo.png"
+          class="add-corporate-card__input-visa-icon"
+          data-testid="visa-icon"
+        />
+        } @if (cardType === cardNetworkTypes.MASTERCARD) {
+        <img
+          src="../../../../assets/images/mastercard-logo.png"
+          class="add-corporate-card__input-mastercard-icon"
+          data-testid="mastercard-icon"
+        />
         }
       </div>
 
       <div class="add-corporate-card__input-error-space"></div>
 
       @if (cardForm.touched && cardForm.invalid) {
-        <div
-          class="add-corporate-card__input-errors"
-          data-testid="error-message"
-          >
-          @if (cardForm.errors.invalidCardNumber) {
-            <span>{{
-              'addCorporateCard.errorInvalidCardNumber' | transloco
-            }}</span>
-          }
-          @if (cardForm.errors.invalidCardNetwork) {
-            @if (isVisaRTFEnabled && isMastercardRTFEnabled) {
-              <span>{{
-                'addCorporateCard.errorInvalidCardNetworkBoth' | transloco
-              }}</span>
-            } @else {
-              <!-- Check if only visa is enabled -->
-              @if (cardForm.errors.invalidCardNetwork && isVisaRTFEnabled) {
-                <span>{{
-                  'addCorporateCard.errorInvalidCardNetworkVisa' | transloco
-                }}</span>
-              } @else {
-                <!-- Check if only mastercard is enabled -->
-                @if (cardForm.errors.invalidCardNetwork && isMastercardRTFEnabled) {
-                  <span>{{
-                    'addCorporateCard.errorInvalidCardNetworkMastercard' | transloco
-                  }}</span>
-                }
-              }
-            }
-          }
-          @if (cardForm.errors.enrollmentError) {
-            <span>
-              {{ enrollmentFailureMessage }}
-            </span>
-          }
-        </div>
+      <div class="add-corporate-card__input-errors" data-testid="error-message">
+        @if (cardForm.errors.invalidCardNumber) {
+        <span>{{ 'addCorporateCard.errorInvalidCardNumber' | transloco }}</span>
+        } @if (cardForm.errors.invalidCardNetwork) { @if (isVisaRTFEnabled && isMastercardRTFEnabled) {
+        <span>{{ 'addCorporateCard.errorInvalidCardNetworkBoth' | transloco }}</span>
+        } @else {
+        <!-- Check if only visa is enabled -->
+        @if (cardForm.errors.invalidCardNetwork && isVisaRTFEnabled) {
+        <span>{{ 'addCorporateCard.errorInvalidCardNetworkVisa' | transloco }}</span>
+        } @else {
+        <!-- Check if only mastercard is enabled -->
+        @if (cardForm.errors.invalidCardNetwork && isMastercardRTFEnabled) {
+        <span>{{ 'addCorporateCard.errorInvalidCardNetworkMastercard' | transloco }}</span>
+        } } } } @if (cardForm.errors.enrollmentError) {
+        <span>
+          {{ enrollmentFailureMessage }}
+        </span>
+        }
+      </div>
       }
     </div>
 
     @if (isAddingNonRTFCard && isYodleeEnabled) {
-      <app-fy-alert-info
-        type="information"
-        [message]="'addCorporateCard.infoNonRtfYodlee' | transloco"
-      ></app-fy-alert-info>
+    <app-fy-alert-info
+      type="information"
+      [message]="'addCorporateCard.infoNonRtfYodlee' | transloco"
+    ></app-fy-alert-info>
     } @else {
-      <ion-accordion-group>
-        <ion-accordion>
-          <div class="add-corporate-card__view-tnc-btn" slot="header">
-            <span>{{ 'addCorporateCard.viewTnc' | transloco }}</span>
-            <ion-icon
-              src="../../../../assets/svg/arrow-up.svg"
-              class="add-corporate-card__view-tnc-btn-icon ion-accordion-toggle-icon"
-            ></ion-icon>
+    <ion-accordion-group>
+      <ion-accordion>
+        <div class="add-corporate-card__view-tnc-btn" slot="header">
+          <span>{{ 'addCorporateCard.viewTnc' | transloco }}</span>
+          <ion-icon
+            src="../../../../assets/svg/arrow-up.svg"
+            class="add-corporate-card__view-tnc-btn-icon ion-accordion-toggle-icon"
+          ></ion-icon>
+        </div>
+        <div slot="content" class="add-corporate-card__tnc">
+          <div class="add-corporate-card__tnc-heading">
+            {{ 'addCorporateCard.tncHeading' | transloco }}
           </div>
-          <div slot="content" class="add-corporate-card__tnc">
-            <div class="add-corporate-card__tnc-heading">
-              {{ 'addCorporateCard.tncHeading' | transloco }}
-            </div>
-            <ul class="add-corporate-card__tnc-list">
-              <li>
-                {{ 'addCorporateCard.tncListItem1Part1' | transloco }}
-                <span data-testid="tnc-card-networks">
-                  @if (cardNetworks.length === 1) {
-                    {{ cardNetworks[0] }}
-                  }
-                  @if (cardNetworks.length > 1) {
-                    {{ 'addCorporateCard.tncListItem1Part2' | transloco }} ({{
-                    cardNetworks | arrayToCommaList
-                    }})
-                  }
-                </span>
-                {{ 'addCorporateCard.tncListItem1Part3' | transloco }}
-              </li>
-              <li>
-                {{ 'addCorporateCard.tncListItem2' | transloco }}
-              </li>
-              <li>
-                {{ 'addCorporateCard.tncListItem3Part1' | transloco }}
-                <a
-                  href="https://www.fylehq.com/privacy/terms-and-conditions"
-                  target="_blank"
-                  class="add-corporate-card__tnc-link"
-                  >
-                  {{ 'addCorporateCard.tncLink1' | transloco }}
-                  <ion-icon
-                    src="../../../../assets/svg/open-in-new-tab.svg"
-                    class="add-corporate-card__tnc-link-icon"
-                  ></ion-icon>
-                </a>
-                {{ 'addCorporateCard.tncListItem3Part2' | transloco }}
-                <a
-                  href="https://www.fylehq.com/privacy/privacy-policy"
-                  target="_blank"
-                  class="add-corporate-card__tnc-link"
-                  >
-                  {{ 'addCorporateCard.tncLink2' | transloco }}
-                  <ion-icon
-                    src="../../../../assets/svg/open-in-new-tab.svg"
-                    class="add-corporate-card__tnc-link-icon"
-                  ></ion-icon>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </ion-accordion>
-      </ion-accordion-group>
+          <ul class="add-corporate-card__tnc-list">
+            <li>
+              {{ 'addCorporateCard.tncListItem1Part1' | transloco }}
+              @if (cardNetworks.length === 1) {
+              <span data-testid="tnc-card-networks">{{ cardNetworks[0] }}</span>
+              } @if (cardNetworks.length > 1) {
+              <span data-testid="tnc-card-networks"
+                >{{ 'addCorporateCard.tncListItem1Part2' | transloco }} ({{ cardNetworks | arrayToCommaList }})</span
+              >
+              }
+              {{ 'addCorporateCard.tncListItem1Part3' | transloco }}
+            </li>
+            <li>
+              {{ 'addCorporateCard.tncListItem2' | transloco }}
+            </li>
+            <li>
+              {{ 'addCorporateCard.tncListItem3Part1' | transloco }}
+              <a
+                href="https://www.fylehq.com/privacy/terms-and-conditions"
+                target="_blank"
+                class="add-corporate-card__tnc-link"
+              >
+                {{ 'addCorporateCard.tncLink1' | transloco }}
+                <ion-icon
+                  src="../../../../assets/svg/open-in-new-tab.svg"
+                  class="add-corporate-card__tnc-link-icon"
+                ></ion-icon>
+              </a>
+              {{ 'addCorporateCard.tncListItem3Part2' | transloco }}
+              <a
+                href="https://www.fylehq.com/privacy/privacy-policy"
+                target="_blank"
+                class="add-corporate-card__tnc-link"
+              >
+                {{ 'addCorporateCard.tncLink2' | transloco }}
+                <ion-icon
+                  src="../../../../assets/svg/open-in-new-tab.svg"
+                  class="add-corporate-card__tnc-link-icon"
+                ></ion-icon>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
     }
 
     <ng-template #tnc>
@@ -189,13 +165,9 @@
                 {{ 'addCorporateCard.tncListItem1Part1' | transloco }}
                 <span data-testid="tnc-card-networks">
                   @if (cardNetworks.length === 1) {
-                    {{ cardNetworks[0] }}
-                  }
-                  @if (cardNetworks.length > 1) {
-                    {{ 'addCorporateCard.tncListItem1Part2' | transloco }} ({{
-                    cardNetworks | arrayToCommaList
-                    }})
-                  }
+                  {{ cardNetworks[0] }}
+                  } @if (cardNetworks.length > 1) {
+                  {{ 'addCorporateCard.tncListItem1Part2' | transloco }} ({{ cardNetworks | arrayToCommaList }}) }
                 </span>
                 {{ 'addCorporateCard.tncListItem1Part3' | transloco }}
               </li>
@@ -208,7 +180,7 @@
                   href="https://www.fylehq.com/privacy/terms-and-conditions"
                   target="_blank"
                   class="add-corporate-card__tnc-link"
-                  >
+                >
                   {{ 'addCorporateCard.tncLink1' | transloco }}
                   <ion-icon
                     src="../../../../assets/svg/open-in-new-tab.svg"
@@ -220,7 +192,7 @@
                   href="https://www.fylehq.com/privacy/privacy-policy"
                   target="_blank"
                   class="add-corporate-card__tnc-link"
-                  >
+                >
                   {{ 'addCorporateCard.tncLink2' | transloco }}
                   <ion-icon
                     src="../../../../assets/svg/open-in-new-tab.svg"
@@ -248,7 +220,7 @@
         class="fy-footer-cta fy-footer-cta--primary"
         data-testid="add-btn"
         >{{ 'addCorporateCard.addButton' | transloco }}</ion-button
-        >
-      </div>
-    </ion-toolbar>
-  </ion-footer>
+      >
+    </div>
+  </ion-toolbar>
+</ion-footer>

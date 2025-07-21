@@ -8,7 +8,7 @@ import {
   propertyRes,
   postRecentItemsRes,
 } from '../mock-data/recent-local-storage-items.data';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash';
 
 describe('RecentLocalStorageItemsService', () => {

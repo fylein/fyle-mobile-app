@@ -51,19 +51,19 @@
         </div>
       }
 
-      <div *ngFor="let expense of unreportedExpenses as list; let i = index">
+      @for (expense of unreportedExpenses; track expense.id; let i = $index) {
         <app-expense-card-v2
           [expense]="expense"
           [expenseIndex]="i"
-          [previousExpenseTxnDate]="list[i - 1]?.spent_at"
-          [previousExpenseCreatedAt]="list[i - 1]?.created_at"
+          [previousExpenseTxnDate]="unreportedExpenses[i - 1]?.spent_at"
+          [previousExpenseCreatedAt]="unreportedExpenses[i - 1]?.created_at"
           [isSelectionModeEnabled]="true"
           [selectedElements]="selectedElements"
           (cardClickedForSelection)="toggleExpense(expense)"
           [isFromViewReports]="true"
           >
         </app-expense-card-v2>
-      </div>
+      }
     </div>
     @if (unreportedExpenses?.length === 0) {
       <div class="add-expenses-to-report--zero-state">

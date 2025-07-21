@@ -13,7 +13,7 @@
         class="delegated--search-input smartlook-show"
         matInput
         placeholder="Search account"
-        />
+      />
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
@@ -22,25 +22,21 @@
   <div>
     <div class="delegated--header-bar">Select the account you wish to manage</div>
     <div id="delagated-acc-list">
-      @for (acc of delegatedAccList; track acc) {
-        <div
-          matRipple
-          (click)="switchToDelegatee(acc)"
-          class="delegated--org-element"
-          >
-          <ion-grid>
-            <ion-row>
-              <ion-col size="2">
-                <div class="delegated--org-thumb smartlook-hide">{{ acc?.full_name | initials | uppercase }}</div>
-              </ion-col>
-              <ion-col size="10" class="smartlook-hide">
-                <div class="delegated--org-element-name">{{acc?.full_name}}</div>
-                <div class="delegated--org-element-us-details">{{acc?.email}}</div>
-                <div class="delegated--org-element-us-details">{{currentOrg.name}}</div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </div>
+      @for (acc of delegatedAccList; track acc.user_id) {
+      <div matRipple (click)="switchToDelegatee(acc)" class="delegated--org-element">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="2">
+              <div class="delegated--org-thumb smartlook-hide">{{ acc?.full_name | initials | uppercase }}</div>
+            </ion-col>
+            <ion-col size="10" class="smartlook-hide">
+              <div class="delegated--org-element-name">{{acc?.full_name}}</div>
+              <div class="delegated--org-element-us-details">{{acc?.email}}</div>
+              <div class="delegated--org-element-us-details">{{currentOrg.name}}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
       }
     </div>
   </div>
