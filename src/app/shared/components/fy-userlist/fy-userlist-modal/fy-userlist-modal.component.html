@@ -22,7 +22,7 @@
         #chipList
         [attr.aria-label]="'fyUserlistModal.multiSelectAriaLabel' | transloco"
       >
-        @for (item of currentSelections; track item) {
+        @for (item of currentSelections; track newlyAddedItem) {
         <mat-chip-row (removed)="removeChip(item)">
           {{ item }}
           <mat-icon matChipRemove>cancel</mat-icon>
@@ -62,7 +62,7 @@
   </div>
   }
   <div>
-    @for (newlyAddedItem of newlyAddedItems$ | async; track $index) {
+    @for (newlyAddedItem of newlyAddedItems$ | async; track newlyAddedItem) {
     <div class="selection-modal--list-container">
       <div class="selection-modal--list-element">
         <label class="selection-modal--list-element-label">
@@ -89,7 +89,7 @@
         </label>
       </div>
     </div>
-    } @for (filteredListItem of filteredOptions$ | async; track filteredListItem.id) {
+    } @for (filteredListItem of filteredOptions$ | async; track filteredListItem) {
     <div class="selection-modal--list-container">
       <div class="selection-modal--list-element">
         <label class="selection-modal--list-element-label">
