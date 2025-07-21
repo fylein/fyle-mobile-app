@@ -94,6 +94,16 @@ describe('ExpenseFieldsService', () => {
       });
   });
 
+  it('getMandatoryExpenseFields(): should get all mandatory expense fields', (done) => {
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformExpenseFieldResponse));
+
+    expenseFieldsService.getMandatoryExpenseFields().subscribe((expenseFields) => {
+      expect(expenseFields).toEqual(transformedResponse);
+      done();
+    });
+  });
+
   it('should return correct mapping for column name', () => {
     expect(expenseFieldsService.getColumnName('spent_at')).toBe('txn_dt');
     expect(expenseFieldsService.getColumnName('locations[0]')).toBe('location1');

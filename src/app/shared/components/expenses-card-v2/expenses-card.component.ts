@@ -28,6 +28,8 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { TranslocoService } from '@jsverse/transloco';
+import { ExpenseMissingMandatoryFields } from 'src/app/core/models/platform/v1/expense-missing-mandatory-fields.model';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 
 @Component({
   selector: 'app-expense-card-v2',
@@ -35,6 +37,9 @@ import { TranslocoService } from '@jsverse/transloco';
   styleUrls: ['./expenses-card.component.scss'],
 })
 export class ExpensesCardComponent implements OnInit {
+  // Cache key for localStorage
+  private static readonly CACHE_KEY = 'mandatory_expense_fields_cache';
+
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
   @Input() expense: Expense;
@@ -77,6 +82,22 @@ export class ExpensesCardComponent implements OnInit {
   @Output() dismissed: EventEmitter<Expense> = new EventEmitter<Expense>();
 
   @Output() showCamera = new EventEmitter<boolean>();
+
+  missingMandatoryFields: ExpenseMissingMandatoryFields;
+
+  allMandatoryExpenseFields: ExpenseField[];
+
+  // map of mandatory expense fields id to their names
+  mandatoryFieldsMap: Record<number, string>;
+
+  // array of missing mandatory field names
+  missingMandatoryFieldNames: string[] = [];
+
+  // processed display text for missing fields
+  missingFieldsDisplayText = '';
+
+  // count of remaining fields not displayed
+  remainingFieldsCount = 0;
 
   inlineReceiptDataUrl: string;
 
@@ -270,6 +291,11 @@ export class ExpensesCardComponent implements OnInit {
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
     });
+
+    this.missingMandatoryFields = this.expense.missing_mandatory_fields;
+
+    // get the mandatory expense fields using cached approach
+    this.ensureMandatoryFieldsMap();
 
     this.currencyService
       .getHomeCurrency()
@@ -476,5 +502,159 @@ export class ExpensesCardComponent implements OnInit {
     });
 
     await sizeLimitExceededPopover.present();
+  }
+
+  /**
+   * Gets cached mandatory fields map from localStorage
+   */
+  private getCachedMandatoryFieldsMap(): Record<number, string> {
+    try {
+      const cachedData = localStorage.getItem(ExpensesCardComponent.CACHE_KEY);
+      return cachedData ? (JSON.parse(cachedData) as Record<number, string>) : {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  /**
+   * Sets mandatory fields map to localStorage
+   */
+  private setCachedMandatoryFieldsMap(fieldsMap: Record<number, string>): void {
+    try {
+      localStorage.setItem(ExpensesCardComponent.CACHE_KEY, JSON.stringify(fieldsMap));
+    } catch (error) {
+      // Ignore localStorage errors (e.g., quota exceeded)
+    }
+  }
+
+  /**
+   * Gets array of missing mandatory field names from the missingMandatoryFields object
+   */
+  private getMissingMandatoryFieldNames(): string[] {
+    const missingFieldNames: string[] = [];
+
+    if (!this.missingMandatoryFields) {
+      return missingFieldNames;
+    }
+
+    // Check receipt field
+    if (this.missingMandatoryFields.receipt) {
+      missingFieldNames.push('receipt');
+    }
+
+    // Check currency field
+    if (this.missingMandatoryFields.currency) {
+      missingFieldNames.push('currency');
+    }
+
+    // Check amount field
+    if (this.missingMandatoryFields.amount) {
+      missingFieldNames.push('amount');
+    }
+
+    // Check expense field IDs and get their names from the map
+    if (this.missingMandatoryFields.expense_field_ids?.length > 0) {
+      this.missingMandatoryFields.expense_field_ids.forEach((fieldId) => {
+        const fieldName = this.mandatoryFieldsMap?.[fieldId];
+        if (fieldName) {
+          missingFieldNames.push(fieldName);
+        }
+      });
+    }
+
+    return missingFieldNames;
+  }
+
+  /**
+   * Processes missing field names with character limits and ellipsis support.
+   * Converts field names to lowercase, truncates long names, and tracks overflow count.
+   * @param maxCharacters - Maximum character count for display (default: 20)
+   * @param maxWordLength - Maximum length for individual words before ellipsis (default: 12)
+   */
+  private processMissingFieldsForDisplay(maxCharacters: number = 20, maxWordLength: number = 12): void {
+    if (!this.missingMandatoryFieldNames.length) {
+      this.missingFieldsDisplayText = '';
+      this.remainingFieldsCount = 0;
+      return;
+    }
+
+    const processedFields: string[] = [];
+    let currentLength = 0;
+    let remainingCount = 0;
+
+    for (let i = 0; i < this.missingMandatoryFieldNames.length; i++) {
+      let fieldName = this.missingMandatoryFieldNames[i];
+
+      if (fieldName && fieldName.length > 0) {
+        fieldName = fieldName.charAt(0).toLowerCase() + fieldName.slice(1);
+      }
+
+      if (fieldName.length > maxWordLength) {
+        fieldName = fieldName.substring(0, maxWordLength - 3) + '...';
+      }
+
+      const separator = processedFields.length > 0 ? ', ' : '';
+      const potentialLength = currentLength + separator.length + fieldName.length;
+
+      if (potentialLength > maxCharacters && processedFields.length > 0) {
+        remainingCount = this.missingMandatoryFieldNames.length - i;
+        break;
+      }
+
+      processedFields.push(fieldName);
+      currentLength = potentialLength;
+    }
+
+    this.missingFieldsDisplayText = processedFields.join(', ');
+    this.remainingFieldsCount = remainingCount;
+  }
+
+  /**
+   * Creates and caches a map of mandatory expense fields (ID -> name).
+   * Uses cached data when available, otherwise makes API call to fetch fields.
+   * Populates missing field names and processes them for display after map is ready.
+   */
+  private ensureMandatoryFieldsMap(): void {
+    const requiredFieldIds = this.missingMandatoryFields?.expense_field_ids || [];
+    const cachedMap = this.getCachedMandatoryFieldsMap();
+    const allIdsPresent = requiredFieldIds.every((id) => cachedMap.hasOwnProperty(id));
+
+    // If all required field IDs are present in the cached map, use the cached map
+    if (allIdsPresent && requiredFieldIds.length > 0) {
+      this.mandatoryFieldsMap = cachedMap;
+      this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
+      this.processMissingFieldsForDisplay();
+      return;
+    }
+
+    this.expenseFieldsService.getMandatoryExpenseFields().subscribe({
+      next: (mandatoryExpenseFields) => {
+        if (mandatoryExpenseFields && Array.isArray(mandatoryExpenseFields)) {
+          this.allMandatoryExpenseFields = mandatoryExpenseFields;
+
+          const newFieldsMap: Record<number, string> = {};
+          mandatoryExpenseFields.forEach((field) => {
+            if (field && field.id && field.field_name) {
+              newFieldsMap[field.id] = field.field_name;
+            }
+          });
+
+          this.mandatoryFieldsMap = newFieldsMap;
+          this.setCachedMandatoryFieldsMap(newFieldsMap);
+          this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
+          this.processMissingFieldsForDisplay();
+        } else {
+          this.mandatoryFieldsMap = cachedMap;
+          this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
+          this.processMissingFieldsForDisplay();
+        }
+      },
+      // Fallback to existing cache if API call fails
+      error: () => {
+        this.mandatoryFieldsMap = cachedMap;
+        this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
+        this.processMissingFieldsForDisplay();
+      },
+    });
   }
 }

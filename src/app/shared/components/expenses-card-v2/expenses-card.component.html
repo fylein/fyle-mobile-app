@@ -262,7 +262,15 @@
             *ngIf="isDraft"
             class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
           >
-            <div>{{ 'expensesCard.expenseInfoMissing' | transloco }}</div>
+            <div class="expenses-card--missing-info-text">
+              <span class="expenses-card--missing-info-text__item" *ngIf="missingFieldsDisplayText">
+                <mat-icon class="icon--alert-warning" svgIcon="warning-outline"></mat-icon>
+                {{ 'expensesCard.add' | transloco }} {{ missingFieldsDisplayText }}
+                <span *ngIf="remainingFieldsCount > 0"
+                  >, +{{ remainingFieldsCount }} {{ 'expensesCard.more' | transloco }}</span
+                >
+              </span>
+            </div>
 
             <!-- Amount & Exchange rate -->
             <div class="expenses-card--currency-amount-exchange-rate-container">

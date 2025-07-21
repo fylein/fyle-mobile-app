@@ -27,6 +27,16 @@
     text-overflow: ellipsis;
   }
 
+  &--missing-info-text {
+    color: $dark-grey;
+    font-size: 12px;
+    font-weight: 400;
+
+    &__item {
+      gap: 4px;
+    }
+  }
+
   &--vertical-dotted-border {
     border-left: 2px dashed $border-tertiary;
     height: 90%;
@@ -355,4 +365,11 @@
     margin: 0 0 0 8px;
     padding: 2px;
   }
+}
+
+.icon--alert-warning {
+  height: 16px;
+  width: 16px;
+  position: relative;
+  top: 16%;
 }

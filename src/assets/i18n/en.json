@@ -624,7 +624,9 @@
     "unspecifiedProject": "Unspecified",
     "expenseInfo": "Expense information",
     "missing": "missing",
-    "at": "at"
+    "at": "at",
+    "add": "Add",
+    "more": "more"
   },
   "transactionStatusInfoPopover": {
     "title": "Transaction status:",
