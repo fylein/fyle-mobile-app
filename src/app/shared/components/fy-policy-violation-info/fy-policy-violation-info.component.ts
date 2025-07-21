@@ -6,13 +6,20 @@ import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violat
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 
+interface PolicyDetail {
+  run_status: string;
+  expense_policy_rule: {
+    description: string;
+  };
+}
+
 @Component({
   selector: 'app-fy-policy-violation-info',
   templateUrl: './fy-policy-violation-info.component.html',
   styleUrls: ['./fy-policy-violation-info.component.scss'],
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
-  @Input() policyDetails;
+  @Input() policyDetails: PolicyDetail[] | undefined;
 
   @Input() criticalPolicyViolated: boolean | undefined;
 
