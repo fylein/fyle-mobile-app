@@ -17,6 +17,7 @@
     ],
     "skipLibCheck": true,
     "useDefineForClassFields": false,
+    "strict": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true
   },
