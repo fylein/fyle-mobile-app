@@ -1,21 +1,26 @@
 <div class="spent-cards">
-  <swiper
-    #swiper
-    class="spent-cards__swiper"
-    *ngIf="cardDetails"
-    [slidesPerView]="1.1"
-    [spaceBetween]="16"
-    [pagination]="pagination"
-    [centeredSlides]="cardDetails.length === 1 && !showAddCardSlide"
-  >
-    <ng-template *ngFor="let cardDetail of cardDetails" swiperSlide>
-      <app-card-detail [cardDetail]="cardDetail" [homeCurrency]="homeCurrency" [currencySymbol]="currencySymbol">
-      </app-card-detail>
-    </ng-template>
-    <ng-template *ngIf="showAddCardSlide" swiperSlide>
-      <div class="spent-cards__add-card" data-testid="add-card">
-        <app-add-card [showZeroStateMessage]="false" (addCardClick)="addCardClick.emit()"></app-add-card>
-      </div>
-    </ng-template>
-  </swiper>
+  @if (cardDetails) {
+    <swiper
+      #swiper
+      class="spent-cards__swiper"
+      [slidesPerView]="1.1"
+      [spaceBetween]="16"
+      [pagination]="pagination"
+      [centeredSlides]="cardDetails.length === 1 && !showAddCardSlide"
+      >
+      @for (cardDetail of cardDetails; track cardDetail) {
+        <ng-template swiperSlide>
+          <app-card-detail [cardDetail]="cardDetail" [homeCurrency]="homeCurrency" [currencySymbol]="currencySymbol">
+          </app-card-detail>
+        </ng-template>
+      }
+      @if (showAddCardSlide) {
+        <ng-template swiperSlide>
+          <div class="spent-cards__add-card" data-testid="add-card">
+            <app-add-card [showZeroStateMessage]="false" (addCardClick)="addCardClick.emit()"></app-add-card>
+          </div>
+        </ng-template>
+      }
+    </swiper>
+  }
 </div>

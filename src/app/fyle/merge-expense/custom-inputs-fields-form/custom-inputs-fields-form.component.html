@@ -1,25 +1,25 @@
-<ng-container *ngIf="combinedCustomProperties">
-  <ng-container *ngFor="let customField of customFields">
-    <form [formGroup]="customField.control">
-      <div class="merge-expenses--internal-block" *ngIf="combinedCustomProperties[customField.name]?.options">
-        <app-fy-select
-          [enableSearch]="false"
-          [label]="customField.name"
-          [nullOption]="false"
-          [nullOption]="combinedCustomProperties[customField.name]?.options?.length === 1"
-          [disabled]="
-            disableFormElements ||
-            combinedCustomProperties[customField.name]?.areSameValues ||
-            combinedCustomProperties[customField.name]?.options?.length === 0
-          "
-          [options]="combinedCustomProperties[customField.name]?.options"
-          [selectModalHeader]="'customInputsFieldsForm.select' | transloco"
-          formControlName="value"
-          [touchedInParent]="customField.control.controls.value.touched"
-          [validInParent]="customField.control.controls.value.valid"
-        >
-        </app-fy-select>
-      </div>
-    </form>
-  </ng-container>
-</ng-container>
+@if (combinedCustomProperties) { @for (customField of customFields; track customField.id) {
+<form [formGroup]="customField.control">
+  @if (combinedCustomProperties[customField.name]?.options) {
+  <div class="merge-expenses--internal-block">
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="customField.name"
+      [nullOption]="false"
+      [nullOption]="combinedCustomProperties[customField.name]?.options?.length === 1"
+      [disabled]="
+        disableFormElements ||
+        combinedCustomProperties[customField.name]?.areSameValues ||
+        combinedCustomProperties[customField.name]?.options?.length === 0
+      "
+      [options]="combinedCustomProperties[customField.name]?.options"
+      [selectModalHeader]="'customInputsFieldsForm.select' | transloco"
+      formControlName="value"
+      [touchedInParent]="customField.control.controls.value.touched"
+      [validInParent]="customField.control.controls.value.valid"
+    >
+    </app-fy-select>
+  </div>
+  }
+</form>
+} }
