@@ -14,13 +14,13 @@ import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transact
 export class FyPolicyViolationInfoComponent implements OnInit {
   @Input() policyDetails;
 
-  @Input() criticalPolicyViolated;
+  @Input() criticalPolicyViolated: boolean | undefined;
 
   @Input() expense: Expense | UnflattenedTransaction;
 
-  policyViolations;
+  policyViolations: string[] = [];
 
-  showPolicyInfo: boolean;
+  showPolicyInfo: boolean = false;
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
@@ -28,18 +28,18 @@ export class FyPolicyViolationInfoComponent implements OnInit {
     this.policyViolations = [];
     this.policyViolations = this.policyDetails
       ?.filter((ids) => ids.run_status === 'VIOLATED_ACTION_SUCCESS')
-      .map((ids) => ids.expense_policy_rule.description);
-    this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated;
+      .map((ids) => ids.expense_policy_rule.description) || [];
+    this.showPolicyInfo = this.policyViolations.length > 0 || !!this.criticalPolicyViolated;
   }
 
   async openPolicyViolationDetails(): Promise<void> {
     // Check if expense is unreportable based on different possible structures
-    const isUnreportable = 
+    const isUnreportable =
       this.isExpenseWithUnreportable(this.expense) ||
       this.isUnflattenedTransactionWithUnreportableState(this.expense) ||
       this.isExpenseWithUnreportableState(this.expense) ||
       this.criticalPolicyViolated;
-    
+
     const componentProperties = isUnreportable
       ? { criticalViolationMessages: this.policyViolations, showCTA: false, showDragBar: false, showCloseIcon: true }
       : {
