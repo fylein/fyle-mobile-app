@@ -149,10 +149,10 @@ describe('FyProjectSelectModalComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'fyProjectSelectModal.selectLabel': 'Select {{label}}',
-        'fyProjectSelectModal.searchPlaceholder': 'Search',
-        'fyProjectSelectModal.clearAriaLabel': 'Clear',
-        'fyProjectSelectModal.none': 'None',
+        'fySelectProjectModal.selectLabel': 'Select {{label}}',
+        'fySelectProjectModal.searchPlaceholder': 'Search',
+        'fySelectProjectModal.clearAriaLabel': 'Clear',
+        'fySelectProjectModal.none': 'None',
       };
       let translation = translations[key] || key;
       if (params) {

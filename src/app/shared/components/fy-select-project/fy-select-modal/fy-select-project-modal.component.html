@@ -3,7 +3,7 @@
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="selection-modal--title text-capitalize">
-        {{ 'fyProjectSelectModal.selectLabel' | transloco : { label: label } }}
+        {{ 'fySelectProjectModal.selectLabel' | transloco : { label: label } }}
       </div>
     </ion-title>
     <ion-buttons slot="start">
@@ -20,7 +20,7 @@
         id="selection-modal--search-input"
         class="selection-modal--search-input smartlook-show"
         matInput
-        [placeholder]="'fyProjectSelectModal.searchPlaceholder' | transloco"
+        [placeholder]="'fySelectProjectModal.searchPlaceholder' | transloco"
         [(ngModel)]="value"
         />
       @if (isLoading) {
@@ -30,7 +30,7 @@
         <button
           (click)="clearValue()"
           class="selection-modal--clear-button"
-          [attr.aria-label]="'fyProjectSelectModal.clearAriaLabel' | transloco"
+          [attr.aria-label]="'fySelectProjectModal.clearAriaLabel' | transloco"
           mat-icon-button
           matSuffix
           >

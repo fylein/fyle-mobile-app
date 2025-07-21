@@ -1001,7 +1001,7 @@
   "fySelectProject": {
     "selectLabel": "Select {{label}}"
   },
-  "fyProjectSelectModal": {
+  "fySelectProjectModal": {
     "selectLabel": "Select {{label}}",
     "searchPlaceholder": "Search",
     "clearAriaLabel": "Clear",
@@ -1123,7 +1123,7 @@
     "selectDistance": "Select distance",
     "selectDistanceUnit": "Select distance unit"
   },
-  "fySummaryTile": {
+  "summaryTile": {
     "projectLabel": "Project:",
     "approvers": "Approvers",
     "approved": "Approved",

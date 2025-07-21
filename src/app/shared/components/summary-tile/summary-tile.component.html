@@ -21,7 +21,7 @@
 
       @if (project) {
         <div class="summary-tile--card-container__project">
-          {{ 'fySummaryTile.projectLabel' | transloco }} {{ project }}
+          {{ 'summaryTile.projectLabel' | transloco }} {{ project }}
         </div>
       }
 
@@ -48,7 +48,7 @@
   <div class="summary-tile--approval-container">
     <div class="summary-tile--approval-state-block">
       <div class="summary-tile--approval-state-block-header">
-        <div class="summary-tile--approvers">{{ 'fySummaryTile.approvers' | transloco }}</div>
+        <div class="summary-tile--approvers">{{ 'summaryTile.approvers' | transloco }}</div>
         <div class="summary-tile--approvers-add-approver">
           @if (actions?.can_add_approver) {
             <app-fy-approver
@@ -75,7 +75,7 @@
               ></div>
               <span>{{
                 ap.state === 'APPROVAL_DONE'
-                ? ('fySummaryTile.approved' | transloco)
+                ? ('summaryTile.approved' | transloco)
                 : (ap.state | titlecase | snakeCaseToSpaceCase)
               }}</span>
             </div>
