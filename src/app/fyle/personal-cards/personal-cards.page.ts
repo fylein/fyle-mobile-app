@@ -32,7 +32,7 @@ import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-pers
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { MatSnackBar } from '@angular/material/snack-bar';

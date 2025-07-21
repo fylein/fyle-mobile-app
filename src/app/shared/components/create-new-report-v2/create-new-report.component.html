@@ -7,9 +7,9 @@
         <div class="create-new-report--sub-title">
           {{ selectedElements.length }}
           {{
-            selectedElements.length > 1
-              ? ('createNewReport.expensePlural' | transloco)
-              : ('createNewReport.expenseSingular' | transloco)
+          selectedElements.length > 1
+          ? ('createNewReport.expensePlural' | transloco)
+          : ('createNewReport.expenseSingular' | transloco)
           }}
           <span class="create-new-report--amount">
             ({{ { value: selectedTotalAmount || 0, currencyCode: homeCurrency } | exactCurrency }})
@@ -42,11 +42,13 @@
           [(ngModel)]="reportTitle"
           required
           #reportTitleInput="ngModel"
-        />
+          />
       </div>
-      <div class="create-new-report--error-message" *ngIf="showReportNameError">
-        {{ 'createNewReport.reportNameError' | transloco }}
-      </div>
+      @if (showReportNameError) {
+        <div class="create-new-report--error-message">
+          {{ 'createNewReport.reportNameError' | transloco }}
+        </div>
+      }
     </div>
 
     <div class="create-new-report--heading">{{ 'createNewReport.expensesHeading' | transloco }}</div>
@@ -56,53 +58,55 @@
         [(ngModel)]="isSelectedAll"
         (ngModelChange)="toggleSelectAll($event)"
         >{{ 'createNewReport.selectAll' | transloco }}</mat-checkbox
-      >
-    </div>
+        >
+      </div>
 
-    <div *ngFor="let expense of selectedExpensesToReport; let i = index">
-      <app-expense-card-v2
-        [expense]="expense"
-        [previousExpenseTxnDate]="selectedExpensesToReport[i - 1]?.spent_at"
-        [previousExpenseCreatedAt]="selectedExpensesToReport[i - 1]?.created_at"
-        [isSelectionModeEnabled]="true"
-        [selectedElements]="selectedElements"
-        (cardClickedForSelection)="selectExpense($event)"
-      >
-      </app-expense-card-v2>
+      @for (expense of selectedExpensesToReport; track expense; let i = $index) {
+        <div>
+          <app-expense-card-v2
+            [expense]="expense"
+            [previousExpenseTxnDate]="selectedExpensesToReport[i - 1]?.spent_at"
+            [previousExpenseCreatedAt]="selectedExpensesToReport[i - 1]?.created_at"
+            [isSelectionModeEnabled]="true"
+            [selectedElements]="selectedElements"
+            (cardClickedForSelection)="selectExpense($event)"
+            >
+          </app-expense-card-v2>
+        </div>
+      }
     </div>
-  </div>
-</ion-content>
+  </ion-content>
 
-<ion-footer class="cta-footer-toolbar">
-  <ion-toolbar class="create-new-report--footer">
-    <div class="create-new-report--cta-container">
-      <button
-        type="button"
-        appFormButtonValidation
-        class="create-new-report--cta-button create-new-report--secondary-cta text-center"
-        [loadingText]="'createNewReport.savingReport' | transloco"
-        [loading]="saveDraftReportLoader"
-        [disabled]="submitReportLoader || saveDraftReportLoader"
-        [ngClass]="{ 'create-new-report--secondary-cta__disabled': submitReportLoader || saveDraftReportLoader }"
-        (click)="ctaClickedEvent('create_draft_report')"
-      >
-        {{ 'createNewReport.saveAsDraft' | transloco }}
-      </button>
-      <button
-        type="submit"
-        appFormButtonValidation
-        class="create-new-report--cta-button create-new-report--primary-cta text-center"
-        [loadingText]="'createNewReport.submittingReport' | transloco"
-        [loading]="submitReportLoader"
-        [disabled]="selectedElements.length === 0 || submitReportLoader || saveDraftReportLoader"
+  <ion-footer class="cta-footer-toolbar">
+    <ion-toolbar class="create-new-report--footer">
+      <div class="create-new-report--cta-container">
+        <button
+          type="button"
+          appFormButtonValidation
+          class="create-new-report--cta-button create-new-report--secondary-cta text-center"
+          [loadingText]="'createNewReport.savingReport' | transloco"
+          [loading]="saveDraftReportLoader"
+          [disabled]="submitReportLoader || saveDraftReportLoader"
+          [ngClass]="{ 'create-new-report--secondary-cta__disabled': submitReportLoader || saveDraftReportLoader }"
+          (click)="ctaClickedEvent('create_draft_report')"
+          >
+          {{ 'createNewReport.saveAsDraft' | transloco }}
+        </button>
+        <button
+          type="submit"
+          appFormButtonValidation
+          class="create-new-report--cta-button create-new-report--primary-cta text-center"
+          [loadingText]="'createNewReport.submittingReport' | transloco"
+          [loading]="submitReportLoader"
+          [disabled]="selectedElements.length === 0 || submitReportLoader || saveDraftReportLoader"
         [ngClass]="{
           'create-new-report--primary-cta__disabled':
             selectedElements.length === 0 || submitReportLoader || saveDraftReportLoader
         }"
-        (click)="ctaClickedEvent('submit_report')"
-      >
-        {{ 'createNewReport.submitReport' | transloco }}
-      </button>
-    </div>
-  </ion-toolbar>
-</ion-footer>
+          (click)="ctaClickedEvent('submit_report')"
+          >
+          {{ 'createNewReport.submitReport' | transloco }}
+        </button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>

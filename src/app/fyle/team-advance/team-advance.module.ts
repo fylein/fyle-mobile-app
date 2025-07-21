@@ -7,10 +7,8 @@ import { TeamAdvancePage } from './team-advance.page';
 import { TeamAdvCardComponent } from './team-adv-card/team-adv-card.component';
 import { MatRippleModule } from '@angular/material/core';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
@@ -21,12 +19,10 @@ import { MatButtonModule } from '@angular/material/button';
     TeamAdvancePageRoutingModule,
     MatRippleModule,
     SharedModule,
-    MatSelectModule,
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,
-    MatMenuModule,
     MatButtonModule,
   ],
   declarations: [TeamAdvancePage, TeamAdvCardComponent],

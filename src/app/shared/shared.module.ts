@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { SwiperModule } from 'swiper/angular';
@@ -77,7 +76,6 @@ import { ToastMessageComponent } from './components/toast-message/toast-message.
 import { FyHeaderComponent } from './components/fy-header/fy-header.component';
 import { FyDeleteDialogComponent } from './components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyFiltersComponent } from './components/fy-filters/fy-filters.component';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FyFilterPillsComponent } from './components/fy-filter-pills/fy-filter-pills.component';
 import { DateFormatPipe } from './pipes/date-format.pipe';
@@ -100,7 +98,6 @@ import { SidemenuContentComponent } from './components/sidemenu/sidemenu-content
 import { SidemenuContentItemComponent } from './components/sidemenu/sidemenu-content/sidemenu-content-item/sidemenu-content-item.component';
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
-import { SendEmailComponent } from './components/send-email/send-email.component';
 import { CaptureReceiptComponent } from './components/capture-receipt/capture-receipt.component';
 import { ReceiptPreviewComponent } from './components/capture-receipt/receipt-preview/receipt-preview.component';
 import { AddMorePopupComponent } from './components/capture-receipt/add-more-popup/add-more-popup.component';
@@ -240,7 +237,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     SidemenuContentComponent,
     SidemenuContentItemComponent,
     FyNavFooterComponent,
-    SendEmailComponent,
     CaptureReceiptComponent,
     ReceiptPreviewComponent,
     AddMorePopupComponent,
@@ -308,7 +304,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     PinchZoomModule,
     PdfViewerModule,
     MatRippleModule,
-    MatRadioModule,
     MatDatepickerModule,
     MatChipsModule,
     MatChipsModule,
@@ -340,7 +335,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     AuditHistoryComponent,
     StatusesDiffComponent,
     FormButtonValidationDirective,
-    MatProgressSpinnerModule,
     FyZeroStateComponent,
     FyPopupComponent,
     FyApproverComponent,
@@ -381,7 +375,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     FyMsgPopoverComponent,
     SidemenuComponent,
     FyNavFooterComponent,
-    SendEmailComponent,
     CaptureReceiptComponent,
     ReceiptPreviewComponent,
     AddMorePopupComponent,

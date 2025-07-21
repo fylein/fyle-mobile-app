@@ -1,5 +1,7 @@
 <ion-header mode="md">
-  <mat-icon *ngIf="isIos" class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  @if (isIos) {
+    <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  }
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar expense-preview--toolbar">
     <ion-buttons slot="start">
       <ion-button (click)="closeModal()">
@@ -8,17 +10,19 @@
     </ion-buttons>
     <ion-title>
       <div class="expense-preview--toolbar__title">
-        <ng-container *ngIf="type === 'match'">
+        @if (type === 'match') {
           {{ 'expensePreview.confirmMatchingExpense' | transloco }}
-        </ng-container>
-        <ng-container *ngIf="type === 'edit'"> {{ 'expensePreview.viewMatchingExpense' | transloco }} </ng-container>
+        }
+        @if (type === 'edit') {
+          {{ 'expensePreview.viewMatchingExpense' | transloco }}
+        }
       </div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ng-container *ngIf="expenseDetails$ | async as expenseDetails; else shimmers">
+  @if (expenseDetails$ | async; as expenseDetails) {
     <ion-grid class="expense-preview--body-container">
       <ion-row class="expense-preview--body-container__content">
         <ion-col size="5">
@@ -67,7 +71,9 @@
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
             {{ expenseDetails.merchant }}
-            <ng-container *ngIf="!expenseDetails.merchant">-</ng-container>
+            @if (!expenseDetails.merchant) {
+              -
+            }
           </div>
         </ion-col>
       </ion-row>
@@ -97,23 +103,25 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            <ng-container *ngIf="!expenseDetails.file_ids?.length"
-              >{{ 'expensePreview.notAttached' | transloco }}
+            @if (!expenseDetails.file_ids?.length) {
+              {{ 'expensePreview.notAttached' | transloco }}
               <ion-icon
                 [src]="'assets/svg/attachment-none.svg'"
                 class="expense-preview--icon"
                 slot="icon-only"
               ></ion-icon>
-            </ng-container>
-            <ng-container *ngIf="expenseDetails.file_ids?.length"
-              >{{ 'expensePreview.attached' | transloco }}
+            }
+            @if (expenseDetails.file_ids?.length) {
+              {{ 'expensePreview.attached' | transloco }}
               <ion-icon [src]="'assets/svg/attachment.svg'" class="expense-preview--icon" slot="icon-only"></ion-icon>
-            </ng-container>
+            }
           </div>
         </ion-col>
       </ion-row>
     </ion-grid>
-  </ng-container>
+  } @else {
+    <app-expense-preview-shimmer> </app-expense-preview-shimmer>
+  }
 
   <!-- shimmers -->
   <ng-template #shimmers>
@@ -123,26 +131,30 @@
 <ion-footer class="expense-preview--footer-container">
   <ion-toolbar mode="md">
     <div class="expense-preview--footer-toolbar">
-      <ion-buttons *ngIf="type === 'match'">
-        <ion-button (click)="closeModal()" [disabled]="loading" class="btn-secondary">
-          {{ 'expensePreview.cancel' | transloco }}
-        </ion-button>
-        <ion-button
-          (click)="matchExpense()"
-          [disabled]="loading"
-          [loadingText]="'expensePreview.matching' | transloco"
-          [loading]="loading"
-          appFormButtonValidation
-          class="btn-primary"
-        >
-          {{ 'expensePreview.confirmMatch' | transloco }}
-        </ion-button>
-      </ion-buttons>
-      <ion-buttons *ngIf="type === 'edit'">
-        <ion-button (click)="editExpense()" appFormButtonValidation class="btn-primary">
-          {{ 'expensePreview.edit' | transloco }}
-        </ion-button>
-      </ion-buttons>
+      @if (type === 'match') {
+        <ion-buttons>
+          <ion-button (click)="closeModal()" [disabled]="loading" class="btn-secondary">
+            {{ 'expensePreview.cancel' | transloco }}
+          </ion-button>
+          <ion-button
+            (click)="matchExpense()"
+            [disabled]="loading"
+            [loadingText]="'expensePreview.matching' | transloco"
+            [loading]="loading"
+            appFormButtonValidation
+            class="btn-primary"
+            >
+            {{ 'expensePreview.confirmMatch' | transloco }}
+          </ion-button>
+        </ion-buttons>
+      }
+      @if (type === 'edit') {
+        <ion-buttons>
+          <ion-button (click)="editExpense()" appFormButtonValidation class="btn-primary">
+            {{ 'expensePreview.edit' | transloco }}
+          </ion-button>
+        </ion-buttons>
+      }
     </div>
   </ion-toolbar>
 </ion-footer>
