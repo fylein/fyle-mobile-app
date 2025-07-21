@@ -10,20 +10,20 @@
  */
 
 /* Core CSS required for Ionic components to work properly */
-@import '~@ionic/angular/css/core.css';
+@import '@ionic/angular/css/core.css';
 
 /* Basic CSS for apps built with Ionic */
-@import '~@ionic/angular/css/normalize.css';
-@import '~@ionic/angular/css/structure.css';
-@import '~@ionic/angular/css/typography.css';
-@import '~@ionic/angular/css/display.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
 
 /* Optional CSS utils that can be commented out */
-@import '~@ionic/angular/css/padding.css';
-@import '~@ionic/angular/css/float-elements.css';
-@import '~@ionic/angular/css/text-alignment.css';
-@import '~@ionic/angular/css/text-transformation.css';
-@import '~@ionic/angular/css/flex-utils.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
 
 @import 'assets/fonts/font.css';
 @import 'theme/colors';
@@ -32,7 +32,7 @@
 @import 'swiper/scss/navigation';
 @import 'swiper/scss/pagination';
 @import 'driver.js/dist/driver.css';
-@import '/src/assets/styles/fy_driver_tour.scss';
+@import '../src/assets/styles/fy_driver_tour';
 
 $header-input-interior: #eeeeee;
 
@@ -99,33 +99,39 @@ ion-popover.error-popover {
 }
 
 .msb-success {
-  color: $pure-white;
-  background-color: $green;
-  border-radius: 8px !important;
-  margin: 0 16px 30px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #24a148;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 30px !important;
+  }
 }
 
 .msb-failure {
-  color: $pure-white;
-  background-color: $red;
-  border-radius: 8px !important;
-  margin: 0 16px 30px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #da1e28;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 30px !important;
+  }
 }
 
 .msb-info {
-  color: $pure-white;
-  background-color: $dark-blue;
-  border-radius: 8px !important;
-  margin: 0 16px 30px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #1c1f36;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 30px !important;
+  }
 }
 
 .msb-bulkfyle-prompt {
-  color: $pure-white;
-  background-color: $dark-blue;
-  border-radius: 8px !important;
-  margin: 0 16px calc(124px + env(safe-area-inset-bottom)) !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #1c1f36;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px calc(124px + env(safe-area-inset-bottom)) !important;
+  }
 
   &::after {
     content: '';
@@ -141,51 +147,63 @@ ion-popover.error-popover {
 }
 
 .msb-success-with-camera-icon {
-  color: $pure-white;
-  background-color: $green;
-  border-radius: 8px !important;
-  margin: 0 16px 133px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #24a148;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 133px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .msb-success-with-camera-icon-for-split-exp {
-  color: $pure-white;
-  background-color: $green;
-  border-radius: 8px !important;
-  margin: 0 16px 24px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #24a148;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 24px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .msb-failure-with-camera-icon-for-split-exp {
-  color: $pure-white;
-  background-color: $red;
-  border-radius: 8px !important;
-  margin: 0 16px 24px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #da1e28;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 24px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .msb-failure-with-camera-icon {
-  color: $pure-white;
-  background-color: $red;
-  border-radius: 8px !important;
-  margin: 0 16px 133px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #da1e28;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 133px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .msb-success-with-report-btn {
-  color: $pure-white;
-  background-color: $green;
-  border-radius: 8px !important;
-  margin: 0 16px 84px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #24a148;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 84px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .msb-failure-with-report-btn {
-  color: $pure-white;
-  background-color: $red;
-  border-radius: 8px !important;
-  margin: 0 16px 96px !important;
-  padding: 12px 8px !important;
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-color: #da1e28;
+    color: $pure-white;
+    border-radius: 8px !important;
+    margin: 0 16px 96px !important;
+    padding: 12px 8px !important;
+  }
 }
 
 .icon--toast-danger {
@@ -521,42 +539,27 @@ ion-popover.camera-options-popover {
   padding: 18px 0 18px 12px;
 }
 
-.mat-checkbox-checked.mat-accent {
-  .mat-checkbox-background {
+.mat-mdc-checkbox-checked.mat-accent {
+  .mdc-checkbox__background {
     background-color: $blue-black !important;
   }
 }
 
-.mat-checkbox-checkmark {
+.mdc-checkbox__checkmark {
+  color: $white !important;
   padding: 2px;
 }
 
 mat-checkbox {
-  .mat-checkbox-background,
-  .mat-checkbox-frame {
+  .mdc-checkbox__background {
     border-radius: 4px !important;
     border-color: $black-2 !important;
     border-width: 1.5px !important;
   }
-
-  .mat-checkbox-layout {
-    .mat-checkbox-inner-container {
-      padding: 8px !important;
-    }
-  }
 }
 
 .custom-mat-checkbox {
-  .mat-checkbox-inner-container {
-    height: 20px;
-    width: 20px;
-    .mat-checkbox-background,
-    .mat-checkbox-frame {
-      border-radius: 6px !important;
-    }
-  }
-
-  .mat-checkbox-label {
+  .mdc-label {
     font-size: 14px;
     font-weight: 400;
     color: $blue-black;
@@ -564,8 +567,8 @@ mat-checkbox {
 }
 
 mat-tab-group {
-  .mat-tab-list {
-    .mat-tab-labels {
+  .mat-mdc-tab-list {
+    .mat-mdc-tab-labels {
       display: flex;
     }
   }
@@ -674,25 +677,6 @@ html {
   --keyboard-offset: 0 !important;
 }
 
-.mat-radio-button {
-  &.mat-radio-checked {
-    .mat-radio-outer-circle {
-      border-color: #1978f7 !important;
-    }
-
-    .mat-radio-label-content {
-      color: #f36;
-    }
-  }
-  .mat-radio-inner-circle {
-    background-color: #1978f7 !important;
-  }
-
-  .mat-ripple-element {
-    background-color: #fff !important;
-  }
-}
-
 .switch-org--form-field,
 .delegated--form-field {
   .mat-form-field-wrapper {
@@ -735,7 +719,7 @@ html {
 
 .other-details--container {
   mat-tab-group {
-    .mat-tab-body-content {
+    .mat-mdc-tab-body-content {
       overflow-x: hidden;
     }
   }
@@ -1165,13 +1149,13 @@ ion-modal.promote-opt-in-modal {
 }
 
 .selection-modal--form-container {
-  .mat-form-field-infix {
+  .mat-mdc-form-field-infix {
     width: auto;
   }
 }
 
 .selection-modal--form-container__chips {
-  .mat-form-field-infix {
+  .mat-mdc-form-field-infix {
     border-top: 0;
   }
 }
@@ -1412,10 +1396,6 @@ ion-toggle.toggle-checked::before {
     color: $blue-black;
     font-size: 12px;
   }
-}
-
-.mat-snack-bar-handset .mat-snack-bar-container {
-  margin-bottom: 133px;
 }
 
 .hide-modal {

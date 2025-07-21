@@ -7,7 +7,6 @@ import { MyExpensesPage } from './my-expenses.page';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,7 +26,6 @@ import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismis
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule,
-    MatRadioModule,
     FormsModule,
     ReactiveFormsModule,
     MatRippleModule,

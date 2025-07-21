@@ -37,8 +37,7 @@
             class="matched-expenses--type"
             [ngClass]="{'matched-expenses--green': txnDetails.transactionType === 'credit'}"
           >
-            <ng-container *ngIf="txnDetails.transactionType === 'debit'">DR</ng-container>
-            <ng-container *ngIf="txnDetails.transactionType === 'credit'">CR</ng-container>
+            @if (txnDetails.transactionType === 'debit') { DR } @if (txnDetails.transactionType === 'credit') { CR }
           </span>
         </div>
       </div>
@@ -47,13 +46,13 @@
     <div class="matched-expenses--action-content">
       <div class="matched-expenses--action-title">Select a matching expense</div>
       <div class="matched-expenses--expenses-preview">
-        <ng-container *ngIf="expenseSuggestions && expenseSuggestions.length > 0">
-          <ng-container *ngFor="let expense of expenseSuggestions; let first = first;">
-            <div class="matched-expenses--divider" *ngIf="!first"></div>
-            <app-expense-card-lite [expense]="expense" (click)="openExpensePreview(expense.split_group_id)">
-            </app-expense-card-lite>
-          </ng-container>
-        </ng-container>
+        @if (expenseSuggestions && expenseSuggestions.length > 0) { @for (expense of expenseSuggestions; track
+        expense.id; let first = $first) { @if (!first) {
+        <div class="matched-expenses--divider"></div>
+        }
+        <app-expense-card-lite [expense]="expense" (click)="openExpensePreview(expense.split_group_id)">
+        </app-expense-card-lite>
+        } }
       </div>
       <div class="matched-expenses--action-title">In case there is no match</div>
       <div class="matched-expenses--action-container">
