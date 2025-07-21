@@ -22,17 +22,16 @@ describe('PlatformCommonApiService', () => {
     const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
 
     TestBed.configureTestingModule({
-    imports: [],
-    providers: [
+      imports: [],
+      providers: [
         PlatformCommonApiService,
         {
-            provide: HttpClient,
-            useValue: httpClientSpy,
+          provide: HttpClient,
+          useValue: httpClientSpy,
         },
-        provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-});
+      ],
+    });
     platformCommonApiService = TestBed.inject(PlatformCommonApiService);
     httpTestingController = TestBed.inject(HttpTestingController);
     httpClient = TestBed.inject(HttpClient) as jasmine.SpyObj<HttpClient>;
