@@ -566,8 +566,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   /**
-   * Processes missing field names with character limits and ellipsis support
-   * @param maxCharacters - Maximum character count for display (default: 35)
+   * Processes missing field names with character limits and ellipsis support.
+   * Converts field names to lowercase, truncates long names, and tracks overflow count.
+   * @param maxCharacters - Maximum character count for display (default: 20)
    * @param maxWordLength - Maximum length for individual words before ellipsis (default: 12)
    */
   private processMissingFieldsForDisplay(maxCharacters: number = 20, maxWordLength: number = 12): void {
@@ -584,28 +585,22 @@ export class ExpensesCardComponent implements OnInit {
     for (let i = 0; i < this.missingMandatoryFieldNames.length; i++) {
       let fieldName = this.missingMandatoryFieldNames[i];
 
-      // Make the first letter small
       if (fieldName && fieldName.length > 0) {
         fieldName = fieldName.charAt(0).toLowerCase() + fieldName.slice(1);
       }
 
-      // Apply ellipsis to long field names
       if (fieldName.length > maxWordLength) {
         fieldName = fieldName.substring(0, maxWordLength - 3) + '...';
       }
 
-      // Calculate what the length would be if we add this field
       const separator = processedFields.length > 0 ? ', ' : '';
       const potentialLength = currentLength + separator.length + fieldName.length;
 
-      // Check if adding this field would exceed the limit
       if (potentialLength > maxCharacters && processedFields.length > 0) {
-        // Count all remaining fields
         remainingCount = this.missingMandatoryFieldNames.length - i;
         break;
       }
 
-      // Add the field
       processedFields.push(fieldName);
       currentLength = potentialLength;
     }
@@ -615,33 +610,28 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   /**
-   * Creates and caches a map of mandatory expense fields (ID -> name)
-   * Only makes API call if required field IDs are not present in cache
+   * Creates and caches a map of mandatory expense fields (ID -> name).
+   * Uses cached data when available, otherwise makes API call to fetch fields.
+   * Populates missing field names and processes them for display after map is ready.
    */
   private ensureMandatoryFieldsMap(): void {
     const requiredFieldIds = this.missingMandatoryFields?.expense_field_ids || [];
     const cachedMap = this.getCachedMandatoryFieldsMap();
-
-    // Check if all required field IDs are present in the cached map
     const allIdsPresent = requiredFieldIds.every((id) => cachedMap.hasOwnProperty(id));
 
+    // If all required field IDs are present in the cached map, use the cached map
     if (allIdsPresent && requiredFieldIds.length > 0) {
-      // Use cached map if all required IDs are present
       this.mandatoryFieldsMap = cachedMap;
-      // Populate missing field names array now that map is available
       this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
-      // Process the missing fields for display
       this.processMissingFieldsForDisplay();
       return;
     }
 
-    // Make API call to get all mandatory expense fields
     this.expenseFieldsService.getMandatoryExpenseFields().subscribe({
       next: (mandatoryExpenseFields) => {
         if (mandatoryExpenseFields && Array.isArray(mandatoryExpenseFields)) {
           this.allMandatoryExpenseFields = mandatoryExpenseFields;
 
-          // Create new map from the API response
           const newFieldsMap: Record<number, string> = {};
           mandatoryExpenseFields.forEach((field) => {
             if (field && field.id && field.field_name) {
@@ -649,29 +639,20 @@ export class ExpensesCardComponent implements OnInit {
             }
           });
 
-          // Update both instance and persistent cache
           this.mandatoryFieldsMap = newFieldsMap;
           this.setCachedMandatoryFieldsMap(newFieldsMap);
-
-          // Populate missing field names array now that map is available
           this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
-          // Process the missing fields for display
           this.processMissingFieldsForDisplay();
         } else {
-          // Fallback to existing cache if response is invalid
           this.mandatoryFieldsMap = cachedMap;
-          // Populate missing field names array with cached map
           this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
-          // Process the missing fields for display
           this.processMissingFieldsForDisplay();
         }
       },
+      // Fallback to existing cache if API call fails
       error: () => {
-        // Fallback to existing cache if API call fails
         this.mandatoryFieldsMap = cachedMap;
-        // Populate missing field names array with cached map
         this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
-        // Process the missing fields for display
         this.processMissingFieldsForDisplay();
       },
     });
