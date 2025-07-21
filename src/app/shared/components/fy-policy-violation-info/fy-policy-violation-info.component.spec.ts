@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { PolicyDetail } from 'src/app/core/models/policy-detail.model';
 
 describe('FyPolicyViolationInfoComponent', () => {
   let component: FyPolicyViolationInfoComponent;
@@ -73,7 +74,7 @@ describe('FyPolicyViolationInfoComponent', () => {
     });
     fixture = TestBed.createComponent(FyPolicyViolationInfoComponent);
     component = fixture.componentInstance;
-    component.policyDetails = [individualExpPolicyStateData1];
+    component.policyDetails = [individualExpPolicyStateData1] as PolicyDetail[];
     fixture.detectChanges();
   }));
 
