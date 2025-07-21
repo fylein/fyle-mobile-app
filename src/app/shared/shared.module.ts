@@ -151,6 +151,7 @@ import { NgOtpInputModule } from 'ng-otp-input';
 import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { ProfileOptInCardComponent } from './components/profile-opt-in-card/profile-opt-in-card.component';
 import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard-opt-in.component';
+import { DashboardEmailOptInComponent } from './components/dashboard-email-opt-in/dashboard-email-opt-in.component';
 import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
 import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
 import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
@@ -288,6 +289,7 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     PromoteOptInModalComponent,
     ProfileOptInCardComponent,
     DashboardOptInComponent,
+    DashboardEmailOptInComponent,
     MobileNumberCardComponent,
     ExactCurrencyPipe,
     CCExpenseMerchantInfoModalComponent,
@@ -427,6 +429,7 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     PromoteOptInModalComponent,
     ProfileOptInCardComponent,
     DashboardOptInComponent,
+    DashboardEmailOptInComponent,
     MobileNumberCardComponent,
     CCExpenseMerchantInfoModalComponent,
     ReviewSplitExpenseComponent,

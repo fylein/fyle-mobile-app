@@ -855,6 +855,14 @@ export class TrackingService {
     this.eventTrack('Opted In From Dashboard Banner');
   }
 
+  optedInFromDashboardEmailOptInBanner(): void {
+    this.eventTrack('Opted In From Dashboard Email Opt In Banner');
+  }
+
+  skipOptInFromDashboardEmailOptInBanner(): void {
+    this.eventTrack('Skip Opt In From Dashboard Email Opt In Banner');
+  }
+
   skipOptInFromDashboardBanner(): void {
     this.eventTrack('Skip Opt In From Dashboard Banner');
   }
@@ -875,6 +883,10 @@ export class TrackingService {
     this.eventTrack('Clicked On Dashboard Banner');
   }
 
+  clickedOnDashboardEmailOptInBanner(): void {
+    this.eventTrack('Clicked On Dashboard Email Opt In Banner');
+  }
+
   // Track receipt scan duration event
   receiptScanTime(properties: { duration: number; fileType: string }): void {
     this.eventTrack('Receipt Scan Time', properties);
@@ -882,6 +894,18 @@ export class TrackingService {
 
   receiptScanTimeInstaFyle(properties: { duration: number; fileType: string }): void {
     this.eventTrack('Receipt Scan Time InstaFyle', properties);
+  }
+
+  dashboardPendingTasksNotificationClicked(properties = {} as TaskPageOpenProperties): void {
+    this.eventTrack('Dashboard Pending Tasks Notification Clicked', properties);
+  }
+
+  saveReceiptForLater(): void {
+    this.eventTrack('Save receipt for later clicked');
+  }
+
+  discardReceipt(): void {
+    this.eventTrack('Discard receipt clicked from receipt preview');
   }
 
   private isDemoAccount(eou: ExtendedOrgUser): boolean {

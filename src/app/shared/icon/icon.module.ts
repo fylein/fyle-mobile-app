@@ -86,6 +86,7 @@ export class IconModule {
     'phone.svg',
     'plus-minus.svg',
     'plus-square.svg',
+    'plus.svg',
     'power.svg',
     'question-square-outline.svg',
     'radio-circle-fill.svg',

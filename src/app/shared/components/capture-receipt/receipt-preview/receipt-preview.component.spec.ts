@@ -66,7 +66,7 @@ describe('ReceiptPreviewComponent', () => {
       'getPictures',
       'requestReadPermission',
     ]);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt', 'eventTrack']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt', 'eventTrack', 'discardReceipt']);
     const swiperSpy = jasmine.createSpyObj('SwiperStubComponent', ['update', 'slidePrev', 'slideNext']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
@@ -119,11 +119,11 @@ describe('ReceiptPreviewComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'receiptPreview.receiptPreviews': 'Receipt Previews',
+        'receiptPreview.receiptPreviews': 'Receipt previews',
         'receiptPreview.retake': 'Retake',
         'receiptPreview.addMore': 'Add more',
         'receiptPreview.finish': 'Finish',
-        'receiptPreview.discardReceiptTitle': 'Discard Receipt',
+        'receiptPreview.discardReceiptTitle': 'Discard receipt',
         'receiptPreview.discardMultipleReceiptsMessage':
           'Are you sure you want to discard the {{count}} receipts you just captured?',
         'receiptPreview.discardSingleReceiptMessage': 'Not a good picture? No worries. Discard and click again.',
@@ -231,7 +231,7 @@ describe('ReceiptPreviewComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Discard Receipt',
+          title: 'Discard receipt',
           message,
           primaryCta: {
             text: 'Discard',
@@ -263,7 +263,7 @@ describe('ReceiptPreviewComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Discard Receipt',
+          title: 'Discard receipt',
           message,
           primaryCta: {
             text: 'Discard',

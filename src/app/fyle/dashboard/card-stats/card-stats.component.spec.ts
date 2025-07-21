@@ -451,11 +451,9 @@ describe('CardStatsComponent', () => {
 
     it('should execute all steps in the correct order', fakeAsync(() => {
       const executionOrder: string[] = [];
-      
+
       corporateCreditCardExpenseService.clearCache.and.returnValue(
-        of(null).pipe(
-          tap(() => executionOrder.push('cache_cleared'))
-        )
+        of(null).pipe(tap(() => executionOrder.push('cache_cleared')))
       );
 
       popoverController.create.and.returnValue(
@@ -483,12 +481,7 @@ describe('CardStatsComponent', () => {
 
       tick();
 
-      expect(executionOrder).toEqual([
-        'cache_cleared',
-        'popover_created',
-        'popover_presented',
-        'popover_dismissed'
-      ]);
+      expect(executionOrder).toEqual(['cache_cleared', 'popover_created', 'popover_presented', 'popover_dismissed']);
       expect(component.cardAdded.emit).toHaveBeenCalledTimes(1);
       expect(component.loadCardDetails$.next).toHaveBeenCalledTimes(1);
     }));

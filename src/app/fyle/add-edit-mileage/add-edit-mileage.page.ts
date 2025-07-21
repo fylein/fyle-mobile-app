@@ -2284,8 +2284,7 @@ export class AddEditMileagePage implements OnInit {
 
         const amount = parseFloat(res.amount.toFixed(2));
         let skipReimbursement =
-          (formValue?.paymentMode?.type === AccountType.PERSONAL &&
-            !formValue?.paymentMode?.isReimbursable) ||
+          (formValue?.paymentMode?.type === AccountType.PERSONAL && !formValue?.paymentMode?.isReimbursable) ||
           !!formValue?.paymentMode?.id;
 
         // Handle payment mode type and source account

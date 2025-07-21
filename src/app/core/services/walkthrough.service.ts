@@ -12,6 +12,24 @@ export class WalkthroughService {
 
   constructor(private translocoService: TranslocoService) {}
 
+  getDashboardAddExpenseWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '#dashboard-add-expense-button',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.dashboardAddExpenseDescription'),
+          side: 'bottom',
+          align: 'end',
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 4;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
   getNavBarWalkthroughConfig(isApprover: boolean): DriveStep[] {
     const steps: DriveStep[] = [
       {
@@ -63,6 +81,24 @@ export class WalkthroughService {
         },
       });
     }
+
+    return steps;
+  }
+
+  getProfileEmailOptInWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '#profile-email-opt-in-walkthrough',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.profileEmailOptInDescription'),
+          side: 'top',
+          align: 'center',
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 4;
+        },
+      },
+    ];
 
     return steps;
   }

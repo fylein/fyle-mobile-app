@@ -75,7 +75,9 @@
       "navBarDescription": "Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!",
       "expensesTabDescription": "Tap here to quickly access and manage your expenses!",
       "reportsTabDescription": "Tap here to quickly access and manage your expense reports!",
-      "approverDescription": "Easily manage and approve reports — Access your team's reports right from the home page!"
+      "approverDescription": "Easily manage and approve reports — Access your team's reports right from the home page!",
+      "profileEmailOptInDescription": "Forward receipts to this email ID and your expense will be created automatically.",
+      "dashboardAddExpenseDescription": "With the Add Expense button - manually create expenses or upload receipts with ease — all from one place."
     },
     "customInputs": {
       "deletedSuffix": " (Deleted)",
@@ -520,11 +522,12 @@
     "cancel": "Cancel"
   },
   "receiptPreview": {
-    "receiptPreviews": "Receipt Previews",
+    "receiptPreviews": "Receipt previews",
     "retake": "Retake",
+    "saveReceiptForLater": "Save receipt for later",
     "addMore": "Add more",
     "finish": "Finish",
-    "discardReceiptTitle": "Discard Receipt",
+    "discardReceiptTitle": "Discard receipt",
     "discardMultipleReceiptsMessage": "Are you sure you want to discard the {{count}} receipts you just captured?",
     "discardSingleReceiptMessage": "Not a good picture? No worries. Discard and click again.",
     "discard": "Discard",
@@ -623,7 +626,9 @@
     "unspecifiedProject": "Unspecified",
     "expenseInfo": "Expense information",
     "missing": "missing",
-    "at": "at"
+    "at": "at",
+    "add": "Add",
+    "more": "more"
   },
   "transactionStatusInfoPopover": {
     "title": "Transaction status:",
@@ -1051,7 +1056,7 @@
     "expenses": " Expenses"
   },
   "dashboardOptIn": {
-    "skipOptInMessage": "<div> <p>You can't send receipts and expense details via text message if you don't opt in.</p> <p>Are you sure you want to skip?<p>  </div>",
+    "skipOptInMessage": "<div> <p>You can't send receipts and expense details via text message if you don't opt in.</p> <p>Are you sure you want to skip?</p>  </div>",
     "areYouSure": "Are you sure?",
     "yesSkipOptIn": "Yes, skip opt in",
     "noGoBack": "No, go back",
@@ -1059,6 +1064,15 @@
     "altOptInToTextReceipts": "Opt in to text receipts",
     "tryAI": "Try AI",
     "description": "Text receipts for <span class=\"dashboard-opt-in__instant-text-decoration\">instant</span> <span class=\"dashboard-opt-in__underline\"></span> expense submission"
+  },
+  "dashboardEmailOptIn": {
+    "skip": "Skip",
+    "altOptInToEmailReceipts": "Opt in to email receipts",
+    "dashboardEmailOptInDescription": "Forward your email receipts for <span class=\"dashboard-opt-in__instant-text-decoration\">instant</span> <span class=\"dashboard-opt-in__underline\"></span> expense creation",
+    "skipEmailOptInMessage": "<div> <p>Forwarding receipts to your unique email ID makes expense creation quick and hassle free.</p> <p>Are you sure you want to skip?</p>  </div>",
+    "areYouSure": "Are you sure?",
+    "yesSkipEmailOptIn": "Yes, skip",
+    "noGoBack": "No, go back"
   },
   "fySelectCommuteDetails": {
     "saving": "Saving",
@@ -1433,5 +1447,179 @@
     "customRange": "Custom range",
     "startDate": "Start date",
     "endDate": "End date"
+  },
+  "myExpensesPage": {
+    "title": "My expenses",
+    "searchPlaceholder": "Search",
+    "addExpense": "Add Expense",
+    "selectAll": "Select all",
+    "expense": "expense",
+    "expenses": "expenses",
+    "createNewReport": "Create new report",
+    "addToReports": "Add to reports",
+    "startReview": "Start review",
+    "zeroState": {
+      "noExpenses": "You have no expenses right now",
+      "noResultsFound": "No results found",
+      "tryDifferentKeyword": "Try a different keyword",
+      "noExpensesMatchingFilters": "You have no expenses matching the applied filters"
+    },
+    "offline": {
+      "syncMessage": "Data will sync once you are connected to internet",
+      "offlineHeader": "You're Offline!",
+      "offlineMessage": "Fear not, you can still add expenses offline."
+    },
+    "actionSheet": {
+      "header": "ADD EXPENSE",
+      "captureReceipt": "Capture receipt",
+      "addManually": "Add manually",
+      "addMileage": "Add mileage",
+      "addPerDiem": "Add per diem"
+    },
+    "loader": {
+      "addingExpenseToReport": "Adding expense to report"
+    },
+    "filters": {
+      "cardsEndingIn": "Cards ending in..."
+    },
+    "criticalPolicyViolation": {
+      "excludeAndContinue": "Exclude and Continue",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "selectExpensesToReport": "Please select one or more expenses to be reported",
+      "cantAddExpenses": "Can't add these expenses...",
+      "cantAddDraftExpenses": "You can't add draft expenses to a report.",
+      "cantAddPolicyViolatedExpenses": "You can't add expenses with critical policy violations to a report.",
+      "cantAddPendingTransactions": "You can't add expenses with pending transactions to a report.",
+      "cantAddDraftAndPolicyViolated": "You can't add draft expenses & expenses with critical policy violations to a report.",
+      "cantAddDraftAndPendingTransactions": "You can't add draft expenses & expenses with pending transactions to a report.",
+      "cantAddPolicyViolatedAndPendingTransactions": "You can't add expenses with critical policy violation & pending transactions to a report.",
+      "cantAddDraftPolicyViolatedAndPendingTransactions": "You can't add draft expenses and expenses with critical policy violation & pending transactions.",
+      "couldNotDeleteExpenses": "We could not delete the expenses. Please try again",
+      "expensesInDraftState": "{{count}} {{expenseText}} in draft state.",
+      "expensesWithPendingTransactions": "{{count}} {{expenseText}} with pending transactions.",
+      "expensesWithCriticalPolicyViolations": "{{count}} {{expenseText}} with Critical Policy Violations."
+    },
+    "unreportableExpenseExceptionHandler": {
+      "message111": "You can't add draft expenses and expenses with critical policy violation & pending transactions.",
+      "message110": "You can't add draft expenses & expenses with critical policy violations to a report.",
+      "message101": "You can't add draft expenses & expenses with pending transactions to a report.",
+      "message011": "You can't add expenses with critical policy violation & pending transactions to a report.",
+      "message100": "You can't add draft expenses to a report.",
+      "message010": "You can't add expenses with critical policy violations to a report.",
+      "message001": "You can't add expenses with pending transactions to a report."
+    },
+    "reportableExpenseDialogHandler": {
+      "cantAddTheseExpensesTitle": "Can't add these expenses...",
+      "expensesAre": "expenses are",
+      "expenseIs": "expense is",
+      "expenses": "expenses",
+      "expense": "expense",
+      "inDraftState": "in draft state",
+      "withPendingTransactions": "with pending transactions",
+      "withCriticalPolicyViolations": "with Critical Policy Violations"
+    },
+    "openCreateReportWithSelectedIds": {
+      "pleaseSelectExpensesToBeReported": "Please select one or more expenses to be reported"
+    },
+    "showAddToReportSuccessToast": {
+      "viewReport": "View Report"
+    },
+    "showOldReportsMatBottomSheet": {
+      "expensesAddedToExistingDraftReport": "Expenses added to an existing draft report",
+      "expensesAddedToReportSuccess": "Expenses added to report successfully"
+    },
+    "openDeleteExpensesPopover": {
+      "deleteExpense": "Delete Expense",
+      "excludeAndDelete": "Exclude and Delete",
+      "delete": "Delete",
+      "oneExpenseDeleted": "1 expense has been deleted",
+      "expensesDeleted": "{{count}} expenses have been deleted",
+      "couldNotDeleteExpenses": "We could not delete the expenses. Please try again"
+    },
+    "onHomeClicked": {
+      "page": "Expenses"
+    },
+    "onTaskClicked": {
+      "from": "My Expenses"
+    },
+    "actions": {
+      "excludeAndContinue": "Exclude and Continue",
+      "cancel": "Cancel"
+    },
+    "success": {
+      "expenseDeleted": "1 expense has been deleted",
+      "expensesDeleted": "{{count}} expenses have been deleted",
+      "expensesAddedToExistingDraft": "Expenses added to an existing draft report",
+      "expensesAddedToReport": "Expenses added to report successfully"
+    }
+  },
+  "myReportsPage": {
+    "title": "My expense reports",
+    "searchPlaceholder": "Search",
+    "createExpenseReport": "Create expense report",
+    "zeroState": {
+      "noReports": "You have no reports right now",
+      "noReportsMatchingFilters": "You have no reports",
+      "matchingAppliedFilters": "matching the applied filters",
+      "noResultsFound": "No results found",
+      "tryDifferentKeyword": "Try a different keyword"
+    },
+    "loading": {
+      "loadingMoreData": "Loading more data..."
+    },
+    "filters": {
+      "state": "State",
+      "date": "Date",
+      "sortBy": "Sort by"
+    },
+    "stateOptions": {
+      "draft": "Draft",
+      "reported": "Reported",
+      "sentBack": "Sent Back",
+      "approved": "Approved",
+      "paymentPending": "Payment Pending",
+      "paymentProcessing": "Payment Processing",
+      "paid": "Paid",
+      "submitted": "Submitted",
+      "processing": "Processing",
+      "closed": "Closed"
+    },
+    "dateOptions": {
+      "all": "All",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "custom": "Custom"
+    },
+    "sortOptions": {
+      "dateNewToOld": "Date - New to Old",
+      "dateOldToNew": "Date - Old to New",
+      "amountHighToLow": "Amount - High to Low",
+      "amountLowToHigh": "Amount - Low to High",
+      "nameAToZ": "Name - A to Z",
+      "nameZToA": "Name - Z to A"
+    },
+    "filterPills": {
+      "thisWeek": "this Week",
+      "thisMonth": "this Month",
+      "all": "All",
+      "lastMonth": "Last Month",
+      "dateOldToNew": "date - old to new",
+      "dateNewToOld": "date - new to old",
+      "amountHighToLow": "amount - high to low",
+      "amountLowToHigh": "amount - low to high",
+      "nameAToZ": "Name - a to z",
+      "nameZToA": "Name - z to a",
+      "dateTo": "to"
+    },
+    "tracking": {
+      "page": "Reports",
+      "from": "My Reports"
+    }
+  },
+  "dashboard": {
+    "pendingTasks": "You have {{count}} pending tasks"
   }
 }
