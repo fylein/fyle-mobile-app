@@ -10,12 +10,11 @@
         <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
       </ion-button>
       <ion-button class="my-reports--header-btn" (click)="openFilters()">
-        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
-          <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
-        </ng-container>
-        <ng-template #noFilterAppliedIcon>
-          <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
-        </ng-template>
+        @if (filterPills?.length) {
+        <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
+        } @else {
+        <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
+        }
       </ion-button>
       <ion-button class="my-reports--header-btn" [routerLink]="['/', 'enterprise', 'my_create_report']">
         <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
@@ -36,9 +35,9 @@
             [placeholder]="'myReportsPage.searchPlaceholder' | transloco"
             (focus)="onSearchBarFocus()"
           />
+          @if (simpleSearchText) {
           <button
             (click)="clearText('isFromSearchBar')"
-            *ngIf="simpleSearchText"
             aria-label="Clear"
             class="my-reports--simple-search-close"
             mat-button
@@ -47,6 +46,7 @@
           >
             <mat-icon svgIcon="clear"></mat-icon>
           </button>
+          }
         </div>
       </mat-form-field>
     </div>
@@ -59,29 +59,31 @@
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ng-container *ngIf="filterPills?.length">
-      <div class="filter-pills-container">
-        <app-fy-filter-pills
-          class="filter-pills"
-          (filterClose)="onFilterClose($event)"
-          (filterClicked)="onFilterClick($event)"
-          (clearAll)="onFilterPillsClearAll()"
-          [filterPills]="filterPills"
-        ></app-fy-filter-pills>
-      </div>
-    </ng-container>
+    @if (filterPills?.length) {
+    <div class="filter-pills-container">
+      <app-fy-filter-pills
+        class="filter-pills"
+        (filterClose)="onFilterClose($event)"
+        (filterClicked)="onFilterClick($event)"
+        (clearAll)="onFilterPillsClearAll()"
+        [filterPills]="filterPills"
+      ></app-fy-filter-pills>
+    </div>
+    }
 
     <ng-template #loading>
       <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
     </ng-template>
-    <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
+    @if ((count$ | async) === 0) {
+    <div class="my-reports--zero-state">
+      @if (!(filters?.state || filters?.date || simpleSearchText)) {
       <app-fy-zero-state
-        *ngIf="!(filters?.state || filters?.date || simpleSearchText)"
         [unscaledImage]="true"
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/reports.png"
         [message]="'myReportsPage.zeroState.noReports' | transloco"
       ></app-fy-zero-state>
+      }
       <button
         type="button"
         [routerLink]="['/', 'enterprise', 'my_create_report']"
@@ -89,58 +91,56 @@
       >
         {{ 'myReportsPage.createExpenseReport' | transloco }}
       </button>
+      @if ((filters?.state || filters?.date)) {
       <app-fy-zero-state
-        *ngIf="(filters?.state || filters?.date)"
         [unscaledImage]="true"
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/reports.png"
         [message]="'myReportsPage.zeroState.noReportsMatchingFilters' | transloco"
         [submessage]="'myReportsPage.zeroState.matchingAppliedFilters' | transloco"
       ></app-fy-zero-state>
+      } @if (!filters?.state && !filters?.date && simpleSearchText) {
       <app-fy-zero-state
-        *ngIf="!filters?.state && !filters?.date && simpleSearchText"
         [unscaledImage]="true"
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/search.png"
         [message]="'myReportsPage.zeroState.noResultsFound' | transloco"
         [submessage]="'myReportsPage.zeroState.tryDifferentKeyword' | transloco"
       ></app-fy-zero-state>
+      }
     </div>
-
-    <ng-container *ngIf="!isLoading; else loading">
-      <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading">
-        <div *ngFor="let report of myReports$ | async as list; let i = index">
-          <app-reports-card
-            [report]="report"
-            [prevDate]="list[i-1]?.created_at"
-            [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
-            (gotoReport)="onReportClick($event)"
-            (viewComments)="onViewCommentsClick()"
-          ></app-reports-card>
-        </div>
-      </ng-container>
-    </ng-container>
-    <ng-container *ngIf="isConnected$|async">
-      <ng-container *ngIf="isLoadingDataInInfiniteScroll">
-        <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
-      </ng-container>
-    </ng-container>
+    } @if (!isLoading) { @if ((simplifyReportsSettings$ | async); as simplifyReportsSettings) {
+    <div *ngFor="let report of myReports$ | async as list; let i = index">
+      <app-reports-card
+        [report]="report"
+        [prevDate]="list[i-1]?.created_at"
+        [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
+        (gotoReport)="onReportClick($event)"
+        (viewComments)="onViewCommentsClick()"
+      ></app-reports-card>
+    </div>
+    } @else {
+    <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
+    } } @else {
+    <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
+    } @if (isConnected$|async) { @if (isLoadingDataInInfiniteScroll) {
+    <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
+    } }
   </div>
 
-  <ion-infinite-scroll
-    *ngIf="!isLoadingDataInInfiniteScroll && (isInfiniteScrollRequired$ | async)"
-    threshold="100px"
-    (ionInfinite)="loadData($event)"
-  >
+  @if (!isLoadingDataInInfiniteScroll && (isInfiniteScrollRequired$ | async)) {
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
     <ion-infinite-scroll-content
       loadingSpinner="bubbles"
       [loadingText]="'myReportsPage.loading.loadingMoreData' | transloco"
     >
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
+  }
 </ion-content>
 
-<ion-footer mode="md" *ngIf="!isSearchBarFocused">
+@if (!isSearchBarFocused) {
+<ion-footer mode="md">
   <app-fy-footer
     (homeClicked)="onHomeClicked()"
     (taskClicked)="onTaskClicked()"
@@ -148,3 +148,4 @@
     [taskCount]="reportsTaskCount"
   ></app-fy-footer>
 </ion-footer>
+}
