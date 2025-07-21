@@ -82,6 +82,22 @@
       <div class="dashboard--greetings-text smartlook-hide">
         Hi there, {{ userName }}! <span class="dashboard--handwave">👋</span>
       </div>
+      <div (click)="onPendingTasksStatClick()" class="dashboard--pending-tasks-stat" *ngIf="taskCount > 0">
+        <div class="dashboard--pending-tasks-stat-container">
+          <div class="dashboard--pending-tasks-stat-content">
+            <div class="dashboard--pending-tasks-stat-icon">
+              <mat-icon class="dashboard--pending-tasks-stat-icon-icon" svgIcon="bell-outline"></mat-icon>
+              <div *ngIf="taskCount > 0" class="dashboard--pending-tasks-stat-icon-pill">{{ taskCount }}</div>
+            </div>
+            <div class="dashboard--pending-tasks-stat-text">
+              <span>{{ 'dashboard.pendingTasks' | transloco : { count: taskCount } }}</span>
+            </div>
+          </div>
+          <div class="dashboard--pending-tasks-stat-arrow-button">
+            <mat-icon svgIcon="arrow-right"></mat-icon>
+          </div>
+        </div>
+      </div>
       <app-stats></app-stats>
       <app-card-stats (cardAdded)="onCardAdded()"></app-card-stats>
     </mat-tab>
@@ -90,13 +106,3 @@
     </mat-tab>
   </mat-tab-group>
 </ion-content>
-
-<ion-footer>
-  <app-fy-footer
-    (homeClicked)="onHomeClicked()"
-    (taskClicked)="onTaskClicked()"
-    (cameraClicked)="onCameraClicked()"
-    [taskCount]="displayedTaskCount"
-    [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"
-  ></app-fy-footer>
-</ion-footer>
