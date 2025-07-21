@@ -11,13 +11,13 @@
     "test": "ng test --watch=false --browsers=ChromeHeadless",
     "test-basic": "ng test",
     "test:no-parallel": "ng test",
-    "lint": "eslint -c .eslintrc.json",
+    "lint": "eslint -c eslint.config.mjs --fix",
+    "lint:check": "eslint -c eslint.config.mjs",
     "e2e": "ng e2e",
     "postinstall": "npx jetify",
-    "format:check": "prettier --write ./src",
+    "format": "prettier --write ./src",
+    "format:check": "prettier --check ./src",
     "prepare": "husky install",
-    "lint:diff": "eslint -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/$GITHUB_BASE_REF | grep  -E \"(.js$|.ts$|.tsx$)\")",
-    "lint:diff:local": "eslint --fix -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/master | grep  -E '(.js$|.ts$|.tsx$)')",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org fyle-technologies-private-limi --project fyle-mobile-app-prod ./www && sentry-cli sourcemaps upload --org fyle-technologies-private-limi --project fyle-mobile-app-prod ./www"
   },
   "resolutions": {
@@ -117,14 +117,14 @@
     "@types/lodash": "^4.14.162",
     "@types/mixpanel-browser": "^2.49.1",
     "@types/node": "^12.11.1",
-    "@typescript-eslint/eslint-plugin": "^7.18.0",
-    "@typescript-eslint/parser": "^7.18.0",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
     "@typescript-eslint/utils": "^8.37.0",
     "deep-freeze-strict": "^1.1.1",
     "eslint": "^9.31.0",
     "eslint-plugin-custom-rules": "file:eslint-custom-rules",
     "eslint-plugin-diff": "^2.0.3",
-    "eslint-plugin-import": "2.25.2",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsdoc": "^46.9.0",
     "eslint-plugin-max-params-no-constructor": "^0.0.4",
     "eslint-plugin-prefer-arrow": "latest",
@@ -170,7 +170,7 @@
   "lint-staged": {
     "*.{ts,scss,html}": "prettier --write",
     "*.{ts,html}": [
-      "eslint --fix"
+      "npm run lint"
     ]
   }
 }

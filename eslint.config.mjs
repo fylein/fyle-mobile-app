@@ -104,9 +104,22 @@ export default defineConfig([
       "@typescript-eslint/prefer-function-type": ["error"],
       "@typescript-eslint/prefer-literal-enum-member": ["error"],
       "@typescript-eslint/prefer-ts-expect-error": ["error"],
-      "@typescript-eslint/type-annotation-spacing": ["error"],
-      "@typescript-eslint/unified-signatures": ["error"],
       "no-unused-expressions": ["error"],
+      // TypeScript safety rules
+      "@typescript-eslint/no-unsafe-call": ["error"],
+      "@typescript-eslint/no-unsafe-member-access": ["error"],
+      "@typescript-eslint/no-unsafe-assignment": ["error"],
+      "@typescript-eslint/no-unsafe-return": ["error"],
+      "@typescript-eslint/no-unsafe-argument": ["error"],
+      "@typescript-eslint/no-unnecessary-type-assertion": ["error"],
+      "@typescript-eslint/no-explicit-any": ["error"],
+      // Naming convention rule
+      "@typescript-eslint/naming-convention": ["off", {
+        "selector": "variable",
+        "format": ["camelCase"]
+      }],
+      // JSDoc rule
+      "jsdoc/newline-after-description": "off",
       // Console and logging rules
       "no-console": ["error", {
         allow: [""],
@@ -172,6 +185,16 @@ export default defineConfig([
       "@typescript-eslint/no-empty-interface": "off",
       "@typescript-eslint/no-inferrable-types": "off",
       "no-unused-expressions": "off",
+      // TypeScript safety rules (turned off for test files)
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unnecessary-type-assertion": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      // JSDoc rule (turned off for test files)
+      "jsdoc/newline-after-description": "off",
       "custom-rules/space-before-it-blocks": "error",
       "custom-rules/prefer-jasmine-matchers": "error",
       "custom-rules/prefer-resolve-to-reject-with": "error",
