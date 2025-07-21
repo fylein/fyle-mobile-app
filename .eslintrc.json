@@ -7,9 +7,11 @@
     "main.ts",
     "eslint-custom-rules/**/*"
   ],
+  "plugins": ["max-params-no-constructor", "custom-rules", "@fyle"],
   "overrides": [
     {
       "files": ["*.ts"],
+      "excludedFiles": ["*.spec.ts", "*.e2e-spec.ts", "*.po.ts"],
       "extends": [
         "plugin:@angular-eslint/recommended"
       ],
@@ -34,12 +36,58 @@
             "type": "attribute",
             "prefix": "app"
           }
-        ]
+        ],
+        "semi": "error",
+        "lines-between-class-members": ["error", "always"],
+        "complexity": [2, 10],
+        "max-depth": ["error", 4],
+        "max-params-no-constructor/max-params-no-constructor": ["error", 4],
+        "no-console": ["error", { "allow": [""] }],
+        "custom-rules/one-interface-per-file": "error",
+        "custom-rules/one-enum-per-file": "error",
+        "custom-rules/prefer-semantic-extension-name": "error",
+        "@fyle/i18n-key-naming-convention": "error",
+        "@fyle/no-hardcoded-strings": "warn"
       }
     },
     {
       "files": ["*.html"],
-      "extends": ["plugin:@angular-eslint/template/recommended"]
+      "extends": ["plugin:@angular-eslint/template/recommended"],
+      "rules": {
+        "@fyle/i18n-key-naming-convention": "error",
+        "@fyle/no-hardcoded-strings": "warn"
+      }
+    },
+    {
+      "files": ["*.data.ts"],
+      "rules": {
+        "custom-rules/prefer-deep-freeze": "error"
+      }
+    },
+    {
+      "files": ["*.spec.ts"],
+      "extends": [
+        "plugin:@angular-eslint/recommended"
+      ],
+      "rules": {
+        "@angular-eslint/component-class-suffix": "off",
+        "@angular-eslint/component-selector": "off",
+        "@angular-eslint/directive-selector": "off",
+        "semi": "off",
+        "lines-between-class-members": "off",
+        "complexity": "off",
+        "max-depth": "off",
+        "max-params-no-constructor/max-params-no-constructor": "off",
+        "no-console": "off",
+        "custom-rules/one-interface-per-file": "off",
+        "custom-rules/one-enum-per-file": "off",
+        "custom-rules/prefer-semantic-extension-name": "off",
+        "@fyle/i18n-key-naming-convention": "off",
+        "@fyle/no-hardcoded-strings": "off",
+        "custom-rules/space-before-it-blocks": "error",
+        "custom-rules/prefer-jasmine-matchers": "error",
+        "custom-rules/prefer-resolve-to-reject-with": "error"
+      }
     }
   ]
 }
