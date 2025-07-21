@@ -3,4 +3,4 @@ export interface PolicyDetail {
   expense_policy_rule: {
     description: string;
   };
-} 
+}
