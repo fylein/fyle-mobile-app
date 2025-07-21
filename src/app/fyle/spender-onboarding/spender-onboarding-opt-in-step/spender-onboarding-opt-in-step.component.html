@@ -6,11 +6,9 @@
     </div>
 
     <div class="opt-in-step__content no-keyboard-adjust">
-      <ng-container
-        *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT || optInFlowState === OptInFlowState.OTP_VERIFICATION"
-      >
+      @if (optInFlowState === OptInFlowState.MOBILE_INPUT || optInFlowState === OptInFlowState.OTP_VERIFICATION) {
         <div class="opt-in-step__container">
-          <ng-container *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT">
+          @if (optInFlowState === OptInFlowState.MOBILE_INPUT) {
             <div class="opt-in-step__mobile-input-container">
               <div class="opt-in-step__mobile-input-container__label">
                 <span> {{ 'spenderOnboardingOptInStep.mobileNumberLabel' | transloco }} </span>
@@ -25,13 +23,15 @@
                 type="tel"
                 [maxlength]="15"
                 [minlength]="7"
-              />
-              <span *ngIf="mobileNumberError?.length" class="opt-in-step__mobile-input-container__error">{{
-                mobileNumberError
-              }}</span>
+                />
+              @if (mobileNumberError?.length) {
+                <span class="opt-in-step__mobile-input-container__error">{{
+                  mobileNumberError
+                }}</span>
+              }
             </div>
-          </ng-container>
-          <ng-container *ngIf="optInFlowState === OptInFlowState.OTP_VERIFICATION">
+          }
+          @if (optInFlowState === OptInFlowState.OTP_VERIFICATION) {
             <div class="opt-in-step__mobile-input-container__label">
               <span> {{ 'spenderOnboardingOptInStep.mobileNumberLabel' | transloco }} </span>
             </div>
@@ -51,7 +51,7 @@
                 [config]="otpConfig"
               ></ng-otp-input>
             </div>
-            <ng-container *ngIf="showOtpTimer; else resendOtpCta">
+            @if (showOtpTimer) {
               <span class="opt-in-step__otp-container__label__otp-timer">
                 {{ 'spenderOnboardingOptInStep.resendCodeTimerPrefix' | transloco }}
                 <span class="opt-in-step__otp-container__label__otp-timer__timer">
@@ -61,9 +61,8 @@
                   ({{ otpAttemptsLeft }} {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})
                 </span>
               </span>
-            </ng-container>
-            <ng-template #resendOtpCta>
-              <ng-container *ngIf="!disableResendOtp">
+            } @else {
+              @if (!disableResendOtp) {
                 <button
                   class="opt-in-step__otp-container__label__resend"
                   (click)="resendOtp('CLICK')"
@@ -71,67 +70,71 @@
                   buttonType="secondary"
                   [loading]="sendCodeLoading"
                   [loadingText]="'spenderOnboardingOptInStep.sendingCodeLoader' | transloco"
-                >
+                  >
                   {{ 'spenderOnboardingOptInStep.resendCode' | transloco }}
                 </button>
                 <span class="opt-in-step__otp-container__label__attempts"
                   >({{ otpAttemptsLeft }} {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})</span
-                >
-              </ng-container>
-              <div *ngIf="disableResendOtp" class="opt-in-step__otp-container__label__resend__disabled-container">
-                <span class="opt-in-step__otp-container__label__resend__disabled">
-                  {{ 'spenderOnboardingOptInStep.resendCode' | transloco }}
-                </span>
-                <span class="opt-in-step__otp-container__label__attempts"
-                  >(0 {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})</span
-                >
+                  >
+                }
+                @if (disableResendOtp) {
+                  <div class="opt-in-step__otp-container__label__resend__disabled-container">
+                    <span class="opt-in-step__otp-container__label__resend__disabled">
+                      {{ 'spenderOnboardingOptInStep.resendCode' | transloco }}
+                    </span>
+                    <span class="opt-in-step__otp-container__label__attempts"
+                      >(0 {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})</span
+                      >
+                    </div>
+                  }
+                }
+              }
+            </div>
+          }
+          @if (optInFlowState === OptInFlowState.SUCCESS) {
+            <div class="opt-in-step__success">
+              <ion-icon
+                class="fy-icon opt-in-step__success__image-container"
+                src="/assets/svg/check-circle-fill.svg"
+              ></ion-icon>
+              <div class="opt-in-step__success__header">{{ 'spenderOnboardingOptInStep.successHeader' | transloco }}</div>
+              <div class="opt-in-step__success__description">
+                {{ 'spenderOnboardingOptInStep.successDescription' | transloco }}
               </div>
-            </ng-template>
-          </ng-container>
+            </div>
+          }
         </div>
-      </ng-container>
-      <ng-container *ngIf="optInFlowState === OptInFlowState.SUCCESS">
-        <div class="opt-in-step__success">
-          <ion-icon
-            class="fy-icon opt-in-step__success__image-container"
-            src="/assets/svg/check-circle-fill.svg"
-          ></ion-icon>
-          <div class="opt-in-step__success__header">{{ 'spenderOnboardingOptInStep.successHeader' | transloco }}</div>
-          <div class="opt-in-step__success__description">
-            {{ 'spenderOnboardingOptInStep.successDescription' | transloco }}
-          </div>
-        </div>
-      </ng-container>
-    </div>
-  </div>
+      </div>
 
-  <div
-    class="opt-in-step__cta-container"
+      <div
+        class="opt-in-step__cta-container"
     [ngClass]="{
       'opt-in-step__without-go-back': !(isConnectCardsSkipped && !areCardsEnrolled),
       'opt-in-step__with-go-back': isConnectCardsSkipped && !areCardsEnrolled
     }"
-  >
-    <div
-      fill="clear"
-      class="opt-in-step__cta-secondary"
-      (click)="goBackToConnectCard()"
-      *ngIf="isConnectCardsSkipped && !areCardsEnrolled"
-    >
-      <ion-icon class="opt-in-step__arrow-icon" [src]="'/assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
-      <span class="opt-in-step__cta-text">{{ 'spenderOnboardingOptInStep.goBack' | transloco }}</span>
+        >
+        @if (isConnectCardsSkipped && !areCardsEnrolled) {
+          <div
+            fill="clear"
+            class="opt-in-step__cta-secondary"
+            (click)="goBackToConnectCard()"
+            >
+            <ion-icon class="opt-in-step__arrow-icon" [src]="'/assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
+            <span class="opt-in-step__cta-text">{{ 'spenderOnboardingOptInStep.goBack' | transloco }}</span>
+          </div>
+        }
+        @if (optInFlowState === OptInFlowState.MOBILE_INPUT) {
+          <ion-button
+            class="btn-primary opt-in-step__primary-cta"
+            fill="clear"
+            role="button"
+            appFormButtonValidation
+            (click)="saveMobileNumber()"
+            [loading]="savingMobileNumber"
+            [loadingText]="'spenderOnboardingOptInStep.continue' | transloco"
+            >
+            {{ 'spenderOnboardingOptInStep.continue' | transloco }}
+          </ion-button>
+        }
+      </div>
     </div>
-    <ion-button
-      *ngIf="optInFlowState === OptInFlowState.MOBILE_INPUT"
-      class="btn-primary opt-in-step__primary-cta"
-      fill="clear"
-      role="button"
-      appFormButtonValidation
-      (click)="saveMobileNumber()"
-      [loading]="savingMobileNumber"
-      [loadingText]="'spenderOnboardingOptInStep.continue' | transloco"
-    >
-      {{ 'spenderOnboardingOptInStep.continue' | transloco }}
-    </ion-button>
-  </div>
-</div>

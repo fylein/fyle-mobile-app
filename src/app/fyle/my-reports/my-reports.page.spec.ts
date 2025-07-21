@@ -12,7 +12,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { orgSettingsRes, orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
@@ -20,7 +20,7 @@ import { HeaderState } from 'src/app/shared/components/fy-header/header-state.en
 import { NetworkService } from 'src/app/core/services/network.service';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from 'src/app/core/services/date.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
@@ -85,6 +85,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ReportState as PlatformReportState } from 'src/app/core/models/platform/v1/report.model';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { TranslocoService } from '@jsverse/transloco';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -145,9 +146,10 @@ describe('MyReportsPage', () => {
     ]);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-      declarations: [MyReportsPage, ReportState],
-      imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule],
-      providers: [
+    declarations: [MyReportsPage, ReportState],
+    schemas: [NO_ERRORS_SCHEMA],
+    imports: [IonicModule.forRoot(), RouterTestingModule],
+    providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
@@ -157,46 +159,47 @@ describe('MyReportsPage', () => {
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate', 'createUrlTree']) },
         {
-          provide: NavController,
-          useValue: navControllerSpy,
+            provide: NavController,
+            useValue: navControllerSpy,
         },
         {
-          provide: NetworkService,
-          useValue: networkServiceSpy,
+            provide: NetworkService,
+            useValue: networkServiceSpy,
         },
         {
-          provide: ReportService,
-          useValue: reportServiceSpy,
+            provide: ReportService,
+            useValue: reportServiceSpy,
         },
         {
-          provide: DateService,
-          useValue: dateServiceSpy,
+            provide: DateService,
+            useValue: dateServiceSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: SpenderReportsService,
-          useValue: spenderReportsServiceSpy,
+            provide: SpenderReportsService,
+            useValue: spenderReportsServiceSpy,
         },
         ReportState,
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+}).compileComponents();
 
     fixture = TestBed.createComponent(MyReportsPage);
     component = fixture.componentInstance;
