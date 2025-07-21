@@ -141,7 +141,7 @@ export class ExpensesService {
       map((res) => res.data[0]),
       switchMap((expense) => {
         if (!expense) {
-          throw new Error(this.translocoService.translate('expense not found'));
+          throw new Error(this.translocoService.translate('services.expenses.expenseNotFound'));
         }
         if (
           expense.matched_corporate_card_transaction_ids.length > 0 &&
