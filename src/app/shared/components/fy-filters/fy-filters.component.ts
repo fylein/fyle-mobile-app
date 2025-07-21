@@ -9,6 +9,7 @@ import { forkJoin, Observable, of } from 'rxjs';
   selector: 'app-fy-filters',
   templateUrl: './fy-filters.component.html',
   styleUrls: ['./fy-filters.component.scss'],
+  standalone: false,
 })
 export class FyFiltersComponent implements OnInit {
   @Input() simplifyReportsSettings$: Observable<any> = of({ enabled: false });

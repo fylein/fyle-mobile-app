@@ -16,6 +16,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',
   styleUrls: ['./bank-account-card.component.scss'],
+  standalone: false,
 })
 export class BankAccountCardComponent implements OnInit {
   @Input() accountDetails: PlatformPersonalCard;

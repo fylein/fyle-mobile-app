@@ -11,6 +11,7 @@ import * as Sentry from '@sentry/angular';
   selector: 'app-camera-preview',
   templateUrl: './camera-preview.component.html',
   styleUrls: ['./camera-preview.component.scss'],
+  standalone: false,
 })
 export class CameraPreviewComponent implements OnInit, OnChanges {
   @Input() isBulkMode = false;

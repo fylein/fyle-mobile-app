@@ -10,6 +10,7 @@ import { UserEventService } from 'src/app/core/services/user-event.service';
   selector: 'app-verify',
   templateUrl: './verify.page.html',
   styleUrls: ['./verify.page.scss'],
+  standalone: false,
 })
 export class VerifyPage implements OnInit {
   constructor(

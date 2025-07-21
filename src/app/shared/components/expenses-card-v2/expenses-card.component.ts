@@ -33,6 +33,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-expense-card-v2',
   templateUrl: './expenses-card.component.html',
   styleUrls: ['./expenses-card.component.scss'],
+  standalone: false,
 })
 export class ExpensesCardComponent implements OnInit {
   @ViewChild('fileUpload') fileUpload: ElementRef;

@@ -22,6 +22,7 @@ import { AmountDetails } from 'src/app/core/models/amount-details.model';
   selector: 'app-fy-view-report-info-v2',
   templateUrl: './fy-view-report-info.component.html',
   styleUrls: ['./fy-view-report-info.component.scss'],
+  standalone: false,
 })
 export class FyViewReportInfoComponent {
   @Input() report$: Observable<Report>;

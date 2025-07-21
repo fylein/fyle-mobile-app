@@ -32,6 +32,7 @@ describe('ReceiptPreviewComponent', () => {
     selector: 'swiper',
     template: '',
     providers: [{ provide: SwiperComponent, useClass: SwiperStubComponent }],
+    standalone: false,
   })
   class SwiperStubComponent {
     @Input() pagination;

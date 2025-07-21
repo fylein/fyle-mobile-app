@@ -9,6 +9,7 @@ import { LoaderPosition } from '../../directive/loader-position.enum';
   selector: 'app-fy-delete-dialog',
   templateUrl: './fy-delete-dialog.component.html',
   styleUrls: ['./fy-delete-dialog.component.scss'],
+  standalone: false,
 })
 export class FyDeleteDialogComponent implements OnInit {
   @Input() deleteMethod: () => Observable<any>;

@@ -67,6 +67,7 @@ type Filters = Partial<PersonalCardFilter>;
   selector: 'app-personal-cards',
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
+  standalone: false,
 })
 export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;

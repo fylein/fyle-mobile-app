@@ -22,6 +22,7 @@ SwiperCore.use([Pagination]);
   selector: 'app-receipt-preview',
   templateUrl: './receipt-preview.component.html',
   styleUrls: ['./receipt-preview.component.scss'],
+  standalone: false,
 })
 export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;

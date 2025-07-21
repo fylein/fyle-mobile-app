@@ -5,6 +5,7 @@ import { PopoverController } from '@ionic/angular';
   selector: 'app-card-added',
   templateUrl: './card-added.component.html',
   styleUrls: ['./card-added.component.scss'],
+  standalone: false,
 })
 export class CardAddedComponent {
   constructor(private popoverController: PopoverController) {}
