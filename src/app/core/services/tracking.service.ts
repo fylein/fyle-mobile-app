@@ -896,6 +896,10 @@ export class TrackingService {
     this.eventTrack('Receipt Scan Time InstaFyle', properties);
   }
 
+  dashboardPendingTasksNotificationClicked(properties = {} as TaskPageOpenProperties): void {
+    this.eventTrack('Dashboard Pending Tasks Notification Clicked', properties);
+  }
+
   private isDemoAccount(eou: ExtendedOrgUser): boolean {
     const email = eou.us.email.toLowerCase();
     const orgName = eou.ou.org_name.toLowerCase();
