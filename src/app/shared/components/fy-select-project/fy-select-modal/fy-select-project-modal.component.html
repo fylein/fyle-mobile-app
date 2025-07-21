@@ -22,61 +22,71 @@
         matInput
         [placeholder]="'fyProjectSelectModal.searchPlaceholder' | transloco"
         [(ngModel)]="value"
-      />
-      <mat-icon *ngIf="isLoading" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
-      <button
-        (click)="clearValue()"
-        class="selection-modal--clear-button"
-        *ngIf="!isLoading && value"
-        [attr.aria-label]="'fyProjectSelectModal.clearAriaLabel' | transloco"
-        mat-icon-button
-        matSuffix
-      >
-        <mat-icon>close</mat-icon>
-      </button>
+        />
+      @if (isLoading) {
+        <mat-icon class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
+      }
+      @if (!isLoading && value) {
+        <button
+          (click)="clearValue()"
+          class="selection-modal--clear-button"
+          [attr.aria-label]="'fyProjectSelectModal.clearAriaLabel' | transloco"
+          mat-icon-button
+          matSuffix
+          >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="selection-modal--container">
-    <div
-      class="selection-modal--recently-used-block"
-      *ngIf="cacheName && (recentrecentlyUsedItems$ | async)?.length > 0"
-    >
+    @if (cacheName && (recentrecentlyUsedItems$ | async)?.length > 0) {
       <div
-        matRipple
-        class="selection-modal--list-element"
-        *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list"
-        (click)="onElementSelect(recentrecentlyUsedItem)"
-      >
-        <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-          <div class="selection-modal--recently-used-item-content">
-            <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
-            <span class="selection-modal--label">
-              <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-            </span>
-          </div>
-          <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-        </ng-template>
-        <ng-container
+        class="selection-modal--recently-used-block"
+        >
+        @for (recentrecentlyUsedItem of recentrecentlyUsedItems$ | async; track recentrecentlyUsedItem) {
+          <div
+            matRipple
+            class="selection-modal--list-element"
+            (click)="onElementSelect(recentrecentlyUsedItem)"
+            >
+            <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
+              <div class="selection-modal--recently-used-item-content">
+                <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
+                <span class="selection-modal--label">
+                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                </span>
+              </div>
+              @if (selected) {
+                <mat-icon class="selection-modal--check"> check </mat-icon>
+              }
+            </ng-template>
+            <ng-container
           *ngTemplateOutlet="
             selectionElement ? selectionElement : defaultSelectionElement;
             context: recentrecentlyUsedItem
           "
-        >
-        </ng-container>
+              >
+            </ng-container>
+          </div>
+        }
       </div>
-    </div>
+    }
 
-    <div
-      matRipple
-      class="selection-modal--list-element"
-      *ngFor="let filteredListItem of filteredOptions$ | async as list"
-      (click)="onElementSelect(filteredListItem)"
-    >
-      <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
-      <mat-icon *ngIf="filteredListItem.selected" class="selection-modal--check"> check </mat-icon>
-    </div>
+    @for (filteredListItem of filteredOptions$ | async; track filteredListItem) {
+      <div
+        matRipple
+        class="selection-modal--list-element"
+        (click)="onElementSelect(filteredListItem)"
+        >
+        <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
+        @if (filteredListItem.selected) {
+          <mat-icon class="selection-modal--check"> check </mat-icon>
+        }
+      </div>
+    }
   </div>
 </ion-content>

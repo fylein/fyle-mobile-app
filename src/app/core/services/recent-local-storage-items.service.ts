@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 @Injectable({
   providedIn: 'root',

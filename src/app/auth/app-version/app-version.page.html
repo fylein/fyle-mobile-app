@@ -4,7 +4,9 @@
 
 <ion-content>
   <div class="app-version--container">
-    <div *ngIf="message" class="app-version--message">{{message}}</div>
+    @if (message) {
+      <div class="app-version--message">{{message}}</div>
+    }
     <button (click)="updateApp()" mat-flat-button color="primary">Update app</button>
   </div>
 </ion-content>

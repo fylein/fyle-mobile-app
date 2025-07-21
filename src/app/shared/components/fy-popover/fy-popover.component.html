@@ -9,31 +9,37 @@
       <div
         class="fy-popover--toolbar__title"
         [ngStyle]="message ? { 'padding-left': '0px', 'padding-right': '40px' } : {}"
-      >
+        >
         {{ title }}
       </div>
     </ion-title>
-    <ion-buttons *ngIf="!message" slot="end">
-      <ion-button [disabled]="formValue.trim().length === 0" class="fy-popover--toolbar__btn" (click)="submit()">
-        {{ 'fyPopover.done' | transloco }}
-      </ion-button>
-    </ion-buttons>
+    @if (!message) {
+      <ion-buttons slot="end">
+        <ion-button [disabled]="formValue.trim().length === 0" class="fy-popover--toolbar__btn" (click)="submit()">
+          {{ 'fyPopover.done' | transloco }}
+        </ion-button>
+      </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 
-<div *ngIf="message" class="fy-popover__info-details">
-  {{ message }}
-</div>
-
-<div *ngIf="!message" class="fy-popover--input-container">
-  <div class="fy-popover--input-container__label">
-    <span> {{ formLabel }} </span>
-    <span class="fy-popover--input-container__mandatory"> * </span>
+@if (message) {
+  <div class="fy-popover__info-details">
+    {{ message }}
   </div>
-  <textarea
-    #simpleFormInput
-    [placeholder]="'fyPopover.placeholder' | transloco"
-    [(ngModel)]="formValue"
-    class="fy-popover--input-container__textarea"
-  ></textarea>
-</div>
+}
+
+@if (!message) {
+  <div class="fy-popover--input-container">
+    <div class="fy-popover--input-container__label">
+      <span> {{ formLabel }} </span>
+      <span class="fy-popover--input-container__mandatory"> * </span>
+    </div>
+    <textarea
+      #simpleFormInput
+      [placeholder]="'fyPopover.placeholder' | transloco"
+      [(ngModel)]="formValue"
+      class="fy-popover--input-container__textarea"
+    ></textarea>
+  </div>
+}

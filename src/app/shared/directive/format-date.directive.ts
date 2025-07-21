@@ -1,7 +1,7 @@
 // @Link:  https://stackoverflow.com/a/31162426
 
 import { Directive, ElementRef, OnInit, HostListener, Renderer2 } from '@angular/core';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Directive({

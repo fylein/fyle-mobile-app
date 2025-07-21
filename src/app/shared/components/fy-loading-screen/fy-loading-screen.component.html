@@ -1,24 +1,28 @@
-<ion-grid class="loading-screen-container" *ngFor="let row of rows">
-  <ion-row>
-    <ion-col *ngIf="isSelectionModeEnabled" [attr.size]="1">
-      <div class="loading-screen-container--checkbox">
-        <ion-skeleton-text animated></ion-skeleton-text>
-      </div>
-    </ion-col>
-    <ion-col [attr.size]="1.95">
-      <div class="loading-screen-container--icon">
-        <ion-skeleton-text animated></ion-skeleton-text>
-      </div>
-    </ion-col>
-    <ion-col [attr.size]="isSelectionModeEnabled ? '6.0' : '7.0'" class="loading-screen-container--content-block">
-      <ion-skeleton-text animated class="loading-screen-container--content-block__header"></ion-skeleton-text>
-      <ion-skeleton-text animated class="loading-screen-container--content-block__sub-header"></ion-skeleton-text>
-      <ion-skeleton-text animated class="loading-screen-container--content-block__sub-header"></ion-skeleton-text>
-    </ion-col>
-    <ion-col [attr.size]="3">
-      <div class="loading-screen-container--state">
-        <ion-skeleton-text animated></ion-skeleton-text>
-      </div>
-    </ion-col>
-  </ion-row>
-</ion-grid>
+@for (row of rows; track row) {
+  <ion-grid class="loading-screen-container">
+    <ion-row>
+      @if (isSelectionModeEnabled) {
+        <ion-col [attr.size]="1">
+          <div class="loading-screen-container--checkbox">
+            <ion-skeleton-text animated></ion-skeleton-text>
+          </div>
+        </ion-col>
+      }
+      <ion-col [attr.size]="1.95">
+        <div class="loading-screen-container--icon">
+          <ion-skeleton-text animated></ion-skeleton-text>
+        </div>
+      </ion-col>
+      <ion-col [attr.size]="isSelectionModeEnabled ? '6.0' : '7.0'" class="loading-screen-container--content-block">
+        <ion-skeleton-text animated class="loading-screen-container--content-block__header"></ion-skeleton-text>
+        <ion-skeleton-text animated class="loading-screen-container--content-block__sub-header"></ion-skeleton-text>
+        <ion-skeleton-text animated class="loading-screen-container--content-block__sub-header"></ion-skeleton-text>
+      </ion-col>
+      <ion-col [attr.size]="3">
+        <div class="loading-screen-container--state">
+          <ion-skeleton-text animated></ion-skeleton-text>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+}

@@ -10,20 +10,20 @@
  */
 
 /* Core CSS required for Ionic components to work properly */
-@import '~@ionic/angular/css/core.css';
+@import '@ionic/angular/css/core.css';
 
 /* Basic CSS for apps built with Ionic */
-@import '~@ionic/angular/css/normalize.css';
-@import '~@ionic/angular/css/structure.css';
-@import '~@ionic/angular/css/typography.css';
-@import '~@ionic/angular/css/display.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
 
 /* Optional CSS utils that can be commented out */
-@import '~@ionic/angular/css/padding.css';
-@import '~@ionic/angular/css/float-elements.css';
-@import '~@ionic/angular/css/text-alignment.css';
-@import '~@ionic/angular/css/text-transformation.css';
-@import '~@ionic/angular/css/flex-utils.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
 
 @import 'assets/fonts/font.css';
 @import 'theme/colors';
@@ -32,7 +32,7 @@
 @import 'swiper/scss/navigation';
 @import 'swiper/scss/pagination';
 @import 'driver.js/dist/driver.css';
-@import '/src/assets/styles/fy_driver_tour.scss';
+@import '../src/assets/styles/fy_driver_tour';
 
 $header-input-interior: #eeeeee;
 
@@ -567,8 +567,8 @@ mat-checkbox {
 }
 
 mat-tab-group {
-  .mat-tab-list {
-    .mat-tab-labels {
+  .mat-mdc-tab-list {
+    .mat-mdc-tab-labels {
       display: flex;
     }
   }
@@ -719,7 +719,7 @@ html {
 
 .other-details--container {
   mat-tab-group {
-    .mat-tab-body-content {
+    .mat-mdc-tab-body-content {
       overflow-x: hidden;
     }
   }
@@ -1149,13 +1149,13 @@ ion-modal.promote-opt-in-modal {
 }
 
 .selection-modal--form-container {
-  .mat-form-field-infix {
+  .mat-mdc-form-field-infix {
     width: auto;
   }
 }
 
 .selection-modal--form-container__chips {
-  .mat-form-field-infix {
+  .mat-mdc-form-field-infix {
     border-top: 0;
   }
 }

@@ -26,5 +26,5 @@ jobs:
       - name: Install dependencies
         run: npm install --save-dev --legacy-peer-deps
 
-      - name: Run linters
-        run: npm run lint:diff
+      - name: Run ESLint
+        run: npm run lint:check
