@@ -51,6 +51,10 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
+      parserOptions: {
+        project: ["tsconfig.json", "tsconfig.app.json"],
+        createDefaultProgram: true,
+      },
     },
     rules: {
       // Angular-specific rules (not covered by TypeScript)
@@ -156,6 +160,10 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
+      parserOptions: {
+        project: ["tsconfig.json", "tsconfig.spec.json"],
+        createDefaultProgram: true,
+      },
     },
     rules: {
       "@angular-eslint/component-class-suffix": "off",
