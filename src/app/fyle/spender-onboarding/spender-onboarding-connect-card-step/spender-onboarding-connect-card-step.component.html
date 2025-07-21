@@ -1,212 +1,169 @@
 @if (cardsLoading === false && fg) {
-  <div class="connect-card__body">
-    <div>
-      <div class="connect-card__heading">{{ 'spenderOnboardingConnectCardStep.title' | transloco }}</div>
-      <div class="connect-card__sub-heading">
-        {{ 'spenderOnboardingConnectCardStep.subTitle' | transloco }}
-      </div>
-      <form [formGroup]="fg">
-        @if (enrollableCards.length > 0) {
-          <div class="connect-card__multiple-cards">
-            @for (card of enrollableCards; track card; let i = $index) {
-              <div>
-                <div class="connect-card__input-label">
-                  <span>{{ 'spenderOnboardingConnectCardStep.cardLabel' | transloco }}</span>
-                </div>
-                <div
-                  class="connect-card__input-inner-container"
+<div class="connect-card__body">
+  <div>
+    <div class="connect-card__heading">{{ 'spenderOnboardingConnectCardStep.title' | transloco }}</div>
+    <div class="connect-card__sub-heading">
+      {{ 'spenderOnboardingConnectCardStep.subTitle' | transloco }}
+    </div>
+    <form [formGroup]="fg">
+      @if (enrollableCards.length > 0) {
+      <div class="connect-card__multiple-cards">
+        @for (card of enrollableCards; track card.id; let i = $index) {
+        <div>
+          <div class="connect-card__input-label">
+            <span>{{ 'spenderOnboardingConnectCardStep.cardLabel' | transloco }}</span>
+          </div>
+          <div
+            class="connect-card__input-inner-container"
             [ngClass]="{
               'connect-card__input-inner-container--error':
                 fg.controls['card_number_' + card.id].touched &&
                 fg.controls['card_number_' + card.id].invalid &&
                 !cardValuesMap[card.id].enrollment_success
             }"
-                  >
-                  <div class="connect-card__card-number-input-container">
-                    <input
-                      class="smartlook-show connect-card__card-number-input pl-0"
-                      inputmode="numeric"
-                      mask="0000 0000 0000"
-                      [placeholder]="'spenderOnboardingConnectCardStep.cardNumberPlaceholder' | transloco"
-                      data-testid="card-number-input"
-                      formControlName="card_number_{{ card.id }}"
-                      required
-                      (input)="onCardNumberUpdate(card)"
-                      [readonly]="cardValuesMap[card.id].enrollment_success"
-                      />
-                    <div class="connect-card__card-last-four">
-                      {{ cardValuesMap[card.id].last_four || '' }}
-                    </div>
-                  </div>
-                  @if (cardValuesMap?.[card.id].card_type === 'Others') {
-                    <ion-icon
-                      src="../../../../assets/svg/card.svg"
-                      class="connect-card__input-default-icon"
-                      data-testid="default-icon"
-                    ></ion-icon>
-                  }
-                  @if (cardValuesMap?.[card.id].card_type === 'Visa') {
-                    <img
-                      src="../../../../assets/images/visa-logo.png"
-                      class="connect-card__input-visa-icon"
-                      data-testid="visa-icon"
-                      />
-                  }
-                  @if (cardValuesMap?.[card.id].card_type === 'Mastercard') {
-                    <img
-                      src="../../../../assets/images/mastercard-logo.png"
-                      class="connect-card__input-mastercard-icon"
-                      data-testid="mastercard-icon"
-                      />
-                  }
-                </div>
-                <div class="connect-card__input-error-space"></div>
-                @if (
-                  fg.controls['card_number_' + card.id]?.touched &&
-                  fg.controls['card_number_' + card.id]?.invalid &&
-                  !cardValuesMap[card.id].enrollment_success
-                  ) {
-                  <div
-                    class="connect-card__input-errors"
-                    data-testid="error-message"
-                    >
-                    @if (fg.controls['card_number_' + card.id]?.errors.invalidCardNumber) {
-                      <span>{{
-                        'spenderOnboardingConnectCardStep.invalidCardNumberError' | transloco
-                      }}</span>
-                    }
-                    @if (fg.controls['card_number_' + card.id]?.errors.enrollmentError) {
-                      <span>{{
-                        cardValuesMap[card.id].enrollment_error
-                      }}</span>
-                    }
-                    @if (fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork) {
-                      @if (isVisaRTFEnabled && isMastercardRTFEnabled) {
-                        <span>{{
-                          'spenderOnboardingConnectCardStep.invalidCardNetworkVisaMastercardError' | transloco
-                        }}</span>
-                      } @else {
-                        <!-- Check if only visa is enabled -->
-                        @if (
-                          fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork && isVisaRTFEnabled) {
-                          <span
-                            >{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkVisaError' | transloco }}</span
-                            >
-                          } @else {
-                            <!-- Check if only mastercard is enabled -->
-                            @if (fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork && isMastercardRTFEnabled) {
-                              <span
-                                >{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkMastercardError' | transloco }}</span
-                                >
-                              }
-                            }
-                          }
-                        }
-                      </div>
-                    }
-                  </div>
-                }
+          >
+            <div class="connect-card__card-number-input-container">
+              <input
+                class="smartlook-show connect-card__card-number-input pl-0"
+                inputmode="numeric"
+                mask="0000 0000 0000"
+                [placeholder]="'spenderOnboardingConnectCardStep.cardNumberPlaceholder' | transloco"
+                data-testid="card-number-input"
+                formControlName="card_number_{{ card.id }}"
+                required
+                (input)="onCardNumberUpdate(card)"
+                [readonly]="cardValuesMap[card.id].enrollment_success"
+              />
+              <div class="connect-card__card-last-four">
+                {{ cardValuesMap[card.id].last_four || '' }}
               </div>
+            </div>
+            @if (cardValuesMap?.[card.id].card_type === 'Others') {
+            <ion-icon
+              src="../../../../assets/svg/card.svg"
+              class="connect-card__input-default-icon"
+              data-testid="default-icon"
+            ></ion-icon>
+            } @if (cardValuesMap?.[card.id].card_type === 'Visa') {
+            <img
+              src="../../../../assets/images/visa-logo.png"
+              class="connect-card__input-visa-icon"
+              data-testid="visa-icon"
+            />
+            } @if (cardValuesMap?.[card.id].card_type === 'Mastercard') {
+            <img
+              src="../../../../assets/images/mastercard-logo.png"
+              class="connect-card__input-mastercard-icon"
+              data-testid="mastercard-icon"
+            />
             }
-            @if (enrollableCards.length === 0) {
-              <div>
-                <div class="connect-card__input-label">
-                  <span>{{ 'spenderOnboardingConnectCardStep.cardLabel' | transloco }}</span>
-                </div>
-                <div
-                  class="connect-card__input-inner-container"
+          </div>
+          <div class="connect-card__input-error-space"></div>
+          @if ( fg.controls['card_number_' + card.id]?.touched && fg.controls['card_number_' + card.id]?.invalid &&
+          !cardValuesMap[card.id].enrollment_success ) {
+          <div class="connect-card__input-errors" data-testid="error-message">
+            @if (fg.controls['card_number_' + card.id]?.errors.invalidCardNumber) {
+            <span>{{ 'spenderOnboardingConnectCardStep.invalidCardNumberError' | transloco }}</span>
+            } @if (fg.controls['card_number_' + card.id]?.errors.enrollmentError) {
+            <span>{{ cardValuesMap[card.id].enrollment_error }}</span>
+            } @if (fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork) { @if (isVisaRTFEnabled &&
+            isMastercardRTFEnabled) {
+            <span>{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkVisaMastercardError' | transloco }}</span>
+            } @else {
+            <!-- Check if only visa is enabled -->
+            @if ( fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork && isVisaRTFEnabled) {
+            <span>{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkVisaError' | transloco }}</span>
+            } @else {
+            <!-- Check if only mastercard is enabled -->
+            @if (fg.controls['card_number_' + card.id]?.errors.invalidCardNetwork && isMastercardRTFEnabled) {
+            <span>{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkMastercardError' | transloco }}</span>
+            } } } }
+          </div>
+          }
+        </div>
+        }
+      </div>
+      } @if (enrollableCards.length === 0) {
+      <div>
+        <div class="connect-card__input-label">
+          <span>{{ 'spenderOnboardingConnectCardStep.cardLabel' | transloco }}</span>
+        </div>
+        <div
+          class="connect-card__input-inner-container"
           [ngClass]="{
             'connect-card__input-inner-container--error':
               fg.controls.card_number.touched && fg.controls.card_number.invalid
           }"
-                  >
-                  <input
-                    class="smartlook-show connect-card__card-number-input-singular pl-0"
-                    inputmode="numeric"
-                    mask="0000 0000 0000 0000"
-                    [placeholder]="'spenderOnboardingConnectCardStep.singularCardPlaceholder' | transloco"
-                    data-testid="card-number-input"
-                    formControlName="card_number"
-                    required
-                    (input)="onCardNumberUpdate()"
-                    />
-                  @if (singleEnrollableCardType === 'Others') {
-                    <ion-icon
-                      src="../../../../assets/svg/card.svg"
-                      class="connect-card__input-default-icon"
-                      data-testid="default-icon"
-                    ></ion-icon>
-                  }
-                  @if (singleEnrollableCardType === 'Visa') {
-                    <img
-                      src="../../../../assets/images/visa-logo.png"
-                      class="connect-card__input-visa-icon"
-                      data-testid="visa-icon"
-                      />
-                  }
-                  @if (singleEnrollableCardType === 'Mastercard') {
-                    <img
-                      src="../../../../assets/images/mastercard-logo.png"
-                      class="connect-card__input-mastercard-icon"
-                      data-testid="mastercard-icon"
-                      />
-                  }
-                </div>
-                <div class="connect-card__input-error-space"></div>
-                @if (fg.controls.card_number?.touched && fg.controls.card_number?.invalid) {
-                  <div
-                    class="connect-card__input-errors"
-                    data-testid="error-message"
-                    >
-                    @if (fg.controls.card_number.errors.invalidCardNumber) {
-                      <span>{{
-                        'spenderOnboardingConnectCardStep.invalidCardNumberError' | transloco
-                      }}</span>
-                    }
-                    @if (fg.controls.card_number.errors.enrollmentError) {
-                      <span>
-                        {{ singularEnrollmentFailure }}
-                      </span>
-                    }
-                    @if (fg.controls.card_number?.errors.invalidCardNetwork) {
-                      @if (isVisaRTFEnabled && isMastercardRTFEnabled) {
-                        <span>{{
-                          'spenderOnboardingConnectCardStep.invalidCardNetworkVisaMastercardError' | transloco
-                        }}</span>
-                      } @else {
-                        <!-- Check if only visa is enabled -->
-                        @if (fg.controls.card_number?.errors.invalidCardNetwork && isVisaRTFEnabled) {
-                          <span
-                            >{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkVisaError' | transloco }}</span
-                            >
-                          } @else {
-                            <!-- Check if only mastercard is enabled -->
-                            @if (fg.controls.card_number?.errors.invalidCardNetwork && isMastercardRTFEnabled) {
-                              <span>{{
-                                'spenderOnboardingConnectCardStep.invalidCardNetworkMastercardError' | transloco
-                              }}</span>
-                            }
-                          }
-                        }
-                      }
-                    </div>
-                  }
-                </div>
-              }
-            </form>
-          </div>
-          <div class="connect-card__primary-cta-container">
-            <ion-button
-              class="btn-primary connect-card__primary-cta"
-              fill="clear"
-              role="button"
-              (click)="enrollCards()"
-              appFormButtonValidation
-              [loading]="cardsEnrolling"
-              [loadingText]="'spenderOnboardingConnectCardStep.continue' | transloco"
-              >
-              {{ 'spenderOnboardingConnectCardStep.continue' | transloco }}
-            </ion-button>
-          </div>
+        >
+          <input
+            class="smartlook-show connect-card__card-number-input-singular pl-0"
+            inputmode="numeric"
+            mask="0000 0000 0000 0000"
+            [placeholder]="'spenderOnboardingConnectCardStep.singularCardPlaceholder' | transloco"
+            data-testid="card-number-input"
+            formControlName="card_number"
+            required
+            (input)="onCardNumberUpdate()"
+          />
+          @if (singleEnrollableCardType === 'Others') {
+          <ion-icon
+            src="../../../../assets/svg/card.svg"
+            class="connect-card__input-default-icon"
+            data-testid="default-icon"
+          ></ion-icon>
+          } @if (singleEnrollableCardType === 'Visa') {
+          <img
+            src="../../../../assets/images/visa-logo.png"
+            class="connect-card__input-visa-icon"
+            data-testid="visa-icon"
+          />
+          } @if (singleEnrollableCardType === 'Mastercard') {
+          <img
+            src="../../../../assets/images/mastercard-logo.png"
+            class="connect-card__input-mastercard-icon"
+            data-testid="mastercard-icon"
+          />
+          }
         </div>
+        <div class="connect-card__input-error-space"></div>
+        @if (fg.controls.card_number?.touched && fg.controls.card_number?.invalid) {
+        <div class="connect-card__input-errors" data-testid="error-message">
+          @if (fg.controls.card_number.errors.invalidCardNumber) {
+          <span>{{ 'spenderOnboardingConnectCardStep.invalidCardNumberError' | transloco }}</span>
+          } @if (fg.controls.card_number.errors.enrollmentError) {
+          <span>
+            {{ singularEnrollmentFailure }}
+          </span>
+          } @if (fg.controls.card_number?.errors.invalidCardNetwork) { @if (isVisaRTFEnabled && isMastercardRTFEnabled)
+          {
+          <span>{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkVisaMastercardError' | transloco }}</span>
+          } @else {
+          <!-- Check if only visa is enabled -->
+          @if (fg.controls.card_number?.errors.invalidCardNetwork && isVisaRTFEnabled) {
+          <span>{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkVisaError' | transloco }}</span>
+          } @else {
+          <!-- Check if only mastercard is enabled -->
+          @if (fg.controls.card_number?.errors.invalidCardNetwork && isMastercardRTFEnabled) {
+          <span>{{ 'spenderOnboardingConnectCardStep.invalidCardNetworkMastercardError' | transloco }}</span>
+          } } } }
+        </div>
+        }
+      </div>
       }
+    </form>
+  </div>
+  <div class="connect-card__primary-cta-container">
+    <ion-button
+      class="btn-primary connect-card__primary-cta"
+      fill="clear"
+      role="button"
+      (click)="enrollCards()"
+      appFormButtonValidation
+      [loading]="cardsEnrolling"
+      [loadingText]="'spenderOnboardingConnectCardStep.continue' | transloco"
+    >
+      {{ 'spenderOnboardingConnectCardStep.continue' | transloco }}
+    </ion-button>
+  </div>
+</div>
+}

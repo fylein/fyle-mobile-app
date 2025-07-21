@@ -225,7 +225,7 @@
         <!-- Comments section -->
         @if (segmentValue === Segment.COMMENTS) { @if (userComments?.length > 0) {
         <div class="view-comment--container">
-          @for (estatus of userComments; track estatus) {
+          @for (estatus of userComments; track estatus.id) {
           <div>
             @if (estatus.show_dt) {
             <div>
