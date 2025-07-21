@@ -5,13 +5,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-
-interface PolicyDetail {
-  run_status: string;
-  expense_policy_rule: {
-    description: string;
-  };
-}
+import { PolicyDetail } from 'src/app/core/models/policy-detail.model';
 
 @Component({
   selector: 'app-fy-policy-violation-info',
@@ -27,7 +21,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   policyViolations: string[] = [];
 
-  showPolicyInfo: boolean = false;
+  showPolicyInfo = false;
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
