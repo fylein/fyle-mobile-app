@@ -88,6 +88,7 @@
         type="button"
         [routerLink]="['/', 'enterprise', 'my_create_report']"
         class="my-reports--zero-state-cta text-center"
+        (click)="trackReportZeroStateClick()"
       >
         {{ 'myReportsPage.createExpenseReport' | transloco }}
       </button>

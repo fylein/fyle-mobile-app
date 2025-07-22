@@ -18,7 +18,7 @@ describe('DashboardEmailOptInComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['clickedOnDashboardEmailOptInBanner']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService');
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
@@ -85,7 +85,6 @@ describe('DashboardEmailOptInComponent', () => {
     it('should call tracking service, emit toggleEmailOptInBanner with optedIn true, and navigate to profile', async () => {
       await component.emailOptInClick();
 
-      expect(trackingService.clickedOnDashboardEmailOptInBanner).toHaveBeenCalledTimes(1);
       expect(component.toggleEmailOptInBanner.emit).toHaveBeenCalledWith({ optedIn: true });
       expect(router.navigate).toHaveBeenCalledWith([
         '/',

@@ -481,6 +481,10 @@ export class MyReportsPage {
     });
   }
 
+  trackReportZeroStateClick(): void {
+    this.trackingService.clickedOnZeroStateCreateReport();
+  }
+
   onCameraClicked(): void {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
