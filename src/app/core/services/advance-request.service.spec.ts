@@ -170,7 +170,9 @@ describe('AdvanceRequestService', () => {
       const expectedData = cloneDeep(publicAdvanceRequestRes);
       spenderService.get.and.returnValue(of(advanceRequestPlatform));
       // @ts-ignore
-      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(
+        cloneDeep(advanceRequestPlatform.data[0])
+      );
 
       advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
         expect(res).toEqual(expectedData.data[0]);
@@ -240,7 +242,9 @@ describe('AdvanceRequestService', () => {
     const expectedData = cloneDeep(extendedAdvReqRes);
     approverService.get.and.returnValue(of(advanceRequestPlatform));
     // @ts-ignore
-    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(
+      cloneDeep(advanceRequestPlatform.data[0])
+    );
 
     advanceRequestService.getApproverAdvanceRequest(advReqID).subscribe((res) => {
       expect(res).toEqual(expectedData.data[0]);
@@ -418,7 +422,7 @@ describe('AdvanceRequestService', () => {
   });
 
   it('post(): should save a draft advance request', (done) => {
-    spenderService.post.and.returnValue(of({ data: advanceRequestPlatform.data[0] }));
+    spenderService.post.and.returnValue(of({ data: cloneDeep(advanceRequestPlatform.data[0]) }));
 
     advanceRequestService.post(draftAdvancedRequestParam).subscribe((res) => {
       expect(res).toEqual(advanceRequestPlatform.data[0]);
@@ -612,7 +616,8 @@ describe('AdvanceRequestService', () => {
   });
 
   it('getSpenderAdvanceRequestRaw(): should get raw advance request data using spender service', (done) => {
-    spenderService.get.and.returnValue(of({ data: [advanceRequestPlatform.data[0]] }));
+    const mockAdvanceRequestData = cloneDeep(advanceRequestPlatform.data[0]);
+    spenderService.get.and.returnValue(of({ data: [mockAdvanceRequestData] }));
 
     const advID = 'areqGzKF1Tne23';
 
@@ -626,7 +631,8 @@ describe('AdvanceRequestService', () => {
   });
 
   it('getApproverAdvanceRequestRaw(): should get raw advance request data using approver service', (done) => {
-    approverService.get.and.returnValue(of({ data: [advanceRequestPlatform.data[0]] }));
+    const mockAdvanceRequestData = cloneDeep(advanceRequestPlatform.data[0]);
+    approverService.get.and.returnValue(of({ data: [mockAdvanceRequestData] }));
 
     const advID = 'areqGzKF1Tne23';
 
@@ -641,7 +647,9 @@ describe('AdvanceRequestService', () => {
 
   it('getActiveApproversByAdvanceRequestIdPlatform(): should get active approvers for an advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
-    spyOn(advanceRequestService, 'getSpenderAdvanceRequestRaw').and.returnValue(of(advanceRequestPlatform.data[0]));
+    spyOn(advanceRequestService, 'getSpenderAdvanceRequestRaw').and.returnValue(
+      of(cloneDeep(advanceRequestPlatform.data[0]))
+    );
     advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(advID).subscribe((res) => {
       expect(res).toEqual(advanceReqApprovalsPublic);
       expect(advanceRequestService.getSpenderAdvanceRequestRaw).toHaveBeenCalledOnceWith(advID);
@@ -651,7 +659,9 @@ describe('AdvanceRequestService', () => {
 
   it('getActiveApproversByAdvanceRequestIdPlatformForApprover(): should get active approvers for team advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
-    spyOn(advanceRequestService, 'getApproverAdvanceRequestRaw').and.returnValue(of(advanceRequestPlatform.data[0]));
+    spyOn(advanceRequestService, 'getApproverAdvanceRequestRaw').and.returnValue(
+      of(cloneDeep(advanceRequestPlatform.data[0]))
+    );
 
     const expectedApprovals = [
       {
@@ -670,7 +680,9 @@ describe('AdvanceRequestService', () => {
 
   it('getCommentsByAdvanceRequestIdPlatformForApprover(): should get comments for team advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
-    spyOn(advanceRequestService, 'getApproverAdvanceRequestRaw').and.returnValue(of(advanceRequestPlatform.data[0]));
+    spyOn(advanceRequestService, 'getApproverAdvanceRequestRaw').and.returnValue(
+      of(cloneDeep(advanceRequestPlatform.data[0]))
+    );
     authService.getEou.and.resolveTo(apiEouRes);
 
     const expectedComments = [
@@ -709,7 +721,9 @@ describe('AdvanceRequestService', () => {
 
   it('getCommentsByAdvanceRequestIdPlatform(): should get comments for spender advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
-    spyOn(advanceRequestService, 'getSpenderAdvanceRequestRaw').and.returnValue(of(advanceRequestPlatform.data[0]));
+    spyOn(advanceRequestService, 'getSpenderAdvanceRequestRaw').and.returnValue(
+      of(cloneDeep(advanceRequestPlatform.data[0]))
+    );
     authService.getEou.and.resolveTo(apiEouRes);
 
     const expectedComments = [
