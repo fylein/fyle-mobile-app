@@ -10,7 +10,7 @@ import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advanc
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.config';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { cloneDeep } from 'lodash';

@@ -1,8 +1,7 @@
-import { enableProdMode, APP_INITIALIZER, ErrorHandler, InjectionToken, importProvidersFrom } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { enableProdMode, APP_INITIALIZER, ErrorHandler, importProvidersFrom } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 
-import { MyHammerConfig, MIN_SCREEN_WIDTH } from './app/app.module';
+import { MyHammerConfig, MIN_SCREEN_WIDTH } from './app/app.config';
 import { environment } from './environments/environment';
 
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
@@ -13,33 +12,31 @@ import { GlobalCacheConfig } from 'ts-cacheable';
 import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
+import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { provideTransloco, TranslocoService } from '@jsverse/transloco';
-import { environment as environment_1 } from 'src/environments/environment';
 import { TranslocoHttpLoader } from './app/transloco-http-loader';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
-import {
-  HAMMER_GESTURE_CONFIG,
-  HammerGestureConfig,
-  BrowserModule,
-  HammerModule,
-  bootstrapApplication,
-} from '@angular/platform-browser';
-import { RouteReuseStrategy, Router } from '@angular/router';
-import { IonicRouteStrategy, IonicModule } from '@ionic/angular';
+import { HAMMER_GESTURE_CONFIG, BrowserModule, HammerModule, bootstrapApplication } from '@angular/platform-browser';
+import { RouteReuseStrategy, Router, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
+import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
 import { HttpConfigInterceptor } from './app/core/interceptors/httpInterceptor';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { ConfigService } from './app/core/services/config.service';
 import { TIMEZONE, PAGINATION_SIZE, DEVICE_PLATFORM } from './app/constants';
 import { RouterAuthService } from './app/core/services/router-auth.service';
 import { TokenService } from './app/core/services/token.service';
 import { SecureStorageService } from './app/core/services/secure-storage.service';
 import { StorageService } from './app/core/services/storage.service';
-import { AppRoutingModule } from './app/app-routing.module';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { SharedModule } from './app/shared/shared.module';
 import { NgOtpInputModule } from 'ng-otp-input';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { appRoutes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
+import { IconModule } from './app/shared/icon/icon.module';
+import { FyCurrencyPipe } from './app/shared/pipes/fy-currency.pipe';
+import { HumanizeCurrencyPipe } from './app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from './app/shared/pipes/exact-currency.pipe';
+import { ReportState } from './app/shared/pipes/report-state.pipe';
 
 // Global cache config
 GlobalCacheConfig.maxAge = 10 * 60 * 1000;
@@ -111,15 +108,22 @@ bootstrapApplication(AppComponent, {
       IonicModule.forRoot({
         innerHTMLTemplatesEnabled: true,
       }),
-      AppRoutingModule,
-      SharedModule,
       HammerModule,
-      HammerModule,
+      IconModule,
       NgOtpInputModule
     ),
+    provideRouter(appRoutes, withPreloading(PreloadAllModules)),
     GooglePlus,
     InAppBrowser,
     Smartlook,
+    ImagePicker,
+    FyCurrencyPipe,
+    DatePipe,
+    TitleCasePipe,
+    ReportState,
+    DecimalPipe,
+    HumanizeCurrencyPipe,
+    ExactCurrencyPipe,
     provideTransloco({
       config: {
         availableLangs: ['en'],

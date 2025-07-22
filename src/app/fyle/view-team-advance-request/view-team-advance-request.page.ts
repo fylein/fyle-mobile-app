@@ -10,7 +10,7 @@ import {
 import { EMPTY, Subject, forkJoin, from } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { catchError, concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, take } from 'rxjs/operators';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.config';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { ApprovalPublic } from 'src/app/core/models/approval-public.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';

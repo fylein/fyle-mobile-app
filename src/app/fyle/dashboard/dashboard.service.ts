@@ -14,7 +14,9 @@ import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/re
 import { GroupedReportStats } from 'src/app/core/models/platform/v1/grouped-report-stats.model';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class DashboardService {
   constructor(
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,

@@ -81,6 +81,7 @@ type Filters = Partial<PersonalCardFilter>;
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
   standalone: true,
+  providers: [SpinnerDialog],
   imports: [
     FyHeaderComponent,
     IonicModule,
