@@ -670,8 +670,7 @@ describe('AdvanceRequestService', () => {
 
   it('getCommentsByAdvanceRequestIdPlatformForApprover(): should get comments for team advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
-    //@ts-ignore
-    approverService.get.and.returnValue(of(advanceRequestPlatform));
+    spyOn(advanceRequestService, 'getApproverAdvanceRequestRaw').and.returnValue(of(advanceRequestPlatform.data[0]));
     authService.getEou.and.resolveTo(apiEouRes);
 
     const expectedComments = [
@@ -703,18 +702,14 @@ describe('AdvanceRequestService', () => {
 
     advanceRequestService.getCommentsByAdvanceRequestIdPlatformForApprover(advID).subscribe((res) => {
       expect(res).toEqual(expectedComments);
-      //@ts-ignore
-      expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: { id: `eq.${advID}` },
-      });
+      expect(advanceRequestService.getApproverAdvanceRequestRaw).toHaveBeenCalledOnceWith(advID);
       done();
     });
   });
 
   it('getCommentsByAdvanceRequestIdPlatform(): should get comments for spender advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
-    //@ts-ignore
-    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+    spyOn(advanceRequestService, 'getSpenderAdvanceRequestRaw').and.returnValue(of(advanceRequestPlatform.data[0]));
     authService.getEou.and.resolveTo(apiEouRes);
 
     const expectedComments = [
@@ -746,10 +741,7 @@ describe('AdvanceRequestService', () => {
 
     advanceRequestService.getCommentsByAdvanceRequestIdPlatform(advID).subscribe((res) => {
       expect(res).toEqual(expectedComments);
-      //@ts-ignore
-      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: { id: `eq.${advID}` },
-      });
+      expect(advanceRequestService.getSpenderAdvanceRequestRaw).toHaveBeenCalledOnceWith(advID);
       done();
     });
   });
