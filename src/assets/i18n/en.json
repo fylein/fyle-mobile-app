@@ -240,6 +240,7 @@
       "aboutToDelete": "You are about to permanently delete",
       "oneSelectedExpense": "1 selected expense.",
       "multipleSelectedExpenses": "{{count}} selected expenses.",
+      "expenseNotFound": "Expense not found",
       "cccMessageSingular": "There is {{count}} corporate card expense from the selection which can't be deleted.",
       "cccMessagePlural": "There are {{count}} corporate card expenses from the selection which can't be deleted.",
       "deleteOthersMessage": "However you can delete the other expenses from the selection.",
@@ -1005,7 +1006,7 @@
   "fySelectProject": {
     "selectLabel": "Select {{label}}"
   },
-  "fyProjectSelectModal": {
+  "fySelectProjectModal": {
     "selectLabel": "Select {{label}}",
     "searchPlaceholder": "Search",
     "clearAriaLabel": "Clear",
@@ -1126,7 +1127,7 @@
     "selectDistance": "Select distance",
     "selectDistanceUnit": "Select distance unit"
   },
-  "fySummaryTile": {
+  "summaryTile": {
     "projectLabel": "Project:",
     "approvers": "Approvers",
     "approved": "Approved",

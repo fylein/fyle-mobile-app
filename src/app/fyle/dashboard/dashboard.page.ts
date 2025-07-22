@@ -27,7 +27,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { DashboardState } from 'src/app/core/enums/dashboard-state.enum';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { driver, DriveStep } from 'driver.js';

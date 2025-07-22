@@ -1,0 +1,115 @@
+---
+description: i18n keys for services, pipes, and directives
+globs:
+  - "**/*.service.ts"
+  - "**/*.pipe.ts"
+  - "**/*.directive.ts"
+alwaysApply: false
+---
+
+### Naming schemas
+services.<serviceName>.<messageKey>
+pipes.<pipeName>.<messageKey>
+directives.<directiveName>.<messageKey>
+
+### File stem conversion
+Convert kebab-case file names to camelCase and remove suffixes:
+- `report-expenses.service.ts` → `reportExpenses` (remove "Service" suffix)
+- `date-format.pipe.ts` → `dateFormat` (remove "Pipe" suffix)
+- `drop-zone.directive.ts` → `dropZone` (remove "Directive" suffix)
+
+**Suffix removal:** `Service`, `Pipe`, `Directive`
+
+### Key naming guidelines
+- Use meaningful, semantic, and context-aware key names
+- Prefer keys like `spendDate`, `invalidDate`, `uploadPrompt`
+- Avoid generic names like `message1`, `text1`, `error1`
+- The key should help developers understand the purpose just by reading it
+
+### Example
+```jsonc
+{
+  "services": {
+    "myExpenses": {
+      "spendDate": "Spend Date",
+      "validationError": "Invalid expense data"
+    }
+  },
+  "pipes": {
+    "dateFormat": {
+      "invalidDate": "Invalid date",
+      "formatError": "Date format error"
+    }
+  },
+  "directives": {
+    "dropZone": {
+      "uploadPrompt": "Drag files here to upload",
+      "fileTooLargeError": "File is too large"
+    }
+  }
+}
+```
+
+### Bad Examples (What NOT to do)
+```jsonc
+// ❌ BAD - Wrong file name conversion (includes suffix)
+{
+  "services": {
+    "reportExpensesService": {  // Should be "reportExpenses" (remove "Service")
+      "spendDate": "Spend Date"
+    }
+  }
+}
+
+// ❌ BAD - Generic key names
+{
+  "services": {
+    "myExpenses": {
+      "message1": "Spend Date",
+      "error1": "Invalid data"
+    }
+  }
+}
+
+// ❌ BAD - Wrong atomic grouping
+{
+  "myExpenses": {  // Should be under "services" group
+    "spendDate": "Spend Date"
+  }
+}
+```
+
+### TypeScript usage examples
+```typescript
+// In services
+this.translocoService.translate('services.myExpenses.validationError');
+
+// In pipes
+return this.translocoService.translate('pipes.dateFormat.invalidDate');
+
+// In directives
+this.element.nativeElement.title = this.translocoService.translate('directives.dropZone.fileTooLargeError');
+```
+
+### JSON placement rule
+**File Location** → **Translation File Location**
+
+- **If file is in:** `src/**`
+  **Then put key in:** `src/assets/i18n/{lang}.json`
+
+**Note:** Add the key to every supported language file (e.g., `en.json`, `es.json`, etc.).
+
+### What NOT to translate
+- Strings that are already translation keys (e.g., `'service.key' | transloco`)
+- Tracking/analytics strings (e.g., `this.trackingService.trackEvent('User action')`)
+- Strings with only special characters (e.g., `'-'`, `','`, `'.'`)
+- Comments and non-user-visible text
+- Variable bindings and expressions
+- Internal error messages not shown to users
+
+### Rules to remember
+- Use only the three roots: services, pipes, directives.
+- Convert file names from kebab-case to camelCase for the key name.
+- Remove Service, Pipe, Directive suffixes from file names.
+- Keep child keys alphabetically sorted to reduce merge conflicts.
+- Use semantic key names that describe the purpose.

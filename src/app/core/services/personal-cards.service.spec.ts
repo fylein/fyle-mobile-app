@@ -14,7 +14,7 @@ import {
 import { selectedFilters1, selectedFilters2 } from '../mock-data/selected-filters.data';
 import { filterData1 } from '../mock-data/filter.data';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 import { personalCardAccessTokenResponse } from '../mock-data/personal-cards-access-token.data';

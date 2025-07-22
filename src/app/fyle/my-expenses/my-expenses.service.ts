@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';

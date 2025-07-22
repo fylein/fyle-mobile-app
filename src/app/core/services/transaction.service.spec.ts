@@ -28,7 +28,7 @@ import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import * as lodash from 'lodash';
 import {
   transformedExpensePayload,

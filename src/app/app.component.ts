@@ -113,7 +113,6 @@ export class AppComponent implements OnInit {
   }
 
   initializeApp(): void {
-    // eslint-disable-next-line max-len
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
 
     App.addListener('appUrlOpen', (data) => {

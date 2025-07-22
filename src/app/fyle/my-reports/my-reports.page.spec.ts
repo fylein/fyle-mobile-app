@@ -12,7 +12,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { orgSettingsRes, orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
@@ -20,7 +20,7 @@ import { HeaderState } from 'src/app/shared/components/fy-header/header-state.en
 import { NetworkService } from 'src/app/core/services/network.service';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from 'src/app/core/services/date.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
@@ -84,6 +84,7 @@ import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-repor
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportState as PlatformReportState } from 'src/app/core/models/platform/v1/report.model';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('MyReportsPage', () => {
@@ -153,7 +154,8 @@ describe('MyReportsPage', () => {
 
     TestBed.configureTestingModule({
       declarations: [MyReportsPage, ReportState],
-      imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule, TranslocoModule],
+      schemas: [NO_ERRORS_SCHEMA],
+      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
@@ -200,9 +202,10 @@ describe('MyReportsPage', () => {
           useValue: spenderReportsServiceSpy,
         },
         { provide: TranslocoService, useValue: translocoServiceSpy },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
         ReportState,
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyReportsPage);

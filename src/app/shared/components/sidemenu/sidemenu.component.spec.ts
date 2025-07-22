@@ -15,12 +15,11 @@ import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuComponent } from './sidemenu.component';
 import { of, take } from 'rxjs';
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, NO_ERRORS_SCHEMA, Output } from '@angular/core';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
-import { currentEouRes, eouListWithDisabledUser } from 'src/app/core/test-data/org-user.service.spec.data';
+import { currentEouRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { cloneDeep } from 'lodash';
@@ -98,7 +97,7 @@ describe('SidemenuComponent', () => {
     });
     TestBed.configureTestingModule({
       declarations: [SidemenuComponent],
-      imports: [IonicModule.forRoot(), MatMenuModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },

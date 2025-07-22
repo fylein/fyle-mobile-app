@@ -1,6 +1,6 @@
 import { getNumberOfCurrencyDigits } from '@angular/common';
 import { Injectable } from '@angular/core';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { Observable, from, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';

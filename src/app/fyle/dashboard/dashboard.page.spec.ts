@@ -33,8 +33,8 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { featureConfigOptInData, featureConfigEmailOptInData } from 'src/app/core/mock-data/feature-config.data';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import {
   featureConfigWalkthroughFinishData,

@@ -1,22 +1,26 @@
-<ng-container *ngIf="dependentFields?.length">
-  <div *ngFor="let dependentField of dependentFields" class="dependent-fields--internal-block">
-    <div [formGroup]="dependentField.control">
-      <app-dependent-field
-        [label]="dependentField.field"
-        [placeholder]="dependentField.placeholder"
-        [mandatory]="dependentField.mandatory"
-        [valid]="!(dependentField?.control?.touched && !dependentField?.control?.valid)"
-        [fieldId]="dependentField.id"
-        [parentFieldId]="dependentField.parentFieldId"
-        [parentFieldValue]="dependentField.parentFieldValue"
-        formControlName="value"
-      >
-      </app-dependent-field>
+@if (dependentFields?.length) {
+  @for (dependentField of dependentFields; track dependentField) {
+    <div class="dependent-fields--internal-block">
+      <div [formGroup]="dependentField.control">
+        <app-dependent-field
+          [label]="dependentField.field"
+          [placeholder]="dependentField.placeholder"
+          [mandatory]="dependentField.mandatory"
+          [valid]="!(dependentField?.control?.touched && !dependentField?.control?.valid)"
+          [fieldId]="dependentField.id"
+          [parentFieldId]="dependentField.parentFieldId"
+          [parentFieldValue]="dependentField.parentFieldValue"
+          formControlName="value"
+          >
+        </app-dependent-field>
+      </div>
     </div>
-  </div>
-</ng-container>
+  }
+}
 
-<div class="dependent-fields--primary-block" *ngIf="isDependentFieldLoading">
-  <ion-skeleton-text class="dependent-fields__skeleton-loader--title" [animated]="true"></ion-skeleton-text>
-  <ion-skeleton-text class="dependent-fields__skeleton-loader" [animated]="true"></ion-skeleton-text>
-</div>
+@if (isDependentFieldLoading) {
+  <div class="dependent-fields--primary-block">
+    <ion-skeleton-text class="dependent-fields__skeleton-loader--title" [animated]="true"></ion-skeleton-text>
+    <ion-skeleton-text class="dependent-fields__skeleton-loader" [animated]="true"></ion-skeleton-text>
+  </div>
+}
