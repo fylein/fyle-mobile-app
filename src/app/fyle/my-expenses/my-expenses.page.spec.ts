@@ -542,7 +542,6 @@ describe('MyExpensesPage', () => {
         },
         ReportState,
         MaskNumber,
-        provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     }).compileComponents();
@@ -2185,6 +2184,7 @@ describe('MyExpensesPage', () => {
           value: 'Credit',
         },
       ]);
+      component.orgSettings$ = of(orgSettingsRes);
     });
 
     it('should call modalController and myExpensesService', fakeAsync(() => {
