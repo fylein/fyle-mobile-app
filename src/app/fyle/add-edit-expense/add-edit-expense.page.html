@@ -1,1151 +1,1425 @@
 <ion-header [ngClass]="{'d-none': isCameraPreviewStarted}" mode="md">
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     @if (navigateBack) {
-    <ion-buttons mode="md" slot="start">
-      <ion-button (click)="showClosePopup()">
-        <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    } @if (!navigateBack) {
-    <ion-buttons mode="md" slot="start">
-      <ion-button (click)="showClosePopup()">
-        <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/cross.svg'" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    } @if (mode) {
-    <ion-title class="page-title" mode="md" [ngClass]="{'add-edit-expense--title__review': reviewList?.length}">
-      @if (mode === 'add') {
-      <div class="add-edit-expense--toolbar__title">Add expense</div>
-      } @if (mode === 'edit') {
-      <div>
-        @if (reviewList?.length) { Review expense
-        <div class="add-edit-expense--sub-header">
-          {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
-        </div>
-        } @else {
-        <div>{{isIncompleteExpense ? 'Review' : 'Edit'}} expense</div>
+      <ion-buttons mode="md" slot="start">
+        <ion-button (click)="showClosePopup()">
+          <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+    @if (!navigateBack) {
+      <ion-buttons mode="md" slot="start">
+        <ion-button (click)="showClosePopup()">
+          <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/cross.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+
+    @if (mode) {
+      <ion-title
+        class="page-title"
+        mode="md"
+        [ngClass]="{'add-edit-expense--title__review': reviewList?.length}"
+        >
+        @if (mode === 'add') {
+          <div class="add-edit-expense--toolbar__title">Add expense</div>
         }
-      </div>
-      }
-    </ion-title>
-    } @if (!fromSplitExpenseReview) {
-    <ion-buttons class="add-edit-expense--header-btn-container" slot="end">
-      @if (reviewList?.length || mode === 'edit') {
-      <ion-button class="add-edit-expense--header-btn-container__btn" (click)="openCommentsModal()">
-        <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
-      </ion-button>
-      } @if ((reviewList?.length || mode === 'edit') && !isCccExpense && etxn$|async; as etxn) { @if
-      (canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)) {
-      <ion-button class="add-edit-expense--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
-        <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
-      </ion-button>
-      } } @if (etxn$|async; as etxn) { @if (isConnected$|async; as isConnected) { @if (!(reviewList?.length > 1)) { @if
-      (actionSheetOptions$|async; as actionSheetOptions) { @if (actionSheetOptions.length > 0) {
-      <ion-button class="add-edit-expense--header-btn-container__btn" (click)="showMoreActions()">
-        <ion-icon
-          class="add-edit-expense--header-btn-container__icon"
-          [src]="'../../../assets/svg/vertical-dots-menu.svg'"
-        ></ion-icon>
-      </ion-button>
-      } } } } }
-    </ion-buttons>
+        @if (mode === 'edit') {
+          <div>
+            @if (reviewList?.length) {
+              Review expense
+              <div class="add-edit-expense--sub-header">
+                {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
+              </div>
+            } @else {
+              <div>{{isIncompleteExpense ? 'Review' : 'Edit'}} expense</div>
+            }
+          </div>
+        }
+      </ion-title>
+    }
+
+    @if (!fromSplitExpenseReview) {
+      <ion-buttons class="add-edit-expense--header-btn-container" slot="end">
+        @if (reviewList?.length || mode === 'edit') {
+          <ion-button
+            class="add-edit-expense--header-btn-container__btn"
+            (click)="openCommentsModal()"
+            >
+            <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
+          </ion-button>
+        }
+        @if ((reviewList?.length || mode === 'edit') && !isCccExpense && etxn$|async; as etxn) {
+          @if (canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)) {
+            <ion-button class="add-edit-expense--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
+              <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
+            </ion-button>
+          }
+        }
+        @if (etxn$|async; as etxn) {
+          @if (isConnected$|async; as isConnected) {
+            @if (!(reviewList?.length > 1)) {
+              @if (actionSheetOptions$|async; as actionSheetOptions) {
+                @if (actionSheetOptions.length > 0) {
+                  <ion-button class="add-edit-expense--header-btn-container__btn" (click)="showMoreActions()">
+                    <ion-icon
+                      class="add-edit-expense--header-btn-container__icon"
+                      [src]="'../../../assets/svg/vertical-dots-menu.svg'"
+                    ></ion-icon>
+                  </ion-button>
+                }
+              }
+            }
+          }
+        }
+      </ion-buttons>
     }
   </ion-toolbar>
 </ion-header>
 
 <ion-content [ngClass]="{'d-none': isCameraPreviewStarted}">
   @if (fg) {
-  <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
-    <div>
-      @if (showReceiptMandatoryError) {
-      <div class="add-edit-expense--alert-offline receipt-mandatory-error">
-        <app-fy-alert-info message="Please upload the receipt." type="error"></app-fy-alert-info>
-      </div>
-      } @if (isIncompleteExpense) {
-      <div class="add-edit-expense--alert-offline">
-        <app-fy-alert-info
-          message="Mandatory field values are missing. Please update the details and save the Expense."
-          type="warning"
-        ></app-fy-alert-info>
-      </div>
-      } @if (duplicateExpenses?.length > 0) {
-      <div class="add-edit-expense--alert-offline">
-        <app-fy-alert-info
-          [message]="'This expense might be a duplicate of an existing expense.'"
-          [type]="'warning'"
-          [showActionButton]="true"
-          [actionButtonContent]="'View'"
-          (actionClick)="showSuggestedDuplicates(duplicateExpenses)"
-        >
-        </app-fy-alert-info>
-      </div>
-      } @if (instaFyleCancelled) {
-      <div class="add-edit-expense--alert-offline">
-        <app-fy-alert-info
-          [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details manually'"
-          [type]="'information'"
-        >
-        </app-fy-alert-info>
-      </div>
-      } @if (etxn$|async; as etxn) { @if (mode === 'edit' && etxn.tx.policy_flag) { @if (policyDetails) {
-      <app-fy-policy-violation-info
-        [policyDetails]="policyDetails"
-        [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
-        [expense]="platformExpense$|async"
-      ></app-fy-policy-violation-info>
-      } } @if (isSplitExpense) {
-      <div class="add-edit-expense--alert-split">
-        <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
-      </div>
-      } @if (isAmountCapped$|async) { @if (!(isCriticalPolicyViolated$|async)) {
-      <div class="capped-info">
-        <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
-        <div class="capped-message">
-          Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: '' }} was capped to {{etxn.tx.amount |
-          currency: etxn.tx.currency: '' }} due to policy @if (isAmountDisabled$|async) {
-          <span> and cannot be edited.</span>
-          }
-        </div>
-      </div>
-      } } } @if (isCccExpense) { @if (etxn$|async; as etxn) { @if ((!(etxn?.tx?.report_id) && !(reviewList?.length > 1))
-      && (isCorporateCreditCardEnabled && canRemoveCardExpense)) {
-      <div class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border">
-        <mat-icon class="add-edit-expense--split-info-icon" svgIcon="info-circle-fill"></mat-icon>
-        <div class="add-edit-expense--split-info-message">
-          If the expense is merged with incorrect card details, click on Options (<span
-            ><ion-icon
-              class="add-edit-expense--icon-dots"
-              [src]="'../../../assets/svg/vertical-dots-menu.svg'"
-            ></ion-icon></span
-          >) to remove the card details.
-        </div>
-      </div>
-      } }
-      <ion-grid class="add-edit-expense--card-container">
-        <ion-row>
-          <ion-col>
-            <div class="add-edit-expense--card-container__label">Card ending in...</div>
-            <div class="add-edit-expense--card-container__value">
-              {{ cardNumber ? (cardNumber | maskNumber) : '-' }}
-            </div>
-            <div class="add-edit-expense--card-container__label">{{ cardNickname ? '(' + cardNickname + ')' : ''}}</div>
-          </ion-col>
-          <ion-col>
-            <div class="add-edit-expense--card-container__label">Spend date</div>
-            <div class="add-edit-expense--card-container__value">
-              {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, YYYY' }}
-            </div>
-          </ion-col>
-          <ion-col>
-            <div class="add-edit-expense--card-container__label">Spend amount</div>
-            @if (selectedCCCTransaction?.amount > 0) {
-            <div>
-              <span class="add-edit-expense--card-container__value"
-                >{{ selectedCCCTransaction?.amount | humanizeCurrency: selectedCCCTransaction?.currency }}</span
-              >
-              <span class="add-edit-expense--card-container__txn-type">DR</span>
-            </div>
-            } @if (selectedCCCTransaction?.amount < 0) {
-            <div>
-              <span class="add-edit-expense--card-container__value add-edit-expense--card-container__credit"
-                >{{ selectedCCCTransaction?.amount * -1 | humanizeCurrency: selectedCCCTransaction?.currency }}</span
-              >
-              <span class="add-edit-expense--card-container__txn-type add-edit-expense--card-container__credit"
-                >CR</span
-              >
-            </div>
-            }
-          </ion-col>
-        </ion-row>
-        @if (selectedCCCTransaction?.description) {
-        <ion-row>
-          <ion-col>
-            <div class="add-edit-expense--card-container__label">Card transaction</div>
-            <div class="add-edit-expense--card-container__value">{{ selectedCCCTransaction.description }}</div>
-          </ion-col>
-        </ion-row>
+    <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
+      <div>
+        @if (showReceiptMandatoryError) {
+          <div class="add-edit-expense--alert-offline receipt-mandatory-error">
+            <app-fy-alert-info message="Please upload the receipt." type="error"></app-fy-alert-info>
+          </div>
         }
-        <ng-container>
-          <div class="add-edit-expense--card-container__merchant_block">
-            <div class="add-edit-expense--card-container__merchant_label">Merchant:</div>
-            <div class="add-edit-expense--card-container__merchant_value">
-              <span> {{ selectedCCCTransaction?.vendor || 'Unavailable' }} </span>
-              <ion-icon
-                (click)="openCCExpenseMerchantInfoModal()"
-                src="../../../assets/svg/info-circle-outline.svg"
-                class="add-edit-expense--card-container__merchant_info_icon"
-                data-testid="merchant-info-icon"
-              ></ion-icon>
-            </div>
+        @if (isIncompleteExpense) {
+          <div class="add-edit-expense--alert-offline">
+            <app-fy-alert-info
+              message="Mandatory field values are missing. Please update the details and save the Expense."
+              type="warning"
+            ></app-fy-alert-info>
           </div>
-        </ng-container>
-        @if (isRTFEnabled$ | async) { @if (platformExpense$ | async; as expense) { @if (selectedCCCTransaction?.status;
-        as transactionStatus) {
-        <div class="add-edit-expense--card-container__transaction-status">
-          <app-transaction-status
-            [transactionStatus]="transactionStatus"
-            (statusClick)="openTransactionStatusInfoModal($event)"
-          ></app-transaction-status>
-        </div>
-        } } }
-      </ion-grid>
-      }
-      <div class="add-edit-expense--receipt-currency-container">
-        @if (attachedReceiptsCount === 0) { @if (!reviewList?.length || canAttachReceipts) {
-        <div class="add-edit-expense--receipt">
-          @if (attachmentUploadInProgress) {
-          <div class="add-edit-expense--receipt-image">
-            <ion-spinner class="add-edit-expense--spinner-icon" icon="circles"></ion-spinner>
-            <div class="add-edit-expense--receipt-image-subheader">Uploading</div>
+        }
+        @if (duplicateExpenses?.length > 0) {
+          <div class="add-edit-expense--alert-offline">
+            <app-fy-alert-info
+              [message]="'This expense might be a duplicate of an existing expense.'"
+              [type]="'warning'"
+              [showActionButton]="true"
+              [actionButtonContent]="'View'"
+              (actionClick)="showSuggestedDuplicates(duplicateExpenses)"
+              >
+            </app-fy-alert-info>
           </div>
-          } @if ((attachedReceiptsCount === 0 && !attachmentUploadInProgress)) {
-          <div (click)="addAttachments($event)" class="add-edit-expense--receipt-image">
-            @if (isIos) {
-            <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+        }
+        @if (instaFyleCancelled) {
+          <div class="add-edit-expense--alert-offline">
+            <app-fy-alert-info
+              [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details manually'"
+              [type]="'information'"
+              >
+            </app-fy-alert-info>
+          </div>
+        }
+        @if (etxn$|async; as etxn) {
+          @if (mode === 'edit' && etxn.tx.policy_flag) {
+            @if (policyDetails) {
+              <app-fy-policy-violation-info
+                [policyDetails]="policyDetails"
+                [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+                [expense]="platformExpense$|async"
+              ></app-fy-policy-violation-info>
             }
-            <img class="add-edit-expense--receipt-image-icon" src="../../../assets/svg/list-plus.svg" />
-          </div>
-          } @if (attachedReceiptsCount > 0 && !attachmentUploadInProgress) {
-          <div (click)="viewAttachments()" class="add-edit-expense--receipt-image">
-            <mat-icon class="add-edit-expense--receipt-background" svgIcon="list"></mat-icon>
-            <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
-              {{attachedReceiptsCount}}
-            </div>
-            <mat-icon
-              (click)="addAttachments($event)"
-              class="add-edit-expense--receipt-image-icon add-edit-expense--receipt-add-more-icon"
-            >
-              add_circle
-            </mat-icon>
-            @if (isIos) {
-            <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
-            }
-          </div>
           }
-        </div>
-        } }
-        <div>
+          @if (isSplitExpense) {
+            <div class="add-edit-expense--alert-split">
+              <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
+            </div>
+          }
+          @if (isAmountCapped$|async) {
+            @if (!(isCriticalPolicyViolated$|async)) {
+              <div class="capped-info">
+                <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
+                <div class="capped-message">
+                  Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: '' }} was capped to {{etxn.tx.amount
+                  | currency: etxn.tx.currency: '' }} due to policy
+                  @if (isAmountDisabled$|async) {
+                    <span> and cannot be edited.</span>
+                  }
+                </div>
+              </div>
+            }
+          }
+        }
+        @if (isCccExpense) {
           @if (etxn$|async; as etxn) {
-          <div class="add-edit-expense--currency">
-            @if (homeCurrency$|async; as homeCurrency) {
-            <app-currency
-              [formControl]="fg?.controls?.currencyObj"
-              [homeCurrency]="homeCurrency"
-              [recentlyUsed]="recentCurrencies"
-              [txnDt]="fg?.controls?.dateOfSpend?.value"
-              [expanded]="attachedReceiptsCount === 0"
-              [touchedInParent]="fg?.controls?.currencyObj?.touched"
-              [validInParent]="fg?.controls?.currencyObj?.valid"
-              [autoCodedData]="autoCodedData"
-            >
-            </app-currency>
-            @if (fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid) {
-            <div
-              class="add-edit-expense--amount-error"
-              [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls?.currencyObj?.value?.orig_currency}"
-            >
-              Please enter the amount.
+            @if ((!(etxn?.tx?.report_id) && !(reviewList?.length > 1)) && (isCorporateCreditCardEnabled && canRemoveCardExpense)) {
+              <div
+                class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border"
+                >
+                <mat-icon class="add-edit-expense--split-info-icon" svgIcon="info-circle-fill"></mat-icon>
+                <div class="add-edit-expense--split-info-message">
+                  If the expense is merged with incorrect card details, click on Options (<span
+                  ><ion-icon
+                  class="add-edit-expense--icon-dots"
+                  [src]="'../../../assets/svg/vertical-dots-menu.svg'"
+                ></ion-icon></span
+                >) to remove the card details.
+              </div>
             </div>
-            } }
-          </div>
           }
-        </div>
-      </div>
-      @if (newExpenseDataUrls && newExpenseDataUrls.length > 0) {
-      <app-receipt-preview-thumbnail
-        [attachments]="newExpenseDataUrls"
-        (addMoreAttachments)="addAttachments($event)"
-        (viewAttachments)="viewAttachments()"
-        [canEdit]="true"
-        [mode]="mode"
-      >
-        @if (isIos) {
-        <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
         }
-      </app-receipt-preview-thumbnail>
-      } @if (attachments$|async; as attachments) { @if (attachments.length > 0) {
-      <app-receipt-preview-thumbnail
-        [attachments]="attachments"
-        (addMoreAttachments)="addAttachments($event)"
-        (viewAttachments)="viewAttachments()"
-        [isUploading]="attachmentUploadInProgress"
-        [canEdit]="true"
-        [mode]="mode"
-      >
-        @if (isIos) {
-        <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
-        }
-      </app-receipt-preview-thumbnail>
-      } }
-      <div class="add-edit-expense--primary-block">
-        <ion-grid class="ion-grid-no-padding">
+        <ion-grid class="add-edit-expense--card-container">
           <ion-row>
-            <ion-col [size]="showPaymentMode ? 6 : 12">
-              @if (txnFields$|async; as txnFields) { @if (txnFields?.txn_dt) {
-              <div
-                [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
-                class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin add-edit-expense--internal-block--auto-coded"
-              >
-                <div
-                  [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
-                  class="add-edit-expense--date-label"
-                >
-                  {{txnFields.txn_dt?.field_name || 'Date of Spend'}} @if (txnFields.txn_dt?.is_mandatory) {
-                  <span class="add-edit-expense--mandatory">*</span>
-                  }
-                </div>
-                <input
-                  appFormatDate
-                  (keydown)="$event.preventDefault()"
-                  [max]="maxDate"
-                  [min]="minDate"
-                  [placeholder]="txnFields.txn_dt?.placeholder || 'Date of spend'"
-                  class="add-edit-expense--date-input date-input__format smartlook-show"
-                  formControlName="dateOfSpend"
-                  type="date"
-                  [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
-                />
+            <ion-col>
+              <div class="add-edit-expense--card-container__label">Card ending in...</div>
+              <div class="add-edit-expense--card-container__value">
+                {{ cardNumber ? (cardNumber | maskNumber) : '-' }}
               </div>
-              } @if ((autoCodedData?.date && fg.controls.dateOfSpend?.value) && (autoCodedData.date | date:'MMM dd,
-              YYYY') === (fg.controls.dateOfSpend.value | date:'MMM dd, YYYY')) {
-              <div class="add-edit-expense--auto-coded">
-                <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
-                Date is auto coded.
+              <div class="add-edit-expense--card-container__label">
+                {{ cardNickname ? '(' + cardNickname + ')' : ''}}
               </div>
-              } @if (fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid) {
-              <div class="add-edit-expense--date-error">Please select a valid date.</div>
-              } }
             </ion-col>
-            @if (showPaymentMode) {
-            <ion-col size="6">
-              @if (paymentModes$|async; as paymentModes) {
-              <div
-                [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}"
-                class="add-edit-expense--payment-modes add-edit-expense--internal-block"
-              >
-                <app-fy-select
-                  [disabled]="isExpenseBankTxn"
-                  [enableSearch]="false"
-                  [label]="'Payment mode'"
-                  [mandatory]="true"
-                  [nullOption]="false"
-                  [options]="paymentModes"
-                  [selectModalHeader]="'Select payment mode'"
-                  [selectionElement]="paymentMode"
-                  formControlName="paymentMode"
-                  [placeholder]="'Payment mode'"
-                  [touchedInParent]="fg.controls.paymentMode.touched"
-                  [validInParent]="fg.controls.paymentMode.valid"
-                >
-                </app-fy-select>
-                <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
+            <ion-col>
+              <div class="add-edit-expense--card-container__label">Spend date</div>
+              <div class="add-edit-expense--card-container__value">
+                {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, YYYY' }}
+              </div>
+            </ion-col>
+            <ion-col>
+              <div class="add-edit-expense--card-container__label">Spend amount</div>
+              @if (selectedCCCTransaction?.amount > 0) {
+                <div>
+                  <span class="add-edit-expense--card-container__value"
+                    >{{ selectedCCCTransaction?.amount | humanizeCurrency: selectedCCCTransaction?.currency }}</span
+                    >
+                    <span class="add-edit-expense--card-container__txn-type">DR</span>
+                  </div>
+                }
+                @if (selectedCCCTransaction?.amount < 0) {
                   <div>
-                    <div class="add-edit-expense--payment-mode-header">{{label}}</div>
-                    @if (paymentMode) { @if (paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT') {
-                    <div class="add-edit-expense--payment-mode-section">{{paymentMode.advance.purpose}}</div>
-                    } @if (paymentMode.isReimbursable) {
-                    <div class="add-edit-expense--payment-mode-section">(Reimbursable)</div>
-                    } @if (!paymentMode.isReimbursable) {
-                    <div class="add-edit-expense--payment-mode-section">(Non Reimbursable)</div>
-                    } }
+                    <span class="add-edit-expense--card-container__value add-edit-expense--card-container__credit"
+                      >{{ selectedCCCTransaction?.amount * -1 | humanizeCurrency: selectedCCCTransaction?.currency
+                      }}</span
+                      >
+                      <span class="add-edit-expense--card-container__txn-type add-edit-expense--card-container__credit"
+                        >CR</span
+                        >
+                      </div>
+                    }
+                  </ion-col>
+                </ion-row>
+                @if (selectedCCCTransaction?.description) {
+                  <ion-row>
+                    <ion-col>
+                      <div class="add-edit-expense--card-container__label">Card transaction</div>
+                      <div class="add-edit-expense--card-container__value">{{ selectedCCCTransaction.description }}</div>
+                    </ion-col>
+                  </ion-row>
+                }
+                <ng-container>
+                  <div class="add-edit-expense--card-container__merchant_block">
+                    <div class="add-edit-expense--card-container__merchant_label">Merchant:</div>
+                    <div class="add-edit-expense--card-container__merchant_value">
+                      <span> {{ selectedCCCTransaction?.vendor || 'Unavailable' }} </span>
+                      <ion-icon
+                        (click)="openCCExpenseMerchantInfoModal()"
+                        src="../../../assets/svg/info-circle-outline.svg"
+                        class="add-edit-expense--card-container__merchant_info_icon"
+                        data-testid="merchant-info-icon"
+                      ></ion-icon>
+                    </div>
                   </div>
-                  @if (selected) {
-                  <mat-icon class="add-edit-expense--check"> check </mat-icon>
+                </ng-container>
+                @if (isRTFEnabled$ | async) {
+                  @if (platformExpense$ | async; as expense) {
+                    @if (selectedCCCTransaction?.status; as transactionStatus) {
+                      <div
+                        class="add-edit-expense--card-container__transaction-status"
+                        >
+                        <app-transaction-status
+                          [transactionStatus]="transactionStatus"
+                          (statusClick)="openTransactionStatusInfoModal($event)"
+                        ></app-transaction-status>
+                      </div>
+                    }
                   }
-                </ng-template>
-              </div>
-              @if (fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid) {
-              <div class="add-edit-expense--error">Please select a valid payment mode.</div>
-              } }
-            </ion-col>
+                }
+              </ion-grid>
             }
-          </ion-row>
-        </ion-grid>
-        @if (isAdvancesEnabled$) { @if ((isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC) {
-        <app-fy-alert-info [message]="'You have outstanding balance in your advance account(s)'" [type]="'information'">
-        </app-fy-alert-info>
-        } }
-      </div>
-      @if (isCCCPaymentModeSelected$|async) { @if (!isCccExpense) {
-      <app-fy-alert-info
-        [type]="'information'"
-        [message]="'Fyle will automatically merge this expense with the corresponding corporate card transaction when it flows into fyle.'"
-      ></app-fy-alert-info>
-      } }
-      <div class="add-edit-expense--primary-block">
-        @if ((isCCCAccountSelected$|async) && !selectedCCCTransaction && canChangeMatchingCCCTransaction &&
-        !(transactionInReport$|async)) {
-        <app-fy-alert-info
-          [message]="'Expense will be saved as a draft. Kindly ensure that it is matched with an appropriate card transaction later, although we will attempt to auto-match it for you.'"
-          [type]="'warning'"
-        >
-        </app-fy-alert-info>
-        } @if (txnFields$|async; as txnFields) { @if (txnFields?.project_id) {
-        <div class="add-edit-expense--project-container">
-          @if (isConnected$|async) { @if (isProjectsEnabled$|async; as isProjectsEnabled) { @if
-          (isProjectsVisible$|async) {
-          <div
-            class="add-edit-expense--internal-block add-edit-expense--project-block"
-            [ngClass]="{ 'add-edit-expense--no-project' : !fg.controls.project.value}"
-          >
-            <app-fy-select-project
-              [cacheName]="'expenseProjectCache'"
-              [defaultValue]="true"
-              [label]="txnFields?.project_id?.field_name"
-              [placeholder]="txnFields?.project_id?.placeholder"
-              [mandatory]="txnFields?.project_id?.is_mandatory"
-              [recentlyUsed]="recentProjects"
-              formControlName="project"
-              [validInParent]="fg.controls.project.valid"
-              [touchedInParent]="fg.controls.project.touched"
-            >
-            </app-fy-select-project>
+            <div class="add-edit-expense--receipt-currency-container">
+              @if (attachedReceiptsCount === 0) {
+                @if (!reviewList?.length || canAttachReceipts) {
+                  <div class="add-edit-expense--receipt">
+                    @if (attachmentUploadInProgress) {
+                      <div class="add-edit-expense--receipt-image">
+                        <ion-spinner class="add-edit-expense--spinner-icon" icon="circles"></ion-spinner>
+                        <div class="add-edit-expense--receipt-image-subheader">Uploading</div>
+                      </div>
+                    }
+                    @if ((attachedReceiptsCount === 0 && !attachmentUploadInProgress)) {
+                      <div
+                        (click)="addAttachments($event)"
+                        class="add-edit-expense--receipt-image"
+                        >
+                        @if (isIos) {
+                          <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+                        }
+                        <img class="add-edit-expense--receipt-image-icon" src="../../../assets/svg/list-plus.svg" />
+                      </div>
+                    }
+                    @if (attachedReceiptsCount > 0 && !attachmentUploadInProgress) {
+                      <div
+                        (click)="viewAttachments()"
+                        class="add-edit-expense--receipt-image"
+                        >
+                        <mat-icon class="add-edit-expense--receipt-background" svgIcon="list"></mat-icon>
+                        <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
+                          {{attachedReceiptsCount}}
+                        </div>
+                        <mat-icon
+                          (click)="addAttachments($event)"
+                          class="add-edit-expense--receipt-image-icon add-edit-expense--receipt-add-more-icon"
+                          >
+                          add_circle
+                        </mat-icon>
+                        @if (isIos) {
+                          <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              }
+              <div>
+                @if (etxn$|async; as etxn) {
+                  <div class="add-edit-expense--currency">
+                    @if (homeCurrency$|async; as homeCurrency) {
+                      <app-currency
+                        [formControl]="fg?.controls?.currencyObj"
+                        [homeCurrency]="homeCurrency"
+                        [recentlyUsed]="recentCurrencies"
+                        [txnDt]="fg?.controls?.dateOfSpend?.value"
+                        [expanded]="attachedReceiptsCount === 0"
+                        [touchedInParent]="fg?.controls?.currencyObj?.touched"
+                        [validInParent]="fg?.controls?.currencyObj?.valid"
+                        [autoCodedData]="autoCodedData"
+                        >
+                      </app-currency>
+                      @if (fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid) {
+                        <div
+                          class="add-edit-expense--amount-error"
+                          [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls?.currencyObj?.value?.orig_currency}"
+                          >
+                          Please enter the amount.
+                        </div>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+            @if (newExpenseDataUrls && newExpenseDataUrls.length > 0) {
+              <app-receipt-preview-thumbnail
+                [attachments]="newExpenseDataUrls"
+                (addMoreAttachments)="addAttachments($event)"
+                (viewAttachments)="viewAttachments()"
+                [canEdit]="true"
+                [mode]="mode"
+                >
+                @if (isIos) {
+                  <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+                }
+              </app-receipt-preview-thumbnail>
+            }
+            @if (attachments$|async; as attachments) {
+              @if (attachments.length > 0) {
+                <app-receipt-preview-thumbnail
+                  [attachments]="attachments"
+                  (addMoreAttachments)="addAttachments($event)"
+                  (viewAttachments)="viewAttachments()"
+                  [isUploading]="attachmentUploadInProgress"
+                  [canEdit]="true"
+                  [mode]="mode"
+                  >
+                  @if (isIos) {
+                    <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+                  }
+                </app-receipt-preview-thumbnail>
+              }
+            }
+            <div class="add-edit-expense--primary-block">
+              <ion-grid class="ion-grid-no-padding">
+                <ion-row>
+                  <ion-col [size]="showPaymentMode ? 6 : 12">
+                    @if (txnFields$|async; as txnFields) {
+                      @if (txnFields?.txn_dt) {
+                        <div
+                          [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
+                          class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin add-edit-expense--internal-block--auto-coded"
+                          >
+                          <div
+                            [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
+                            class="add-edit-expense--date-label"
+                            >
+                            {{txnFields.txn_dt?.field_name || 'Date of Spend'}}
+                            @if (txnFields.txn_dt?.is_mandatory) {
+                              <span class="add-edit-expense--mandatory">*</span>
+                            }
+                          </div>
+                          <input
+                            appFormatDate
+                            (keydown)="$event.preventDefault()"
+                            [max]="maxDate"
+                            [min]="minDate"
+                            [placeholder]="txnFields.txn_dt?.placeholder || 'Date of spend'"
+                            class="add-edit-expense--date-input date-input__format smartlook-show"
+                            formControlName="dateOfSpend"
+                            type="date"
+                            [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
+                            />
+                        </div>
+                      }
+                      @if ((autoCodedData?.date && fg.controls.dateOfSpend?.value) && (autoCodedData.date | date:'MMM dd, YYYY') === (fg.controls.dateOfSpend.value | date:'MMM dd, YYYY')) {
+                        <div
+                          class="add-edit-expense--auto-coded"
+                          >
+                          <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                          Date is auto coded.
+                        </div>
+                      }
+                      @if (fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid) {
+                        <div
+                          class="add-edit-expense--date-error"
+                          >
+                          Please select a valid date.
+                        </div>
+                      }
+                    }
+                  </ion-col>
+                  @if (showPaymentMode) {
+                    <ion-col size="6">
+                      @if (paymentModes$|async; as paymentModes) {
+                        <div
+                          [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}"
+                          class="add-edit-expense--payment-modes add-edit-expense--internal-block"
+                          >
+                          <app-fy-select
+                            [disabled]="isExpenseBankTxn"
+                            [enableSearch]="false"
+                            [label]="'Payment mode'"
+                            [mandatory]="true"
+                            [nullOption]="false"
+                            [options]="paymentModes"
+                            [selectModalHeader]="'Select payment mode'"
+                            [selectionElement]="paymentMode"
+                            formControlName="paymentMode"
+                            [placeholder]="'Payment mode'"
+                            [touchedInParent]="fg.controls.paymentMode.touched"
+                            [validInParent]="fg.controls.paymentMode.valid"
+                            >
+                          </app-fy-select>
+                          <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
+                            <div>
+                              <div class="add-edit-expense--payment-mode-header">{{label}}</div>
+                              @if (paymentMode) {
+                                @if (paymentMode.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+                                  <div class="add-edit-expense--payment-mode-section">{{paymentMode.advance.purpose}}</div>
+                                }
+                                @if (paymentMode.isReimbursable) {
+                                  <div class="add-edit-expense--payment-mode-section">
+                                    (Reimbursable)
+                                  </div>
+                                }
+                                @if (!paymentMode.isReimbursable) {
+                                  <div class="add-edit-expense--payment-mode-section">
+                                    (Non Reimbursable)
+                                  </div>
+                                }
+                              }
+                            </div>
+                            @if (selected) {
+                              <mat-icon class="add-edit-expense--check"> check </mat-icon>
+                            }
+                          </ng-template>
+                        </div>
+                        @if (fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid) {
+                          <div
+                            class="add-edit-expense--error"
+                            >
+                            Please select a valid payment mode.
+                          </div>
+                        }
+                      }
+                    </ion-col>
+                  }
+                </ion-row>
+              </ion-grid>
+              @if (isAdvancesEnabled$) {
+                @if ((isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC) {
+                  <app-fy-alert-info
+                    [message]="'You have outstanding balance in your advance account(s)'"
+                    [type]="'information'"
+                    >
+                  </app-fy-alert-info>
+                }
+              }
+            </div>
+            @if (isCCCPaymentModeSelected$|async) {
+              @if (!isCccExpense) {
+                <app-fy-alert-info
+                  [type]="'information'"
+                  [message]="'Fyle will automatically merge this expense with the corresponding corporate card transaction when it flows into fyle.'"
+                ></app-fy-alert-info>
+              }
+            }
+            <div class="add-edit-expense--primary-block">
+              @if ((isCCCAccountSelected$|async) && !selectedCCCTransaction && canChangeMatchingCCCTransaction && !(transactionInReport$|async)) {
+                <app-fy-alert-info
+                  [message]="'Expense will be saved as a draft. Kindly ensure that it is matched with an appropriate card transaction later, although we will attempt to auto-match it for you.'"
+                  [type]="'warning'"
+                  >
+                </app-fy-alert-info>
+              }
+              @if (txnFields$|async; as txnFields) {
+                @if (txnFields?.project_id) {
+                  <div class="add-edit-expense--project-container">
+                    @if (isConnected$|async) {
+                      @if (isProjectsEnabled$|async; as isProjectsEnabled) {
+                        @if (isProjectsVisible$|async) {
+                          <div
+                            class="add-edit-expense--internal-block add-edit-expense--project-block"
+                            [ngClass]="{ 'add-edit-expense--no-project' : !fg.controls.project.value}"
+                            >
+                            <app-fy-select-project
+                              [cacheName]="'expenseProjectCache'"
+                              [defaultValue]="true"
+                              [label]="txnFields?.project_id?.field_name"
+                              [placeholder]="txnFields?.project_id?.placeholder"
+                              [mandatory]="txnFields?.project_id?.is_mandatory"
+                              [recentlyUsed]="recentProjects"
+                              formControlName="project"
+                              [validInParent]="fg.controls.project.valid"
+                              [touchedInParent]="fg.controls.project.touched"
+                              >
+                            </app-fy-select-project>
+                          </div>
+                        }
+                      }
+                    }
+                    @if (isProjectsEnabled$|async) {
+                      <div>
+                        @if (isProjectsVisible$|async) {
+                          <div>
+                            @if (fg.controls.project.value && showBillable) {
+                              <div class="add-edit-expense--billable-block">
+                                <mat-checkbox formControlName="billable">
+                                  <span class="add-edit-expense--checkbox"> Billable </span>
+                                </mat-checkbox>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+                @if (isProjectsEnabled$|async) {
+                  <div>
+                    @if (isProjectsVisible$|async) {
+                      <div>
+                        @if (fg.controls.project.touched && !fg.controls.project.valid) {
+                          <div class="add-edit-expense--error">
+                            Please select a project.
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              }
+              @if (txnFields$|async; as txnFields) {
+                @if (dependentFields$|async; as dependentFields) {
+                  @if (etxn$|async; as etxn) {
+                    @if (selectedProject$|async; as selectedProject) {
+                      <ng-container formArrayName="project_dependent_fields">
+                        <app-dependent-fields
+                          #projectDependentFieldsRef
+                          [dependentFieldsFormArray]="fg.controls.project_dependent_fields"
+                          [dependentCustomFields]="dependentFields"
+                          [parentFieldId]="txnFields?.project_id?.id"
+                          [parentFieldValue]="selectedProject?.projectv2_name"
+                          [txnCustomProperties]="etxn.tx.custom_properties || []"
+                        ></app-dependent-fields>
+                      </ng-container>
+                    }
+                  }
+                }
+              }
+              @if (txnFields$|async; as txnFields) {
+                @if (isConnected$|async) {
+                  @if (filteredCategories$|async; as categories) {
+                    @if (categories.length) {
+                      @if (txnFields?.org_category_id) {
+                        <div
+                          [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}"
+                          class="add-edit-expense--internal-block"
+                          >
+                          <app-virtual-select
+                            [cacheName]="'recentCategoryList'"
+                            [defaultLabelProp]="'displayName'"
+                            [label]="'Category'"
+                            [mandatory]="txnFields?.org_category_id?.is_mandatory"
+                            [options]="categories"
+                            [selectModalHeader]="'Select category'"
+                            [recentlyUsed]="recentCategories"
+                            formControlName="category"
+                            [placeholder]="txnFields.org_category_id.placeholder"
+                            >
+                          </app-virtual-select>
+                          @if ((autoCodedData?.category && fg.controls.category?.value?.displayName) && autoCodedData.category === fg.controls.category.value.displayName) {
+                            <div
+                              class="add-edit-expense--auto-coded"
+                              >
+                              <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                              Category is auto coded.
+                            </div>
+                          }
+                        </div>
+                      }
+                      @if (fg.controls.category.touched && !fg.controls.category.valid) {
+                        <div
+                          class="add-edit-expense--error"
+                          >
+                          Please select a category.
+                        </div>
+                      }
+                    }
+                  }
+                }
+              }
+              @if (taxSettings$|async; as taxSettings) {
+                @if (txnFields$|async; as txnFields) {
+                  @if (taxGroupsOptions$|async; as taxGroups) {
+                    @if (txnFields?.tax_group_id && taxGroups?.length > 0) {
+                      <div class="add-edit-expense--primary-block">
+                        <div
+                          class="add-edit-expense--internal-block"
+                          [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.tax_group.touched && !fg.controls.tax_group.valid}"
+                          >
+                          <app-fy-select
+                            [label]="(txnFields.tax_group_id.field_name || 'Tax group')"
+                            [options]="taxGroups"
+                            [mandatory]="txnFields.tax_group_id.is_mandatory"
+                            [selectModalHeader]="'Select ' + (txnFields.tax_group_id.field_name || 'Tax Group')"
+                            formControlName="tax_group"
+                            [placeholder]="txnFields.tax_group_id.placeholder"
+                            [touchedInParent]="fg.controls.tax_group.touched"
+                            [validInParent]="fg.controls.tax_group.valid"
+                            >
+                          </app-fy-select>
+                        </div>
+                        @if (fg.controls.tax_group.touched && !fg.controls.tax_group.valid) {
+                          <div
+                            class="add-edit-expense--error"
+                            >
+                            Please select a valid tax group.
+                          </div>
+                        }
+                        <div
+                          [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': (fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))}"
+                          class="add-edit-expense--internal-block add-edit-expense--text"
+                          >
+                          <div
+                            [ngClass]="{'add-edit-expense--text-label__invalid': (fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))}"
+                            class="add-edit-expense--text-label"
+                            >
+                            {{(taxSettings.name || 'Tax amount') | ellipsis: 30 }}
+                          </div>
+                          <app-fy-number formControlName="tax_amount" [placeholder]="'Enter tax amount'"></app-fy-number>
+                        </div>
+                        @if ((fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')) && !fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount'))) {
+                          <div
+                            class="add-edit-expense--error"
+                            >
+                            Please enter a valid tax amount.
+                          </div>
+                        }
+                        @if (fg.controls.tax_amount.touched && fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount')) {
+                          <div
+                            class="add-edit-expense--error"
+                            >
+                            Tax amount cannot be greater than amount
+                          </div>
+                        }
+                      </div>
+                    }
+                  }
+                }
+              }
+              @if (txnFields$|async; as txnFields) {
+                @if (isConnected$|async; as isConnected) {
+                  <div>
+                    <ion-grid class="ion-grid-no-padding">
+                      <ion-row>
+                        @if (txnFields.location1?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
+                          <ion-col
+                            >
+                            <div
+                              class="add-edit-expense--internal-block"
+                              [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_1.touched && !fg.controls.location_1.valid, 'add-edit-expense--internal-block__margin': txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
+                              >
+                              <app-fy-location
+                                [label]="txnFields.location1?.field_name"
+                                [mandatory]="txnFields.location1?.is_mandatory"
+                                formControlName="location_1"
+                                [placeholder]="txnFields.location1?.placeholder"
+                                [touchedInParent]="fg.controls.location_1.touched"
+                                [validInParent]="fg.controls.location_1.valid"
+                                >
+                              </app-fy-location>
+                            </div>
+                            @if (fg.controls.location_1.touched && !fg.controls.location_1.valid) {
+                              <div
+                                class="add-edit-expense--error"
+                                >
+                                Please select a valid city.
+                              </div>
+                            }
+                          </ion-col>
+                        }
+                        @if (txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
+                          <ion-col
+                            >
+                            <div
+                              class="add-edit-expense--internal-block"
+                              [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_2.touched && !fg.controls.location_2.valid}"
+                              >
+                              <app-fy-location
+                                [label]="txnFields.location2?.field_name"
+                                [mandatory]="txnFields.location2?.is_mandatory"
+                                formControlName="location_2"
+                                [placeholder]="txnFields.location2?.placeholder"
+                                [touchedInParent]="fg.controls.location_2.touched"
+                                [validInParent]="fg.controls.location_2.valid"
+                                >
+                              </app-fy-location>
+                            </div>
+                            @if (fg.controls.location_2.touched && !fg.controls.location_2.valid) {
+                              <div
+                                class="add-edit-expense--error"
+                                >
+                                Please select a valid city.
+                              </div>
+                            }
+                          </ion-col>
+                        }
+                      </ion-row>
+                    </ion-grid>
+                    <ion-grid class="ion-grid-no-padding">
+                      <ion-row>
+                        @if (txnFields.from_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
+                          <ion-col
+                            >
+                            <div
+                              [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
+                              class="add-edit-expense--date add-edit-expense--internal-block"
+                              >
+                              <div
+                                [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
+                                class="add-edit-expense--date-label add-edit-expense--date-label__large"
+                                >
+                                {{txnFields.from_dt?.field_name}}
+                                <span class="add-edit-expense--mandatory">*</span>
+                              </div>
+                              <input
+                                appFormatDate
+                                class="add-edit-expense--date-input date-input__format smartlook-show"
+                                formControlName="from_dt"
+                                [name]="txnFields.from_dt?.field_name"
+                                type="date"
+                                [placeholder]="txnFields.from_dt?.placeholder || 'Select '+ txnFields.from_dt?.field_name"
+                                />
+                            </div>
+                            @if (fg.controls.from_dt.touched && !fg.controls.from_dt.valid) {
+                              <div
+                                class="add-edit-expense--date-error"
+                                >
+                                Please select a valid {{txnFields.from_dt?.field_name}}.
+                              </div>
+                            }
+                          </ion-col>
+                        }
+                        @if (txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
+                          <ion-col
+                            >
+                            <div
+                              [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
+                              class="add-edit-expense--date add-edit-expense--internal-block"
+                              >
+                              <div
+                                [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
+                                class="add-edit-expense--date-label add-edit-expense--date-label__large"
+                                >
+                                {{txnFields.to_dt?.field_name}}
+                                <span class="add-edit-expense--mandatory">*</span>
+                              </div>
+                              <input
+                                appFormatDate
+                                class="add-edit-expense--date-input date-input__format smartlook-show"
+                                formControlName="to_dt"
+                                [name]="txnFields.to_dt?.field_name"
+                                type="date"
+                                [placeholder]="txnFields.from_dt?.placeholder || 'Select '+ txnFields.to_dt?.field_name"
+                                />
+                            </div>
+                            @if (fg.controls.to_dt.touched && !fg.controls.to_dt.valid) {
+                              <div
+                                class="add-edit-expense--date-error"
+                                >
+                                Please select a valid {{txnFields.to_dt?.field_name}}.
+                              </div>
+                            }
+                          </ion-col>
+                        }
+                      </ion-row>
+                    </ion-grid>
+                    <ion-grid class="ion-grid-no-padding">
+                      <ion-row>
+                        @if (txnFields.flight_journey_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
+                          <ion-col
+                            >
+                            <div
+                              class="add-edit-expense--internal-block"
+                              [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid, 'add-edit-expense--internal-block__margin': txnFields.flight_return_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
+                              >
+                              @if (flightJourneyTravelClassOptions$|async; as flightJourneyTravelClassOptions) {
+                                <app-fy-select
+                                  [label]="txnFields.flight_journey_travel_class?.field_name"
+                                  [mandatory]="txnFields.flight_journey_travel_class?.is_mandatory"
+                                  [options]="txnFields.flight_journey_travel_class?.options"
+                                  [selectModalHeader]="'Select travel class'"
+                                  formControlName="flight_journey_travel_class"
+                                  [placeholder]="txnFields.flight_journey_travel_class?.placeholder"
+                                  [touchedInParent]="fg.controls.flight_journey_travel_class.touched"
+                                  [validInParent]="fg.controls.flight_journey_travel_class.valid"
+                                  >
+                                </app-fy-select>
+                              }
+                            </div>
+                            @if (fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid) {
+                              <div
+                                class="add-edit-expense--error"
+                                >
+                                Please select a valid class for {{ txnFields.flight_journey_travel_class?.field_name }}.
+                              </div>
+                            }
+                          </ion-col>
+                        }
+                        @if (txnFields.flight_return_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
+                          <ion-col
+                            >
+                            <div
+                              class="add-edit-expense--internal-block"
+                              [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_return_travel_class.touched && !fg.controls.flight_return_travel_class.valid}"
+                              >
+                              @if (flightJourneyTravelClassOptions$|async; as flightJourneyTravelClassOptions) {
+                                <app-fy-select
+                                  [label]="txnFields.flight_return_travel_class?.field_name"
+                                  [mandatory]="txnFields.flight_return_travel_class?.is_mandatory"
+                                  [options]="txnFields.flight_journey_travel_class?.options"
+                                  [selectModalHeader]="'Select travel class'"
+                                  formControlName="flight_return_travel_class"
+                                  name="flightReturnClass"
+                                  [placeholder]="txnFields.flight_return_travel_class?.placeholder"
+                                  [touchedInParent]="fg.controls.flight_return_travel_class.touched"
+                                  [validInParent]="fg.controls.flight_return_travel_class.valid"
+                                  >
+                                </app-fy-select>
+                              }
+                            </div>
+                            @if (fg.controls.flight_return_travel_class.touched && !fg.controls.flight_return_travel_class.valid) {
+                              <div
+                                class="add-edit-expense--error"
+                                >
+                                Please select a valid class for {{ txnFields.flight_return_travel_class?.field_name }}.
+                              </div>
+                            }
+                          </ion-col>
+                        }
+                      </ion-row>
+                    </ion-grid>
+                    @if (txnFields.train_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
+                      <div
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid, 'add-edit-expense--text__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid && txnFields.train_travel_class?.type === 'TEXT', 'add-edit-expense--text': txnFields.train_travel_class?.type === 'TEXT'}"
+                        class="add-edit-expense--internal-block"
+                        >
+                        @if (txnFields.train_travel_class?.type === 'TEXT') {
+                          <span>
+                            <div
+                              [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
+                              class="add-edit-expense--text-label add-edit-expense--text-label__large"
+                              >
+                              {{txnFields.train_travel_class?.field_name}}
+                              <span class="add-edit-expense--mandatory">*</span>
+                            </div>
+                            <input
+                              (blur)="focusState = false"
+                              (focus)="focusState = true"
+                              [placeholder]="txnFields.train_travel_class.placeholder || 'Enter ' + txnFields.train_travel_class.field_name"
+                              class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
+                              formControlName="train_travel_class"
+                              type="text"
+                              />
+                          </span>
+                        }
+                        @if (txnFields.train_travel_class?.type === 'SELECT') {
+                          <app-fy-select
+                            [label]="txnFields.train_travel_class?.field_name"
+                            [mandatory]="txnFields.train_travel_class?.is_mandatory"
+                            [options]="txnFields.train_travel_class?.options"
+                            formControlName="train_travel_class"
+                            [placeholder]="txnFields.train_travel_class?.placeholder"
+                            [touchedInParent]="fg.controls.train_travel_class.touched"
+                            [validInParent]="fg.controls.train_travel_class.valid"
+                            >
+                          </app-fy-select>
+                        }
+                      </div>
+                    }
+                    @if (fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid) {
+                      <div
+                        [ngClass]="{'add-edit-expense--travel-text-error': txnFields.train_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-error': txnFields.train_travel_class?.type === 'SELECT'}"
+                        >
+                        Please select valid {{ txnFields.train_travel_class?.field_name }}.
+                      </div>
+                    }
+                    @if (txnFields.bus_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
+                      <div
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid, 'add-edit-expense--text__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid && txnFields.bus_travel_class?.type === 'TEXT', 'add-edit-expense--text': txnFields.bus_travel_class?.type === 'TEXT'}"
+                        class="add-edit-expense--internal-block"
+                        >
+                        @if (txnFields.bus_travel_class?.type === 'TEXT') {
+                          <div
+                            [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid}"
+                            class="add-edit-expense--text-label add-edit-expense--text-label__large"
+                            >
+                            {{txnFields.bus_travel_class?.field_name}}
+                            @if (txnFields.bus_travel_class?.is_mandatory) {
+                              <div class="add-edit-expense--mandatory">*</div>
+                            }
+                          </div>
+                        }
+                        @if (txnFields.bus_travel_class?.type === 'TEXT') {
+                          <input
+                            (blur)="focusState = false"
+                            (focus)="focusState = true"
+                            [placeholder]="txnFields.bus_travel_class?.placeholder || 'Enter ' + txnFields.bus_travel_class?.field_name"
+                            class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
+                            formControlName="bus_travel_class"
+                            type="text"
+                            />
+                        }
+                        @if (txnFields.bus_travel_class?.type === 'SELECT') {
+                          <app-fy-select
+                            [label]="txnFields.bus_travel_class?.field_name"
+                            [mandatory]="txnFields.bus_travel_class?.is_mandatory"
+                            [options]="txnFields.bus_travel_class?.options"
+                            [selectModalHeader]="'Select travel class'"
+                            formControlName="bus_travel_class"
+                            hide-none="true"
+                            [placeholder]="txnFields.bus_travel_class?.placeholder"
+                            [touchedInParent]="fg.controls.bus_travel_class.touched"
+                            [validInParent]="fg.controls.bus_travel_class.valid"
+                            >
+                          </app-fy-select>
+                        }
+                      </div>
+                    }
+                    @if (fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid) {
+                      <div
+                        [ngClass]="{'add-edit-expense--travel-text-error': txnFields.bus_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-error': txnFields.bus_travel_class?.type === 'SELECT'}"
+                        >
+                        Please select valid {{ txnFields.bus_travel_class?.field_name }}.
+                      </div>
+                    }
+                    @if (breakfastSystemCategories?.includes(fg?.value?.category?.fyle_category) && isExpandedView) {
+                      <div
+                        class="add-edit-expense--internal-block"
+                        >
+                        <mat-checkbox formControlName="hotel_is_breakfast_provided">
+                          <span class="add-edit-expense--text-label"> Breakfast provided </span>
+                        </mat-checkbox>
+                      </div>
+                    }
+                    @if (txnFields.distance?.is_mandatory && fg.value?.category?.fyle_category === 'Taxi') {
+                      <div
+                        [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': (fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))}"
+                        class="add-edit-expense--internal-block add-edit-expense--text"
+                        >
+                        <div
+                          [ngClass]="{'add-edit-expense--text-label__invalid': (fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))}"
+                          class="add-edit-expense--text-label"
+                          >
+                          {{txnFields.distance?.field_name}}
+                          <span class="add-edit-expense--mandatory">*</span>
+                        </div>
+                        <app-fy-number
+                          formControlName="distance"
+                          [isDistance]="true"
+                          [placeholder]="txnFields.distance?.placeholder || 'Enter ' + txnFields.distance?.field_name"
+                        ></app-fy-number>
+                      </div>
+                      @if ((fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))) {
+                        <div
+                          class="add-edit-expense--distance-error"
+                          >
+                          Please enter {{ txnFields.distance?.field_name }}.
+                        </div>
+                      }
+                      <div
+                        class="add-edit-expense--internal-block"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.distance_unit.touched && !fg.controls.distance_unit.valid}"
+                        >
+                        <app-fy-select
+                          [label]="txnFields.distance_unit?.field_name"
+                          [mandatory]="txnFields.distance_unit?.is_mandatory"
+                          [options]="txnFields.distance_unit?.options"
+                          formControlName="distance_unit"
+                          name="taxiDistanceUnit"
+                          sub-title="Units"
+                          title="Select unit"
+                          [placeholder]="txnFields.distance_unit?.placeholder"
+                          [touchedInParent]="fg.controls.distance_unit.touched"
+                          [validInParent]="fg.controls.distance_unit.valid"
+                          >
+                        </app-fy-select>
+                      </div>
+                      @if (fg.controls.distance_unit.touched && !fg.controls.distance_unit.valid) {
+                        <div
+                          class="add-edit-expense--distance-unit-error"
+                          >
+                          Please select {{ txnFields.distance_unit?.field_name }}.
+                        </div>
+                      }
+                    }
+                  </div>
+                }
+              }
+              @if (txnFields$|async; as txnFields) {
+                @if (txnFields?.vendor_id) {
+                  <div
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid}"
+                    class="add-edit-expense--internal-block"
+                    >
+                    @if (!txnFields.vendor_id?.options?.length) {
+                      <app-fy-select-vendor
+                        [label]="txnFields.vendor_id?.field_name"
+                        [mandatory]="txnFields?.vendor_id?.is_mandatory"
+                        formControlName="vendor_id"
+                        [placeholder]="txnFields.vendor_id?.placeholder"
+                        [touchedInParent]="fg.controls.vendor_id.touched"
+                        [validInParent]="fg.controls.vendor_id.valid"
+                        >
+                      </app-fy-select-vendor>
+                    }
+                    @if (txnFields.vendor_id?.options?.length) {
+                      <app-virtual-select
+                        [label]="txnFields.vendor_id?.field_name"
+                        [mandatory]="txnFields.vendor_id?.is_mandatory"
+                        [options]="txnFields.vendor_id?.options"
+                        [nullOption]="!txnFields.vendor_id?.is_mandatory"
+                        formControlName="vendor_id"
+                        [placeholder]="txnFields.vendor_id?.placeholder"
+                        >
+                      </app-virtual-select>
+                    }
+                    @if ((autoCodedData?.vendor_name && fg.controls.vendor_id?.value?.display_name) && autoCodedData.vendor_name?.toLowerCase() === fg.controls.vendor_id.value.display_name?.toLowerCase()) {
+                      <div
+                        class="add-edit-expense--auto-coded"
+                        >
+                        <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                        Merchant is auto coded.
+                      </div>
+                    }
+                  </div>
+                }
+                @if (fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid) {
+                  <div class="add-edit-expense--error">
+                    Please select a merchant
+                  </div>
+                }
+              }
+              @if (costCenters$|async; as costCenters) {
+                @if (txnFields$|async; as txnFields) {
+                  @if (txnFields.cost_center_id?.is_mandatory || isExpandedView) {
+                    @if (costCenters.length > 0) {
+                      <div class="add-edit-expense--primary-block">
+                        @if (costCenters.length > 0 && txnFields?.cost_center_id) {
+                          <div
+                            class="add-edit-expense--internal-block"
+                            >
+                            <app-virtual-select
+                              [cacheName]="'recentCostCenterList'"
+                              [label]="txnFields.cost_center_id?.field_name"
+                              [mandatory]="txnFields.cost_center_id?.is_mandatory"
+                              [options]="costCenters"
+                              [selectModalHeader]="'Select cost center'"
+                              [recentlyUsed]="recentCostCenters"
+                              formControlName="costCenter"
+                              [placeholder]="txnFields.cost_center_id?.placeholder"
+                              >
+                            </app-virtual-select>
+                          </div>
+                        }
+                        @if (fg.controls.costCenter.touched && !fg.controls.costCenter.valid) {
+                          <div
+                            class="add-edit-expense--error"
+                            >
+                            Please select {{ txnFields.cost_center_id?.field_name }}
+                          </div>
+                        }
+                      </div>
+                    }
+                    @if (dependentFields$|async; as dependentFields) {
+                      @if (etxn$|async; as etxn) {
+                        @if (selectedCostCenter$|async; as selectedCostCenter) {
+                          <ng-container formArrayName="cost_center_dependent_fields">
+                            <app-dependent-fields
+                              #costCenterDependentFieldsRef
+                              [dependentFieldsFormArray]="fg.controls.cost_center_dependent_fields"
+                              [dependentCustomFields]="dependentFields"
+                              [parentFieldId]="txnFields?.cost_center_id?.id"
+                              [parentFieldValue]="selectedCostCenter?.name"
+                              [txnCustomProperties]="etxn.tx.custom_properties || []"
+                            ></app-dependent-fields>
+                          </ng-container>
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              @if (txnFields$|async; as txnFields) {
+                @if (txnFields.purpose?.is_mandatory || isExpandedView) {
+                  @if (txnFields?.purpose) {
+                    @if (txnFields.purpose?.type === 'TEXT') {
+                      <div
+                        class="add-edit-expense--text add-edit-expense--text-block"
+                        [ngClass]="{'add-edit-expense--text__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
+                        >
+                        <div class="add-edit-expense--text-label">
+                          {{ txnFields.purpose?.field_name | slice: 0:30 }}
+                          @if (txnFields.purpose?.is_mandatory) {
+                            <span class="add-edit-expense--mandatory"> * </span>
+                          }
+                        </div>
+                        <input
+                          [placeholder]="txnFields.purpose?.placeholder || 'Enter '+txnFields.purpose?.field_name | slice: 0:30"
+                          [required]="txnFields.purpose?.is_mandatory"
+                          [title]="'Enter'+txnFields.purpose?.field_name"
+                          class="add-edit-expense--text-input smartlook-show"
+                          formControlName="purpose"
+                          />
+                      </div>
+                    }
+                    @if (txnFields.purpose?.type === 'SELECT') {
+                      <div
+                        class="add-edit-expense--internal-block"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
+                        >
+                        <app-fy-select
+                          [cacheName]="'recentPurposeList'"
+                          [label]="txnFields.purpose?.field_name"
+                          [mandatory]="txnFields.purpose?.is_mandatory"
+                          [nullOption]="txnFields.purpose?.is_mandatory ? false : true"
+                          [options]="txnFields.purpose?.options"
+                          [selectModalHeader]="'Enter '+ txnFields.purpose?.field_name"
+                          formControlName="purpose"
+                          [placeholder]="txnFields.purpose?.placeholder"
+                          [touchedInParent]="fg.controls.purpose.touched"
+                          [validInParent]="fg.controls.purpose.valid"
+                          >
+                        </app-fy-select>
+                      </div>
+                    }
+                    @if (fg.controls.purpose.touched && !fg.controls.purpose.valid) {
+                      <div class="add-edit-expense--error">
+                        Please enter {{ txnFields.purpose?.field_name }}.
+                      </div>
+                    }
+                  }
+                }
+              }
+            </div>
           </div>
-          } } } @if (isProjectsEnabled$|async) {
-          <div>
-            @if (isProjectsVisible$|async) {
+          @if (isConnected$|async; as isConnected) {
+            <div class="add-edit-expense--primary-block">
+              @for (customInput of this.customInputs$ | async; track customInput) {
+                @if (customInput.mandatory || isExpandedView) {
+                  <div
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
+                    class="add-edit-expense--internal-block"
+                    >
+                    <form [formGroup]="customInput.control">
+                      @if (customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION') {
+                        <div
+                          class="add-edit-expense--text"
+                          [ngClass]="{'add-edit-expense--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
+                          >
+                          <div
+                            [ngClass]="{'add-edit-expense--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
+                            class="add-edit-expense--text-label"
+                            >
+                            {{customInput.name | ellipsis: 30}}
+                            @if (customInput.mandatory) {
+                              <span class="add-edit-expense--mandatory"> * </span>
+                            }
+                          </div>
+                          @if (customInput.type === 'TEXT') {
+                            <input
+                              (blur)="focusState = false"
+                              (focus)="focusState = true"
+                              [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
+                              class="add-edit-expense--text-input smartlook-show"
+                              formControlName="value"
+                              type="text"
+                              />
+                          }
+                          @if (customInput.type === 'NUMBER') {
+                            <app-fy-number
+                              formControlName="value"
+                              [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
+                              >
+                            </app-fy-number>
+                          }
+                          @if (customInput.type === 'DATE') {
+                            <input
+                              appFormatDate
+                              class="add-edit-expense--date-input date-input__format smartlook-show"
+                              formControlName="value"
+                              type="date"
+                              [name]="customInput.placeholder || customInput.name"
+                              />
+                          }
+                        </div>
+                      }
+                      @if (customInput.type === 'BOOLEAN') {
+                        <div class="add-edit-expense--checkbox">
+                          <label>
+                            <mat-checkbox formControlName="value"> {{customInput.name | ellipsis: 35 }} </mat-checkbox>
+                          </label>
+                        </div>
+                      }
+                      @if (customInput.type === 'LOCATION') {
+                        <div>
+                          <app-fy-location
+                            [label]="customInput.name  | ellipsis: 30"
+                            [mandatory]="customInput.mandatory"
+                            formControlName="value"
+                            [placeholder]="customInput.placeholder | ellipsis: 30"
+                            [touchedInParent]="customInput.control.controls.value.touched"
+                            [validInParent]="customInput.control.controls.value.valid"
+                            >
+                          </app-fy-location>
+                        </div>
+                      }
+                      @if (customInput.type === 'SELECT') {
+                        <div>
+                          <app-fy-select
+                            [label]="customInput.name  | ellipsis: 30"
+                            [mandatory]="customInput.mandatory"
+                            [options]="customInput.options"
+                            [selectModalHeader]="'Select '+customInput.name"
+                            [label]="customInput.name"
+                            formControlName="value"
+                            [placeholder]="customInput.placeholder | ellipsis: 30"
+                            [touchedInParent]="customInput.control.controls.value.touched"
+                            [validInParent]="customInput.control.controls.value.valid"
+                            [isCustomSelect]="true"
+                            >
+                          </app-fy-select>
+                        </div>
+                      }
+                      @if (customInput.type === 'MULTI_SELECT') {
+                        <div>
+                          <app-fy-multiselect
+                            [label]="customInput.name  | ellipsis: 30"
+                            [mandatory]="customInput.mandatory"
+                            [options]="customInput.options"
+                            [selectModalHeader]="'Select '+customInput.name"
+                            [subheader]="customInput.name"
+                            formControlName="value"
+                            [placeholder]="customInput.placeholder | ellipsis: 30"
+                            [touchedInParent]="customInput.control.controls.value.touched"
+                            [validInParent]="customInput.control.controls.value.valid"
+                            >
+                          </app-fy-multiselect>
+                        </div>
+                      }
+                      @if (customInput.type === 'USER_LIST') {
+                        <div>
+                          <app-fy-userlist
+                            [label]="customInput.name | ellipsis: 30"
+                            [mandatory]="customInput.mandatory"
+                            [allowCustomValues]="true"
+                            formControlName="value"
+                            [placeholder]="customInput.placeholder | ellipsis: 30"
+                            [touchedInParent]="customInput.control.controls.value.touched"
+                            [validInParent]="customInput.control.controls.value.valid"
+                            >
+                          </app-fy-userlist>
+                        </div>
+                      }
+                    </form>
+                  </div>
+                  @if (customInput.control.controls.value.touched && !customInput.control.controls.value.valid) {
+                    <div
+                      class="add-edit-expense--error"
+                      >
+                      Please enter {{ customInput.name }}.
+                    </div>
+                  }
+                }
+              }
+            </div>
+          }
+          <!-- Hide in offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
+          @if (isConnected$|async; as isConnected) {
+            @if (etxn$|async; as etxn) {
+              @if (!(isCriticalPolicyViolated$|async)) {
+                @if (canRemoveFromReport || !etxn?.tx?.report_id) {
+                  @if (reports$|async; as reports) {
+                    @if (pendingTransactionAllowedToReportAndSplit) {
+                      <div class="add-edit-expense--internal-block">
+                        <app-fy-add-to-report
+                          [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
+                          [autoSubmissionReportName]="autoSubmissionReportName$|async"
+                          [options]="reports"
+                          [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
+                          formControlName="report"
+                        ></app-fy-add-to-report>
+                      </div>
+                    }
+                  }
+                }
+              }
+            }
+          }
+          @if (mode === 'add') {
             <div>
-              @if (fg.controls.project.value && showBillable) {
-              <div class="add-edit-expense--billable-block">
-                <mat-checkbox formControlName="billable">
-                  <span class="add-edit-expense--checkbox"> Billable </span>
-                </mat-checkbox>
-              </div>
+              @if (isExpandedView) {
+                <div class="expansion-btn" fill="clear" (click)="hideFields()">
+                  Hide more fields
+                  <ion-icon class="expansion-icon" name="chevron-up"></ion-icon>
+                </div>
+              } @else {
+                <div class="expansion-btn" fill="clear" (click)="showFields()">
+                  Show more fields
+                  <ion-icon class="expansion-icon" name="chevron-down"></ion-icon>
+                </div>
               }
             </div>
-            }
-          </div>
           }
-        </div>
-        } @if (isProjectsEnabled$|async) {
-        <div>
-          @if (isProjectsVisible$|async) {
-          <div>
-            @if (fg.controls.project.touched && !fg.controls.project.valid) {
-            <div class="add-edit-expense--error">Please select a project.</div>
-            }
-          </div>
-          }
-        </div>
-        } } @if (txnFields$|async; as txnFields) { @if (dependentFields$|async; as dependentFields) { @if (etxn$|async;
-        as etxn) { @if (selectedProject$|async; as selectedProject) {
-        <ng-container formArrayName="project_dependent_fields">
-          <app-dependent-fields
-            #projectDependentFieldsRef
-            [dependentFieldsFormArray]="fg.controls.project_dependent_fields"
-            [dependentCustomFields]="dependentFields"
-            [parentFieldId]="txnFields?.project_id?.id"
-            [parentFieldValue]="selectedProject?.projectv2_name"
-            [txnCustomProperties]="etxn.tx.custom_properties || []"
-          ></app-dependent-fields>
-        </ng-container>
-        } } } } @if (txnFields$|async; as txnFields) { @if (isConnected$|async) { @if (filteredCategories$|async; as
-        categories) { @if (categories.length) { @if (txnFields?.org_category_id) {
-        <div
-          [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}"
-          class="add-edit-expense--internal-block"
-        >
-          <app-virtual-select
-            [cacheName]="'recentCategoryList'"
-            [defaultLabelProp]="'displayName'"
-            [label]="'Category'"
-            [mandatory]="txnFields?.org_category_id?.is_mandatory"
-            [options]="categories"
-            [selectModalHeader]="'Select category'"
-            [recentlyUsed]="recentCategories"
-            formControlName="category"
-            [placeholder]="txnFields.org_category_id.placeholder"
-          >
-          </app-virtual-select>
-          @if ((autoCodedData?.category && fg.controls.category?.value?.displayName) && autoCodedData.category ===
-          fg.controls.category.value.displayName) {
-          <div class="add-edit-expense--auto-coded">
-            <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
-            Category is auto coded.
-          </div>
-          }
-        </div>
-        } @if (fg.controls.category.touched && !fg.controls.category.valid) {
-        <div class="add-edit-expense--error">Please select a category.</div>
-        } } } } } @if (taxSettings$|async; as taxSettings) { @if (txnFields$|async; as txnFields) { @if
-        (taxGroupsOptions$|async; as taxGroups) { @if (txnFields?.tax_group_id && taxGroups?.length > 0) {
-        <div class="add-edit-expense--primary-block">
-          <div
-            class="add-edit-expense--internal-block"
-            [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.tax_group.touched && !fg.controls.tax_group.valid}"
-          >
-            <app-fy-select
-              [label]="(txnFields.tax_group_id.field_name || 'Tax group')"
-              [options]="taxGroups"
-              [mandatory]="txnFields.tax_group_id.is_mandatory"
-              [selectModalHeader]="'Select ' + (txnFields.tax_group_id.field_name || 'Tax Group')"
-              formControlName="tax_group"
-              [placeholder]="txnFields.tax_group_id.placeholder"
-              [touchedInParent]="fg.controls.tax_group.touched"
-              [validInParent]="fg.controls.tax_group.valid"
-            >
-            </app-fy-select>
-          </div>
-          @if (fg.controls.tax_group.touched && !fg.controls.tax_group.valid) {
-          <div class="add-edit-expense--error">Please select a valid tax group.</div>
-          }
-          <div
-            [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': (fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))}"
-            class="add-edit-expense--internal-block add-edit-expense--text"
-          >
-            <div
-              [ngClass]="{'add-edit-expense--text-label__invalid': (fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))}"
-              class="add-edit-expense--text-label"
-            >
-              {{(taxSettings.name || 'Tax amount') | ellipsis: 30 }}
-            </div>
-            <app-fy-number formControlName="tax_amount" [placeholder]="'Enter tax amount'"></app-fy-number>
-          </div>
-          @if ((fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid ||
-          fg.controls.tax_amount.hasError('invalid')) &&
-          !fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount'))) {
-          <div class="add-edit-expense--error">Please enter a valid tax amount.</div>
-          } @if (fg.controls.tax_amount.touched && fg.controls.tax_amount.hasError('taxAmountGreaterThanAmount')) {
-          <div class="add-edit-expense--error">Tax amount cannot be greater than amount</div>
-          }
-        </div>
-        } } } } @if (txnFields$|async; as txnFields) { @if (isConnected$|async; as isConnected) {
-        <div>
-          <ion-grid class="ion-grid-no-padding">
-            <ion-row>
-              @if (txnFields.location1?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
-              <ion-col>
-                <div
-                  class="add-edit-expense--internal-block"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_1.touched && !fg.controls.location_1.valid, 'add-edit-expense--internal-block__margin': txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
-                >
-                  <app-fy-location
-                    [label]="txnFields.location1?.field_name"
-                    [mandatory]="txnFields.location1?.is_mandatory"
-                    formControlName="location_1"
-                    [placeholder]="txnFields.location1?.placeholder"
-                    [touchedInParent]="fg.controls.location_1.touched"
-                    [validInParent]="fg.controls.location_1.valid"
-                  >
-                  </app-fy-location>
-                </div>
-                @if (fg.controls.location_1.touched && !fg.controls.location_1.valid) {
-                <div class="add-edit-expense--error">Please select a valid city.</div>
-                }
-              </ion-col>
-              } @if (txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category))
-              {
-              <ion-col>
-                <div
-                  class="add-edit-expense--internal-block"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_2.touched && !fg.controls.location_2.valid}"
-                >
-                  <app-fy-location
-                    [label]="txnFields.location2?.field_name"
-                    [mandatory]="txnFields.location2?.is_mandatory"
-                    formControlName="location_2"
-                    [placeholder]="txnFields.location2?.placeholder"
-                    [touchedInParent]="fg.controls.location_2.touched"
-                    [validInParent]="fg.controls.location_2.valid"
-                  >
-                  </app-fy-location>
-                </div>
-                @if (fg.controls.location_2.touched && !fg.controls.location_2.valid) {
-                <div class="add-edit-expense--error">Please select a valid city.</div>
-                }
-              </ion-col>
-              }
-            </ion-row>
-          </ion-grid>
-          <ion-grid class="ion-grid-no-padding">
-            <ion-row>
-              @if (txnFields.from_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
-              <ion-col>
-                <div
-                  [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
-                  class="add-edit-expense--date add-edit-expense--internal-block"
-                >
-                  <div
-                    [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
-                    class="add-edit-expense--date-label add-edit-expense--date-label__large"
-                  >
-                    {{txnFields.from_dt?.field_name}}
-                    <span class="add-edit-expense--mandatory">*</span>
-                  </div>
-                  <input
-                    appFormatDate
-                    class="add-edit-expense--date-input date-input__format smartlook-show"
-                    formControlName="from_dt"
-                    [name]="txnFields.from_dt?.field_name"
-                    type="date"
-                    [placeholder]="txnFields.from_dt?.placeholder || 'Select '+ txnFields.from_dt?.field_name"
-                  />
-                </div>
-                @if (fg.controls.from_dt.touched && !fg.controls.from_dt.valid) {
-                <div class="add-edit-expense--date-error">Please select a valid {{txnFields.from_dt?.field_name}}.</div>
-                }
-              </ion-col>
-              } @if (txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)) {
-              <ion-col>
-                <div
-                  [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
-                  class="add-edit-expense--date add-edit-expense--internal-block"
-                >
-                  <div
-                    [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
-                    class="add-edit-expense--date-label add-edit-expense--date-label__large"
-                  >
-                    {{txnFields.to_dt?.field_name}}
-                    <span class="add-edit-expense--mandatory">*</span>
-                  </div>
-                  <input
-                    appFormatDate
-                    class="add-edit-expense--date-input date-input__format smartlook-show"
-                    formControlName="to_dt"
-                    [name]="txnFields.to_dt?.field_name"
-                    type="date"
-                    [placeholder]="txnFields.from_dt?.placeholder || 'Select '+ txnFields.to_dt?.field_name"
-                  />
-                </div>
-                @if (fg.controls.to_dt.touched && !fg.controls.to_dt.valid) {
-                <div class="add-edit-expense--date-error">Please select a valid {{txnFields.to_dt?.field_name}}.</div>
-                }
-              </ion-col>
-              }
-            </ion-row>
-          </ion-grid>
-          <ion-grid class="ion-grid-no-padding">
-            <ion-row>
-              @if (txnFields.flight_journey_travel_class?.is_mandatory &&
-              systemCategories?.includes(fg.value.category?.fyle_category)) {
-              <ion-col>
-                <div
-                  class="add-edit-expense--internal-block"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid, 'add-edit-expense--internal-block__margin': txnFields.flight_return_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
-                >
-                  @if (flightJourneyTravelClassOptions$|async; as flightJourneyTravelClassOptions) {
-                  <app-fy-select
-                    [label]="txnFields.flight_journey_travel_class?.field_name"
-                    [mandatory]="txnFields.flight_journey_travel_class?.is_mandatory"
-                    [options]="txnFields.flight_journey_travel_class?.options"
-                    [selectModalHeader]="'Select travel class'"
-                    formControlName="flight_journey_travel_class"
-                    [placeholder]="txnFields.flight_journey_travel_class?.placeholder"
-                    [touchedInParent]="fg.controls.flight_journey_travel_class.touched"
-                    [validInParent]="fg.controls.flight_journey_travel_class.valid"
-                  >
-                  </app-fy-select>
+          @if (isConnected$) {
+            @if (txnFields$|async; as txnFields) {
+              @if (isProjectsEnabled$|async; as isProjectsEnabled) {
+                @if (isIndividualProjectsEnabled$|async; as isIndividualProjectsEnabled) {
+                  @if (individualProjectIds$|async; as individualProjectIds) {
+                    @if (txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0) {
+                      <app-fy-alert-info
+                        [message]="'There are no ' + txnFields?.project_id?.field_name + 's assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                        [type]="'warning'"
+                        >
+                      </app-fy-alert-info>
+                    }
                   }
-                </div>
-                @if (fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid)
-                {
-                <div class="add-edit-expense--error">
-                  Please select a valid class for {{ txnFields.flight_journey_travel_class?.field_name }}.
-                </div>
                 }
-              </ion-col>
-              } @if (txnFields.flight_return_travel_class?.is_mandatory &&
-              systemCategories?.includes(fg.value.category?.fyle_category)) {
-              <ion-col>
-                <div
-                  class="add-edit-expense--internal-block"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_return_travel_class.touched && !fg.controls.flight_return_travel_class.valid}"
-                >
-                  @if (flightJourneyTravelClassOptions$|async; as flightJourneyTravelClassOptions) {
-                  <app-fy-select
-                    [label]="txnFields.flight_return_travel_class?.field_name"
-                    [mandatory]="txnFields.flight_return_travel_class?.is_mandatory"
-                    [options]="txnFields.flight_journey_travel_class?.options"
-                    [selectModalHeader]="'Select travel class'"
-                    formControlName="flight_return_travel_class"
-                    name="flightReturnClass"
-                    [placeholder]="txnFields.flight_return_travel_class?.placeholder"
-                    [touchedInParent]="fg.controls.flight_return_travel_class.touched"
-                    [validInParent]="fg.controls.flight_return_travel_class.valid"
-                  >
-                  </app-fy-select>
+              }
+              @if (filteredCategories$|async; as categories) {
+                @if (txnFields?.org_category_id?.is_mandatory && !categories.length) {
+                  <app-fy-alert-info
+                    [message]="'There are no Categories assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                    [type]="'warning'"
+                    >
+                  </app-fy-alert-info>
+                }
+              }
+            }
+          }
+          @if (isConnected$) {
+            @if (txnFields$|async; as txnFields) {
+              @if (isCostCentersEnabled$|async; as isCostCentersEnabled) {
+                @if (costCenters$|async; as allowedCostCenters) {
+                  @if (txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0) {
+                    <app-fy-alert-info
+                      class="add-edit-expense--cost-center-alert"
+                      [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                      [type]="'warning'"
+                      >
+                    </app-fy-alert-info>
                   }
-                </div>
-                @if (fg.controls.flight_return_travel_class.touched && !fg.controls.flight_return_travel_class.valid) {
-                <div class="add-edit-expense--error">
-                  Please select a valid class for {{ txnFields.flight_return_travel_class?.field_name }}.
-                </div>
                 }
-              </ion-col>
               }
-            </ion-row>
-          </ion-grid>
-          @if (txnFields.train_travel_class?.is_mandatory &&
-          systemCategories?.includes(fg.value.category?.fyle_category)) {
-          <div
-            [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid, 'add-edit-expense--text__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid && txnFields.train_travel_class?.type === 'TEXT', 'add-edit-expense--text': txnFields.train_travel_class?.type === 'TEXT'}"
-            class="add-edit-expense--internal-block"
-          >
-            @if (txnFields.train_travel_class?.type === 'TEXT') {
-            <span>
-              <div
-                [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
-                class="add-edit-expense--text-label add-edit-expense--text-label__large"
-              >
-                {{txnFields.train_travel_class?.field_name}}
-                <span class="add-edit-expense--mandatory">*</span>
-              </div>
-              <input
-                (blur)="focusState = false"
-                (focus)="focusState = true"
-                [placeholder]="txnFields.train_travel_class.placeholder || 'Enter ' + txnFields.train_travel_class.field_name"
-                class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
-                formControlName="train_travel_class"
-                type="text"
-              />
-            </span>
-            } @if (txnFields.train_travel_class?.type === 'SELECT') {
-            <app-fy-select
-              [label]="txnFields.train_travel_class?.field_name"
-              [mandatory]="txnFields.train_travel_class?.is_mandatory"
-              [options]="txnFields.train_travel_class?.options"
-              formControlName="train_travel_class"
-              [placeholder]="txnFields.train_travel_class?.placeholder"
-              [touchedInParent]="fg.controls.train_travel_class.touched"
-              [validInParent]="fg.controls.train_travel_class.valid"
-            >
-            </app-fy-select>
             }
-          </div>
-          } @if (fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid) {
-          <div
-            [ngClass]="{'add-edit-expense--travel-text-error': txnFields.train_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-error': txnFields.train_travel_class?.type === 'SELECT'}"
-          >
-            Please select valid {{ txnFields.train_travel_class?.field_name }}.
-          </div>
-          } @if (txnFields.bus_travel_class?.is_mandatory &&
-          systemCategories?.includes(fg.value.category?.fyle_category)) {
-          <div
-            [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid, 'add-edit-expense--text__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid && txnFields.bus_travel_class?.type === 'TEXT', 'add-edit-expense--text': txnFields.bus_travel_class?.type === 'TEXT'}"
-            class="add-edit-expense--internal-block"
-          >
-            @if (txnFields.bus_travel_class?.type === 'TEXT') {
-            <div
-              [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid}"
-              class="add-edit-expense--text-label add-edit-expense--text-label__large"
-            >
-              {{txnFields.bus_travel_class?.field_name}} @if (txnFields.bus_travel_class?.is_mandatory) {
-              <div class="add-edit-expense--mandatory">*</div>
-              }
-            </div>
-            } @if (txnFields.bus_travel_class?.type === 'TEXT') {
-            <input
-              (blur)="focusState = false"
-              (focus)="focusState = true"
-              [placeholder]="txnFields.bus_travel_class?.placeholder || 'Enter ' + txnFields.bus_travel_class?.field_name"
-              class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
-              formControlName="bus_travel_class"
-              type="text"
-            />
-            } @if (txnFields.bus_travel_class?.type === 'SELECT') {
-            <app-fy-select
-              [label]="txnFields.bus_travel_class?.field_name"
-              [mandatory]="txnFields.bus_travel_class?.is_mandatory"
-              [options]="txnFields.bus_travel_class?.options"
-              [selectModalHeader]="'Select travel class'"
-              formControlName="bus_travel_class"
-              hide-none="true"
-              [placeholder]="txnFields.bus_travel_class?.placeholder"
-              [touchedInParent]="fg.controls.bus_travel_class.touched"
-              [validInParent]="fg.controls.bus_travel_class.valid"
-            >
-            </app-fy-select>
-            }
-          </div>
-          } @if (fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid) {
-          <div
-            [ngClass]="{'add-edit-expense--travel-text-error': txnFields.bus_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-error': txnFields.bus_travel_class?.type === 'SELECT'}"
-          >
-            Please select valid {{ txnFields.bus_travel_class?.field_name }}.
-          </div>
-          } @if (breakfastSystemCategories?.includes(fg?.value?.category?.fyle_category) && isExpandedView) {
-          <div class="add-edit-expense--internal-block">
-            <mat-checkbox formControlName="hotel_is_breakfast_provided">
-              <span class="add-edit-expense--text-label"> Breakfast provided </span>
-            </mat-checkbox>
-          </div>
-          } @if (txnFields.distance?.is_mandatory && fg.value?.category?.fyle_category === 'Taxi') {
-          <div
-            [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': (fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))}"
-            class="add-edit-expense--internal-block add-edit-expense--text"
-          >
-            <div
-              [ngClass]="{'add-edit-expense--text-label__invalid': (fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))}"
-              class="add-edit-expense--text-label"
-            >
-              {{txnFields.distance?.field_name}}
-              <span class="add-edit-expense--mandatory">*</span>
-            </div>
-            <app-fy-number
-              formControlName="distance"
-              [isDistance]="true"
-              [placeholder]="txnFields.distance?.placeholder || 'Enter ' + txnFields.distance?.field_name"
-            ></app-fy-number>
-          </div>
-          @if ((fg.controls.distance.touched && (!fg.controls.distance.valid ||
-          fg.controls.distance.hasError('invalid')))) {
-          <div class="add-edit-expense--distance-error">Please enter {{ txnFields.distance?.field_name }}.</div>
           }
-          <div
-            class="add-edit-expense--internal-block"
-            [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.distance_unit.touched && !fg.controls.distance_unit.valid}"
-          >
-            <app-fy-select
-              [label]="txnFields.distance_unit?.field_name"
-              [mandatory]="txnFields.distance_unit?.is_mandatory"
-              [options]="txnFields.distance_unit?.options"
-              formControlName="distance_unit"
-              name="taxiDistanceUnit"
-              sub-title="Units"
-              title="Select unit"
-              [placeholder]="txnFields.distance_unit?.placeholder"
-              [touchedInParent]="fg.controls.distance_unit.touched"
-              [validInParent]="fg.controls.distance_unit.valid"
-            >
-            </app-fy-select>
-          </div>
-          @if (fg.controls.distance_unit.touched && !fg.controls.distance_unit.valid) {
-          <div class="add-edit-expense--distance-unit-error">
-            Please select {{ txnFields.distance_unit?.field_name }}.
-          </div>
-          } }
-        </div>
-        } } @if (txnFields$|async; as txnFields) { @if (txnFields?.vendor_id) {
-        <div
-          [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid}"
-          class="add-edit-expense--internal-block"
-        >
-          @if (!txnFields.vendor_id?.options?.length) {
-          <app-fy-select-vendor
-            [label]="txnFields.vendor_id?.field_name"
-            [mandatory]="txnFields?.vendor_id?.is_mandatory"
-            formControlName="vendor_id"
-            [placeholder]="txnFields.vendor_id?.placeholder"
-            [touchedInParent]="fg.controls.vendor_id.touched"
-            [validInParent]="fg.controls.vendor_id.valid"
-          >
-          </app-fy-select-vendor>
-          } @if (txnFields.vendor_id?.options?.length) {
-          <app-virtual-select
-            [label]="txnFields.vendor_id?.field_name"
-            [mandatory]="txnFields.vendor_id?.is_mandatory"
-            [options]="txnFields.vendor_id?.options"
-            [nullOption]="!txnFields.vendor_id?.is_mandatory"
-            formControlName="vendor_id"
-            [placeholder]="txnFields.vendor_id?.placeholder"
-          >
-          </app-virtual-select>
-          } @if ((autoCodedData?.vendor_name && fg.controls.vendor_id?.value?.display_name) &&
-          autoCodedData.vendor_name?.toLowerCase() === fg.controls.vendor_id.value.display_name?.toLowerCase()) {
-          <div class="add-edit-expense--auto-coded">
-            <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
-            Merchant is auto coded.
-          </div>
-          }
-        </div>
-        } @if (fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid) {
-        <div class="add-edit-expense--error">Please select a merchant</div>
-        } } @if (costCenters$|async; as costCenters) { @if (txnFields$|async; as txnFields) { @if
-        (txnFields.cost_center_id?.is_mandatory || isExpandedView) { @if (costCenters.length > 0) {
-        <div class="add-edit-expense--primary-block">
-          @if (costCenters.length > 0 && txnFields?.cost_center_id) {
-          <div class="add-edit-expense--internal-block">
-            <app-virtual-select
-              [cacheName]="'recentCostCenterList'"
-              [label]="txnFields.cost_center_id?.field_name"
-              [mandatory]="txnFields.cost_center_id?.is_mandatory"
-              [options]="costCenters"
-              [selectModalHeader]="'Select cost center'"
-              [recentlyUsed]="recentCostCenters"
-              formControlName="costCenter"
-              [placeholder]="txnFields.cost_center_id?.placeholder"
-            >
-            </app-virtual-select>
-          </div>
-          } @if (fg.controls.costCenter.touched && !fg.controls.costCenter.valid) {
-          <div class="add-edit-expense--error">Please select {{ txnFields.cost_center_id?.field_name }}</div>
-          }
-        </div>
-        } @if (dependentFields$|async; as dependentFields) { @if (etxn$|async; as etxn) { @if
-        (selectedCostCenter$|async; as selectedCostCenter) {
-        <ng-container formArrayName="cost_center_dependent_fields">
-          <app-dependent-fields
-            #costCenterDependentFieldsRef
-            [dependentFieldsFormArray]="fg.controls.cost_center_dependent_fields"
-            [dependentCustomFields]="dependentFields"
-            [parentFieldId]="txnFields?.cost_center_id?.id"
-            [parentFieldValue]="selectedCostCenter?.name"
-            [txnCustomProperties]="etxn.tx.custom_properties || []"
-          ></app-dependent-fields>
-        </ng-container>
-        } } } } } } @if (txnFields$|async; as txnFields) { @if (txnFields.purpose?.is_mandatory || isExpandedView) { @if
-        (txnFields?.purpose) { @if (txnFields.purpose?.type === 'TEXT') {
-        <div
-          class="add-edit-expense--text add-edit-expense--text-block"
-          [ngClass]="{'add-edit-expense--text__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-        >
-          <div class="add-edit-expense--text-label">
-            {{ txnFields.purpose?.field_name | slice: 0:30 }} @if (txnFields.purpose?.is_mandatory) {
-            <span class="add-edit-expense--mandatory"> * </span>
-            }
-          </div>
-          <input
-            [placeholder]="txnFields.purpose?.placeholder || 'Enter '+txnFields.purpose?.field_name | slice: 0:30"
-            [required]="txnFields.purpose?.is_mandatory"
-            [title]="'Enter'+txnFields.purpose?.field_name"
-            class="add-edit-expense--text-input smartlook-show"
-            formControlName="purpose"
-          />
-        </div>
-        } @if (txnFields.purpose?.type === 'SELECT') {
-        <div
-          class="add-edit-expense--internal-block"
-          [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-        >
-          <app-fy-select
-            [cacheName]="'recentPurposeList'"
-            [label]="txnFields.purpose?.field_name"
-            [mandatory]="txnFields.purpose?.is_mandatory"
-            [nullOption]="txnFields.purpose?.is_mandatory ? false : true"
-            [options]="txnFields.purpose?.options"
-            [selectModalHeader]="'Enter '+ txnFields.purpose?.field_name"
-            formControlName="purpose"
-            [placeholder]="txnFields.purpose?.placeholder"
-            [touchedInParent]="fg.controls.purpose.touched"
-            [validInParent]="fg.controls.purpose.valid"
-          >
-          </app-fy-select>
-        </div>
-        } @if (fg.controls.purpose.touched && !fg.controls.purpose.valid) {
-        <div class="add-edit-expense--error">Please enter {{ txnFields.purpose?.field_name }}.</div>
-        } } } }
-      </div>
-    </div>
-    @if (isConnected$|async; as isConnected) {
-    <div class="add-edit-expense--primary-block">
-      @for (customInput of this.customInputs$ | async; track customInput) { @if (customInput.mandatory ||
-      isExpandedView) {
-      <div
-        [ngClass]="{'add-edit-expense--internal-block__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-        class="add-edit-expense--internal-block"
-      >
-        <form [formGroup]="customInput.control">
-          @if (customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' &&
-          customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION') {
-          <div
-            class="add-edit-expense--text"
-            [ngClass]="{'add-edit-expense--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-          >
-            <div
-              [ngClass]="{'add-edit-expense--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-              class="add-edit-expense--text-label"
-            >
-              {{customInput.name | ellipsis: 30}} @if (customInput.mandatory) {
-              <span class="add-edit-expense--mandatory"> * </span>
-              }
-            </div>
-            @if (customInput.type === 'TEXT') {
-            <input
-              (blur)="focusState = false"
-              (focus)="focusState = true"
-              [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
-              class="add-edit-expense--text-input smartlook-show"
-              formControlName="value"
-              type="text"
-            />
-            } @if (customInput.type === 'NUMBER') {
-            <app-fy-number
-              formControlName="value"
-              [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
-            >
-            </app-fy-number>
-            } @if (customInput.type === 'DATE') {
-            <input
-              appFormatDate
-              class="add-edit-expense--date-input date-input__format smartlook-show"
-              formControlName="value"
-              type="date"
-              [name]="customInput.placeholder || customInput.name"
-            />
-            }
-          </div>
-          } @if (customInput.type === 'BOOLEAN') {
-          <div class="add-edit-expense--checkbox">
-            <label>
-              <mat-checkbox formControlName="value"> {{customInput.name | ellipsis: 35 }} </mat-checkbox>
-            </label>
-          </div>
-          } @if (customInput.type === 'LOCATION') {
-          <div>
-            <app-fy-location
-              [label]="customInput.name  | ellipsis: 30"
-              [mandatory]="customInput.mandatory"
-              formControlName="value"
-              [placeholder]="customInput.placeholder | ellipsis: 30"
-              [touchedInParent]="customInput.control.controls.value.touched"
-              [validInParent]="customInput.control.controls.value.valid"
-            >
-            </app-fy-location>
-          </div>
-          } @if (customInput.type === 'SELECT') {
-          <div>
-            <app-fy-select
-              [label]="customInput.name  | ellipsis: 30"
-              [mandatory]="customInput.mandatory"
-              [options]="customInput.options"
-              [selectModalHeader]="'Select '+customInput.name"
-              [label]="customInput.name"
-              formControlName="value"
-              [placeholder]="customInput.placeholder | ellipsis: 30"
-              [touchedInParent]="customInput.control.controls.value.touched"
-              [validInParent]="customInput.control.controls.value.valid"
-              [isCustomSelect]="true"
-            >
-            </app-fy-select>
-          </div>
-          } @if (customInput.type === 'MULTI_SELECT') {
-          <div>
-            <app-fy-multiselect
-              [label]="customInput.name  | ellipsis: 30"
-              [mandatory]="customInput.mandatory"
-              [options]="customInput.options"
-              [selectModalHeader]="'Select '+customInput.name"
-              [subheader]="customInput.name"
-              formControlName="value"
-              [placeholder]="customInput.placeholder | ellipsis: 30"
-              [touchedInParent]="customInput.control.controls.value.touched"
-              [validInParent]="customInput.control.controls.value.valid"
-            >
-            </app-fy-multiselect>
-          </div>
-          } @if (customInput.type === 'USER_LIST') {
-          <div>
-            <app-fy-userlist
-              [label]="customInput.name | ellipsis: 30"
-              [mandatory]="customInput.mandatory"
-              [allowCustomValues]="true"
-              formControlName="value"
-              [placeholder]="customInput.placeholder | ellipsis: 30"
-              [touchedInParent]="customInput.control.controls.value.touched"
-              [validInParent]="customInput.control.controls.value.valid"
-            >
-            </app-fy-userlist>
-          </div>
-          }
-        </form>
-      </div>
-      @if (customInput.control.controls.value.touched && !customInput.control.controls.value.valid) {
-      <div class="add-edit-expense--error">Please enter {{ customInput.name }}.</div>
-      } } }
-    </div>
+      </form>
     }
-    <!-- Hide in offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
-    @if (isConnected$|async; as isConnected) { @if (etxn$|async; as etxn) { @if (!(isCriticalPolicyViolated$|async)) {
-    @if (canRemoveFromReport || !etxn?.tx?.report_id) { @if (reports$|async; as reports) { @if
-    (pendingTransactionAllowedToReportAndSplit) {
-    <div class="add-edit-expense--internal-block">
-      <app-fy-add-to-report
-        [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
-        [autoSubmissionReportName]="autoSubmissionReportName$|async"
-        [options]="reports"
-        [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
-        formControlName="report"
-      ></app-fy-add-to-report>
-    </div>
-    } } } } } } @if (mode === 'add') {
-    <div>
-      @if (isExpandedView) {
-      <div class="expansion-btn" fill="clear" (click)="hideFields()">
-        Hide more fields
-        <ion-icon class="expansion-icon" name="chevron-up"></ion-icon>
-      </div>
-      } @else {
-      <div class="expansion-btn" fill="clear" (click)="showFields()">
-        Show more fields
-        <ion-icon class="expansion-icon" name="chevron-down"></ion-icon>
-      </div>
-      }
-    </div>
-    } @if (isConnected$) { @if (txnFields$|async; as txnFields) { @if (isProjectsEnabled$|async; as isProjectsEnabled) {
-    @if (isIndividualProjectsEnabled$|async; as isIndividualProjectsEnabled) { @if (individualProjectIds$|async; as
-    individualProjectIds) { @if (txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0) {
-    <app-fy-alert-info
-      [message]="'There are no ' + txnFields?.project_id?.field_name + 's assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-      [type]="'warning'"
-    >
-    </app-fy-alert-info>
-    } } } } @if (filteredCategories$|async; as categories) { @if (txnFields?.org_category_id?.is_mandatory &&
-    !categories.length) {
-    <app-fy-alert-info
-      [message]="'There are no Categories assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-      [type]="'warning'"
-    >
-    </app-fy-alert-info>
-    } } } } @if (isConnected$) { @if (txnFields$|async; as txnFields) { @if (isCostCentersEnabled$|async; as
-    isCostCentersEnabled) { @if (costCenters$|async; as allowedCostCenters) { @if
-    (txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0) {
-    <app-fy-alert-info
-      class="add-edit-expense--cost-center-alert"
-      [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-      [type]="'warning'"
-    >
-    </app-fy-alert-info>
-    } } } } }
-  </form>
-  }
-</ion-content>
+  </ion-content>
 
-@if (fg) { @if (reviewList?.length) {
-<app-review-footer
-  [activeIndex]="+activeIndex"
-  [reviewList]="reviewList"
-  [saveAndPrevLoader]="saveAndPrevExpenseLoader"
-  [saveAndNextLoader]="saveAndNextExpenseLoader"
-  (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
-  (saveAndGoToNext)="saveExpenseAndGotoNext()"
-></app-review-footer>
-} @if (!reviewList?.length) {
-<ion-footer [ngClass]="{'d-none': isCameraPreviewStarted}" class="add-edit-expense--footer-container">
-  <ion-toolbar
-    class="add-edit-expense--footer-box"
-    mode="md"
-    [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}"
-  >
-    <div class="add-edit-expense--footer-toolbar">
-      @if (!reviewList) {
-      <ion-buttons>
-        @if (mode === 'add' && !navigateBack) {
-        <ion-button
-          (click)="saveAndNewExpense()"
-          [disabled]="saveExpenseLoader || saveAndNewExpenseLoader"
-          [loadingText]="'Saving'"
-          [loading]="saveAndNewExpenseLoader"
-          appFormButtonValidation
-          class="btn-secondary"
+  @if (fg) {
+    @if (reviewList?.length) {
+      <app-review-footer
+        [activeIndex]="+activeIndex"
+        [reviewList]="reviewList"
+        [saveAndPrevLoader]="saveAndPrevExpenseLoader"
+        [saveAndNextLoader]="saveAndNextExpenseLoader"
+        (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
+        (saveAndGoToNext)="saveExpenseAndGotoNext()"
+      ></app-review-footer>
+    }
+    @if (!reviewList?.length) {
+      <ion-footer
+        [ngClass]="{'d-none': isCameraPreviewStarted}"
+        class="add-edit-expense--footer-container"
         >
-          Save and new
-        </ion-button>
-        } @if (mode === 'edit' && !navigateBack) {
-        <ion-button (click)="goBack()" [disabled]="saveExpenseLoader" class="btn-secondary"> Cancel </ion-button>
-        }
-        <ion-button
-          (click)="saveExpense()"
-          [disabled]="saveExpenseLoader || saveAndNewExpenseLoader"
-          [loadingText]="'Saving'"
-          [loading]="saveExpenseLoader"
-          appFormButtonValidation
-          class="btn-primary"
-        >
-          Save expense
-        </ion-button>
-      </ion-buttons>
-      }
-    </div>
-  </ion-toolbar>
-</ion-footer>
-} }
+        <ion-toolbar
+          class="add-edit-expense--footer-box"
+          mode="md"
+          [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}"
+          >
+          <div class="add-edit-expense--footer-toolbar">
+            @if (!reviewList) {
+              <ion-buttons>
+                @if (mode === 'add' && !navigateBack) {
+                  <ion-button
+                    (click)="saveAndNewExpense()"
+                    [disabled]="saveExpenseLoader || saveAndNewExpenseLoader"
+                    [loadingText]="'Saving'"
+                    [loading]="saveAndNewExpenseLoader"
+                    appFormButtonValidation
+                    class="btn-secondary"
+                    >
+                    Save and new
+                  </ion-button>
+                }
+                @if (mode === 'edit' && !navigateBack) {
+                  <ion-button
+                    (click)="goBack()"
+                    [disabled]="saveExpenseLoader"
+                    class="btn-secondary"
+                    >
+                    Cancel
+                  </ion-button>
+                }
+                <ion-button
+                  (click)="saveExpense()"
+                  [disabled]="saveExpenseLoader || saveAndNewExpenseLoader"
+                  [loadingText]="'Saving'"
+                  [loading]="saveExpenseLoader"
+                  appFormButtonValidation
+                  class="btn-primary"
+                  >
+                  Save expense
+                </ion-button>
+              </ion-buttons>
+            }
+          </div>
+        </ion-toolbar>
+      </ion-footer>
+    }
+  }
