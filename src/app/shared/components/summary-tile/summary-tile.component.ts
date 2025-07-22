@@ -41,7 +41,7 @@ export class FySummaryTileComponent implements OnInit, OnChanges {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ngOnChanges(changes: SimpleChanges): void {
     this.status =
-      this.status === 'APPROVAL PENDING' ? this.translocoService.translate('fySummaryTile.pending') : this.status;
+      this.status === 'APPROVAL PENDING' ? this.translocoService.translate('summaryTile.pending') : this.status;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function

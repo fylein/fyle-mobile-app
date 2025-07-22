@@ -7,19 +7,11 @@
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
-$custom-typography: mat.define-legacy-typography-config(
+$custom-typography: mat.m2-define-typography-config(
   $font-family: '"aktiv-grotesk", "Lato", sans-serif',
 );
-// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
-//  The following line adds:
-//    1. Default typography styles for all components
-//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
-//  If you specify typography styles for the components you use elsewhere, you should delete this line.
-//  If you don't need the default component typographies but still want the hierarchy styles,
-//  you can delete this line and instead use:
-//    `@include mat.legacy-typography-hierarchy($custom-typography);`
-@include mat.all-legacy-component-typographies($custom-typography);
-@include mat.legacy-core();
+@include mat.all-component-typographies($custom-typography);
+@include mat.core();
 
 /// warning color palette
 $fy-warning: (
@@ -56,24 +48,24 @@ $fy-warning: (
 );
 
 // mat-palette accepts $palette-name, main, lighter and darker variants
-$fy-theme-primary: mat.define-palette(mat.$pink-palette);
-$fy-theme-accent: mat.define-palette(mat.$gray-palette, 200);
-$fy-theme-warn: mat.define-palette($fy-warning);
+$fy-theme-primary: mat.m2-define-palette(mat.$m2-pink-palette);
+$fy-theme-accent: mat.m2-define-palette(mat.$m2-gray-palette, 200);
+$fy-theme-warn: mat.m2-define-palette($fy-warning);
 
 // create theme (use mat-dark-theme for themes with dark backgrounds)
-$fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme-warn);
+$fy-theme: mat.m2-define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme-warn);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
-@include mat.all-legacy-component-themes($fy-theme);
+@include mat.all-component-themes($fy-theme);
 
 // // Ionic Variables and Theming. For more info, please see:
 // // http://ionicframework.com/docs/theming/
 
-// /** Ionic CSS Variables **/
+// __<<ngM2ThemingMigrationEscapedComment0>>__
 // :root {
-//   /** primary **/
+//   __<<ngM2ThemingMigrationEscapedComment1>>__
 //   --ion-color-primary: #3880ff;
 //   --ion-color-primary-rgb: 56, 128, 255;
 //   --ion-color-primary-contrast: #ffffff;
@@ -81,7 +73,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 //   --ion-color-primary-shade: #3171e0;
 //   --ion-color-primary-tint: #4c8dff;
 
-//   /** secondary **/
+//   __<<ngM2ThemingMigrationEscapedComment2>>__
 //   --ion-color-secondary: #3dc2ff;
 //   --ion-color-secondary-rgb: 61, 194, 255;
 //   --ion-color-secondary-contrast: #ffffff;
@@ -89,7 +81,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 //   --ion-color-secondary-shade: #36abe0;
 //   --ion-color-secondary-tint: #50c8ff;
 
-//   /** tertiary **/
+//   __<<ngM2ThemingMigrationEscapedComment3>>__
 //   --ion-color-tertiary: #5260ff;
 //   --ion-color-tertiary-rgb: 82, 96, 255;
 //   --ion-color-tertiary-contrast: #ffffff;
@@ -97,7 +89,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 //   --ion-color-tertiary-shade: #4854e0;
 //   --ion-color-tertiary-tint: #6370ff;
 
-//   /** success **/
+//   __<<ngM2ThemingMigrationEscapedComment4>>__
 //   --ion-color-success: #2dd36f;
 //   --ion-color-success-rgb: 45, 211, 111;
 //   --ion-color-success-contrast: #ffffff;
@@ -105,7 +97,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 //   --ion-color-success-shade: #28ba62;
 //   --ion-color-success-tint: #42d77d;
 
-//   /** warning **/
+//   __<<ngM2ThemingMigrationEscapedComment5>>__
 //   --ion-color-warning: #ffc409;
 //   --ion-color-warning-rgb: 255, 196, 9;
 //   --ion-color-warning-contrast: #000000;
@@ -113,7 +105,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 //   --ion-color-warning-shade: #e0ac08;
 //   --ion-color-warning-tint: #ffca22;
 
-//   /** danger **/
+//   __<<ngM2ThemingMigrationEscapedComment6>>__
 //   --ion-color-danger: #eb445a;
 //   --ion-color-danger-rgb: 235, 68, 90;
 //   --ion-color-danger-contrast: #ffffff;
@@ -121,7 +113,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 //   --ion-color-danger-shade: #cf3c4f;
 //   --ion-color-danger-tint: #ed576b;
 
-//   /** dark **/
+//   __<<ngM2ThemingMigrationEscapedComment7>>__
 //   --ion-color-dark: #222428;
 //   --ion-color-dark-rgb: 34, 36, 40;
 //   --ion-color-dark-contrast: #ffffff;
@@ -129,7 +121,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 //   --ion-color-dark-shade: #1e2023;
 //   --ion-color-dark-tint: #383a3e;
 
-//   /** medium **/
+//   __<<ngM2ThemingMigrationEscapedComment8>>__
 //   --ion-color-medium: #92949c;
 //   --ion-color-medium-rgb: 146, 148, 156;
 //   --ion-color-medium-contrast: #ffffff;
@@ -137,7 +129,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 //   --ion-color-medium-shade: #808289;
 //   --ion-color-medium-tint: #9d9fa6;
 
-//   /** light **/
+//   __<<ngM2ThemingMigrationEscapedComment9>>__
 //   --ion-color-light: #f4f5f8;
 //   --ion-color-light-rgb: 244, 245, 248;
 //   --ion-color-light-contrast: #000000;
@@ -147,10 +139,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 // }
 
 // @media (prefers-color-scheme: dark) {
-//   /*
-//    * Dark Colors
-//    * -------------------------------------------
-//    */
+//   __<<ngM2ThemingMigrationEscapedComment10>>__
 
 //   body {
 //     --ion-color-primary: #428cff;
@@ -217,10 +206,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 //     --ion-color-light-tint: #383a3e;
 //   }
 
-//   /*
-//    * iOS Dark Theme
-//    * -------------------------------------------
-//    */
+//   __<<ngM2ThemingMigrationEscapedComment11>>__
 
 //   .ios body {
 //     --ion-background-color: #000000;
@@ -256,10 +242,7 @@ $fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme
 //     --ion-card-background: #1c1c1d;
 //   }
 
-//   /*
-//    * Material Design Dark Theme
-//    * -------------------------------------------
-//    */
+//   __<<ngM2ThemingMigrationEscapedComment12>>__
 
 //   .md body {
 //     --ion-background-color: #121212;

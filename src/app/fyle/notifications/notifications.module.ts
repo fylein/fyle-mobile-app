@@ -4,10 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { NotificationsPageRoutingModule } from './notifications-routing.module';
 import { NotificationsBetaPage } from './notifications-beta/notifications-beta.page';
-import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select';
 import { SharedModule } from '../../shared/shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { EmailNotificationsComponent } from './email-notifications/email-notifications.component';
 
 @NgModule({
@@ -17,7 +16,6 @@ import { EmailNotificationsComponent } from './email-notifications/email-notific
     ReactiveFormsModule,
     IonicModule,
     NotificationsPageRoutingModule,
-    MatSelectModule,
     SharedModule,
     MatCheckboxModule,
   ],

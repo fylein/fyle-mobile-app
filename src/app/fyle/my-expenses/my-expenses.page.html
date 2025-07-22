@@ -12,25 +12,21 @@
         <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
       </ion-button>
       <ion-button class="my-expenses--header-btn" (click)="openFilters()">
-        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
-          <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
-        </ng-container>
-        <ng-template #noFilterAppliedIcon>
-          <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
-        </ng-template>
+        @if (filterPills?.length) {
+        <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
+        } @else {
+        <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
+        }
       </ion-button>
-      <ng-container *ngIf="isConnected$ | async">
-        <ng-container *ngIf="(orgSettings$ | async) && (specialCategories$ | async); else actionLoader">
-          <ion-button class="my-expenses--header-btn" (click)="openActionSheet()">
-            <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
-          </ion-button>
-        </ng-container>
-        <ng-template #actionLoader>
-          <div class="my-expenses--header-btn--skeleton-loader">
-            <ion-skeleton-text class="m-0" animated></ion-skeleton-text>
-          </div>
-        </ng-template>
-      </ng-container>
+      @if (isConnected$ | async) { @if ((orgSettings$ | async) && (specialCategories$ | async)) {
+      <ion-button class="my-expenses--header-btn" (click)="openActionSheet()">
+        <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
+      </ion-button>
+      } @else {
+      <div class="my-expenses--header-btn--skeleton-loader">
+        <ion-skeleton-text class="m-0" animated></ion-skeleton-text>
+      </div>
+      } }
     </ion-buttons>
   </ng-container>
 
@@ -47,9 +43,9 @@
             [placeholder]="'myExpensesPage.searchPlaceholder' | transloco"
             (focus)="onSearchBarFocus()"
           />
+          @if (simpleSearchText) {
           <button
             (click)="clearText('isFromSearchBar')"
-            *ngIf="simpleSearchText"
             aria-label="Clear"
             class="my-expenses--simple-search-close"
             mat-button
@@ -58,28 +54,29 @@
           >
             <mat-icon svgIcon="clear"></mat-icon>
           </button>
+          }
         </div>
       </mat-form-field>
     </div>
   </ng-container>
   <ng-container multiselect>
-    <ng-container *ngIf="homeCurrency$ | async as homeCurrency">
-      <ng-container *ngIf="allExpensesStats$ | async as allExpensesStats">
-        <div class="my-expenses--multiselect-title page-title">
-          <span
-            >{{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? ('myExpensesPage.expenses' | transloco) :
-            ('myExpensesPage.expense' | transloco)}}</span
-          >
-          <span class="my-expenses--multiselect-amount">
-            ({{ { value: allExpensesStats.amount || 0, currencyCode: homeCurrency } | exactCurrency }})
-          </span>
-        </div>
-      </ng-container>
-    </ng-container>
+    @if (homeCurrency$ | async; as homeCurrency) { @if (allExpensesStats$ | async; as allExpensesStats) {
+    <div class="my-expenses--multiselect-title page-title">
+      <span
+        >{{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? ('myExpensesPage.expenses' | transloco) :
+        ('myExpensesPage.expense' | transloco)}}</span
+      >
+      <span class="my-expenses--multiselect-amount">
+        ({{ { value: allExpensesStats.amount || 0, currencyCode: homeCurrency } | exactCurrency }})
+      </span>
+    </div>
+    } }
     <ion-buttons mode="md" slot="end">
-      <ion-button *ngIf="isMergeAllowed" (click)="mergeExpenses()">
+      @if (isMergeAllowed) {
+      <ion-button (click)="mergeExpenses()">
         <ion-icon class="my-expenses--merge-icon" src="../../../assets/svg/merge.svg"></ion-icon>
       </ion-button>
+      }
       <ion-button (click)="openDeleteExpensesPopover()" [disabled]="isDeleteDisabled">
         <ion-icon src="../../../assets/svg/bin.svg"></ion-icon>
       </ion-button>
@@ -106,46 +103,52 @@
     class="my-expenses--body"
     [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}"
   >
-    <ion-refresher (ionRefresh)="doRefresh($event)" *ngIf="isConnected$|async" slot="fixed">
+    @if (isConnected$|async) {
+    <ion-refresher (ionRefresh)="doRefresh($event)" slot="fixed">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
-
-    <ng-container *ngIf="filterPills?.length">
-      <div class="my-expenses--filter-pills-container">
-        <app-fy-filter-pills
-          class="my-expenses--filter-pills"
-          (filterClose)="onFilterClose($event)"
-          (filterClicked)="onFilterClick($event)"
-          (clearAll)="onFilterPillsClearAll()"
-          [filterPills]="filterPills"
-        ></app-fy-filter-pills>
-      </div>
-    </ng-container>
-
+    } @if (filterPills?.length) {
+    <div class="my-expenses--filter-pills-container">
+      <app-fy-filter-pills
+        class="my-expenses--filter-pills"
+        (filterClose)="onFilterClose($event)"
+        (filterClicked)="onFilterClick($event)"
+        (clearAll)="onFilterPillsClearAll()"
+        [filterPills]="filterPills"
+      ></app-fy-filter-pills>
+    </div>
+    } @if (isLoading) {
     <app-fy-loading-screen
-      *ngIf="isLoading"
       [isSelectionModeEnabled]="selectionMode"
       class="my-expenses--shimmers"
     ></app-fy-loading-screen>
-
-    <div
-      *ngIf="(pendingTransactions.length === 0) && ((count$ | async) === 0) && isConnected$|async"
-      class="my-expenses--zero-state"
-    >
+    } @if ((pendingTransactions.length === 0) && ((count$ | async) === 0) && isConnected$|async) {
+    <div class="my-expenses--zero-state">
+      @if (!simpleSearchText) {
       <img
         alt="Create First Expenses"
         class="my-expenses--zero-state-img"
         src="../../../assets/images/zero-states/new-expenses.png"
-        *ngIf="!simpleSearchText"
       />
+      } @if (simpleSearchText) {
       <img
         alt="Create First Expenses"
         class="my-expenses--zero-state-img"
         src="../../../assets/images/zero-states/search.png"
-        *ngIf="simpleSearchText"
       />
-      <div *ngIf="!(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-subheader">
-        <ng-container *ngIf="isNewUser$|async; else isOldUser">
+      } @if (!(filters?.state || filters?.date || simpleSearchText)) {
+      <div class="my-expenses--zero-state-subheader">
+        @if (isNewUser$|async) {
+        <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noExpenses' | transloco }}</div>
+        <button
+          type="button"
+          (click)="openActionSheet()"
+          class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
+        >
+          {{ 'myExpensesPage.addExpense' | transloco }}
+        </button>
+        } @else {
+        <div class="my-expenses--zero-state-subheader__title">
           <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noExpenses' | transloco }}</div>
           <button
             type="button"
@@ -154,58 +157,44 @@
           >
             {{ 'myExpensesPage.addExpense' | transloco }}
           </button>
-        </ng-container>
-        <ng-template #isOldUser>
-          <div class="my-expenses--zero-state-subheader__title">
-            <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noExpenses' | transloco }}</div>
-            <button
-              type="button"
-              (click)="openActionSheet()"
-              class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
-            >
-              {{ 'myExpensesPage.addExpense' | transloco }}
-            </button>
-          </div>
-        </ng-template>
+        </div>
+        }
       </div>
-
-      <div *ngIf="(filters?.state || filters?.date)" class="my-expenses--zero-state-header">
+      } @if ((filters?.state || filters?.date)) {
+      <div class="my-expenses--zero-state-header">
         <div class="my-expenses--zero-state-content">
           {{ 'myExpensesPage.zeroState.noExpensesMatchingFilters' | transloco }}
         </div>
       </div>
-      <div *ngIf="!filters?.state && !filters?.date && simpleSearchText" class="my-expenses--zero-state-header">
+      } @if (!filters?.state && !filters?.date && simpleSearchText) {
+      <div class="my-expenses--zero-state-header">
         <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noResultsFound' | transloco }}</div>
         <div class="my-expenses--zero-state-content">
           {{ 'myExpensesPage.zeroState.tryDifferentKeyword' | transloco }}
         </div>
       </div>
+      }
     </div>
-    <ng-container *ngIf="!(isConnected$|async)">
-      <ng-container *ngIf="pendingTransactions.length > 0">
-        <div class="my-expenses--syncing">
-          <app-fy-alert-info
-            [type]="'information'"
-            [message]="'myExpensesPage.offline.syncMessage' | transloco"
-          ></app-fy-alert-info>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="pendingTransactions.length === 0">
-        <div class="my-expenses--zero-state">
-          <app-fy-zero-state
-            class="stats--zero-state"
-            image="../../../../assets/images/no-internet.svg"
-            [header]="'myExpensesPage.offline.offlineHeader' | transloco"
-            [message]="'myExpensesPage.offline.offlineMessage' | transloco"
-            [unscaledImage]="true"
-            [useNewStyling]="true"
-          ></app-fy-zero-state>
-        </div>
-      </ng-container>
-    </ng-container>
-
-    <div *ngIf="!(filters?.state || filters?.date || simpleSearchText) && !isLoading">
+    } @if (!(isConnected$|async)) { @if (pendingTransactions.length > 0) {
+    <div class="my-expenses--syncing">
+      <app-fy-alert-info
+        [type]="'information'"
+        [message]="'myExpensesPage.offline.syncMessage' | transloco"
+      ></app-fy-alert-info>
+    </div>
+    } @if (pendingTransactions.length === 0) {
+    <div class="my-expenses--zero-state">
+      <app-fy-zero-state
+        class="stats--zero-state"
+        image="../../../../assets/images/no-internet.svg"
+        [header]="'myExpensesPage.offline.offlineHeader' | transloco"
+        [message]="'myExpensesPage.offline.offlineMessage' | transloco"
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+      ></app-fy-zero-state>
+    </div>
+    } } @if (!(filters?.state || filters?.date || simpleSearchText) && !isLoading) {
+    <div>
       <div *ngFor="let pendingTransactions of pendingTransactions as list; let i = index">
         <app-expense-card
           [expense]="pendingTransactions"
@@ -221,83 +210,76 @@
         </app-expense-card>
       </div>
     </div>
-
-    <ng-container *ngIf="isConnected$|async">
-      <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
-        <app-expense-card-v2
-          [expense]="expense"
-          [previousExpenseTxnDate]="list[i-1]?.spent_at"
-          [previousExpenseCreatedAt]="list[i-1]?.created_at"
-          [isSelectionModeEnabled]="selectionMode"
-          [selectedElements]="selectedElements"
-          (goToTransaction)="goToTransaction($event)"
-          (setMultiselectMode)="switchSelectionMode($event)"
-          (cardClickedForSelection)="selectExpense($event)"
-          (showCamera)="showCamera($event)"
-        >
-        </app-expense-card-v2>
-      </div>
-    </ng-container>
-    <ng-container *ngIf="isConnected$|async">
-      <ng-container *ngIf="isLoadingDataInInfiniteScroll">
-        <app-fy-loading-screen
-          [isSelectionModeEnabled]="selectionMode"
-          class="my-expenses--shimmers"
-        ></app-fy-loading-screen>
-      </ng-container>
-    </ng-container>
+    } @if (isConnected$|async) {
+    <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
+      <app-expense-card-v2
+        [expense]="expense"
+        [previousExpenseTxnDate]="list[i-1]?.spent_at"
+        [previousExpenseCreatedAt]="list[i-1]?.created_at"
+        [isSelectionModeEnabled]="selectionMode"
+        [selectedElements]="selectedElements"
+        (goToTransaction)="goToTransaction($event)"
+        (setMultiselectMode)="switchSelectionMode($event)"
+        (cardClickedForSelection)="selectExpense($event)"
+        (showCamera)="showCamera($event)"
+      >
+      </app-expense-card-v2>
+    </div>
+    } @if (isConnected$|async) { @if (isLoadingDataInInfiniteScroll) {
+    <app-fy-loading-screen
+      [isSelectionModeEnabled]="selectionMode"
+      class="my-expenses--shimmers"
+    ></app-fy-loading-screen>
+    } }
   </div>
 
-  <ng-container *ngIf="isConnected$|async">
-    <ng-container *ngIf="!isLoadingDataInInfiniteScroll">
-      <ion-infinite-scroll (ionInfinite)="loadData($event)" *ngIf="isInfiniteScrollRequired$ | async" threshold="100px">
-        <ion-infinite-scroll-content></ion-infinite-scroll-content>
-      </ion-infinite-scroll>
-    </ng-container>
-  </ng-container>
+  @if (isConnected$|async) { @if (!isLoadingDataInInfiniteScroll) { @if (isInfiniteScrollRequired$ | async) {
+  <ion-infinite-scroll (ionInfinite)="loadData($event)" threshold="100px">
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+  } } }
 </ion-content>
 
-<ion-footer [ngClass]="{'d-none': isCameraPreviewStarted}" *ngIf="!isSearchBarFocused">
+@if (!isSearchBarFocused) {
+<ion-footer [ngClass]="{'d-none': isCameraPreviewStarted}">
+  @if (!selectionMode) {
   <app-fy-footer
-    *ngIf="!selectionMode"
     (homeClicked)="onHomeClicked()"
     (taskClicked)="onTaskClicked()"
     (cameraClicked)="onCameraClicked()"
     [taskCount]="expensesTaskCount"
   ></app-fy-footer>
-  <ng-container *ngIf="openReports$ | async as openReports">
-    <ng-container *ngIf="selectionMode && !reviewMode">
-      <div class="my-expenses--footer-conatiner">
-        <button
-          type="button"
-          *ngIf="openReports.length > 0"
-          class="my-expenses--cta-button my-expenses--secondary-cta text-center"
-          [ngClass]="{'my-expenses--secondary-cta__disabled': !isReportableExpensesSelected || (openReports.length === 0)}"
-          (click)="openCreateReportWithSelectedIds('oldReport')"
-        >
-          {{ 'myExpensesPage.addToReports' | transloco }}
-        </button>
-
-        <button
-          type="submit"
-          class="my-expenses--cta-button my-expenses--primary-cta text-center"
-          [ngClass]="{'my-expenses--primary-cta__disabled': !isReportableExpensesSelected}"
-          (click)="openCreateReportWithSelectedIds('newReport')"
-        >
-          {{ 'myExpensesPage.createNewReport' | transloco }}
-        </button>
-      </div>
-    </ng-container>
-    <ng-container *ngIf="selectionMode && reviewMode">
-      <div class="my-expenses--footer-conatiner">
-        <button
-          type="submit"
-          class="my-expenses--cta-button my-expenses--primary-cta text-center"
-          (click)="openReviewExpenses()"
-        >
-          {{ 'myExpensesPage.startReview' | transloco }}
-        </button>
-      </div>
-    </ng-container>
-  </ng-container>
+  } @if (openReports$ | async; as openReports) { @if (selectionMode && !reviewMode) {
+  <div class="my-expenses--footer-conatiner">
+    @if (openReports.length > 0) {
+    <button
+      type="button"
+      class="my-expenses--cta-button my-expenses--secondary-cta text-center"
+      [ngClass]="{'my-expenses--secondary-cta__disabled': !isReportableExpensesSelected || (openReports.length === 0)}"
+      (click)="openCreateReportWithSelectedIds('oldReport')"
+    >
+      {{ 'myExpensesPage.addToReports' | transloco }}
+    </button>
+    }
+    <button
+      type="submit"
+      class="my-expenses--cta-button my-expenses--primary-cta text-center"
+      [ngClass]="{'my-expenses--primary-cta__disabled': !isReportableExpensesSelected}"
+      (click)="openCreateReportWithSelectedIds('newReport')"
+    >
+      {{ 'myExpensesPage.createNewReport' | transloco }}
+    </button>
+  </div>
+  } @if (selectionMode && reviewMode) {
+  <div class="my-expenses--footer-conatiner">
+    <button
+      type="submit"
+      class="my-expenses--cta-button my-expenses--primary-cta text-center"
+      (click)="openReviewExpenses()"
+    >
+      {{ 'myExpensesPage.startReview' | transloco }}
+    </button>
+  </div>
+  } }
 </ion-footer>
+}

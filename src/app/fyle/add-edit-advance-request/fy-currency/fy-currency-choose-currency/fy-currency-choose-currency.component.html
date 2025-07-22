@@ -11,7 +11,7 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
-    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
+    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
       <input
         #searchBar
         id="select-currency-modal--search-input"
@@ -19,33 +19,35 @@
         matInput
         [placeholder]="'fyCurrencyChooseCurrency.search' | transloco"
         [(ngModel)]="value"
-      />
-      <button
-        mat-button
-        *ngIf="value"
-        matSuffix
-        mat-icon-button
-        [attr.aria-label]="'fyCurrencyChooseCurrency.clear' | transloco"
-        class="selection-modal--clear"
-        (click)="clearValue()"
-      >
-        <mat-icon>close</mat-icon>
-      </button>
+        />
+      @if (value) {
+        <button
+          matSuffix
+          mat-icon-button
+          [attr.aria-label]="'fyCurrencyChooseCurrency.clear' | transloco"
+          class="selection-modal--clear"
+          (click)="clearValue()"
+          >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="selection-modal--sub-title">{{ 'fyCurrencyChooseCurrency.allCurrencies' | transloco }}</div>
-  <ng-container *ngFor="let currency of filteredCurrencies$ | async as list">
+  @for (currency of filteredCurrencies$ | async; track currency) {
     <div
       matRipple
       class="selection-modal--list-element"
       [attr.id]="'currency' + currency.shortCode"
       (click)="onCurrencySelect(currency)"
-    >
+      >
       <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
+      @if (currency.shortCode === currentSelection) {
+        <mat-icon class="selection-modal--check"> check </mat-icon>
+      }
     </div>
-  </ng-container>
+  }
 </ion-content>

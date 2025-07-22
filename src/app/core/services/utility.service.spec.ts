@@ -1,5 +1,5 @@
 import { TestBed, fakeAsync } from '@angular/core/testing';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import * as lodash from 'lodash';
 import { customFieldData1, customFieldData2 } from '../mock-data/custom-field.data';
 import {

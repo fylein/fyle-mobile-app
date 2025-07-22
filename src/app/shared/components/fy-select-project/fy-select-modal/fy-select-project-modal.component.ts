@@ -143,7 +143,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           });
         }
 
-        return [{ label: this.translocoService.translate('fyProjectSelectModal.none'), value: null }]
+        return [{ label: this.translocoService.translate('fySelectProjectModal.none'), value: null }]
           .concat(currentElement)
           .concat(projects.map((project) => ({ label: project.project_name, value: project })));
       }),

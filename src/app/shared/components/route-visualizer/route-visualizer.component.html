@@ -1,19 +1,19 @@
-<ng-container *ngIf="directionsMapUrl$ | async as directionsMapUrl">
+@if (directionsMapUrl$ | async; as directionsMapUrl) {
   <img
     (click)="mapClicked($event)"
     (error)="handleMapLoadError($event)"
     [src]="directionsMapUrl"
     [style.width]="mapWidth + 'px'"
     [style.height]="mapHeight + 'px'"
-  />
-</ng-container>
+    />
+}
 
-<ng-container *ngIf="showCurrentLocation && currentLocation">
+@if (showCurrentLocation && currentLocation) {
   <img
     (click)="mapClicked($event)"
     (error)="handleMapLoadError($event)"
     [src]="currentLocationMapUrl"
     [style.width]="mapWidth + 'px'"
     [style.height]="mapHeight + 'px'"
-  />
-</ng-container>
+    />
+}
