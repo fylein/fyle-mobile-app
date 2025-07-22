@@ -63,6 +63,7 @@ import {
 import { cloneDeep } from 'lodash';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TranslocoService } from '@jsverse/transloco';
+import { Comment } from '../models/platform/v1/comment.model';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -379,24 +380,55 @@ describe('AdvanceRequestService', () => {
   });
 
   it('submit(): should submit an advance request', (done) => {
-    apiService.post.and.returnValue(of(advanceRequests));
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    spenderService.post.and.returnValue(of(mockPlatformResponse));
 
-    advanceRequestService.submit(advanceRequests).subscribe((res) => {
-      expect(res).toEqual(advanceRequests);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', advanceRequests);
+    advanceRequestService.submit(advanceRequests, false).subscribe((res) => {
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', {
+        data: {
+          ...advanceRequests,
+          custom_fields: advanceRequests.custom_field_values.map((field) => ({
+            ...field,
+            type: (field as any).type || 'TEXT',
+          })),
+        },
+      });
+      done();
+    });
+  });
+
+  it('submit(): should submit an advance request API for approver', (done) => {
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
+
+    advanceRequestService.submit(advanceRequests, true).subscribe((res) => {
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', {
+        data: {
+          ...advanceRequests,
+          custom_fields: advanceRequests.custom_field_values.map((field) => ({
+            ...field,
+            type: (field as any).type || 'TEXT',
+          })),
+        },
+      });
       done();
     });
   });
 
   it('post(): should save a draft advance request', (done) => {
-    spenderService.post.and.returnValue(of({ data: draftAdvancedRequestRes }));
+    spenderService.post.and.returnValue(of({ data: advanceRequestPlatform.data[0] }));
 
     advanceRequestService.post(draftAdvancedRequestParam).subscribe((res) => {
-      expect(res).toEqual(draftAdvancedRequestRes);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
       expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests', {
         data: {
           ...draftAdvancedRequestParam,
-          custom_fields: draftAdvancedRequestParam.custom_field_values,
+          custom_fields: draftAdvancedRequestParam.custom_field_values.map((field) => ({
+            ...field,
+            type: (field as any).type || 'TEXT',
+          })),
         },
       });
       done();
@@ -404,7 +436,8 @@ describe('AdvanceRequestService', () => {
   });
 
   it('reject(): should reject an advance request', (done) => {
-    apiService.post.and.returnValue(of(rejectedAdvReqRes));
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
 
     const advReq = 'areqVU0Xr5suPC';
     const payload = {
@@ -415,26 +448,39 @@ describe('AdvanceRequestService', () => {
     };
 
     advanceRequestService.reject(advReq, payload).subscribe((res) => {
-      expect(res).toEqual(rejectedAdvReqRes);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advReq}/reject`, payload);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/reject', {
+        data: {
+          id: advReq,
+          comment: 'a comment',
+        },
+      });
       done();
     });
   });
 
-  it('approve(): should approve an advanced request', (done) => {
-    apiService.post.and.returnValue(of(rejectedAdvReqRes));
+  it('approve(): should approve an advance request', (done) => {
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
 
     const advReq = 'areqVU0Xr5suPC';
 
     advanceRequestService.approve(advReq).subscribe((res) => {
-      expect(res).toEqual(rejectedAdvReqRes);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advReq}/approve`);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/approve/bulk', {
+        data: [
+          {
+            id: advReq,
+          },
+        ],
+      });
       done();
     });
   });
 
   it('sendBack(): should send back an advance request', (done) => {
-    apiService.post.and.returnValue(of(rejectedAdvReqRes));
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
 
     const advReq = 'areqVU0Xr5suPC';
     const payload = {
@@ -445,14 +491,21 @@ describe('AdvanceRequestService', () => {
     };
 
     advanceRequestService.sendBack(advReq, payload).subscribe((res) => {
-      expect(res).toEqual(rejectedAdvReqRes);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advReq}/inquire`, payload);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/inquire', {
+        data: {
+          id: advReq,
+          comment: 'a comment',
+          notify: false,
+        },
+      });
       done();
     });
   });
 
-  it('pullBackAdvanceRequest(): should pull back an advance requests', (done) => {
-    apiService.post.and.returnValue(of(pullBackAdvancedRequests));
+  it('pullBackAdvanceRequest(): should pull back an advance request', (done) => {
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    spenderService.post.and.returnValue(of(mockPlatformResponse));
 
     const payloadParam = {
       status: {
@@ -464,25 +517,34 @@ describe('AdvanceRequestService', () => {
     const advanceID = 'areqMP09oaYXBf';
 
     advanceRequestService.pullBackAdvanceRequest(advanceID, payloadParam).subscribe((res) => {
-      expect(res).toEqual(pullBackAdvancedRequests);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advanceID}/pull_back`, payloadParam);
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/pull_back', {
+        data: {
+          id: advanceID,
+          comment: 'sdf',
+          notify: false,
+        },
+      });
       done();
     });
   });
 
   it('addApprover(): should add approver to an advance request', (done) => {
-    apiService.post.and.returnValue(of(pullBackAdvancedRequests));
+    const mockPlatformResponse = { data: pullBackAdvancedRequests };
+    approverService.post.and.returnValue(of(mockPlatformResponse));
     const advanceID = 'areqMP09oaYXBf';
 
-    const data = {
-      advance_request_id: advanceID,
-      approver_email: 'ajain@fyle.in',
-      comment: 'a comment',
+    const payload = {
+      data: {
+        id: advanceID,
+        approver_email: 'ajain@fyle.in',
+        comment: 'a comment',
+      },
     };
 
-    advanceRequestService.addApprover(advanceID, data.approver_email, data.comment).subscribe((res) => {
+    advanceRequestService.addApprover(advanceID, payload.data.approver_email, payload.data.comment).subscribe((res) => {
       expect(res).toEqual(pullBackAdvancedRequests);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/add_approver', data);
+      expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/add_approver', payload);
       done();
     });
   });
@@ -540,7 +602,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getActiveApproversByAdvanceRequestIdPlatformForApprover(): should get active approvers for team advance request using platform API', (done) => {
+  it('getActiveApproversByAdvanceRequestIdPlatformForApprover(): should get active approvers for team advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
     //@ts-ignore
     approverService.get.and.returnValue(of(advanceRequestPlatform));
@@ -563,26 +625,134 @@ describe('AdvanceRequestService', () => {
     });
   });
 
+  it('getCommentsByAdvanceRequestIdPlatformForApprover(): should get comments for team advance request', (done) => {
+    const advID = 'areqiwr3Wwirr';
+    //@ts-ignore
+    approverService.get.and.returnValue(of(advanceRequestPlatform));
+    authService.getEou.and.resolveTo(apiEouRes);
+
+    const expectedComments = [
+      {
+        st_id: 'st72VKetVkek',
+        st_created_at: new Date('2025-04-28T10:27:40.776503+00:00'),
+        st_org_user_id: null,
+        st_comment: 'Approver ajain@fyle.in added by SYSTEM',
+        st_advance_request_id: advID,
+        us_full_name: null,
+        us_email: null,
+        isBotComment: true,
+        isSelfComment: false,
+        isOthersComment: false,
+      },
+      {
+        st_id: 'stIIp14dChOt',
+        st_created_at: new Date('2025-06-17T09:32:14.186Z'),
+        st_org_user_id: 'uswjwgnwwgo',
+        st_comment: 'Advance request submitted by John Doe',
+        st_advance_request_id: advID,
+        us_full_name: 'John Doe',
+        us_email: 'john.doe@example.com',
+        isBotComment: false,
+        isSelfComment: false,
+        isOthersComment: true,
+      },
+    ];
+
+    advanceRequestService.getCommentsByAdvanceRequestIdPlatformForApprover(advID).subscribe((res) => {
+      expect(res).toEqual(expectedComments);
+      //@ts-ignore
+      expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: { id: `eq.${advID}` },
+      });
+      done();
+    });
+  });
+
+  it('getCommentsByAdvanceRequestIdPlatform(): should get comments for spender advance request', (done) => {
+    const advID = 'areqiwr3Wwirr';
+    //@ts-ignore
+    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+    authService.getEou.and.resolveTo(apiEouRes);
+
+    const expectedComments = [
+      {
+        st_id: 'st72VKetVkek',
+        st_created_at: new Date('2025-04-28T10:27:40.776503+00:00'),
+        st_org_user_id: null,
+        st_comment: 'Approver ajain@fyle.in added by SYSTEM',
+        st_advance_request_id: advID,
+        us_full_name: null,
+        us_email: null,
+        isBotComment: true,
+        isSelfComment: false,
+        isOthersComment: false,
+      },
+      {
+        st_id: 'stIIp14dChOt',
+        st_created_at: new Date('2025-06-17T09:32:14.186Z'),
+        st_org_user_id: 'uswjwgnwwgo',
+        st_comment: 'Advance request submitted by John Doe',
+        st_advance_request_id: advID,
+        us_full_name: 'John Doe',
+        us_email: 'john.doe@example.com',
+        isBotComment: false,
+        isSelfComment: false,
+        isOthersComment: true,
+      },
+    ];
+
+    advanceRequestService.getCommentsByAdvanceRequestIdPlatform(advID).subscribe((res) => {
+      expect(res).toEqual(expectedComments);
+      //@ts-ignore
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: { id: `eq.${advID}` },
+      });
+      done();
+    });
+  });
+
   describe('createAdvReqWithFilesAndSubmit():', () => {
     it('should create advanced request and submit it with the file', (done) => {
       fileService.post.and.returnValue(of(fileObjectData3));
-      spyOn(advanceRequestService, 'submit').and.returnValue(of(advanceRequests));
+      const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+      spenderService.post.and.returnValue(of(mockPlatformResponse));
 
       const mockFileObject = cloneDeep(fileData1);
       advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(mockFileObject)).subscribe((res) => {
-        expect(res).toEqual(advRequestFile);
-        expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advanceRequests);
+        // The result should have the transformed advance request data
+        expect(res.files[0].advance_request_id).toBe(advanceRequestPlatform.data[0].id);
+        expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', {
+          data: {
+            ...advanceRequests,
+            custom_fields: advanceRequests.custom_field_values.map((field) => ({
+              ...field,
+              type: field.type || 'TEXT',
+            })),
+          },
+        });
         expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
 
     it('should create advanced request and submit it without the file', (done) => {
-      spyOn(advanceRequestService, 'submit').and.returnValue(of(advanceRequests));
+      const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+      spenderService.post.and.returnValue(of(mockPlatformResponse));
 
       advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(null)).subscribe((res) => {
-        expect(res).toEqual({ ...advRequestFile, files: null });
-        expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advanceRequests);
+        // The result should have the transformed advance request data
+        expect(res.files).toEqual([]);
+        expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', {
+          data: {
+            ...advanceRequests,
+            custom_fields: advanceRequests.custom_field_values.map((field) => ({
+              ...field,
+              type: field.type || 'TEXT',
+            })),
+          },
+        });
         done();
       });
     });
@@ -591,23 +761,43 @@ describe('AdvanceRequestService', () => {
   describe('saveDraftAdvReqWithFiles():', () => {
     it('should save draft advance request along with the file', (done) => {
       fileService.post.and.returnValue(of(fileObjectData4));
-      spyOn(advanceRequestService, 'post').and.returnValue(of(advancedRequests2));
+      const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+      spenderService.post.and.returnValue(of(mockPlatformResponse));
 
       const mockFileObject = cloneDeep(fileData2);
       advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(mockFileObject)).subscribe((res) => {
-        expect(res).toEqual(advRequestFile2);
-        expect(advanceRequestService.post).toHaveBeenCalledOnceWith(advancedRequests2);
+        expect(res.files[0].advance_request_id).toBe(advanceRequestPlatform.data[0].id);
+        expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests', {
+          data: {
+            ...advancedRequests2,
+            custom_fields: advancedRequests2.custom_field_values.map((field) => ({
+              ...field,
+              type: field.type || 'TEXT',
+            })),
+          },
+        });
         expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
 
     it('should save draft advance request without the file', (done) => {
-      spyOn(advanceRequestService, 'post').and.returnValue(of(advancedRequests2));
+      const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+      spenderService.post.and.returnValue(of(mockPlatformResponse));
 
       advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(null)).subscribe((res) => {
-        expect(res).toEqual({ ...advRequestFile2, files: null });
-        expect(advanceRequestService.post).toHaveBeenCalledOnceWith(advancedRequests2);
+        expect(res.files).toEqual([]);
+        expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests', {
+          data: {
+            ...advancedRequests2,
+            custom_fields: advancedRequests2.custom_field_values.map((field) => ({
+              ...field,
+              type: field.type || 'TEXT',
+            })),
+          },
+        });
         done();
       });
     });
@@ -881,6 +1071,70 @@ describe('AdvanceRequestService', () => {
           params: expectedParams,
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  describe('postCommentPlatform():', () => {
+    it('should post a comment for spender advance request', (done) => {
+      const advanceRequestId = 'areq123';
+      const comment = 'Test comment';
+      const expectedResponse: Comment = {
+        id: 'stPFnRryn7DY',
+        created_at: new Date('2025-04-29T05:20:49.391Z'),
+        creator_user_id: 'ouUkCJf482XN',
+        creator_type: 'USER',
+        comment: 'Test comment',
+        creator_user: {
+          email: 'kartikey.rajvaidya@fyle.in',
+          full_name: 'kartikey',
+          id: 'usdM767Q2gox',
+        },
+      };
+
+      spenderService.post.and.returnValue(of({ data: expectedResponse }));
+
+      advanceRequestService.postCommentPlatform(advanceRequestId, comment).subscribe((res) => {
+        expect(res).toEqual(expectedResponse);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/comments', {
+          data: {
+            advance_request_id: advanceRequestId,
+            comment,
+          },
+        });
+        done();
+      });
+    });
+  });
+
+  describe('postCommentPlatformForApprover():', () => {
+    it('should post a comment for approver advance request', (done) => {
+      const advanceRequestId = 'areq456';
+      const comment = 'Approver comment';
+      const expectedResponse: Comment = {
+        id: 'stPFnRryn7DY',
+        created_at: new Date('2025-04-29T05:20:49.391Z'),
+        creator_user_id: 'ouUkCJf482XN',
+        creator_type: 'USER',
+        comment: 'Approver comment',
+        creator_user: {
+          email: 'approver@fyle.in',
+          full_name: 'Approver User',
+          id: 'usdM767Q2gox',
+        },
+      };
+
+      approverService.post.and.returnValue(of({ data: expectedResponse }));
+
+      advanceRequestService.postCommentPlatformForApprover(advanceRequestId, comment).subscribe((res) => {
+        expect(res).toEqual(expectedResponse);
+        expect(approverService.post).toHaveBeenCalledOnceWith('/advance_requests/comments', {
+          data: {
+            advance_request_id: advanceRequestId,
+            comment,
+          },
+        });
         done();
       });
     });

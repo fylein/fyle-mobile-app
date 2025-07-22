@@ -1,31 +1,32 @@
 <ion-header mode="md">
   <ion-toolbar class="view-reports--toolbar">
     <ion-buttons mode="md" slot="start">
-      <button *ngIf="!navigateBack" mat-icon-button [routerLink]="['/','enterprise','my_reports']">
+      @if (!navigateBack) {
+      <button mat-icon-button [routerLink]="['/','enterprise','my_reports']">
         <mat-icon> keyboard_backspace </mat-icon>
       </button>
-      <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
+      } @if (navigateBack) {
+      <ion-back-button mode="md"></ion-back-button>
+      }
     </ion-buttons>
     <ion-title mode="md" class="page-title">View expense report</ion-title>
     <ion-buttons mode="md" slot="end">
-      <ng-container *ngIf="report$|async as report">
-        <ng-container *ngIf="report.num_expenses">
-          <ion-button class="view-reports--btn-container__btn" (click)="shareReport()">
-            <mat-icon svgIcon="share"></mat-icon>
-          </ion-button>
-        </ng-container>
-      </ng-container>
-      <ng-container *ngIf="canDelete$ | async">
-        <ion-button class="view-reports--btn-container__btn" (click)="deleteReport()">
-          <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ng-container>
+      @if (report$|async; as report) { @if (report.num_expenses) {
+      <ion-button class="view-reports--btn-container__btn" (click)="shareReport()">
+        <mat-icon svgIcon="share"></mat-icon>
+      </ion-button>
+      } } @if (canDelete$ | async) {
+      <ion-button class="view-reports--btn-container__btn" (click)="deleteReport()">
+        <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+      }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="view-reports--container">
-  <div class="view-reports--body full-height" *ngIf="report$|async as report">
+  @if (report$|async; as report) {
+  <div class="view-reports--body full-height">
     <div class="view-reports--wrapper">
       <div class="view-reports--card">
         <ion-grid>
@@ -33,26 +34,26 @@
             <ion-col size="8.5">
               <div class="view-reports--purpose-amount-block">
                 <div class="view-reports--purpose-amount-block__purpose">
-                  {{report.purpose | ellipsis: 25}}
+                  {{report.purpose | ellipsis: 25}} @if ((canEdit$|async) && report && (report.state === 'DRAFT' ||
+                  report.state === 'APPROVER_INQUIRY' || report.state === 'APPROVER_PENDING')) {
                   <ion-icon
-                    *ngIf="(canEdit$|async) && report && (report.state === 'DRAFT' || report.state === 'APPROVER_INQUIRY' || report.state === 'APPROVER_PENDING')"
                     [src]="'../../../../assets/svg/edit.svg'"
                     slot="icon-only"
                     (click)="editReportName()"
                     class="view-reports--card-header__icon"
                   ></ion-icon>
+                  }
                 </div>
               </div>
             </ion-col>
             <ion-col size="3.5">
-              <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings">
-                <div class="view-reports--report-state-pill state-pill state-{{report.state | reportState}}">
-                  {{report.state | reportState | titlecase }}
-                </div>
-              </ng-container>
+              @if ((simplifyReportsSettings$ | async); as simplifyReportsSettings) {
+              <div class="view-reports--report-state-pill state-pill state-{{report.state | reportState}}">
+                {{report.state | reportState | titlecase }}
+              </div>
+              }
             </ion-col>
           </ion-row>
-
           <ion-row>
             <ion-col size="8">
               <div class="view-reports--amount ion-text-nowrap">
@@ -63,7 +64,6 @@
               </div>
             </ion-col>
           </ion-row>
-
           <ion-row class="view-reports--date-info-block">
             <ion-col size="8">
               <div>
@@ -73,12 +73,13 @@
                       >{{report.state === "DRAFT" ? "Created date : " : (report.last_resubmitted_at ? "Resubmitted date
                       : " : "Submitted date : " )}}
                     </span>
-                    <span *ngIf="report.state === 'DRAFT'" class="view-reports--submitted-date__date"
-                      >{{report.created_at | date: 'MMM dd, YYYY'}}</span
-                    >
-                    <span *ngIf="report.state !== 'DRAFT'" class="view-reports--submitted-date__date"
+                    @if (report.state === 'DRAFT') {
+                    <span class="view-reports--submitted-date__date">{{report.created_at | date: 'MMM dd, YYYY'}}</span>
+                    } @if (report.state !== 'DRAFT') {
+                    <span class="view-reports--submitted-date__date"
                       >{{(report.last_resubmitted_at || report.last_submitted_at) | date: 'MMM dd, YYYY'}}</span
                     >
+                    }
                   </div>
                 </div>
               </div>
@@ -95,22 +96,20 @@
           </ion-row>
         </ion-grid>
       </div>
-
       <div class="view-reports--approvers-wrapper">
-        <div class="view-reports--approvers-section" *ngIf="(report.state !== 'DRAFT')">
-          <div *ngIf="report.approvals.length > 0" class="view-reports--approval-state-block">
+        @if ((report.state !== 'DRAFT')) {
+        <div class="view-reports--approvers-section">
+          @if (report.approvals.length > 0) {
+          <div class="view-reports--approval-state-block">
             <div class="view-reports--approvers">
-              Approvers
-              <div
-                *ngIf="showViewApproverModal && approvals.length > 1"
-                class="view-reports--view-approvers"
-                (click)="openViewApproverModal()"
-              >
-                View all
-              </div>
+              Approvers @if (showViewApproverModal && approvals.length > 1) {
+              <div class="view-reports--view-approvers" (click)="openViewApproverModal()">View all</div>
+              }
             </div>
-            <div *ngIf="!showViewApproverModal">
-              <div *ngFor="let approver of report.approvals">
+            @if (!showViewApproverModal) {
+            <div>
+              @for (approver of report.approvals; track approver) {
+              <div>
                 <div class="view-reports--approvers-list">
                   <div class="smartlook-hide">{{ approver?.approver_user?.full_name | ellipsis: 15 }}</div>
                   <div class="view-reports--approver-state-section">
@@ -124,8 +123,10 @@
                   </div>
                 </div>
               </div>
+              }
             </div>
-            <div *ngIf="showViewApproverModal && approverToShow" class="view-reports--approvers-list">
+            } @if (showViewApproverModal && approverToShow) {
+            <div class="view-reports--approvers-list">
               <div class="smartlook-hide">{{ approverToShow?.approver_user?.full_name | ellipsis: 15 }}</div>
               <div class="view-reports--approver-state-section">
                 <div
@@ -137,10 +138,12 @@
                 >
               </div>
             </div>
+            }
           </div>
+          }
         </div>
+        }
       </div>
-
       <div class="view-reports--segment-block-container">
         <div class="view-reports--segment-block-container__btn-wrapper">
           <ion-segment
@@ -160,193 +163,172 @@
             >
               Comments
             </ion-segment-button>
+            @if (systemEstatuses?.length > 0) {
             <ion-segment-button
-              *ngIf="systemEstatuses?.length > 0"
               [value]="Segment.HISTORY"
               class="view-reports--segment-block-container__btn text-capitalize"
             >
               History
             </ion-segment-button>
+            }
           </ion-segment>
         </div>
-
         <!-- Expenses section -->
-        <ng-container *ngIf="segmentValue === Segment.EXPENSES">
-          <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
-          <div *ngIf="!isExpensesLoading && report.num_expenses > 0">
-            <div class="view-reports--divider"></div>
-            <div class="view-reports--expenses-card-block">
-              <div *ngFor="let expense of expenses$|async as list; let i = index;">
-                <app-expense-card-v2
-                  [expense]="expense"
-                  [expenseIndex]="i"
-                  [previousExpenseTxnDate]="list[i-1]?.spent_at"
-                  [previousExpenseCreatedAt]="list[i-1]?.created_at"
-                  (goToTransaction)="goToTransaction($event)"
-                  [isFromReports]="true"
-                  [isFromViewReports]="true"
-                >
-                </app-expense-card-v2>
-              </div>
-            </div>
-            <ng-template #ExpensesLoader>
-              <ion-spinner name="crescent"></ion-spinner>
-            </ng-template>
+        @if (segmentValue === Segment.EXPENSES) { @if (isExpensesLoading) {
+        <app-fy-loading-screen></app-fy-loading-screen>
+        } @if (!isExpensesLoading && report.num_expenses > 0) {
+        <div>
+          <div class="view-reports--divider"></div>
+          <div class="view-reports--expenses-card-block">
+            @let expenses = expenses$|async; @for (expense of expenses; track expense.id; let i = $index) {
+            <app-expense-card-v2
+              [expense]="expense"
+              [expenseIndex]="i"
+              [previousExpenseTxnDate]="expenses[i-1]?.spent_at"
+              [previousExpenseCreatedAt]="expenses[i-1]?.created_at"
+              (goToTransaction)="goToTransaction($event)"
+              [isFromReports]="true"
+              [isFromViewReports]="true"
+            >
+            </app-expense-card-v2>
+            }
           </div>
-          <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && report.num_expenses === 0">
-            <div class="text-center">
-              <div class="view-reports--zero-state-image-container">
-                <img src="../../../assets/images/zero-states/new-expenses.png" alt="No expense in this report" />
-              </div>
-              <div class="view-reports--zero-state-semibold-header">You have no expenses</div>
-              <div class="view-reports--zero-state-semibold-header">added to this report</div>
+          <ng-template #ExpensesLoader>
+            <ion-spinner name="crescent"></ion-spinner>
+          </ng-template>
+        </div>
+        } @if (!isExpensesLoading && report.num_expenses === 0) {
+        <div class="view-reports--expenses-zero-state">
+          <div class="text-center">
+            <div class="view-reports--zero-state-image-container">
+              <img src="../../../assets/images/zero-states/new-expenses.png" alt="No expense in this report" />
             </div>
-            <div class="view-reports--footer-container">
-              <button
-                *ngIf="unreportedExpenses && unreportedExpenses.length > 0"
-                class="btn-primary view-reports--cta"
-                (click)="showAddExpensesToReportModal()"
-              >
-                Add complete expense
-              </button>
-              <button
-                id="add-expense"
-                [ngClass]="{'btn-primary': !(unreportedExpenses && unreportedExpenses.length > 0), 'btn-outline-secondary view-reports--cta': unreportedExpenses && unreportedExpenses.length > 0}"
-                (click)="addExpense()"
-              >
-                Add new expense
-              </button>
-            </div>
+            <div class="view-reports--zero-state-semibold-header">You have no expenses</div>
+            <div class="view-reports--zero-state-semibold-header">added to this report</div>
           </div>
-        </ng-container>
-
+          <div class="view-reports--footer-container">
+            @if (unreportedExpenses && unreportedExpenses.length > 0) {
+            <button class="btn-primary view-reports--cta" (click)="showAddExpensesToReportModal()">
+              Add complete expense
+            </button>
+            }
+            <button
+              id="add-expense"
+              [ngClass]="{'btn-primary': !(unreportedExpenses && unreportedExpenses.length > 0), 'btn-outline-secondary view-reports--cta': unreportedExpenses && unreportedExpenses.length > 0}"
+              (click)="addExpense()"
+            >
+              Add new expense
+            </button>
+          </div>
+        </div>
+        } }
         <!-- Comments section -->
-        <ng-container *ngIf="segmentValue === Segment.COMMENTS">
-          <div *ngIf="userComments?.length > 0" class="view-comment--container">
-            <div *ngFor="let estatus of userComments">
-              <div *ngIf="estatus.show_dt">
-                <div class="view-comment--date text-center">{{ estatus.created_at | dateWithTimezone }}</div>
-              </div>
-              <div
-                class="view-comment--block"
-                *ngIf="estatus.isSelfComment"
-                [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
-              >
-                <ion-grid class="view-comment--card view-comment--self-comment text-right">
-                  <ion-row>
-                    <ion-col size="12">
-                      <div class="view-comment--name-container smartlook-hide">
-                        {{ estatus.creator_user?.full_name }}
-                      </div>
-                    </ion-col>
-                  </ion-row>
-                  <ion-row>
-                    <ion-col size="12">
-                      <div
-                        *ngIf="!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)"
-                        class="view-comment--comment-detail"
-                      >
-                        {{ estatus.comment }}
-                      </div>
-                      <div
-                        *ngIf="estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1"
-                        class="view-comment--comment-detail"
-                      >
-                        {{ estatus.comment }}
-                      </div>
-                    </ion-col>
-                  </ion-row>
-                  <ion-row>
-                    <ion-col size="12">
-                      <div class="view-comment--comment-timestamp">
-                        {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
-                      </div>
-                    </ion-col>
-                  </ion-row>
-                </ion-grid>
-                <div class="view-comment--profile view-comment--self-profile">
-                  <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
-                </div>
-              </div>
-              <div
-                class="view-comment--block"
-                *ngIf="!estatus.isSelfComment"
-                [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
-              >
-                <div class="view-comment--profile view-comment--others-profile">
-                  <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
-                </div>
-                <ion-grid class="view-comment--card view-comment--others-comment text-left">
-                  <ion-row>
-                    <ion-col size="12">
-                      <div class="view-comment--name-container smartlook-hide">
-                        {{ estatus.creator_user?.full_name }}
-                      </div>
-                    </ion-col>
-                  </ion-row>
-                  <ion-row>
-                    <ion-col size="12">
-                      <div
-                        *ngIf="!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)"
-                        class="view-comment--comment-detail"
-                      >
-                        {{ estatus.comment }}
-                      </div>
-                      <div
-                        *ngIf="estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1"
-                        class="view-comment--comment-detail"
-                      >
-                        {{ estatus.comment }}
-                      </div>
-                    </ion-col>
-                  </ion-row>
-                  <ion-row>
-                    <ion-col size="12">
-                      <div class="view-comment--comment-timestamp">
-                        {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
-                      </div>
-                    </ion-col>
-                  </ion-row>
-                </ion-grid>
+        @if (segmentValue === Segment.COMMENTS) { @if (userComments?.length > 0) {
+        <div class="view-comment--container">
+          @for (estatus of userComments; track estatus.id) {
+          <div>
+            @if (estatus.show_dt) {
+            <div>
+              <div class="view-comment--date text-center">{{ estatus.created_at | dateWithTimezone }}</div>
+            </div>
+            } @if (estatus.isSelfComment) {
+            <div class="view-comment--block" [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }">
+              <ion-grid class="view-comment--card view-comment--self-comment text-right">
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--name-container smartlook-hide">{{ estatus.creator_user?.full_name }}</div>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    @if (!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)) {
+                    <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
+                    } @if (estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1) {
+                    <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
+                    }
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--comment-timestamp">
+                      {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+              <div class="view-comment--profile view-comment--self-profile">
+                <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
               </div>
             </div>
-          </div>
-
-          <div class="view-comment--zero-state" *ngIf="userComments?.length === 0">
-            <app-fy-zero-state
-              [image]="'../../../assets/images/zero-states/new-comments.png'"
-              [message]="'Need to clarify something?'"
-              [submessage]="'Post a comment'"
-              [useNewStyling]="true"
-              [unscaledImage]="true"
-            ></app-fy-zero-state>
-          </div>
-
-          <div *ngIf="!userComments">
-            <div class="view-comment--spinner">
-              <ion-spinner name="crescent"></ion-spinner>
+            } @if (!estatus.isSelfComment) {
+            <div class="view-comment--block" [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }">
+              <div class="view-comment--profile view-comment--others-profile">
+                <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
+              </div>
+              <ion-grid class="view-comment--card view-comment--others-comment text-left">
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--name-container smartlook-hide">{{ estatus.creator_user?.full_name }}</div>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    @if (!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)) {
+                    <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
+                    } @if (estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1) {
+                    <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
+                    }
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--comment-timestamp">
+                      {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
             </div>
+            }
           </div>
-        </ng-container>
-
+          }
+        </div>
+        } @if (userComments?.length === 0) {
+        <div class="view-comment--zero-state">
+          <app-fy-zero-state
+            [image]="'../../../assets/images/zero-states/new-comments.png'"
+            [message]="'Need to clarify something?'"
+            [submessage]="'Post a comment'"
+            [useNewStyling]="true"
+            [unscaledImage]="true"
+          ></app-fy-zero-state>
+        </div>
+        } @if (!userComments) {
+        <div>
+          <div class="view-comment--spinner">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+        </div>
+        } }
         <!-- History section -->
-        <div
-          *ngIf="segmentValue === Segment.HISTORY && systemEstatuses?.length > 0"
-          class="view-reports--history-container"
-        >
+        @if (segmentValue === Segment.HISTORY && systemEstatuses?.length > 0) {
+        <div class="view-reports--history-container">
           <app-audit-history [estatuses]="systemEstatuses"></app-audit-history>
         </div>
+        }
       </div>
     </div>
   </div>
+  }
 </ion-content>
 
-<ion-footer
-  *ngIf="segmentValue !== Segment.COMMENTS && (((report$|async)?.state === 'DRAFT' && (report$|async)?.num_expenses !== 0) || (canResubmitReport$ | async))"
->
+@if (segmentValue !== Segment.COMMENTS && (((report$|async)?.state === 'DRAFT' && (report$|async)?.num_expenses !== 0)
+|| (canResubmitReport$ | async))) {
+<ion-footer>
   <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
     <div class="view-reports--cta-container">
-      <div class="view-reports--add-expenses-container" *ngIf="unreportedExpenses">
+      @if (unreportedExpenses) {
+      <div class="view-reports--add-expenses-container">
         <div class="view-reports--add-expenses-container__icon_container">
           <mat-icon
             (click)="showAddExpensesToReportModal()"
@@ -356,9 +338,9 @@
           </mat-icon>
         </div>
       </div>
+      } @if (canResubmitReport$ | async) {
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
-        *ngIf="canResubmitReport$ | async"
         [disabled]="submitReportLoader"
         appFormButtonValidation
         [loadingText]="'Resubmitting'"
@@ -367,9 +349,9 @@
       >
         Resubmit report
       </ion-button>
+      } @if ((report$|async)?.state === 'DRAFT' && (report$|async)?.num_expenses !== 0) {
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
-        *ngIf="(report$|async)?.state === 'DRAFT' && (report$|async)?.num_expenses !== 0"
         [disabled]="submitReportLoader"
         appFormButtonValidation
         [loadingText]="'Submitting'"
@@ -378,14 +360,12 @@
       >
         Submit report
       </ion-button>
+      }
     </div>
   </ion-toolbar>
 </ion-footer>
-
-<ion-footer
-  class="view-reports--add-expense-footer"
-  *ngIf="segmentValue === Segment.EXPENSES && ((report$|async)?.state === 'APPROVER_PENDING') && unreportedExpenses"
->
+} @if (segmentValue === Segment.EXPENSES && ((report$|async)?.state === 'APPROVER_PENDING') && unreportedExpenses) {
+<ion-footer class="view-reports--add-expense-footer">
   <div class="view-reports--add-expense-footer__block">
     <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">
       <div class="view-reports--add-more-icon-container">
@@ -395,8 +375,8 @@
     </div>
   </div>
 </ion-footer>
-
-<ion-footer *ngIf="segmentValue === Segment.COMMENTS" class="view-comment--add-comment-container">
+} @if (segmentValue === Segment.COMMENTS) {
+<ion-footer class="view-comment--add-comment-container">
   <div>
     <div class="view-comment--type-comment-block">
       <textarea
@@ -411,3 +391,4 @@
     </div>
   </div>
 </ion-footer>
+}

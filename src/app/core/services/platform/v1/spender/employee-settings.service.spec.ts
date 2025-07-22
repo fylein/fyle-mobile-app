@@ -40,35 +40,16 @@ describe('PlatformEmployeeSettingsService', () => {
   });
 
   describe('get()', () => {
-    it('should return employee settings when data exists', (done) => {
-      const mutableEmployeeSettings = JSON.parse(JSON.stringify(employeeSettingsData));
+    it('should return employee settings when data exists with payment modes', (done) => {
+      const mutableEmployeeSettings1 = JSON.parse(JSON.stringify(employeeSettingsData));
       const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [mutableEmployeeSettings],
+        data: [mutableEmployeeSettings1],
       };
 
       spenderService.get.and.returnValue(of(mockResponse));
 
       service.get().subscribe((result) => {
-        const expectedResult = {
-          ...mutableEmployeeSettings,
-          default_payment_mode:
-            mutableEmployeeSettings.default_payment_mode === AccountType.PERSONAL_ACCOUNT
-              ? AccountType.PERSONAL
-              : mutableEmployeeSettings.default_payment_mode,
-          payment_mode_settings: mutableEmployeeSettings.payment_mode_settings
-            ? {
-                ...mutableEmployeeSettings.payment_mode_settings,
-                allowed_payment_modes: mutableEmployeeSettings.payment_mode_settings.allowed_payment_modes?.map(
-                  (mode) => {
-                    return mode === AccountType.PERSONAL_ACCOUNT ? AccountType.PERSONAL : mode;
-                  }
-                ),
-              }
-            : mutableEmployeeSettings.payment_mode_settings,
-        };
-
-        expect(result).toEqual(expectedResult);
-
+        expect(result).toEqual(mutableEmployeeSettings1);
         expect(spenderService.get).toHaveBeenCalledTimes(1);
         expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
         done();
@@ -100,67 +81,7 @@ describe('PlatformEmployeeSettingsService', () => {
       spenderService.get.and.returnValue(of(mockResponse));
 
       service.get().subscribe((result) => {
-        const expectedResult = {
-          ...mutableEmployeeSettings1,
-          default_payment_mode:
-            mutableEmployeeSettings1.default_payment_mode === AccountType.PERSONAL_ACCOUNT
-              ? AccountType.PERSONAL
-              : mutableEmployeeSettings1.default_payment_mode,
-          payment_mode_settings: mutableEmployeeSettings1.payment_mode_settings
-            ? {
-                ...mutableEmployeeSettings1.payment_mode_settings,
-                allowed_payment_modes: mutableEmployeeSettings1.payment_mode_settings.allowed_payment_modes?.map(
-                  (mode) => {
-                    return mode === AccountType.PERSONAL_ACCOUNT ? AccountType.PERSONAL : mode;
-                  }
-                ),
-              }
-            : mutableEmployeeSettings1.payment_mode_settings,
-        };
-
-        expect(result).toEqual(expectedResult);
-        expect(spenderService.get).toHaveBeenCalledTimes(1);
-        expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
-        done();
-      });
-    });
-
-    it('should map PERSONAL_ACCOUNT to PERSONAL in default_payment_mode', (done) => {
-      const employeeSettingsWithPersonalAccount = {
-        ...JSON.parse(JSON.stringify(employeeSettingsData)),
-        default_payment_mode: AccountType.PERSONAL_ACCOUNT,
-      };
-      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsWithPersonalAccount],
-      };
-
-      spenderService.get.and.returnValue(of(mockResponse));
-
-      service.get().subscribe((result) => {
-        expect(result.default_payment_mode).toBe(AccountType.PERSONAL);
-        expect(spenderService.get).toHaveBeenCalledTimes(1);
-        expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
-        done();
-      });
-    });
-
-    it('should map PERSONAL_ACCOUNT to PERSONAL in allowed_payment_modes', (done) => {
-      const employeeSettingsWithPersonalAccountModes = {
-        ...JSON.parse(JSON.stringify(employeeSettingsData)),
-        payment_mode_settings: {
-          allowed: true,
-          enabled: true,
-          allowed_payment_modes: [AccountType.PERSONAL_ACCOUNT, AccountType.COMPANY],
-        },
-      };
-      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsWithPersonalAccountModes],
-      };
-
-      spenderService.get.and.returnValue(of(mockResponse));
-
-      service.get().subscribe((result) => {
-        expect(result.payment_mode_settings.allowed_payment_modes).toEqual([AccountType.PERSONAL, AccountType.COMPANY]);
+        expect(result).toEqual(mutableEmployeeSettings1);
         expect(spenderService.get).toHaveBeenCalledTimes(1);
         expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
         done();
@@ -284,12 +205,8 @@ describe('PlatformEmployeeSettingsService', () => {
 
       spenderService.get.and.returnValue(of(mockResponse));
 
-      const expectedPaymentModes = mutableEmployeeSettings.payment_mode_settings.allowed_payment_modes.map((mode) => {
-        return mode === AccountType.PERSONAL_ACCOUNT ? AccountType.PERSONAL : mode;
-      });
-
       service.getAllowedPaymentModes().subscribe((result) => {
-        expect(result).toEqual(expectedPaymentModes);
+        expect(result).toEqual(mutableEmployeeSettings.payment_mode_settings.allowed_payment_modes);
         expect(spenderService.get).toHaveBeenCalledTimes(1);
         expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
         done();
@@ -304,13 +221,8 @@ describe('PlatformEmployeeSettingsService', () => {
 
       spenderService.get.and.returnValue(of(mockResponse));
 
-      const expectedPaymentModes =
-        mutableEmployeeSettingsWoPaymentModes.payment_mode_settings.allowed_payment_modes.map((mode) => {
-          return mode === AccountType.PERSONAL_ACCOUNT ? AccountType.PERSONAL : mode;
-        });
-
       service.getAllowedPaymentModes().subscribe((result) => {
-        expect(result).toEqual(expectedPaymentModes);
+        expect(result).toEqual(mutableEmployeeSettingsWoPaymentModes.payment_mode_settings.allowed_payment_modes);
         expect(spenderService.get).toHaveBeenCalledTimes(1);
         expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
         done();

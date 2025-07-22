@@ -146,6 +146,14 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     });
   }
 
+  saveReceiptForLater(): void {
+    this.trackingService.saveReceiptForLater();
+    this.modalController.dismiss({
+      base64ImagesWithSource: this.base64ImagesWithSource,
+      isSaveReceiptForLater: true,
+    });
+  }
+
   async closeModal(): Promise<void> {
     let message: string;
     if (this.base64ImagesWithSource.length > 1) {
@@ -179,6 +187,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     const { data }: { data?: { action?: string } } = await closePopOver.onWillDismiss();
     if (data && data.action) {
       if (data.action === 'discard') {
+        this.trackingService.discardReceipt();
         this.retake();
       }
     }

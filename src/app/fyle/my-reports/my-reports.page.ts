@@ -20,7 +20,7 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
@@ -29,6 +29,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { MyReportsFilters } from 'src/app/core/models/my-reports-filters.model';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
+import { TranslocoService } from '@jsverse/transloco';
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
@@ -108,7 +109,8 @@ export class MyReportsPage {
     private orgSettingsService: OrgSettingsService,
     private reportStatePipe: ReportState,
     private expensesService: ExpensesService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private translocoService: TranslocoService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -464,7 +466,7 @@ export class MyReportsPage {
     });
 
     this.trackingService.footerHomeTabClicked({
-      page: 'Reports',
+      page: this.translocoService.translate('myReportsPage.tracking.page'),
     });
   }
 
@@ -475,8 +477,16 @@ export class MyReportsPage {
     });
     this.trackingService.tasksPageOpened({
       Asset: 'Mobile',
-      from: 'My Reports',
+      from: this.translocoService.translate('myReportsPage.tracking.from'),
     });
+  }
+
+  trackReportZeroStateClick(): void {
+    this.trackingService.clickedOnZeroStateCreateReport();
+  }
+
+  trackCreateReportClick(): void {
+    this.trackingService.myReportsActionSheetAddButtonClicked({ Action: 'Create Report' });
   }
 
   onCameraClicked(): void {
@@ -695,7 +705,7 @@ export class MyReportsPage {
 
   generateStateFilterPills(filterPills: FilterPill[], filter: Partial<MyReportsFilters>): void {
     filterPills.push({
-      label: 'State',
+      label: this.translocoService.translate('myReportsPage.filters.state'),
       type: 'state',
       value: (<string[]>filter.state)
         .map((state) => this.reportStatePipe.transform(state))
@@ -709,19 +719,19 @@ export class MyReportsPage {
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
-        value: `${startDate} to ${endDate}`,
+        value: `${startDate} ${this.translocoService.translate('myReportsPage.filterPills.dateTo')} ${endDate}`,
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
         value: `>= ${startDate}`,
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
         value: `<= ${endDate}`,
       });
@@ -731,33 +741,33 @@ export class MyReportsPage {
   generateDateFilterPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
-        value: 'this Week',
+        value: this.translocoService.translate('myReportsPage.filterPills.thisWeek'),
       });
     }
 
     if (filter.date === DateFilters.thisMonth) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
-        value: 'this Month',
+        value: this.translocoService.translate('myReportsPage.filterPills.thisMonth'),
       });
     }
 
     if (filter.date === DateFilters.all) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
-        value: 'All',
+        value: this.translocoService.translate('myReportsPage.filterPills.all'),
       });
     }
 
     if (filter.date === DateFilters.lastMonth) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
-        value: 'Last Month',
+        value: this.translocoService.translate('myReportsPage.filterPills.lastMonth'),
       });
     }
 
@@ -769,15 +779,15 @@ export class MyReportsPage {
   generateSortRptDatePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'date - old to new',
+        value: this.translocoService.translate('myReportsPage.filterPills.dateOldToNew'),
       });
     } else if (filter.sortParam === 'created_at' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'date - new to old',
+        value: this.translocoService.translate('myReportsPage.filterPills.dateNewToOld'),
       });
     }
   }
@@ -785,15 +795,15 @@ export class MyReportsPage {
   generateSortAmountPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'amount - high to low',
+        value: this.translocoService.translate('myReportsPage.filterPills.amountHighToLow'),
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'amount - low to high',
+        value: this.translocoService.translate('myReportsPage.filterPills.amountLowToHigh'),
       });
     }
   }
@@ -801,15 +811,15 @@ export class MyReportsPage {
   generateSortNamePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'Name - a to z',
+        value: this.translocoService.translate('myReportsPage.filterPills.nameAToZ'),
       });
     } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'Name - z to a',
+        value: this.translocoService.translate('myReportsPage.filterPills.nameZToA'),
       });
     }
   }
@@ -870,139 +880,139 @@ export class MyReportsPage {
       componentProps: {
         filterOptions: [
           {
-            name: 'State',
+            name: this.translocoService.translate('myReportsPage.filters.state'),
             optionType: FilterOptionType.multiselect,
             options: [
               {
-                label: 'Draft',
+                label: this.translocoService.translate('myReportsPage.stateOptions.draft'),
                 value: 'DRAFT',
               },
               {
-                label: 'Reported',
+                label: this.translocoService.translate('myReportsPage.stateOptions.reported'),
                 value: 'APPROVER_PENDING',
               },
               {
-                label: 'Sent Back',
+                label: this.translocoService.translate('myReportsPage.stateOptions.sentBack'),
                 value: 'APPROVER_INQUIRY',
               },
               {
-                label: 'Approved',
+                label: this.translocoService.translate('myReportsPage.stateOptions.approved'),
                 value: 'APPROVED',
               },
               {
-                label: 'Payment Pending',
+                label: this.translocoService.translate('myReportsPage.stateOptions.paymentPending'),
                 value: 'PAYMENT_PENDING',
               },
               {
-                label: 'Payment Processing',
+                label: this.translocoService.translate('myReportsPage.stateOptions.paymentProcessing'),
                 value: 'PAYMENT_PROCESSING',
               },
               {
-                label: 'Paid',
+                label: this.translocoService.translate('myReportsPage.stateOptions.paid'),
                 value: 'PAID',
               },
             ],
             optionsNewFlow: [
               {
-                label: 'Draft',
+                label: this.translocoService.translate('myReportsPage.stateOptions.draft'),
                 value: 'DRAFT',
               },
               {
-                label: 'Submitted',
+                label: this.translocoService.translate('myReportsPage.stateOptions.submitted'),
                 value: 'APPROVER_PENDING',
               },
               {
-                label: 'Sent Back',
+                label: this.translocoService.translate('myReportsPage.stateOptions.sentBack'),
                 value: 'APPROVER_INQUIRY',
               },
               {
-                label: 'Approved',
+                label: this.translocoService.translate('myReportsPage.stateOptions.approved'),
                 value: 'APPROVED',
               },
               {
-                label: 'Processing',
+                label: this.translocoService.translate('myReportsPage.stateOptions.processing'),
                 value: 'PAYMENT_PROCESSING',
               },
               {
-                label: 'Closed',
+                label: this.translocoService.translate('myReportsPage.stateOptions.closed'),
                 value: 'PAID',
               },
             ],
             optionsNewFlowCCCOnly: [
               {
-                label: 'Draft',
+                label: this.translocoService.translate('myReportsPage.stateOptions.draft'),
                 value: 'DRAFT',
               },
               {
-                label: 'Submitted',
+                label: this.translocoService.translate('myReportsPage.stateOptions.submitted'),
                 value: 'APPROVER_PENDING',
               },
               {
-                label: 'Sent Back',
+                label: this.translocoService.translate('myReportsPage.stateOptions.sentBack'),
                 value: 'APPROVER_INQUIRY',
               },
               {
-                label: 'Approved',
+                label: this.translocoService.translate('myReportsPage.stateOptions.approved'),
                 value: 'APPROVED',
               },
               {
-                label: 'Closed',
+                label: this.translocoService.translate('myReportsPage.stateOptions.closed'),
                 value: 'PAID',
               },
             ],
           } as FilterOptions<string>,
           {
-            name: 'Date',
+            name: this.translocoService.translate('myReportsPage.filters.date'),
             optionType: FilterOptionType.date,
             options: [
               {
-                label: 'All',
+                label: this.translocoService.translate('myReportsPage.dateOptions.all'),
                 value: DateFilters.all,
               },
               {
-                label: 'This Week',
+                label: this.translocoService.translate('myReportsPage.dateOptions.thisWeek'),
                 value: DateFilters.thisWeek,
               },
               {
-                label: 'This Month',
+                label: this.translocoService.translate('myReportsPage.dateOptions.thisMonth'),
                 value: DateFilters.thisMonth,
               },
               {
-                label: 'Last Month',
+                label: this.translocoService.translate('myReportsPage.dateOptions.lastMonth'),
                 value: DateFilters.lastMonth,
               },
               {
-                label: 'Custom',
+                label: this.translocoService.translate('myReportsPage.dateOptions.custom'),
                 value: DateFilters.custom,
               },
             ],
           } as FilterOptions<DateFilters>,
           {
-            name: 'Sort by',
+            name: this.translocoService.translate('myReportsPage.filters.sortBy'),
             optionType: FilterOptionType.singleselect,
             options: [
               {
-                label: 'Date - New to Old',
+                label: this.translocoService.translate('myReportsPage.sortOptions.dateNewToOld'),
                 value: 'dateNewToOld',
               },
               {
-                label: 'Date - Old to New',
+                label: this.translocoService.translate('myReportsPage.sortOptions.dateOldToNew'),
                 value: 'dateOldToNew',
               },
               {
-                label: 'Amount - High to Low',
+                label: this.translocoService.translate('myReportsPage.sortOptions.amountHighToLow'),
                 value: 'amountHighToLow',
               },
               {
-                label: 'Amount - Low to High',
+                label: this.translocoService.translate('myReportsPage.sortOptions.amountLowToHigh'),
                 value: 'amountLowToHigh',
               },
               {
-                label: 'Name - A to Z',
+                label: this.translocoService.translate('myReportsPage.sortOptions.nameAToZ'),
                 value: 'nameAToZ',
               },
               {
-                label: 'Name - Z to A',
+                label: this.translocoService.translate('myReportsPage.sortOptions.nameZToA'),
                 value: 'nameZToA',
               },
             ],

@@ -46,7 +46,9 @@ export class DashboardOptInComponent {
     return this.translocoService.translate('dashboardOptIn.skipOptInMessage');
   }
 
-  async skip(): Promise<void> {
+  async skip(event: Event): Promise<void> {
+    event.stopPropagation();
+
     const title = this.translocoService.translate('dashboardOptIn.areYouSure');
     const optOutPopover = await this.popoverController.create({
       component: PopupAlertComponent,
@@ -61,6 +63,7 @@ export class DashboardOptInComponent {
           text: this.translocoService.translate('dashboardOptIn.noGoBack'),
           action: 'cancel',
         },
+        leftAlign: true,
       },
       cssClass: 'skip-opt-in-popover',
     });

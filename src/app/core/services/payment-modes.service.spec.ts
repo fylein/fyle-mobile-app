@@ -3,7 +3,7 @@ import { PaymentModesService } from './payment-modes.service';
 import { AccountsService } from './accounts.service';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TrackingService } from './tracking.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from './snackbar-properties.service';
 import { of } from 'rxjs';
 import { orgSettingsRes, orgSettingsParamWoCCC } from '../mock-data/org-settings.data';
@@ -237,7 +237,7 @@ describe('PaymentModesService', () => {
     });
 
     it('should return Personal Cash/Card if payment mode is not PERSONAL_ADVANCE_ACCOUNT or PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', () => {
-      const paymentMode = AllowedPaymentModes.PERSONAL_ACCOUNT;
+      const paymentMode = AllowedPaymentModes.PERSONAL_CASH_ACCOUNT;
       expect(paymentModesService.getPaymentModeDisplayName(paymentMode)).toEqual('Personal Cash/Card');
     });
   });

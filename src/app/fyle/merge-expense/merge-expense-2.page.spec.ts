@@ -6,9 +6,9 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { NavController } from '@ionic/angular';
 import {
-  MatLegacySnackBar as MatSnackBar,
-  MatLegacySnackBarRef as MatSnackBarRef,
-} from '@angular/material/legacy-snack-bar';
+  MatSnackBar,
+  MatSnackBarRef,
+} from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -114,7 +114,7 @@ export function TestCases2(getTestBed) {
         mergeExpensesService.getFieldValueOnChange.and.returnValues(
           'tx3nHShG60zq',
           new Date('2023-03-13T11:30:00.000Z'),
-          'PERSONAL_ACCOUNT',
+          'PERSONAL_CASH_ACCOUNT',
           '3943',
           false,
           207484,
@@ -194,14 +194,14 @@ export function TestCases2(getTestBed) {
 
       it('should call getFieldValueOnChange for updating paymentMode with correct arguments', () => {
         component.touchedGenericFields = ['paymentMode'];
-        component.genericFieldsForm.patchValue({ paymentMode: 'PERSONAL_ACCOUNT' });
+        component.genericFieldsForm.patchValue({ paymentMode: 'PERSONAL_CASH_ACCOUNT' });
         component.onExpenseChanged(-1);
-        expect(component.fg.controls.genericFields.value.paymentMode).toEqual('PERSONAL_ACCOUNT');
+        expect(component.fg.controls.genericFields.value.paymentMode).toEqual('PERSONAL_CASH_ACCOUNT');
         const paymentModeCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
         expect(paymentModeCall[0]).toEqual(optionsData7);
         expect(paymentModeCall[1]).toBeTrue();
         expect(paymentModeCall[2]).toBeUndefined();
-        expect(paymentModeCall[3]).toEqual('PERSONAL_ACCOUNT');
+        expect(paymentModeCall[3]).toEqual('PERSONAL_CASH_ACCOUNT');
       });
 
       it('should call getFieldValueOnChange for updating project with correct arguments', () => {

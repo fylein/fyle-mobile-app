@@ -8,12 +8,14 @@
             {{ 'profileOptInCard.description' | transloco }}
           </div>
         </div>
-        <span *ngIf="!isUserOptedIn && !isMobileAddedButNotVerified" class="profile-opt-in-card__opt-in-btn">{{
-          'profileOptInCard.optIn' | transloco
-        }}</span>
+        @if (!isUserOptedIn && !isMobileAddedButNotVerified) {
+          <span class="profile-opt-in-card__opt-in-btn">{{
+            'profileOptInCard.optIn' | transloco
+          }}</span>
+        }
       </div>
 
-      <ng-container *ngIf="isUserOptedIn">
+      @if (isUserOptedIn) {
         <div class="profile-opt-in-card__status__label">
           <span>{{ 'profileOptInCard.status' | transloco }}</span>
           <span class="profile-opt-in-card__opt-out-btn" (click)="clickedOnOptOut()">
@@ -52,15 +54,17 @@
             </div>
           </div>
         </div>
-      </ng-container>
+      }
 
-      <ng-container *ngIf="isMobileAddedButNotVerified">
+      @if (isMobileAddedButNotVerified) {
         <div (click)="clickedOnOptIn()">
           <div class="profile-opt-in-card__status__label">
             <span>{{ 'profileOptInCard.status' | transloco }}</span>
-            <span *ngIf="!isInvalidUSNumber" class="profile-opt-in-card__opt-in-btn">
-              {{ 'profileOptInCard.optIn' | transloco }}
-            </span>
+            @if (!isInvalidUSNumber) {
+              <span class="profile-opt-in-card__opt-in-btn">
+                {{ 'profileOptInCard.optIn' | transloco }}
+              </span>
+            }
           </div>
           <div class="profile-opt-in-card__status__icon-container">
             <div class="profile-opt-in-card__status__icon--inactive"></div>
@@ -82,7 +86,7 @@
             ></ion-icon>
           </div>
         </div>
-        <ng-container *ngIf="isInvalidUSNumber">
+        @if (isInvalidUSNumber) {
           <div class="profile-opt-in-card__divider"></div>
           <div>
             <div class="profile-opt-in-card__non-us-number-card" (click)="editMobileNumber()">
@@ -92,8 +96,8 @@
               </span>
             </div>
           </div>
-        </ng-container>
-      </ng-container>
+        }
+      }
     </div>
   </div>
 </ng-container>

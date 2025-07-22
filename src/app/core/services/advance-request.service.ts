@@ -32,6 +32,9 @@ import { ApprovalPublic } from '../models/approval-public.model';
 import { StatsResponse } from '../models/platform/v1/stats-response.model';
 import { PlatformConfig } from '../models/platform/platform-config.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { ExtendedStatus } from '../models/extended_status.model';
+import { Comment } from '../models/platform/v1/comment.model';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -142,64 +145,110 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  pullBackAdvanceRequest(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$,
-  })
-  addApprover(advanceRequestId: string, approverEmail: string, comment: string): Observable<AdvanceRequests> {
-    const data = {
-      advance_request_id: advanceRequestId,
-      approver_email: approverEmail,
-      comment,
-    };
-
-    return this.apiService.post('/advance_requests/add_approver', data);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$,
-  })
-  submit(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequests> {
-    return this.apiService.post('/advance_requests/submit', advanceRequest);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: advanceRequestsCacheBuster$,
-  })
-  post(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequests> {
+  pullBackAdvanceRequest(
+    advanceRequestId: string,
+    addStatusPayload: StatusPayload
+  ): Observable<AdvanceRequestPlatform> {
+    const comment = addStatusPayload.status?.comment || '';
+    const notify = addStatusPayload.notify || false;
     const payload = {
       data: {
-        ...advanceRequest,
-        custom_fields: advanceRequest.custom_field_values,
+        id: advanceRequestId,
+        comment,
+        notify,
       },
     };
     return this.spenderService
-      .post<PlatformApiResponse<AdvanceRequests>>('/advance_requests', payload)
+      .post<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests/pull_back', payload)
       .pipe(map((response) => response.data));
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  approve(advanceRequestId: string): Observable<AdvanceRequests> {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/approve');
+  addApprover(advanceRequestId: string, approverEmail: string, comment: string): Observable<AdvanceRequests> {
+    const payload = {
+      data: {
+        id: advanceRequestId,
+        approver_email: approverEmail,
+        comment,
+      },
+    };
+    return this.approverService
+      .post<PlatformApiResponse<AdvanceRequests>>('/advance_requests/add_approver', payload)
+      .pipe(map((response) => response.data));
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  sendBack(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/inquire', addStatusPayload);
+  submit(advanceRequest: Partial<AdvanceRequests>, isApprover: Boolean): Observable<AdvanceRequestPlatform> {
+    const payload = this.buildPlatformPayload(advanceRequest);
+    const service = isApprover ? this.approverService : this.spenderService;
+
+    return service
+      .post<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests/submit', payload)
+      .pipe(map((response) => response.data));
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  reject(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/reject', addStatusPayload);
+  post(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequestPlatform> {
+    const payload = this.buildPlatformPayload(advanceRequest);
+    return this.spenderService
+      .post<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', payload)
+      .pipe(map((response) => response.data));
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$,
+  })
+  approve(advanceRequestId: string): Observable<AdvanceRequestPlatform> {
+    const payload = {
+      data: [
+        {
+          id: advanceRequestId,
+        },
+      ],
+    };
+    return this.approverService
+      .post<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests/approve/bulk', payload)
+      .pipe(map((response) => response.data));
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$,
+  })
+  sendBack(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequestPlatform> {
+    const comment = addStatusPayload.status?.comment || '';
+    const notify = addStatusPayload.notify || false;
+    const payload = {
+      data: {
+        id: advanceRequestId,
+        comment,
+        notify,
+      },
+    };
+    return this.approverService
+      .post<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests/inquire', payload)
+      .pipe(map((response) => response.data));
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$,
+  })
+  reject(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequestPlatform> {
+    const comment = addStatusPayload.status?.comment || '';
+    const payload = {
+      data: {
+        id: advanceRequestId,
+        comment,
+      },
+    };
+    return this.approverService
+      .post<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests/reject', payload)
+      .pipe(map((response) => response.data));
   }
 
   @CacheBuster({
@@ -252,6 +301,36 @@ export class AdvanceRequestService {
         data: this.transformToAdvanceRequest(res),
       }))
     );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$,
+  })
+  postCommentPlatform(advanceRequestId: string, comment: string): Observable<Comment> {
+    const payload = {
+      data: {
+        advance_request_id: advanceRequestId,
+        comment,
+      },
+    };
+    return this.spenderService
+      .post<PlatformApiResponse<Comment>>('/advance_requests/comments', payload)
+      .pipe(map((response) => response.data));
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: advanceRequestsCacheBuster$,
+  })
+  postCommentPlatformForApprover(advanceRequestId: string, comment: string): Observable<Comment> {
+    const payload = {
+      data: {
+        advance_request_id: advanceRequestId,
+        comment,
+      },
+    };
+    return this.approverService
+      .post<PlatformApiResponse<Comment>>('/advance_requests/comments', payload)
+      .pipe(map((response) => response.data));
   }
 
   getEReqFromPlatform(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
@@ -340,6 +419,30 @@ export class AdvanceRequestService {
       );
   }
 
+  getCommentsByAdvanceRequestIdPlatformForApprover(advanceRequestId: string): Observable<ExtendedStatus[]> {
+    return this.approverService
+      .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
+        params: { id: `eq.${advanceRequestId}` },
+      })
+      .pipe(
+        switchMap((res: PlatformApiResponse<AdvanceRequestPlatform[]>) =>
+          this.mapCommentsToExtendedStatus(res, advanceRequestId)
+        )
+      );
+  }
+
+  getCommentsByAdvanceRequestIdPlatform(advanceRequestId: string): Observable<ExtendedStatus[]> {
+    return this.spenderService
+      .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
+        params: { id: `eq.${advanceRequestId}` },
+      })
+      .pipe(
+        switchMap((res: PlatformApiResponse<AdvanceRequestPlatform[]>) =>
+          this.mapCommentsToExtendedStatus(res, advanceRequestId)
+        )
+      );
+  }
+
   getSpenderAdvanceRequestsCount(queryParams = {}): Observable<number> {
     return this.getSpenderAdvanceRequests({
       offset: 0,
@@ -408,23 +511,34 @@ export class AdvanceRequestService {
 
   createAdvReqWithFilesAndSubmit(
     advanceRequest: Partial<AdvanceRequests>,
-    fileObservables?: Observable<File[]>
+    fileObservables?: Observable<File[]>,
+    isApprover?: boolean
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
       files: fileObservables,
-      advanceReq: this.submit(advanceRequest),
+      advanceReq: this.submit(advanceRequest, isApprover || false),
     }).pipe(
       switchMap((res) => {
         if (res.files && res.files.length > 0) {
           const fileObjs: File[] = res.files;
-          const advanceReq = res.advanceReq;
+          const advanceReqPlatform = res.advanceReq;
           const newFileObjs = fileObjs.map((obj: File) => {
-            obj.advance_request_id = advanceReq.id;
+            obj.advance_request_id = advanceReqPlatform.id;
             return this.fileService.post(obj);
           });
-          return forkJoin(newFileObjs).pipe(map(() => res));
+          return forkJoin(newFileObjs).pipe(
+            map(() => ({
+              files: res.files,
+              advanceReq: advanceReqPlatform,
+            }))
+          );
         } else {
-          return of(null).pipe(map(() => res));
+          return of(null).pipe(
+            map(() => ({
+              files: [],
+              advanceReq: res.advanceReq,
+            }))
+          );
         }
       })
     );
@@ -441,14 +555,24 @@ export class AdvanceRequestService {
       switchMap((res) => {
         if (res.files && res.files.length > 0) {
           const fileObjs: File[] = res.files;
-          const advanceReq = res.advanceReq;
+          const advanceReqPlatform = res.advanceReq;
           const newFileObjs = fileObjs.map((obj: File) => {
-            obj.advance_request_id = advanceReq.id;
+            obj.advance_request_id = advanceReqPlatform.id;
             return this.fileService.post(obj);
           });
-          return forkJoin(newFileObjs).pipe(map(() => res));
+          return forkJoin(newFileObjs).pipe(
+            map(() => ({
+              files: res.files,
+              advanceReq: advanceReqPlatform,
+            }))
+          );
         } else {
-          return of(null).pipe(map(() => res));
+          return of(null).pipe(
+            map(() => ({
+              files: [],
+              advanceReq: res.advanceReq,
+            }))
+          );
         }
       })
     );
@@ -615,6 +739,42 @@ export class AdvanceRequestService {
     return data;
   }
 
+  private mapCommentsToExtendedStatus(
+    res: PlatformApiResponse<AdvanceRequestPlatform[]>,
+    advanceRequestId: string
+  ): Observable<ExtendedStatus[]> {
+    if (!res.data || res.data.length === 0) {
+      return of([] as ExtendedStatus[]);
+    }
+
+    const advanceRequest = res.data[0];
+    if (!advanceRequest.comments) {
+      return of([] as ExtendedStatus[]);
+    }
+
+    return from(this.authService.getEou()).pipe(
+      map((eou: ExtendedOrgUser): ExtendedStatus[] => {
+        const currentUserId = eou?.us?.id;
+
+        return advanceRequest.comments.map(
+          (comment: Comment): ExtendedStatus => ({
+            st_id: comment.id,
+            st_created_at: new Date(comment.created_at),
+            st_org_user_id: comment.creator_user_id,
+            st_comment: comment.comment,
+            st_advance_request_id: advanceRequestId,
+            us_full_name: comment.creator_user?.full_name || null,
+            us_email: comment.creator_user?.email || null,
+            isBotComment: comment.creator_type === 'SYSTEM',
+            isSelfComment: currentUserId ? comment.creator_user_id === currentUserId : false,
+            isOthersComment:
+              comment.creator_type !== 'SYSTEM' && currentUserId && comment.creator_user_id !== currentUserId,
+          })
+        );
+      })
+    );
+  }
+
   private getStateIfDraft(advanceRequest: ExtendedAdvanceRequest | ExtendedAdvanceRequestPublic): {
     state: string;
     name: string;
@@ -634,5 +794,32 @@ export class AdvanceRequestService {
       internalRepresentation.name = this.translocoService.translate('services.advanceRequest.sentBack');
     }
     return internalRepresentation;
+  }
+
+  private convertCustomFieldValue(
+    value: string | boolean | number | Date | string[] | { display?: string }
+  ): string | boolean | number {
+    if (value instanceof Date) {
+      return value.toISOString();
+    } else if (Array.isArray(value)) {
+      return value.join(', ');
+    } else if (typeof value === 'object' && value !== null) {
+      return value.display || JSON.stringify(value);
+    }
+    return value as string | boolean | number;
+  }
+
+  private buildPlatformPayload(advanceRequest: Partial<AdvanceRequests>): { data: Record<string, unknown> } {
+    return {
+      data: {
+        ...advanceRequest,
+        custom_fields: advanceRequest.custom_field_values?.map((field) => ({
+          id: field.id,
+          name: field.name,
+          value: this.convertCustomFieldValue(field.value),
+          type: field.type || 'TEXT',
+        })),
+      },
+    };
   }
 }

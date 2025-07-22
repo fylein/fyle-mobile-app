@@ -43,10 +43,11 @@ import {
   unflattenedTransactionAdvanceWallet,
   paymentModeDataAdvanceWallet,
   multiplePaymentModesWithCompanyAccData2,
+  multiplePaymentModesWithCompanyAccData3,
+  paymentModeDataAdvanceWallet2,
 } from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { ExtendedAccount } from '../models/extended-account.model';
 import { cloneDeep } from 'lodash';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -152,7 +153,7 @@ describe('AccountsService', () => {
         unflattenedTransactionAdvanceWallet,
         paymentModesWithAdvanceWalletsResData
       )
-    ).toEqual(paymentModeDataAdvanceWallet);
+    ).toEqual(paymentModeDataAdvanceWallet2);
   });
 
   it('should be able to get selected payment mode as null when extn is without source account id', () => {
@@ -207,7 +208,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts', () => {
-    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_CASH_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
       accountsService.getAllowedAccounts(
         multiplePaymentModesWithoutAdvData,
@@ -220,7 +221,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts with source in etxn obj', () => {
-    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_CASH_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
       accountsService.getAllowedAccounts(
         multiplePaymentModesWithoutAdvData,
@@ -236,7 +237,7 @@ describe('AccountsService', () => {
     const allowedPaymentModes = [AccountType.CCC, AccountType.PERSONAL];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
-        multiplePaymentModesWithCompanyAccData,
+        multiplePaymentModesWithCompanyAccData2,
         allowedPaymentModes,
         etxnObjData
       )
@@ -244,7 +245,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts without passing etxn param', () => {
-    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_CASH_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdvData, allowedPaymentModes, false)).toEqual(
       multiplePaymentModesWithCompanyAccData
     );
@@ -305,7 +306,7 @@ describe('AccountsService', () => {
     };
     const allowedPaymentModes = [
       'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
-      'PERSONAL_ACCOUNT',
+      'PERSONAL_CASH_ACCOUNT',
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
@@ -325,7 +326,7 @@ describe('AccountsService', () => {
     };
     const allowedPaymentModes = [
       'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
-      'PERSONAL_ACCOUNT',
+      'PERSONAL_CASH_ACCOUNT',
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
@@ -342,7 +343,7 @@ describe('AccountsService', () => {
     };
     const allowedPaymentModes = [
       'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
-      'PERSONAL_ACCOUNT',
+      'PERSONAL_CASH_ACCOUNT',
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
@@ -364,7 +365,7 @@ describe('AccountsService', () => {
     };
     const allowedPaymentModes = [
       'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
-      'PERSONAL_ACCOUNT',
+      'PERSONAL_CASH_ACCOUNT',
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
@@ -386,7 +387,7 @@ describe('AccountsService', () => {
     };
     const allowedPaymentModes = [
       'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
-      'PERSONAL_ACCOUNT',
+      'PERSONAL_CASH_ACCOUNT',
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
@@ -402,7 +403,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts', () => {
-    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_CASH_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
         multiplePaymentModesWithoutAdvData,
@@ -414,7 +415,7 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts with source in etxn obj', () => {
-    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_CASH_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
         multiplePaymentModesWithoutAdvData,
@@ -425,7 +426,7 @@ describe('AccountsService', () => {
     ).toEqual(multiplePaymentModesWithCompanyAccData);
   });
 
-  it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
+  it('should be able to get allowed accounts without passing isMileageOrPerDiem param 2', () => {
     const allowedPaymentModes = [AccountType.CCC, AccountType.COMPANY, AccountType.PERSONAL];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(
@@ -433,11 +434,11 @@ describe('AccountsService', () => {
         allowedPaymentModes,
         etxnObjData
       )
-    ).toEqual(multiplePaymentModesWithCompanyAccData);
+    ).toEqual(multiplePaymentModesWithCompanyAccData3);
   });
 
   it('should be able to get allowed accounts without passing etxn param', () => {
-    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_CASH_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
       accountsService.getAllowedAccountsWithAdvanceWallets(multiplePaymentModesWithoutAdvData, allowedPaymentModes)
     ).toEqual(multiplePaymentModesWithCompanyAccData);

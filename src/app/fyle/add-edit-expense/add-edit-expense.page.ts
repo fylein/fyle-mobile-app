@@ -12,13 +12,13 @@ import {
   ValidatorFn,
 } from '@angular/forms';
 import {
-  MatLegacySnackBar as MatSnackBar,
-  MatLegacySnackBarRef as MatSnackBarRef,
-} from '@angular/material/legacy-snack-bar';
+  MatSnackBar,
+  MatSnackBarRef,
+} from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
 import {
   BehaviorSubject,
@@ -65,7 +65,6 @@ import { Currency } from 'src/app/core/models/currency.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -83,6 +82,7 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { PlatformAccount } from 'src/app/core/models/platform-account.model';
 
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
@@ -164,7 +164,7 @@ type FormValue = {
     orig_currency: string;
     orig_amount: number;
   };
-  paymentMode: ExtendedAccount;
+  paymentMode: PlatformAccount;
   project: ProjectV2;
   category: OrgCategory;
   dateOfSpend: Date;
@@ -219,7 +219,7 @@ export class AddEditExpensePage implements OnInit {
 
   isCreatedFromPersonalCard = false;
 
-  paymentAccount$: Observable<ExtendedAccount>;
+  paymentAccount$: Observable<PlatformAccount>;
 
   isCCCAccountSelected$: Observable<boolean>;
 
@@ -685,21 +685,22 @@ export class AddEditExpensePage implements OnInit {
       orgSettings: this.orgSettingsService.get(),
     }).pipe(
       map(({ etxn, orgSettings }) => {
-        const paymentMode: ExtendedAccount | AdvanceWallet = formValues.paymentMode;
+        const paymentMode: PlatformAccount | AdvanceWallet = formValues.paymentMode;
         const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
         const originalAdvanceWalletId = etxn && etxn.tx && etxn.tx.advance_wallet_id;
         let isPaymentModeInvalid = false;
 
         // Check if it's specifically an advance wallet (has id but no acc property)
-        const isAdvanceWallet = isAdvanceWalletEnabled && paymentMode?.id && !paymentMode?.acc;
+        const isAdvanceWallet = isAdvanceWalletEnabled && paymentMode?.id && !paymentMode?.type;
 
         if (isAdvanceWallet) {
+          const advanceWallet = paymentMode as unknown as AdvanceWallet;
           if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
             isPaymentModeInvalid =
-              paymentMode.balance_amount + etxn.tx.amount < (formValues.currencyObj && formValues.currencyObj.amount);
+              advanceWallet.balance_amount + etxn.tx.amount < (formValues.currencyObj && formValues.currencyObj.amount);
           } else {
             isPaymentModeInvalid =
-              paymentMode.balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
+              advanceWallet.balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
           }
         }
 
@@ -1134,8 +1135,8 @@ export class AddEditExpensePage implements OnInit {
     return !!advanceWallets?.some((advanceWallet) => advanceWallet.balance_amount > 0);
   }
 
-  checkAdvanceAccountAndBalance(account: ExtendedAccount): boolean {
-    return account?.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0;
+  checkAdvanceAccountAndBalance(account: PlatformAccount): boolean {
+    return account?.type === AccountType.ADVANCE && account.tentative_balance_amount > 0;
   }
 
   setupBalanceFlag(): void {
@@ -1143,17 +1144,17 @@ export class AddEditExpensePage implements OnInit {
     const advanceWallets$ = this.advanceWalletsService.getAllAdvanceWallets();
     const orgSettings$ = this.orgSettingsService.get();
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      switchMap((paymentMode: ExtendedAccount) => {
+      switchMap((paymentMode: PlatformAccount) => {
         // check both advance wallets and advance accounts
         let isAdvanceWalletEnabled = false;
         orgSettings$.pipe(map((orgSettings) => orgSettings?.advances?.advance_wallets_enabled)).subscribe((data) => {
           isAdvanceWalletEnabled = data;
         });
-        if (paymentMode?.acc?.type === AccountType.PERSONAL && !!isAdvanceWalletEnabled) {
+        if (paymentMode?.type === AccountType.PERSONAL && !!isAdvanceWalletEnabled) {
           return advanceWallets$.pipe(
             map((advanceWallets) => this.checkAdvanceWalletsWithSufficientBalance(advanceWallets))
           );
-        } else if (paymentMode?.acc?.type === AccountType.PERSONAL && !isAdvanceWalletEnabled) {
+        } else if (paymentMode?.type === AccountType.PERSONAL && !isAdvanceWalletEnabled) {
           return accounts$.pipe(
             map((accounts) => accounts.filter((account) => this.checkAdvanceAccountAndBalance(account)).length > 0)
           );
@@ -1563,29 +1564,20 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedPaymentModes(): Observable<ExtendedAccount | AdvanceWallet> {
+  getSelectedPaymentModes(): Observable<PlatformAccount | AdvanceWallet> {
     return forkJoin({
       etxn: this.etxn$,
       paymentModes: this.paymentModes$,
     }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
   }
 
-  getDefaultPaymentModes(): Observable<ExtendedAccount | AdvanceWallet> {
-    return forkJoin({
-      paymentModes: this.paymentModes$,
-      employeeSettings: this.employeeSettings$,
-      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-    }).pipe(
-      map(({ paymentModes }) => {
-        //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
-        if (this.isCreatedFromCCC) {
-          const CCCAccount = paymentModes.find(
-            (paymentMode) => (paymentMode.value as ExtendedAccount).acc.type === AccountType.CCC
-          );
-          return CCCAccount.value;
-        }
-
-        return paymentModes[0].value;
+  getDefaultPaymentModes(): Observable<PlatformAccount | AdvanceWallet> {
+    return this.paymentModes$.pipe(
+      map((paymentModes) => {
+        const cccPaymentMode = paymentModes.find(
+          (paymentMode) => (paymentMode.value as PlatformAccount).type === AccountType.CCC
+        );
+        return cccPaymentMode?.value || paymentModes[0]?.value;
       })
     );
   }
@@ -2898,7 +2890,7 @@ export class AddEditExpensePage implements OnInit {
 
   getCCCpaymentMode(): void {
     this.isCCCPaymentModeSelected$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      map((paymentMode: ExtendedAccount) => paymentMode?.acc?.type === AccountType.CCC)
+      map((paymentMode: PlatformAccount) => paymentMode?.type === AccountType.CCC)
     );
   }
 
@@ -3218,7 +3210,7 @@ export class AddEditExpensePage implements OnInit {
     this.paymentAccount$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
-          return accounts.find((account) => account.acc.type === AccountType.CCC);
+          return accounts.find((account) => account.type === AccountType.CCC);
         } else {
           return null;
         }
@@ -3228,7 +3220,7 @@ export class AddEditExpensePage implements OnInit {
     this.isCCCAccountSelected$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
-          return accounts.some((account) => account.acc.type === AccountType.CCC);
+          return accounts.some((account) => account.type === AccountType.CCC);
         } else {
           return false;
         }
@@ -3427,15 +3419,22 @@ export class AddEditExpensePage implements OnInit {
 
   getSourceAccID(): string {
     const formValue = this.getFormValues();
-    return formValue?.paymentMode?.acc?.id;
+    const paymentMode = formValue?.paymentMode;
+    // If it's an advance wallet (has id but no type property), return null for source_account_id
+    if (paymentMode?.id && !paymentMode?.type) {
+      return null;
+    }
+    return paymentMode?.id;
   }
 
   getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
     const formValue = this.getFormValues();
-    if (!formValue?.paymentMode?.acc?.id) {
-      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
+    const paymentMode = formValue?.paymentMode;
+    // If it's an advance wallet (has id but no type property), return the advance wallet id
+    if (isAdvanceWalletEnabled && paymentMode?.id && !paymentMode?.type) {
+      return paymentMode.id;
     }
-    // setting advance_wallet_id as null when the source account id is set.
+    // For regular payment modes, return null for advance_wallet_id
     return null;
   }
 
@@ -3447,9 +3446,11 @@ export class AddEditExpensePage implements OnInit {
     const formValue = this.getFormValues();
     const paymentMode = formValue?.paymentMode;
     // If it's an advance wallet (has id but no acc property), skip reimbursement
-    if (paymentMode?.id && !paymentMode?.acc) {return true;}
+    if (paymentMode?.id && !paymentMode?.type) {
+      return true;
+    }
     // If it's a personal account that's not reimbursable, skip reimbursement
-    return paymentMode?.acc?.type === AccountType.PERSONAL && !paymentMode.acc.isReimbursable;
+    return paymentMode?.type === AccountType.PERSONAL && !paymentMode.isReimbursable;
   }
 
   getTxnDate(): Date {

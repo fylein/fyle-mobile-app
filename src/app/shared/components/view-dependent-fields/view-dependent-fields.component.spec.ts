@@ -51,4 +51,36 @@ describe('ViewDependentFieldsComponent', () => {
     component.ngOnInit();
     expect(component.parentFieldIcon).toEqual('list');
   });
+
+  describe('ngOnInit', () => {
+    it('should set parentFieldIcon to "list" when parentFieldType is PROJECT', () => {
+      component.parentFieldType = 'PROJECT';
+      component.ngOnInit();
+      expect(component.parentFieldIcon).toEqual('list');
+    });
+
+    it('should set parentFieldIcon to "building" when parentFieldType is COST_CENTER', () => {
+      component.parentFieldType = 'COST_CENTER';
+      component.ngOnInit();
+      expect(component.parentFieldIcon).toEqual('building');
+    });
+
+    it('should set parentFieldIcon to "building" when parentFieldType is undefined', () => {
+      component.parentFieldType = undefined;
+      component.ngOnInit();
+      expect(component.parentFieldIcon).toEqual('building');
+    });
+
+    it('should set parentFieldIcon to "building" when parentFieldType is null', () => {
+      component.parentFieldType = null;
+      component.ngOnInit();
+      expect(component.parentFieldIcon).toEqual('building');
+    });
+
+    it('should set parentFieldIcon to "building" when parentFieldType is empty string', () => {
+      component.parentFieldType = '' as any;
+      component.ngOnInit();
+      expect(component.parentFieldIcon).toEqual('building');
+    });
+  });
 });

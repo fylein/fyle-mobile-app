@@ -13,7 +13,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CaptureReceiptComponent } from './capture-receipt.component';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
@@ -448,7 +448,7 @@ describe('CaptureReceiptComponent', () => {
       spyOn(component, 'onSingleCaptureOffline').and.returnValue(null);
       fixture.detectChanges();
 
-      component.saveSingleCapture();
+      component.saveSingleCapture(false);
       expect(component.onSingleCaptureOffline).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.incrementSingleCaptureCount).toHaveBeenCalledTimes(1);
     });
@@ -459,7 +459,7 @@ describe('CaptureReceiptComponent', () => {
       spyOn(component, 'navigateToExpenseForm').and.returnValue(null);
       fixture.detectChanges();
 
-      component.saveSingleCapture();
+      component.saveSingleCapture(false);
       expect(component.navigateToExpenseForm).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.incrementSingleCaptureCount).toHaveBeenCalledTimes(1);
     });

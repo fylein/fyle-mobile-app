@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -610,7 +610,8 @@ export function TestCases6(getTestBed) {
     describe('getSourceAccID():', () => {
       it('should get source account id', () => {
         component.fg.controls.paymentMode.setValue({
-          acc: { id: 'id' },
+          id: 'id',
+          type: AccountType.PERSONAL,
         });
 
         const result = component.getSourceAccID();
@@ -639,14 +640,14 @@ export function TestCases6(getTestBed) {
         setFormValueNull();
 
         const result = component.getAdvanceWalletId(true);
-        expect(result).toBeUndefined();
+        expect(result).toBeNull();
       });
 
       it('should return null when advance wallet setting is disabled', () => {
         setFormValueNull();
 
         const result = component.getAdvanceWalletId(false);
-        expect(result).toBeFalse();
+        expect(result).toBeNull();
       });
 
       it('should return null', () => {
@@ -680,9 +681,8 @@ export function TestCases6(getTestBed) {
     describe('getSkipRemibursement():', () => {
       it('should get reimbursement', () => {
         component.fg.controls.paymentMode.setValue({
-          acc: {
-            type: AccountType.PERSONAL,
-          },
+          type: AccountType.PERSONAL,
+          isReimbursable: false,
         });
 
         const result = component.getSkipRemibursement();

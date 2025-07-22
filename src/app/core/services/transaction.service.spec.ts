@@ -28,7 +28,7 @@ import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import * as lodash from 'lodash';
 import {
   transformedExpensePayload,
@@ -1008,7 +1008,8 @@ describe('TransactionService', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     accountsService.getMyAccounts.and.returnValue(of(accountsData));
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
-    paymentModesService.getDefaultAccount.and.returnValue(of(accountsData[0]));
+    const mockAccount = { ...accountsData[0], isReimbursable: false };
+    paymentModesService.getDefaultAccount.and.returnValue(of(mockAccount));
 
     const expectedResult = {
       source_account_id: 'acc5APeygFjRd',

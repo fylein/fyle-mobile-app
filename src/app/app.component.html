@@ -1,17 +1,21 @@
 <ion-app>
-  <app-delegated-acc-message *ngIf="isSwitchedToDelegator"></app-delegated-acc-message>
+  @if (isSwitchedToDelegator) {
+    <app-delegated-acc-message></app-delegated-acc-message>
+  }
   <app-sidemenu (switchDelegator)="switchDelegator($event)" #sidemenuRef></app-sidemenu>
-  <ion-footer *ngIf="showFooter">
-    <app-fy-footer
-      (homeClicked)="onHomeClicked()"
-      (taskClicked)="onTaskClicked()"
-      (cameraClicked)="onCameraClicked()"
-      (expensesClicked)="onExpensesClicked()"
-      (reportsClicked)="onReportsClicked()"
-      [activeState]="currentActiveState"
-      [taskCount]="totalTasksCount"
-    ></app-fy-footer>
-  </ion-footer>
+  @if (showFooter) {
+    <ion-footer>
+      <app-fy-footer
+        (homeClicked)="onHomeClicked()"
+        (taskClicked)="onTaskClicked()"
+        (cameraClicked)="onCameraClicked()"
+        (expensesClicked)="onExpensesClicked()"
+        (reportsClicked)="onReportsClicked()"
+        [activeState]="currentActiveState"
+        [taskCount]="totalTasksCount"
+      ></app-fy-footer>
+    </ion-footer>
+  }
   <ion-router-outlet id="main-content" [ngClass]="{ 'main-outlet': isSwitchedToDelegator }"></ion-router-outlet>
   <app-fy-connection></app-fy-connection>
 </ion-app>

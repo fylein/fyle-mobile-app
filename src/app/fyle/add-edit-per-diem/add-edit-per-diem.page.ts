@@ -41,7 +41,7 @@ import {
 } from '@angular/forms';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { DateService } from 'src/app/core/services/date.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { cloneDeep, isEmpty, isEqual, isNumber } from 'lodash';
@@ -68,7 +68,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
@@ -1574,8 +1574,7 @@ export class AddEditPerDiemPage implements OnInit {
         };
 
         let skipReimbursement =
-          (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL &&
-            !formValue?.paymentMode?.acc?.isReimbursable) ||
+          (formValue?.paymentMode?.type === AccountType.PERSONAL && !formValue?.paymentMode?.isReimbursable) ||
           !!formValue?.paymentMode?.id;
 
         // Handle payment mode type and source account
@@ -1585,7 +1584,7 @@ export class AddEditPerDiemPage implements OnInit {
         if (paymentMode) {
           if (paymentMode.type === 'PERSONAL_CASH_ACCOUNT') {
             sourceAccountId = paymentMode.id;
-            if (paymentMode.acc?.displayName === 'Paid by Company' || !paymentMode.isReimbursable) {
+            if (!paymentMode.isReimbursable) {
               skipReimbursement = true;
             } else {
               skipReimbursement = false;

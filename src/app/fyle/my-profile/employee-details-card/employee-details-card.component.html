@@ -2,7 +2,7 @@
   <div
     class="employee-details-card__top-section"
     [ngClass]="{ 'employee-details-card__mobile-number-not-visible': !isMobileNumberSectionVisible }"
-  >
+    >
     <ion-grid class="employee-details-card__grid">
       <ion-row>
         <ion-col class="employee-details-card__icon-container">
@@ -17,11 +17,11 @@
           <div>
             {{ eou.us.email }}
           </div>
-          <ng-container *ngIf="eou.ou.employee_id">
+          @if (eou.ou.employee_id) {
             <div class="employee-details-card__employee-id">
               {{ 'employeeDetailsCard.employeeId' | transloco }} {{ eou.ou.employee_id }}
             </div>
-          </ng-container>
+          }
         </ion-col>
       </ion-row>
     </ion-grid>

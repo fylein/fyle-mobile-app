@@ -36,9 +36,10 @@
         #reportTitleInput="ngModel"
       />
     </div>
-    <div class="my-create-report--error-message" *ngIf="showReportNameError">Please enter expense report name.</div>
-
-    <div *ngIf="readyToReportExpenses?.length === 0" class="my-create-report--zero-state">
+    @if (showReportNameError) {
+    <div class="my-create-report--error-message">Please enter expense report name.</div>
+    } @if (readyToReportExpenses?.length === 0) {
+    <div class="my-create-report--zero-state">
       <div>
         <img
           alt="Create First Expenses"
@@ -49,9 +50,10 @@
         <div class="my-create-report--zero-state-text">expenses right now</div>
       </div>
     </div>
-
-    <div *ngIf="readyToReportExpenses?.length > 0" class="my-create-report--heading">Expenses</div>
-    <div *ngIf="readyToReportExpenses?.length > 0" class="my-create-report--select-all-checkbox">
+    } @if (readyToReportExpenses?.length > 0) {
+    <div class="my-create-report--heading">Expenses</div>
+    } @if (readyToReportExpenses?.length > 0) {
+    <div class="my-create-report--select-all-checkbox">
       <mat-checkbox
         class="custom-mat-checkbox create-new-report--checkbox"
         [(ngModel)]="isSelectedAll"
@@ -60,9 +62,10 @@
         Select all</mat-checkbox
       >
     </div>
-
-    <div *ngIf="readyToReportExpenses">
-      <div *ngFor="let etxn of readyToReportExpenses as list; let i = index">
+    } @if (readyToReportExpenses) {
+    <div>
+      @for (etxn of readyToReportExpenses; track etxn.id; let i = $index) {
+      <div>
         <app-expense-card-v2
           [expense]="etxn"
           [previousExpenseTxnDate]="readyToReportExpenses[i - 1]?.spent_at"
@@ -75,7 +78,9 @@
         >
         </app-expense-card-v2>
       </div>
+      }
     </div>
+    }
   </div>
 </ion-content>
 

@@ -158,11 +158,6 @@
     }
   }
 
-  &--simple-search-block {
-    display: flex;
-    vertical-align: baseline;
-  }
-
   &--footer-container {
     background: white;
     padding: 16px;
@@ -317,6 +312,14 @@
   &--cta-button {
     font-weight: 500;
     width: 100%;
+  }
+
+  &--zero-state-cta {
+    padding: 12px 16px;
+    margin: 16px auto 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   &--secondary-cta {

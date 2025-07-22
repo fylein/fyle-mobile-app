@@ -3,10 +3,10 @@ import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 /* eslint-disable complexity */
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,
@@ -2284,8 +2284,7 @@ export class AddEditMileagePage implements OnInit {
 
         const amount = parseFloat(res.amount.toFixed(2));
         let skipReimbursement =
-          (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL &&
-            !formValue?.paymentMode?.acc?.isReimbursable) ||
+          (formValue?.paymentMode?.type === AccountType.PERSONAL && !formValue?.paymentMode?.isReimbursable) ||
           !!formValue?.paymentMode?.id;
 
         // Handle payment mode type and source account
@@ -2295,7 +2294,7 @@ export class AddEditMileagePage implements OnInit {
         if (paymentMode) {
           if (paymentMode.type === 'PERSONAL_CASH_ACCOUNT') {
             sourceAccountId = paymentMode.id;
-            if (paymentMode.acc?.displayName === 'Paid by Company' || !paymentMode.isReimbursable) {
+            if (!paymentMode.isReimbursable) {
               skipReimbursement = true;
             } else {
               skipReimbursement = false;

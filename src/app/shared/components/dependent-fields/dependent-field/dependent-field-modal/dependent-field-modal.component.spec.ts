@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 
 import { DependentFieldModalComponent } from './dependent-field-modal.component';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { FormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, skip, take } from 'rxjs';
 import {
@@ -145,8 +145,8 @@ describe('DependentFieldModalComponent', () => {
     done();
   });
 
-  xit('getDependentFieldOptions(): should return dependent field options based on search query', (done) => {
-    const searchQuery = '';
+  it('getDependentFieldOptions(): should return dependent field options based on search query', (done) => {
+    const searchQuery = 'test';
     const { fieldId, parentFieldId, parentFieldValue } = component;
 
     dependentFieldsService.getOptionsForDependentField
@@ -177,6 +177,27 @@ describe('DependentFieldModalComponent', () => {
     });
   });
 
+  it('getDependentFieldOptions(): should call service and return transformed options', (done) => {
+    const searchQuery = 'test';
+    dependentFieldsService.getOptionsForDependentField.and.returnValue(of(dependentFieldValues));
+    spyOn(component, 'getFinalDependentFieldValues').and.returnValue(dependentFieldOptionsWithSelection);
+
+    component.getDependentFieldOptions(searchQuery).subscribe((result) => {
+      expect(dependentFieldsService.getOptionsForDependentField).toHaveBeenCalledWith({
+        fieldId: component.fieldId,
+        parentFieldId: component.parentFieldId,
+        parentFieldValue: component.parentFieldValue,
+        searchQuery,
+      });
+      expect(component.getFinalDependentFieldValues).toHaveBeenCalledWith(
+        dependentFieldOptions,
+        component.currentSelection
+      );
+      expect(result).toEqual(dependentFieldOptionsWithSelection);
+      done();
+    });
+  });
+
   it('getFinalDependentFieldValues(): should return values with None option if no value is selected', () => {
     expect(component.getFinalDependentFieldValues(dependentFieldOptions, null)).toEqual(
       dependentFieldOptionsWithoutSelection
@@ -195,6 +216,16 @@ describe('DependentFieldModalComponent', () => {
     expect(component.getFinalDependentFieldValues(dependentFieldOptions, selectedOption)).toEqual(
       dependentFieldOptionsWithSelectionNotInList
     );
+  });
+
+  it('getFinalDependentFieldValues(): should handle null currentSelection correctly', () => {
+    const result = component.getFinalDependentFieldValues(dependentFieldOptions, null);
+
+    expect(result).toEqual(dependentFieldOptionsWithoutSelection);
+    expect(result[0].label).toBe('None');
+    expect(result[0].value).toBeNull();
+    expect(result[0].selected).toBeTrue();
+    expect(result.length).toBe(dependentFieldOptions.length + 1);
   });
 
   it('clearValue(): Should clear the searchbar', () => {

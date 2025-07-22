@@ -470,12 +470,20 @@ export class TrackingService {
     this.eventTrack('my expenses action sheet action clicked', properties);
   }
 
+  myExpenseActionSheetAddButtonClicked(properties: { Action: string }): void {
+    this.eventTrack('my expense action sheet add button clicked', properties);
+  }
+
   myExpensesFilterApplied(properties: { filterLabels: string[] }): void {
     this.eventTrack('my expenses filters applied', properties);
   }
 
   myReportsFilterApplied(properties: ReportFilters): void {
     this.eventTrack('my reports filters applied', properties);
+  }
+
+  myReportsActionSheetAddButtonClicked(properties: { Action: string }): void {
+    this.eventTrack('my reports action sheet add button clicked', properties);
   }
 
   TeamReportsFilterApplied(properties: Partial<TeamReportsFilters>): void {
@@ -855,6 +863,14 @@ export class TrackingService {
     this.eventTrack('Opted In From Dashboard Banner');
   }
 
+  optedInFromDashboardEmailOptInBanner(): void {
+    this.eventTrack('Clicked On Dashboard Email Forwarding Banner');
+  }
+
+  skipOptInFromDashboardEmailOptInBanner(): void {
+    this.eventTrack('Skip Opt In From Dashboard Email Opt In Banner');
+  }
+
   skipOptInFromDashboardBanner(): void {
     this.eventTrack('Skip Opt In From Dashboard Banner');
   }
@@ -882,6 +898,26 @@ export class TrackingService {
 
   receiptScanTimeInstaFyle(properties: { duration: number; fileType: string }): void {
     this.eventTrack('Receipt Scan Time InstaFyle', properties);
+  }
+
+  dashboardPendingTasksNotificationClicked(properties = {} as TaskPageOpenProperties): void {
+    this.eventTrack('Dashboard Pending Tasks Notification Clicked', properties);
+  }
+
+  saveReceiptForLater(): void {
+    this.eventTrack('Save receipt for later clicked');
+  }
+
+  discardReceipt(): void {
+    this.eventTrack('Discard receipt clicked from receipt preview');
+  }
+
+  clickedOnZeroStateAddExpense(): void {
+    this.eventTrack('Clicked on my expenses zero state CTA');
+  }
+
+  clickedOnZeroStateCreateReport(): void {
+    this.eventTrack('Clicked on my reports zero state CTA');
   }
 
   private isDemoAccount(eou: ExtendedOrgUser): boolean {

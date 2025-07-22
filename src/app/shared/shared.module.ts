@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
-import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@angular/material/legacy-progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy-chips';
+import { MatChipsModule } from '@angular/material/chips';
 import { SwiperModule } from 'swiper/angular';
 import { RouterModule } from '@angular/router';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -16,10 +15,10 @@ import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake-case-to-space-case.pipe';
 import { FySelectComponent } from './components/fy-select/fy-select.component';
 import { FySelectModalComponent } from './components/fy-select/fy-select-modal/fy-select-modal.component';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
+import { MatButtonModule } from '@angular/material/button';
 import { IonicModule } from '@ionic/angular';
 import { FyLocationComponent } from './components/fy-location/fy-location.component';
 import { FyMultiselectComponent } from './components/fy-multiselect/fy-multiselect.component';
@@ -27,7 +26,7 @@ import { FyUserlistComponent } from './components/fy-userlist/fy-userlist.compon
 import { FyLocationModalComponent } from './components/fy-location/fy-location-modal/fy-location-modal.component';
 import { FyMultiselectModalComponent } from './components/fy-multiselect/fy-multiselect-modal/fy-multiselect-modal.component';
 import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-modal/fy-userlist-modal.component';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { ApproverDialogComponent } from './components/fy-approver/add-approvers-popover/approver-dialog/approver-dialog.component';
@@ -35,7 +34,7 @@ import { FyMenuIconComponent } from './components/fy-menu-icon/fy-menu-icon.comp
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
 import { FyLoadingScreenComponent } from './components/fy-loading-screen/fy-loading-screen.component';
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -50,7 +49,7 @@ import { FyPolicyViolationComponent } from './components/fy-policy-violation/fy-
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
 import { FormatDateDirective } from './directive/format-date.directive';
 
-import { PinchZoomModule } from '@mtnair/ngx-pinch-zoom';
+import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
@@ -77,7 +76,6 @@ import { ToastMessageComponent } from './components/toast-message/toast-message.
 import { FyHeaderComponent } from './components/fy-header/fy-header.component';
 import { FyDeleteDialogComponent } from './components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyFiltersComponent } from './components/fy-filters/fy-filters.component';
-import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FyFilterPillsComponent } from './components/fy-filter-pills/fy-filter-pills.component';
 import { DateFormatPipe } from './pipes/date-format.pipe';
@@ -100,7 +98,6 @@ import { SidemenuContentComponent } from './components/sidemenu/sidemenu-content
 import { SidemenuContentItemComponent } from './components/sidemenu/sidemenu-content/sidemenu-content-item/sidemenu-content-item.component';
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
-import { SendEmailComponent } from './components/send-email/send-email.component';
 import { CaptureReceiptComponent } from './components/capture-receipt/capture-receipt.component';
 import { ReceiptPreviewComponent } from './components/capture-receipt/receipt-preview/receipt-preview.component';
 import { AddMorePopupComponent } from './components/capture-receipt/add-more-popup/add-more-popup.component';
@@ -151,6 +148,7 @@ import { NgOtpInputModule } from 'ng-otp-input';
 import { PromoteOptInModalComponent } from './components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { ProfileOptInCardComponent } from './components/profile-opt-in-card/profile-opt-in-card.component';
 import { DashboardOptInComponent } from './components/dashboard-opt-in/dashboard-opt-in.component';
+import { DashboardEmailOptInComponent } from './components/dashboard-email-opt-in/dashboard-email-opt-in.component';
 import { MobileNumberCardComponent } from './components/mobile-number-card/mobile-number-card.component';
 import { PasswordCheckTooltipComponent } from './components/password-check-tooltip/password-check-tooltip.component';
 import { ExactCurrencyPipe } from './pipes/exact-currency.pipe';
@@ -242,7 +240,6 @@ import { CustomGalleryPickerComponent } from './components/custom-gallery-picker
     SidemenuContentComponent,
     SidemenuContentItemComponent,
     FyNavFooterComponent,
-    SendEmailComponent,
     CaptureReceiptComponent,
     ReceiptPreviewComponent,
     AddMorePopupComponent,
@@ -290,6 +287,7 @@ import { CustomGalleryPickerComponent } from './components/custom-gallery-picker
     PromoteOptInModalComponent,
     ProfileOptInCardComponent,
     DashboardOptInComponent,
+    DashboardEmailOptInComponent,
     MobileNumberCardComponent,
     ExactCurrencyPipe,
     CCExpenseMerchantInfoModalComponent,
@@ -310,7 +308,6 @@ import { CustomGalleryPickerComponent } from './components/custom-gallery-picker
     PinchZoomModule,
     PdfViewerModule,
     MatRippleModule,
-    MatRadioModule,
     MatDatepickerModule,
     MatChipsModule,
     MatChipsModule,
@@ -342,7 +339,6 @@ import { CustomGalleryPickerComponent } from './components/custom-gallery-picker
     AuditHistoryComponent,
     StatusesDiffComponent,
     FormButtonValidationDirective,
-    MatProgressSpinnerModule,
     FyZeroStateComponent,
     FyPopupComponent,
     FyApproverComponent,
@@ -384,7 +380,6 @@ import { CustomGalleryPickerComponent } from './components/custom-gallery-picker
     FyMsgPopoverComponent,
     SidemenuComponent,
     FyNavFooterComponent,
-    SendEmailComponent,
     CaptureReceiptComponent,
     ReceiptPreviewComponent,
     AddMorePopupComponent,
@@ -430,6 +425,7 @@ import { CustomGalleryPickerComponent } from './components/custom-gallery-picker
     PromoteOptInModalComponent,
     ProfileOptInCardComponent,
     DashboardOptInComponent,
+    DashboardEmailOptInComponent,
     MobileNumberCardComponent,
     CCExpenseMerchantInfoModalComponent,
     ReviewSplitExpenseComponent,

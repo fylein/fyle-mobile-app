@@ -4,7 +4,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -28,9 +28,9 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { IconModule } from 'src/app/shared/icon/icon.module';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 import { RouterTestingModule } from '@angular/router/testing';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
@@ -1058,6 +1058,7 @@ describe('SplitExpensePage', () => {
     it('should set the amount and currency when orig currency and amount are not present', () => {
       const mockCurrencyObj = {
         ...unflattenedAccount3Data,
+        amount: 23213,
         orig_amount: null,
         orig_currency: null,
       };

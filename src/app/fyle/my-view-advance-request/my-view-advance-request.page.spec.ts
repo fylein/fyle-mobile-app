@@ -29,6 +29,7 @@ import { advanceReqApprovals, advanceReqApprovalsPublic } from 'src/app/core/moc
 import { advanceRequestCustomFieldData2 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { customFields } from 'src/app/core/mock-data/custom-field.data';
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
+import { advanceRequestPlatform } from 'src/app/core/mock-data/platform/v1/advance-request-platform.data';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { modalControllerParams8, modalControllerParams9 } from 'src/app/core/mock-data/modal-controller.data';
@@ -285,7 +286,8 @@ describe('MyViewAdvanceRequestPage', () => {
   });
 
   it('pullBack(): should pull back advance request and navigate to my_advances page', fakeAsync(() => {
-    advanceRequestService.pullBackAdvanceRequest.and.returnValue(of(advanceRequests));
+    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
+    advanceRequestService.pullBackAdvanceRequest.and.returnValue(of(advanceRequestPlatform.data[0]));
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     const pullBackPopoverSpy = jasmine.createSpyObj('pullBackPopover', ['present', 'onWillDismiss']);

@@ -28,6 +28,7 @@ import { cloneDeep } from 'lodash';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { popupConfigData3 } from 'src/app/core/mock-data/popup.data';
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
+import { advanceRequestPlatform } from 'src/app/core/mock-data/platform/v1/advance-request-platform.data';
 import {
   modalControllerParams6,
   modalControllerParams7,
@@ -380,7 +381,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const showApproverSpy = jasmine.createSpyObj('showApprover', ['present', 'onWillDismiss']);
     showApproverSpy.onWillDismiss.and.resolveTo({ data: { action: 'approve' } });
     popoverController.create.and.resolveTo(showApproverSpy);
-    advanceRequestService.approve.and.returnValue(of(advanceRequests));
+    advanceRequestService.approve.and.returnValue(of(advanceRequestPlatform.data[0]));
 
     component.showApproveAdvanceSummaryPopover();
     tick(100);
@@ -397,7 +398,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const showApproverSpy = jasmine.createSpyObj('showApprover', ['present', 'onWillDismiss']);
     showApproverSpy.onWillDismiss.and.resolveTo({ data: { comment: 'comment' } });
     popoverController.create.and.resolveTo(showApproverSpy);
-    advanceRequestService.sendBack.and.returnValue(of(advanceRequests));
+    advanceRequestService.sendBack.and.returnValue(of(advanceRequestPlatform.data[0]));
 
     component.showSendBackAdvanceSummaryPopover();
     tick(100);
@@ -419,7 +420,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const showApproverSpy = jasmine.createSpyObj('showApprover', ['present', 'onWillDismiss']);
     showApproverSpy.onWillDismiss.and.resolveTo({ data: { comment: 'comment' } });
     popoverController.create.and.resolveTo(showApproverSpy);
-    advanceRequestService.reject.and.returnValue(of(advanceRequests));
+    advanceRequestService.reject.and.returnValue(of(advanceRequestPlatform.data[0]));
 
     component.showRejectAdvanceSummaryPopup();
     tick(100);

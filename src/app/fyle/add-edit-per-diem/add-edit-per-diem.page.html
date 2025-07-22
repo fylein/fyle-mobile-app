@@ -2,97 +2,117 @@
   <ion-toolbar
     class="add-edit-per-diem--toolbar"
     [ngClass]="{'add-edit-per-diem--toolbar__review': reviewList?.length}"
-  >
-    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
-      <ion-button (click)="showClosePopup()">
-        <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
-      <ion-button (click)="showClosePopup()">
-        <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/cross.svg'" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title
-      *ngIf="mode"
-      class="page-title"
-      mode="md"
-      [ngClass]="{'add-edit-per-diem--title__review': reviewList?.length}"
     >
-      <div *ngIf="mode === 'add'" class="add-edit-per-diem--toolbar__title">Add per diem</div>
-      <div *ngIf="mode === 'edit'">
-        <div *ngIf="reviewList?.length; else EditPerDiem">Review per diem</div>
-        <ng-template #EditPerDiem> Edit per diem </ng-template>
-        <div *ngIf="reviewList?.length" class="add-edit-per-diem--sub-header">
-          {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
-        </div>
-      </div>
-    </ion-title>
-    <ion-buttons
-      *ngIf="reviewList?.length || mode === 'edit'"
-      class="add-edit-per-diem--header-btn-container"
-      slot="end"
-    >
-      <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="openCommentsModal()">
-        <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ng-container *ngIf="etxn$|async as etxn">
-        <ng-container *ngIf="canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)">
-          <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
-            <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
-          </ion-button>
-        </ng-container>
-      </ng-container>
-    </ion-buttons>
+    @if (navigateBack) {
+      <ion-buttons mode="md" slot="start">
+        <ion-button (click)="showClosePopup()">
+          <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+    @if (!navigateBack) {
+      <ion-buttons mode="md" slot="start">
+        <ion-button (click)="showClosePopup()">
+          <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/cross.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+    @if (mode) {
+      <ion-title
+        class="page-title"
+        mode="md"
+        [ngClass]="{'add-edit-per-diem--title__review': reviewList?.length}"
+        >
+        @if (mode === 'add') {
+          <div class="add-edit-per-diem--toolbar__title">Add per diem</div>
+        }
+        @if (mode === 'edit') {
+          <div>
+            @if (reviewList?.length) {
+              <div>Review per diem</div>
+            } @else {
+              Edit per diem
+            }
+            @if (reviewList?.length) {
+              <div class="add-edit-per-diem--sub-header">
+                {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
+              </div>
+            }
+          </div>
+        }
+      </ion-title>
+    }
+    @if (reviewList?.length || mode === 'edit') {
+      <ion-buttons
+        class="add-edit-per-diem--header-btn-container"
+        slot="end"
+        >
+        <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="openCommentsModal()">
+          <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+        @if (etxn$|async; as etxn) {
+          @if (canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)) {
+            <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
+              <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
+            </ion-button>
+          }
+        }
+      </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div>
-    <ng-container *ngIf="fg">
+    @if (fg) {
       <form #formContainer [formGroup]="fg" class="add-edit-per-diem--form">
-        <ng-container *ngIf="(canCreatePerDiem$|async); else NothingToSee">
-          <ng-container *ngIf="(allowedPerDiemRateOptions$|async)?.length > 0; else AdminKoBoloPerDiemAssignKare">
-            <ng-container *ngIf="etxn$|async as etxn">
-              <ng-container *ngIf="mode === 'edit'">
-                <ng-container *ngIf="policyDetails">
+        @if ((canCreatePerDiem$|async)) {
+          @if ((allowedPerDiemRateOptions$|async)?.length > 0) {
+            @if (etxn$|async; as etxn) {
+              @if (mode === 'edit') {
+                @if (policyDetails) {
                   <app-fy-policy-violation-info
                     [policyDetails]="policyDetails"
                     [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
-                  >
+                    >
                   </app-fy-policy-violation-info>
-                </ng-container>
-              </ng-container>
-
-              <ng-container *ngIf="isAmountCapped$|async">
-                <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
-                  <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
-                  <div class="capped-message">
-                    Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: '' }} was capped to
-                    {{etxn.tx.amount | currency: etxn.tx.currency: '' }} due to policy
-                    <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+                }
+              }
+              @if (isAmountCapped$|async) {
+                @if (!(isCriticalPolicyViolated$|async)) {
+                  <div class="capped-info">
+                    <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
+                    <div class="capped-message">
+                      Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: '' }} was capped to
+                      {{etxn.tx.amount | currency: etxn.tx.currency: '' }} due to policy
+                      @if (isAmountDisabled$|async) {
+                        <span> and cannot be edited.</span>
+                      }
+                    </div>
                   </div>
-                </div>
-              </ng-container>
-
-              <div *ngIf="etxn$|async as etxn" class="add-edit-per-diem--currency">
-                <div *ngIf="homeCurrency$|async as homeCurrency">
-                  <div class="add-edit-per-diem--amount-box">
-                    <div>{{ fg.controls?.num_days?.value ? fg.controls?.num_days?.value : 0 }} Days</div>
+                }
+              }
+              @if (etxn$|async; as etxn) {
+                <div class="add-edit-per-diem--currency">
+                  @if (homeCurrency$|async; as homeCurrency) {
                     <div>
-                      {{(fg.controls?.per_diem_rate?.value?.rate ? fg.controls?.per_diem_rate?.value?.rate : 0) |
-                      currency: (fg.controls?.per_diem_rate?.value?.currency ?
-                      fg.controls?.per_diem_rate?.value?.currency : homeCurrency): 'symbol-narrow'}} / Day
+                      <div class="add-edit-per-diem--amount-box">
+                        <div>{{ fg.controls?.num_days?.value ? fg.controls?.num_days?.value : 0 }} Days</div>
+                        <div>
+                          {{(fg.controls?.per_diem_rate?.value?.rate ? fg.controls?.per_diem_rate?.value?.rate : 0) |
+                          currency: (fg.controls?.per_diem_rate?.value?.currency ?
+                          fg.controls?.per_diem_rate?.value?.currency : homeCurrency): 'symbol-narrow'}} / Day
+                        </div>
+                        <div class="add-edit-per-diem--amount-value">
+                          {{ (fg.controls.currencyObj?.value?.amount ? fg.controls.currencyObj?.value?.amount : 0.00 ) |
+                          currency: homeCurrency: 'symbol-narrow'}}
+                        </div>
+                      </div>
                     </div>
-                    <div class="add-edit-per-diem--amount-value">
-                      {{ (fg.controls.currencyObj?.value?.amount ? fg.controls.currencyObj?.value?.amount : 0.00 ) |
-                      currency: homeCurrency: 'symbol-narrow'}}
-                    </div>
-                  </div>
+                  }
                 </div>
-              </div>
-
-              <ng-container *ngIf="fg.controls.currencyObj?.value?.orig_amount">
+              }
+              @if (fg.controls.currencyObj?.value?.orig_amount) {
                 <div class="add-edit-per-diem--conversion">
                   <mat-icon class="add-edit-per-diem--conversion-icon" svgIcon="info-circle-fill"></mat-icon>
                   <div class="add-edit-per-diem--conversion-amount">
@@ -105,15 +125,14 @@
                     {{fg.controls.currencyObj?.value?.orig_currency}}
                   </div>
                 </div>
-              </ng-container>
-
+              }
               <div class="add-edit-per-diem--primary-block">
                 <div>
-                  <ng-container *ngIf="allowedPerDiemRateOptions$|async as allowedPerDiemRateOptions">
+                  @if (allowedPerDiemRateOptions$|async; as allowedPerDiemRateOptions) {
                     <div
                       [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid}"
                       class="add-edit-per-diem--internal-block"
-                    >
+                      >
                       <app-fy-select
                         [disabled]="isAmountDisabled"
                         [label]="'Per diem type'"
@@ -125,42 +144,46 @@
                         formControlName="per_diem_rate"
                         [touchedInParent]="fg.controls.per_diem_rate.touched"
                         [validInParent]="fg.controls.per_diem_rate.valid"
-                      >
+                        >
                       </app-fy-select>
                       <ng-template #perDiemType let-label="label" let-perDiemType="value" let-selected="selected">
                         <div>
                           <div class="add-edit-per-diem--type-name">{{label}}</div>
-                          <ng-container *ngIf="perDiemType">
+                          @if (perDiemType) {
                             <ng-container>
                               <div class="add-edit-per-diem--type-rate">{{perDiemType?.readableRate}}</div>
                             </ng-container>
-                          </ng-container>
+                          }
                         </div>
-                        <mat-icon *ngIf="selected"> check </mat-icon>
+                        @if (selected) {
+                          <mat-icon> check </mat-icon>
+                        }
                       </ng-template>
                     </div>
-                    <div
-                      *ngIf="fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid"
-                      class="add-edit-per-diem--error"
-                    >
-                      Please select a per diem type
-                    </div>
-                  </ng-container>
-
+                    @if (fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid) {
+                      <div
+                        class="add-edit-per-diem--error"
+                        >
+                        Please select a per diem type
+                      </div>
+                    }
+                  }
                   <div class="add-edit-per-diem--date-container">
-                    <ng-container *ngIf="txnFields$|async as txnFields">
-                      <ng-container *ngIf="txnFields?.from_dt">
+                    @if (txnFields$|async; as txnFields) {
+                      @if (txnFields?.from_dt) {
                         <div class="add-edit-per-diem--date-block">
                           <div
                             [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
                             class="add-edit-per-diem--date add-edit-per-diem--internal-block add-edit-per-diem--from-date"
-                          >
+                            >
                             <div
                               [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
                               class="add-edit-per-diem--date-label"
-                            >
+                              >
                               {{ txnFields?.from_dt.field_name ? txnFields?.from_dt.field_name : 'From Date' }}
-                              <div class="add-edit-per-diem--mandatory" *ngIf="txnFields?.from_dt?.is_mandatory">*</div>
+                              @if (txnFields?.from_dt?.is_mandatory) {
+                                <div class="add-edit-per-diem--mandatory">*</div>
+                              }
                             </div>
                             <input
                               appFormatDate
@@ -171,31 +194,34 @@
                               formControlName="from_dt"
                               [name]="txnFields.from_dt.placeholder || txnFields.from_dt.field_name"
                               type="date"
-                            />
+                              />
                           </div>
-                          <div
-                            *ngIf="fg.controls.from_dt.touched && !fg.controls.from_dt.valid"
-                            class="add-edit-per-diem--error add-edit-per-diem--date-error"
-                          >
-                            Please select {{ txnFields?.from_dt.field_name ? txnFields?.from_dt.field_name : 'From Date'
-                            }}
-                          </div>
+                          @if (fg.controls.from_dt.touched && !fg.controls.from_dt.valid) {
+                            <div
+                              class="add-edit-per-diem--error add-edit-per-diem--date-error"
+                              >
+                              Please select {{ txnFields?.from_dt.field_name ? txnFields?.from_dt.field_name : 'From Date'
+                              }}
+                            </div>
+                          }
                         </div>
-                      </ng-container>
-                    </ng-container>
-                    <ng-container *ngIf="txnFields$|async as txnFields">
-                      <ng-container *ngIf="txnFields?.to_dt">
+                      }
+                    }
+                    @if (txnFields$|async; as txnFields) {
+                      @if (txnFields?.to_dt) {
                         <div class="add-edit-per-diem--date-block">
                           <div
                             [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
                             class="add-edit-per-diem--date add-edit-per-diem--internal-block add-edit-per-diem--to-date"
-                          >
+                            >
                             <div
                               [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
                               class="add-edit-per-diem--date-label"
-                            >
+                              >
                               {{ txnFields?.to_dt.field_name ? txnFields?.to_dt.field_name : 'To Date' }}
-                              <div class="add-edit-per-diem--mandatory" *ngIf="txnFields?.to_dt?.is_mandatory">*</div>
+                              @if (txnFields?.to_dt?.is_mandatory) {
+                                <div class="add-edit-per-diem--mandatory">*</div>
+                              }
                             </div>
                             <input
                               appFormatDate
@@ -206,29 +232,29 @@
                               [placeholder]="'Select ' + txnFields?.to_dt"
                               [name]="txnFields.to_dt.placeholder || txnFields.to_dt.field_name"
                               type="date"
-                            />
+                              />
                           </div>
-                          <div
-                            *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid"
-                            class="add-edit-per-diem--error add-edit-per-diem--date-error add-edit-per-diem--to-date-error"
-                          >
-                            Please select {{ txnFields?.to_dt.field_name ? txnFields?.to_dt.field_name : 'To Date' }}
-                          </div>
+                          @if (fg.controls.to_dt.touched && !fg.controls.to_dt.valid) {
+                            <div
+                              class="add-edit-per-diem--error add-edit-per-diem--date-error add-edit-per-diem--to-date-error"
+                              >
+                              Please select {{ txnFields?.to_dt.field_name ? txnFields?.to_dt.field_name : 'To Date' }}
+                            </div>
+                          }
                         </div>
-                      </ng-container>
-                    </ng-container>
+                      }
+                    }
                   </div>
-
-                  <ng-container *ngIf="txnFields$|async as txnFields">
-                    <ng-container *ngIf="txnFields?.num_days">
+                  @if (txnFields$|async; as txnFields) {
+                    @if (txnFields?.num_days) {
                       <div
                         [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.num_days.touched && !fg.controls.num_days.valid}"
                         class="add-edit-per-diem--text add-edit-per-diem--internal-block"
-                      >
+                        >
                         <div
                           [ngClass]="{'add-edit-per-diem--text-label__invalid': fg.controls.num_days.touched && !fg.controls.num_days.valid}"
                           class="add-edit-per-diem--text-label"
-                        >
+                          >
                           {{ txnFields?.num_days.field_name }}
                           <div class="add-edit-per-diem--mandatory">*</div>
                         </div>
@@ -239,28 +265,29 @@
                           [placeholder]="txnFields.num_days.placeholder || 'Enter ' + txnFields.num_days.field_name | ellipsis: 30"
                         ></app-fy-number>
                       </div>
-                      <div
-                        *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid && !fg.controls.num_days.errors.pattern"
-                        class="add-edit-per-diem--error add-edit-per-diem--num-days-error"
-                      >
-                        Please select {{txnFields?.num_days.field_name }}
-                      </div>
-                      <div
-                        *ngIf="fg.controls.num_days.touched && fg.controls.num_days.errors"
-                        class="add-edit-per-diem--error add-edit-per-diem--num-days-error"
-                      >
-                        <ng-container *ngIf="fg.controls.num_days.errors.pattern">
-                          Please enter a valid whole number without decimals.
-                        </ng-container>
-                      </div>
-                    </ng-container>
-                  </ng-container>
-
-                  <ng-container *ngIf="paymentModes$|async as paymentModes">
+                      @if (fg.controls.num_days.touched && !fg.controls.num_days.valid && !fg.controls.num_days.errors.pattern) {
+                        <div
+                          class="add-edit-per-diem--error add-edit-per-diem--num-days-error"
+                          >
+                          Please select {{txnFields?.num_days.field_name }}
+                        </div>
+                      }
+                      @if (fg.controls.num_days.touched && fg.controls.num_days.errors) {
+                        <div
+                          class="add-edit-per-diem--error add-edit-per-diem--num-days-error"
+                          >
+                          @if (fg.controls.num_days.errors.pattern) {
+                            Please enter a valid whole number without decimals.
+                          }
+                        </div>
+                      }
+                    }
+                  }
+                  @if (paymentModes$|async; as paymentModes) {
                     <div
                       [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
                       class="add-edit-per-diem--internal-block"
-                    >
+                      >
                       <app-fy-select
                         [enableSearch]="false"
                         [label]="'Payment mode'"
@@ -273,100 +300,104 @@
                         formControlName="paymentMode"
                         [touchedInParent]="fg.controls.paymentMode.touched"
                         [validInParent]="fg.controls.paymentMode.valid"
-                      >
+                        >
                       </app-fy-select>
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                         <div>
                           <div class="add-edit-per-diem--payment-mode-header">{{label}}</div>
-                          <ng-container *ngIf="paymentMode?.acc">
-                            <div *ngIf="paymentMode.acc.isReimbursable" class="add-edit-per-diem--payment-mode-section">
-                              (Reimbursable)
-                            </div>
-                            <div
-                              *ngIf="!paymentMode.acc.isReimbursable"
-                              class="add-edit-per-diem--payment-mode-section"
-                            >
-                              (Non reimbursable)
-                            </div>
-                          </ng-container>
+                          @if (paymentMode) {
+                            @if (paymentMode.isReimbursable) {
+                              <div class="add-edit-per-diem--payment-mode-section">
+                                (Reimbursable)
+                              </div>
+                            }
+                            @if (!paymentMode.isReimbursable) {
+                              <div
+                                class="add-edit-per-diem--payment-mode-section"
+                                >
+                                (Non reimbursable)
+                              </div>
+                            }
+                          }
                         </div>
-                        <mat-icon *ngIf="selected" class="add-edit-per-diem--check"> check </mat-icon>
+                        @if (selected) {
+                          <mat-icon class="add-edit-per-diem--check"> check </mat-icon>
+                        }
                       </ng-template>
                     </div>
-                    <div
-                      *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
-                      class="add-edit-per-diem--error"
-                    >
-                      Please select a payment mode.
-                    </div>
-                  </ng-container>
-
-                  <ng-container *ngIf="txnFields$|async as txnFields">
-                    <div class="add-edit-per-diem--project-container" *ngIf="txnFields?.project_id || isExpandedView">
-                      <ng-container *ngIf="isConnected$|async">
-                        <ng-container
-                          *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
-                        >
-                          <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
-                            <ng-container *ngIf="isProjectVisible$|async">
-                              <ng-container
-                                *ngIf="{value: isProjectCategoryRestrictionsEnabled$ | async}; let isProjectCategoryRestrictionsEnabled"
-                              >
-                                <div
-                                  [ngClass]="{'add-edit-per-diem--no-project': fg.controls.project.touched && !fg.controls.project.valid}"
-                                  class="add-edit-per-diem--internal-block add-edit-per-diem--project-block"
-                                >
-                                  <app-fy-select-project
-                                    [categoryIds]="projectCategoryIds"
-                                    [cacheName]="'perDiemProjectCache'"
-                                    [defaultValue]="true"
-                                    [label]="txnFields?.project_id?.field_name"
-                                    [placeholder]="txnFields?.project_id?.placeholder"
-                                    [mandatory]="txnFields?.project_id?.is_mandatory"
-                                    [recentlyUsed]="recentProjects"
-                                    formControlName="project"
-                                    [validInParent]="fg.controls.project.valid"
-                                    [touchedInParent]="fg.controls.project.touched"
-                                    [isProjectCategoryRestrictionsEnabled]="isProjectCategoryRestrictionsEnabled.value"
-                                  >
-                                  </app-fy-select-project>
-                                </div>
-                              </ng-container>
-                            </ng-container>
-                          </ng-container>
-                        </ng-container>
-                      </ng-container>
-
+                    @if (fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid) {
                       <div
-                        *ngIf="showBillable && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
-                      >
-                        <div
-                          *ngIf="fg.controls.project.value"
-                          class="add-edit-per-diem--internal-block add-edit-per-diem--billable-block"
-                        >
-                          <mat-checkbox formControlName="billable">
-                            <span class="add-edit-per-diem--checkbox"> Billable </span>
-                          </mat-checkbox>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
-                    >
-                      <div
-                        *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
                         class="add-edit-per-diem--error"
-                      >
-                        Please select a project.
+                        >
+                        Please select a payment mode.
                       </div>
-                    </div>
-                  </ng-container>
-
-                  <ng-container *ngIf="txnFields$|async as txnFields">
-                    <ng-container *ngIf="dependentFields$|async as dependentFields">
-                      <ng-container *ngIf="etxn$|async as etxn">
-                        <ng-container *ngIf="selectedProject$|async as selectedProject">
+                    }
+                  }
+                  @if (txnFields$|async; as txnFields) {
+                    @if (txnFields?.project_id || isExpandedView) {
+                      <div class="add-edit-per-diem--project-container">
+                        @if (isConnected$|async) {
+                          @if ((isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))) {
+                            @if (projectCategoryIds$|async; as projectCategoryIds) {
+                              @if (isProjectVisible$|async) {
+                                @if ({value: isProjectCategoryRestrictionsEnabled$ | async}; as isProjectCategoryRestrictionsEnabled) {
+                                  <div
+                                    [ngClass]="{'add-edit-per-diem--no-project': fg.controls.project.touched && !fg.controls.project.valid}"
+                                    class="add-edit-per-diem--internal-block add-edit-per-diem--project-block"
+                                    >
+                                    <app-fy-select-project
+                                      [categoryIds]="projectCategoryIds"
+                                      [cacheName]="'perDiemProjectCache'"
+                                      [defaultValue]="true"
+                                      [label]="txnFields?.project_id?.field_name"
+                                      [placeholder]="txnFields?.project_id?.placeholder"
+                                      [mandatory]="txnFields?.project_id?.is_mandatory"
+                                      [recentlyUsed]="recentProjects"
+                                      formControlName="project"
+                                      [validInParent]="fg.controls.project.valid"
+                                      [touchedInParent]="fg.controls.project.touched"
+                                      [isProjectCategoryRestrictionsEnabled]="isProjectCategoryRestrictionsEnabled.value"
+                                      >
+                                    </app-fy-select-project>
+                                  </div>
+                                }
+                              }
+                            }
+                          }
+                        }
+                        @if (showBillable && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))) {
+                          <div
+                            >
+                            @if (fg.controls.project.value) {
+                              <div
+                                class="add-edit-per-diem--internal-block add-edit-per-diem--billable-block"
+                                >
+                                <mat-checkbox formControlName="billable">
+                                  <span class="add-edit-per-diem--checkbox"> Billable </span>
+                                </mat-checkbox>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                    @if ((isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))) {
+                      <div
+                        >
+                        @if (fg.controls.project.touched && !fg.controls.project.valid) {
+                          <div
+                            class="add-edit-per-diem--error"
+                            >
+                            Please select a project.
+                          </div>
+                        }
+                      </div>
+                    }
+                  }
+                  @if (txnFields$|async; as txnFields) {
+                    @if (dependentFields$|async; as dependentFields) {
+                      @if (etxn$|async; as etxn) {
+                        @if (selectedProject$|async; as selectedProject) {
                           <ng-container formArrayName="project_dependent_fields">
                             <app-dependent-fields
                               #projectDependentFieldsRef
@@ -377,18 +408,17 @@
                               [txnCustomProperties]="etxn.tx.custom_properties"
                             ></app-dependent-fields>
                           </ng-container>
-                        </ng-container>
-                      </ng-container>
-                    </ng-container>
-                  </ng-container>
-
-                  <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
-                    <ng-container *ngIf="filteredCategories$|async as subCategories">
-                      <ng-container *ngIf="subCategories.length > 0">
+                        }
+                      }
+                    }
+                  }
+                  @if (!((isProjectsEnabled$|async) && !(isConnected$|async))) {
+                    @if (filteredCategories$|async; as subCategories) {
+                      @if (subCategories.length > 0) {
                         <div
                           [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.sub_category.touched && !fg.controls.sub_category.valid}"
                           class="add-edit-per-diem--internal-block"
-                        >
+                          >
                           <app-fy-select
                             [cacheName]="'perDiemSubCategoryCache'"
                             [label]="'Subcategory'"
@@ -399,49 +429,50 @@
                             formControlName="sub_category"
                             [touchedInParent]="fg.controls.sub_category.touched"
                             [validInParent]="fg.controls.sub_category.valid"
-                          >
+                            >
                           </app-fy-select>
                         </div>
-                        <div
-                          *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid"
-                          class="add-edit-per-diem--error"
-                        >
-                          Please select a sub-category.
-                        </div>
-                      </ng-container>
-                    </ng-container>
-                  </ng-container>
-
-                  <ng-container *ngIf="costCenters$|async as costCenters">
-                    <ng-container *ngIf="txnFields$|async as txnFields">
-                      <ng-container *ngIf="txnFields.cost_center_id?.is_mandatory || isExpandedView">
-                        <div
-                          *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
-                          [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
-                          class="add-edit-per-diem--internal-block"
-                        >
-                          <app-virtual-select
-                            [cacheName]="'perDiemCostCenterCache'"
-                            [label]="txnFields.cost_center_id?.field_name  | ellipsis: 30"
-                            [mandatory]="txnFields.cost_center_id?.is_mandatory"
-                            [options]="costCenters"
-                            [selectModalHeader]="'Select cost center'"
-                            [recentlyUsed]="recentCostCenters"
-                            formControlName="costCenter"
-                            [placeholder]="txnFields.cost_center_id?.placeholder | ellipsis: 30"
-                          >
-                          </app-virtual-select>
-                        </div>
-                        <div
-                          *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"
-                          class="add-edit-per-diem--error"
-                        >
-                          Please select a cost center.
-                        </div>
-
-                        <ng-container *ngIf="dependentFields$|async as dependentFields">
-                          <ng-container *ngIf="etxn$|async as etxn">
-                            <ng-container *ngIf="selectedCostCenter$|async as selectedCostCenter">
+                        @if (fg.controls.sub_category.touched && !fg.controls.sub_category.valid) {
+                          <div
+                            class="add-edit-per-diem--error"
+                            >
+                            Please select a sub-category.
+                          </div>
+                        }
+                      }
+                    }
+                  }
+                  @if (costCenters$|async; as costCenters) {
+                    @if (txnFields$|async; as txnFields) {
+                      @if (txnFields.cost_center_id?.is_mandatory || isExpandedView) {
+                        @if (costCenters.length > 0 && txnFields?.cost_center_id) {
+                          <div
+                            [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
+                            class="add-edit-per-diem--internal-block"
+                            >
+                            <app-virtual-select
+                              [cacheName]="'perDiemCostCenterCache'"
+                              [label]="txnFields.cost_center_id?.field_name  | ellipsis: 30"
+                              [mandatory]="txnFields.cost_center_id?.is_mandatory"
+                              [options]="costCenters"
+                              [selectModalHeader]="'Select cost center'"
+                              [recentlyUsed]="recentCostCenters"
+                              formControlName="costCenter"
+                              [placeholder]="txnFields.cost_center_id?.placeholder | ellipsis: 30"
+                              >
+                            </app-virtual-select>
+                          </div>
+                        }
+                        @if (fg.controls.costCenter.touched && !fg.controls.costCenter.valid) {
+                          <div
+                            class="add-edit-per-diem--error"
+                            >
+                            Please select a cost center.
+                          </div>
+                        }
+                        @if (dependentFields$|async; as dependentFields) {
+                          @if (etxn$|async; as etxn) {
+                            @if (selectedCostCenter$|async; as selectedCostCenter) {
                               <ng-container formArrayName="cost_center_dependent_fields">
                                 <app-dependent-fields
                                   #costCenterDependentFieldsRef
@@ -452,307 +483,326 @@
                                   [txnCustomProperties]="etxn.tx.custom_properties"
                                 ></app-dependent-fields>
                               </ng-container>
-                            </ng-container>
-                          </ng-container>
-                        </ng-container>
-                      </ng-container>
-                    </ng-container>
-                  </ng-container>
-
-                  <ng-container *ngIf="txnFields$|async as txnFields">
-                    <ng-container *ngIf="txnFields?.purpose?.is_mandatory || isExpandedView">
-                      <ng-container *ngIf="txnFields?.purpose">
-                        <div class="add-edit-per-diem--internal-block" *ngIf="txnFields?.purpose.type === 'TEXT'">
-                          <div
-                            [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-                            class="add-edit-per-diem--text"
-                          >
-                            <div class="add-edit-per-diem--text-label">
-                              {{ ('Enter ' + txnFields?.purpose.field_name)| slice: 0:30 }}
-                              <span class="add-edit-per-diem--mandatory" *ngIf="txnFields?.purpose?.is_mandatory"
-                                >*</span
-                              >
-                            </div>
-                            <input
-                              [placeholder]="txnFields.purpose.placeholder || 'Enter ' + txnFields.purpose.field_name | ellipsis: 30"
-                              [required]="txnFields.purpose?.is_mandatory"
-                              [title]="'Enter'+txnFields.purpose?.field_name"
-                              class="add-edit-per-diem--text-input smartlook-show"
-                              formControlName="purpose"
-                            />
-                          </div>
-                        </div>
-                        <div *ngIf="txnFields?.purpose.type === 'SELECT'" class="add-edit-per-diem--internal-block">
-                          <app-fy-select
-                            [disabled]="mode === 'edit'"
-                            [label]="txnFields?.purpose.field_name"
-                            [options]="txnFields?.purpose?.options"
-                            [mandatory]="txnFields?.purpose?.is_mandatory"
-                            [selectModalHeader]="'Enter purpose'"
-                            class="add-edit-per-diem--text-input"
-                            formControlName="purpose"
-                            [placeholder]="txnFields.purpose.placeholder | ellipsis: 30"
-                            [touchedInParent]="fg.controls.purpose.touched"
-                            [validInParent]="fg.controls.purpose.valid"
-                          >
-                          </app-fy-select>
-                        </div>
-                        <div
-                          *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid"
-                          class="add-edit-per-diem--error"
-                        >
-                          Please enter {{ txnFields?.purpose.field_name }}
-                        </div>
-                      </ng-container>
-                    </ng-container>
-                  </ng-container>
-
-                  <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
-                    <ng-container *ngIf="customInput.mandatory || isExpandedView">
-                      <div
-                        *ngIf="customInput.type !== 'USER_LIST'"
-                        [ngClass]="{'add-edit-per-diem--internal-block__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-                        class="add-edit-per-diem--internal-block"
-                      >
-                        <form [formGroup]="customInput.control">
-                          <div
-                            *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'"
-                            class="add-edit-per-diem--text"
-                          >
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  @if (txnFields$|async; as txnFields) {
+                    @if (txnFields?.purpose?.is_mandatory || isExpandedView) {
+                      @if (txnFields?.purpose) {
+                        @if (txnFields?.purpose.type === 'TEXT') {
+                          <div class="add-edit-per-diem--internal-block">
                             <div
-                              [ngClass]="{'add-edit-per-diem--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-                              class="add-edit-per-diem--text-label"
-                            >
-                              {{customInput.name | ellipsis: 30}}
-                              <span *ngIf="customInput.mandatory"> * </span>
+                              [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
+                              class="add-edit-per-diem--text"
+                              >
+                              <div class="add-edit-per-diem--text-label">
+                                {{ ('Enter ' + txnFields?.purpose.field_name)| slice: 0:30 }}
+                                @if (txnFields?.purpose?.is_mandatory) {
+                                  <span class="add-edit-per-diem--mandatory"
+                                    >*</span
+                                    >
+                                  }
+                                </div>
+                                <input
+                                  [placeholder]="txnFields.purpose.placeholder || 'Enter ' + txnFields.purpose.field_name | ellipsis: 30"
+                                  [required]="txnFields.purpose?.is_mandatory"
+                                  [title]="'Enter'+txnFields.purpose?.field_name"
+                                  class="add-edit-per-diem--text-input smartlook-show"
+                                  formControlName="purpose"
+                                  />
+                              </div>
                             </div>
-                            <input
-                              *ngIf="customInput.type === 'TEXT'"
-                              class="add-edit-per-diem--text-input smartlook-show"
-                              formControlName="value"
-                              [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
-                              type="text"
-                            />
-
-                            <app-fy-number
-                              *ngIf="customInput.type === 'NUMBER'"
-                              formControlName="value"
-                              [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
-                            ></app-fy-number>
-
-                            <input
-                              appFormatDate
-                              *ngIf="customInput.type === 'DATE'"
-                              class="add-edit-per-diem--date-input date-input__format smartlook-show"
-                              formControlName="value"
-                              [placeholder]="'Select ' + customInput.name"
-                              type="date"
-                              [name]="customInput.placeholder || customInput.name"
-                            />
-                          </div>
-
-                          <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-per-diem--checkbox">
-                            <label>
-                              <mat-checkbox formControlName="value">
-                                {{customInput.name | ellipsis: 35 }}
-                                <span class="add-edit-per-diem--mandatory" *ngIf="customInput.mandatory">*</span>
-                              </mat-checkbox>
-                            </label>
-                          </div>
-
-                          <div *ngIf="customInput.type === 'LOCATION'">
-                            <app-fy-location
-                              [label]="customInput.name | ellipsis: 30"
-                              [mandatory]="customInput.mandatory"
-                              formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
-                              [touchedInParent]="customInput.control.controls.value.touched"
-                              [validInParent]="customInput.control.controls.value.valid"
-                            >
-                            </app-fy-location>
-                          </div>
-
-                          <div *ngIf="customInput.type === 'SELECT'">
-                            <app-fy-select
-                              [label]="customInput.name | ellipsis: 30"
-                              [mandatory]="customInput.mandatory"
-                              [options]="customInput.options"
-                              [selectModalHeader]="'Select '+customInput.name"
-                              formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
-                              [touchedInParent]="customInput.control.controls.value.touched"
-                              [validInParent]="customInput.control.controls.value.valid"
-                              [isCustomSelect]="true"
-                            >
-                            </app-fy-select>
-                          </div>
-
-                          <div *ngIf="customInput.type === 'MULTI_SELECT'">
-                            <app-fy-multiselect
-                              [label]="customInput.name | ellipsis: 30"
-                              [mandatory]="customInput.mandatory"
-                              [options]="customInput.options"
-                              [selectModalHeader]="'Select '+customInput.name"
-                              [subheader]="customInput.name"
-                              formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
-                              [touchedInParent]="customInput.control.controls.value.touched"
-                              [validInParent]="customInput.control.controls.value.valid"
-                            >
-                            </app-fy-multiselect>
-                          </div>
-                        </form>
-                      </div>
-                      <div
-                        *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid"
-                        class="add-edit-per-diem--error"
-                      >
-                        Please select {{customInput.name}}
-                      </div>
-                    </ng-container>
-                  </ng-container>
-
-                  <ng-container *ngIf="isConnected$|async">
-                    <ng-container *ngIf="reports$|async as reports">
-                      <ng-container *ngIf="etxn$|async as etxn">
-                        <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                          <ng-container *ngIf="canRemoveFromReport || !etxn?.tx?.report_id">
+                          }
+                          @if (txnFields?.purpose.type === 'SELECT') {
                             <div class="add-edit-per-diem--internal-block">
-                              <app-fy-add-to-report
-                                [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
-                                [options]="reports"
-                                formControlName="report"
-                                [autoSubmissionReportName]="autoSubmissionReportName$|async"
-                                [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
-                              ></app-fy-add-to-report>
+                              <app-fy-select
+                                [disabled]="mode === 'edit'"
+                                [label]="txnFields?.purpose.field_name"
+                                [options]="txnFields?.purpose?.options"
+                                [mandatory]="txnFields?.purpose?.is_mandatory"
+                                [selectModalHeader]="'Enter purpose'"
+                                class="add-edit-per-diem--text-input"
+                                formControlName="purpose"
+                                [placeholder]="txnFields.purpose.placeholder | ellipsis: 30"
+                                [touchedInParent]="fg.controls.purpose.touched"
+                                [validInParent]="fg.controls.purpose.valid"
+                                >
+                              </app-fy-select>
                             </div>
-                          </ng-container>
-                        </ng-container>
-                      </ng-container>
-                    </ng-container>
-                  </ng-container>
-
-                  <ng-container *ngIf="isConnected$">
-                    <ng-container *ngIf="txnFields$|async as txnFields">
-                      <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
-                        <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
-                          <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-                            <app-fy-alert-info
-                              *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
-                              [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                              [type]="'warning'"
+                          }
+                          @if (fg.controls.purpose.touched && !fg.controls.purpose.valid) {
+                            <div
+                              class="add-edit-per-diem--error"
+                              >
+                              Please enter {{ txnFields?.purpose.field_name }}
+                            </div>
+                          }
+                        }
+                      }
+                    }
+                    @for (customInput of this.customInputs$ | async; track customInput) {
+                      @if (customInput.mandatory || isExpandedView) {
+                        @if (customInput.type !== 'USER_LIST') {
+                          <div
+                            [ngClass]="{'add-edit-per-diem--internal-block__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
+                            class="add-edit-per-diem--internal-block"
                             >
-                            </app-fy-alert-info>
-                          </ng-container>
-                        </ng-container>
-                      </ng-container>
-                    </ng-container>
-                  </ng-container>
-
-                  <ng-container *ngIf="isConnected$">
-                    <ng-container *ngIf="txnFields$|async as txnFields">
-                      <ng-container *ngIf="isCostCentersEnabled$|async as isCostCentersEnabled">
-                        <ng-container *ngIf="costCenters$|async as allowedCostCenters">
-                          <app-fy-alert-info
-                            class="add-edit-per-diem--cost-center-alert"
-                            *ngIf="txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0"
-                            [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                            [type]="'warning'"
-                          >
-                          </app-fy-alert-info>
-                        </ng-container>
-                      </ng-container>
-                    </ng-container>
-                  </ng-container>
-
-                  <div *ngIf="mode === 'add'">
-                    <ng-container *ngIf="isExpandedView;else expandViewContent">
-                      <div class="expansion-btn" fill="clear" (click)="hideFields()">
-                        Hide more fields
-                        <ion-icon class="expansion-icon" name="chevron-up"></ion-icon>
+                            <form [formGroup]="customInput.control">
+                              @if (customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION') {
+                                <div
+                                  class="add-edit-per-diem--text"
+                                  >
+                                  <div
+                                    [ngClass]="{'add-edit-per-diem--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
+                                    class="add-edit-per-diem--text-label"
+                                    >
+                                    {{customInput.name | ellipsis: 30}}
+                                    @if (customInput.mandatory) {
+                                      <span> * </span>
+                                    }
+                                  </div>
+                                  @if (customInput.type === 'TEXT') {
+                                    <input
+                                      class="add-edit-per-diem--text-input smartlook-show"
+                                      formControlName="value"
+                                      [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
+                                      type="text"
+                                      />
+                                  }
+                                  @if (customInput.type === 'NUMBER') {
+                                    <app-fy-number
+                                      formControlName="value"
+                                      [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
+                                    ></app-fy-number>
+                                  }
+                                  @if (customInput.type === 'DATE') {
+                                    <input
+                                      appFormatDate
+                                      class="add-edit-per-diem--date-input date-input__format smartlook-show"
+                                      formControlName="value"
+                                      [placeholder]="'Select ' + customInput.name"
+                                      type="date"
+                                      [name]="customInput.placeholder || customInput.name"
+                                      />
+                                  }
+                                </div>
+                              }
+                              @if (customInput.type === 'BOOLEAN') {
+                                <div class="add-edit-per-diem--checkbox">
+                                  <label>
+                                    <mat-checkbox formControlName="value">
+                                      {{customInput.name | ellipsis: 35 }}
+                                      @if (customInput.mandatory) {
+                                        <span class="add-edit-per-diem--mandatory">*</span>
+                                      }
+                                    </mat-checkbox>
+                                  </label>
+                                </div>
+                              }
+                              @if (customInput.type === 'LOCATION') {
+                                <div>
+                                  <app-fy-location
+                                    [label]="customInput.name | ellipsis: 30"
+                                    [mandatory]="customInput.mandatory"
+                                    formControlName="value"
+                                    [placeholder]="customInput.placeholder | ellipsis: 30"
+                                    [touchedInParent]="customInput.control.controls.value.touched"
+                                    [validInParent]="customInput.control.controls.value.valid"
+                                    >
+                                  </app-fy-location>
+                                </div>
+                              }
+                              @if (customInput.type === 'SELECT') {
+                                <div>
+                                  <app-fy-select
+                                    [label]="customInput.name | ellipsis: 30"
+                                    [mandatory]="customInput.mandatory"
+                                    [options]="customInput.options"
+                                    [selectModalHeader]="'Select '+customInput.name"
+                                    formControlName="value"
+                                    [placeholder]="customInput.placeholder | ellipsis: 30"
+                                    [touchedInParent]="customInput.control.controls.value.touched"
+                                    [validInParent]="customInput.control.controls.value.valid"
+                                    [isCustomSelect]="true"
+                                    >
+                                  </app-fy-select>
+                                </div>
+                              }
+                              @if (customInput.type === 'MULTI_SELECT') {
+                                <div>
+                                  <app-fy-multiselect
+                                    [label]="customInput.name | ellipsis: 30"
+                                    [mandatory]="customInput.mandatory"
+                                    [options]="customInput.options"
+                                    [selectModalHeader]="'Select '+customInput.name"
+                                    [subheader]="customInput.name"
+                                    formControlName="value"
+                                    [placeholder]="customInput.placeholder | ellipsis: 30"
+                                    [touchedInParent]="customInput.control.controls.value.touched"
+                                    [validInParent]="customInput.control.controls.value.valid"
+                                    >
+                                  </app-fy-multiselect>
+                                </div>
+                              }
+                            </form>
+                          </div>
+                        }
+                        @if (customInput.control.controls.value.touched && !customInput.control.controls.value.valid) {
+                          <div
+                            class="add-edit-per-diem--error"
+                            >
+                            Please select {{customInput.name}}
+                          </div>
+                        }
+                      }
+                    }
+                    @if (isConnected$|async) {
+                      @if (reports$|async; as reports) {
+                        @if (etxn$|async; as etxn) {
+                          @if (!(isCriticalPolicyViolated$|async)) {
+                            @if (canRemoveFromReport || !etxn?.tx?.report_id) {
+                              <div class="add-edit-per-diem--internal-block">
+                                <app-fy-add-to-report
+                                  [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
+                                  [options]="reports"
+                                  formControlName="report"
+                                  [autoSubmissionReportName]="autoSubmissionReportName$|async"
+                                  [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
+                                ></app-fy-add-to-report>
+                              </div>
+                            }
+                          }
+                        }
+                      }
+                    }
+                    @if (isConnected$) {
+                      @if (txnFields$|async; as txnFields) {
+                        @if (isProjectsEnabled$|async; as isProjectsEnabled) {
+                          @if (isIndividualProjectsEnabled$|async; as isIndividualProjectsEnabled) {
+                            @if (individualProjectIds$|async; as individualProjectIds) {
+                              @if (txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0) {
+                                <app-fy-alert-info
+                                  [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                                  [type]="'warning'"
+                                  >
+                                </app-fy-alert-info>
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    @if (isConnected$) {
+                      @if (txnFields$|async; as txnFields) {
+                        @if (isCostCentersEnabled$|async; as isCostCentersEnabled) {
+                          @if (costCenters$|async; as allowedCostCenters) {
+                            @if (txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0) {
+                              <app-fy-alert-info
+                                class="add-edit-per-diem--cost-center-alert"
+                                [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                                [type]="'warning'"
+                                >
+                              </app-fy-alert-info>
+                            }
+                          }
+                        }
+                      }
+                    }
+                    @if (mode === 'add') {
+                      <div>
+                        @if (isExpandedView) {
+                          <div class="expansion-btn" fill="clear" (click)="hideFields()">
+                            Hide more fields
+                            <ion-icon class="expansion-icon" name="chevron-up"></ion-icon>
+                          </div>
+                        } @else {
+                          <div class="expansion-btn" fill="clear" (click)="showFields()">
+                            Show more fields
+                            <ion-icon class="expansion-icon" name="chevron-down"></ion-icon>
+                          </div>
+                        }
                       </div>
-                    </ng-container>
-                    <ng-template #expandViewContent>
-                      <div class="expansion-btn" fill="clear" (click)="showFields()">
-                        Show more fields
-                        <ion-icon class="expansion-icon" name="chevron-down"></ion-icon>
-                      </div>
-                    </ng-template>
+                    }
                   </div>
                 </div>
+              }
+            } @else {
+              <div class="add-edit-per-diem--zero-state">
+                <app-fy-zero-state
+                  [header]="'You have not been assigned with any per diem rates.'"
+                  [image]="'../../../assets/svg/alert-circled.svg'"
+                  [message]="'Please contact your Fyle-Administrator to resolve this issue.'"
+                ></app-fy-zero-state>
               </div>
-            </ng-container>
-          </ng-container>
-          <ng-template #AdminKoBoloPerDiemAssignKare>
-            <div class="add-edit-per-diem--zero-state">
-              <app-fy-zero-state
-                [header]="'You have not been assigned with any per diem rates.'"
-                [image]="'../../../assets/svg/alert-circled.svg'"
-                [message]="'Please contact your Fyle-Administrator to resolve this issue.'"
-              ></app-fy-zero-state>
-            </div>
-          </ng-template>
-        </ng-container>
-        <ng-template #NothingToSee>
-          <ng-container *ngIf="individualPerDiemRatesEnabled$|async; else baseState">
-            <div class="add-edit-per-diem--zero-state">
-              <app-fy-zero-state
-                [header]="'You have not been assigned with any per diem rates.'"
-                [image]="'../../../assets/svg/alert-circled.svg'"
-                [message]="'Please contact your Fyle-Administrator to resolve this issue.'"
-              ></app-fy-zero-state>
-            </div>
-          </ng-container>
-          <ng-template #baseState>
-            <div class="add-edit-per-diem--zero-state">
-              <div class="add-edit-per-diem--zero-state-img-container">
-                <img
-                  class="add-edit-per-diem--zero-state-img"
-                  [src]="'../../../assets/images/zero-states/my_expenses.png'"
-                  alt="zero-state"
-                />
+            }
+          } @else {
+            @if (individualPerDiemRatesEnabled$|async) {
+              <div class="add-edit-per-diem--zero-state">
+                <app-fy-zero-state
+                  [header]="'You have not been assigned with any per diem rates.'"
+                  [image]="'../../../assets/svg/alert-circled.svg'"
+                  [message]="'Please contact your Fyle-Administrator to resolve this issue.'"
+                ></app-fy-zero-state>
               </div>
-              <div class="add-edit-per-diem--zero-state-text">
-                Looks like no per diem rates are set for your org yet.
+            } @else {
+              <div class="add-edit-per-diem--zero-state">
+                <div class="add-edit-per-diem--zero-state-img-container">
+                  <img
+                    class="add-edit-per-diem--zero-state-img"
+                    [src]="'../../../assets/images/zero-states/my_expenses.png'"
+                    alt="zero-state"
+                    />
+                </div>
+                <div class="add-edit-per-diem--zero-state-text">
+                  Looks like no per diem rates are set for your org yet.
+                </div>
               </div>
-            </div>
-          </ng-template>
-        </ng-template>
-      </form>
-    </ng-container>
-  </div>
-</ion-content>
+            }
+          }
+        </form>
+      }
+    </div>
+  </ion-content>
 
-<ng-container *ngIf="fg">
-  <app-review-footer
-    *ngIf="reviewList?.length"
-    [activeIndex]="+activeIndex"
-    [reviewList]="reviewList"
-    [saveAndPrevLoader]="saveAndPrevPerDiemLoader"
-    [saveAndNextLoader]="saveAndNextPerDiemLoader"
-    (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
-    (saveAndGoToNext)="saveExpenseAndGotoNext()"
-  ></app-review-footer>
-  <ion-footer
-    *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0 && !reviewList?.length"
-  >
-    <ion-toolbar mode="md" [ngClass]="{'add-edit-per-diem--footer-toolbar__offline': !(isConnected$|async)}">
-      <div class="add-edit-per-diem--cta-container">
-        <ion-buttons *ngIf="!reviewList">
-          <ion-button (click)="close()" *ngIf="mode === 'edit'" [disabled]="savePerDiemLoader" class="btn-secondary">
-            Cancel
-          </ion-button>
-          <ion-button
-            (click)="savePerDiem()"
-            class="btn-primary"
-            appFormButtonValidation
-            [loading]="savePerDiemLoader"
-            [loadingText]="'Saving'"
-          >
-            Save
-          </ion-button>
-        </ion-buttons>
-      </div>
-    </ion-toolbar>
-  </ion-footer>
-</ng-container>
+  @if (fg) {
+    @if (reviewList?.length) {
+      <app-review-footer
+        [activeIndex]="+activeIndex"
+        [reviewList]="reviewList"
+        [saveAndPrevLoader]="saveAndPrevPerDiemLoader"
+        [saveAndNextLoader]="saveAndNextPerDiemLoader"
+        (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
+        (saveAndGoToNext)="saveExpenseAndGotoNext()"
+      ></app-review-footer>
+    }
+    @if ((canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0 && !reviewList?.length) {
+      <ion-footer
+        >
+        <ion-toolbar mode="md" [ngClass]="{'add-edit-per-diem--footer-toolbar__offline': !(isConnected$|async)}">
+          <div class="add-edit-per-diem--cta-container">
+            @if (!reviewList) {
+              <ion-buttons>
+                @if (mode === 'edit') {
+                  <ion-button (click)="close()" [disabled]="savePerDiemLoader" class="btn-secondary">
+                    Cancel
+                  </ion-button>
+                }
+                <ion-button
+                  (click)="savePerDiem()"
+                  class="btn-primary"
+                  appFormButtonValidation
+                  [loading]="savePerDiemLoader"
+                  [loadingText]="'Saving'"
+                  >
+                  Save
+                </ion-button>
+              </ion-buttons>
+            }
+          </div>
+        </ion-toolbar>
+      </ion-footer>
+    }
+  }

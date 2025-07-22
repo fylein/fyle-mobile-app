@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Params, Router } from '@angular/router';
 import { BehaviorSubject, EMPTY, Observable, noop } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
