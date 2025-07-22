@@ -58,34 +58,67 @@ export class CustomGalleryPickerComponent implements OnInit, OnDestroy {
       const hasPermission = await this.imagePicker.hasReadPermission();
       
       if (!hasPermission) {
-        await this.imagePicker.requestReadPermission();
-        this.loadGalleryImages();
-        return;
+        const permissionGranted = await this.imagePicker.requestReadPermission();
+        if (!permissionGranted) {
+          this.loading = false;
+          return;
+        }
       }
 
       const options = {
         maximumImagesCount: 50, // Load more images to show in gallery
         outputType: 1,
         quality: 70,
+        width: 800, // Set a reasonable width for better performance
+        height: 800, // Set a reasonable height for better performance
+        allow_video: false, // Only images
+        correctOrientation: true, // Fix image orientation
       };
 
-      from(this.imagePicker.getPictures(options))
-        .pipe(
-          filter((imageBase64Strings: string[]) => Array.isArray(imageBase64Strings)),
-          switchMap((imageBase64Strings: string[]) => {
-            this.images = imageBase64Strings.map((base64, index) => ({
-              id: `img_${Date.now()}_${index}`,
-              base64: 'data:image/jpeg;base64,' + base64,
-              selected: false,
-              timestamp: Date.now() - (index * 1000), // Simulate recent order
-            }));
-            this.loading = false;
-            return [];
-          })
-        )
-        .subscribe();
+      const imageBase64Strings = await this.imagePicker.getPictures(options);
+      
+      if (Array.isArray(imageBase64Strings) && imageBase64Strings.length > 0) {
+        this.images = imageBase64Strings.map((base64, index) => ({
+          id: `img_${Date.now()}_${index}`,
+          base64: 'data:image/jpeg;base64,' + base64,
+          selected: false,
+          timestamp: Date.now() - (index * 1000), // Simulate recent order
+        }));
+      } else {
+        // Try with different options as fallback
+        await this.loadGalleryImagesFallback();
+      }
+      
+      this.loading = false;
     } catch (error) {
-      console.error('Error loading gallery images:', error);
+      // Try fallback method
+      await this.loadGalleryImagesFallback();
+    }
+  }
+
+  private async loadGalleryImagesFallback(): Promise<void> {
+    try {
+      const fallbackOptions = {
+        maximumImagesCount: 20,
+        outputType: 1,
+        quality: 50,
+      };
+
+      const imageBase64Strings = await this.imagePicker.getPictures(fallbackOptions);
+      
+      if (Array.isArray(imageBase64Strings) && imageBase64Strings.length > 0) {
+        this.images = imageBase64Strings.map((base64, index) => ({
+          id: `img_fallback_${Date.now()}_${index}`,
+          base64: 'data:image/jpeg;base64,' + base64,
+          selected: false,
+          timestamp: Date.now() - (index * 1000),
+        }));
+      } else {
+        this.images = [];
+      }
+    } catch (fallbackError) {
+      this.images = [];
+    } finally {
       this.loading = false;
     }
   }

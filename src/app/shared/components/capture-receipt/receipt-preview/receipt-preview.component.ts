@@ -202,36 +202,28 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     if (data) {
       if (data.mode === 'camera') {
         this.captureReceipts();
-      } else {
-        this.galleryUpload();
+      } else if (data.mode === 'gallery') {
+        await this.openCustomGalleryPicker();
       }
     }
   }
 
-  galleryUpload(): void {
-    this.imagePicker.hasReadPermission().then((permission: boolean) => {
-      if (permission) {
-        const options = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
-        from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings: string[]) => {
-          if (Array.isArray(imageBase64Strings) && imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String: string) => {
-              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-              this.base64ImagesWithSource.push({
-                source: 'MOBILE_DASHCAM_GALLERY',
-                base64Image: base64PictureData,
-              });
-            });
-    }
-        });
-      } else {
-        this.imagePicker.requestReadPermission();
-        this.galleryUpload();
-      }
+  private async openCustomGalleryPicker(): Promise<void> {
+    const customGalleryModal = await this.modalController.create({
+      component: CustomGalleryPickerComponent,
+      cssClass: 'custom-gallery-modal',
+      backdropDismiss: false,
     });
+
+    await customGalleryModal.present();
+
+    const { data } = await customGalleryModal.onWillDismiss();
+    
+    if (data && data.base64ImagesWithSource) {
+      this.base64ImagesWithSource.push(...data.base64ImagesWithSource);
+      // Update the swiper to show the new images
+      await this.swiper?.swiperRef.update();
+    }
   }
 
   captureReceipts(): void {
