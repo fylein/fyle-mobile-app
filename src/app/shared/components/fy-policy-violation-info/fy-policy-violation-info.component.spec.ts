@@ -32,7 +32,7 @@ describe('FyPolicyViolationInfoComponent', () => {
 
     // Setup modal creation spy
     const mockModal = jasmine.createSpyObj('Modal', ['present']);
-    modalControllerSpy.create.and.returnValue(Promise.resolve(mockModal));
+    modalControllerSpy.create.and.resolveTo(mockModal);
     modalPropertiesSpy.getModalDefaultProperties.and.returnValue({
       cssClass: 'auto-height',
       showBackdrop: true,

@@ -260,10 +260,10 @@ describe('MyExpensesPage', () => {
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const mockModal = {
-      present: jasmine.createSpy('present').and.returnValue(Promise.resolve()),
-      onDidDismiss: jasmine.createSpy('onDidDismiss').and.returnValue(Promise.resolve({ data: null })),
+      present: jasmine.createSpy('present').and.resolveTo(),
+      onDidDismiss: jasmine.createSpy('onDidDismiss').and.resolveTo({ data: null }),
     };
-    modalControllerSpy.create.and.returnValue(Promise.resolve(mockModal));
+    modalControllerSpy.create.and.resolveTo(mockModal);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
