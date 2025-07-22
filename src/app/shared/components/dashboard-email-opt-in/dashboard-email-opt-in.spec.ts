@@ -18,7 +18,7 @@ describe('DashboardEmailOptInComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService');
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {

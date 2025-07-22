@@ -1548,6 +1548,8 @@ export class MyExpensesPage implements OnInit {
     const that = this;
     if (zeroState) {
       this.trackingService.clickedOnZeroStateAddExpense();
+    } else {
+      this.trackingService.myExpenseActionSheetAddButtonClicked({ Action: 'Add Expense' });
     }
     const actionSheet = await this.actionSheetController.create({
       header: this.translocoService.translate('myExpensesPage.actionSheet.header'),

@@ -470,12 +470,20 @@ export class TrackingService {
     this.eventTrack('my expenses action sheet action clicked', properties);
   }
 
+  myExpenseActionSheetAddButtonClicked(properties: { Action: string }): void {
+    this.eventTrack('my expense action sheet add button clicked', properties);
+  }
+
   myExpensesFilterApplied(properties: { filterLabels: string[] }): void {
     this.eventTrack('my expenses filters applied', properties);
   }
 
   myReportsFilterApplied(properties: ReportFilters): void {
     this.eventTrack('my reports filters applied', properties);
+  }
+
+  myReportsActionSheetAddButtonClicked(properties: { Action: string }): void {
+    this.eventTrack('my reports action sheet add button clicked', properties);
   }
 
   TeamReportsFilterApplied(properties: Partial<TeamReportsFilters>): void {
