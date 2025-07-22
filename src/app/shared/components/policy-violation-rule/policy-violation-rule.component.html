@@ -5,6 +5,11 @@
     'policy-violation-rule--container__critical-violation': violationType === 'critical'
   }"
 >
-  <mat-icon class="policy-violation-rule--icons__policy-violated-icon" *ngIf="violationType === 'critical'">error</mat-icon>
+  <mat-icon class="policy-violation-rule--icons__policy-violated-critical-icon" *ngIf="violationType === 'critical'"
+    >error</mat-icon
+  >
+  <mat-icon class="policy-violation-rule--icons__policy-violated-normal-icon" *ngIf="violationType === 'normal'"
+    >warning-fill</mat-icon
+  >
   <div [innerHTML]="message"></div>
 </div>

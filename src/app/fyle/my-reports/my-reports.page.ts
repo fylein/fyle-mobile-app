@@ -20,7 +20,7 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
@@ -479,6 +479,14 @@ export class MyReportsPage {
       Asset: 'Mobile',
       from: this.translocoService.translate('myReportsPage.tracking.from'),
     });
+  }
+
+  trackReportZeroStateClick(): void {
+    this.trackingService.clickedOnZeroStateCreateReport();
+  }
+
+  trackCreateReportClick(): void {
+    this.trackingService.myReportsActionSheetAddButtonClicked({ Action: 'Create Report' });
   }
 
   onCameraClicked(): void {

@@ -9,33 +9,41 @@
       {{ header }}
     </div>
   </div>
-  <div *ngIf="error" class="error-internal__details">
-    <div *ngIf="error.status === 401 && (error.data || error.message)">
-      {{ 'error.lockedWarning' | transloco }}
-      <a class="error-internal__redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">{{
-        'error.resettingLink' | transloco
-      }}</a>
-      {{ 'error.yourPassword' | transloco }}
+  @if (error) {
+    <div class="error-internal__details">
+      @if (error.status === 401 && (error.data || error.message)) {
+        <div>
+          {{ 'error.lockedWarning' | transloco }}
+          <a class="error-internal__redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">{{
+            'error.resettingLink' | transloco
+          }}</a>
+          {{ 'error.yourPassword' | transloco }}
+        </div>
+      }
+      @if (error.status === 400) {
+        <div>
+          {{ 'error.notVerified' | transloco }}
+        </div>
+      }
+      @if (error.status === 500) {
+        <div>
+          <div [innerHTML]="'error.serverError' | transloco"></div>
+        </div>
+      }
+      @if (error.status === 433) {
+        <div>
+          <div>
+            {{ 'error.temporarilyLocked' | transloco }}
+          </div>
+        </div>
+      }
+      @if (error.status === 401 && !(error.data || error.message)) {
+        <div>
+          <div>{{ 'error.restrictedAccess' | transloco }}</div>
+        </div>
+      }
     </div>
-
-    <div *ngIf="error.status === 400">
-      {{ 'error.notVerified' | transloco }}
-    </div>
-
-    <div *ngIf="error.status === 500">
-      <div [innerHTML]="'error.serverError' | transloco"></div>
-    </div>
-
-    <div *ngIf="error.status === 433">
-      <div>
-        {{ 'error.temporarilyLocked' | transloco }}
-      </div>
-    </div>
-
-    <div *ngIf="error.status === 401 && !(error.data || error.message)">
-      <div>{{ 'error.restrictedAccess' | transloco }}</div>
-    </div>
-  </div>
+  }
   <div class="error-internal__primary-cta">
     <ion-button class="btn-primary" fill="clear" (click)="closePopover()">{{
       'error.tryAgain' | transloco

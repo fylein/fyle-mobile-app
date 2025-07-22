@@ -53,10 +53,10 @@ describe('FySummaryTileComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'fySummaryTile.pending': 'Pending',
-        'fySummaryTile.approvers': 'Approvers',
-        'fySummaryTile.projectLabel': 'Project',
-        'fySummaryTile.approved': 'Approved',
+        'summaryTile.pending': 'Pending',
+        'summaryTile.approvers': 'Approvers',
+        'summaryTile.projectLabel': 'Project',
+        'summaryTile.approved': 'Approved',
       };
       let translation = translations[key] || key;
       if (params) {

@@ -1,4 +1,4 @@
-<ng-container *ngIf="connectionState$ | async as connectionState">
+@if (connectionState$ | async; as connectionState) {
   <div class="fy-footer">
     <div
       class="fy-footer--buttons"
@@ -8,13 +8,13 @@
           connectionState === ConnectionMessageStatus.onlineMessageShown ||
           connectionState === ConnectionMessageStatus.disconnected
       }"
-    >
+      >
       <div
         class="fy-footer--button"
         [ngClass]="{ 'fy-footer--button__inactive': activeState !== FooterState.HOME }"
         expand="full"
         (click)="goToHome()"
-      >
+        >
         <ion-tab-button tab="home" class="fy-footer--button__tabs">
           <mat-icon
             class="fy-footer--icon"
@@ -28,7 +28,7 @@
         [ngClass]="{ 'fy-footer--button__inactive': activeState !== FooterState.EXPENSES }"
         expand="full"
         (click)="goToExpenses()"
-      >
+        >
         <ion-tab-button tab="expenses" class="fy-footer--button__tabs tab-button-expenses">
           <mat-icon
             class="fy-footer--icon"
@@ -45,7 +45,7 @@
         [ngClass]="{ 'fy-footer--button__inactive': activeState !== FooterState.REPORTS }"
         expand="full"
         (click)="goToReports()"
-      >
+        >
         <ion-tab-button tab="reports" class="fy-footer--button__tabs tab-button-reports">
           <mat-icon
             class="fy-footer--icon"
@@ -62,19 +62,21 @@
         }"
         expand="full"
         (click)="goToTasks(connectionState)"
-      >
+        >
         <ion-tab-button tab="tasks" class="fy-footer--button__tabs">
           <mat-icon
             class="fy-footer--icon"
             [svgIcon]="activeState === FooterState.TASKS ? 'bell-fill' : 'bell-outline'"
           ></mat-icon>
-          <div *ngIf="taskCount > 0" class="fy-footer--icon-pill">
-            {{ taskCount }}
-          </div>
+          @if (taskCount > 0) {
+            <div class="fy-footer--icon-pill">
+              {{ taskCount }}
+            </div>
+          }
           {{ 'footer.tasks' | transloco }}
         </ion-tab-button>
         <ion-ripple-effect type="unbounded"></ion-ripple-effect>
       </div>
     </div>
   </div>
-</ng-container>
+}

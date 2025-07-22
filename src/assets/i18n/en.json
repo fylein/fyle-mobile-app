@@ -240,6 +240,7 @@
       "aboutToDelete": "You are about to permanently delete",
       "oneSelectedExpense": "1 selected expense.",
       "multipleSelectedExpenses": "{{count}} selected expenses.",
+      "expenseNotFound": "Expense not found",
       "cccMessageSingular": "There is {{count}} corporate card expense from the selection which can't be deleted.",
       "cccMessagePlural": "There are {{count}} corporate card expenses from the selection which can't be deleted.",
       "deleteOthersMessage": "However you can delete the other expenses from the selection.",
@@ -285,6 +286,7 @@
       "yes": "Yes",
       "no": "No",
       "policyViolated": "Policy Violated",
+      "cannotReport": "Cannot Report",
       "blocked": "Blocked",
       "dateNewToOldSort": "Date - New to Old",
       "dateOldToNewSort": "Date - Old to New",
@@ -295,6 +297,7 @@
       "categoryAToZPill": "category - a to z",
       "categoryZToAPill": "category - z to a",
       "policyViolatedPill": "policy violated",
+      "cannotReportPill": "cannot report",
       "blockedPill": "blocked"
     },
     "categories": {
@@ -1005,7 +1008,7 @@
   "fySelectProject": {
     "selectLabel": "Select {{label}}"
   },
-  "fyProjectSelectModal": {
+  "fySelectProjectModal": {
     "selectLabel": "Select {{label}}",
     "searchPlaceholder": "Search",
     "clearAriaLabel": "Clear",
@@ -1126,7 +1129,7 @@
     "selectDistance": "Select distance",
     "selectDistanceUnit": "Select distance unit"
   },
-  "fySummaryTile": {
+  "summaryTile": {
     "projectLabel": "Project:",
     "approvers": "Approvers",
     "approved": "Approved",

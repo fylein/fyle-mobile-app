@@ -7,7 +7,7 @@ import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { apiAllCurrencies } from '../mock-data/currency.data';
 import { of } from 'rxjs';
 import { orgData1 } from '../mock-data/org.data';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 describe('CurrencyService', () => {
   let currencyService: CurrencyService;

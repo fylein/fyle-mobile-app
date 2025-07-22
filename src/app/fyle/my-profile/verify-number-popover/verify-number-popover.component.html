@@ -16,7 +16,7 @@
         buttonType="secondary"
         [loading]="verifyingOtp"
         loadingText=" "
-      >
+        >
         {{ 'verifyNumberPopover.verifyButton' | transloco }}
       </button>
     </ion-buttons>
@@ -32,43 +32,47 @@
       <span> {{ 'verifyNumberPopover.otpLabel' | transloco }} </span>
       <span class="verify-number-popover__input-container__mandatory"> * </span>
     </div>
-    <ng-container *ngIf="showOtpTimer; else resendOtpCta">
+    @if (showOtpTimer) {
       <span class="verify-number-popover__input-container__label__otp-timer">
         {{ 'verifyNumberPopover.resendTimerPrefix' | transloco }}
         <span class="verify-number-popover__input-container__label__otp-timer--timer"
           >0:{{ otpTimer | number : '2.0' }}</span
-        >
-      </span>
-    </ng-container>
-    <ng-template #resendOtpCta>
-      <button
-        *ngIf="!disableResendOtp"
-        class="verify-number-popover__input-container__label__resend"
-        (click)="resendOtp('CLICK')"
-        appFormButtonValidation
-        buttonType="secondary"
-        [loading]="sendingOtp"
-        [loadingText]="'verifyNumberPopover.resendButtonLoading' | transloco"
-      >
-        {{ 'verifyNumberPopover.resendButton' | transloco }}
-      </button>
-      <!-- TODO: Handle this case in directive and fix it property -->
-      <div *ngIf="disableResendOtp" class="verify-number-popover__input-container__label__resend--disabled">
-        {{ 'verifyNumberPopover.resendButton' | transloco }}
-      </div>
-    </ng-template>
+          >
+        </span>
+      } @else {
+        @if (!disableResendOtp) {
+          <button
+            class="verify-number-popover__input-container__label__resend"
+            (click)="resendOtp('CLICK')"
+            appFormButtonValidation
+            buttonType="secondary"
+            [loading]="sendingOtp"
+            [loadingText]="'verifyNumberPopover.resendButtonLoading' | transloco"
+            >
+            {{ 'verifyNumberPopover.resendButton' | transloco }}
+          </button>
+        }
+        <!-- TODO: Handle this case in directive and fix it property -->
+        @if (disableResendOtp) {
+          <div class="verify-number-popover__input-container__label__resend--disabled">
+            {{ 'verifyNumberPopover.resendButton' | transloco }}
+          </div>
+        }
+      }
+    </div>
+    <input
+      #input
+      matInput
+      [(ngModel)]="value"
+      class="verify-number-popover__input-container__input smartlook-show"
+      [placeholder]="'verifyNumberPopover.otpPlaceholder' | transloco"
+      type="text"
+      inputmode="numeric"
+      autocomplete="one-time-code"
+      maxlength="6"
+      (focus)="onFocus()"
+      />
+    @if (error?.length) {
+      <span class="verify-number-popover__input-container__error">{{ error }}</span>
+    }
   </div>
-  <input
-    #input
-    matInput
-    [(ngModel)]="value"
-    class="verify-number-popover__input-container__input smartlook-show"
-    [placeholder]="'verifyNumberPopover.otpPlaceholder' | transloco"
-    type="text"
-    inputmode="numeric"
-    autocomplete="one-time-code"
-    maxlength="6"
-    (focus)="onFocus()"
-  />
-  <span *ngIf="error?.length" class="verify-number-popover__input-container__error">{{ error }}</span>
-</div>

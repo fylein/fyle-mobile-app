@@ -60,14 +60,11 @@
 
   &--form-container {
     display: flex;
-    border: 1px solid $grey-lighter;
-    border-radius: 4px;
     margin: 8px 16px;
     font-size: 12px;
-    padding: 4px;
 
-    &__chips {
-      padding: 3px 4px 3px 8px;
+    &__chip-grid {
+      padding-top: 2px;
     }
   }
 

@@ -1,7 +1,7 @@
 import { getCurrencySymbol } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { cloneDeep, isEqual, isNumber } from 'lodash';
@@ -82,7 +82,7 @@ import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-op
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
@@ -987,7 +987,8 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string): Promise<void> {
-    const filterMain = this.myExpensesService.getFilters();
+    const orgSettings = await this.orgSettings$.pipe(take(1)).toPromise();
+    const filterMain = await this.myExpensesService.getFilters(orgSettings);
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
         name: this.translocoService.translate('myExpensesPage.filters.cardsEndingIn'),
@@ -1274,9 +1275,10 @@ export class MyExpensesPage implements OnInit {
       );
       return;
     }
-    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
-      this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense) ||
-      this.sharedExpenseService.isExpenseUnreportable(expense)
+    const expensesWithCriticalPolicyViolations = selectedElements.filter(
+      (expense) =>
+        this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense) ||
+        this.sharedExpenseService.isExpenseUnreportable(expense)
     );
     const expensesInDraftState = selectedElements.filter((expense) =>
       this.sharedExpenseService.isExpenseInDraft(expense)
@@ -1302,9 +1304,7 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.trackingService.addToReport();
       const totalUnreportableCount =
-        noOfExpensesInDraftState +
-        noOfExpensesWithCriticalPolicyViolations +
-        noOfExpensesWithPendingTransactions;
+        noOfExpensesInDraftState + noOfExpensesWithCriticalPolicyViolations + noOfExpensesWithPendingTransactions;
 
       if (totalUnreportableCount > 0) {
         this.reportableExpenseDialogHandler(
@@ -1547,8 +1547,13 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  async openActionSheet(): Promise<void> {
+  async openActionSheet(zeroState?: boolean): Promise<void> {
     const that = this;
+    if (zeroState) {
+      this.trackingService.clickedOnZeroStateAddExpense();
+    } else {
+      this.trackingService.myExpenseActionSheetAddButtonClicked({ Action: 'Add Expense' });
+    }
     const actionSheet = await this.actionSheetController.create({
       header: this.translocoService.translate('myExpensesPage.actionSheet.header'),
       mode: 'md',

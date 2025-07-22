@@ -1,0 +1,112 @@
+---
+description: i18n keys for Angular components & templates
+globs:
+  - "**/*.component.ts"
+  - "**/*.component.html"
+alwaysApply: false
+---
+
+### Naming pattern
+- Top‑level object **must** be the component / feature folder name.
+- Keys inside that object are free‑form and **not** prefixed.
+- No nested objects beyond the first level.
+
+### File name conversion
+Convert kebab-case file names to camelCase and remove prefixes:
+- `sign-in.component.html` → `signIn`
+- `feature-user-profile.component.ts` → `userProfile` (remove "feature" prefix)
+- `ui-button.component.html` → `button` (remove "ui" prefix)
+- `component-header.component.ts` → `header` (remove "component" prefix)
+
+**Prefix removal order:** `feature`, `ui`, `component`
+
+### Key naming guidelines
+- Use meaningful, semantic, and context-aware key names
+- Prefer keys like `title`, `subtitle`, `accountDisabledError`, `submitButton`
+- Avoid generic names like `label1`, `text1`, `message1`
+- The key should help developers understand the purpose just by reading it
+
+### Example
+```jsonc
+{
+  "signIn": {
+    "title": "Sign in",
+    "subtitle": "Enter your credentials",
+    "accountDisabledError": "Account is disabled",
+    "submitButton": "Sign In",
+    "forgotPasswordButton": "Forgot Password?"
+  }
+}
+```
+
+### Bad Examples (What NOT to do)
+```jsonc
+// ❌ BAD - Nested objects (forbidden)
+{
+  "signIn": {
+    "error": {
+      "accountDisabled": "Account is disabled"
+    },
+    "button": {
+      "submit": "Sign In"
+    }
+  }
+}
+
+// ❌ BAD - Generic key names
+{
+  "signIn": {
+    "label1": "Sign in",
+    "text1": "Enter credentials",
+    "message1": "Account is disabled"
+  }
+}
+
+// ❌ BAD - Wrong file name conversion
+{
+  "signInComponent": {  // Should be "signIn" (remove "Component" suffix)
+    "title": "Sign in"
+  }
+}
+```
+
+### Angular binding examples
+```html
+<!-- Property binding for attributes -->
+<input [placeholder]="'signIn.subtitle' | transloco" />
+
+<!-- Interpolation for static text -->
+<h1>{{ 'signIn.title' | transloco }}</h1>
+
+<!-- Static attributes -->
+<button title="{{ 'signIn.submitButton' | transloco }}">
+  {{ 'signIn.submitButton' | transloco }}
+</button>
+```
+
+```typescript
+// In TypeScript
+this.translocoService.translate('signIn.accountDisabledError');
+```
+
+### JSON placement rule
+**File Location** → **Translation File Location**
+
+- **If file is in:** `src/**`
+  **Then put key in:** `src/assets/i18n/{lang}.json`
+
+**Note:** Add the key to every supported language file (e.g., `en.json`, `es.json`, etc.).
+
+### What NOT to translate
+- Strings that are already translation keys (e.g., `'component.key' | transloco`)
+- Tracking/analytics strings (e.g., `this.trackingService.trackEvent('User clicking')`)
+- Strings with only special characters (e.g., `'-'`, `','`, `'.'`)
+- Comments and non-user-visible text
+- Variable bindings and expressions
+
+### Rules to remember
+- One object per component/feature.
+- No deep nesting ("advancedFilters": { "amount": … } is forbidden).
+- Avoid prefixes like ui*, feature*; the object name is the context.
+- Use semantic key names that describe the purpose.
+- Prefer property binding for user-facing attributes.

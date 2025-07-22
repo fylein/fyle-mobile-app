@@ -18,10 +18,10 @@
 
 <ion-content class="transaction-status-info-popover__content">
   <div class="transaction-status-info-popover__body" data-testid="content">
-    <ng-container *ngIf="transactionStatus === 'PENDING'; else posted">{{
-      'transactionStatusInfoPopover.pendingStatusInfo' | transloco
-    }}</ng-container>
-
-    <ng-template #posted>{{ 'transactionStatusInfoPopover.postedStatusInfo' | transloco }}</ng-template>
+    @if (transactionStatus === 'PENDING') {
+    <span>{{ 'transactionStatusInfoPopover.pendingStatusInfo' | transloco }}</span>
+    } @else {
+    <span>{{ 'transactionStatusInfoPopover.postedStatusInfo' | transloco }}</span>
+    }
   </div>
 </ion-content>

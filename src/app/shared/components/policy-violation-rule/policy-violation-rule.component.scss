@@ -10,8 +10,8 @@
     gap: 8px;
 
     &__normal-violation {
-      background-color: $floral-white;
-      border: 1px solid $pale-orange;
+      background-color: $pure-white;
+      border: 1px solid $grey-lighter;
     }
 
     &__critical-violation {
@@ -26,10 +26,19 @@
     padding-right: 4px;
     gap: 4px;
 
-    &__policy-violated-icon {
+    &__policy-violated-critical-icon {
       width: 16px;
       height: 16px;
       color: $red;
+      font-size: 16px;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    &__policy-violated-normal-icon {
+      width: 16px;
+      height: 16px;
+      color: $dark-yellow;
       font-size: 16px;
       flex-shrink: 0;
       display: block;

@@ -1,14 +1,11 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActionSheetController, IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
 
-import * as dayjs from 'dayjs';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import dayjs from 'dayjs';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import {
-  MatLegacySnackBar as MatSnackBar,
-  MatLegacySnackBarRef as MatSnackBarRef,
-} from '@angular/material/legacy-snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -133,6 +130,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 describe('MyExpensesPage', () => {
@@ -257,6 +255,7 @@ describe('MyExpensesPage', () => {
       'showOptInModalPostExpenseCreation',
       'skipOptInModalPostExpenseCreation',
       'optInFromPostExpenseCreationModal',
+      'myExpenseActionSheetAddButtonClicked',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const mockModal = {
@@ -424,7 +423,8 @@ describe('MyExpensesPage', () => {
     });
     TestBed.configureTestingModule({
       declarations: [MyExpensesPage, ReportState, MaskNumber],
-      imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule, TranslocoModule],
+      schemas: [NO_ERRORS_SCHEMA],
+      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
@@ -542,8 +542,9 @@ describe('MyExpensesPage', () => {
         },
         ReportState,
         MaskNumber,
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyExpensesPage);

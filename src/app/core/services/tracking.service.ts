@@ -470,12 +470,20 @@ export class TrackingService {
     this.eventTrack('my expenses action sheet action clicked', properties);
   }
 
+  myExpenseActionSheetAddButtonClicked(properties: { Action: string }): void {
+    this.eventTrack('my expense action sheet add button clicked', properties);
+  }
+
   myExpensesFilterApplied(properties: { filterLabels: string[] }): void {
     this.eventTrack('my expenses filters applied', properties);
   }
 
   myReportsFilterApplied(properties: ReportFilters): void {
     this.eventTrack('my reports filters applied', properties);
+  }
+
+  myReportsActionSheetAddButtonClicked(properties: { Action: string }): void {
+    this.eventTrack('my reports action sheet add button clicked', properties);
   }
 
   TeamReportsFilterApplied(properties: Partial<TeamReportsFilters>): void {
@@ -856,7 +864,7 @@ export class TrackingService {
   }
 
   optedInFromDashboardEmailOptInBanner(): void {
-    this.eventTrack('Opted In From Dashboard Email Opt In Banner');
+    this.eventTrack('Clicked On Dashboard Email Forwarding Banner');
   }
 
   skipOptInFromDashboardEmailOptInBanner(): void {
@@ -883,10 +891,6 @@ export class TrackingService {
     this.eventTrack('Clicked On Dashboard Banner');
   }
 
-  clickedOnDashboardEmailOptInBanner(): void {
-    this.eventTrack('Clicked On Dashboard Email Opt In Banner');
-  }
-
   // Track receipt scan duration event
   receiptScanTime(properties: { duration: number; fileType: string }): void {
     this.eventTrack('Receipt Scan Time', properties);
@@ -906,6 +910,14 @@ export class TrackingService {
 
   discardReceipt(): void {
     this.eventTrack('Discard receipt clicked from receipt preview');
+  }
+
+  clickedOnZeroStateAddExpense(): void {
+    this.eventTrack('Clicked on my expenses zero state CTA');
+  }
+
+  clickedOnZeroStateCreateReport(): void {
+    this.eventTrack('Clicked on my reports zero state CTA');
   }
 
   private isDemoAccount(eou: ExtendedOrgUser): boolean {
