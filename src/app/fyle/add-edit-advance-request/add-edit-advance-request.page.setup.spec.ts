@@ -38,6 +38,7 @@ describe('AddEditAdvanceRequestPage', () => {
       'getSpenderPermissions',
       'getApproverPermissions',
       'getEReq',
+      'getEReqFromApprover',
     ]);
     const modalControllerSpyObj = jasmine.createSpyObj('ModalController', ['create']);
     const statusServiceSpyObj = jasmine.createSpyObj('StatusService', ['findLatestComment', 'post']);

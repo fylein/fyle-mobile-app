@@ -325,7 +325,7 @@ export function TestCases2(getTestBed) {
         loaderService.showLoader.and.resolveTo(undefined);
         loaderService.hideLoader.and.resolveTo(undefined);
         advanceRequestService.getEReq.and.returnValue(of(unflattenedAdvanceRequestData));
-        advanceRequestService.getEReq.and.returnValue(of(unflattenedAdvanceRequestData));
+        advanceRequestService.getEReqFromApprover.and.returnValue(of(unflattenedAdvanceRequestData));
         projectsService.getbyId.and.returnValue(of(projects[0]));
         spyOn(component, 'modifyAdvanceRequestCustomFields');
         spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
@@ -450,13 +450,13 @@ export function TestCases2(getTestBed) {
         component.from = 'TEAM_ADVANCE';
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
         mockAdvanceRequest.areq.project_id = '3019';
-        advanceRequestService.getEReq.and.returnValue(of(mockAdvanceRequest));
+        advanceRequestService.getEReqFromApprover.and.returnValue(of(mockAdvanceRequest));
         fixture.detectChanges();
         component.ionViewWillEnter();
         tick(100);
         component.extendedAdvanceRequest$.subscribe((res) => {
           expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-          expect(advanceRequestService.getEReq).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(advanceRequestService.getEReqFromApprover).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.fg.value.currencyObj).toEqual({
             currency: 'USD',
             amount: 2,
