@@ -16,7 +16,11 @@
         <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
         }
       </ion-button>
-      <ion-button class="my-reports--header-btn" [routerLink]="['/', 'enterprise', 'my_create_report']">
+      <ion-button
+        class="my-reports--header-btn"
+        [routerLink]="['/', 'enterprise', 'my_create_report']"
+        (click)="trackCreateReportClick()"
+      >
         <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -88,6 +92,7 @@
         type="button"
         [routerLink]="['/', 'enterprise', 'my_create_report']"
         class="my-reports--zero-state-cta text-center"
+        (click)="trackReportZeroStateClick()"
       >
         {{ 'myReportsPage.createExpenseReport' | transloco }}
       </button>

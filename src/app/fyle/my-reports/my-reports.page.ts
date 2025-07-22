@@ -481,6 +481,14 @@ export class MyReportsPage {
     });
   }
 
+  trackReportZeroStateClick(): void {
+    this.trackingService.clickedOnZeroStateCreateReport();
+  }
+
+  trackCreateReportClick(): void {
+    this.trackingService.myReportsActionSheetAddButtonClicked({ Action: 'Create Report' });
+  }
+
   onCameraClicked(): void {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }

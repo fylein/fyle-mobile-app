@@ -142,7 +142,7 @@
         <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noExpenses' | transloco }}</div>
         <button
           type="button"
-          (click)="openActionSheet()"
+          (click)="openActionSheet(true)"
           class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
         >
           {{ 'myExpensesPage.addExpense' | transloco }}
@@ -152,7 +152,7 @@
           <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noExpenses' | transloco }}</div>
           <button
             type="button"
-            (click)="openActionSheet()"
+            (click)="openActionSheet(true)"
             class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
           >
             {{ 'myExpensesPage.addExpense' | transloco }}
