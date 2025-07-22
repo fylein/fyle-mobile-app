@@ -1,6 +1,6 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
+import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
+import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { StatsComponent } from './stats/stats.component';
@@ -37,7 +37,7 @@ import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import SwiperCore, { Pagination, Autoplay } from 'swiper';
-import { PaginationOptions } from 'swiper/types';
+import { PaginationOptions, SwiperOptions } from 'swiper/types';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -104,6 +104,8 @@ export class DashboardPage {
   walkthroughOverlayStartIndex = 0;
 
   userName = '';
+
+  swiperConfig: SwiperOptions;
 
   optInBannerPagination: PaginationOptions = {
     dynamicBullets: true,
@@ -429,6 +431,34 @@ export class DashboardPage {
     );
   }
 
+  setSwiperConfig(): void {
+    combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$])
+      .pipe(take(1))
+      .subscribe(([canShowOptInBanner, canShowEmailOptInBanner]) => {
+        const showBothBanners = canShowOptInBanner && canShowEmailOptInBanner;
+
+        this.swiperConfig = {
+          slidesPerView: 1,
+          spaceBetween: 0,
+          centeredSlides: true,
+          loop: showBothBanners,
+          autoplay: showBothBanners
+            ? {
+                delay: 4000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: false,
+              }
+            : false,
+          pagination: {
+            dynamicBullets: true,
+            renderBullet: (index: number, className: string): string => {
+              return `<span class="opt-in-banners ${className}"> </span>`;
+            },
+          },
+        };
+      });
+  }
+
   async openSMSOptInDialog(extendedOrgUser: ExtendedOrgUser): Promise<void> {
     const optInModal = await this.modalController.create({
       component: FyOptInComponent,
@@ -510,6 +540,7 @@ export class DashboardPage {
 
     this.setShowOptInBanner();
     this.setShowEmailOptInBanner();
+    this.setSwiperConfig();
 
     if (openSMSOptInDialog === 'true') {
       this.eou$
