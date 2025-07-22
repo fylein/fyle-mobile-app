@@ -27,10 +27,10 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { DashboardState } from 'src/app/core/enums/dashboard-state.enum';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { driver } from 'driver.js';
+import { driver, DriveStep } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
@@ -156,7 +156,8 @@ export class DashboardPage {
   }
 
   startDashboardAddExpenseWalkthrough(): void {
-    const dashboardAddExpenseWalkthroughSteps = this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
+    const dashboardAddExpenseWalkthroughSteps: DriveStep[] =
+      this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
     const driverInstance = driver({
       overlayOpacity: 0.5,
       allowClose: true,
@@ -446,6 +447,20 @@ export class DashboardPage {
       panelClass,
     });
     this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  onPendingTasksStatClick(): void {
+    const queryParams: Params = { state: 'tasks' };
+    this.currentStateIndex = 1;
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams,
+    });
+
+    this.trackingService.dashboardPendingTasksNotificationClicked({
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
   }
 
   ionViewWillEnter(): void {

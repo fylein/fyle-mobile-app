@@ -16,58 +16,72 @@
       </div>
     </div>
     <div class="virtual-card__card-number__card-number-container">
-      <div *ngIf="!showCardNumber" class="virtual-card__card-number__card-number-mask">
-        <div>****</div>
-        <div>******</div>
-      </div>
-      <div *ngIf="showCardNumber" class="virtual-card__card-number__card-number-unmasked">
-        <div>{{ cardNumber | slice : 0 : 4 }}</div>
-        <div>{{ cardNumber | slice : 4 : 10 }}</div>
-      </div>
+      @if (!showCardNumber) {
+        <div class="virtual-card__card-number__card-number-mask">
+          <div>****</div>
+          <div>******</div>
+        </div>
+      }
+      @if (showCardNumber) {
+        <div class="virtual-card__card-number__card-number-unmasked">
+          <div>{{ cardNumber | slice : 0 : 4 }}</div>
+          <div>{{ cardNumber | slice : 4 : 10 }}</div>
+        </div>
+      }
       <div class="virtual-card__card-number__unmasked-card-digits">
         {{ cardNumber | slice : 10 : 15 }}
       </div>
-      <ion-icon
-        *ngIf="cardStatus !== CardStatus.DELETED && cardStatus !== CardStatus.EXPIRED"
-        src="../../../../../assets/svg/duplicate.svg"
-        (press)="toggleShowCardNumber()"
-        (pressup)="hideCardNumberAndCopy()"
-        (tap)="copyToClipboard(cardNumber)"
-        class="virtual-card__card-number__copy-icon"
-      ></ion-icon>
+      @if (cardStatus !== CardStatus.DELETED && cardStatus !== CardStatus.EXPIRED) {
+        <ion-icon
+          src="../../../../../assets/svg/duplicate.svg"
+          (press)="toggleShowCardNumber()"
+          (pressup)="hideCardNumberAndCopy()"
+          (tap)="copyToClipboard(cardNumber)"
+          class="virtual-card__card-number__copy-icon"
+        ></ion-icon>
+      }
     </div>
   </div>
   <div class="virtual-card__card-fields">
     <div class="virtual-card__card-fields__cvv-field">
       <div class="virtual-card__card-fields__label-text">{{ 'virtualCard.cvv' | transloco }}</div>
       <div class="virtual-card__card-fields__cvv-field__cvv-value">
-        <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">***</div>
-        <div *ngIf="showCvv" class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
-        <ion-icon
-          *ngIf="cardStatus !== CardStatus.DELETED && cardStatus !== CardStatus.EXPIRED"
-          class="virtual-card__card-fields__cvv-copy-icon"
-          src="../../../../../assets/svg/duplicate.svg"
-          (press)="toggleShowCvv()"
-          (pressup)="hideCvvAndCopy()"
-          (tap)="copyToClipboard(cvv)"
-        ></ion-icon>
+        @if (!showCvv) {
+          <div class="virtual-card__card-fields__cvv-mask">***</div>
+        }
+        @if (showCvv) {
+          <div class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
+        }
+        @if (cardStatus !== CardStatus.DELETED && cardStatus !== CardStatus.EXPIRED) {
+          <ion-icon
+            class="virtual-card__card-fields__cvv-copy-icon"
+            src="../../../../../assets/svg/duplicate.svg"
+            (press)="toggleShowCvv()"
+            (pressup)="hideCvvAndCopy()"
+            (tap)="copyToClipboard(cvv)"
+          ></ion-icon>
+        }
       </div>
     </div>
     <div>
       <div class="virtual-card__card-fields__label-text">{{ 'virtualCard.expiry' | transloco }}</div>
       <div class="virtual-card__card-fields__value-text">{{ expiry | date : 'MM/yy' }}</div>
     </div>
-    <div *ngIf="availableAmount !== undefined" class="virtual-card__vertical-divider"></div>
-    <div *ngIf="availableAmount !== undefined">
-      <div class="virtual-card__card-fields__label-text">
-        {{ 'virtualCard.available' | transloco }}
-        <ion-icon
-          class="virtual-card__card-fields__label-text__info-icon"
-          src="../../../../../assets/svg/info-circle-outline.svg"
-          (click)="openInfoPopup()"
-        ></ion-icon>
+    @if (availableAmount !== undefined) {
+      <div class="virtual-card__vertical-divider"></div>
+    }
+    @if (availableAmount !== undefined) {
+      <div>
+        <div class="virtual-card__card-fields__label-text">
+          {{ 'virtualCard.available' | transloco }}
+          <ion-icon
+            class="virtual-card__card-fields__label-text__info-icon"
+            src="../../../../../assets/svg/info-circle-outline.svg"
+            (click)="openInfoPopup()"
+          ></ion-icon>
+        </div>
+        <div class="virtual-card__card-fields__value-text">{{ availableAmount | currency : 'USD' }}</div>
       </div>
-      <div class="virtual-card__card-fields__value-text">{{ availableAmount | currency : 'USD' }}</div>
-    </div>
+    }
   </div>
 </div>

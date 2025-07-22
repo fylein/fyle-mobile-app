@@ -18,9 +18,9 @@ import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-s
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import {
-  MatLegacySnackBar as MatSnackBar,
-  MatLegacySnackBarRef as MatSnackBarRef,
-} from '@angular/material/legacy-snack-bar';
+  MatSnackBar,
+  MatSnackBarRef,
+} from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -60,6 +60,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   isOffline$: Observable<boolean>;
 
   isBulkModePromptShown = false;
+
+  isSaveReceiptForLater = false;
 
   bulkModeToastMessageRef: MatSnackBarRef<ToastMessageComponent>;
 
@@ -204,9 +206,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  saveSingleCapture(): void {
+  saveSingleCapture(isSaveReceiptForLater: boolean): void {
     this.isOffline$.pipe(take(1)).subscribe((isOffline) => {
-      if (isOffline) {
+      if (isOffline || isSaveReceiptForLater) {
         this.onSingleCaptureOffline();
       } else {
         this.navigateToExpenseForm();
@@ -222,7 +224,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       shareReplay(1),
       tap((receiptPreviewModal) => receiptPreviewModal.present()),
       switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss<ReceiptPreviewData>()),
-      map((receiptPreviewData) => receiptPreviewData?.data),
+      map((receiptPreviewData) => {
+        this.isSaveReceiptForLater = receiptPreviewData?.data?.isSaveReceiptForLater;
+        return receiptPreviewData?.data;
+      }),
       filter((receiptPreviewDetails) => !!receiptPreviewDetails)
     );
 
@@ -260,7 +265,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         }, 0);
       });
 
-    saveReceipt$.pipe(filter((isModal) => !isModal)).subscribe(() => this.saveSingleCapture());
+    saveReceipt$
+      .pipe(filter((isModal) => !isModal))
+      .subscribe(() => this.saveSingleCapture(this.isSaveReceiptForLater));
   }
 
   addPerformanceTrackers(): void {

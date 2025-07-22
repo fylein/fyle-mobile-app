@@ -5,7 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { RouteSelectorComponent } from './route-selector.component';
 import { Injector, NO_ERRORS_SCHEMA, SimpleChanges } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 import { expenseFieldsMapResponse3 } from 'src/app/core/mock-data/expense-fields-map.data';

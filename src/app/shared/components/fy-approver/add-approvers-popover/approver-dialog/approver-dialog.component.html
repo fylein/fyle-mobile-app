@@ -18,26 +18,25 @@
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': selectedApproversList?.length > 0 }">
     <mat-form-field
       class="selection-modal--form-container mat-form-field-no-padding"
-      appearance="none"
-      [ngClass]="{ 'selection-modal--form-container__chips': selectedApproversList?.length > 0 }"
-    >
-      <mat-chip-list #chipList [attr.aria-label]="'approverDialog.multiSelect' | transloco">
-        <mat-chip
-          *ngFor="let approver of selectedApproversList"
-          data-testid="approvers"
-          [selectable]="selectable"
-          [removable]="removable"
-          (removed)="removeApprover(approver)"
-        >
-          {{ approver.name }}
-          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-        </mat-chip>
-        <mat-icon
-          *ngIf="!(selectedApproversList?.length > 0)"
-          class="selection-modal--search-icon"
-          matPrefix
-          svgIcon="search"
-        ></mat-icon>
+      appearance="outline"
+      >
+      <mat-chip-grid class="selection-modal--form-container__chip-grid" #chipList [attr.aria-label]="'approverDialog.multiSelect' | transloco">
+        @for (approver of selectedApproversList; track approver) {
+          <mat-chip-row
+            data-testid="approvers"
+            (removed)="removeApprover(approver)"
+            >
+            {{ approver.name }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip-row>
+        }
+        @if (!(selectedApproversList?.length > 0)) {
+          <mat-icon
+            class="selection-modal--search-icon"
+            matPrefix
+            svgIcon="search"
+          ></mat-icon>
+        }
         <input
           #searchBar
           [(ngModel)]="value"
@@ -48,28 +47,32 @@
           [matChipInputAddOnBlur]="addOnBlur"
           (matChipInputTokenEnd)="addChip($event)"
           [placeholder]="!(selectedApproversList?.length > 0) ? ('approverDialog.search' | transloco) : ''"
-        />
-      </mat-chip-list>
+          />
+      </mat-chip-grid>
     </mat-form-field>
-    <div class="selection-modal--selected-count" *ngIf="selectedApproversList?.length > 0">
-      {{ selectedApproversList.length }} {{ 'approverDialog.selected' | transloco }}
-    </div>
+    @if (selectedApproversList?.length > 0) {
+      <div class="selection-modal--selected-count">
+        {{ selectedApproversList.length }} {{ 'approverDialog.selected' | transloco }}
+      </div>
+    }
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="selection-modal--container" *ngFor="let approver of searchedApprovers$ | async as approverList">
-    <div class="selection-modal--list-element">
-      <label class="selection-modal--list-element__label">
-        <mat-checkbox
-          [checked]="selectedApproversDict[approver.email]"
-          (change)="onSelectApprover(approver, $event)"
-        ></mat-checkbox>
-        <span class="selection-modal--approver-details">
-          <span class="selection-modal--approver-details__title">{{ approver.full_name }}</span>
-          <span class="selection-modal--approver-details__content">{{ approver.email }}</span>
-        </span>
-      </label>
+  @for (approver of searchedApprovers$ | async; track approver) {
+    <div class="selection-modal--container">
+      <div class="selection-modal--list-element">
+        <label class="selection-modal--list-element__label">
+          <mat-checkbox
+            [checked]="selectedApproversDict[approver.email]"
+            (change)="onSelectApprover(approver, $event)"
+          ></mat-checkbox>
+          <span class="selection-modal--approver-details">
+            <span class="selection-modal--approver-details__title">{{ approver.full_name }}</span>
+            <span class="selection-modal--approver-details__content">{{ approver.email }}</span>
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
+  }
 </ion-content>

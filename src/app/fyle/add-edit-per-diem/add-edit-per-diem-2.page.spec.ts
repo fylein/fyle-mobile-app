@@ -32,7 +32,7 @@ import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender
 
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { orgCategoryData, orgCategoryData1, perDiemCategory } from 'src/app/core/mock-data/org-category.data';
 import { BehaviorSubject, finalize, of, skip, take, tap } from 'rxjs';

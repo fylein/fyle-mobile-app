@@ -75,7 +75,7 @@
       "expensesTabDescription": "Tap here to quickly access and manage your expenses!",
       "reportsTabDescription": "Tap here to quickly access and manage your expense reports!",
       "approverDescription": "Easily manage and approve reports — Access your team's reports right from the home page!",
-      "profileEmailOptInDescription": "Just copy this email ID and forward your receipts to it — your expenses will be created quickly and hassle-free!",
+      "profileEmailOptInDescription": "Forward receipts to this email ID and your expense will be created automatically.",
       "dashboardAddExpenseDescription": "With the Add Expense button - manually create expenses or upload receipts with ease — all from one place."
     },
     "customInputs": {
@@ -239,6 +239,7 @@
       "aboutToDelete": "You are about to permanently delete",
       "oneSelectedExpense": "1 selected expense.",
       "multipleSelectedExpenses": "{{count}} selected expenses.",
+      "expenseNotFound": "Expense not found",
       "cccMessageSingular": "There is {{count}} corporate card expense from the selection which can't be deleted.",
       "cccMessagePlural": "There are {{count}} corporate card expenses from the selection which can't be deleted.",
       "deleteOthersMessage": "However you can delete the other expenses from the selection.",
@@ -520,11 +521,12 @@
     "cancel": "Cancel"
   },
   "receiptPreview": {
-    "receiptPreviews": "Receipt Previews",
+    "receiptPreviews": "Receipt previews",
     "retake": "Retake",
+    "saveReceiptForLater": "Save receipt for later",
     "addMore": "Add more",
     "finish": "Finish",
-    "discardReceiptTitle": "Discard Receipt",
+    "discardReceiptTitle": "Discard receipt",
     "discardMultipleReceiptsMessage": "Are you sure you want to discard the {{count}} receipts you just captured?",
     "discardSingleReceiptMessage": "Not a good picture? No worries. Discard and click again.",
     "discard": "Discard",
@@ -623,7 +625,9 @@
     "unspecifiedProject": "Unspecified",
     "expenseInfo": "Expense information",
     "missing": "missing",
-    "at": "at"
+    "at": "at",
+    "add": "Add",
+    "more": "more"
   },
   "transactionStatusInfoPopover": {
     "title": "Transaction status:",
@@ -1000,7 +1004,7 @@
   "fySelectProject": {
     "selectLabel": "Select {{label}}"
   },
-  "fyProjectSelectModal": {
+  "fySelectProjectModal": {
     "selectLabel": "Select {{label}}",
     "searchPlaceholder": "Search",
     "clearAriaLabel": "Clear",
@@ -1122,7 +1126,7 @@
     "selectDistance": "Select distance",
     "selectDistanceUnit": "Select distance unit"
   },
-  "fySummaryTile": {
+  "summaryTile": {
     "projectLabel": "Project:",
     "approvers": "Approvers",
     "approved": "Approved",
@@ -1614,5 +1618,8 @@
       "page": "Reports",
       "from": "My Reports"
     }
+  },
+  "dashboard": {
+    "pendingTasks": "You have {{count}} pending tasks"
   }
 }

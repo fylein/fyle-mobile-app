@@ -4,7 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
   selector: 'app-fy-multiselect-modal',
@@ -25,10 +25,6 @@ export class FyMultiselectModalComponent implements AfterViewInit {
   @Input() subheader: string;
 
   value = '';
-
-  selectable = true;
-
-  removable = true;
 
   addOnBlur = true;
 

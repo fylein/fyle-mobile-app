@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { MatChipInputEvent } from '@angular/material/chips';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
 @Component({
   selector: 'app-fy-userlist-modal',
@@ -41,8 +41,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   isLoading = false;
 
   selectable = true;
-
-  removable = true;
 
   addOnBlur = true;
 
