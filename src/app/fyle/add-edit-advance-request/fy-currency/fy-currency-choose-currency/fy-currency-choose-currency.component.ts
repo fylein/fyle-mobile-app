@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit } from '@angular/core';
 import { Observable, from, noop, fromEvent } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import {
   concatMap,
@@ -13,12 +13,19 @@ import {
   switchMap,
   filter,
 } from 'rxjs/operators';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-fy-currency-choose-currency',
   templateUrl: './fy-currency-choose-currency.component.html',
   styleUrls: ['./fy-currency-choose-currency.component.scss'],
+  standalone: true,
+  imports: [IonicModule, MatIcon, MatFormField, MatInput, FormsModule, MatSuffix, AsyncPipe, TranslocoPipe],
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;

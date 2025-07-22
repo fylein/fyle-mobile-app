@@ -1,20 +1,34 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLinkActive, RouterLink } from '@angular/router';
 import { from, Observable } from 'rxjs';
 import { finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, AsyncPipe, TitleCasePipe, DatePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
+import { IonicModule } from '@ionic/angular';
+import { FySummaryTileComponent } from '../../shared/components/summary-tile/summary-tile.component';
+import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-statistic.component';
 
 @Component({
   selector: 'app-my-view-advance',
   templateUrl: './my-view-advance.page.html',
   styleUrls: ['./my-view-advance.page.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    RouterLinkActive,
+    RouterLink,
+    FySummaryTileComponent,
+    FyStatisticComponent,
+    AsyncPipe,
+    TitleCasePipe,
+    DatePipe,
+  ],
 })
 export class MyViewAdvancePage {
   advance$: Observable<ExtendedAdvance>;

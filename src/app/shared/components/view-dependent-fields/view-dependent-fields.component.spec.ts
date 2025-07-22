@@ -18,8 +18,7 @@ describe('ViewDependentFieldsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ViewDependentFieldsComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, ViewDependentFieldsComponent],
       providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
 

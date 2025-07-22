@@ -18,8 +18,7 @@ describe('FyZeroStateComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyZeroStateComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, FyZeroStateComponent],
       providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
 

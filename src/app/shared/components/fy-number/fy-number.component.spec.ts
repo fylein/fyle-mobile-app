@@ -28,8 +28,14 @@ describe('FyNumberComponent', () => {
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [FyNumberComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, ReactiveFormsModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        FyNumberComponent,
+      ],
       providers: [
         { provide: Platform, useValue: platformSpy },
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },

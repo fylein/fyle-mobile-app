@@ -30,8 +30,14 @@ describe('FyMultiselectComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyMultiselectComponent],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, FormsModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconTestingModule,
+        MatIconModule,
+        FormsModule,
+        TranslocoModule,
+        FyMultiselectComponent,
+      ],
       providers: [
         {
           provide: ModalController,

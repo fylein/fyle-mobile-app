@@ -11,7 +11,6 @@ import { AppVersionPage } from './app-version.page';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, AppVersionPageRoutingModule, MatButtonModule],
-  declarations: [AppVersionPage],
+  imports: [CommonModule, FormsModule, IonicModule, AppVersionPageRoutingModule, MatButtonModule, AppVersionPage],
 })
 export class AppVersionPageModule {}

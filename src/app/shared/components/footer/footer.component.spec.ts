@@ -34,8 +34,14 @@ describe('FooterComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FooterComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, MatRippleModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        MatRippleModule,
+        TranslocoModule,
+        FooterComponent,
+      ],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },

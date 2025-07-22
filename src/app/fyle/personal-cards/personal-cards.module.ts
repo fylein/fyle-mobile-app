@@ -30,8 +30,10 @@ import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
     MatInputModule,
     MatFormFieldModule,
     MatDatepickerModule,
+    PersonalCardsPage,
+    TransactionsShimmerComponent,
+    DateRangeModalComponent,
   ],
   providers: [SpinnerDialog],
-  declarations: [PersonalCardsPage, TransactionsShimmerComponent, DateRangeModalComponent],
 })
 export class PersonalCardsPageModule {}

@@ -30,8 +30,7 @@ describe('VirtualCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [VirtualCardComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, VirtualCardComponent],
       providers: [
         { provide: ClipboardService, useValue: clipboardServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },

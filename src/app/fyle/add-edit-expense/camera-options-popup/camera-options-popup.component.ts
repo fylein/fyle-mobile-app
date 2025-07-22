@@ -6,12 +6,16 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { finalize, from, map, raceWith, switchMap, timer } from 'rxjs';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatRipple } from '@angular/material/core';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-camera-options-popup',
   templateUrl: './camera-options-popup.component.html',
   styleUrls: ['./camera-options-popup.component.scss'],
+  standalone: true,
+  imports: [MatRipple, MatIcon, TranslocoPipe],
 })
 export class CameraOptionsPopupComponent implements OnInit {
   @Input() mode: string;

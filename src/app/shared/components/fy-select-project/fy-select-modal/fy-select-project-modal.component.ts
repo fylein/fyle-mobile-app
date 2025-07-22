@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { Observable, fromEvent, iif, of, from, forkJoin } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime, shareReplay } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -14,12 +14,36 @@ import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatPrefix, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { MatRipple } from '@angular/material/core';
+import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
+import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-fy-select-modal',
   templateUrl: './fy-select-project-modal.component.html',
   styleUrls: ['./fy-select-project-modal.component.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    MatIcon,
+    MatFormField,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatSuffix,
+    MatIconButton,
+    MatRipple,
+    FyHighlightTextComponent,
+    NgTemplateOutlet,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class FyProjectSelectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;

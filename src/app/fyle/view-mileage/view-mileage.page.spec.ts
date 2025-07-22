@@ -132,8 +132,7 @@ describe('ViewMileagePage', () => {
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewMileagePage],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), ViewMileagePage],
       providers: [
         {
           useValue: loaderServiceSpy,

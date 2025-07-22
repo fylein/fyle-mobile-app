@@ -21,7 +21,7 @@ import { SharedModule } from '../../shared/shared.module';
     MatInputModule,
     MatButtonModule,
     SharedModule,
+    ResetPasswordPage,
   ],
-  declarations: [ResetPasswordPage],
 })
 export class ResetPasswordPageModule {}

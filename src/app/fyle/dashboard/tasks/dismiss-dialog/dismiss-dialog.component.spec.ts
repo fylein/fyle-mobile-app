@@ -28,8 +28,15 @@ describe('DismissDialogComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [DismissDialogComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconTestingModule, MatIconModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        FormsModule,
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
+        DismissDialogComponent,
+        FormButtonValidationDirective,
+      ],
       providers: [
         {
           provide: PopoverController,

@@ -33,8 +33,7 @@ describe('NavigationFooterComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [NavigationFooterComponent, FyNavFooterComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, NavigationFooterComponent, FyNavFooterComponent],
       providers: [
         {
           provide: ActivatedRoute,

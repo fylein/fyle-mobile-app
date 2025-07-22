@@ -5,11 +5,14 @@ import { switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-verify',
   templateUrl: './verify.page.html',
   styleUrls: ['./verify.page.scss'],
+  standalone: true,
+  imports: [IonicModule],
 })
 export class VerifyPage implements OnInit {
   constructor(

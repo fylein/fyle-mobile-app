@@ -36,8 +36,7 @@ describe('PopupAlertComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-      declarations: [PopupAlertComponent, FyAlertInfoComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, PopupAlertComponent, FyAlertInfoComponent],
       providers: [
         {
           provide: PopoverController,

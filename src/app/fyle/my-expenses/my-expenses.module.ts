@@ -38,7 +38,9 @@ import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismis
     MatSnackBarModule,
     SharedModule,
     MatCheckboxModule,
+    MyExpensesPage,
+    AddTxnToReportDialogComponent,
+    DismissDialogComponent,
   ],
-  declarations: [MyExpensesPage, AddTxnToReportDialogComponent, DismissDialogComponent],
 })
 export class MyExpensesPageModule {}

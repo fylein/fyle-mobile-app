@@ -3,10 +3,7 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MatChipInputEvent,
-  MatChipsModule,
-} from '@angular/material/chips';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { ModalController } from '@ionic/angular';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
@@ -46,7 +43,6 @@ describe('FyUserlistModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyUserlistModalComponent],
       imports: [
         IonicModule.forRoot(),
         MatIconTestingModule,
@@ -55,6 +51,7 @@ describe('FyUserlistModalComponent', () => {
         MatIconModule,
         MatCheckboxModule,
         TranslocoModule,
+        FyUserlistModalComponent,
       ],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },

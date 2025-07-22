@@ -47,8 +47,7 @@ describe('FyLocationModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyLocationModalComponent],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyLocationModalComponent],
       providers: [
         {
           provide: ModalController,

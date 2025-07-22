@@ -54,7 +54,6 @@ describe('CreateNewReportComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [CreateNewReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe],
       imports: [
         IonicModule.forRoot(),
         MatIconModule,
@@ -63,6 +62,10 @@ describe('CreateNewReportComponent', () => {
         ReactiveFormsModule,
         MatCheckboxModule,
         TranslocoModule,
+        CreateNewReportComponent,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        FyCurrencyPipe,
       ],
       providers: [
         { provide: ModalController, useValue: modalController },

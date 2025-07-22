@@ -21,6 +21,8 @@ import { orgSettingsWithV2ExpensesPage, orgSettingsWoV2ExpensesPage } from 'src/
 @Component({
   selector: 'app-corporate-card',
   template: '<div></div>',
+  standalone: true,
+  imports: [RouterModule, RouterTestingModule, TranslocoModule],
 })
 class MockCorporateCardComponent {
   @Input() card: PlatformCorporateCard;
@@ -50,14 +52,17 @@ describe('CardDetailComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [
+      imports: [
+        IonicModule.forRoot(),
+        RouterModule,
+        RouterTestingModule,
+        TranslocoModule,
         CardDetailComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         MaskNumber,
         MockCorporateCardComponent,
       ],
-      imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule, TranslocoModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

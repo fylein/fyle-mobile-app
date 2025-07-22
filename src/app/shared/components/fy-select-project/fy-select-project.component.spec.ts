@@ -30,7 +30,6 @@ describe('FySelectProjectComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FySelectProjectComponent],
       imports: [
         IonicModule.forRoot(),
         FormsModule,
@@ -38,6 +37,7 @@ describe('FySelectProjectComponent', () => {
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,
+        FySelectProjectComponent,
       ],
       providers: [
         {

@@ -9,12 +9,20 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { Delegator } from 'src/app/core/models/platform/delegator.model';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { NavController } from '@ionic/angular';
+import { NavController, IonicModule } from '@ionic/angular';
+import { MatFormField, MatPrefix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatRipple } from '@angular/material/core';
+import { UpperCasePipe } from '@angular/common';
+import { InitialsPipe } from '../../shared/pipes/initials.pipe';
 
 @Component({
   selector: 'app-delegated-accounts',
   templateUrl: './delegated-accounts.page.html',
   styleUrls: ['./delegated-accounts.page.scss'],
+  standalone: true,
+  imports: [IonicModule, MatFormField, MatPrefix, MatInput, FormsModule, MatRipple, UpperCasePipe, InitialsPipe],
 })
 export class DelegatedAccountsPage {
   @ViewChild('searchDelegatees') searchDelegatees: ElementRef<HTMLInputElement>;

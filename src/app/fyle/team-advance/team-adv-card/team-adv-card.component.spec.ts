@@ -35,8 +35,16 @@ describe('TeamAdvCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [TeamAdvCardComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, EllipsisPipe, FyCurrencyPipe],
-      imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatRippleModule,
+        TranslocoModule,
+        TeamAdvCardComponent,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        EllipsisPipe,
+        FyCurrencyPipe,
+      ],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         {

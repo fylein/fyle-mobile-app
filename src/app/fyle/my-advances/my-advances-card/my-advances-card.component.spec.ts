@@ -30,8 +30,14 @@ describe('MyAdvancesCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        TranslocoModule,
+        MyAdvancesCardComponent,
+        EllipsisPipe,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+      ],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

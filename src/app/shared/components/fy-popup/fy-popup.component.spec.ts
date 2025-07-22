@@ -32,8 +32,7 @@ describe('FyPopupComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyPopupComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, FyPopupComponent],
       providers: [
         {
           provide: PopoverController,

@@ -11,8 +11,7 @@ describe('FySelectDisabledComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [FySelectDisabledComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FySelectDisabledComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FySelectDisabledComponent);

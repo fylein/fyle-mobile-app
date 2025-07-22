@@ -39,8 +39,6 @@ import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form/cus
     PdfViewerModule,
     MatButtonModule,
     MatSnackBarModule,
-  ],
-  declarations: [
     MergeExpensePage,
     CardTransactionPreviewComponent,
     GenericFieldsFormComponent,

@@ -32,8 +32,14 @@ describe('PendingVerificationPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
-      declarations: [PendingVerificationPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule],
+      imports: [
+        IonicModule.forRoot(),
+        RouterTestingModule,
+        RouterModule,
+        FormsModule,
+        ReactiveFormsModule,
+        PendingVerificationPage,
+      ],
       providers: [
         UntypedFormBuilder,
         {

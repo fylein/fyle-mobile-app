@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import {
   switchMap,
@@ -14,11 +14,15 @@ import {
   map,
 } from 'rxjs/operators';
 import { from } from 'rxjs';
+import { FyNumberComponent } from '../../../../shared/components/fy-number/fy-number.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-currency-exchange-rate',
   templateUrl: './fy-currency-exchange-rate.component.html',
   styleUrls: ['./fy-currency-exchange-rate.component.scss'],
+  standalone: true,
+  imports: [IonicModule, FormsModule, ReactiveFormsModule, FyNumberComponent, TranslocoPipe],
 })
 export class FyCurrencyExchangeRateComponent implements OnInit {
   @Input() amount;

@@ -1,10 +1,10 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent } from '@ionic/angular';
+import { PopoverController, ModalController, IonContent, IonicModule } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, take, takeUntil, filter } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -15,7 +15,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass, AsyncPipe, LowerCasePipe, TitleCasePipe, DatePipe } from '@angular/common';
 import dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -40,11 +40,49 @@ import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-a
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { FyExpansionInfoMsgComponent } from '../../shared/components/fy-expansion-info-msg/fy-expansion-info-msg.component';
+import { FyApproverComponent } from '../../shared/components/fy-approver/fy-approver.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
+import { MatIcon } from '@angular/material/icon';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { AuditHistoryComponent } from '../../shared/components/comments-history/audit-history/audit-history.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { FormsModule } from '@angular/forms';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
+import { ExactCurrencyPipe as ExactCurrencyPipe_1 } from '../../shared/pipes/exact-currency.pipe';
+import { ReportState } from '../../shared/pipes/report-state.pipe';
+import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
+import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
   styleUrls: ['./view-team-report.page.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    RouterLink,
+    FyExpansionInfoMsgComponent,
+    FyApproverComponent,
+    FyLoadingScreenComponent,
+    ExpensesCardComponent,
+    NgClass,
+    MatIcon,
+    FyZeroStateComponent,
+    AuditHistoryComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    AsyncPipe,
+    LowerCasePipe,
+    TitleCasePipe,
+    DatePipe,
+    EllipsisPipe,
+    ExactCurrencyPipe_1,
+    ReportState,
+    SnakeCaseToSpaceCase,
+    DateWithTimezonePipe_1,
+  ],
 })
 export class ViewTeamReportPage {
   @ViewChild('commentInput') commentInput: ElementRef;

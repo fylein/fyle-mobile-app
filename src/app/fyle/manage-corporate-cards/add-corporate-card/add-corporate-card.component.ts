@@ -1,18 +1,45 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { AbstractControl, UntypedFormControl, ValidationErrors } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormControl,
+  ValidationErrors,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router } from '@angular/router';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, IonicModule } from '@ionic/angular';
 import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass } from '@angular/common';
+import { NgxMaskModule } from 'ngx-mask';
+import { AutofocusDirective } from '../../../shared/directive/autofocus.directive';
+import { FyAlertInfoComponent } from '../../../shared/components/fy-alert-info/fy-alert-info.component';
+import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
+import { ArrayToCommaListPipe } from '../../../shared/pipes/array-to-comma-list.pipe';
 
 @Component({
   selector: 'app-add-corporate-card',
   templateUrl: './add-corporate-card.component.html',
   styleUrls: ['./add-corporate-card.component.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    MatIcon,
+    NgClass,
+    NgxMaskModule,
+    FormsModule,
+    AutofocusDirective,
+    ReactiveFormsModule,
+    FyAlertInfoComponent,
+    FormButtonValidationDirective,
+    ArrayToCommaListPipe,
+    TranslocoPipe,
+  ],
 })
 export class AddCorporateCardComponent implements OnInit {
   @Input() isVisaRTFEnabled: boolean;

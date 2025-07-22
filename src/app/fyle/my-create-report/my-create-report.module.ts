@@ -20,7 +20,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatIconModule,
     SharedModule,
     MatCheckboxModule,
+    MyCreateReportPage,
   ],
-  declarations: [MyCreateReportPage],
 })
 export class MyCreateReportPageModule {}

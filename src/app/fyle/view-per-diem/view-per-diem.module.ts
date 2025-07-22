@@ -8,7 +8,14 @@ import { SharedModule } from '../../shared/shared.module';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, ViewPerDiemPageRoutingModule, SharedModule, MatButtonModule],
-  declarations: [ViewPerDiemPage],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    ViewPerDiemPageRoutingModule,
+    SharedModule,
+    MatButtonModule,
+    ViewPerDiemPage,
+  ],
 })
 export class ViewPerDiemPageModule {}

@@ -39,7 +39,6 @@ describe('DependentFieldsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [DependentFieldsComponent, DependentFieldComponent],
       imports: [
         IonicModule.forRoot(),
         ReactiveFormsModule,
@@ -47,6 +46,8 @@ describe('DependentFieldsComponent', () => {
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,
+        DependentFieldsComponent,
+        DependentFieldComponent,
       ],
       providers: [
         {

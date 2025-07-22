@@ -17,10 +17,7 @@ import { CameraPreviewComponent } from './camera-preview/camera-preview.componen
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -28,6 +25,7 @@ import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { AsyncPipe } from '@angular/common';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Image = Partial<{
@@ -39,6 +37,8 @@ type Image = Partial<{
   selector: 'app-capture-receipt',
   templateUrl: './capture-receipt.component.html',
   styleUrls: ['./capture-receipt.component.scss'],
+  standalone: true,
+  imports: [CameraPreviewComponent, AsyncPipe],
 })
 export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('cameraPreview') cameraPreview: CameraPreviewComponent;

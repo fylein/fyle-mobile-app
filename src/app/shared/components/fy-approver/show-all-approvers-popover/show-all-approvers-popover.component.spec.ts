@@ -24,8 +24,7 @@ describe('ShowAllApproversPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ShowAllApproversPopoverComponent, EllipsisPipe],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, ShowAllApproversPopoverComponent, EllipsisPipe],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },

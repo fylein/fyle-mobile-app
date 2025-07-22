@@ -8,18 +8,40 @@ import {
   NG_VALUE_ACCESSOR,
   UntypedFormBuilder,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
 import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
+import { FySelectComponent } from '../../../shared/components/fy-select/fy-select.component';
+import { IonicModule } from '@ionic/angular';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { ReceiptPreviewThumbnailComponent } from '../../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { CardTransactionPreviewComponent } from '../card-transaction-preview/card-transaction-preview.component';
+import { FySelectDisabledComponent } from '../../../shared/components/fy-select-disabled/fy-select-disabled.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-generic-fields-form',
   templateUrl: './generic-fields-form.component.html',
   styleUrls: ['./generic-fields-form.component.scss'],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: GenericFieldsFormComponent, multi: true }],
+  standalone: true,
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    FySelectComponent,
+    IonicModule,
+    NgClass,
+    ReceiptPreviewThumbnailComponent,
+    CardTransactionPreviewComponent,
+    FySelectDisabledComponent,
+    NgTemplateOutlet,
+    TranslocoPipe,
+  ],
 })
 export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
   @Input() amountOptionsData: MergeExpensesOptionsData<string>;

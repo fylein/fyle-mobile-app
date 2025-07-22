@@ -8,12 +8,12 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, filter, take } from 'rxjs/operators';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { PopoverController, ModalController, IonicModule } from '@ionic/angular';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass, AsyncPipe, TitleCasePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -33,11 +33,34 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
+import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
+import { ViewDependentFieldsComponent } from '../../shared/components/view-dependent-fields/view-dependent-fields.component';
+import { NavigationFooterComponent } from '../../shared/components/navigation-footer/navigation-footer.component';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
+import { ExpenseState as ExpenseState_1 } from '../../shared/pipes/expense-state.pipe';
+import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 
 @Component({
   selector: 'app-view-per-diem',
   templateUrl: './view-per-diem.page.html',
   styleUrls: ['./view-per-diem.page.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    NgClass,
+    FyPolicyViolationInfoComponent,
+    ViewDependentFieldsComponent,
+    NavigationFooterComponent,
+    AsyncPipe,
+    TitleCasePipe,
+    CurrencyPipe,
+    DatePipe,
+    ExactCurrencyPipe,
+    SnakeCaseToSpaceCase,
+    ExpenseState_1,
+    FyCurrencyPipe,
+  ],
 })
 export class ViewPerDiemPage {
   @ViewChild('comments') commentsContainer: ElementRef;

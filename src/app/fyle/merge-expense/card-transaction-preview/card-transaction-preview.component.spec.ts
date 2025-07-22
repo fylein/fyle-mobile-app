@@ -25,8 +25,14 @@ describe('CardTransactionPreviewComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [CardTransactionPreviewComponent, EllipsisPipe],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        CardTransactionPreviewComponent,
+        EllipsisPipe,
+      ],
       providers: [
         {
           provide: TranslocoService,

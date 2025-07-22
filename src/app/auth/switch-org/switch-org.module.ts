@@ -21,7 +21,9 @@ import { OrgCardComponent } from './org-card/org-card.component';
     MatInputModule,
     MatRippleModule,
     SharedModule,
+    SwitchOrgPage,
+    ActiveOrgCardComponent,
+    OrgCardComponent,
   ],
-  declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent],
 })
 export class SwitchOrgPageModule {}

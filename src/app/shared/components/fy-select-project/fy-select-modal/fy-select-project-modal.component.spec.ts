@@ -79,7 +79,6 @@ describe('FyProjectSelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyProjectSelectModalComponent, FyHighlightTextComponent, HighlightPipe],
       imports: [
         IonicModule.forRoot(),
         MatIconModule,
@@ -89,6 +88,9 @@ describe('FyProjectSelectModalComponent', () => {
         MatInputModule,
         BrowserAnimationsModule,
         TranslocoModule,
+        FyProjectSelectModalComponent,
+        FyHighlightTextComponent,
+        HighlightPipe,
       ],
       providers: [
         ChangeDetectorRef,

@@ -1,10 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-info-card',
   templateUrl: './info-card.component.html',
   styleUrls: ['./info-card.component.scss'],
+  standalone: true,
+  imports: [IonicModule],
 })
 export class InfoCardComponent {
   @Input() title: string;

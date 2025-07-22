@@ -27,7 +27,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatRippleModule,
     MatNativeDateModule,
     MatDatepickerModule,
+    TeamReportsPage,
   ],
-  declarations: [TeamReportsPage],
 })
 export class TeamReportsPageModule {}

@@ -21,7 +21,6 @@ describe('ReceiptPreviewThumbnailComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ReceiptPreviewThumbnailComponent],
       providers: [
         {
           provide: TrackingService,
@@ -29,7 +28,7 @@ describe('ReceiptPreviewThumbnailComponent', () => {
         },
         { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, ReceiptPreviewThumbnailComponent],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 

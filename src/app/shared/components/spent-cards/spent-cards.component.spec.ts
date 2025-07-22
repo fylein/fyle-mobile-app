@@ -12,8 +12,7 @@ describe('SpentCardsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [SpentCardsComponent],
-      imports: [IonicModule.forRoot(), SwiperModule],
+      imports: [IonicModule.forRoot(), SwiperModule, SpentCardsComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 

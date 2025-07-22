@@ -10,10 +10,10 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators, FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController } from '@ionic/angular';
-import { NgOtpInputComponent, NgOtpInputConfig } from 'ng-otp-input';
+import { ModalController, IonicModule } from '@ionic/angular';
+import { NgOtpInputComponent, NgOtpInputConfig, NgOtpInputModule } from 'ng-otp-input';
 import { finalize, from, Subscription, switchMap } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
@@ -31,12 +31,24 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass, DecimalPipe } from '@angular/common';
+import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
 
 @Component({
   selector: 'app-spender-onboarding-opt-in-step',
   templateUrl: './spender-onboarding-opt-in-step.component.html',
   styleUrls: ['./spender-onboarding-opt-in-step.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    NgClass,
+    IonicModule,
+    NgOtpInputModule,
+    FormButtonValidationDirective,
+    DecimalPipe,
+    TranslocoPipe,
+  ],
 })
 export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   @ViewChild('mobileInput') mobileInputEl: ElementRef<HTMLInputElement>;

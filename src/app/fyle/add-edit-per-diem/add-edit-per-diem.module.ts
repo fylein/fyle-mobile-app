@@ -28,7 +28,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatCheckboxModule,
     SharedModule,
     MatSnackBarModule,
+    AddEditPerDiemPage,
   ],
-  declarations: [AddEditPerDiemPage],
 })
 export class AddEditPerDiemPageModule {}

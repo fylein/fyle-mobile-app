@@ -4,11 +4,15 @@ import { concat, from, of } from 'rxjs';
 import { delay, pairwise, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { ConnectionMessageStatus } from './connection-status.enum';
+import { AsyncPipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-connection',
   templateUrl: './fy-connection.component.html',
   styleUrls: ['./fy-connection.component.scss'],
+  standalone: true,
+  imports: [AsyncPipe, TranslocoPipe],
 })
 export class FyConnectionComponent implements OnInit {
   isConnected$: Observable<boolean>;

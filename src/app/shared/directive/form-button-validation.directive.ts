@@ -4,6 +4,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Directive({
   selector: '[appFormButtonValidation]',
+  standalone: true,
 })
 export class FormButtonValidationDirective implements OnChanges {
   @Input() loadingText: string;

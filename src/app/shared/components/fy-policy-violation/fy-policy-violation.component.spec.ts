@@ -32,7 +32,6 @@ describe('FyPolicyViolationComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyPolicyViolationComponent],
       providers: [
         {
           provide: PolicyService,
@@ -51,7 +50,7 @@ describe('FyPolicyViolationComponent', () => {
           useValue: translocoServiceSpy,
         },
       ],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyPolicyViolationComponent],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 

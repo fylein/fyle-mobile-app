@@ -20,7 +20,7 @@ import { SharedModule } from '../../shared/shared.module';
     MatInputModule,
     MatButtonModule,
     SharedModule,
+    PendingVerificationPage,
   ],
-  declarations: [PendingVerificationPage],
 })
 export class PendingVerificationPageModule {}

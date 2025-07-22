@@ -29,7 +29,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatInputModule,
     MatButtonModule,
     MatSnackBarModule,
+    AddEditMileagePage,
   ],
-  declarations: [AddEditMileagePage],
 })
 export class AddEditMileagePageModule {}

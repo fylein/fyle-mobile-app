@@ -69,8 +69,7 @@ describe('NotificationsBetaPage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
-      declarations: [NotificationsBetaPage],
-      imports: [RouterTestingModule, ReactiveFormsModule],
+      imports: [RouterTestingModule, ReactiveFormsModule, NotificationsBetaPage],
       providers: [
         {
           provide: Router,

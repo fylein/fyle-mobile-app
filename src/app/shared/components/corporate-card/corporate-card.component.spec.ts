@@ -20,6 +20,8 @@ import { of } from 'rxjs';
 @Component({
   selector: 'app-card-number',
   template: '<div></div>',
+  standalone: true,
+  imports: [TranslocoModule],
 })
 class MockCardNumberComponent {
   @Input() cardNumber: string;
@@ -44,8 +46,7 @@ describe('CorporateCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [CorporateCardComponent, MockCardNumberComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, CorporateCardComponent, MockCardNumberComponent],
       providers: [
         {
           provide: CorporateCreditCardExpenseService,

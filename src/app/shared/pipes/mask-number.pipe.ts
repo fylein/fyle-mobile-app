@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'maskNumber',
+  standalone: true,
 })
 export class MaskNumber implements PipeTransform {
   transform(input: string): string {

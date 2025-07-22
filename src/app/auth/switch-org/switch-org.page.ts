@@ -2,7 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, Vie
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of, catchError, throwError } from 'rxjs';
 import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { Platform, PopoverController } from '@ionic/angular';
+import { Platform, PopoverController, IonicModule } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -33,11 +33,34 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { ActiveOrgCardComponent } from './active-org-card/active-org-card.component';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatPrefix, MatSuffix } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { OrgCardComponent } from './org-card/org-card.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
 
 @Component({
   selector: 'app-switch-org',
   templateUrl: './switch-org.page.html',
   styleUrls: ['./switch-org.page.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    ActiveOrgCardComponent,
+    NgClass,
+    MatFormField,
+    MatIcon,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatSuffix,
+    OrgCardComponent,
+    FyZeroStateComponent,
+    AsyncPipe,
+  ],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
   @ViewChild('search') searchRef: ElementRef<HTMLElement>;

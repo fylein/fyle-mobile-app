@@ -5,11 +5,18 @@ import { FooterState } from './footer-state.enum';
 import { NetworkService } from '../../../core/services/network.service';
 import { ConnectionMessageStatus } from '../fy-connection/connection-status.enum';
 import { Observable } from 'rxjs/internal/Observable';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
+import { MatIcon } from '@angular/material/icon';
+import { MatRipple } from '@angular/material/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
+  standalone: true,
+  imports: [NgClass, IonicModule, MatIcon, MatRipple, AsyncPipe, TranslocoPipe],
 })
 export class FooterComponent implements OnInit {
   @Output() homeClicked = new EventEmitter();

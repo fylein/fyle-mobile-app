@@ -28,8 +28,6 @@ import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobil
     MatButtonModule,
     MatSnackBarModule,
     MatRippleModule,
-  ],
-  declarations: [
     MyProfilePage,
     PreferenceSettingComponent,
     EmployeeDetailsCardComponent,

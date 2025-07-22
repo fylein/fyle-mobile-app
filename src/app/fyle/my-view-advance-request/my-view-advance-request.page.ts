@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { ActivatedRoute, Router, RouterLinkActive, RouterLink } from '@angular/router';
+import { PopoverController, ModalController, IonicModule } from '@ionic/angular';
 import { forkJoin, from, Observable } from 'rxjs';
 import { finalize, map, reduce, shareReplay, switchMap, concatMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -17,18 +17,36 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass, AsyncPipe, TitleCasePipe, DatePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
 import { ApprovalPublic } from 'src/app/core/models/approval-public.model';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
 import { AdvanceRequestPopoverData } from 'src/app/core/models/popover-data.model';
+import { FySummaryTileComponent } from '../../shared/components/summary-tile/summary-tile.component';
+import { ReceiptPreviewThumbnailComponent } from '../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-statistic.component';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 
 @Component({
   selector: 'app-my-view-advance-request',
   templateUrl: './my-view-advance-request.page.html',
   styleUrls: ['./my-view-advance-request.page.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    NgClass,
+    RouterLinkActive,
+    RouterLink,
+    FySummaryTileComponent,
+    ReceiptPreviewThumbnailComponent,
+    FyStatisticComponent,
+    AsyncPipe,
+    TitleCasePipe,
+    DatePipe,
+    EllipsisPipe,
+  ],
 })
 export class MyViewAdvanceRequestPage {
   advanceRequest$: Observable<ExtendedAdvanceRequestPublic>;

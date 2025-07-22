@@ -7,6 +7,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   template: `<button appFormButtonValidation>Save</button>`,
+  standalone: true,
 })
 class TestFormValidationButtonComponent {}
 
@@ -21,7 +22,7 @@ describe('FormButtonValidationDirective', () => {
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
     TestBed.configureTestingModule({
-      declarations: [TestFormValidationButtonComponent, FormButtonValidationDirective],
+      imports: [TestFormValidationButtonComponent, FormButtonValidationDirective],
       providers: [
         {
           provide: TranslocoService,

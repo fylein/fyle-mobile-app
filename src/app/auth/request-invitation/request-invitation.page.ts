@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLinkActive, RouterLink } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from } from 'rxjs';
 import { InvitationRequestsService } from 'src/app/core/services/invitation-requests.service';
 import { concatMap, finalize } from 'rxjs/operators';
+import { IonicModule } from '@ionic/angular';
+import { MatFormField } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatButton } from '@angular/material/button';
 
 enum RequestInvitationPageState {
   notSent,
@@ -17,6 +21,17 @@ enum RequestInvitationPageState {
   selector: 'app-request-invitation',
   templateUrl: './request-invitation.page.html',
   styleUrls: ['./request-invitation.page.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormField,
+    MatInput,
+    MatButton,
+    RouterLinkActive,
+    RouterLink,
+  ],
 })
 export class RequestInvitationPage implements OnInit {
   fg: UntypedFormGroup;

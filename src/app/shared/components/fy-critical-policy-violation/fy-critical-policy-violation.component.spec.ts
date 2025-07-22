@@ -23,8 +23,14 @@ describe('FyCriticalPolicyViolationComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyCriticalPolicyViolationComponent, PolicyViolationRuleComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        FyCriticalPolicyViolationComponent,
+        PolicyViolationRuleComponent,
+      ],
       providers: [
         {
           provide: ModalController,

@@ -32,7 +32,6 @@ describe('RouteSelectorModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [RouteSelectorModalComponent, FyLocationComponent],
       imports: [
         IonicModule.forRoot(),
         ReactiveFormsModule,
@@ -41,6 +40,8 @@ describe('RouteSelectorModalComponent', () => {
         MatIconModule,
         MatCheckboxModule,
         TranslocoModule,
+        RouteSelectorModalComponent,
+        FyLocationComponent,
       ],
       providers: [
         UntypedFormBuilder,

@@ -40,8 +40,7 @@ describe('VirtualSelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [VirtualSelectModalComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, VirtualSelectModalComponent],
       providers: [
         {
           provide: ModalController,

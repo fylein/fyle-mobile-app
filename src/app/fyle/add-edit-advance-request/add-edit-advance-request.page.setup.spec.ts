@@ -62,8 +62,7 @@ describe('AddEditAdvanceRequestPage', () => {
     const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditAdvanceRequestPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, AddEditAdvanceRequestPage],
       providers: [
         { provide: AuthService, useValue: authServiceSpyObj },
         { provide: AdvanceRequestsCustomFieldsService, useValue: advanceRequestsCustomFieldsServiceSpyObj },

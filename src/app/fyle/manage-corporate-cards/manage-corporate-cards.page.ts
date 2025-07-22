@@ -1,6 +1,12 @@
 import { Component } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetButton,
+  ActionSheetController,
+  ModalController,
+  PopoverController,
+  IonicModule,
+} from '@ionic/angular';
 import {
   BehaviorSubject,
   Observable,
@@ -35,10 +41,16 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { isNumber } from 'lodash';
+import { MatIcon } from '@angular/material/icon';
+import { CorporateCardComponent } from '../../shared/components/corporate-card/corporate-card.component';
+import { VirtualCardComponent } from '../../shared/components/virtual-card/virtual-card.component';
+import { AsyncPipe } from '@angular/common';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
   styleUrls: ['./manage-corporate-cards.page.scss'],
+  standalone: true,
+  imports: [IonicModule, MatIcon, CorporateCardComponent, VirtualCardComponent, AsyncPipe],
 })
 export class ManageCorporateCardsPage {
   corporateCards$: Observable<PlatformCorporateCard[]>;

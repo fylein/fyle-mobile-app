@@ -24,7 +24,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    RequestInvitationPage,
   ],
-  declarations: [RequestInvitationPage],
 })
 export class RequestInvitationPageModule {}

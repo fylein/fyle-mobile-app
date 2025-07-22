@@ -21,8 +21,14 @@ describe('AddMorePopupComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [AddMorePopupComponent],
-      imports: [IonicModule.forRoot(), MatBottomSheetModule, MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatBottomSheetModule,
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        AddMorePopupComponent,
+      ],
       providers: [
         {
           provide: TranslocoService,

@@ -60,8 +60,7 @@ describe('StatsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [StatsComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, StatsComponent],
       providers: [
         {
           provide: DashboardService,

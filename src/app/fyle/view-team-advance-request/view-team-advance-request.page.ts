@@ -1,6 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetButton,
+  ActionSheetController,
+  ModalController,
+  PopoverController,
+  IonicModule,
+} from '@ionic/angular';
 import { EMPTY, Subject, forkJoin, from } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { catchError, concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, take } from 'rxjs/operators';
@@ -29,11 +35,27 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
+import { NgClass, AsyncPipe, DatePipe } from '@angular/common';
+import { FySummaryTileComponent } from '../../shared/components/summary-tile/summary-tile.component';
+import { ReceiptPreviewThumbnailComponent } from '../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-statistic.component';
+import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
 
 @Component({
   selector: 'app-view-team-advance',
   templateUrl: './view-team-advance-request.page.html',
   styleUrls: ['./view-team-advance-request.page.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    NgClass,
+    FySummaryTileComponent,
+    ReceiptPreviewThumbnailComponent,
+    FyStatisticComponent,
+    AsyncPipe,
+    DatePipe,
+    SnakeCaseToSpaceCase,
+  ],
 })
 export class ViewTeamAdvanceRequestPage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;

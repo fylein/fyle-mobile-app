@@ -107,7 +107,6 @@ describe('AppComponent', () => {
     trackingServiceSpy.updateIdentityIfNotPresent = jasmine.createSpy('updateIdentityIfNotPresent').and.resolveTo();
     trackingServiceSpy.onSignOut = jasmine.createSpy('onSignOut');
     TestBed.configureTestingModule({
-      declarations: [AppComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         { provide: Platform, useValue: platformSpy },
@@ -139,7 +138,7 @@ describe('AppComponent', () => {
         { provide: GmapsService, useValue: gmapsServiceSpy },
         { provide: MenuController, useValue: menuControllerSpy },
       ],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), AppComponent],
     }).compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;

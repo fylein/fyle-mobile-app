@@ -151,8 +151,14 @@ describe('AddEditPerDiemPage', () => {
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['addDaysToDate', 'getUTCDate']);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditPerDiemPage],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
+      imports: [
+        IonicModule.forRoot(),
+        ReactiveFormsModule,
+        FormsModule,
+        RouterTestingModule,
+        RouterModule,
+        AddEditPerDiemPage,
+      ],
       providers: [
         UntypedFormBuilder,
         FyCurrencyPipe,

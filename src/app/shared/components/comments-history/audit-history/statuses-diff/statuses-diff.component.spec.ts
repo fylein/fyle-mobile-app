@@ -19,8 +19,7 @@ describe('StatusesDiffComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [StatusesDiffComponent, SnakeCaseToSpaceCase],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, StatusesDiffComponent, SnakeCaseToSpaceCase],
       providers: [
         {
           provide: TranslocoService,

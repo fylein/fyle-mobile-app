@@ -37,8 +37,6 @@ import { NgxMaskModule } from 'ngx-mask';
     NgxMaskModule.forRoot({
       validation: false,
     }),
-  ],
-  declarations: [
     DashboardPage,
     StatsComponent,
     StatBadgeComponent,

@@ -2,13 +2,34 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FilterOptions } from './filter-options.interface';
 import { SelectedFilters } from './selected-filters.interface';
 import { FilterOptionType } from './filter-option-type.enum';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { forkJoin, Observable, of } from 'rxjs';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatDatepickerInput, MatDatepickerToggle, MatDatepicker } from '@angular/material/datepicker';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-filters',
   templateUrl: './fy-filters.component.html',
   styleUrls: ['./fy-filters.component.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    NgClass,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    FormsModule,
+    MatDatepickerInput,
+    MatDatepickerToggle,
+    MatSuffix,
+    MatDatepicker,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class FyFiltersComponent implements OnInit {
   @Input() simplifyReportsSettings$: Observable<any> = of({ enabled: false });

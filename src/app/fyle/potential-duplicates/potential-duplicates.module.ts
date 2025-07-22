@@ -7,7 +7,13 @@ import { PotentialDuplicatesPage } from './potential-duplicates.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, PotentialDuplicatesPageRoutingModule, SharedModule],
-  declarations: [PotentialDuplicatesPage],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    PotentialDuplicatesPageRoutingModule,
+    SharedModule,
+    PotentialDuplicatesPage,
+  ],
 })
 export class PotentialDuplicatesPageModule {}

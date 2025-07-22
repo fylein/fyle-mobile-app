@@ -6,10 +6,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import {
-  MatChipInputEvent,
-  MatChipsModule,
-} from '@angular/material/chips';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -34,7 +31,6 @@ describe('FyMultiselectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyMultiselectModalComponent],
       imports: [
         IonicModule.forRoot(),
         MatIconTestingModule,
@@ -45,6 +41,7 @@ describe('FyMultiselectModalComponent', () => {
         FormsModule,
         BrowserAnimationsModule,
         TranslocoModule,
+        FyMultiselectModalComponent,
       ],
       providers: [
         {

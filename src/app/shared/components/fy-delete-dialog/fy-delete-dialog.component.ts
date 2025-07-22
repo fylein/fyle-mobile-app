@@ -1,14 +1,20 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, IonicModule } from '@ionic/angular';
 import { catchError, finalize, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { LoaderPosition } from '../../directive/loader-position.enum';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass } from '@angular/common';
+import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-delete-dialog',
   templateUrl: './fy-delete-dialog.component.html',
   styleUrls: ['./fy-delete-dialog.component.scss'],
+  standalone: true,
+  imports: [IonicModule, MatIcon, NgClass, FormButtonValidationDirective, TranslocoPipe],
 })
 export class FyDeleteDialogComponent implements OnInit {
   @Input() deleteMethod: () => Observable<any>;

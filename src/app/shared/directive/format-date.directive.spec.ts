@@ -6,6 +6,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   template: `<input appFormatDate type="date" />`,
+  standalone: true,
 })
 class TestFormatDateDirectiveComponent {}
 
@@ -20,7 +21,7 @@ describe('FormatDateDirective', () => {
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
     TestBed.configureTestingModule({
-      declarations: [TestFormatDateDirectiveComponent, FormatDateDirective],
+      imports: [TestFormatDateDirectiveComponent, FormatDateDirective],
       providers: [
         {
           provide: TranslocoService,

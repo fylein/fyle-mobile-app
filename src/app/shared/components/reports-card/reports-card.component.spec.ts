@@ -27,7 +27,11 @@ describe('ReportsCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [
+      imports: [
+        IonicModule.forRoot(),
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
         ReportsCardComponent,
         EllipsisPipe,
         HumanizeCurrencyPipe,
@@ -35,7 +39,6 @@ describe('ReportsCardComponent', () => {
         ReportState,
         SnakeCaseToSpaceCase,
       ],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, TranslocoModule],
       providers: [FyCurrencyPipe, CurrencyPipe, { provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
 

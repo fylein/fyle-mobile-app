@@ -4,6 +4,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Pipe({
   name: 'humanizeCurrency',
+  standalone: true,
 })
 export class HumanizeCurrencyPipe implements PipeTransform {
   constructor(private fyCurrencyPipe: FyCurrencyPipe, private translocoService: TranslocoService) {}

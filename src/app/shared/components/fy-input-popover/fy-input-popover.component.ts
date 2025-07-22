@@ -1,11 +1,17 @@
 import { Component, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
-import { TranslocoService } from '@jsverse/transloco';
+import { PopoverController, IonicModule } from '@ionic/angular';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-fy-input-popover',
   templateUrl: './fy-input-popover.component.html',
   styleUrls: ['./fy-input-popover.component.scss'],
+  standalone: true,
+  imports: [IonicModule, MatIcon, MatInput, FormsModule, NgClass, TranslocoPipe],
 })
 export class FyInputPopoverComponent implements AfterViewInit {
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;

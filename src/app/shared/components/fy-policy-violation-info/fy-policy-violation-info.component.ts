@@ -3,11 +3,16 @@ import { ModalController } from '@ionic/angular';
 import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-policy-violation-info',
   templateUrl: './fy-policy-violation-info.component.html',
   styleUrls: ['./fy-policy-violation-info.component.scss'],
+  standalone: true,
+  imports: [MatIcon, NgClass, TranslocoPipe],
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
   @Input() policyDetails;

@@ -43,7 +43,6 @@ describe('DependentFieldModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [DependentFieldModalComponent, FyZeroStateComponent, FyHighlightTextComponent, HighlightPipe],
       imports: [
         IonicModule.forRoot(),
         MatIconModule,
@@ -54,6 +53,10 @@ describe('DependentFieldModalComponent', () => {
         MatInputModule,
         BrowserAnimationsModule,
         TranslocoModule,
+        DependentFieldModalComponent,
+        FyZeroStateComponent,
+        FyHighlightTextComponent,
+        HighlightPipe,
       ],
       providers: [
         ChangeDetectorRef,

@@ -44,8 +44,13 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [SpenderOnboardingConnectCardStepComponent],
-      imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        NgxMaskModule.forRoot(),
+        ReactiveFormsModule,
+        TranslocoModule,
+        SpenderOnboardingConnectCardStepComponent,
+      ],
       providers: [
         UntypedFormBuilder,
         { provide: RealTimeFeedService, useValue: realTimeFeedServiceSpy },

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { MenuController } from '@ionic/angular';
+import { MenuController, IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -7,11 +7,14 @@ import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { SidemenuContentItemComponent } from './sidemenu-content-item/sidemenu-content-item.component';
 
 @Component({
   selector: 'app-sidemenu-content',
   templateUrl: './sidemenu-content.component.html',
   styleUrls: ['./sidemenu-content.component.scss'],
+  standalone: true,
+  imports: [IonicModule, SidemenuContentItemComponent],
 })
 export class SidemenuContentComponent implements OnInit {
   @Input() sideMenuList: Partial<SidemenuItem>[];

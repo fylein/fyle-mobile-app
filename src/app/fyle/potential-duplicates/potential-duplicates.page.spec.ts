@@ -1,9 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject, of } from 'rxjs';
@@ -48,8 +45,7 @@ describe('PotentialDuplicatesPage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
 
     TestBed.configureTestingModule({
-      declarations: [PotentialDuplicatesPage],
-      imports: [RouterTestingModule],
+      imports: [RouterTestingModule, PotentialDuplicatesPage],
       providers: [
         {
           provide: Router,

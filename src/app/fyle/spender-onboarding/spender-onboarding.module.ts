@@ -25,7 +25,9 @@ import { NgxMaskModule } from 'ngx-mask';
     NgxMaskModule.forRoot({
       validation: false,
     }),
+    SpenderOnboardingPage,
+    SpenderOnboardingConnectCardStepComponent,
+    SpenderOnboardingOptInStepComponent,
   ],
-  declarations: [SpenderOnboardingPage, SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent],
 })
 export class SpenderOnboardingPageModule {}

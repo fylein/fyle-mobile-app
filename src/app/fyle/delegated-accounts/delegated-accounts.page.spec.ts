@@ -49,8 +49,7 @@ describe('DelegatedAccountsPage', () => {
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
-      declarations: [DelegatedAccountsPage],
-      imports: [IonicModule.forRoot(), FormsModule],
+      imports: [IonicModule.forRoot(), FormsModule, DelegatedAccountsPage],
       providers: [
         {
           provide: ActivatedRoute,

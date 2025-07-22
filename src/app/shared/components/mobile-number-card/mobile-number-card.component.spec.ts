@@ -20,8 +20,7 @@ describe('MobileNumberCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [MobileNumberCardComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, MobileNumberCardComponent],
       providers: [
         {
           provide: TranslocoService,

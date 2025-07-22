@@ -416,9 +416,8 @@ describe('MyExpensesPage', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-      declarations: [MyExpensesPage, ReportState, MaskNumber],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule, MyExpensesPage, ReportState, MaskNumber],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },

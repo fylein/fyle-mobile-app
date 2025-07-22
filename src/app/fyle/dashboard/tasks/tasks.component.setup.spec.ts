@@ -89,8 +89,7 @@ describe('TasksComponent', () => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-      declarations: [TasksComponent],
-      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule, TasksComponent],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },

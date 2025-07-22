@@ -9,8 +9,7 @@ describe('ViewExpenseSkeletonLoaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ViewExpenseSkeletonLoaderComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), ViewExpenseSkeletonLoaderComponent],
     }).compileComponents();
   });
 

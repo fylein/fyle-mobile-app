@@ -37,8 +37,7 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyCurrencyChooseCurrencyComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, FyCurrencyChooseCurrencyComponent],
       providers: [
         {
           provide: CurrencyService,

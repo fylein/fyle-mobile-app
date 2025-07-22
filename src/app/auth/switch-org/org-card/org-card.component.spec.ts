@@ -37,8 +37,7 @@ describe('OrgCardComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-      declarations: [OrgCardComponent],
-      imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule, OrgCardComponent],
       providers: [
         {
           provide: TranslocoService,

@@ -61,8 +61,16 @@ describe('FyAddToReportModalComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [FyAddToReportModalComponent, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        FyAddToReportModalComponent,
+        HumanizeCurrencyPipe,
+        ReportState,
+        SnakeCaseToSpaceCase,
+      ],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

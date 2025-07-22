@@ -7,10 +7,7 @@ import { ModalController } from '@ionic/angular';
 import { ApproverDialogComponent } from './approver-dialog.component';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MatChipInputEvent,
-  MatChipsModule,
-} from '@angular/material/chips';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
@@ -72,7 +69,6 @@ describe('ApproverDialogComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ApproverDialogComponent],
       imports: [
         IonicModule.forRoot(),
         MatIconTestingModule,
@@ -81,6 +77,7 @@ describe('ApproverDialogComponent', () => {
         MatChipsModule,
         MatCheckboxModule,
         TranslocoModule,
+        ApproverDialogComponent,
       ],
       providers: [
         {

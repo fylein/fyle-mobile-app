@@ -26,7 +26,6 @@ describe('FyFiltersComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyFiltersComponent],
       providers: [
         {
           provide: ModalController,
@@ -38,7 +37,7 @@ describe('FyFiltersComponent', () => {
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), FormsModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), FormsModule, TranslocoModule, FyFiltersComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyFiltersComponent);

@@ -56,7 +56,6 @@ describe('FyViewAttachmentComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyViewAttachmentComponent],
       providers: [
         {
           provide: DomSanitizer,
@@ -104,7 +103,7 @@ describe('FyViewAttachmentComponent', () => {
         },
         { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, FyViewAttachmentComponent],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 

@@ -30,7 +30,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     MatInputModule,
     MatSnackBarModule,
     SharedModule,
+    InvitedUserPage,
   ],
-  declarations: [InvitedUserPage],
 })
 export class InvitedUserPageModule {}

@@ -20,7 +20,8 @@ import { AdvanceActionsComponent } from './advance-actions/advance-actions.compo
     MatButtonModule,
     MatRippleModule,
     SharedModule,
+    ViewTeamAdvanceRequestPage,
+    AdvanceActionsComponent,
   ],
-  declarations: [ViewTeamAdvanceRequestPage, AdvanceActionsComponent],
 })
 export class ViewTeamAdvanceRequestPageModule {}

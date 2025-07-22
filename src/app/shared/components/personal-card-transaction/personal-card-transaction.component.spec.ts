@@ -43,8 +43,17 @@ describe('PersonalCardTransactionComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-      declarations: [PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
-      imports: [IonicModule.forRoot(), IconModule, MatIconTestingModule, MatIconModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        IconModule,
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
+        PersonalCardTransactionComponent,
+        DateFormatPipe,
+        ExactCurrencyPipe,
+        FyCurrencyPipe,
+      ],
       providers: [
         {
           provide: DateFormatPipe,

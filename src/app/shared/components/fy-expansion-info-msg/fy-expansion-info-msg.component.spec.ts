@@ -19,8 +19,7 @@ describe('FyExpansionInfoMsgComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyExpansionInfoMsgComponent],
-      imports: [MatIconModule, IonicModule.forRoot(), TranslocoModule, TranslocoModule],
+      imports: [MatIconModule, IonicModule.forRoot(), TranslocoModule, TranslocoModule, FyExpansionInfoMsgComponent],
       providers: [
         {
           provide: TranslocoService,

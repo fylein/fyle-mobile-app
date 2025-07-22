@@ -26,8 +26,7 @@ describe('FyLocationComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [FormsModule, TranslocoModule],
-      declarations: [FyLocationComponent],
+      imports: [FormsModule, TranslocoModule, FyLocationComponent],
       providers: [
         {
           provide: ModalController,

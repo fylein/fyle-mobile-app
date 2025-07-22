@@ -74,8 +74,7 @@ describe('MyViewAdvanceRequestPage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
-      declarations: [MyViewAdvanceRequestPage],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), MyViewAdvanceRequestPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },

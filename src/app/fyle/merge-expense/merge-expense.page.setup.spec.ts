@@ -86,8 +86,14 @@ describe('MergeExpensePage', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformRawExpense']);
 
     TestBed.configureTestingModule({
-      declarations: [MergeExpensePage],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
+      imports: [
+        IonicModule.forRoot(),
+        ReactiveFormsModule,
+        FormsModule,
+        RouterTestingModule,
+        RouterModule,
+        MergeExpensePage,
+      ],
       providers: [
         UntypedFormBuilder,
         { provide: CategoriesService, useValue: categoriesServiceSpy },

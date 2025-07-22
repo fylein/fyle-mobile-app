@@ -3,6 +3,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Pipe({
   name: 'arrayToCommaList',
+  standalone: true,
 })
 export class ArrayToCommaListPipe implements PipeTransform {
   constructor(private translocoService: TranslocoService) {}

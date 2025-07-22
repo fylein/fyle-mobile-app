@@ -23,8 +23,7 @@ describe('GenericFieldsFormComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [GenericFieldsFormComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, GenericFieldsFormComponent],
       providers: [
         UntypedFormBuilder,
         {

@@ -41,7 +41,9 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
     PdfViewerModule,
     MatButtonModule,
     MatSnackBarModule,
+    AddEditExpensePage,
+    CameraOptionsPopupComponent,
+    SuggestedDuplicatesComponent,
   ],
-  declarations: [AddEditExpensePage, CameraOptionsPopupComponent, SuggestedDuplicatesComponent],
 })
 export class AddEditExpensePageModule {}

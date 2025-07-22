@@ -9,11 +9,14 @@ import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-deep-link-redirection',
   templateUrl: './deep-link-redirection.page.html',
   styleUrls: ['./deep-link-redirection.page.scss'],
+  standalone: true,
+  imports: [IonicModule],
 })
 export class DeepLinkRedirectionPage {
   constructor(

@@ -12,8 +12,7 @@ describe('DeleteButtonComponent', () => {
   beforeEach(async () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     await TestBed.configureTestingModule({
-      declarations: [DeleteButtonComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), DeleteButtonComponent],
       providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
     }).compileComponents();
   });

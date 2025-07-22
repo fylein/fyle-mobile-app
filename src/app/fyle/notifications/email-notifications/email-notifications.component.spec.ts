@@ -43,7 +43,7 @@ describe('EmailNotificationsComponent', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
 
     TestBed.configureTestingModule({
-      declarations: [EmailNotificationsComponent],
+      imports: [EmailNotificationsComponent],
       providers: [
         {
           provide: ModalController,

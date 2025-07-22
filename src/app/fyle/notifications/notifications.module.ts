@@ -18,7 +18,8 @@ import { EmailNotificationsComponent } from './email-notifications/email-notific
     NotificationsPageRoutingModule,
     SharedModule,
     MatCheckboxModule,
+    NotificationsBetaPage,
+    EmailNotificationsComponent,
   ],
-  declarations: [NotificationsBetaPage, EmailNotificationsComponent],
 })
 export class NotificationsPageModule {}

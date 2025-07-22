@@ -16,18 +16,23 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
 import { Router } from '@angular/router';
-import { MenuController } from '@ionic/angular';
+import { MenuController, IonicModule } from '@ionic/angular';
 import { SidemenuAllowedActions } from 'src/app/core/models/sidemenu-allowed-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.component';
+import { SidemenuContentComponent } from './sidemenu-content/sidemenu-content.component';
+import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
 
 @Component({
   selector: 'app-sidemenu',
   templateUrl: './sidemenu.component.html',
   styleUrls: ['./sidemenu.component.scss'],
+  standalone: true,
+  imports: [IonicModule, SidemenuHeaderComponent, SidemenuContentComponent, SidemenuFooterComponent],
 })
 export class SidemenuComponent implements OnInit {
   @Output() switchDelegator = new EventEmitter<boolean>();

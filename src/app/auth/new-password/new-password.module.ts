@@ -31,7 +31,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     MatIconModule,
     MatButtonModule,
     SharedModule,
+    NewPasswordPage,
   ],
-  declarations: [NewPasswordPage],
 })
 export class NewPasswordPageModule {}

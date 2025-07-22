@@ -32,6 +32,8 @@ describe('ReceiptPreviewComponent', () => {
     selector: 'swiper',
     template: '',
     providers: [{ provide: SwiperComponent, useClass: SwiperStubComponent }],
+    standalone: true,
+    imports: [MatIconModule, MatIconTestingModule, PinchZoomModule, TranslocoModule],
   })
   class SwiperStubComponent {
     @Input() pagination;
@@ -76,8 +78,15 @@ describe('ReceiptPreviewComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ReceiptPreviewComponent, SwiperStubComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, PinchZoomModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        PinchZoomModule,
+        TranslocoModule,
+        ReceiptPreviewComponent,
+        SwiperStubComponent,
+      ],
       providers: [
         Platform,
         {

@@ -30,7 +30,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     MatNativeDateModule,
     MatIconModule,
     SharedModule,
+    MyReportsPage,
   ],
-  declarations: [MyReportsPage],
 })
 export class MyReportsPageModule {}

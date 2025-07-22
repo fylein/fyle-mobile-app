@@ -74,6 +74,8 @@ describe('CaptureReceiptComponent', () => {
     selector: 'app-camera-preview',
     template: '',
     providers: [{ provide: CameraPreviewComponent, useClass: CameraPreviewStubComponent }],
+    standalone: true,
+    imports: [RouterTestingModule],
   })
   class CameraPreviewStubComponent {
     setUpAndStartCamera() {
@@ -118,8 +120,7 @@ describe('CaptureReceiptComponent', () => {
     const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['requestCameraPermissions']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-      declarations: [CaptureReceiptComponent, CameraPreviewStubComponent],
-      imports: [IonicModule.forRoot(), RouterTestingModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, CaptureReceiptComponent, CameraPreviewStubComponent],
       providers: [
         {
           provide: ModalController,

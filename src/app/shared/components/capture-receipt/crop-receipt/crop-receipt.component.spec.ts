@@ -23,6 +23,8 @@ describe('CropReceiptComponent', () => {
     selector: 'image-cropper',
     template: '',
     providers: [{ provide: ImageCropperComponent, useClass: ImageCropperStubComponent }],
+    standalone: true,
+    imports: [MatIconModule, MatIconTestingModule, HammerModule],
   })
   class ImageCropperStubComponent {
     @Input() imageBase64;
@@ -41,8 +43,14 @@ describe('CropReceiptComponent', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
-      declarations: [CropReceiptComponent, ImageCropperStubComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, HammerModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        HammerModule,
+        CropReceiptComponent,
+        ImageCropperStubComponent,
+      ],
       providers: [
         Platform,
         {

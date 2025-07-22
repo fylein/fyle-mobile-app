@@ -31,8 +31,14 @@ describe('ResetPasswordPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
-      declarations: [ResetPasswordPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule],
+      imports: [
+        IonicModule.forRoot(),
+        RouterTestingModule,
+        RouterModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ResetPasswordPage,
+      ],
       providers: [
         UntypedFormBuilder,
         {

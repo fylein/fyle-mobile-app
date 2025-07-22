@@ -36,8 +36,16 @@ describe('AuditHistoryComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [AuditHistoryComponent, StatusesDiffComponent, SnakeCaseToSpaceCase, DateWithTimezonePipe],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        AuditHistoryComponent,
+        StatusesDiffComponent,
+        SnakeCaseToSpaceCase,
+        DateWithTimezonePipe,
+      ],
       providers: [
         {
           provide: ExpenseFieldsService,

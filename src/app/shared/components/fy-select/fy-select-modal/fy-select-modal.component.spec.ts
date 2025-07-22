@@ -29,8 +29,7 @@ describe('FySelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FySelectModalComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, FySelectModalComponent],
       providers: [
         {
           provide: ModalController,

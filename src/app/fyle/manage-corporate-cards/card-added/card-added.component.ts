@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, IonicModule } from '@ionic/angular';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-card-added',
   templateUrl: './card-added.component.html',
   styleUrls: ['./card-added.component.scss'],
+  standalone: true,
+  imports: [IonicModule, TranslocoPipe],
 })
 export class CardAddedComponent {
   constructor(private popoverController: PopoverController) {}

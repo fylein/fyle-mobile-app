@@ -22,8 +22,13 @@ describe('RequestInvitationPage', () => {
     const invitationRequestsServiceSpy = jasmine.createSpyObj('InvitationRequestsService', ['upsertRouter']);
 
     TestBed.configureTestingModule({
-      declarations: [RequestInvitationPage],
-      imports: [IonicModule.forRoot(), RouterModule.forRoot([]), FormsModule, ReactiveFormsModule],
+      imports: [
+        IonicModule.forRoot(),
+        RouterModule.forRoot([]),
+        FormsModule,
+        ReactiveFormsModule,
+        RequestInvitationPage,
+      ],
       providers: [
         UntypedFormBuilder,
         {

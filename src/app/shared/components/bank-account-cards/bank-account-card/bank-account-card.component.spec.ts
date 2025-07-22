@@ -40,8 +40,7 @@ describe('BankAccountCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [BankAccountCardComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, BankAccountCardComponent],
       providers: [
         {
           provide: PersonalCardsService,

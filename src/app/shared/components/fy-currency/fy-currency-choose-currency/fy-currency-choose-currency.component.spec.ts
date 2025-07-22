@@ -30,8 +30,7 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyCurrencyChooseCurrencyComponent],
-      imports: [FormsModule, ReactiveFormsModule, TranslocoModule],
+      imports: [FormsModule, ReactiveFormsModule, TranslocoModule, FyCurrencyChooseCurrencyComponent],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },

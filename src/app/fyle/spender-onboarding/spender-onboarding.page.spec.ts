@@ -50,7 +50,7 @@ describe('SpenderOnboardingPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
 
     await TestBed.configureTestingModule({
-      declarations: [SpenderOnboardingPage],
+      imports: [SpenderOnboardingPage],
       providers: [
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },

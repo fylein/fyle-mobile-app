@@ -7,8 +7,12 @@ import {
   NG_VALUE_ACCESSOR,
   UntypedFormBuilder,
   UntypedFormArray,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { CustomInputsField } from 'src/app/core/models/custom-inputs-field.model';
+import { FySelectComponent } from '../../../shared/components/fy-select/fy-select.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 type Option = Partial<{
   label: string;
@@ -31,6 +35,8 @@ interface CombinedOptions {
   templateUrl: './custom-inputs-fields-form.component.html',
   styleUrls: ['./custom-inputs-fields-form.component.scss'],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: CustomInputsFieldsFormComponent, multi: true }],
+  standalone: true,
+  imports: [FormsModule, ReactiveFormsModule, FySelectComponent, TranslocoPipe],
 })
 export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges {
   @Input() customInputs: CustomInputsField[];

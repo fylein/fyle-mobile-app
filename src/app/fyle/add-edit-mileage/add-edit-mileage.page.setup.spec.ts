@@ -250,7 +250,10 @@ describe('AddEditMileagePage', () => {
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
 
     TestBed.configureTestingModule({
-      declarations: [
+      imports: [
+        IonicModule.forRoot(),
+        RouterTestingModule,
+        RouterModule,
         AddEditMileagePage,
         MaskNumber,
         FySelectComponent,
@@ -258,7 +261,6 @@ describe('AddEditMileagePage', () => {
         DependentFieldComponent,
         FyLocationComponent,
       ],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
         UntypedFormBuilder,
         {

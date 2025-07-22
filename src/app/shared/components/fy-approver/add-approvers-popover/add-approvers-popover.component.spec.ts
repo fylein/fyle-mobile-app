@@ -42,8 +42,15 @@ describe('AddApproversPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [AddApproversPopoverComponent, ApproverDialogComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        AddApproversPopoverComponent,
+        ApproverDialogComponent,
+      ],
       providers: [
         {
           provide: ModalController,

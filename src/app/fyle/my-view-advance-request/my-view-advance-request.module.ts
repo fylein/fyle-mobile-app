@@ -28,7 +28,7 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     MatButtonModule,
     PinchZoomModule,
     PdfViewerModule,
+    MyViewAdvanceRequestPage,
   ],
-  declarations: [MyViewAdvanceRequestPage],
 })
 export class MyViewAdvanceRequestPageModule {}

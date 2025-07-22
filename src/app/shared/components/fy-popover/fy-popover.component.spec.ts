@@ -25,8 +25,14 @@ describe('FyPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     await TestBed.configureTestingModule({
-      declarations: [FyPopoverComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        FyPopoverComponent,
+      ],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },

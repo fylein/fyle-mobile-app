@@ -10,8 +10,7 @@ describe('FyLoadingScreenComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [FyLoadingScreenComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), FyLoadingScreenComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyLoadingScreenComponent);

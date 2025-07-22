@@ -20,10 +20,7 @@ import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-devi
 import { ErrorComponent } from './error/error.component';
 import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/core/mock-data/auth-response.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import {
-  MatButton,
-  MatButtonModule,
-} from '@angular/material/button';
+import { MatButton, MatButtonModule } from '@angular/material/button';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
@@ -74,7 +71,6 @@ describe('SignInPage', () => {
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
     TestBed.configureTestingModule({
-      declarations: [SignInPage],
       imports: [
         IonicModule.forRoot(),
         FormsModule,
@@ -85,6 +81,7 @@ describe('SignInPage', () => {
         MatButtonModule,
         RouterModule,
         RouterTestingModule,
+        SignInPage,
       ],
       providers: [
         UntypedFormBuilder,

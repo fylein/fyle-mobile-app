@@ -1,11 +1,11 @@
 import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { concat, Observable, Subject, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { switchMap, map, shareReplay, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -29,11 +29,46 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { MyReportsFilters } from 'src/app/core/models/my-reports-filters.model';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { FyHeaderComponent } from '../../shared/components/fy-header/fy-header.component';
+import { MatFormField, MatPrefix, MatSuffix } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { NgClass, NgFor, AsyncPipe } from '@angular/common';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { ReportsCardComponent } from '../../shared/components/reports-card/reports-card.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
   styleUrls: ['./my-reports.page.scss'],
+  standalone: true,
+  imports: [
+    FyHeaderComponent,
+    IonicModule,
+    RouterLink,
+    MatFormField,
+    MatIcon,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatButton,
+    MatIconButton,
+    MatSuffix,
+    NgClass,
+    FyFilterPillsComponent,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    NgFor,
+    ReportsCardComponent,
+    FooterComponent,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class MyReportsPage {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;

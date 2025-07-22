@@ -1,5 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { finalize, switchMap, tap } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,11 +19,26 @@ import { LoginInfoService } from '../../core/services/login-info.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { IonicModule } from '@ionic/angular';
+import { NgClass } from '@angular/common';
+import { MatSuffix } from '@angular/material/form-field';
+import { PasswordCheckTooltipComponent } from '../../shared/components/password-check-tooltip/password-check-tooltip.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 
 @Component({
   selector: 'app-new-password',
   templateUrl: './new-password.page.html',
   styleUrls: ['./new-password.page.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgClass,
+    MatSuffix,
+    PasswordCheckTooltipComponent,
+    FormButtonValidationDirective,
+  ],
 })
 export class NewPasswordPage implements OnInit {
   fg: UntypedFormGroup;

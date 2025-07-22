@@ -35,8 +35,7 @@ describe('AppVersionPage', () => {
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
 
     TestBed.configureTestingModule({
-      declarations: [AppVersionPage],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), AppVersionPage],
       providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStubSpy },

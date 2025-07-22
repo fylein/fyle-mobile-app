@@ -10,8 +10,7 @@ describe('CameraOverlayPage', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [CameraOverlayPage],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), CameraOverlayPage],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 

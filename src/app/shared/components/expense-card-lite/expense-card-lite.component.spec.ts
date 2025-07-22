@@ -28,8 +28,15 @@ describe('ExpenseCardLiteComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ExpenseCardLiteComponent, CurrencySymbolPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        ExpenseCardLiteComponent,
+        CurrencySymbolPipe,
+        ExactCurrencyPipe,
+      ],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

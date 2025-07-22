@@ -23,7 +23,7 @@ import { ViewTeamReportPageRoutingModule } from './view-team-report-routing.modu
     SharedModule,
     MatFormFieldModule,
     MatSnackBarModule,
+    ViewTeamReportPage,
   ],
-  declarations: [ViewTeamReportPage],
 })
 export class ViewTeamReportPageModule {}

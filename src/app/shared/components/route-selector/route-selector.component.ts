@@ -19,6 +19,8 @@ import {
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
@@ -26,6 +28,12 @@ import { Subscription, distinctUntilChanged } from 'rxjs';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
 import { MileageLocation } from '../route-visualizer/mileage-locations.interface';
+import { NgClass, TitleCasePipe } from '@angular/common';
+import { FyLocationComponent } from '../fy-location/fy-location.component';
+import { MatIcon } from '@angular/material/icon';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { FyNumberComponent } from '../fy-number/fy-number.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-route-selector',
@@ -42,6 +50,18 @@ import { MileageLocation } from '../route-visualizer/mileage-locations.interface
       useExisting: RouteSelectorComponent,
       multi: true,
     },
+  ],
+  standalone: true,
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    NgClass,
+    FyLocationComponent,
+    MatIcon,
+    MatCheckbox,
+    FyNumberComponent,
+    TitleCasePipe,
+    TranslocoPipe,
   ],
 })
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {

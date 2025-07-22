@@ -1,12 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-error',
   templateUrl: './error.component.html',
   styleUrls: ['./error.component.scss'],
+  standalone: true,
+  imports: [IonicModule, TranslocoPipe],
 })
 export class ErrorComponent implements OnInit {
   @Input() header = '';

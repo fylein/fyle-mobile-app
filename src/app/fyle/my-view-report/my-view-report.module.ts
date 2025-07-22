@@ -30,7 +30,10 @@ import { ShareReportComponent } from './share-report/share-report.component';
     MatFormFieldModule,
     MatSnackBarModule,
     MatCheckboxModule,
+    MyViewReportPage,
+    ShareReportComponent,
+    EditReportNamePopoverComponent,
+    AddExpensesToReportComponent,
   ],
-  declarations: [MyViewReportPage, ShareReportComponent, EditReportNamePopoverComponent, AddExpensesToReportComponent],
 })
 export class MyViewReportPageModule {}

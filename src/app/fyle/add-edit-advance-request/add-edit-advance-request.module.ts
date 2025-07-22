@@ -33,8 +33,6 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     MatCheckboxModule,
     PinchZoomModule,
     PdfViewerModule,
-  ],
-  declarations: [
     AddEditAdvanceRequestPage,
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,

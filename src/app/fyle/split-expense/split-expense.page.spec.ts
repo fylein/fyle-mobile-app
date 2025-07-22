@@ -242,7 +242,6 @@ describe('SplitExpensePage', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [SplitExpensePage, FyAlertInfoComponent],
       imports: [
         IonicModule.forRoot(),
         IconModule,
@@ -255,6 +254,8 @@ describe('SplitExpensePage', () => {
         RouterTestingModule,
         MatIconTestingModule,
         TranslocoModule,
+        SplitExpensePage,
+        FyAlertInfoComponent,
       ],
       providers: [
         UntypedFormBuilder,

@@ -23,7 +23,9 @@ import { NgxMaskModule } from 'ngx-mask';
     NgxMaskModule.forRoot({
       validation: false,
     }),
+    ManageCorporateCardsPage,
+    AddCorporateCardComponent,
+    CardAddedComponent,
   ],
-  declarations: [ManageCorporateCardsPage, AddCorporateCardComponent, CardAddedComponent],
 })
 export class ManageCorporateCardsPageModule {}

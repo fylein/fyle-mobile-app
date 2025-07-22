@@ -1,10 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import {
-  MatCheckboxChange,
-  MatCheckboxModule,
-} from '@angular/material/checkbox';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -108,7 +105,6 @@ describe('PersonalCardsPage', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
 
     TestBed.configureTestingModule({
-      declarations: [PersonalCardsPage],
       imports: [
         IonicModule.forRoot(),
         RouterTestingModule,
@@ -118,6 +114,7 @@ describe('PersonalCardsPage', () => {
         MatInputModule,
         BrowserAnimationsModule,
         NoopAnimationsModule,
+        PersonalCardsPage,
       ],
       providers: [
         ChangeDetectorRef,

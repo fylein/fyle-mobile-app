@@ -130,8 +130,15 @@ describe('ViewTeamReportPageV2', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe, DateWithTimezonePipe],
-      imports: [IonicModule.forRoot(), FormsModule],
+      imports: [
+        IonicModule.forRoot(),
+        FormsModule,
+        ViewTeamReportPage,
+        EllipsisPipe,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        DateWithTimezonePipe,
+      ],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

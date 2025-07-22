@@ -6,6 +6,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Directive({
   selector: '[appFormatDate]',
+  standalone: true,
 })
 export class FormatDateDirective implements OnInit {
   constructor(

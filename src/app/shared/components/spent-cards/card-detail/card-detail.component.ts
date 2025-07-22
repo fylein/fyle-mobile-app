@@ -3,11 +3,26 @@ import { Params, Router } from '@angular/router';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { NgClass } from '@angular/common';
+import { CorporateCardComponent } from '../../corporate-card/corporate-card.component';
+import { VirtualCardComponent } from '../../virtual-card/virtual-card.component';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { HumanizeCurrencyPipe } from '../../../pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from '../../../pipes/exact-currency.pipe';
 
 @Component({
   selector: 'app-card-detail',
   templateUrl: './card-detail.component.html',
   styleUrls: ['./card-detail.component.scss'],
+  standalone: true,
+  imports: [
+    NgClass,
+    CorporateCardComponent,
+    VirtualCardComponent,
+    TranslocoPipe,
+    HumanizeCurrencyPipe,
+    ExactCurrencyPipe,
+  ],
 })
 export class CardDetailComponent {
   @Input() cardDetail: PlatformCorporateCardDetail;

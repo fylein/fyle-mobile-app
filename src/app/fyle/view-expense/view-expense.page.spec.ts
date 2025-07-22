@@ -144,8 +144,7 @@ describe('ViewExpensePage', () => {
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewExpensePage],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
+      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, ViewExpensePage],
       providers: [
         {
           useValue: loaderServiceSpy,

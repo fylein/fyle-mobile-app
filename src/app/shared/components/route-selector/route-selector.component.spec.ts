@@ -34,7 +34,6 @@ describe('RouteSelectorComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [RouteSelectorComponent],
       imports: [
         IonicModule.forRoot(),
         MatCheckboxModule,
@@ -42,6 +41,7 @@ describe('RouteSelectorComponent', () => {
         MatIconTestingModule,
         MatIconModule,
         TranslocoModule,
+        RouteSelectorComponent,
       ],
       providers: [
         UntypedFormBuilder,

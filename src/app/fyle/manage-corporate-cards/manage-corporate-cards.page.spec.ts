@@ -51,6 +51,7 @@ import { properties } from 'src/app/core/mock-data/modal-properties.data';
 @Component({
   selector: 'app-corporate-card',
   template: '<div></div>',
+  standalone: true,
 })
 class MockCorporateCardComponent {
   @Input() card: PlatformCorporateCard;
@@ -108,8 +109,7 @@ describe('ManageCorporateCardsPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
-      declarations: [ManageCorporateCardsPage, MockCorporateCardComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), ManageCorporateCardsPage, MockCorporateCardComponent],
       providers: [
         {
           provide: Router,

@@ -29,8 +29,14 @@ describe('FySelectVendorComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FySelectVendorComponent],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, FormsModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconTestingModule,
+        MatIconModule,
+        FormsModule,
+        TranslocoModule,
+        FySelectVendorComponent,
+      ],
       providers: [
         {
           provide: ModalController,

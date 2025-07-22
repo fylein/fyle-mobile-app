@@ -153,9 +153,8 @@ describe('MyReportsPage', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [MyReportsPage, ReportState],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule, MyReportsPage, ReportState],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },

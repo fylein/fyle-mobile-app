@@ -117,8 +117,7 @@ describe('DashboardPage', () => {
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['setTimezone']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-      declarations: [DashboardPage],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), DashboardPage],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },

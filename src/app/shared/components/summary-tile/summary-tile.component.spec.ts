@@ -25,7 +25,9 @@ describe('FySummaryTileComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     await TestBed.configureTestingModule({
-      declarations: [
+      imports: [
+        IonicModule.forRoot(),
+        TranslocoModule,
         FySummaryTileComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
@@ -33,7 +35,6 @@ describe('FySummaryTileComponent', () => {
         SnakeCaseToSpaceCase,
         EllipsisPipe,
       ],
-      imports: [IonicModule.forRoot(), TranslocoModule],
       providers: [
         {
           provide: FyCurrencyPipe,

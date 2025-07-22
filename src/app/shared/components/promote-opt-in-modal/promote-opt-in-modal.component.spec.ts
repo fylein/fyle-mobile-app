@@ -23,8 +23,7 @@ describe('PromoteOptInModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [PromoteOptInModalComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, PromoteOptInModalComponent],
       providers: [
         {
           provide: ModalController,

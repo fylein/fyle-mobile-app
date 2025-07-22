@@ -36,8 +36,13 @@ describe('AddExpensesToReportComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [AddExpensesToReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        TranslocoModule,
+        AddExpensesToReportComponent,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+      ],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

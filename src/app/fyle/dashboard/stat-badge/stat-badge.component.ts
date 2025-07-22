@@ -1,10 +1,17 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ReportStates } from './report-states.enum';
+import { MatRipple } from '@angular/material/core';
+import { IonicModule } from '@ionic/angular';
+import { NgClass } from '@angular/common';
+import { HumanizeCurrencyPipe } from '../../../shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
 
 @Component({
   selector: 'app-stat-badge',
   templateUrl: './stat-badge.component.html',
   styleUrls: ['./stat-badge.component.scss'],
+  standalone: true,
+  imports: [MatRipple, IonicModule, NgClass, HumanizeCurrencyPipe, ExactCurrencyPipe],
 })
 export class StatBadgeComponent {
   @Input() reportState: ReportStates;

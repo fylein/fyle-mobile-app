@@ -110,7 +110,6 @@ describe('ExpensesCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe, ExpenseState],
       imports: [
         IonicModule.forRoot(),
         MatIconModule,
@@ -118,6 +117,10 @@ describe('ExpensesCardComponent', () => {
         MatCheckboxModule,
         FormsModule,
         TranslocoModule,
+        ExpensesCardComponent,
+        DateFormatPipe,
+        HumanizeCurrencyPipe,
+        ExpenseState,
       ],
       providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },

@@ -35,8 +35,15 @@ describe('UpdateMobileNumberComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [UpdateMobileNumberComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        FormsModule,
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        UpdateMobileNumberComponent,
+        FormButtonValidationDirective,
+      ],
       providers: [
         {
           provide: PopoverController,

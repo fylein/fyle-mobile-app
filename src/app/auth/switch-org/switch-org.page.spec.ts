@@ -128,7 +128,6 @@ describe('SwitchOrgPage', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
       imports: [
         IonicModule.forRoot(),
         MatIconTestingModule,
@@ -139,6 +138,10 @@ describe('SwitchOrgPage', () => {
         FormsModule,
         ReactiveFormsModule,
         TranslocoModule,
+        SwitchOrgPage,
+        ActiveOrgCardComponent,
+        OrgCardComponent,
+        FyZeroStateComponent,
       ],
       providers: [
         UrlSerializer,

@@ -6,11 +6,16 @@ import {
   UntypedFormBuilder,
   UntypedFormGroup,
   NgControl,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NgClass } from '@angular/common';
+import { FyNumberComponent } from '../../../shared/components/fy-number/fy-number.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-currency',
@@ -23,6 +28,8 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
+  standalone: true,
+  imports: [FormsModule, ReactiveFormsModule, NgClass, FyNumberComponent, TranslocoPipe],
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   @Input() txnDt: Date;

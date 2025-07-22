@@ -4,12 +4,15 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-dashboard-opt-in',
   templateUrl: './dashboard-opt-in.component.html',
   styleUrls: ['./dashboard-opt-in.component.scss'],
+  standalone: true,
+  imports: [MatIcon, TranslocoPipe],
 })
 export class DashboardOptInComponent {
   @Input() extendedOrgUser: ExtendedOrgUser;

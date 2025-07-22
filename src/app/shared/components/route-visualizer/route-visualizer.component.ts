@@ -6,11 +6,14 @@ import { LocationService } from 'src/app/core/services/location.service';
 import { MileageLocation } from './mileage-locations.interface';
 import { MileageRoute } from './mileage-route.interface';
 import { StaticMapPropertiesService } from 'src/app/core/services/static-map-properties.service';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-route-visualizer',
   templateUrl: './route-visualizer.component.html',
   styleUrls: ['./route-visualizer.component.scss'],
+  standalone: true,
+  imports: [AsyncPipe],
 })
 export class RouteVisualizerComponent implements OnChanges, OnInit {
   @Input() mileageLocations: MileageLocation[];

@@ -31,6 +31,8 @@ import { tap } from 'rxjs/operators';
 @Component({
   selector: 'app-spent-cards',
   template: '<div></div>',
+  standalone: true,
+  imports: [TranslocoModule],
 })
 class MockSpentCardsComponent {
   @Input() cardDetails: PlatformCorporateCardDetail[];
@@ -45,6 +47,8 @@ class MockSpentCardsComponent {
 @Component({
   selector: 'app-add-card',
   template: '<div></div>',
+  standalone: true,
+  imports: [TranslocoModule],
 })
 class MockAddCardComponent {
   @Input() showZeroStateMessage: boolean;
@@ -89,8 +93,13 @@ describe('CardStatsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [CardStatsComponent, MockSpentCardsComponent, MockAddCardComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        TranslocoModule,
+        CardStatsComponent,
+        MockSpentCardsComponent,
+        MockAddCardComponent,
+      ],
       providers: [
         {
           provide: CurrencyService,

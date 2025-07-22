@@ -29,8 +29,15 @@ describe('DependentFieldComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [DependentFieldComponent, DependentFieldModalComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        DependentFieldComponent,
+        DependentFieldModalComponent,
+      ],
       providers: [
         {
           provide: ModalController,

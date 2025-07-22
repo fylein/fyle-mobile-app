@@ -23,8 +23,7 @@ describe('FyApproverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyApproverComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, FyApproverComponent],
       providers: [
         {
           provide: PopoverController,

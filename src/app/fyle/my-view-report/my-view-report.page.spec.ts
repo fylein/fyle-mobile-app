@@ -126,7 +126,10 @@ describe('MyViewReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [
+      imports: [
+        IonicModule.forRoot(),
+        MatIconTestingModule,
+        MatIconModule,
         MyViewReportPage,
         EllipsisPipe,
         HumanizeCurrencyPipe,
@@ -135,7 +138,6 @@ describe('MyViewReportPage', () => {
         SnakeCaseToSpaceCase,
         DateWithTimezonePipe,
       ],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

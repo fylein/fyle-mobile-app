@@ -1,15 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Component, Input, OnInit } from '@angular/core';
-import { UntypedFormArray, UntypedFormBuilder } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { UntypedFormArray, UntypedFormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass, CurrencyPipe, KeyValuePipe } from '@angular/common';
+import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-violation.component';
+import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 
 @Component({
   selector: 'app-split-expense-policy-violation',
   templateUrl: './split-expense-policy-violation.component.html',
   styleUrls: ['./split-expense-policy-violation.component.scss'],
+  standalone: true,
+  imports: [
+    IonicModule,
+    MatIcon,
+    NgClass,
+    FyPolicyViolationComponent,
+    FormsModule,
+    ReactiveFormsModule,
+    FyCriticalPolicyViolationComponent,
+    CurrencyPipe,
+    KeyValuePipe,
+    TranslocoPipe,
+    FyCurrencyPipe,
+  ],
 })
 export class SplitExpensePolicyViolationComponent implements OnInit {
   @Input() policyViolations: { [id: number]: FilteredSplitPolicyViolations };

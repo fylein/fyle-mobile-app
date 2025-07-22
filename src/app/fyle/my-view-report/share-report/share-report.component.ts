@@ -1,10 +1,16 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-share-report',
   templateUrl: './share-report.component.html',
   styleUrls: ['./share-report.component.scss'],
+  standalone: true,
+  imports: [IonicModule, MatIcon, MatInput, FormsModule, TranslocoPipe],
 })
 export class ShareReportComponent implements OnInit, AfterViewInit {
   @ViewChild('simpleEmailInput') simpleEmailInput: ElementRef;

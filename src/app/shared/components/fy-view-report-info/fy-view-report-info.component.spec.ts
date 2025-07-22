@@ -52,8 +52,7 @@ describe('FyViewReportInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [TranslocoModule],
-      declarations: [FyViewReportInfoComponent],
+      imports: [TranslocoModule, FyViewReportInfoComponent],
       providers: [
         {
           provide: SharedExpensesService,
@@ -71,7 +70,6 @@ describe('FyViewReportInfoComponent', () => {
           provide: AuthService,
           useValue: mockAuthServiceSpy,
         },
-
         {
           provide: OrgSettingsService,
           useValue: mockOrgSettingsServiceSpy,

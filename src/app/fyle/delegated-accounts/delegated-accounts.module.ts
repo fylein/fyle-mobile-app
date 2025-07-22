@@ -19,7 +19,7 @@ import { MatInputModule } from '@angular/material/input';
     MatRippleModule,
     MatFormFieldModule,
     MatInputModule,
+    DelegatedAccountsPage,
   ],
-  declarations: [DelegatedAccountsPage],
 })
 export class DelegatedAccountsPageModule {}

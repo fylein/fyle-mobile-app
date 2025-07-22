@@ -28,8 +28,7 @@ describe('VerifyPage', () => {
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
 
     TestBed.configureTestingModule({
-      declarations: [VerifyPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, VerifyPage],
       providers: [
         {
           provide: Router,

@@ -41,8 +41,14 @@ describe('FyCurrencyExchangeRateComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyCurrencyExchangeRateComponent, FyNumberComponent],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule],
+      imports: [
+        IonicModule.forRoot(),
+        FormsModule,
+        ReactiveFormsModule,
+        TranslocoModule,
+        FyCurrencyExchangeRateComponent,
+        FyNumberComponent,
+      ],
       providers: [
         {
           provide: ModalController,

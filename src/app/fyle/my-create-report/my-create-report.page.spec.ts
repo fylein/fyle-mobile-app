@@ -64,8 +64,15 @@ describe('MyCreateReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [MyCreateReportPage, HumanizeCurrencyPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, MatCheckboxModule],
+      imports: [
+        IonicModule.forRoot(),
+        RouterTestingModule,
+        FormsModule,
+        MatCheckboxModule,
+        MyCreateReportPage,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+      ],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

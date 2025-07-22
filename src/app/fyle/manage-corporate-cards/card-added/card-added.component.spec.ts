@@ -23,8 +23,7 @@ describe('CardAddedComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [CardAddedComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, CardAddedComponent],
       providers: [
         {
           provide: PopoverController,

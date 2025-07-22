@@ -29,8 +29,7 @@ describe('DashboardEmailOptInComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [DashboardEmailOptInComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoModule, DashboardEmailOptInComponent],
       providers: [
         {
           provide: PopoverController,

@@ -10,10 +10,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Router } from '@angular/router';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -47,7 +44,6 @@ describe('SuggestedDuplicatesComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [SuggestedDuplicatesComponent],
       imports: [
         IonicModule.forRoot(),
         MatIconModule,
@@ -57,6 +53,7 @@ describe('SuggestedDuplicatesComponent', () => {
         NoopAnimationsModule,
         CommonModule,
         TranslocoModule,
+        SuggestedDuplicatesComponent,
       ],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },

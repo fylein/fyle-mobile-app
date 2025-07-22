@@ -61,7 +61,12 @@ describe('AddTxnToReportDialogComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [
+      imports: [
+        IonicModule.forRoot(),
+        RouterTestingModule,
+        RouterModule,
+        MatBottomSheetModule,
+        TranslocoModule,
         AddTxnToReportDialogComponent,
         FyZeroStateComponent,
         HumanizeCurrencyPipe,
@@ -69,7 +74,6 @@ describe('AddTxnToReportDialogComponent', () => {
         ReportState,
         SnakeCaseToSpaceCase,
       ],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule, TranslocoModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

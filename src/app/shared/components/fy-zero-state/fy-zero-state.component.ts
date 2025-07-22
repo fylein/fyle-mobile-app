@@ -1,10 +1,15 @@
 import { Component, OnInit, Input, Output, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { EventEmitter } from 'events';
+import { NgClass, NgStyle } from '@angular/common';
+import { MatButton } from '@angular/material/button';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-zero-state',
   templateUrl: './fy-zero-state.component.html',
   styleUrls: ['./fy-zero-state.component.scss'],
+  standalone: true,
+  imports: [NgClass, NgStyle, MatButton, TranslocoPipe],
 })
 export class FyZeroStateComponent implements OnInit, AfterViewInit {
   @ViewChild('messageRef') messageRef: ElementRef;

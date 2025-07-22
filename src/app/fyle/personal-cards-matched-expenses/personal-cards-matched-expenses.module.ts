@@ -42,7 +42,9 @@ import { ExpensePreviewShimmerComponent } from './expense-preview-shimmer/expens
     MatSnackBarModule,
     SharedModule,
     MatCheckboxModule,
+    PersonalCardsMatchedExpensesPage,
+    ExpensePreviewComponent,
+    ExpensePreviewShimmerComponent,
   ],
-  declarations: [PersonalCardsMatchedExpensesPage, ExpensePreviewComponent, ExpensePreviewShimmerComponent],
 })
 export class PersonalCardsMatchedExpensesPageModule {}
