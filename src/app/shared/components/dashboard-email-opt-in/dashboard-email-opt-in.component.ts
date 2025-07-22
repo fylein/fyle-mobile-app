@@ -21,7 +21,6 @@ export class DashboardEmailOptInComponent {
   ) {}
 
   async emailOptInClick(): Promise<void> {
-    this.trackingService.clickedOnDashboardEmailOptInBanner();
     this.toggleEmailOptInBanner.emit({ optedIn: true });
     this.router.navigate([
       '/',

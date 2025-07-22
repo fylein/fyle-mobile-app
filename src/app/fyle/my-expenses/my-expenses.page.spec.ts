@@ -5,10 +5,7 @@ import dayjs from 'dayjs';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -258,6 +255,7 @@ describe('MyExpensesPage', () => {
       'showOptInModalPostExpenseCreation',
       'skipOptInModalPostExpenseCreation',
       'optInFromPostExpenseCreationModal',
+      'myExpenseActionSheetAddButtonClicked',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -418,10 +416,10 @@ describe('MyExpensesPage', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-    declarations: [MyExpensesPage, ReportState, MaskNumber],
-    schemas: [NO_ERRORS_SCHEMA],
-    imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
-    providers: [
+      declarations: [MyExpensesPage, ReportState, MaskNumber],
+      schemas: [NO_ERRORS_SCHEMA],
+      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
+      providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
@@ -429,119 +427,119 @@ describe('MyExpensesPage', () => {
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate', 'createUrlTree']) },
         {
-            provide: NavController,
-            useValue: navControllerSpy,
+          provide: NavController,
+          useValue: navControllerSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: TransactionsOutboxService,
-            useValue: transactionOutboxServiceSpy,
+          provide: TransactionsOutboxService,
+          useValue: transactionOutboxServiceSpy,
         },
         {
-            provide: MatBottomSheet,
-            useValue: matBottomsheetSpy,
+          provide: MatBottomSheet,
+          useValue: matBottomsheetSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: MyExpensesService,
-            useValue: myExpensesServiceSpy,
+          provide: MyExpensesService,
+          useValue: myExpensesServiceSpy,
         },
         {
-            provide: TokenService,
-            useValue: tokenServiceSpy,
+          provide: TokenService,
+          useValue: tokenServiceSpy,
         },
         {
-            provide: ActionSheetController,
-            useValue: actionSheetControllerSpy,
+          provide: ActionSheetController,
+          useValue: actionSheetControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         {
-            provide: StorageService,
-            useValue: storageServiceSpy,
+          provide: StorageService,
+          useValue: storageServiceSpy,
         },
         {
-            provide: CorporateCreditCardExpenseService,
-            useValue: corporateCreditCardServiceSpy,
+          provide: CorporateCreditCardExpenseService,
+          useValue: corporateCreditCardServiceSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: platformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-            provide: PlatformHandlerService,
-            useValue: platformHandlerServiceSpy,
+          provide: PlatformHandlerService,
+          useValue: platformHandlerServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: PopupService,
-            useValue: popupServiceSpy,
+          provide: PopupService,
+          useValue: popupServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: CategoriesService,
-            useValue: categoriesServiceSpy,
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
-            provide: SharedExpenseService,
-            useValue: sharedExpenseServiceSpy,
+          provide: SharedExpenseService,
+          useValue: sharedExpenseServiceSpy,
         },
         {
-            provide: SpenderReportsService,
-            useValue: spenderReportsServiceSpy,
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
         },
         {
-            provide: UtilityService,
-            useValue: utilityServiceSpy,
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
         },
         {
-            provide: FeatureConfigService,
-            useValue: featureConfigServiceSpy,
+          provide: FeatureConfigService,
+          useValue: featureConfigServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
         ReportState,
         MaskNumber,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MyExpensesPage);
     component = fixture.componentInstance;

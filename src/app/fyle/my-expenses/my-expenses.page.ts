@@ -1544,8 +1544,13 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  async openActionSheet(): Promise<void> {
+  async openActionSheet(zeroState?: boolean): Promise<void> {
     const that = this;
+    if (zeroState) {
+      this.trackingService.clickedOnZeroStateAddExpense();
+    } else {
+      this.trackingService.myExpenseActionSheetAddButtonClicked({ Action: 'Add Expense' });
+    }
     const actionSheet = await this.actionSheetController.create({
       header: this.translocoService.translate('myExpensesPage.actionSheet.header'),
       mode: 'md',
