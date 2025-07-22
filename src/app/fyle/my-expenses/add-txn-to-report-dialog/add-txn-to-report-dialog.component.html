@@ -26,10 +26,14 @@
   </div>
 </ion-header>
 <div class="fy-modal">
-  <div *ngIf="data.openReports.length; else zeroState" class="report-list--container">
-    <div class="report-list--list" *ngFor="let report of data.openReports; index as i">
+  @if (data.openReports.length) {
+  <div class="report-list--container">
+    @for (report of data.openReports; track report.id; let i = $index) {
+    <div class="report-list--list">
       <div data-testid="report" mat-ripple (click)="addTransactionToReport(report)">
-        <div *ngIf="i > 0" class="report-list--divider"></div>
+        @if (i > 0) {
+        <div class="report-list--divider"></div>
+        }
         <ion-grid class="ion-no-padding">
           <ion-row class="report-list--report-card">
             <ion-col size="0.75">
@@ -62,13 +66,14 @@
         </ion-grid>
       </div>
     </div>
+    }
   </div>
-  <ng-template #zeroState>
-    <app-fy-zero-state
-      image="../../../../../assets/images/zero-states/reports.png"
-      [message]="'addTxnToReportDialog.noReports' | transloco"
-      [taskImageStyle]="{ 'max-width': '220px', 'max-height': '124px', width: '220px', height: '124px' }"
-      [submessage]="'addTxnToReportDialog.createDraftReportCta' | transloco"
-    ></app-fy-zero-state>
-  </ng-template>
+  } @else {
+  <app-fy-zero-state
+    image="../../../../../assets/images/zero-states/reports.png"
+    [message]="'addTxnToReportDialog.noReports' | transloco"
+    [taskImageStyle]="{ 'max-width': '220px', 'max-height': '124px', width: '220px', height: '124px' }"
+    [submessage]="'addTxnToReportDialog.createDraftReportCta' | transloco"
+  ></app-fy-zero-state>
+  }
 </div>

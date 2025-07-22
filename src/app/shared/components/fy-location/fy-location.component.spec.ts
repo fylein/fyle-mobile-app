@@ -1,4 +1,4 @@
-import { TestBed, async, ComponentFixture, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed, ComponentFixture, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { FyLocationComponent } from './fy-location.component';
 import { FormsModule } from '@angular/forms';
 import { ModalController } from '@ionic/angular';

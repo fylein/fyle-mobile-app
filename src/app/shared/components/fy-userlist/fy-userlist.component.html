@@ -3,7 +3,9 @@
     <span>
       {{ label }}
     </span>
-    <span *ngIf="mandatory" class="fy-select--mandatory"> * </span>
+    @if (mandatory) {
+      <span class="fy-select--mandatory"> * </span>
+    }
   </div>
   <div class="fy-select--input-container" [ngClass]="{ 'fy-select--input-invalid': !valid }">
     <input
@@ -15,7 +17,7 @@
       (click)="openModal()"
       [ngClass]="{ 'fy-select--input-disabled': disabled }"
       [disabled]="disabled"
-    />
+      />
     <mat-icon
       class="fy-select--icon"
       [ngClass]="{ 'fy-select--input-disabled': disabled }"

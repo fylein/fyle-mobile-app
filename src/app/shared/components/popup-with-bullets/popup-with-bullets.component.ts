@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ListItem } from 'src/app/core/models/list-item.model';
 import { TranslocoService } from '@jsverse/transloco';

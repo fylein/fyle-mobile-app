@@ -1,6 +1,5 @@
-<ng-container *ngIf="dependentCustomProperties?.length > 0">
+@if (dependentCustomProperties?.length > 0) {
   <div class="view-expense--divider"></div>
-
   <ion-grid class="view-expense--grid">
     <ion-row>
       <ion-col [size]="costCenterCode ? 6 : 12">
@@ -24,28 +23,29 @@
           </ion-row>
         </ion-grid>
       </ion-col>
-      <ion-col size="6" *ngIf="costCenterCode">
-        <ion-grid>
-          <ion-row>
-            <ion-col class="view-expense--icon-container">
-              <div class="view-expense--icon-container__background">
-                <ion-icon
-                  class="view-expense--icon-container__icon"
-                  [src]="'../../../../assets/svg/' + parentFieldIcon + '.svg'"
-                ></ion-icon>
-              </div>
-            </ion-col>
-            <ion-col class="view-expense--content-container">
-              <div class="view-expense--label">{{ 'viewDependentFields.costCenterCode' | transloco }}</div>
-              <div class="view-expense--value">{{ costCenterCode }}</div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-col>
+      @if (costCenterCode) {
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon"
+                    [src]="'../../../../assets/svg/' + parentFieldIcon + '.svg'"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">{{ 'viewDependentFields.costCenterCode' | transloco }}</div>
+                <div class="view-expense--value">{{ costCenterCode }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      }
     </ion-row>
   </ion-grid>
-
-  <ng-container *ngFor="let customProperty of dependentCustomProperties">
+  @for (customProperty of dependentCustomProperties; track customProperty) {
     <ion-grid class="view-expense--grid">
       <ion-row>
         <ion-col class="view-expense--icon-container">
@@ -59,5 +59,5 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </ng-container>
-</ng-container>
+  }
+}

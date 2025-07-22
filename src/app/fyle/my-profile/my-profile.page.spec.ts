@@ -1,6 +1,6 @@
 import { EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
@@ -29,7 +29,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MyProfilePage } from './my-profile.page';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -37,6 +37,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FeatureConfig } from 'src/app/core/models/feature-config.model';
@@ -116,7 +117,7 @@ describe('MyProfilePage', () => {
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
-      imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule],
       providers: [
         {
           provide: ActivatedRoute,
@@ -221,6 +222,8 @@ describe('MyProfilePage', () => {
           useValue: walkthroughServiceSpy,
         },
         SpenderService,
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
 

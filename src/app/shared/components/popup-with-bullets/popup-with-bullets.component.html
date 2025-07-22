@@ -7,33 +7,34 @@
 
   <div class="popup-with-bullets__list-header">{{ listHeader }}</div>
 
-  <div
-    class="popup-with-bullets__list-item"
-    [ngClass]="{ 'popup-with-bullets__list-item--last': lastItem }"
-    *ngFor="let item of listItems; let lastItem = last"
-  >
-    <div class="d-flex">
-      <div>
-        <ion-icon
-          class="popup-with-bullets__list-item__icon"
-          [src]="'../../../../assets/svg/' + item.icon + '.svg'"
-        ></ion-icon>
+  @for (item of listItems; track item; let lastItem = $last) {
+    <div
+      class="popup-with-bullets__list-item"
+      [ngClass]="{ 'popup-with-bullets__list-item--last': lastItem }"
+      >
+      <div class="d-flex">
+        <div>
+          <ion-icon
+            class="popup-with-bullets__list-item__icon"
+            [src]="'../../../../assets/svg/' + item.icon + '.svg'"
+          ></ion-icon>
+        </div>
+        <div class="popup-with-bullets__list-item__text">
+          {{ item.text }}
+        </div>
       </div>
-      <div class="popup-with-bullets__list-item__text">
-        {{ item.text }}
-      </div>
+      @if (item.textToCopy?.length) {
+        <div matRipple (click)="copyToClipboard(item.textToCopy)" class="popup-with-bullets__list-item__copy-text">
+          <div>
+            {{ item.textToCopy }}
+          </div>
+          <div>
+            <ion-icon class="popup-with-bullets__list-item__icon" src="../../../../assets/svg/duplicate.svg"></ion-icon>
+          </div>
+        </div>
+      }
     </div>
-    <ng-container *ngIf="item.textToCopy?.length">
-      <div matRipple (click)="copyToClipboard(item.textToCopy)" class="popup-with-bullets__list-item__copy-text">
-        <div>
-          {{ item.textToCopy }}
-        </div>
-        <div>
-          <ion-icon class="popup-with-bullets__list-item__icon" src="../../../../assets/svg/duplicate.svg"></ion-icon>
-        </div>
-      </div>
-    </ng-container>
-  </div>
+  }
 
   <ion-footer class="popup-with-bullets__footer">
     <div>

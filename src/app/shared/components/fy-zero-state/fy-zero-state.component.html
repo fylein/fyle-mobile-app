@@ -5,20 +5,27 @@
     [src]="image"
     [ngStyle]="taskImageStyle"
     [alt]="'fyZeroState.altText' | transloco"
-  />
-  <div *ngIf="header" [ngClass]="{ 'zero-state--header__new': useNewStyling }" class="zero-state--header">
-    {{ header }}
-  </div>
-  <div
-    #messageRef
-    *ngIf="message"
-    [ngClass]="{ 'zero-state--description__new': useNewStyling }"
-    class="zero-state--description"
-  >
-    {{ message }}
-  </div>
-  <div *ngIf="submessage" [ngClass]="{ 'zero-state--description__new': useNewStyling }" class="zero-state--description">
-    {{ submessage }}
-  </div>
-  <button type="button" mat-flat-button color="primary" *ngIf="link" (click)="onLinkClick($event)">{{ link }}</button>
+    />
+  @if (header) {
+    <div [ngClass]="{ 'zero-state--header__new': useNewStyling }" class="zero-state--header">
+      {{ header }}
+    </div>
+  }
+  @if (message) {
+    <div
+      #messageRef
+      [ngClass]="{ 'zero-state--description__new': useNewStyling }"
+      class="zero-state--description"
+      >
+      {{ message }}
+    </div>
+  }
+  @if (submessage) {
+    <div [ngClass]="{ 'zero-state--description__new': useNewStyling }" class="zero-state--description">
+      {{ submessage }}
+    </div>
+  }
+  @if (link) {
+    <button type="button" mat-flat-button color="primary" (click)="onLinkClick($event)">{{ link }}</button>
+  }
 </div>
