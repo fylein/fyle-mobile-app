@@ -57,12 +57,13 @@
             <div class="add-edit-mileage--violations">
               <ng-container *ngIf="etxn.tx.policy_flag && mode === 'edit'">
                 <ng-container *ngIf="policyDetails">
-                  <app-fy-policy-violation-info
-                    [policyDetails]="policyDetails"
-                    [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
-                    [expense]="etxn"
-                  >
-                  </app-fy-policy-violation-info>
+                  <ng-container *ngIf="platformExpense$|async as expense">
+                    <app-fy-policy-violation-info
+                      [policyDetails]="policyDetails"
+                      [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+                      [expense]="expense"
+                    ></app-fy-policy-violation-info>
+                  </ng-container>
                 </ng-container>
               </ng-container>
 
