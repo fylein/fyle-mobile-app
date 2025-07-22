@@ -348,6 +348,9 @@ export class ExpensesService {
 
       if (filters.state.includes(FilterState.BLOCKED)) {
         stateOrFilter.push('state.in.(UNREPORTABLE)');
+      }
+
+      if (filters.state.includes(FilterState.CANNOT_REPORT)) {
         stateOrFilter.push('policy_amount.lt.0.0001');
       }
 

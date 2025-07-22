@@ -987,7 +987,8 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string): Promise<void> {
-    const filterMain = this.myExpensesService.getFilters();
+    const orgSettings = await this.orgSettings$.pipe(take(1)).toPromise();
+    const filterMain = await this.myExpensesService.getFilters(orgSettings);
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
         name: this.translocoService.translate('myExpensesPage.filters.cardsEndingIn'),
@@ -1274,9 +1275,10 @@ export class MyExpensesPage implements OnInit {
       );
       return;
     }
-    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
-      this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense) ||
-      this.sharedExpenseService.isExpenseUnreportable(expense)
+    const expensesWithCriticalPolicyViolations = selectedElements.filter(
+      (expense) =>
+        this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense) ||
+        this.sharedExpenseService.isExpenseUnreportable(expense)
     );
     const expensesInDraftState = selectedElements.filter((expense) =>
       this.sharedExpenseService.isExpenseInDraft(expense)
@@ -1302,9 +1304,7 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.trackingService.addToReport();
       const totalUnreportableCount =
-        noOfExpensesInDraftState +
-        noOfExpensesWithCriticalPolicyViolations +
-        noOfExpensesWithPendingTransactions;
+        noOfExpensesInDraftState + noOfExpensesWithCriticalPolicyViolations + noOfExpensesWithPendingTransactions;
 
       if (totalUnreportableCount > 0) {
         this.reportableExpenseDialogHandler(

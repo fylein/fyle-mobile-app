@@ -886,8 +886,11 @@ export class TransactionService {
       }
 
       if (filters.state.includes(FilterState.BLOCKED)) {
-        stateOrFilter.push('tx_policy_amount.lt.0.0001');
         stateOrFilter.push('tx_state.in.(UNREPORTABLE)');
+      }
+
+      if (filters.state.includes(FilterState.CANNOT_REPORT)) {
+        stateOrFilter.push('tx_policy_amount.lt.0.0001');
       }
 
       if (filters.state.includes(FilterState.DRAFT)) {
