@@ -432,6 +432,25 @@ export class DashboardPage {
   }
 
   setSwiperConfig(): void {
+    // Ensure both observables exist before using them
+    if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
+      // Set default config if observables aren't ready
+      this.swiperConfig = {
+        slidesPerView: 1,
+        spaceBetween: 0,
+        centeredSlides: true,
+        loop: false,
+        autoplay: false,
+        pagination: {
+          dynamicBullets: true,
+          renderBullet: (index: number, className: string): string => {
+            return `<span class="opt-in-banners ${className}"> </span>`;
+          },
+        },
+      };
+      return;
+    }
+
     combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$])
       .pipe(take(1))
       .subscribe(([canShowOptInBanner, canShowEmailOptInBanner]) => {
@@ -540,7 +559,9 @@ export class DashboardPage {
 
     this.setShowOptInBanner();
     this.setShowEmailOptInBanner();
-    this.setSwiperConfig();
+
+    // Set swiper config with a slight delay to ensure observables are initialized
+    setTimeout(() => this.setSwiperConfig(), 100);
 
     if (openSMSOptInDialog === 'true') {
       this.eou$
@@ -812,6 +833,9 @@ export class DashboardPage {
 
     this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
 
+    // Update swiper config when banner is dismissed
+    setTimeout(() => this.setSwiperConfig(), 100);
+
     if (data.isOptedIn) {
       this.trackingService.optedInFromDashboardBanner();
       this.eou$ = this.authService.refreshEou();
@@ -832,6 +856,9 @@ export class DashboardPage {
 
     this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
 
+    // Update swiper config when banner is dismissed
+    setTimeout(() => this.setSwiperConfig(), 100);
+
     if (data.optedIn) {
       this.trackingService.optedInFromDashboardEmailOptInBanner();
     } else {
@@ -841,5 +868,8 @@ export class DashboardPage {
 
   hideOptInDashboardBanner(): void {
     this.canShowOptInBanner$ = of(false);
+
+    // Update swiper config when banner is hidden
+    setTimeout(() => this.setSwiperConfig(), 100);
   }
 }
