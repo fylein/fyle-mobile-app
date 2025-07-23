@@ -49,7 +49,7 @@ import { FyPolicyViolationComponent } from './components/fy-policy-violation/fy-
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
 import { FormatDateDirective } from './directive/format-date.directive';
 
-import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
@@ -291,6 +291,7 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     CCExpenseMerchantInfoModalComponent,
     DateWithTimezonePipe,
     FyExpansionInfoMsgComponent,
+    PinchZoomComponent,
   ],
   imports: [
     CommonModule,
@@ -303,7 +304,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     MatIconModule,
     MatCheckboxModule,
     MatButtonModule,
-    PinchZoomModule,
     PdfViewerModule,
     MatRippleModule,
     MatDatepickerModule,

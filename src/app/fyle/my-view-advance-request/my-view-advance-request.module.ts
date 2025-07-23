@@ -12,7 +12,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
@@ -26,9 +26,8 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    PinchZoomModule,
     PdfViewerModule,
   ],
-  declarations: [MyViewAdvanceRequestPage],
+  declarations: [MyViewAdvanceRequestPage, PinchZoomComponent],
 })
 export class MyViewAdvanceRequestPageModule {}
