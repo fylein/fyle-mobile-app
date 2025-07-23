@@ -329,7 +329,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
   it('delete(): should show delete popup and navigate to team_advance page', fakeAsync(() => {
     popupService.showPopup.and.resolveTo('primary');
-    advanceRequestService.delete.and.returnValue(of(advanceRequests));
+    advanceRequestService.delete.and.returnValue(of(void 0));
 
     component.delete();
     tick(100);

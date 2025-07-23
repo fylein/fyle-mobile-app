@@ -525,7 +525,7 @@
     "retake": "Retake",
     "saveReceiptForLater": "Save receipt for later",
     "addMore": "Add more",
-    "finish": "Finish",
+    "createExpenseNow": "Create expense now",
     "discardReceiptTitle": "Discard receipt",
     "discardMultipleReceiptsMessage": "Are you sure you want to discard the {{count}} receipts you just captured?",
     "discardSingleReceiptMessage": "Not a good picture? No worries. Discard and click again.",
