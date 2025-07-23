@@ -381,7 +381,7 @@ export class DashboardPage {
     );
   }
 
-  setShowOptInBanner(): void {
+  setShowOptInBanner(): Observable<boolean> {
     const optInBannerConfig = {
       feature: 'DASHBOARD_OPT_IN_BANNER',
       key: 'OPT_IN_BANNER_SHOWN',
@@ -391,7 +391,7 @@ export class DashboardPage {
       .getConfiguration(optInBannerConfig)
       .pipe(map((config) => config?.value));
 
-    this.canShowOptInBanner$ = forkJoin({
+    return forkJoin({
       isBannerShown: isBannerShown$,
       eou: this.eou$,
     }).pipe(
@@ -408,26 +408,15 @@ export class DashboardPage {
     );
   }
 
-  setShowEmailOptInBanner(): void {
+  setShowEmailOptInBanner(): Observable<boolean> {
     const optInBannerConfig = {
       feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
       key: 'EMAIL_OPT_IN_BANNER_SHOWN',
     };
 
-    const isBannerShown$ = this.featureConfigService
-      .getConfiguration(optInBannerConfig)
-      .pipe(map((config) => config?.value));
-
-    this.canShowEmailOptInBanner$ = forkJoin({
-      isBannerShown: isBannerShown$,
-    }).pipe(
-      map(({ isBannerShown }) => {
-        if (isBannerShown) {
-          return false;
-        }
-
-        return true;
-      })
+    return this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+      map((config) => config?.value),
+      map((isBannerShown) => !isBannerShown)
     );
   }
 
@@ -441,12 +430,7 @@ export class DashboardPage {
         centeredSlides: true,
         loop: false,
         autoplay: false,
-        pagination: {
-          dynamicBullets: true,
-          renderBullet: (index: number, className: string): string => {
-            return `<span class="opt-in-banners ${className}"> </span>`;
-          },
-        },
+        pagination: false,
       };
       return;
     }
@@ -557,11 +541,20 @@ export class DashboardPage {
         .subscribe(noop);
     }
 
-    this.setShowOptInBanner();
-    this.setShowEmailOptInBanner();
+    const optInBanner$ = this.setShowOptInBanner();
+    const emailOptInBanner$ = this.setShowEmailOptInBanner();
 
-    // Set swiper config with a slight delay to ensure observables are initialized
-    setTimeout(() => this.setSwiperConfig(), 100);
+    this.canShowOptInBanner$ = optInBanner$;
+    this.canShowEmailOptInBanner$ = emailOptInBanner$;
+
+    forkJoin({
+      optInBanner: optInBanner$,
+      emailOptInBanner: emailOptInBanner$,
+    })
+      .pipe(take(1))
+      .subscribe(() => {
+        this.setSwiperConfig();
+      });
 
     if (openSMSOptInDialog === 'true') {
       this.eou$
@@ -834,7 +827,7 @@ export class DashboardPage {
     this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
 
     // Update swiper config when banner is dismissed
-    setTimeout(() => this.setSwiperConfig(), 100);
+    this.setSwiperConfig();
 
     if (data.isOptedIn) {
       this.trackingService.optedInFromDashboardBanner();
@@ -857,7 +850,7 @@ export class DashboardPage {
     this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
 
     // Update swiper config when banner is dismissed
-    setTimeout(() => this.setSwiperConfig(), 100);
+    this.setSwiperConfig();
 
     if (data.optedIn) {
       this.trackingService.optedInFromDashboardEmailOptInBanner();
@@ -870,6 +863,6 @@ export class DashboardPage {
     this.canShowOptInBanner$ = of(false);
 
     // Update swiper config when banner is hidden
-    setTimeout(() => this.setSwiperConfig(), 100);
+    this.setSwiperConfig();
   }
 }
