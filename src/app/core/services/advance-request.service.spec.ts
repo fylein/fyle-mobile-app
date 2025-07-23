@@ -64,6 +64,7 @@ import { cloneDeep } from 'lodash';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TranslocoService } from '@jsverse/transloco';
 import { Comment } from '../models/platform/v1/comment.model';
+import { AdvanceRequestsCustomFields } from '../models/advance-requests-custom-fields.model';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -1158,6 +1159,60 @@ describe('AdvanceRequestService', () => {
             comment,
           },
         });
+        done();
+      });
+    });
+  });
+
+  describe('getCustomFieldsForSpender():', () => {
+    it('should get custom fields using spender service', (done) => {
+      const mockCustomFields: AdvanceRequestsCustomFields[] = [
+        {
+          id: 123,
+          org_id: 'org123',
+          name: 'Department',
+          type: 'SELECT',
+          options: ['HR', 'Finance', 'IT'],
+          is_mandatory: true,
+          is_enabled: true,
+          placeholder: 'Select department',
+          created_at: new Date('2025-01-01T00:00:00Z'),
+          updated_at: new Date('2025-01-01T00:00:00Z'),
+        },
+      ];
+
+      spenderService.get.and.returnValue(of({ data: mockCustomFields }));
+
+      advanceRequestService.getCustomFieldsForSpender().subscribe((res) => {
+        expect(res).toEqual(mockCustomFields);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests/custom_fields');
+        done();
+      });
+    });
+  });
+
+  describe('getCustomFieldsForApprover():', () => {
+    it('should get custom fields using approver service', (done) => {
+      const mockCustomFields: AdvanceRequestsCustomFields[] = [
+        {
+          id: 124,
+          org_id: 'org123',
+          name: 'Project Code',
+          type: 'TEXT',
+          options: null,
+          is_mandatory: false,
+          is_enabled: true,
+          placeholder: 'Enter project code',
+          created_at: new Date('2025-01-02T00:00:00Z'),
+          updated_at: new Date('2025-01-02T00:00:00Z'),
+        },
+      ];
+
+      approverService.get.and.returnValue(of({ data: mockCustomFields }));
+
+      advanceRequestService.getCustomFieldsForApprover().subscribe((res) => {
+        expect(res).toEqual(mockCustomFields);
+        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests/custom_fields');
         done();
       });
     });

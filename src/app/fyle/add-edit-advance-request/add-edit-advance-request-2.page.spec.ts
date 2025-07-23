@@ -1,6 +1,6 @@
 import { ModalController, PopoverController } from '@ionic/angular';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -64,7 +64,7 @@ export function TestCases2(getTestBed) {
     let component: AddEditAdvanceRequestPage;
     let fixture: ComponentFixture<AddEditAdvanceRequestPage>;
     let authService: jasmine.SpyObj<AuthService>;
-    let advanceRequestsCustomFieldsService: jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
     let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let loaderService: jasmine.SpyObj<LoaderService>;
@@ -88,9 +88,7 @@ export function TestCases2(getTestBed) {
       component = fixture.componentInstance;
 
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      advanceRequestsCustomFieldsService = TestBed.inject(
-        AdvanceRequestsCustomFieldsService
-      ) as jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
@@ -331,7 +329,8 @@ export function TestCases2(getTestBed) {
         spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         const mockCustomField = cloneDeep(advanceRequestCustomFieldData);
-        advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockCustomField));
+        advanceRequestService.getCustomFieldsForSpender.and.returnValue(of(mockCustomField));
+        advanceRequestService.getCustomFieldsForApprover.and.returnValue(of(mockCustomField));
         spyOn(component, 'setupNetworkWatcher');
       });
 
@@ -504,7 +503,8 @@ export function TestCases2(getTestBed) {
 
       it('should set customFields$ correctly', fakeAsync(() => {
         const mockCustomField = cloneDeep(advanceRequestCustomFieldData2);
-        advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockCustomField));
+        advanceRequestService.getCustomFieldsForSpender.and.returnValue(of(mockCustomField));
+        advanceRequestService.getCustomFieldsForApprover.and.returnValue(of(mockCustomField));
         const customFieldValuesData = cloneDeep(advanceRequestCustomFieldValuesData);
         customFieldValuesData[0].id = 150;
         fixture.detectChanges();
@@ -515,7 +515,7 @@ export function TestCases2(getTestBed) {
 
         expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
         component.customFields$.subscribe((res) => {
-          expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
+          expect(advanceRequestService.getCustomFieldsForSpender).toHaveBeenCalledTimes(1);
           expect(res).toEqual(mockCustomField);
         });
       }));
