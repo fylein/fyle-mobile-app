@@ -1,4 +1,4 @@
-@import '../../../../../../theme/colors.scss';
+@use '../../../../../../theme/colors.scss';
 
 .sidemenu-item {
   --inner-border-width: 0;
@@ -10,13 +10,13 @@
   }
 
   &--active {
-    border-left: 3px solid $brand-primary;
-    --background: #{$blue-3};
+    border-left: 3px solid colors.$brand-primary;
+    --background: #{colors.$blue-3};
   }
 
   &__divider {
     margin: 8px 20px;
-    border-bottom: 1px solid $border-translucent-grey;
+    border-bottom: 1px solid colors.$border-translucent-grey;
   }
 
   &__content {
@@ -24,7 +24,7 @@
     border: 0;
     font-weight: 500;
     background: transparent;
-    color: $grey-light;
+    color: colors.$grey-light;
     text-decoration: none;
     font-size: 14px;
 
@@ -33,10 +33,10 @@
     }
 
     &--active {
-      color: $pure-white;
+      color: colors.$pure-white;
 
       ion-icon {
-        fill: $pure-white !important;
+        fill: colors.$pure-white !important;
       }
 
       & > ion-grid {
@@ -52,7 +52,7 @@
     &__icon {
       height: 24px;
       width: 24px;
-      fill: $grey-light;
+      fill: colors.$grey-light;
       vertical-align: text-bottom;
 
       &--sm {
@@ -76,7 +76,7 @@
     &__icon {
       height: 22px;
       width: 22px;
-      color: $grey-light;
+      color: colors.$grey-light;
       vertical-align: text-bottom;
       transform: rotate(180deg);
       transition: 0.3s all ease;

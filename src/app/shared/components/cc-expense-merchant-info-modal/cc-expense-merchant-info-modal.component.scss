@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .header {
   border-radius: 10px;
@@ -10,7 +10,7 @@
   min-height: auto;
 
   &__toolbar-title {
-    color: $black;
+    color: colors.$black;
     font-size: 18px;
     line-height: normal;
     font-weight: 500;
@@ -22,7 +22,7 @@
 
   &__body {
     font-size: 14px;
-    color: $black;
+    color: colors.$black;
     padding: 12px 16px 20px 16px;
   }
 }

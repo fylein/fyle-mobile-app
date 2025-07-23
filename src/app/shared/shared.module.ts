@@ -291,7 +291,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     CCExpenseMerchantInfoModalComponent,
     DateWithTimezonePipe,
     FyExpansionInfoMsgComponent,
-    PinchZoomComponent,
   ],
   imports: [
     CommonModule,
@@ -317,6 +316,7 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     ScrollingModule,
     NgOtpInputModule,
     TranslocoModule,
+    PinchZoomComponent,
   ],
   exports: [
     EllipsisPipe,
@@ -429,6 +429,7 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     DateWithTimezonePipe,
     FyExpansionInfoMsgComponent,
     TranslocoModule,
+    PinchZoomComponent,
   ],
   providers: [
     DecimalPipe,

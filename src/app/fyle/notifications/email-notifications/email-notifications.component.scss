@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .email-notifications {
   &--container {
@@ -8,7 +8,7 @@
   &--saved-text {
     font-size: 12px;
     font-weight: 500;
-    color: $blue-black;
+    color: colors.$blue-black;
     margin-right: 16px;
     margin-bottom: -6px;
     min-width: 40px;
@@ -28,7 +28,7 @@
     margin: 6px 0;
     font-size: 14px;
     font-weight: 400;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--event-name {
@@ -45,7 +45,7 @@
 }
 
 .table-header {
-  background-color: $off-white;
+  background-color: colors.$off-white;
   margin-bottom: 12px;
   justify-content: space-between;
   font-weight: 500;

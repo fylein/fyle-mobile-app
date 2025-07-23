@@ -32,6 +32,7 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     SharedModule,
     MatCheckboxModule,
     PdfViewerModule,
+    PinchZoomComponent,
   ],
   declarations: [
     AddEditAdvanceRequestPage,
@@ -39,7 +40,6 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
     CameraOptionsPopupComponent,
-    PinchZoomComponent,
   ],
 })
 export class AddEditAdvanceRequestPageModule {}

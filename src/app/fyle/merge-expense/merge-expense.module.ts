@@ -38,6 +38,7 @@ import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form/cus
     PdfViewerModule,
     MatButtonModule,
     MatSnackBarModule,
+    PinchZoomComponent,
   ],
   declarations: [
     MergeExpensePage,
@@ -45,7 +46,6 @@ import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form/cus
     GenericFieldsFormComponent,
     CategoryDependentFieldsFormComponent,
     CustomInputsFieldsFormComponent,
-    PinchZoomComponent,
   ],
 })
 export class MergeExpensePageModule {}

@@ -77,8 +77,8 @@ describe('ReceiptPreviewComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ReceiptPreviewComponent, SwiperStubComponent, PinchZoomComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
+      declarations: [ReceiptPreviewComponent, SwiperStubComponent],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent],
       providers: [
         Platform,
         {
