@@ -107,6 +107,8 @@ export class MyProfilePage {
 
   onboardingPending$: Observable<{ hideOtherOptions: boolean }>;
 
+  isInitialLoading: boolean;
+
   overlayClickCount = 0;
 
   constructor(
@@ -313,6 +315,7 @@ export class MyProfilePage {
 
   reset(): void {
     // Check if we should show email opt-in walkthrough from route parameter
+    this.isInitialLoading = true;
     const routeParams = this.activatedRoute.snapshot.params;
     if (routeParams.show_email_walkthrough === 'true') {
       this.showEmailOptInWalkthrough();
@@ -323,16 +326,11 @@ export class MyProfilePage {
 
     this.setInfoCardsData();
 
-    from(this.loaderService.showLoader())
-      .pipe(
-        switchMap(() =>
-          forkJoin({
-            employeeSettings: employeeSettings$,
-            orgSettings: orgSettings$,
-          })
-        ),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
+    forkJoin({
+      employeeSettings: employeeSettings$,
+      orgSettings: orgSettings$,
+    })
+      .pipe(finalize(() => (this.isInitialLoading = false)))
       .subscribe(async (res) => {
         this.employeeSettings = res.employeeSettings;
         this.orgSettings = res.orgSettings;

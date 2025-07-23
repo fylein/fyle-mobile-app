@@ -119,3 +119,17 @@
     color: $blue-black;
   }
 }
+
+// Skeleton Loading Styles
+.notifications {
+  &--skeleton-wrapper {
+    padding: 16px;
+  }
+
+  &--skeleton-card {
+    width: 100%;
+    height: 56px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+}
