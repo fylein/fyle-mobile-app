@@ -321,7 +321,7 @@ describe('MyViewAdvanceRequestPage', () => {
     const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
     deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
     popoverController.create.and.resolveTo(deletePopoverSpy);
-    advanceRequestService.delete.and.returnValue(of(advanceRequests));
+    advanceRequestService.delete.and.returnValue(of(void 0));
 
     component.delete();
     tick(100);
