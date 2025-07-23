@@ -65,16 +65,16 @@ export const filterOptions2: FilterOptions<string>[] = deepFreeze([
         value: 'READY_TO_REPORT',
       },
       {
-        label: 'Policy Violated',
-        value: 'POLICY_VIOLATED',
-      },
-      {
-        label: 'Cannot Report',
-        value: 'CANNOT_REPORT',
-      },
-      {
         label: 'Incomplete',
         value: 'DRAFT',
+      },
+      {
+        label: 'services.myExpenses.blocked',
+        value: 'BLOCKED',
+      },
+      {
+        label: 'Policy Violated',
+        value: 'POLICY_VIOLATED',
       },
     ],
   },
