@@ -387,9 +387,10 @@ export class DashboardPage {
       key: 'OPT_IN_BANNER_SHOWN',
     };
 
-    const isBannerShown$ = this.featureConfigService
-      .getConfiguration(optInBannerConfig)
-      .pipe(map((config) => config?.value));
+    const isBannerShown$ = this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+      map((config) => config?.value),
+      shareReplay(1)
+    );
 
     return forkJoin({
       isBannerShown: isBannerShown$,
@@ -404,7 +405,8 @@ export class DashboardPage {
         }
 
         return true;
-      })
+      }),
+      shareReplay(1)
     );
   }
 
@@ -416,7 +418,8 @@ export class DashboardPage {
 
     return this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
       map((config) => config?.value),
-      map((isBannerShown) => !isBannerShown)
+      map((isBannerShown) => !isBannerShown),
+      shareReplay(1)
     );
   }
 
@@ -552,8 +555,14 @@ export class DashboardPage {
       emailOptInBanner: emailOptInBanner$,
     })
       .pipe(take(1))
-      .subscribe(() => {
-        this.setSwiperConfig();
+      .subscribe({
+        next: () => {
+          this.setSwiperConfig();
+        },
+        error: () => {
+          // If there's an error, still set up default swiper config
+          this.setSwiperConfig();
+        },
       });
 
     if (openSMSOptInDialog === 'true') {

@@ -833,58 +833,61 @@ describe('DashboardPage', () => {
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigOptInData));
     });
 
-    it('should set canShowOptInBanner to false if user is verified', () => {
+    it('should set canShowOptInBanner to false if user is verified', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = true;
       component.eou$ = of(mockEou);
 
-      component.setShowOptInBanner();
+      const result$ = component.setShowOptInBanner();
 
-      component.canShowOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_OPT_IN_BANNER',
           key: 'OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeFalse();
+        done();
       });
     });
 
-    it('should set canShowOptInBanner to false if user currency is not USD or CAD', () => {
+    it('should set canShowOptInBanner to false if user currency is not USD or CAD', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
       mockEou.org.currency = 'INR';
       component.eou$ = of(mockEou);
 
-      component.setShowOptInBanner();
+      const result$ = component.setShowOptInBanner();
 
-      component.canShowOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_OPT_IN_BANNER',
           key: 'OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeFalse();
+        done();
       });
     });
 
-    it('should set canShowOptInBanner to false if user mobile number does not start with +1', () => {
+    it('should set canShowOptInBanner to false if user mobile number does not start wiclth +1', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
       mockEou.org.currency = 'USD';
       mockEou.ou.mobile = '+911234567890';
       component.eou$ = of(mockEou);
 
-      component.setShowOptInBanner();
+      const result$ = component.setShowOptInBanner();
 
-      component.canShowOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_OPT_IN_BANNER',
           key: 'OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeFalse();
+        done();
       });
     });
 
-    it('should set canShowOptInBanner to false if feature config value is greater than 0', () => {
+    it('should set canShowOptInBanner to false if feature config value is greater than 0', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
       mockEou.org.currency = 'USD';
@@ -894,18 +897,19 @@ describe('DashboardPage', () => {
       mockFeatureConfig.value.count = 1;
       featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
 
-      component.setShowOptInBanner();
+      const result$ = component.setShowOptInBanner();
 
-      component.canShowOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_OPT_IN_BANNER',
           key: 'OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeFalse();
+        done();
       });
     });
 
-    it('should set canShowOptInBanner to true if feature config data is null', () => {
+    it('should set canShowOptInBanner to true if feature config data is null', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
       mockEou.org.currency = 'USD';
@@ -914,14 +918,15 @@ describe('DashboardPage', () => {
 
       component.eou$ = of(mockEou);
 
-      component.setShowOptInBanner();
+      const result$ = component.setShowOptInBanner();
 
-      component.canShowOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_OPT_IN_BANNER',
           key: 'OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeTrue();
+        done();
       });
     });
   });
@@ -977,33 +982,35 @@ describe('DashboardPage', () => {
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigEmailOptInData));
     });
 
-    it('should set canShowEmailOptInBanner to false if feature config value is true', () => {
+    it('should set canShowEmailOptInBanner to false if feature config value is true', (done) => {
       const mockFeatureConfig = cloneDeep(featureConfigEmailOptInData);
       mockFeatureConfig.value = true;
       featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
 
-      component.setShowEmailOptInBanner();
+      const result$ = component.setShowEmailOptInBanner();
 
-      component.canShowEmailOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
           key: 'EMAIL_OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeFalse();
+        done();
       });
     });
 
-    it('should set canShowEmailOptInBanner to true if feature config data is null', () => {
+    it('should set canShowEmailOptInBanner to true if feature config data is null', (done) => {
       featureConfigService.getConfiguration.and.returnValue(of(null));
 
-      component.setShowEmailOptInBanner();
+      const result$ = component.setShowEmailOptInBanner();
 
-      component.canShowEmailOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
           key: 'EMAIL_OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeTrue();
+        done();
       });
     });
   });
@@ -1090,10 +1097,7 @@ describe('DashboardPage', () => {
         centeredSlides: true,
         loop: false,
         autoplay: false,
-        pagination: {
-          dynamicBullets: true,
-          renderBullet: jasmine.any(Function),
-        },
+        pagination: false,
       });
     });
 
