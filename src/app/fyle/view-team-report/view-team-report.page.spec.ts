@@ -298,20 +298,17 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('loadReports(): should load reports', (done) => {
-    loaderService.showLoader.and.resolveTo();
     approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
-    loaderService.hideLoader.and.resolveTo();
 
     component
       .loadReports()
       .pipe(
         finalize(() => {
-          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+          expect(component.isLoading).toBeFalse();
         })
       )
       .subscribe((res) => {
         expect(res).toEqual(expectedReportsSinglePage[0]);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
         done();
       });
@@ -381,8 +378,6 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -400,7 +395,6 @@ describe('ViewTeamReportPageV2', () => {
         expect(res).toEqual(apiEouRes);
       });
 
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -470,9 +464,7 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(false);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      loaderService.showLoader.and.resolveTo();
       spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
-      loaderService.hideLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -490,7 +482,6 @@ describe('ViewTeamReportPageV2', () => {
         expect(res).toEqual(apiEouRes);
       });
 
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -1050,17 +1041,20 @@ describe('ViewTeamReportPageV2', () => {
     spyOn(component, 'openViewReportInfoModal');
     component.report$ = of(expectedReportsSinglePage[0]);
     component.approvalAmount = 250.75;
+    component.isLoading = false;
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.view-reports--employee-name__name'))).toEqual(
-      expectedReportsSinglePage[0].employee.user.full_name
-    );
-    expect(getTextContent(getElementBySelector(fixture, '.view-reports--submitted-date__date'))).toEqual(
-      'Feb 01, 2023'
-    );
-    expect(getTextContent(getElementBySelector(fixture, '.view-reports--purpose-amount-block__amount'))).toEqual(
-      component.approvalAmount.toString()
-    );
+    const empEl = getElementBySelector(fixture, '.view-reports--employee-name__name');
+    const dateEl = getElementBySelector(fixture, '.view-reports--submitted-date__date');
+    const amtEl = getElementBySelector(fixture, '.view-reports--purpose-amount-block__amount');
+
+    expect(empEl).withContext('Employee element missing').not.toBeNull();
+    expect(dateEl).withContext('Date element missing').not.toBeNull();
+    expect(amtEl).withContext('Amount element missing').not.toBeNull();
+
+    expect(getTextContent(empEl)).toEqual(expectedReportsSinglePage[0].employee.user.full_name);
+    expect(getTextContent(dateEl)).toEqual('Feb 01, 2023');
+    expect(getTextContent(amtEl)).toEqual(component.approvalAmount.toString());
 
     const openButton = getElementBySelector(fixture, '.view-reports--view-info') as HTMLElement;
     click(openButton);

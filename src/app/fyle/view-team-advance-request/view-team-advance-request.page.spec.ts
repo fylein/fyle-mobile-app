@@ -175,8 +175,6 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
   describe('ionViewWillEnter():', () => {
     beforeEach(() => {
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       advanceRequestService.getApproverAdvanceRequest.and.returnValue(of(extendedAdvReqDraft));
       advanceRequestService.getApproverPermissions.and.returnValue(of(apiAdvanceRequestAction));
       advanceRequestService.getActiveApproversByAdvanceRequestIdPlatformForApprover.and.returnValue(
@@ -198,11 +196,10 @@ describe('ViewTeamAdvanceRequestPage', () => {
       component.advanceRequest$
         .pipe(
           finalize(() => {
-            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+            expect(component.isInitialLoading).toBeFalse();
           })
         )
         .subscribe((data) => {
-          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
           expect(data).toEqual(extendedAdvReqDraft);
           expect(advanceRequestService.getApproverAdvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
         });

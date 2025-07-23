@@ -147,6 +147,8 @@ export class ViewTeamReportPage {
 
   canApproveReport = false;
 
+  isLoading = true;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -197,12 +199,7 @@ export class ViewTeamReportPage {
 
   loadReports(): Observable<Report> {
     return this.loadReportDetails$.pipe(
-      tap(() => this.loaderService.showLoader()),
-      switchMap(() =>
-        this.approverReportsService
-          .getReportById(this.activatedRoute.snapshot.params.id as string)
-          .pipe(finalize(() => this.loaderService.hideLoader()))
-      ),
+      switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
       shareReplay(1)
     );
   }
@@ -305,26 +302,20 @@ export class ViewTeamReportPage {
     );
 
     this.report$ = this.refreshApprovals$.pipe(
-      switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
-          map((report) => {
-            this.approvals = report?.approvals?.filter((approval) =>
-              [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
-            );
-            if (this.showViewApproverModal) {
-              this.approvals.sort((a, b) => a.approver_order - b.approver_order);
-              this.setupApproverToShow(report);
-            }
-            return report;
-          })
-        )
-      ),
+      tap(() => (this.isLoading = true)),
+      switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
       map((report) => {
+        this.approvals = report?.approvals?.filter((approval) =>
+          [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
+        );
+        if (this.showViewApproverModal) {
+          this.approvals.sort((a, b) => a.approver_order - b.approver_order);
+          this.setupApproverToShow(report);
+        }
         this.setupComments(report);
+        this.isLoading = false;
         return report;
       }),
-      finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
 

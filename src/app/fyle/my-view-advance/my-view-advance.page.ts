@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { from, Observable } from 'rxjs';
-import { finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { AdvanceService } from 'src/app/core/services/advance.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -25,10 +24,11 @@ export class MyViewAdvancePage {
 
   currencySymbol: string;
 
+  isLoading = true;
+
   constructor(
     private advanceService: AdvanceService,
     private activatedRoute: ActivatedRoute,
-    private loaderService: LoaderService,
     private expenseFieldsService: ExpenseFieldsService,
     private advanceRequestService: AdvanceRequestService
   ) {}
@@ -49,11 +49,12 @@ export class MyViewAdvancePage {
   }
 
   ionViewWillEnter(): void {
+    this.isLoading = true;
     const id = this.activatedRoute.snapshot.params.id as string;
 
-    this.advance$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.advanceService.getAdvance(id)),
-      finalize(() => from(this.loaderService.hideLoader())),
+    this.advance$ = this.advanceService.getAdvance(id).pipe(
+      tap(() => (this.isLoading = true)),
+      finalize(() => (this.isLoading = false)),
       shareReplay(1)
     );
 
