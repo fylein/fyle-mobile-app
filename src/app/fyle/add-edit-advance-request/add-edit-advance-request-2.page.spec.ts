@@ -329,7 +329,7 @@ export function TestCases2(getTestBed) {
         spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         const mockCustomField = cloneDeep(advanceRequestCustomFieldData);
-        spyOn(advanceRequestService, 'getCustomFields').and.returnValue(of(mockCustomField));
+        spyOn(advanceRequestService, 'getCustomFieldsForSpender').and.returnValue(of(mockCustomField));
         spyOn(component, 'setupNetworkWatcher');
       });
 
@@ -502,7 +502,7 @@ export function TestCases2(getTestBed) {
 
       it('should set customFields$ correctly', fakeAsync(() => {
         const mockCustomField = cloneDeep(advanceRequestCustomFieldData2);
-        spyOn(advanceRequestService, 'getCustomFields').and.returnValue(of(mockCustomField));
+        spyOn(advanceRequestService, 'getCustomFieldsForSpender').and.returnValue(of(mockCustomField));
         const customFieldValuesData = cloneDeep(advanceRequestCustomFieldValuesData);
         customFieldValuesData[0].id = 150;
         fixture.detectChanges();
@@ -513,7 +513,7 @@ export function TestCases2(getTestBed) {
 
         expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
         component.customFields$.subscribe((res) => {
-          expect(advanceRequestService.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(advanceRequestService.getCustomFieldsForSpender).toHaveBeenCalledTimes(1);
           expect(res).toEqual(mockCustomField);
         });
       }));

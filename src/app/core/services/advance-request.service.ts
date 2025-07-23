@@ -598,13 +598,6 @@ export class AdvanceRequestService {
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
-  getCustomFields(): Observable<AdvanceRequestsCustomFields[]> {
-    return this.getCustomFieldsForSpender();
-  }
-
-  @Cacheable({
-    cacheBusterObserver: advanceRequestsCacheBuster$,
-  })
   getCustomFieldsForSpender(): Observable<AdvanceRequestsCustomFields[]> {
     return this.spenderService
       .get<PlatformApiResponse<AdvanceRequestsCustomFields[]>>('/advance_requests/custom_fields')

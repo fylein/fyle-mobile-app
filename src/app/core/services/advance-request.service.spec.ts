@@ -1164,33 +1164,6 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  describe('getCustomFields():', () => {
-    it('should get custom fields using spender service', (done) => {
-      const mockCustomFields: AdvanceRequestsCustomFields[] = [
-        {
-          id: 123,
-          org_id: 'org123',
-          name: 'Department',
-          type: 'SELECT',
-          options: ['HR', 'Finance', 'IT'],
-          is_mandatory: true,
-          is_enabled: true,
-          placeholder: 'Select department',
-          created_at: new Date('2025-01-01T00:00:00Z'),
-          updated_at: new Date('2025-01-01T00:00:00Z'),
-        },
-      ];
-
-      spenderService.get.and.returnValue(of({ data: mockCustomFields }));
-
-      advanceRequestService.getCustomFields().subscribe((res) => {
-        expect(res).toEqual(mockCustomFields);
-        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests/custom_fields');
-        done();
-      });
-    });
-  });
-
   describe('getCustomFieldsForSpender():', () => {
     it('should get custom fields using spender service', (done) => {
       const mockCustomFields: AdvanceRequestsCustomFields[] = [
