@@ -33,6 +33,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { ExtendedStatus } from '../models/extended_status.model';
 import { Comment } from '../models/platform/v1/comment.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { AdvanceRequestsCustomFields } from '../models/advance-requests-custom-fields.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -594,6 +595,24 @@ export class AdvanceRequestService {
       .pipe(map((res) => res.data));
   }
 
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$,
+  })
+  getCustomFieldsForSpender(): Observable<AdvanceRequestsCustomFields[]> {
+    return this.spenderService
+      .get<PlatformApiResponse<AdvanceRequestsCustomFields[]>>('/advance_requests/custom_fields')
+      .pipe(map((res) => this.transformCustomFields(res.data)));
+  }
+
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$,
+  })
+  getCustomFieldsForApprover(): Observable<AdvanceRequestsCustomFields[]> {
+    return this.approverService
+      .get<PlatformApiResponse<AdvanceRequestsCustomFields[]>>('/advance_requests/custom_fields')
+      .pipe(map((res) => this.transformCustomFields(res.data)));
+  }
+
   transformApproverAdvReq(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequest {
     return {
       areq_advance_request_number: advanceRequestPlatform.seq_num,
@@ -773,6 +792,14 @@ export class AdvanceRequestService {
         );
       })
     );
+  }
+
+  private transformCustomFields(customFields: AdvanceRequestsCustomFields[]): AdvanceRequestsCustomFields[] {
+    return customFields.map((advanceRequestCustomField) => ({
+      ...advanceRequestCustomField,
+      created_at: advanceRequestCustomField.created_at ? new Date(advanceRequestCustomField.created_at) : undefined,
+      updated_at: advanceRequestCustomField.updated_at ? new Date(advanceRequestCustomField.updated_at) : undefined,
+    }));
   }
 
   private getStateIfDraft(advanceRequest: ExtendedAdvanceRequest | ExtendedAdvanceRequestPublic): {
