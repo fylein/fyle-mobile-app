@@ -909,7 +909,8 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
+      shareReplay(1)
     );
 
     this.isLoading = true;
@@ -1046,7 +1047,8 @@ export class AddEditPerDiemPage implements OnInit {
     }).pipe(
       concatMap(({ costCenters, recentValue }) =>
         this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue)
-      )
+      ),
+      shareReplay(1)
     );
 
     this.reports$ = this.platformReportService
@@ -2110,8 +2112,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
-    const formContainer = this.formContainer.nativeElement as HTMLElement;
-    if (formContainer) {
+    if (this.formContainer?.nativeElement) {
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
       const invalidElement = formContainer.querySelector('.ng-invalid');
       if (invalidElement) {
         invalidElement.scrollIntoView({
