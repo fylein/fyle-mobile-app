@@ -108,4 +108,77 @@
     padding: 16px 16px;
     background-color: $pure-white;
   }
+
+  // Skeleton Loading Styles
+  &--skeleton-title {
+    height: 16px;
+    width: 150px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--skeleton-input {
+    height: 48px;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+
+  &--skeleton-heading {
+    height: 20px;
+    width: 80px;
+    border-radius: 4px;
+    margin: 16px;
+  }
+
+  &--skeleton-select-all {
+    height: 18px;
+    width: 100px;
+    border-radius: 4px;
+    margin: 16px;
+  }
+
+  &--skeleton-expenses {
+    margin-top: 8px;
+  }
+
+  &--skeleton-expense-item {
+    background-color: $pure-white;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 16px;
+    border: 1px solid $grey-lightest;
+  }
+
+  &--skeleton-checkbox {
+    height: 20px;
+    width: 20px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-expense-icon {
+    height: 40px;
+    width: 40px;
+    border-radius: 8px;
+  }
+
+  &--skeleton-expense-title {
+    height: 16px;
+    width: 140px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--skeleton-expense-subtitle {
+    height: 14px;
+    width: 100px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-expense-amount {
+    height: 18px;
+    width: 80px;
+    border-radius: 4px;
+    margin-left: auto;
+  }
 }

@@ -20,7 +20,44 @@
 </ion-header>
 
 <ion-content class="no-keyboard-adjust">
-  <div class="my-create-report--container full-height">
+  <!-- Skeleton Loading State -->
+  <div class="my-create-report--container full-height" *ngIf="isLoading">
+    <!-- Report Card Skeleton -->
+    <div class="my-create-report--report-card">
+      <ion-skeleton-text animated class="my-create-report--skeleton-title"></ion-skeleton-text>
+      <ion-skeleton-text animated class="my-create-report--skeleton-input"></ion-skeleton-text>
+    </div>
+
+    <!-- Expenses Section Skeleton -->
+    <ion-skeleton-text animated class="my-create-report--skeleton-heading"></ion-skeleton-text>
+    <ion-skeleton-text animated class="my-create-report--skeleton-select-all"></ion-skeleton-text>
+
+    <!-- Expenses List Skeleton -->
+    <div class="my-create-report--skeleton-expenses">
+      <div class="my-create-report--skeleton-expense-item" *ngFor="let item of [1,2,3,4,5]">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="1">
+              <ion-skeleton-text animated class="my-create-report--skeleton-checkbox"></ion-skeleton-text>
+            </ion-col>
+            <ion-col size="2">
+              <ion-skeleton-text animated class="my-create-report--skeleton-expense-icon"></ion-skeleton-text>
+            </ion-col>
+            <ion-col size="6">
+              <ion-skeleton-text animated class="my-create-report--skeleton-expense-title"></ion-skeleton-text>
+              <ion-skeleton-text animated class="my-create-report--skeleton-expense-subtitle"></ion-skeleton-text>
+            </ion-col>
+            <ion-col size="3">
+              <ion-skeleton-text animated class="my-create-report--skeleton-expense-amount"></ion-skeleton-text>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actual Content -->
+  <div class="my-create-report--container full-height" *ngIf="!isLoading">
     <div class="my-create-report--report-card">
       <div class="my-create-report--report-title">Expense report name</div>
       <span class="my-create-report--mandatory"> * </span>

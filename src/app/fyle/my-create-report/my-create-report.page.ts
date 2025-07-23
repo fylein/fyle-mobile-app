@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription, from, noop, of } from 'rxjs';
+import { Observable, Subscription, noop, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -48,6 +48,8 @@ export class MyCreateReportPage implements OnInit {
   isSelectedAll: boolean;
 
   emptyInput = false;
+
+  isLoading = true;
 
   constructor(
     private transactionService: TransactionService,
@@ -207,6 +209,7 @@ export class MyCreateReportPage implements OnInit {
   ionViewWillEnter(): void {
     this.isSelectedAll = true;
     this.selectedElements = [];
+    this.isLoading = true;
 
     this.checkTxnIds();
 
@@ -217,18 +220,12 @@ export class MyCreateReportPage implements OnInit {
       or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
     };
 
-    from(this.loaderService.showLoader())
+    this.orgSettingsService
+      .get()
       .pipe(
-        switchMap(() =>
-          this.orgSettingsService
-            .get()
-            .pipe(
-              map(
-                (orgSetting) =>
-                  orgSetting?.corporate_credit_card_settings?.enabled &&
-                  orgSetting?.pending_cct_expense_restriction?.enabled
-              )
-            )
+        map(
+          (orgSetting) =>
+            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
         ),
         switchMap((filterPendingTxn: boolean) =>
           this.expensesService.getAllExpenses({ queryParams }).pipe(
@@ -257,7 +254,7 @@ export class MyCreateReportPage implements OnInit {
             })
           )
         ),
-        finalize(() => from(this.loaderService.hideLoader())),
+        finalize(() => (this.isLoading = false)),
         shareReplay(1)
       )
       .subscribe((res) => {

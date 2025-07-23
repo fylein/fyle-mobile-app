@@ -1,815 +1,673 @@
 <ion-header mode="md">
   <ion-toolbar class="add-edit-mileage--toolbar" [ngClass]="{'add-edit-mileage--toolbar__review': reviewList?.length}">
     @if (navigateBack) {
-      <ion-buttons mode="md" slot="start">
-        <ion-button (click)="showClosePopup()">
-          <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    }
-    @if (!navigateBack) {
-      <ion-buttons mode="md" slot="start">
-        <ion-button (click)="showClosePopup()">
-          <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/cross.svg'" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    }
-    @if (mode) {
-      <ion-title
-        class="page-title"
-        mode="md"
-        [ngClass]="{'add-edit-mileage--title__review': reviewList?.length}"
-        >
-        @if (mode === 'add') {
-          <div class="add-edit-mileage--toolbar__title">Add mileage</div>
+    <ion-buttons mode="md" slot="start">
+      <ion-button (click)="showClosePopup()">
+        <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    } @if (!navigateBack) {
+    <ion-buttons mode="md" slot="start">
+      <ion-button (click)="showClosePopup()">
+        <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/cross.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    } @if (mode) {
+    <ion-title class="page-title" mode="md" [ngClass]="{'add-edit-mileage--title__review': reviewList?.length}">
+      @if (mode === 'add') {
+      <div class="add-edit-mileage--toolbar__title">Add mileage</div>
+      } @if (mode === 'edit') {
+      <div>
+        @if (reviewList?.length) { Review mileage
+        <div class="add-edit-mileage--sub-header">
+          {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
+        </div>
+        } @else {
+        <div>Edit mileage</div>
         }
-        @if (mode === 'edit') {
-          <div>
-            @if (reviewList?.length) {
-              Review mileage
-              <div class="add-edit-mileage--sub-header">
-                {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{reviewList?.length > 1 ? 's' : ''}}
-              </div>
-            } @else {
-              <div>Edit mileage</div>
-            }
-          </div>
-        }
-      </ion-title>
-    }
-    @if (reviewList?.length || mode === 'edit') {
-      <ion-buttons
-        class="add-edit-mileage--header-btn-container"
-        slot="end"
-        >
-        <ion-button class="add-edit-mileage--header-btn-container__btn" (click)="openCommentsModal()">
-          <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
-        </ion-button>
-        @if (etxn$|async; as etxn) {
-          @if (canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)) {
-            <ion-button class="add-edit-mileage--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
-              <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
-            </ion-button>
-          }
-        }
-      </ion-buttons>
+      </div>
+      }
+    </ion-title>
+    } @if (reviewList?.length || mode === 'edit') {
+    <ion-buttons class="add-edit-mileage--header-btn-container" slot="end">
+      <ion-button class="add-edit-mileage--header-btn-container__btn" (click)="openCommentsModal()">
+        <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+      @if (etxn$|async; as etxn) { @if (canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)) {
+      <ion-button class="add-edit-mileage--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
+        <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+      } }
+    </ion-buttons>
     }
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <!-- Skeleton Loading State -->
+  <ng-container *ngIf="isLoading">
+    <div class="add-edit-mileage--form">
+      <div class="add-edit-mileage--skeleton-container">
+        <!-- Map Section Skeleton -->
+        <div class="add-edit-mileage--map">
+          <ion-skeleton-text animated class="add-edit-mileage--skeleton-map"></ion-skeleton-text>
+        </div>
+
+        <!-- Amount Box Skeleton -->
+        <div class="add-edit-mileage--amount-box">
+          <ion-skeleton-text animated class="add-edit-mileage--skeleton-distance"></ion-skeleton-text>
+          <ion-skeleton-text animated class="add-edit-mileage--skeleton-rate"></ion-skeleton-text>
+          <ion-skeleton-text animated class="add-edit-mileage--skeleton-amount"></ion-skeleton-text>
+        </div>
+
+        <!-- Primary Form Fields Skeleton -->
+        <div class="add-edit-mileage--primary-block">
+          <div class="add-edit-mileage--internal-block">
+            <ion-skeleton-text animated class="add-edit-mileage--skeleton-label"></ion-skeleton-text>
+            <ion-skeleton-text animated class="add-edit-mileage--skeleton-input"></ion-skeleton-text>
+          </div>
+          <div class="add-edit-mileage--internal-block">
+            <ion-skeleton-text animated class="add-edit-mileage--skeleton-label"></ion-skeleton-text>
+            <ion-skeleton-text animated class="add-edit-mileage--skeleton-input"></ion-skeleton-text>
+          </div>
+          <div class="add-edit-mileage--internal-block">
+            <ion-skeleton-text animated class="add-edit-mileage--skeleton-label"></ion-skeleton-text>
+            <ion-skeleton-text animated class="add-edit-mileage--skeleton-input"></ion-skeleton-text>
+          </div>
+          <div class="add-edit-mileage--internal-block">
+            <ion-skeleton-text animated class="add-edit-mileage--skeleton-label"></ion-skeleton-text>
+            <ion-skeleton-text animated class="add-edit-mileage--skeleton-input"></ion-skeleton-text>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
   <div>
-    @if ((mileageRatesOptions$|async)?.length > 0) {
-      @if (etxn$|async; as etxn) {
-        @if (fg) {
-          @if ((isAmountCapped$|async) || (etxn.tx.policy_flag && mode === 'edit')) {
-            <div class="add-edit-mileage--violations">
-              @if (etxn.tx.policy_flag && mode === 'edit') {
-                @if (policyDetails) {
-                  <app-fy-policy-violation-info
-                    [policyDetails]="policyDetails"
-                    [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
-                    >
-                  </app-fy-policy-violation-info>
-                }
-              }
-              @if (isAmountCapped$|async) {
-                @if (!(isCriticalPolicyViolated$|async)) {
-                  <div class="capped-info">
-                    <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
-                    <div class="capped-message">
-                      Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: 'symbol-narrow'}} was capped to
-                      {{etxn.tx.amount | currency: etxn.tx.currency: 'symbol-narrow'}} due to policy
-                      @if (isAmountDisabled$|async) {
-                        <span> and cannot be edited.</span>
-                      }
-                    </div>
-                  </div>
-                }
-              }
-            </div>
+    @if ((mileageRatesOptions$|async)?.length > 0 && !isLoading) { @if (etxn$|async; as etxn) { @if (fg) { @if
+    ((isAmountCapped$|async) || (etxn.tx.policy_flag && mode === 'edit')) {
+    <div class="add-edit-mileage--violations">
+      @if (etxn.tx.policy_flag && mode === 'edit') { @if (policyDetails) {
+      <app-fy-policy-violation-info
+        [policyDetails]="policyDetails"
+        [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+      >
+      </app-fy-policy-violation-info>
+      } } @if (isAmountCapped$|async) { @if (!(isCriticalPolicyViolated$|async)) {
+      <div class="capped-info">
+        <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
+        <div class="capped-message">
+          Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: 'symbol-narrow'}} was capped to
+          {{etxn.tx.amount | currency: etxn.tx.currency: 'symbol-narrow'}} due to policy @if (isAmountDisabled$|async) {
+          <span> and cannot be edited.</span>
           }
-          @if (isConnected$ | async) {
-            <div class="add-edit-mileage--map">
-              <app-route-visualizer
-                [mileageLocations]="fg.controls.route.value?.mileageLocations || []"
-                (mapClick)="onRouteVisualizerClick()"
-              ></app-route-visualizer>
-            </div>
-          }
-          <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">
-            @if (homeCurrency$|async; as homeCurrency) {
-              <div class="add-edit-mileage--amount-box">
-                <div class="add-edit-mileage--distance">
-                  <div>{{ fg.controls.route.value?.distance || 0 }}</div>
-                  <span class="add-edit-mileage--distance-unit">
-                    @if (etxn.tx.distance_unit) {
-                      <span>{{ etxn.tx.distance_unit }}</span>
-                    } @else {
-                      @if (mileageConfig$|async; as mileageConfig) {
-                        <span>{{ mileageConfig.unit }}</span>
-                      }
-                    }
-                  </span>
-                </div>
-                <div>
-                  <div class="add-edit-mileage--rate-value text-uppercase mb-0 text-right">
-                    {{rate$|async | currency: homeCurrency: 'symbol-narrow'}} /
-                    @if (etxn.tx.distance_unit) {
-                      <span>{{ etxn.tx.distance_unit | singular }}</span>
-                    } @else {
-                      @if (mileageConfig$|async; as mileageConfig) {
-                        <span>{{ mileageConfig.unit | singular }}</span>
-                      }
-                    }
-                  </div>
-                </div>
-                <div>
-                  <div class="add-edit-mileage--amount-value text-uppercase mb-0">
-                    {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
-                  </div>
-                </div>
-              </div>
-            }
-            <div class="add-edit-mileage--primary-block">
-              @if (connectionStatus$|async; as connectionStatus) {
-                @if (etxn$|async; as etxn) {
-                  @if (txnFields$|async; as txnFields) {
-                    @if (mileageConfig$|async; as mileageConfig) {
-                      @if (recentlyUsedMileageLocations$|async; as recentlyUsedMileageLocations) {
-                        <app-route-selector
-                          formControlName="route"
-                          [isConnected]="connectionStatus.connected"
-                          [recentlyUsedMileageLocations]="recentlyUsedMileageLocations"
-                          [formInitialized]="formInitializedFlag"
-                          [txnFields]="txnFields"
-                          [isAmountDisabled]="(isAmountDisabled$|async)"
-                          [isDistanceMandatory]="txnFields?.distance?.is_mandatory"
-                          [mileageConfig]="mileageConfig"
-                          [unit]="etxn.tx.distance_unit || mileageConfig.unit"
-                          [touchedInParent]="fg.controls.route.touched"
-                          [validInParent]="fg.controls.route.valid"
-                          (distanceChange)="updateDistanceOnLocationChange($event)"
-                          >
-                          @if (showCommuteDeductionField) {
-                            @if (txnFields$|async; as txnFields) {
-                              <div
-                                class="add-edit-mileage--internal-block"
-                                [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid}"
-                                >
-                                <app-fy-select
-                                  [enableSearch]="false"
-                                  [label]="'Commute Deduction'"
-                                  [mandatory]="txnFields.commute_deduction?.is_mandatory"
-                                  [nullOption]="false"
-                                  [options]="commuteDeductionOptions"
-                                  [selectModalHeader]="'Commute deduction'"
-                                  formControlName="commuteDeduction"
-                                  [selectionElement]="commuteDeduction"
-                                  [touchedInParent]="fg.controls.commuteDeduction.touched"
-                                  [validInParent]="fg.controls.commuteDeduction.valid"
-                                  [placeholder]="txnFields.commute_deduction?.placeholder || 'Select Commute Deduction'"
-                                  >
-                                </app-fy-select>
-                                <ng-template
-                                  #commuteDeduction
-                                  let-label="label"
-                                  let-value="value"
-                                  let-distance="distance"
-                                  let-selected="selected"
-                                  >
-                                  <div>
-                                    <div class="add-edit-mileage--commute-deduction">{{label}}</div>
-                                    @if (distance > 0) {
-                                      <div class="add-edit-mileage--payment-mode-section">
-                                        {{distance.toFixed(2) + ' ' + distanceUnit}}
-                                      </div>
-                                    }
-                                    @if (distance === 0) {
-                                      <div class="add-edit-mileage--payment-mode-section">
-                                        {{distance + ' ' + distanceUnit}}
-                                      </div>
-                                    }
-                                    @if (distance === null) {
-                                      <div class="add-edit-mileage--add-location">
-                                        <ion-icon
-                                          class="add-edit-mileage--add-location--icon"
-                                          src="../../../assets/svg/plus-square.svg"
-                                        ></ion-icon>
-                                        Add location
-                                      </div>
-                                    }
-                                  </div>
-                                  @if (selected) {
-                                    <mat-icon class="add-edit-mileage--check"> check </mat-icon>
-                                  }
-                                </ng-template>
-                              </div>
-                              @if (fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid) {
-                                <div
-                                  class="add-edit-mileage--error"
-                                  >
-                                  Please select commute deduction.
-                                </div>
-                              }
-                            }
-                          }
-                        </app-route-selector>
-                      }
-                    }
-                  }
-                }
-              }
-              @if (mileageRatesOptions$|async; as mileageRatesOptions) {
-                @if (mileageRatesOptions.length > 1) {
-                  <div
-                    class="add-edit-mileage--internal-block"
-                    [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.mileage_rate_name.touched && !fg.controls.mileage_rate_name.valid}"
-                    >
-                    <app-fy-select
-                      [enableSearch]="false"
-                      [label]="'Mileage Rate'"
-                      [mandatory]="true"
-                      [nullOption]="false"
-                      [options]="mileageRatesOptions"
-                      [selectModalHeader]="'Select mileage rate'"
-                      formControlName="mileage_rate_name"
-                      [selectionElement]="mileage_rate_name"
-                      [touchedInParent]="fg.controls.mileage_rate_name.touched"
-                      [validInParent]="fg.controls.mileage_rate_name.valid"
-                      >
-                    </app-fy-select>
-                    <ng-template
-                      #mileage_rate_name
-                      let-label="label"
-                      let-mileage_rate_name="value"
-                      let-selected="selected"
-                      >
-                      <div class="add-edit-mileage--rate-name">{{label}}</div>
-                      @if (selected) {
-                        <mat-icon> check </mat-icon>
-                      }
-                    </ng-template>
-                  </div>
-                }
-                @if (fg.controls.mileage_rate_name.touched && !fg.controls.mileage_rate_name.valid) {
-                  <div
-                    class="add-edit-mileage--error"
-                    >
-                    Select mileage rate.
-                  </div>
-                }
-              }
-              <ion-grid class="ion-grid-no-padding">
-                <ion-row>
-                  <ion-col size="6">
-                    @if (txnFields$|async; as txnFields) {
-                      @if (txnFields?.txn_dt) {
-                        <div
-                          class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
-                          [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
-                          >
-                          <div class="add-edit-mileage--date-label">
-                            {{txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'}}
-                            @if (txnFields?.txn_dt?.is_mandatory) {
-                              <span class="add-edit-mileage--mandatory">*</span>
-                            }
-                          </div>
-                          <input
-                            appFormatDate
-                            (keydown)="$event.preventDefault()"
-                            [max]="maxDate"
-                            [min]="minDate"
-                            class="add-edit-mileage--date-input date-input__format smartlook-show"
-                            [name]="txnFields?.txn_dt?.field_name"
-                            formControlName="dateOfSpend"
-                            type="date"
-                            [placeholder]="txnFields?.txn_dt?.placeholder || 'Select ' + txnFields?.txn_dt?.field_name || 'Date of Travel'"
-                            />
-                        </div>
-                      }
-                      @if (fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid) {
-                        <div
-                          class="add-edit-mileage--error"
-                          >
-                          Please select a valid date.
-                        </div>
-                      }
-                    }
-                  </ion-col>
-                  <ion-col>
-                    @if (paymentModes$|async; as paymentModes) {
-                      <div
-                        class="add-edit-mileage--payment-modes add-edit-mileage--internal-block"
-                        [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
-                        >
-                        <app-fy-select
-                          [enableSearch]="false"
-                          [label]="'Payment mode'"
-                          [mandatory]="true"
-                          [nullOption]="false"
-                          [options]="paymentModes"
-                          [selectModalHeader]="'Select payment mode'"
-                          [selectionElement]="paymentMode"
-                          formControlName="paymentMode"
-                          [placeholder]="'Select payment mode'"
-                          [touchedInParent]="fg.controls.paymentMode.touched"
-                          [validInParent]="fg.controls.paymentMode.valid"
-                          >
-                        </app-fy-select>
-                        <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
-                          <div>
-                            <div class="add-edit-mileage--payment-mode-header">{{label}}</div>
-                            @if (paymentMode) {
-                              @if (paymentMode.isReimbursable) {
-                                <div
-                                  class="add-edit-mileage--payment-mode-section"
-                                  >
-                                  (Reimbursable)
-                                </div>
-                              }
-                              @if (!paymentMode.isReimbursable) {
-                                <div
-                                  class="add-edit-mileage--payment-mode-section"
-                                  >
-                                  (Non reimbursable)
-                                </div>
-                              }
-                            }
-                          </div>
-                          @if (selected) {
-                            <mat-icon class="add-edit-mileage--check"> check </mat-icon>
-                          }
-                        </ng-template>
-                      </div>
-                      @if (fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid) {
-                        <div
-                          class="add-edit-mileage--error"
-                          >
-                          Please select payment mode.
-                        </div>
-                      }
-                    }
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </div>
-            @if (txnFields$|async; as txnFields) {
-              @if (txnFields?.project_id) {
-                <div class="add-edit-mileage--project-container">
-                  @if (isConnected$|async) {
-                    @if ((isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))) {
-                      @if (projectCategoryIds$|async; as projectCategoryIds) {
-                        @if (isProjectVisible$|async) {
-                          @if ({value: isProjectCategoryRestrictionsEnabled$ | async}; as isProjectCategoryRestrictionsEnabled) {
-                            <div
-                              class="add-edit-mileage--internal-block add-edit-mileage--project-block"
-                              [ngClass]="{'add-edit-mileage--no-project': !fg.controls.project.value}"
-                              >
-                              <app-fy-select-project
-                                [cacheName]="'mileageProjectCache'"
-                                [categoryIds]="projectCategoryIds"
-                                [label]="txnFields.project_id?.field_name"
-                                [placeholder]="txnFields.project_id?.placeholder"
-                                [mandatory]="txnFields.project_id?.is_mandatory"
-                                [defaultValue]="true"
-                                [recentlyUsed]="recentProjects"
-                                formControlName="project"
-                                [validInParent]="fg.controls.project.valid"
-                                [touchedInParent]="fg.controls.project.touched"
-                                [isProjectCategoryRestrictionsEnabled]="isProjectCategoryRestrictionsEnabled.value"
-                              ></app-fy-select-project>
-                            </div>
-                          }
-                        }
-                      }
-                    }
-                  }
-                  @if (showBillable && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))) {
-                    <div
-                      >
-                      @if (fg.controls.project.value) {
-                        <div class="add-edit-mileage--billable-block">
-                          <mat-checkbox formControlName="billable">
-                            <span class="add-edit-mileage--checkbox"> Billable </span>
-                          </mat-checkbox>
-                        </div>
-                      }
-                    </div>
-                  }
-                </div>
-              }
-              @if ((isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))) {
-                <div
-                  >
-                  @if (fg.controls.project.touched && !fg.controls.project.valid) {
-                    <div class="add-edit-mileage--error">
-                      Please select a project.
-                    </div>
-                  }
-                </div>
-              }
-            }
-            @if (txnFields$|async; as txnFields) {
-              @if (dependentFields$|async; as dependentFields) {
-                @if (etxn$|async; as etxn) {
-                  @if (selectedProject$|async; as selectedProject) {
-                    <ng-container formArrayName="project_dependent_fields">
-                      <app-dependent-fields
-                        #projectDependentFieldsRef
-                        [dependentFieldsFormArray]="fg.controls.project_dependent_fields"
-                        [dependentCustomFields]="dependentFields"
-                        [parentFieldId]="txnFields?.project_id?.id"
-                        [parentFieldValue]="selectedProject?.projectv2_name"
-                        [txnCustomProperties]="etxn.tx.custom_properties"
-                      ></app-dependent-fields>
-                    </ng-container>
-                  }
-                }
-              }
-            }
-            @if (filteredCategories$|async; as subCategories) {
-              @if (subCategories.length > 0) {
-                <div
-                  class="add-edit-mileage--internal-block"
-                  [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.sub_category.touched && !fg.controls.sub_category.valid}"
-                  >
-                  <app-fy-select
-                    [cacheName]="'mileageSubCategoryName'"
-                    [label]="'Subcategory'"
-                    [mandatory]="true"
-                    [options]="subCategories"
-                    [selectModalHeader]="'Select subcategory'"
-                    formControlName="sub_category"
-                    [placeholder]="'Subcategory'"
-                    [touchedInParent]="fg.controls.sub_category.touched"
-                    [validInParent]="fg.controls.sub_category.valid"
-                    >
-                  </app-fy-select>
-                </div>
-                @if (fg.controls.sub_category.touched && !fg.controls.sub_category.valid) {
-                  <div
-                    class="add-edit-mileage--error"
-                    >
-                    Please select a sub-category.
-                  </div>
-                }
-              }
-            }
-            <div class="add-edit-mileage--primary-block">
-              @if (costCenters$|async; as costCenters) {
-                @if (txnFields$|async; as txnFields) {
-                  @if (txnFields.cost_center_id?.is_mandatory || isExpandedView) {
-                    @if (costCenters.length > 0 && txnFields?.cost_center_id) {
-                      <div
-                        class="add-edit-mileage--internal-block"
-                        [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
-                        >
-                        <app-virtual-select
-                          [cacheName]="'mileageCostCenterCache'"
-                          [label]="txnFields.cost_center_id?.field_name"
-                          [mandatory]="txnFields.cost_center_id.is_mandatory"
-                          [options]="costCenters"
-                          [selectModalHeader]="'Select cost center'"
-                          [recentlyUsed]="recentCostCenters"
-                          formControlName="costCenter"
-                          [placeholder]="txnFields.cost_center_id?.placeholder"
-                          >
-                        </app-virtual-select>
-                      </div>
-                    }
-                    @if (fg.controls.costCenter.touched && !fg.controls.costCenter.valid) {
-                      <div
-                        class="add-edit-mileage--error"
-                        >
-                        Please select a cost center.
-                      </div>
-                    }
-                    @if (dependentFields$|async; as dependentFields) {
-                      @if (etxn$|async; as etxn) {
-                        @if (selectedCostCenter$|async; as selectedCostCenter) {
-                          <ng-container formArrayName="cost_center_dependent_fields">
-                            <app-dependent-fields
-                              #costCenterDependentFieldsRef
-                              [dependentFieldsFormArray]="fg.controls.cost_center_dependent_fields"
-                              [dependentCustomFields]="dependentFields"
-                              [parentFieldId]="txnFields?.cost_center_id?.id"
-                              [parentFieldValue]="selectedCostCenter?.name"
-                              [txnCustomProperties]="etxn.tx.custom_properties"
-                            ></app-dependent-fields>
-                          </ng-container>
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-              @if (txnFields$|async; as txnFields) {
-                @if (txnFields?.purpose) {
-                  @if (txnFields.purpose?.is_mandatory || isExpandedView) {
-                    @if (txnFields.purpose?.type === 'TEXT') {
-                      <div
-                        class="add-edit-mileage--text add-edit-mileage--internal-block"
-                        [ngClass]="{'add-edit-mileage--text__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-                        >
-                        <div class="add-edit-mileage--text-label">
-                          {{ txnFields.purpose?.field_name| slice: 0:30 }}
-                          @if (txnFields.purpose?.is_mandatory) {
-                            <span class="add-edit-mileage--mandatory"> * </span>
-                          }
-                        </div>
-                        <input
-                          [placeholder]="txnFields.purpose?.placeholder || 'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
-                          [required]="txnFields.purpose?.is_mandatory"
-                          [title]="'Enter'+txnFields.purpose?.field_name"
-                          class="add-edit-mileage--text-input smartlook-show"
-                          formControlName="purpose"
-                          />
-                      </div>
-                    }
-                    @if (txnFields.purpose?.type === 'SELECT') {
-                      <div class="add-edit-mileage--internal-block">
-                        <app-fy-select
-                          [label]="txnFields.purpose?.field_name"
-                          [mandatory]="txnFields.purpose?.is_mandatory"
-                          [options]="txnFields.purpose?.options"
-                          [selectModalHeader]="'Enter ' + txnFields.purpose?.field_name"
-                          formControlName="purpose"
-                          [placeholder]="txnFields.purpose?.placeholder"
-                          [touchedInParent]="fg.controls.purpose.touched"
-                          [validInParent]="fg.controls.purpose.valid"
-                          >
-                        </app-fy-select>
-                      </div>
-                    }
-                    @if (fg.controls.purpose.touched && !fg.controls.purpose.valid) {
-                      <div
-                        class="add-edit-mileage--error add-edit-mileage--text-error"
-                        >
-                        Please enter a {{ txnFields.purpose?.field_name }}
-                      </div>
-                    }
-                  }
-                }
-              }
-              @for (customInput of this.customInputs$ | async; track customInput) {
-                @if (customInput.mandatory || isExpandedView) {
-                  @if (customInput.type !== 'USER_LIST') {
-                    <div class="add-edit-mileage--internal-block">
-                      <form [formGroup]="customInput.control">
-                        @if (customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION') {
-                          <div
-                            class="add-edit-mileage--text"
-                            [ngClass]="{'add-edit-mileage--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-                            >
-                            <div class="add-edit-mileage--text-label">
-                              {{customInput.name | ellipsis: 30}}
-                              @if (customInput.mandatory) {
-                                <span class="add-edit-mileage--mandatory"> * </span>
-                              }
-                            </div>
-                            @if (customInput.type === 'TEXT') {
-                              <input
-                                class="add-edit-mileage--text-input smartlook-show"
-                                formControlName="value"
-                                type="text"
-                                [placeholder]="customInput.placeholder || 'Enter ' + customInput.name| ellipsis: 30"
-                                />
-                            }
-                            @if (customInput.type === 'NUMBER') {
-                              <app-fy-number
-                                formControlName="value"
-                                [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
-                              ></app-fy-number>
-                            }
-                            @if (customInput.type === 'DATE') {
-                              <input
-                                appFormatDate
-                                class="add-edit-mileage--date-input date-input__format smartlook-show"
-                                formControlName="value"
-                                type="date"
-                                [name]="customInput.placeholder || customInput.name"
-                                />
-                            }
-                          </div>
-                        }
-                        @if (customInput.type === 'BOOLEAN') {
-                          <div class="add-edit-mileage--checkbox">
-                            <label>
-                              <mat-checkbox formControlName="value">
-                                {{customInput.name | ellipsis: 35 }}
-                                @if (customInput.mandatory) {
-                                  <span class="add-edit-mileage--mandatory">*</span>
-                                }
-                              </mat-checkbox>
-                            </label>
-                          </div>
-                        }
-                        @if (customInput.type === 'LOCATION') {
-                          <div>
-                            <app-fy-location
-                              [label]="customInput.name | ellipsis: 30"
-                              [mandatory]="customInput.mandatory"
-                              formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
-                              [touchedInParent]="customInput.control.controls.value.touched"
-                              [validInParent]="customInput.control.controls.value.valid"
-                              >
-                            </app-fy-location>
-                          </div>
-                        }
-                        @if (customInput.type === 'SELECT') {
-                          <div>
-                            <app-fy-select
-                              [label]="customInput.name | ellipsis: 30"
-                              [mandatory]="customInput.mandatory"
-                              [options]="customInput.options"
-                              [selectModalHeader]="'Select '+customInput.name"
-                              formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
-                              [touchedInParent]="customInput.control.controls.value.touched"
-                              [validInParent]="customInput.control.controls.value.valid"
-                              [isCustomSelect]="true"
-                              >
-                            </app-fy-select>
-                          </div>
-                        }
-                        @if (customInput.type === 'MULTI_SELECT') {
-                          <div>
-                            <app-fy-multiselect
-                              [label]="customInput.name | ellipsis: 30"
-                              [mandatory]="customInput.mandatory"
-                              [options]="customInput.options"
-                              [selectModalHeader]="'Select '+customInput.name"
-                              [subheader]="customInput.name"
-                              formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
-                              [touchedInParent]="customInput.control.controls.value.touched"
-                              [validInParent]="customInput.control.controls.value.valid"
-                              >
-                            </app-fy-multiselect>
-                          </div>
-                        }
-                      </form>
-                    </div>
-                  }
-                  @if (customInput.control.controls.value.touched && !customInput.control.controls.value.valid) {
-                    <div
-                      class="add-edit-mileage--error"
-                      >
-                      Please enter a {{customInput.name}}
-                    </div>
-                  }
-                }
-              }
-              @if (isConnected$|async) {
-                <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
-                @if (reports$|async; as reports) {
-                  @if (etxn$|async; as etxn) {
-                    @if (!(isCriticalPolicyViolated$|async)) {
-                      @if (canRemoveFromReport || !etxn?.tx?.report_id) {
-                        <div class="add-edit-mileage--internal-block">
-                          <app-fy-add-to-report
-                            [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
-                            [options]="reports"
-                            formControlName="report"
-                            [autoSubmissionReportName]="autoSubmissionReportName$|async"
-                            [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
-                          ></app-fy-add-to-report>
-                        </div>
-                      }
-                    }
-                  }
-                }
-              }
-            </div>
-            @if (mode === 'add') {
+        </div>
+      </div>
+      } }
+    </div>
+    } @if (isConnected$ | async) {
+    <div class="add-edit-mileage--map">
+      <app-route-visualizer
+        [mileageLocations]="fg.controls.route.value?.mileageLocations || []"
+        (mapClick)="onRouteVisualizerClick()"
+      ></app-route-visualizer>
+    </div>
+    }
+    <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">
+      @if (homeCurrency$|async; as homeCurrency) {
+      <div class="add-edit-mileage--amount-box">
+        <div class="add-edit-mileage--distance">
+          <div>{{ fg.controls.route.value?.distance || 0 }}</div>
+          <span class="add-edit-mileage--distance-unit">
+            @if (etxn.tx.distance_unit) {
+            <span>{{ etxn.tx.distance_unit }}</span>
+            } @else { @if (mileageConfig$|async; as mileageConfig) {
+            <span>{{ mileageConfig.unit }}</span>
+            } }
+          </span>
+        </div>
+        <div>
+          <div class="add-edit-mileage--rate-value text-uppercase mb-0 text-right">
+            {{rate$|async | currency: homeCurrency: 'symbol-narrow'}} / @if (etxn.tx.distance_unit) {
+            <span>{{ etxn.tx.distance_unit | singular }}</span>
+            } @else { @if (mileageConfig$|async; as mileageConfig) {
+            <span>{{ mileageConfig.unit | singular }}</span>
+            } }
+          </div>
+        </div>
+        <div>
+          <div class="add-edit-mileage--amount-value text-uppercase mb-0">
+            {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
+          </div>
+        </div>
+      </div>
+      }
+      <div class="add-edit-mileage--primary-block">
+        @if (connectionStatus$|async; as connectionStatus) { @if (etxn$|async; as etxn) { @if (txnFields$|async; as
+        txnFields) { @if (mileageConfig$|async; as mileageConfig) { @if (recentlyUsedMileageLocations$|async; as
+        recentlyUsedMileageLocations) {
+        <app-route-selector
+          formControlName="route"
+          [isConnected]="connectionStatus.connected"
+          [recentlyUsedMileageLocations]="recentlyUsedMileageLocations"
+          [formInitialized]="formInitializedFlag"
+          [txnFields]="txnFields"
+          [isAmountDisabled]="(isAmountDisabled$|async)"
+          [isDistanceMandatory]="txnFields?.distance?.is_mandatory"
+          [mileageConfig]="mileageConfig"
+          [unit]="etxn.tx.distance_unit || mileageConfig.unit"
+          [touchedInParent]="fg.controls.route.touched"
+          [validInParent]="fg.controls.route.valid"
+          (distanceChange)="updateDistanceOnLocationChange($event)"
+        >
+          @if (showCommuteDeductionField) { @if (txnFields$|async; as txnFields) {
+          <div
+            class="add-edit-mileage--internal-block"
+            [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid}"
+          >
+            <app-fy-select
+              [enableSearch]="false"
+              [label]="'Commute Deduction'"
+              [mandatory]="txnFields.commute_deduction?.is_mandatory"
+              [nullOption]="false"
+              [options]="commuteDeductionOptions"
+              [selectModalHeader]="'Commute deduction'"
+              formControlName="commuteDeduction"
+              [selectionElement]="commuteDeduction"
+              [touchedInParent]="fg.controls.commuteDeduction.touched"
+              [validInParent]="fg.controls.commuteDeduction.valid"
+              [placeholder]="txnFields.commute_deduction?.placeholder || 'Select Commute Deduction'"
+            >
+            </app-fy-select>
+            <ng-template
+              #commuteDeduction
+              let-label="label"
+              let-value="value"
+              let-distance="distance"
+              let-selected="selected"
+            >
               <div>
-                @if (isExpandedView) {
-                  <div class="expansion-btn" fill="clear" (click)="hideFields()">
-                    Hide more fields
-                    <ion-icon class="expansion-icon" name="chevron-up"></ion-icon>
-                  </div>
-                } @else {
-                  <div class="expansion-btn" fill="clear" (click)="showFields()">
-                    Show more fields
-                    <ion-icon class="expansion-icon" name="chevron-down"></ion-icon>
-                  </div>
+                <div class="add-edit-mileage--commute-deduction">{{label}}</div>
+                @if (distance > 0) {
+                <div class="add-edit-mileage--payment-mode-section">{{distance.toFixed(2) + ' ' + distanceUnit}}</div>
+                } @if (distance === 0) {
+                <div class="add-edit-mileage--payment-mode-section">{{distance + ' ' + distanceUnit}}</div>
+                } @if (distance === null) {
+                <div class="add-edit-mileage--add-location">
+                  <ion-icon
+                    class="add-edit-mileage--add-location--icon"
+                    src="../../../assets/svg/plus-square.svg"
+                  ></ion-icon>
+                  Add location
+                </div>
                 }
               </div>
-            }
-            @if (isConnected$) {
-              @if (txnFields$|async; as txnFields) {
-                @if (isProjectsEnabled$|async; as isProjectsEnabled) {
-                  @if (isIndividualProjectsEnabled$|async; as isIndividualProjectsEnabled) {
-                    @if (individualProjectIds$|async; as individualProjectIds) {
-                      @if (txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0) {
-                        <app-fy-alert-info
-                          [type]="'warning'"
-                          [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                          >
-                        </app-fy-alert-info>
-                      }
-                    }
-                  }
-                }
+              @if (selected) {
+              <mat-icon class="add-edit-mileage--check"> check </mat-icon>
               }
+            </ng-template>
+          </div>
+          @if (fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid) {
+          <div class="add-edit-mileage--error">Please select commute deduction.</div>
+          } } }
+        </app-route-selector>
+        } } } } } @if (mileageRatesOptions$|async; as mileageRatesOptions) { @if (mileageRatesOptions.length > 1) {
+        <div
+          class="add-edit-mileage--internal-block"
+          [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.mileage_rate_name.touched && !fg.controls.mileage_rate_name.valid}"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Mileage Rate'"
+            [mandatory]="true"
+            [nullOption]="false"
+            [options]="mileageRatesOptions"
+            [selectModalHeader]="'Select mileage rate'"
+            formControlName="mileage_rate_name"
+            [selectionElement]="mileage_rate_name"
+            [touchedInParent]="fg.controls.mileage_rate_name.touched"
+            [validInParent]="fg.controls.mileage_rate_name.valid"
+          >
+          </app-fy-select>
+          <ng-template #mileage_rate_name let-label="label" let-mileage_rate_name="value" let-selected="selected">
+            <div class="add-edit-mileage--rate-name">{{label}}</div>
+            @if (selected) {
+            <mat-icon> check </mat-icon>
             }
-            @if (isConnected$) {
-              @if (txnFields$|async; as txnFields) {
-                @if (isCostCentersEnabled$|async; as isCostCentersEnabled) {
-                  @if (costCenters$|async; as allowedCostCenters) {
-                    @if (txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0) {
-                      <app-fy-alert-info
-                        class="add-edit-mileage--cost-center-alert"
-                        [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                        [type]="'warning'"
-                        >
-                      </app-fy-alert-info>
-                    }
+          </ng-template>
+        </div>
+        } @if (fg.controls.mileage_rate_name.touched && !fg.controls.mileage_rate_name.valid) {
+        <div class="add-edit-mileage--error">Select mileage rate.</div>
+        } }
+        <ion-grid class="ion-grid-no-padding">
+          <ion-row>
+            <ion-col size="6">
+              @if (txnFields$|async; as txnFields) { @if (txnFields?.txn_dt) {
+              <div
+                class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
+                [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
+              >
+                <div class="add-edit-mileage--date-label">
+                  {{txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'}} @if
+                  (txnFields?.txn_dt?.is_mandatory) {
+                  <span class="add-edit-mileage--mandatory">*</span>
                   }
+                </div>
+                <input
+                  appFormatDate
+                  (keydown)="$event.preventDefault()"
+                  [max]="maxDate"
+                  [min]="minDate"
+                  class="add-edit-mileage--date-input date-input__format smartlook-show"
+                  [name]="txnFields?.txn_dt?.field_name"
+                  formControlName="dateOfSpend"
+                  type="date"
+                  [placeholder]="txnFields?.txn_dt?.placeholder || 'Select ' + txnFields?.txn_dt?.field_name || 'Date of Travel'"
+                />
+              </div>
+              } @if (fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid) {
+              <div class="add-edit-mileage--error">Please select a valid date.</div>
+              } }
+            </ion-col>
+            <ion-col>
+              @if (paymentModes$|async; as paymentModes) {
+              <div
+                class="add-edit-mileage--payment-modes add-edit-mileage--internal-block"
+                [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
+              >
+                <app-fy-select
+                  [enableSearch]="false"
+                  [label]="'Payment mode'"
+                  [mandatory]="true"
+                  [nullOption]="false"
+                  [options]="paymentModes"
+                  [selectModalHeader]="'Select payment mode'"
+                  [selectionElement]="paymentMode"
+                  formControlName="paymentMode"
+                  [placeholder]="'Select payment mode'"
+                  [touchedInParent]="fg.controls.paymentMode.touched"
+                  [validInParent]="fg.controls.paymentMode.valid"
+                >
+                </app-fy-select>
+                <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
+                  <div>
+                    <div class="add-edit-mileage--payment-mode-header">{{label}}</div>
+                    @if (paymentMode) { @if (paymentMode.isReimbursable) {
+                    <div class="add-edit-mileage--payment-mode-section">(Reimbursable)</div>
+                    } @if (!paymentMode.isReimbursable) {
+                    <div class="add-edit-mileage--payment-mode-section">(Non reimbursable)</div>
+                    } }
+                  </div>
+                  @if (selected) {
+                  <mat-icon class="add-edit-mileage--check"> check </mat-icon>
+                  }
+                </ng-template>
+              </div>
+              @if (fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid) {
+              <div class="add-edit-mileage--error">Please select payment mode.</div>
+              } }
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+      @if (txnFields$|async; as txnFields) { @if (txnFields?.project_id) {
+      <div class="add-edit-mileage--project-container">
+        @if (isConnected$|async) { @if ((isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) &&
+        (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))) { @if
+        (projectCategoryIds$|async; as projectCategoryIds) { @if (isProjectVisible$|async) { @if ({value:
+        isProjectCategoryRestrictionsEnabled$ | async}; as isProjectCategoryRestrictionsEnabled) {
+        <div
+          class="add-edit-mileage--internal-block add-edit-mileage--project-block"
+          [ngClass]="{'add-edit-mileage--no-project': !fg.controls.project.value}"
+        >
+          <app-fy-select-project
+            [cacheName]="'mileageProjectCache'"
+            [categoryIds]="projectCategoryIds"
+            [label]="txnFields.project_id?.field_name"
+            [placeholder]="txnFields.project_id?.placeholder"
+            [mandatory]="txnFields.project_id?.is_mandatory"
+            [defaultValue]="true"
+            [recentlyUsed]="recentProjects"
+            formControlName="project"
+            [validInParent]="fg.controls.project.valid"
+            [touchedInParent]="fg.controls.project.touched"
+            [isProjectCategoryRestrictionsEnabled]="isProjectCategoryRestrictionsEnabled.value"
+          ></app-fy-select-project>
+        </div>
+        } } } } } @if (showBillable && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) &&
+        (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))) {
+        <div>
+          @if (fg.controls.project.value) {
+          <div class="add-edit-mileage--billable-block">
+            <mat-checkbox formControlName="billable">
+              <span class="add-edit-mileage--checkbox"> Billable </span>
+            </mat-checkbox>
+          </div>
+          }
+        </div>
+        }
+      </div>
+      } @if ((isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) &&
+      (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))) {
+      <div>
+        @if (fg.controls.project.touched && !fg.controls.project.valid) {
+        <div class="add-edit-mileage--error">Please select a project.</div>
+        }
+      </div>
+      } } @if (txnFields$|async; as txnFields) { @if (dependentFields$|async; as dependentFields) { @if (etxn$|async; as
+      etxn) { @if (selectedProject$|async; as selectedProject) {
+      <ng-container formArrayName="project_dependent_fields">
+        <app-dependent-fields
+          #projectDependentFieldsRef
+          [dependentFieldsFormArray]="fg.controls.project_dependent_fields"
+          [dependentCustomFields]="dependentFields"
+          [parentFieldId]="txnFields?.project_id?.id"
+          [parentFieldValue]="selectedProject?.projectv2_name"
+          [txnCustomProperties]="etxn.tx.custom_properties"
+        ></app-dependent-fields>
+      </ng-container>
+      } } } } @if (filteredCategories$|async; as subCategories) { @if (subCategories.length > 0) {
+      <div
+        class="add-edit-mileage--internal-block"
+        [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.sub_category.touched && !fg.controls.sub_category.valid}"
+      >
+        <app-fy-select
+          [cacheName]="'mileageSubCategoryName'"
+          [label]="'Subcategory'"
+          [mandatory]="true"
+          [options]="subCategories"
+          [selectModalHeader]="'Select subcategory'"
+          formControlName="sub_category"
+          [placeholder]="'Subcategory'"
+          [touchedInParent]="fg.controls.sub_category.touched"
+          [validInParent]="fg.controls.sub_category.valid"
+        >
+        </app-fy-select>
+      </div>
+      @if (fg.controls.sub_category.touched && !fg.controls.sub_category.valid) {
+      <div class="add-edit-mileage--error">Please select a sub-category.</div>
+      } } }
+      <div class="add-edit-mileage--primary-block">
+        @if (costCenters$|async; as costCenters) { @if (txnFields$|async; as txnFields) { @if
+        (txnFields.cost_center_id?.is_mandatory || isExpandedView) { @if (costCenters.length > 0 &&
+        txnFields?.cost_center_id) {
+        <div
+          class="add-edit-mileage--internal-block"
+          [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
+        >
+          <app-virtual-select
+            [cacheName]="'mileageCostCenterCache'"
+            [label]="txnFields.cost_center_id?.field_name"
+            [mandatory]="txnFields.cost_center_id.is_mandatory"
+            [options]="costCenters"
+            [selectModalHeader]="'Select cost center'"
+            [recentlyUsed]="recentCostCenters"
+            formControlName="costCenter"
+            [placeholder]="txnFields.cost_center_id?.placeholder"
+          >
+          </app-virtual-select>
+        </div>
+        } @if (fg.controls.costCenter.touched && !fg.controls.costCenter.valid) {
+        <div class="add-edit-mileage--error">Please select a cost center.</div>
+        } @if (dependentFields$|async; as dependentFields) { @if (etxn$|async; as etxn) { @if
+        (selectedCostCenter$|async; as selectedCostCenter) {
+        <ng-container formArrayName="cost_center_dependent_fields">
+          <app-dependent-fields
+            #costCenterDependentFieldsRef
+            [dependentFieldsFormArray]="fg.controls.cost_center_dependent_fields"
+            [dependentCustomFields]="dependentFields"
+            [parentFieldId]="txnFields?.cost_center_id?.id"
+            [parentFieldValue]="selectedCostCenter?.name"
+            [txnCustomProperties]="etxn.tx.custom_properties"
+          ></app-dependent-fields>
+        </ng-container>
+        } } } } } } @if (txnFields$|async; as txnFields) { @if (txnFields?.purpose) { @if
+        (txnFields.purpose?.is_mandatory || isExpandedView) { @if (txnFields.purpose?.type === 'TEXT') {
+        <div
+          class="add-edit-mileage--text add-edit-mileage--internal-block"
+          [ngClass]="{'add-edit-mileage--text__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
+        >
+          <div class="add-edit-mileage--text-label">
+            {{ txnFields.purpose?.field_name| slice: 0:30 }} @if (txnFields.purpose?.is_mandatory) {
+            <span class="add-edit-mileage--mandatory"> * </span>
+            }
+          </div>
+          <input
+            [placeholder]="txnFields.purpose?.placeholder || 'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
+            [required]="txnFields.purpose?.is_mandatory"
+            [title]="'Enter'+txnFields.purpose?.field_name"
+            class="add-edit-mileage--text-input smartlook-show"
+            formControlName="purpose"
+          />
+        </div>
+        } @if (txnFields.purpose?.type === 'SELECT') {
+        <div class="add-edit-mileage--internal-block">
+          <app-fy-select
+            [label]="txnFields.purpose?.field_name"
+            [mandatory]="txnFields.purpose?.is_mandatory"
+            [options]="txnFields.purpose?.options"
+            [selectModalHeader]="'Enter ' + txnFields.purpose?.field_name"
+            formControlName="purpose"
+            [placeholder]="txnFields.purpose?.placeholder"
+            [touchedInParent]="fg.controls.purpose.touched"
+            [validInParent]="fg.controls.purpose.valid"
+          >
+          </app-fy-select>
+        </div>
+        } @if (fg.controls.purpose.touched && !fg.controls.purpose.valid) {
+        <div class="add-edit-mileage--error add-edit-mileage--text-error">
+          Please enter a {{ txnFields.purpose?.field_name }}
+        </div>
+        } } } } @for (customInput of this.customInputs$ | async; track customInput) { @if (customInput.mandatory ||
+        isExpandedView) { @if (customInput.type !== 'USER_LIST') {
+        <div class="add-edit-mileage--internal-block">
+          <form [formGroup]="customInput.control">
+            @if (customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' &&
+            customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION') {
+            <div
+              class="add-edit-mileage--text"
+              [ngClass]="{'add-edit-mileage--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
+            >
+              <div class="add-edit-mileage--text-label">
+                {{customInput.name | ellipsis: 30}} @if (customInput.mandatory) {
+                <span class="add-edit-mileage--mandatory"> * </span>
                 }
+              </div>
+              @if (customInput.type === 'TEXT') {
+              <input
+                class="add-edit-mileage--text-input smartlook-show"
+                formControlName="value"
+                type="text"
+                [placeholder]="customInput.placeholder || 'Enter ' + customInput.name| ellipsis: 30"
+              />
+              } @if (customInput.type === 'NUMBER') {
+              <app-fy-number
+                formControlName="value"
+                [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
+              ></app-fy-number>
+              } @if (customInput.type === 'DATE') {
+              <input
+                appFormatDate
+                class="add-edit-mileage--date-input date-input__format smartlook-show"
+                formControlName="value"
+                type="date"
+                [name]="customInput.placeholder || customInput.name"
+              />
               }
+            </div>
+            } @if (customInput.type === 'BOOLEAN') {
+            <div class="add-edit-mileage--checkbox">
+              <label>
+                <mat-checkbox formControlName="value">
+                  {{customInput.name | ellipsis: 35 }} @if (customInput.mandatory) {
+                  <span class="add-edit-mileage--mandatory">*</span>
+                  }
+                </mat-checkbox>
+              </label>
+            </div>
+            } @if (customInput.type === 'LOCATION') {
+            <div>
+              <app-fy-location
+                [label]="customInput.name | ellipsis: 30"
+                [mandatory]="customInput.mandatory"
+                formControlName="value"
+                [placeholder]="customInput.placeholder | ellipsis: 30"
+                [touchedInParent]="customInput.control.controls.value.touched"
+                [validInParent]="customInput.control.controls.value.valid"
+              >
+              </app-fy-location>
+            </div>
+            } @if (customInput.type === 'SELECT') {
+            <div>
+              <app-fy-select
+                [label]="customInput.name | ellipsis: 30"
+                [mandatory]="customInput.mandatory"
+                [options]="customInput.options"
+                [selectModalHeader]="'Select '+customInput.name"
+                formControlName="value"
+                [placeholder]="customInput.placeholder | ellipsis: 30"
+                [touchedInParent]="customInput.control.controls.value.touched"
+                [validInParent]="customInput.control.controls.value.valid"
+                [isCustomSelect]="true"
+              >
+              </app-fy-select>
+            </div>
+            } @if (customInput.type === 'MULTI_SELECT') {
+            <div>
+              <app-fy-multiselect
+                [label]="customInput.name | ellipsis: 30"
+                [mandatory]="customInput.mandatory"
+                [options]="customInput.options"
+                [selectModalHeader]="'Select '+customInput.name"
+                [subheader]="customInput.name"
+                formControlName="value"
+                [placeholder]="customInput.placeholder | ellipsis: 30"
+                [touchedInParent]="customInput.control.controls.value.touched"
+                [validInParent]="customInput.control.controls.value.valid"
+              >
+              </app-fy-multiselect>
+            </div>
             }
           </form>
+        </div>
+        } @if (customInput.control.controls.value.touched && !customInput.control.controls.value.valid) {
+        <div class="add-edit-mileage--error">Please enter a {{customInput.name}}</div>
+        } } } @if (isConnected$|async) {
+        <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
+        @if (reports$|async; as reports) { @if (etxn$|async; as etxn) { @if (!(isCriticalPolicyViolated$|async)) { @if
+        (canRemoveFromReport || !etxn?.tx?.report_id) {
+        <div class="add-edit-mileage--internal-block">
+          <app-fy-add-to-report
+            [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
+            [options]="reports"
+            formControlName="report"
+            [autoSubmissionReportName]="autoSubmissionReportName$|async"
+            [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
+          ></app-fy-add-to-report>
+        </div>
+        } } } } }
+      </div>
+      @if (mode === 'add') {
+      <div>
+        @if (isExpandedView) {
+        <div class="expansion-btn" fill="clear" (click)="hideFields()">
+          Hide more fields
+          <ion-icon class="expansion-icon" name="chevron-up"></ion-icon>
+        </div>
+        } @else {
+        <div class="expansion-btn" fill="clear" (click)="showFields()">
+          Show more fields
+          <ion-icon class="expansion-icon" name="chevron-down"></ion-icon>
+        </div>
         }
-      }
-    } @else {
-      @if (((allMileageRates$|async)?.length > 0) && individualMileageRatesEnabled$|async) {
-        <div class="add-edit-mileage--zero-state">
-          <app-fy-zero-state
-            [header]="'You have not been assigned with any mileage rates.'"
-            [image]="'../../../assets/svg/alert-circled.svg'"
-            [message]="'Please contact your Fyle-Administrator to resolve this issue.'"
-          ></app-fy-zero-state>
-        </div>
-      } @else {
-        <div class="add-edit-mileage--zero-state">
-          <div class="add-edit-mileage--zero-state-img-container">
-            <img
-              class="add-edit-mileage--zero-state-img"
-              [src]="'../../../assets/images/zero-states/my_expenses.png'"
-              alt="zero-state"
-              />
-          </div>
-          <div class="add-edit-mileage--zero-state-text">Looks like no mileage rates are set for your org yet.</div>
-        </div>
-      }
-    }
+      </div>
+      } @if (isConnected$) { @if (txnFields$|async; as txnFields) { @if (isProjectsEnabled$|async; as isProjectsEnabled)
+      { @if (isIndividualProjectsEnabled$|async; as isIndividualProjectsEnabled) { @if (individualProjectIds$|async; as
+      individualProjectIds) { @if (txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0) {
+      <app-fy-alert-info
+        [type]="'warning'"
+        [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+      >
+      </app-fy-alert-info>
+      } } } } } } @if (isConnected$) { @if (txnFields$|async; as txnFields) { @if (isCostCentersEnabled$|async; as
+      isCostCentersEnabled) { @if (costCenters$|async; as allowedCostCenters) { @if
+      (txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0) {
+      <app-fy-alert-info
+        class="add-edit-mileage--cost-center-alert"
+        [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+        [type]="'warning'"
+      >
+      </app-fy-alert-info>
+      } } } } }
+    </form>
+    } } } @else { @if (((allMileageRates$|async)?.length > 0) && (individualMileageRatesEnabled$|async) && !isLoading) {
+    <div class="add-edit-mileage--zero-state">
+      <app-fy-zero-state
+        [header]="'You have not been assigned with any mileage rates.'"
+        [image]="'../../../assets/svg/alert-circled.svg'"
+        [message]="'Please contact your Fyle-Administrator to resolve this issue.'"
+      ></app-fy-zero-state>
+    </div>
+    } @else { @if (!isLoading) {
+    <div class="add-edit-mileage--zero-state">
+      <div class="add-edit-mileage--zero-state-img-container">
+        <img
+          class="add-edit-mileage--zero-state-img"
+          [src]="'../../../assets/images/zero-states/my_expenses.png'"
+          alt="zero-state"
+        />
+      </div>
+      <div class="add-edit-mileage--zero-state-text">Looks like no mileage rates are set for your org yet.</div>
+    </div>
+    } } }
   </div>
 </ion-content>
-@if (fg) {
-  @if (reviewList?.length) {
-    <app-review-footer
-      [activeIndex]="+activeIndex"
-      [reviewList]="reviewList"
-      [saveAndPrevLoader]="saveAndPrevMileageLoader"
-      [saveAndNextLoader]="saveAndNextMileageLoader"
-      (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
-      (saveAndGoToNext)="saveExpenseAndGotoNext()"
-    ></app-review-footer>
-  }
-  @if ((mileageRatesOptions$|async)?.length > 0 && !reviewList?.length) {
-    <ion-footer>
-      <ion-toolbar
-        mode="md"
-        class="add-edit-mileage--footer-toolbar cta-footer-toolbar"
-        [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}"
+@if (fg) { @if (reviewList?.length) {
+<app-review-footer
+  [activeIndex]="+activeIndex"
+  [reviewList]="reviewList"
+  [saveAndPrevLoader]="saveAndPrevMileageLoader"
+  [saveAndNextLoader]="saveAndNextMileageLoader"
+  (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
+  (saveAndGoToNext)="saveExpenseAndGotoNext()"
+></app-review-footer>
+} @if ((mileageRatesOptions$|async)?.length > 0 && !reviewList?.length) {
+<ion-footer>
+  <ion-toolbar
+    mode="md"
+    class="add-edit-mileage--footer-toolbar cta-footer-toolbar"
+    [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}"
+  >
+    @if (!reviewList) {
+    <div class="add-edit-mileage--cta-container">
+      <ion-buttons>
+        @if (mode === 'add') {
+        <ion-button
+          (click)="saveAndNewExpense()"
+          [disabled]="saveMileageLoader || saveAndNewMileageLoader"
+          class="btn-secondary"
+          appFormButtonValidation
+          [loading]="saveAndNewMileageLoader"
+          [loadingText]="'Saving'"
         >
-        @if (!reviewList) {
-          <div class="add-edit-mileage--cta-container">
-            <ion-buttons>
-              @if (mode === 'add') {
-                <ion-button
-                  (click)="saveAndNewExpense()"
-                  [disabled]="saveMileageLoader || saveAndNewMileageLoader"
-                  class="btn-secondary"
-                  appFormButtonValidation
-                  [loading]="saveAndNewMileageLoader"
-                  [loadingText]="'Saving'"
-                  >
-                  Save and new
-                </ion-button>
-              }
-              @if (mode === 'edit') {
-                <ion-button (click)="close()" [disabled]="saveMileageLoader" class="btn-secondary">
-                  Cancel
-                </ion-button>
-              }
-              <ion-button
-                (click)="saveExpense()"
-                class="btn-primary"
-                appFormButtonValidation
-                [loading]="saveMileageLoader"
-                [loadingText]="'Saving'"
-                [disabled]="saveMileageLoader || saveAndNewMileageLoader"
-                >
-                Save
-              </ion-button>
-            </ion-buttons>
-          </div>
+          Save and new
+        </ion-button>
+        } @if (mode === 'edit') {
+        <ion-button (click)="close()" [disabled]="saveMileageLoader" class="btn-secondary"> Cancel </ion-button>
         }
-      </ion-toolbar>
-    </ion-footer>
-  }
-}
+        <ion-button
+          (click)="saveExpense()"
+          class="btn-primary"
+          appFormButtonValidation
+          [loading]="saveMileageLoader"
+          [loadingText]="'Saving'"
+          [disabled]="saveMileageLoader || saveAndNewMileageLoader"
+        >
+          Save
+        </ion-button>
+      </ion-buttons>
+    </div>
+    }
+  </ion-toolbar>
+</ion-footer>
+} }
