@@ -8,7 +8,13 @@
 </ion-header>
 
 <ion-content class="my-profile__content-container">
-  @if (eou$ | async; as eou) {
+  @if (isInitialLoading) {
+  <div class="my-profile--skeleton-wrapper">
+    <ion-skeleton-text animated class="my-profile--skeleton-header"></ion-skeleton-text>
+    <ion-skeleton-text animated class="my-profile--skeleton-card" *ngFor="let i of [1,2,3,4]"></ion-skeleton-text>
+    <ion-skeleton-text animated class="my-profile--skeleton-card" *ngFor="let i of [1,2,3,4]"></ion-skeleton-text>
+  </div>
+  } @if (!isInitialLoading) { @if (eou$ | async; as eou) {
   <app-employee-details-card [eou]="eou"></app-employee-details-card>
   }
   <div class="my-profile__content-container__content">
@@ -170,4 +176,5 @@
       </div>
     </div>
   </div>
+  }
 </ion-content>
