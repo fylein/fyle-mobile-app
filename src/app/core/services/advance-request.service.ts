@@ -153,13 +153,13 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  delete(advanceRequestId: string): Observable<{}> {
+  delete(advanceRequestId: string): Observable<void> {
     const payload = {
       data: {
         id: advanceRequestId,
       },
     };
-    return this.spenderService.post<{}>('/advance_requests/delete', payload).pipe(map(() => ({})));
+    return this.spenderService.post<void>('/advance_requests/delete', payload).pipe(map((): void => void 0));
   }
 
   @CacheBuster({

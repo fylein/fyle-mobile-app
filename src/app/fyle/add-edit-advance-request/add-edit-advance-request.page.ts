@@ -473,7 +473,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',
-        deleteMethod: (): Observable<{}> =>
+        deleteMethod: (): Observable<void> =>
           this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id as string),
       },
     };

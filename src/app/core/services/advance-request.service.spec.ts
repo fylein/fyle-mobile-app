@@ -418,7 +418,8 @@ describe('AdvanceRequestService', () => {
   });
 
   it('post(): should save a draft advance request', (done) => {
-    spenderService.post.and.returnValue(of({ data: advanceRequestPlatform.data[0] }));
+    const mockAdvanceRequestData = cloneDeep(advanceRequestPlatform.data[0]);
+    spenderService.post.and.returnValue(of({ data: mockAdvanceRequestData }));
 
     advanceRequestService.post(draftAdvancedRequestParam).subscribe((res) => {
       expect(res).toEqual(advanceRequestPlatform.data[0]);
@@ -550,10 +551,10 @@ describe('AdvanceRequestService', () => {
   });
 
   it('delete(): should delete an advance request', (done) => {
-    spenderService.post.and.returnValue(of({}));
+    spenderService.post.and.returnValue(of(undefined));
 
     advanceRequestService.delete(advanceRequests.id).subscribe((res) => {
-      expect(res).toEqual({});
+      expect(res).toBeUndefined();
       expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/delete', {
         data: {
           id: advanceRequests.id,
@@ -612,7 +613,8 @@ describe('AdvanceRequestService', () => {
   });
 
   it('getSpenderAdvanceRequestRaw(): should get raw advance request data using spender service', (done) => {
-    spenderService.get.and.returnValue(of({ data: [advanceRequestPlatform.data[0]] }));
+    const mockAdvanceRequestData = cloneDeep(advanceRequestPlatform.data[0]);
+    spenderService.get.and.returnValue(of({ data: [mockAdvanceRequestData] }));
 
     const advID = 'areqGzKF1Tne23';
 
@@ -626,7 +628,8 @@ describe('AdvanceRequestService', () => {
   });
 
   it('getApproverAdvanceRequestRaw(): should get raw advance request data using approver service', (done) => {
-    approverService.get.and.returnValue(of({ data: [advanceRequestPlatform.data[0]] }));
+    const mockAdvanceRequestData = cloneDeep(advanceRequestPlatform.data[0]);
+    approverService.get.and.returnValue(of({ data: [mockAdvanceRequestData] }));
 
     const advID = 'areqGzKF1Tne23';
 

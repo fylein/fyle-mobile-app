@@ -8,6 +8,6 @@ export interface AdvanceRequestDeleteParams {
   componentProps: {
     header: string;
     body: string;
-    deleteMethod: () => Observable<{}>;
+    deleteMethod: () => Observable<void>;
   };
 }
