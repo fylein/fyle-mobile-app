@@ -170,7 +170,7 @@ describe('AdvanceRequestService', () => {
       const expectedData = cloneDeep(publicAdvanceRequestRes);
       spenderService.get.and.returnValue(of(advanceRequestPlatform));
       // @ts-ignore
-      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0] as any);
 
       advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
         expect(res).toEqual(expectedData.data[0]);
@@ -240,7 +240,7 @@ describe('AdvanceRequestService', () => {
     const expectedData = cloneDeep(extendedAdvReqRes);
     approverService.get.and.returnValue(of(advanceRequestPlatform));
     // @ts-ignore
-    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0] as any);
 
     advanceRequestService.getApproverAdvanceRequest(advReqID).subscribe((res) => {
       expect(res).toEqual(expectedData.data[0]);
@@ -418,7 +418,8 @@ describe('AdvanceRequestService', () => {
   });
 
   it('post(): should save a draft advance request', (done) => {
-    spenderService.post.and.returnValue(of({ data: advanceRequestPlatform.data[0] }));
+    const mockAdvanceRequestData = cloneDeep(advanceRequestPlatform.data[0]);
+    spenderService.post.and.returnValue(of({ data: mockAdvanceRequestData }));
 
     advanceRequestService.post(draftAdvancedRequestParam).subscribe((res) => {
       expect(res).toEqual(advanceRequestPlatform.data[0]);
@@ -550,11 +551,15 @@ describe('AdvanceRequestService', () => {
   });
 
   it('delete(): should delete an advance request', (done) => {
-    apiService.delete.and.returnValue(of(advanceRequests));
+    spenderService.post.and.returnValue(of(undefined));
 
     advanceRequestService.delete(advanceRequests.id).subscribe((res) => {
-      expect(res).toEqual(advanceRequests);
-      expect(apiService.delete).toHaveBeenCalledOnceWith(`/advance_requests/${advanceRequests.id}`);
+      expect(res).toBeUndefined();
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/delete', {
+        data: {
+          id: advanceRequests.id,
+        },
+      });
       done();
     });
   });
@@ -573,8 +578,9 @@ describe('AdvanceRequestService', () => {
     expect(advanceRequestService.fixDatesForPlatformFields(mockAdvanceReqData)).toEqual(advanceRequestPlatform.data[0]);
   });
 
-  it('getEReq(): should get advance request', (done) => {
-    apiService.get.and.returnValue(of(singleErqRes));
+  it('getEReq(): should get advance request from platform using spender service', (done) => {
+    const mockAdvanceRequestPublic = cloneDeep(publicAdvanceRequestRes.data[0]);
+    spyOn(advanceRequestService, 'getAdvanceRequestPlatform').and.returnValue(of(mockAdvanceRequestPublic));
     dataTransformService.unflatten.and.returnValue(singleErqUnflattened);
     spyOn(dateService, 'fixDates').and.returnValue(of(expectedSingleErq));
 
@@ -582,19 +588,38 @@ describe('AdvanceRequestService', () => {
 
     advanceRequestService.getEReq(advID).subscribe((res) => {
       expect(res).toEqual(singleErqUnflattened);
-      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(singleErqRes);
+      expect(advanceRequestService.getAdvanceRequestPlatform).toHaveBeenCalledOnceWith(advID);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(mockAdvanceRequestPublic);
       expect(dateService.fixDates).toHaveBeenCalledOnceWith(singleErqUnflattened.areq);
       done();
     });
   });
 
-  it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
-    const advID = 'areqiwr3Wwirr';
-    //@ts-ignore
-    spenderService.get.and.returnValue(of(advanceRequestPlatform));
-    advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(advID).subscribe((res) => {
-      expect(res).toEqual(advanceReqApprovalsPublic);
-      //@ts-ignore
+  it('getEReqFromApprover(): should get advance request from platform using approver service', (done) => {
+    const mockApproverAdvanceRequest = cloneDeep(extendedAdvReqDraft);
+    spyOn(advanceRequestService, 'getApproverAdvanceRequest').and.returnValue(of(mockApproverAdvanceRequest));
+    dataTransformService.unflatten.and.returnValue(singleErqUnflattened);
+    spyOn(dateService, 'fixDates').and.returnValue(of(expectedSingleErq));
+
+    const advID = 'areqGzKF1Tne23';
+
+    advanceRequestService.getEReqFromApprover(advID).subscribe((res) => {
+      expect(res).toEqual(singleErqUnflattened);
+      expect(advanceRequestService.getApproverAdvanceRequest).toHaveBeenCalledOnceWith(advID);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(mockApproverAdvanceRequest);
+      expect(dateService.fixDates).toHaveBeenCalledOnceWith(singleErqUnflattened.areq);
+      done();
+    });
+  });
+
+  it('getSpenderAdvanceRequestRaw(): should get raw advance request data using spender service', (done) => {
+    const mockAdvanceRequestData = cloneDeep(advanceRequestPlatform.data[0]);
+    spenderService.get.and.returnValue(of({ data: [mockAdvanceRequestData] }));
+
+    const advID = 'areqGzKF1Tne23';
+
+    advanceRequestService.getSpenderAdvanceRequestRaw(advID).subscribe((res) => {
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
       expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
         params: { id: `eq.${advID}` },
       });
@@ -602,10 +627,34 @@ describe('AdvanceRequestService', () => {
     });
   });
 
+  it('getApproverAdvanceRequestRaw(): should get raw advance request data using approver service', (done) => {
+    const mockAdvanceRequestData = cloneDeep(advanceRequestPlatform.data[0]);
+    approverService.get.and.returnValue(of({ data: [mockAdvanceRequestData] }));
+
+    const advID = 'areqGzKF1Tne23';
+
+    advanceRequestService.getApproverAdvanceRequestRaw(advID).subscribe((res) => {
+      expect(res).toEqual(advanceRequestPlatform.data[0]);
+      expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: { id: `eq.${advID}` },
+      });
+      done();
+    });
+  });
+
+  it('getActiveApproversByAdvanceRequestIdPlatform(): should get active approvers for an advance request', (done) => {
+    const advID = 'areqiwr3Wwirr';
+    spyOn(advanceRequestService, 'getSpenderAdvanceRequestRaw').and.returnValue(of(advanceRequestPlatform.data[0]));
+    advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(advID).subscribe((res) => {
+      expect(res).toEqual(advanceReqApprovalsPublic);
+      expect(advanceRequestService.getSpenderAdvanceRequestRaw).toHaveBeenCalledOnceWith(advID);
+      done();
+    });
+  });
+
   it('getActiveApproversByAdvanceRequestIdPlatformForApprover(): should get active approvers for team advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
-    //@ts-ignore
-    approverService.get.and.returnValue(of(advanceRequestPlatform));
+    spyOn(advanceRequestService, 'getApproverAdvanceRequestRaw').and.returnValue(of(advanceRequestPlatform.data[0]));
 
     const expectedApprovals = [
       {
@@ -617,18 +666,14 @@ describe('AdvanceRequestService', () => {
 
     advanceRequestService.getActiveApproversByAdvanceRequestIdPlatformForApprover(advID).subscribe((res) => {
       expect(res).toEqual(expectedApprovals);
-      //@ts-ignore
-      expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: { id: `eq.${advID}` },
-      });
+      expect(advanceRequestService.getApproverAdvanceRequestRaw).toHaveBeenCalledOnceWith(advID);
       done();
     });
   });
 
   it('getCommentsByAdvanceRequestIdPlatformForApprover(): should get comments for team advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
-    //@ts-ignore
-    approverService.get.and.returnValue(of(advanceRequestPlatform));
+    spyOn(advanceRequestService, 'getApproverAdvanceRequestRaw').and.returnValue(of(advanceRequestPlatform.data[0]));
     authService.getEou.and.resolveTo(apiEouRes);
 
     const expectedComments = [
@@ -660,18 +705,14 @@ describe('AdvanceRequestService', () => {
 
     advanceRequestService.getCommentsByAdvanceRequestIdPlatformForApprover(advID).subscribe((res) => {
       expect(res).toEqual(expectedComments);
-      //@ts-ignore
-      expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: { id: `eq.${advID}` },
-      });
+      expect(advanceRequestService.getApproverAdvanceRequestRaw).toHaveBeenCalledOnceWith(advID);
       done();
     });
   });
 
   it('getCommentsByAdvanceRequestIdPlatform(): should get comments for spender advance request', (done) => {
     const advID = 'areqiwr3Wwirr';
-    //@ts-ignore
-    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+    spyOn(advanceRequestService, 'getSpenderAdvanceRequestRaw').and.returnValue(of(advanceRequestPlatform.data[0]));
     authService.getEou.and.resolveTo(apiEouRes);
 
     const expectedComments = [
@@ -703,10 +744,7 @@ describe('AdvanceRequestService', () => {
 
     advanceRequestService.getCommentsByAdvanceRequestIdPlatform(advID).subscribe((res) => {
       expect(res).toEqual(expectedComments);
-      //@ts-ignore
-      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: { id: `eq.${advID}` },
-      });
+      expect(advanceRequestService.getSpenderAdvanceRequestRaw).toHaveBeenCalledOnceWith(advID);
       done();
     });
   });
@@ -800,21 +838,6 @@ describe('AdvanceRequestService', () => {
         });
         done();
       });
-    });
-  });
-
-  it('getEReqFromPlatform(): should get advance request', (done) => {
-    spyOn(advanceRequestService, 'getAdvanceRequestPlatform').and.returnValue(of(publicAdvanceRequestRes.data[0]));
-    dataTransformService.unflatten.and.returnValue(singleErqUnflattened);
-    spyOn(dateService, 'fixDates').and.returnValue(of(expectedSingleErq));
-
-    const advID = 'areqGzKF1Tne23';
-
-    advanceRequestService.getEReqFromPlatform(advID).subscribe((res) => {
-      expect(res).toEqual(singleErqUnflattened);
-      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(singleErqRes);
-      expect(dateService.fixDates).toHaveBeenCalledOnceWith(singleErqUnflattened.areq);
-      done();
     });
   });
 
