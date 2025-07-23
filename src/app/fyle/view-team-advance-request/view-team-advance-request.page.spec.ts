@@ -68,6 +68,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       'sendBack',
       'reject',
       'getActiveApproversByAdvanceRequestIdPlatformForApprover',
+      'getCustomFieldsForApprover',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
       'findByAdvanceRequestId',
@@ -179,7 +180,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
         of(advanceReqApprovalsPublic)
       );
       spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
-      spyOn(advanceRequestService, 'getCustomFieldsForApprover').and.returnValue(of(advanceRequestCustomFieldData2));
+      advanceRequestService.getCustomFieldsForApprover.and.returnValue(of(advanceRequestCustomFieldData2));
       authService.getEou.and.resolveTo(apiEouRes);
       advanceRequestService.modifyAdvanceRequestCustomFields.and.returnValue(customFields);
       advanceRequestService.modifyAdvanceRequestCustomFields.and.returnValue(customFields);
@@ -241,7 +242,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
     it('should set advanceRequestCustomFields$ equal to custom fields returned by advanceRequestService.getCustomFieldsForApprover', fakeAsync(() => {
       const mockCustomField = cloneDeep(advanceRequestCustomFieldData2);
-      spyOn(advanceRequestService, 'getCustomFieldsForApprover').and.returnValue(of(mockCustomField));
+      advanceRequestService.getCustomFieldsForApprover.and.returnValue(of(mockCustomField));
 
       component.ionViewWillEnter();
       tick(100);

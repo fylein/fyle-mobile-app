@@ -59,6 +59,7 @@ describe('MyViewAdvanceRequestPage', () => {
       'modifyAdvanceRequestCustomFields',
       'pullBackAdvanceRequest',
       'delete',
+      'getCustomFieldsForSpender',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByAdvanceRequestId', 'downloadUrl']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -188,7 +189,7 @@ describe('MyViewAdvanceRequestPage', () => {
       fileService.downloadUrl.and.returnValue(of('mockdownloadurl.png'));
       fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
       const mockAdvRequestCustomFields = cloneDeep(advanceRequestCustomFieldData2);
-      spyOn(advanceRequestService, 'getCustomFieldsForSpender').and.returnValue(of(mockAdvRequestCustomFields));
+      advanceRequestService.getCustomFieldsForSpender.and.returnValue(of(mockAdvRequestCustomFields));
       spyOn(component, 'getAndUpdateProjectName');
       advanceRequestService.modifyAdvanceRequestCustomFields.and.returnValue(customFields);
     });
@@ -265,7 +266,7 @@ describe('MyViewAdvanceRequestPage', () => {
 
     it('should call advanceRequestService.modifyAdvanceRequestCustomFields and getAndUpdateProjectName once', fakeAsync(() => {
       const mockAdvRequestCustomFields = cloneDeep(advanceRequestCustomFieldData2);
-      spyOn(advanceRequestService, 'getCustomFieldsForSpender').and.returnValue(of(mockAdvRequestCustomFields));
+      advanceRequestService.getCustomFieldsForSpender.and.returnValue(of(mockAdvRequestCustomFields));
 
       component.ionViewWillEnter();
 
