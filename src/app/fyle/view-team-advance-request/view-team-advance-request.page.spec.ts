@@ -13,7 +13,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { MIN_SCREEN_WIDTH } from 'src/app/constants';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import { finalize, of } from 'rxjs';
@@ -96,8 +96,8 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), ViewTeamAdvanceRequestPage],
-    providers: [
+      imports: [IonicModule.forRoot(), ViewTeamAdvanceRequestPage],
+      providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -113,22 +113,22 @@ describe('ViewTeamAdvanceRequestPage', () => {
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpy },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencySpy },
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        id: 'areqR1cyLgXdND',
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                id: 'areqR1cyLgXdND',
+              },
             },
+          },
         },
         {
-            provide: MIN_SCREEN_WIDTH,
-            useValue: 230,
+          provide: MIN_SCREEN_WIDTH,
+          useValue: 230,
         },
         UrlSerializer,
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ViewTeamAdvanceRequestPage);
     component = fixture.componentInstance;

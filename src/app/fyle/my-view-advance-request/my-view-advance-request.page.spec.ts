@@ -10,7 +10,7 @@ import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advanc
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { MIN_SCREEN_WIDTH } from 'src/app/constants';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { cloneDeep } from 'lodash';
@@ -74,8 +74,8 @@ describe('MyViewAdvanceRequestPage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MyViewAdvanceRequestPage],
-    providers: [
+      imports: [IonicModule.forRoot(), MyViewAdvanceRequestPage],
+      providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -86,25 +86,25 @@ describe('MyViewAdvanceRequestPage', () => {
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        id: 'areqR1cyLgXdND',
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                id: 'areqR1cyLgXdND',
+              },
             },
+          },
         },
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpy },
         {
-            provide: MIN_SCREEN_WIDTH,
-            useValue: 230,
+          provide: MIN_SCREEN_WIDTH,
+          useValue: 230,
         },
         UrlSerializer,
         { provide: NavController, useValue: navControllerSpy },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MyViewAdvanceRequestPage);
     component = fixture.componentInstance;

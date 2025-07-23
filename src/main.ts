@@ -1,8 +1,8 @@
-import { enableProdMode, provideAppInitializer, inject, ErrorHandler, InjectionToken, importProvidersFrom } from '@angular/core';
+import { enableProdMode, APP_INITIALIZER, ErrorHandler, InjectionToken, importProvidersFrom } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { Capacitor } from '@capacitor/core';
 
-import { MyHammerConfig, MIN_SCREEN_WIDTH } from './app/app.module';
+import { MyHammerConfig, MIN_SCREEN_WIDTH } from './app/constants';
 import { environment } from './environments/environment';
 
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
@@ -17,19 +17,25 @@ import { provideTransloco, TranslocoService } from '@jsverse/transloco';
 import { environment as environment_1 } from 'src/environments/environment';
 import { TranslocoHttpLoader } from './app/transloco-http-loader';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
-import { HAMMER_GESTURE_CONFIG, HammerGestureConfig, BrowserModule, HammerModule, bootstrapApplication } from '@angular/platform-browser';
-import { RouteReuseStrategy, Router } from '@angular/router';
-import { IonicRouteStrategy, IonicModule } from '@ionic/angular';
+import { HAMMER_GESTURE_CONFIG, BrowserModule, HammerModule, bootstrapApplication } from '@angular/platform-browser';
+import { RouteReuseStrategy, Router, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
+import { IonicModule, IonicRouteStrategy, PopoverController } from '@ionic/angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
 import { HttpConfigInterceptor } from './app/core/interceptors/httpInterceptor';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, TitleCasePipe, DecimalPipe } from '@angular/common';
 import { ConfigService } from './app/core/services/config.service';
 import { TIMEZONE, PAGINATION_SIZE, DEVICE_PLATFORM } from './app/constants';
-import { AppRoutingModule } from './app/app-routing.module';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { SharedModule } from './app/shared/shared.module';
 import { NgOtpInputModule } from 'ng-otp-input';
 import { AppComponent } from './app/app.component';
+import { appRoutes } from './app/app.routes';
+import { FyCurrencyPipe } from './app/shared/pipes/fy-currency.pipe';
+import { HumanizeCurrencyPipe } from './app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from './app/shared/pipes/exact-currency.pipe';
+import { ReportState } from './app/shared/pipes/report-state.pipe';
+import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
+import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
+import { IconModule } from './app/shared/icon/icon.module';
 
 // Global cache config
 GlobalCacheConfig.maxAge = 10 * 60 * 1000;
@@ -95,80 +101,97 @@ if (environment.production) {
 }
 
 bootstrapApplication(AppComponent, {
-    providers: [
-        importProvidersFrom(BrowserModule, IonicModule.forRoot({
-            innerHTMLTemplatesEnabled: true,
-        }), AppRoutingModule, SharedModule, HammerModule, HammerModule, NgOtpInputModule),
-        GooglePlus,
-        InAppBrowser,
-        Smartlook,
-        provideTransloco({
-            config: {
-                availableLangs: ['en'],
-                defaultLang: 'en',
-                reRenderOnLangChange: true,
-                prodMode: environment.production,
-            },
-            loader: TranslocoHttpLoader,
-        }),
-        provideAppInitializer(() => {
-            const initializerFn = ((transloco: TranslocoService) => async (): Promise<void> => {
-                await firstValueFrom(transloco.load('en'));
-                transloco.setActiveLang('en');
-            })(inject(TranslocoService));
-            return initializerFn();
-        }),
-        {
-            provide: HAMMER_GESTURE_CONFIG,
-            useClass: MyHammerConfig,
-        },
-        {
-            provide: RouteReuseStrategy,
-            useClass: IonicRouteStrategy,
-        },
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: HttpConfigInterceptor,
-            multi: true,
-        },
-        {
-            provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
-        },
-        CurrencyPipe,
-        ConfigService,
-        {
-            provide: TIMEZONE,
-            useValue: new BehaviorSubject<string>('UTC'),
-        },
-        provideAppInitializer((): Promise<void> => {
-            inject(Sentry.TraceService);
-            const configService = inject(ConfigService);
-            return configService.loadConfigurationData();
-        }),
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
-        },
-        {
-            provide: MIN_SCREEN_WIDTH,
-            useValue: 375,
-        },
-        {
-            provide: PAGINATION_SIZE,
-            useValue: 200,
-        },
-        {
-            provide: DEVICE_PLATFORM,
-            useValue: Capacitor.getPlatform(),
-        },
-        provideHttpClient(withInterceptorsFromDi(), withJsonpSupport()),
-        provideAnimations(),
-    ]
-})
-  .catch(() => {});
+  providers: [
+    importProvidersFrom(
+      BrowserModule,
+      HammerModule,
+      IconModule,
+      NgOtpInputModule,
+      IonicModule.forRoot({
+        innerHTMLTemplatesEnabled: true,
+      })
+    ),
+    provideRouter(appRoutes, withPreloading(PreloadAllModules)),
+    GooglePlus,
+    InAppBrowser,
+    Smartlook,
+    ImagePicker,
+    FyCurrencyPipe,
+    DatePipe,
+    TitleCasePipe,
+    ReportState,
+    DecimalPipe,
+    HumanizeCurrencyPipe,
+    ExactCurrencyPipe,
+    provideTransloco({
+      config: {
+        availableLangs: ['en'],
+        defaultLang: 'en',
+        reRenderOnLangChange: true,
+        prodMode: environment.production,
+      },
+      loader: TranslocoHttpLoader,
+    }),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (transloco: TranslocoService) => async (): Promise<void> => {
+        await firstValueFrom(transloco.load('en'));
+        transloco.setActiveLang('en');
+      },
+      deps: [TranslocoService],
+      multi: true,
+    },
+    {
+      provide: HAMMER_GESTURE_CONFIG,
+      useClass: MyHammerConfig,
+    },
+    {
+      provide: RouteReuseStrategy,
+      useClass: IonicRouteStrategy,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpConfigInterceptor,
+      multi: true,
+    },
+    {
+      provide: ErrorHandler,
+      useValue: Sentry.createErrorHandler({
+        showDialog: false,
+      }),
+    },
+    CurrencyPipe,
+    ConfigService,
+    {
+      provide: TIMEZONE,
+      useValue: new BehaviorSubject<string>('UTC'),
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (configService: ConfigService) => (): Promise<void> => configService.loadConfigurationData(),
+      deps: [ConfigService],
+      multi: true,
+    },
+    {
+      provide: Sentry.TraceService,
+      deps: [Router],
+    },
+    {
+      provide: MIN_SCREEN_WIDTH,
+      useValue: 375,
+    },
+    {
+      provide: PAGINATION_SIZE,
+      useValue: 200,
+    },
+    {
+      provide: DEVICE_PLATFORM,
+      useValue: Capacitor.getPlatform(),
+    },
+    provideHttpClient(withInterceptorsFromDi(), withJsonpSupport()),
+    provideAnimations(),
+  ],
+}).catch(() => {});
 
 // Call the element loader after the platform has been bootstrapped
 defineCustomElements(window);

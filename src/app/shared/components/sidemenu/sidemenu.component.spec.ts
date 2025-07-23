@@ -56,7 +56,6 @@ describe('SidemenuComponent', () => {
   @Component({
     selector: 'app-sidemenu',
     template: '<ion-menu></ion-menu>',
-    standalone: false,
   })
   class MockIonMenuComponent {
     @Input() side: string;
@@ -97,8 +96,8 @@ describe('SidemenuComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, SidemenuComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, SidemenuComponent],
+      providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -113,9 +112,9 @@ describe('SidemenuComponent', () => {
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
