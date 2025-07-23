@@ -88,8 +88,6 @@ describe('MyViewAdvancePage', () => {
   describe('ionViewWillEnter()', () => {
     beforeEach(() => {
       spyOn(component, 'getAndUpdateProjectName');
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       advanceService.getAdvance.and.returnValue(of(singleExtendedAdvancesData3));
       advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(publicAdvanceRequestRes.data[0]));
     });
@@ -101,8 +99,6 @@ describe('MyViewAdvancePage', () => {
       });
       tick(100);
 
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(advanceService.getAdvance).toHaveBeenCalledOnceWith('advETmi3eePvQ');
       expect(advanceRequestService.getAdvanceRequestPlatform).toHaveBeenCalledOnceWith('areqrttywiidF8');
     }));

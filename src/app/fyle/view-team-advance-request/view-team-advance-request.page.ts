@@ -17,7 +17,6 @@ import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advanc
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
@@ -58,6 +57,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
   actionSheetButtons = [];
 
+  isInitialLoading = true;
   isLoading = false;
 
   sendBackLoading = false;
@@ -74,7 +74,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     private popupService: PopupService,
     private popoverController: PopoverController,
     private actionSheetController: ActionSheetController,
-    private loaderService: LoaderService,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private authService: AuthService,
     private modalController: ModalController,
@@ -116,14 +115,14 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id as string;
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
-      switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.advanceRequestService.getApproverAdvanceRequest(id))
-        )
-      ),
-      finalize(() => from(this.loaderService.hideLoader())),
+      switchMap(() => this.advanceRequestService.getApproverAdvanceRequest(id)),
       shareReplay(1)
     );
+
+    // Turn off initial skeleton when first data arrives
+    this.advanceRequest$.pipe(take(1)).subscribe(() => {
+      this.isInitialLoading = false;
+    });
 
     this.actions$ = this.advanceRequestService.getApproverPermissions(id).pipe(shareReplay(1));
 

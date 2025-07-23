@@ -10,7 +10,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -91,6 +91,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
 
   isCameraPreviewStarted = false;
+
+  isLoading: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -492,6 +494,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.isLoading = true;
     this.mode = (this.activatedRoute.snapshot.params.id as string) ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
@@ -512,16 +515,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
       });
     }
 
-    const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        const isEditFromTeamView = this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE';
-        if (isEditFromTeamView) {
-          // this logic will run for team view for edit Advance requests
-          return this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string);
-        } else {
-          return this.advanceRequestService.getEReqFromPlatform(this.activatedRoute.snapshot.params.id as string);
-        }
-      }),
+    const isEditFromTeamView = this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE';
+    const editAdvanceRequestSource$ = isEditFromTeamView
+      ? this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string)
+      : this.advanceRequestService.getEReqFromPlatform(this.activatedRoute.snapshot.params.id as string);
+
+    const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = editAdvanceRequestSource$.pipe(
       map((res) => {
         this.fg.patchValue({
           currencyObj: {
@@ -549,7 +548,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
         });
         return res.areq;
       }),
-      finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
 
@@ -574,6 +572,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
       editAdvanceRequestPipe$,
       newAdvanceRequestPipe$
     );
+
+    // turn off skeleton once data prepared
+    this.extendedAdvanceRequest$.pipe(take(1)).subscribe(() => {
+      this.isLoading = false;
+    });
+
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
     );

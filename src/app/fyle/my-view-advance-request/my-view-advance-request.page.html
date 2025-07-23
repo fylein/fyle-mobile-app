@@ -35,7 +35,29 @@
 </ion-header>
 
 <ion-content>
-  @if (advanceRequest$|async; as advanceRequest) {
+  @if (isLoading) {
+  <div class="view-advance-request--skeleton-wrapper">
+    <!-- Summary Card Skeleton -->
+    <div class="view-advance-request--skeleton-card">
+      <ion-skeleton-text animated class="view-advance-request--skeleton-purpose"></ion-skeleton-text>
+      <ion-skeleton-text animated class="view-advance-request--skeleton-amount"></ion-skeleton-text>
+      <ion-skeleton-text animated class="view-advance-request--skeleton-status"></ion-skeleton-text>
+    </div>
+
+    <!-- Attachments Skeleton -->
+    <div class="view-advance-request--skeleton-attachments">
+      <ion-skeleton-text animated class="view-advance-request--skeleton-attachment-thumb"></ion-skeleton-text>
+      <ion-skeleton-text animated class="view-advance-request--skeleton-attachment-thumb"></ion-skeleton-text>
+      <ion-skeleton-text animated class="view-advance-request--skeleton-attachment-thumb"></ion-skeleton-text>
+    </div>
+
+    <!-- Details Skeleton -->
+    <div class="view-advance-request--skeleton-details" *ngFor="let item of [1,2,3,4,5,6]">
+      <ion-skeleton-text animated class="view-advance-request--skeleton-label"></ion-skeleton-text>
+      <ion-skeleton-text animated class="view-advance-request--skeleton-value"></ion-skeleton-text>
+    </div>
+  </div>
+  } @if (!isLoading) { @if (advanceRequest$|async; as advanceRequest) {
   <div>
     <div class="view-advance-request--container">
       <app-summary-tile
@@ -201,7 +223,7 @@
       }
     </div>
   </div>
-  }
+  } }
 </ion-content>
 @if (actions$|async; as actions) { @if (actions?.can_pull_back) {
 <ion-footer>

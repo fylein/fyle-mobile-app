@@ -530,3 +530,105 @@ $sent-back-color: #da1e28;
     padding: 12px 0;
   }
 }
+
+// Skeleton Loading Styles
+.view-reports--skeleton-purpose {
+  height: 20px;
+  width: 80%;
+  margin: 0;
+}
+
+.view-reports--skeleton-state {
+  height: 20px;
+  width: 100%;
+  margin: 0;
+}
+
+.view-reports--skeleton-amount {
+  height: 24px;
+  width: 60%;
+  margin: 8px 0 0;
+}
+
+.view-reports--skeleton-employee {
+  height: 20px;
+  width: 70%;
+  margin: 8px 0 0;
+}
+
+.view-reports--skeleton-date {
+  height: 20px;
+  width: 70%;
+  margin: 0;
+}
+
+.view-reports--skeleton-info {
+  height: 20px;
+  width: 80%;
+  margin: 0;
+}
+
+.view-reports--skeleton-approvers-header {
+  height: 20px;
+  width: 30%;
+  margin: 10px 10px 16px;
+}
+
+.view-reports--skeleton-approver-name {
+  height: 20px;
+  width: 40%;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.view-reports--skeleton-approver-state {
+  height: 20px;
+  width: 40%;
+  margin-bottom: 20px;
+  display: inline-block;
+  float: right;
+}
+
+.view-reports--skeleton-segment {
+  height: 40px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.view-reports--skeleton-expense-item {
+  padding: 16px;
+  border-bottom: 1px solid var(--ion-color-light);
+
+  .view-reports--skeleton-expense-icon {
+    height: 40px;
+    width: 40px;
+    margin: 0;
+    border-radius: 4px;
+  }
+
+  .view-reports--skeleton-expense-title {
+    height: 20px;
+    width: 80%;
+    margin: 0 0 8px;
+  }
+
+  .view-reports--skeleton-expense-subtitle {
+    height: 16px;
+    width: 60%;
+    margin: 0;
+  }
+
+  .view-reports--skeleton-expense-amount {
+    height: 20px;
+    width: 100%;
+    margin: 0;
+  }
+}
+
+.view-reports--wrapper {
+  padding: 16px;
+}
+
+.full-height {
+  height: 100%;
+}

@@ -274,3 +274,30 @@
     font-size: 24px;
   }
 }
+
+// Skeleton Loading Styles
+.add-edit-advance-request {
+  &--skeleton-container {
+    padding: 16px;
+  }
+
+  &--skeleton-currency {
+    height: 60px;
+    border-radius: 8px;
+    margin-top: 16px;
+    width: 120px;
+  }
+
+  &--skeleton-label {
+    height: 16px;
+    width: 100px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--skeleton-input {
+    height: 28px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+}

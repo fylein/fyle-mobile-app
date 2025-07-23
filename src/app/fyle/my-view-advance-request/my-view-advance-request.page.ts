@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { forkJoin, from, Observable } from 'rxjs';
-import { finalize, map, reduce, shareReplay, switchMap, concatMap } from 'rxjs/operators';
+import { finalize, map, reduce, shareReplay, switchMap, concatMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -50,6 +50,8 @@ export class MyViewAdvanceRequestPage {
   internalState: { name: string; state: string };
 
   currencySymbol: string;
+
+  isLoading = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -116,9 +118,9 @@ export class MyViewAdvanceRequestPage {
 
   ionViewWillEnter(): void {
     const id: string = this.activatedRoute.snapshot.params.id as string;
-    this.advanceRequest$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.advanceRequestService.getAdvanceRequestPlatform(id)),
-      finalize(() => from(this.loaderService.hideLoader())),
+    this.advanceRequest$ = this.advanceRequestService.getAdvanceRequestPlatform(id).pipe(
+      tap(() => (this.isLoading = true)),
+      finalize(() => (this.isLoading = false)),
       shareReplay(1)
     );
 
