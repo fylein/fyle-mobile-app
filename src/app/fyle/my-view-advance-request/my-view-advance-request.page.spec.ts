@@ -6,7 +6,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -43,7 +43,7 @@ describe('MyViewAdvanceRequestPage', () => {
   let router: jasmine.SpyObj<Router>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let advanceRequestsCustomFieldsService: jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -65,9 +65,7 @@ describe('MyViewAdvanceRequestPage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-    const advanceRequestsCustomFieldsServiceSpy = jasmine.createSpyObj('AdvanceRequestsCustomFieldsService', [
-      'getAll',
-    ]);
+
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment']);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateForward']);
@@ -82,7 +80,7 @@ describe('MyViewAdvanceRequestPage', () => {
         { provide: Router, useValue: routerSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
-        { provide: AdvanceRequestsCustomFieldsService, useValue: advanceRequestsCustomFieldsServiceSpy },
+
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
@@ -114,9 +112,7 @@ describe('MyViewAdvanceRequestPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    advanceRequestsCustomFieldsService = TestBed.inject(
-      AdvanceRequestsCustomFieldsService
-    ) as jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -192,7 +188,7 @@ describe('MyViewAdvanceRequestPage', () => {
       fileService.downloadUrl.and.returnValue(of('mockdownloadurl.png'));
       fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
       const mockAdvRequestCustomFields = cloneDeep(advanceRequestCustomFieldData2);
-      advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockAdvRequestCustomFields));
+      spyOn(advanceRequestService, 'getCustomFieldsForSpender').and.returnValue(of(mockAdvRequestCustomFields));
       spyOn(component, 'getAndUpdateProjectName');
       advanceRequestService.modifyAdvanceRequestCustomFields.and.returnValue(customFields);
     });
@@ -269,7 +265,7 @@ describe('MyViewAdvanceRequestPage', () => {
 
     it('should call advanceRequestService.modifyAdvanceRequestCustomFields and getAndUpdateProjectName once', fakeAsync(() => {
       const mockAdvRequestCustomFields = cloneDeep(advanceRequestCustomFieldData2);
-      advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockAdvRequestCustomFields));
+      spyOn(advanceRequestService, 'getCustomFieldsForSpender').and.returnValue(of(mockAdvRequestCustomFields));
 
       component.ionViewWillEnter();
 
@@ -279,7 +275,7 @@ describe('MyViewAdvanceRequestPage', () => {
         expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
           publicAdvanceRequestRes.data[0].areq_custom_field_values
         );
-        expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
+        expect(advanceRequestService.getCustomFieldsForSpender).toHaveBeenCalledTimes(1);
       });
       expect(component.getAndUpdateProjectName).toHaveBeenCalledTimes(1);
     }));
