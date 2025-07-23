@@ -3,7 +3,7 @@ import { IonicModule, ModalController, PopoverController } from '@ionic/angular'
 
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -27,9 +27,7 @@ import { TestCases2 } from './add-edit-advance-request-2.page.spec';
 describe('AddEditAdvanceRequestPage', () => {
   const getTestBed = () => {
     const authServiceSpyObj = jasmine.createSpyObj('AuthService', ['getEou']);
-    const advanceRequestsCustomFieldsServiceSpyObj = jasmine.createSpyObj('AdvanceRequestsCustomFieldsService', [
-      'getAll',
-    ]);
+
     const advanceRequestServiceSpyObj = jasmine.createSpyObj('AdvanceRequestService', [
       'testPolicy',
       'createAdvReqWithFilesAndSubmit',
@@ -38,7 +36,9 @@ describe('AddEditAdvanceRequestPage', () => {
       'getSpenderPermissions',
       'getApproverPermissions',
       'getEReq',
-      'getEReqFromPlatform',
+      'getEReqFromApprover',
+      'getCustomFieldsForSpender',
+      'getCustomFieldsForApprover',
     ]);
     const modalControllerSpyObj = jasmine.createSpyObj('ModalController', ['create']);
     const statusServiceSpyObj = jasmine.createSpyObj('StatusService', ['findLatestComment', 'post']);
@@ -66,7 +66,7 @@ describe('AddEditAdvanceRequestPage', () => {
       imports: [IonicModule.forRoot(), RouterTestingModule],
       providers: [
         { provide: AuthService, useValue: authServiceSpyObj },
-        { provide: AdvanceRequestsCustomFieldsService, useValue: advanceRequestsCustomFieldsServiceSpyObj },
+
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpyObj },
         { provide: ModalController, useValue: modalControllerSpyObj },
         { provide: StatusService, useValue: statusServiceSpyObj },

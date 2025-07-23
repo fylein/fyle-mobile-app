@@ -51,20 +51,16 @@
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">
       @if (isConnected$ | async) { @if (!(isUserFromINCluster$ | async)) { @if (eou$ | async; as eou) { @if
-      ((canShowOptInBanner$ | async) || (canShowEmailOptInBanner$ | async)) {
+      ((canShowOptInBanner$ | async) || (canShowEmailOptInBanner$ | async)) { @if (swiperConfig) {
       <swiper
         #optInSwiper
         class="opt-in-banners__swiper"
-        [slidesPerView]="1"
-        [spaceBetween]="0"
-        [pagination]="optInBannerPagination"
-        [centeredSlides]="true"
-        [autoplay]=" {
-                  delay: 4000,
-                  disableOnInteraction: false,
-                  pauseOnMouseEnter: false
-                }"
-        [loop]="true"
+        [slidesPerView]="swiperConfig.slidesPerView"
+        [spaceBetween]="swiperConfig.spaceBetween"
+        [pagination]="swiperConfig.pagination"
+        [centeredSlides]="swiperConfig.centeredSlides"
+        [autoplay]="swiperConfig.autoplay"
+        [loop]="swiperConfig.loop"
       >
         @if ((canShowOptInBanner$ | async)) {
         <ng-template swiperSlide>
@@ -78,7 +74,7 @@
         </ng-template>
         }
       </swiper>
-      } } } }
+      } } } } }
       <div class="dashboard--greetings-text smartlook-hide">
         Hi there, {{ userName }}! <span class="dashboard--handwave">👋</span>
       </div>
