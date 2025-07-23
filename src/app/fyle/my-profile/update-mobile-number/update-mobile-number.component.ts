@@ -10,6 +10,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-update-mobile-number',
   templateUrl: './update-mobile-number.component.html',
   styleUrls: ['./update-mobile-number.component.scss'],
+  standalone: false,
 })
 export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;

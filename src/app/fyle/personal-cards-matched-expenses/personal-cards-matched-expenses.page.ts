@@ -11,6 +11,7 @@ import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-pers
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
   styleUrls: ['./personal-cards-matched-expenses.page.scss'],
+  standalone: false,
 })
 export class PersonalCardsMatchedExpensesPage {
   headerState: HeaderState = HeaderState.base;

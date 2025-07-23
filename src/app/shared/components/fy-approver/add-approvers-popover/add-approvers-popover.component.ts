@@ -15,6 +15,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-add-approvers-popover',
   templateUrl: './add-approvers-popover.component.html',
   styleUrls: ['./add-approvers-popover.component.scss'],
+  standalone: false,
 })
 export class AddApproversPopoverComponent {
   @Input() approverEmailsList: string[];

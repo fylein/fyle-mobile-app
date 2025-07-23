@@ -20,6 +20,7 @@ import { Currency } from 'src/app/core/models/currency.model';
   selector: 'app-fy-currency-choose-currency',
   templateUrl: './fy-currency-choose-currency.component.html',
   styleUrls: ['./fy-currency-choose-currency.component.scss'],
+  standalone: false,
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;

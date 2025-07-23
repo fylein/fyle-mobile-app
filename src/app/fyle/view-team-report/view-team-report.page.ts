@@ -45,6 +45,7 @@ import { BrowserHandlerService } from 'src/app/core/services/browser-handler.ser
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
   styleUrls: ['./view-team-report.page.scss'],
+  standalone: false,
 })
 export class ViewTeamReportPage {
   @ViewChild('commentInput') commentInput: ElementRef;

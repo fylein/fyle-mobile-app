@@ -21,6 +21,7 @@ import { orgSettingsWithV2ExpensesPage, orgSettingsWoV2ExpensesPage } from 'src/
 @Component({
   selector: 'app-corporate-card',
   template: '<div></div>',
+  standalone: false,
 })
 class MockCorporateCardComponent {
   @Input() card: PlatformCorporateCard;

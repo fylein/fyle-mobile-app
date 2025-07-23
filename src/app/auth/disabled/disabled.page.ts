@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
   selector: 'app-disabled',
   templateUrl: './disabled.page.html',
   styleUrls: ['./disabled.page.scss'],
+  standalone: false,
 })
 export class DisabledPage implements OnInit {
   constructor(private userEventService: UserEventService, private router: Router) {}

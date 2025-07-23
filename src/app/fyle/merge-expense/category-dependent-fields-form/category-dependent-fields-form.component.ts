@@ -26,6 +26,7 @@ type OptionsData = Partial<{
   templateUrl: './category-dependent-fields-form.component.html',
   styleUrls: ['./category-dependent-fields-form.component.scss'],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: CategoryDependentFieldsFormComponent, multi: true }],
+  standalone: false,
 })
 export class CategoryDependentFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
   @Output() fieldsTouched = new EventEmitter<string[]>();

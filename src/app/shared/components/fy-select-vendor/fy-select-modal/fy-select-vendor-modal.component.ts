@@ -13,6 +13,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
   selector: 'app-fy-select-vendor-modal',
   templateUrl: './fy-select-vendor-modal.component.html',
   styleUrls: ['./fy-select-vendor-modal.component.scss'],
+  standalone: false,
 })
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef!: ElementRef<HTMLInputElement>;

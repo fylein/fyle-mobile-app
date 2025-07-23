@@ -16,6 +16,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FySelectVendorComponent implements OnInit, OnDestroy {
   @Input() options: any[];

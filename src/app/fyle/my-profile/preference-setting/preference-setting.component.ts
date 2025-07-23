@@ -4,6 +4,7 @@ import { EventData } from './event-data.model';
   selector: 'app-preference-setting',
   templateUrl: './preference-setting.component.html',
   styleUrls: ['./preference-setting.component.scss'],
+  standalone: false,
 })
 export class PreferenceSettingComponent {
   @Input() title: string;
