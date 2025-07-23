@@ -46,9 +46,8 @@ describe('DeepLinkRedirectionPage', () => {
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportById']);
 
     TestBed.configureTestingModule({
-      declarations: [DeepLinkRedirectionPage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), DeepLinkRedirectionPage],
+    providers: [
         { provide: Router, useValue: routerSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
@@ -59,18 +58,18 @@ describe('DeepLinkRedirectionPage', () => {
         { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
         { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                id: '123',
-                sub_module: 'testParam',
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        id: '123',
+                        sub_module: 'testParam',
+                    },
+                },
             },
-          },
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;

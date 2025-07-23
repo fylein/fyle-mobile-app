@@ -1,9 +1,6 @@
 import { AfterViewInit, Directive, ElementRef, Input } from '@angular/core';
 
-@Directive({
-  selector: '[appAutofocus]',
-  standalone: false,
-})
+@Directive({ selector: '[appAutofocus]', })
 export class AutofocusDirective implements AfterViewInit {
   @Input() timeout = 0;
 

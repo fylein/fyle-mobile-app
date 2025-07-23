@@ -1,13 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { Subscription, finalize, from, switchMap } from 'rxjs';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { NgOtpInputConfig, NgOtpInputComponent } from 'ng-otp-input';
+import { NgOtpInputConfig, NgOtpInputComponent, NgOtpInputModule } from 'ng-otp-input';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -18,13 +18,30 @@ import { BrowserHandlerService } from 'src/app/core/services/browser-handler.ser
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { UserEventService } from 'src/app/core/services/user-event.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { NgClass, DecimalPipe } from '@angular/common';
+import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
+import { MatButton } from '@angular/material/button';
 
 @Component({
-  selector: 'app-fy-opt-in',
-  templateUrl: './fy-opt-in.component.html',
-  styleUrls: ['./fy-opt-in.component.scss'],
-  standalone: false,
+    selector: 'app-fy-opt-in',
+    templateUrl: './fy-opt-in.component.html',
+    styleUrls: ['./fy-opt-in.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        MatInput,
+        FormsModule,
+        NgClass,
+        NgOtpInputModule,
+        FormButtonValidationDirective,
+        MatButton,
+        DecimalPipe,
+        TranslocoPipe,
+    ],
 })
 export class FyOptInComponent implements OnInit, AfterViewInit {
   @ViewChild('mobileInput') mobileInputEl: ElementRef<HTMLInputElement>;

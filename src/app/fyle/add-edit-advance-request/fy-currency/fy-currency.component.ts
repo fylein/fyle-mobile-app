@@ -1,29 +1,32 @@
 import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 
-import {
-  NG_VALUE_ACCESSOR,
-  ControlValueAccessor,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-  NgControl,
-} from '@angular/forms';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, UntypedFormBuilder, UntypedFormGroup, NgControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NgClass } from '@angular/common';
+import { FyNumberComponent } from '../../../shared/components/fy-number/fy-number.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-fy-currency',
-  templateUrl: './fy-currency.component.html',
-  styleUrls: ['./fy-currency.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FyCurrencyComponent),
-      multi: true,
-    },
-  ],
-  standalone: false,
+    selector: 'app-fy-currency',
+    templateUrl: './fy-currency.component.html',
+    styleUrls: ['./fy-currency.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FyCurrencyComponent),
+            multi: true,
+        },
+    ],
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        NgClass,
+        FyNumberComponent,
+        TranslocoPipe,
+    ],
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   @Input() txnDt: Date;

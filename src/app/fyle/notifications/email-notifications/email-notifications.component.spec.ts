@@ -43,27 +43,27 @@ describe('EmailNotificationsComponent', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
 
     TestBed.configureTestingModule({
-      declarations: [EmailNotificationsComponent],
-      providers: [
+    imports: [EmailNotificationsComponent],
+    providers: [
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: Platform,
-          useValue: platformSpy,
+            provide: Platform,
+            useValue: platformSpy,
         },
         {
-          provide: PlatformEmployeeSettingsService,
-          useValue: platformEmployeeSettingsServiceSpy,
+            provide: PlatformEmployeeSettingsService,
+            useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(EmailNotificationsComponent);
     component = fixture.componentInstance;

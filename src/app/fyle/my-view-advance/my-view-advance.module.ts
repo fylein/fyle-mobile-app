@@ -11,7 +11,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, MyViewAdvancePageRoutingModule, MatIconModule, SharedModule],
-  declarations: [MyViewAdvancePage],
+    imports: [CommonModule, FormsModule, IonicModule, MyViewAdvancePageRoutingModule, MatIconModule, SharedModule, MyViewAdvancePage],
 })
 export class MyViewAdvancePageModule {}

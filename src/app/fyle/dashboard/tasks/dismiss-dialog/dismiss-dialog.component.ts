@@ -1,14 +1,22 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, IonicModule } from '@ionic/angular';
 import { catchError, finalize, map } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { NgClass } from '@angular/common';
+import { FormButtonValidationDirective } from '../../../../shared/directive/form-button-validation.directive';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-dismiss-dialog',
-  templateUrl: './dismiss-dialog.component.html',
-  styleUrls: ['./dismiss-dialog.component.scss'],
-  standalone: false,
+    selector: 'app-dismiss-dialog',
+    templateUrl: './dismiss-dialog.component.html',
+    styleUrls: ['./dismiss-dialog.component.scss'],
+    imports: [
+        IonicModule,
+        NgClass,
+        FormButtonValidationDirective,
+        TranslocoPipe,
+    ],
 })
 export class DismissDialogComponent implements OnInit {
   @Input() dismissMethod: () => Observable<{}>;

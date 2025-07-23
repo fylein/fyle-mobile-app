@@ -1,9 +1,10 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { ImageCropperComponent } from 'ngx-image-cropper';
-import { ModalController, Platform } from '@ionic/angular';
+import { ImageCropperComponent, ImageCropperModule } from 'ngx-image-cropper';
+import { ModalController, Platform, IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Subscription } from 'rxjs';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { MatIcon } from '@angular/material/icon';
 
 type Image = Partial<{
   source: string;
@@ -11,10 +12,14 @@ type Image = Partial<{
 }>;
 
 @Component({
-  selector: 'app-crop-receipt',
-  templateUrl: './crop-receipt.component.html',
-  styleUrls: ['./crop-receipt.component.scss'],
-  standalone: false,
+    selector: 'app-crop-receipt',
+    templateUrl: './crop-receipt.component.html',
+    styleUrls: ['./crop-receipt.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        ImageCropperModule,
+    ],
 })
 export class CropReceiptComponent implements OnInit {
   @Input() base64ImageWithSource: Image;

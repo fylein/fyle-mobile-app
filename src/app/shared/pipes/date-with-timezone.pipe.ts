@@ -8,10 +8,7 @@ import { BehaviorSubject } from 'rxjs';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-@Pipe({
-  name: 'dateWithTimezone',
-  standalone: false,
-})
+@Pipe({ name: 'dateWithTimezone', })
 @Injectable({ providedIn: 'root' })
 export class DateWithTimezonePipe implements PipeTransform {
   constructor(@Inject(TIMEZONE) private timezone$: BehaviorSubject<string>) {}

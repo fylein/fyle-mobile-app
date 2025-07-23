@@ -1,22 +1,30 @@
 import { ChangeDetectorRef, Component, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { noop } from 'rxjs';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-dependent-field',
-  templateUrl: './dependent-field.component.html',
-  styleUrls: ['./dependent-field.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DependentFieldComponent),
-      multi: true,
-    },
-  ],
-  standalone: false,
+    selector: 'app-dependent-field',
+    templateUrl: './dependent-field.component.html',
+    styleUrls: ['./dependent-field.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => DependentFieldComponent),
+            multi: true,
+        },
+    ],
+    imports: [
+        NgClass,
+        FormsModule,
+        MatIcon,
+        TranslocoPipe,
+    ],
 })
 export class DependentFieldComponent implements ControlValueAccessor {
   @Input() label = '';

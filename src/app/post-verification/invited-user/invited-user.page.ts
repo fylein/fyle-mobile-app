@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { switchMap, finalize, tap, map } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -14,12 +14,26 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { IonicModule } from '@ionic/angular';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatSuffix } from '@angular/material/input';
+import { PasswordCheckTooltipComponent } from '../../shared/components/password-check-tooltip/password-check-tooltip.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 
 @Component({
-  selector: 'app-invited-user',
-  templateUrl: './invited-user.page.html',
-  styleUrls: ['./invited-user.page.scss'],
-  standalone: false,
+    selector: 'app-invited-user',
+    templateUrl: './invited-user.page.html',
+    styleUrls: ['./invited-user.page.scss'],
+    imports: [
+        IonicModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NgClass,
+        MatSuffix,
+        PasswordCheckTooltipComponent,
+        FormButtonValidationDirective,
+        AsyncPipe,
+    ],
 })
 export class InvitedUserPage implements OnInit {
   isConnected$: Observable<boolean>;

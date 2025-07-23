@@ -10,15 +10,15 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { EmailNotificationsComponent } from './email-notifications/email-notifications.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    IonicModule,
-    NotificationsPageRoutingModule,
-    SharedModule,
-    MatCheckboxModule,
-  ],
-  declarations: [NotificationsBetaPage, EmailNotificationsComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        IonicModule,
+        NotificationsPageRoutingModule,
+        SharedModule,
+        MatCheckboxModule,
+        NotificationsBetaPage, EmailNotificationsComponent,
+    ],
 })
 export class NotificationsPageModule {}

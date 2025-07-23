@@ -62,9 +62,8 @@ describe('AddEditAdvanceRequestPage', () => {
     const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditAdvanceRequestPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule],
-      providers: [
+    imports: [IonicModule.forRoot(), RouterTestingModule, AddEditAdvanceRequestPage],
+    providers: [
         { provide: AuthService, useValue: authServiceSpyObj },
         { provide: AdvanceRequestsCustomFieldsService, useValue: advanceRequestsCustomFieldsServiceSpyObj },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpyObj },
@@ -84,19 +83,19 @@ describe('AddEditAdvanceRequestPage', () => {
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpyObj },
         { provide: Router, useValue: routerSpyObj },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                id: 'areqR1cyLgXdND',
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        id: 'areqR1cyLgXdND',
+                    },
+                },
             },
-          },
         },
         UntypedFormBuilder,
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     return TestBed;
   };

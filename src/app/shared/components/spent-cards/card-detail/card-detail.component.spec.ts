@@ -19,9 +19,9 @@ import { of } from 'rxjs';
 import { orgSettingsWithV2ExpensesPage, orgSettingsWoV2ExpensesPage } from 'src/app/core/mock-data/org-settings.data';
 
 @Component({
-  selector: 'app-corporate-card',
-  template: '<div></div>',
-  standalone: false,
+    selector: 'app-corporate-card',
+    template: '<div></div>',
+    imports: [RouterModule, RouterTestingModule, TranslocoModule,],
 })
 class MockCorporateCardComponent {
   @Input() card: PlatformCorporateCard;
@@ -51,35 +51,32 @@ describe('CardDetailComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [
-        CardDetailComponent,
+    imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule, TranslocoModule, CardDetailComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         MaskNumber,
-        MockCorporateCardComponent,
-      ],
-      imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule, TranslocoModule],
-      providers: [
+        MockCorporateCardComponent],
+    providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: OrgSettingsService,
-          useValue: orgSettingServiceSpy,
+            provide: OrgSettingsService,
+            useValue: orgSettingServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(CardDetailComponent);
     component = fixture.componentInstance;

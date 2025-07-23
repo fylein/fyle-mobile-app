@@ -1,17 +1,28 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { getCurrencySymbol } from '@angular/common';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { PolicyViolationRuleComponent } from '../policy-violation-rule/policy-violation-rule.component';
+import { PolicyViolationActionComponent } from './policy-violation-action/policy-violation-action.component';
 
 @Component({
-  selector: 'app-fy-policy-violation',
-  templateUrl: './fy-policy-violation.component.html',
-  styleUrls: ['./fy-policy-violation.component.scss'],
-  standalone: false,
+    selector: 'app-fy-policy-violation',
+    templateUrl: './fy-policy-violation.component.html',
+    styleUrls: ['./fy-policy-violation.component.scss'],
+    imports: [
+        MatIcon,
+        PolicyViolationRuleComponent,
+        PolicyViolationActionComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        IonicModule,
+        TranslocoPipe,
+    ],
 })
 export class FyPolicyViolationComponent implements OnInit {
   @Input() policyViolationMessages: string[];

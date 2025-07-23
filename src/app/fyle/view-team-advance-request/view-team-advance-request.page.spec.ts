@@ -96,9 +96,8 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewTeamAdvanceRequestPage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), ViewTeamAdvanceRequestPage],
+    providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -114,22 +113,22 @@ describe('ViewTeamAdvanceRequestPage', () => {
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpy },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencySpy },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                id: 'areqR1cyLgXdND',
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        id: 'areqR1cyLgXdND',
+                    },
+                },
             },
-          },
         },
         {
-          provide: MIN_SCREEN_WIDTH,
-          useValue: 230,
+            provide: MIN_SCREEN_WIDTH,
+            useValue: 230,
         },
         UrlSerializer,
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ViewTeamAdvanceRequestPage);
     component = fixture.componentInstance;

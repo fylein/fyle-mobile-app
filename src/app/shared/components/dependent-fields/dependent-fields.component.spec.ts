@@ -39,30 +39,30 @@ describe('DependentFieldsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [DependentFieldsComponent, DependentFieldComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         ReactiveFormsModule,
         FormsModule,
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,
-      ],
-      providers: [
+        DependentFieldsComponent, DependentFieldComponent,
+    ],
+    providers: [
         {
-          provide: DependentFieldsService,
-          useValue: dependentFieldsServiceSpy,
+            provide: DependentFieldsService,
+            useValue: dependentFieldsServiceSpy,
         },
         {
-          provide: UntypedFormBuilder,
-          useValue: formBuilderSpy,
+            provide: UntypedFormBuilder,
+            useValue: formBuilderSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(DependentFieldsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
 import { switchMap, finalize, concatMap, reduce } from 'rxjs/operators';
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -10,12 +10,23 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { Approver } from './models/approver.model';
 import { AdvanceRequests } from 'src/app/core/models/advance-requests.model';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatChip } from '@angular/material/chips';
+import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
 @Component({
-  selector: 'app-add-approvers-popover',
-  templateUrl: './add-approvers-popover.component.html',
-  styleUrls: ['./add-approvers-popover.component.scss'],
-  standalone: false,
+    selector: 'app-add-approvers-popover',
+    templateUrl: './add-approvers-popover.component.html',
+    styleUrls: ['./add-approvers-popover.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        FormsModule,
+        MatChip,
+        FyAlertInfoComponent,
+        TranslocoPipe,
+    ],
 })
 export class AddApproversPopoverComponent {
   @Input() approverEmailsList: string[];

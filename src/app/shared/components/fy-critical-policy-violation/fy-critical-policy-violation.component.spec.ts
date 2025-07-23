@@ -23,19 +23,18 @@ describe('FyCriticalPolicyViolationComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyCriticalPolicyViolationComponent, PolicyViolationRuleComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, FyCriticalPolicyViolationComponent, PolicyViolationRuleComponent],
+    providers: [
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
 
     fixture = TestBed.createComponent(FyCriticalPolicyViolationComponent);

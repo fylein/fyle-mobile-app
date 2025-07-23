@@ -27,9 +27,9 @@ import {
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-fy-alert-info',
-  template: '<div></div>',
-  standalone: false,
+    selector: 'app-fy-alert-info',
+    template: '<div></div>',
+    imports: [ReactiveFormsModule, TranslocoModule],
 })
 export class MockFyAlertInfoComponent {
   @Input() message: string;
@@ -70,34 +70,33 @@ describe('AddCorporateCardComponent', () => {
       interceptor: {},
     });
     TestBed.configureTestingModule({
-      declarations: [AddCorporateCardComponent, MockFyAlertInfoComponent, ArrayToCommaListPipe],
-      imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule, TranslocoModule],
-      schemas: [NO_ERRORS_SCHEMA],
-      providers: [
+    imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule, TranslocoModule, AddCorporateCardComponent, MockFyAlertInfoComponent, ArrayToCommaListPipe],
+    schemas: [NO_ERRORS_SCHEMA],
+    providers: [
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: RealTimeFeedService,
-          useValue: realTimeFeedServiceSpy,
+            provide: RealTimeFeedService,
+            useValue: realTimeFeedServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: Router,
-          useValue: {
-            url: '/enterprise/manage_corporate_cards',
-          },
+            provide: Router,
+            useValue: {
+                url: '/enterprise/manage_corporate_cards',
+            },
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(AddCorporateCardComponent);
     component = fixture.componentInstance;

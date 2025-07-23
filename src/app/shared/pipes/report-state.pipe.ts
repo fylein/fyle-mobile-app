@@ -1,10 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Pipe({
-  name: 'reportState',
-  standalone: false,
-})
+@Pipe({ name: 'reportState', })
 export class ReportState implements PipeTransform {
   private stateKeyMap: Record<string, string> = {
     DRAFT: 'pipes.reportState.draft',

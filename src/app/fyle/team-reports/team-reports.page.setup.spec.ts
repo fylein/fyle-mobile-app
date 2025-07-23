@@ -59,9 +59,8 @@ describe('TeamReportsPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     TestBed.configureTestingModule({
-      declarations: [TeamReportsPage, ReportState],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), TeamReportsPage, ReportState],
+    providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
@@ -78,9 +77,9 @@ describe('TeamReportsPage', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         ReportState,
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     return TestBed;
   };

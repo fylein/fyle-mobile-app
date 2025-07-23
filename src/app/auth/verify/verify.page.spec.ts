@@ -28,39 +28,38 @@ describe('VerifyPage', () => {
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
 
     TestBed.configureTestingModule({
-      declarations: [VerifyPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule],
-      providers: [
+    imports: [IonicModule.forRoot(), RouterTestingModule, VerifyPage],
+    providers: [
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: RouterAuthService,
-          useValue: routerAuthServiceSpy,
+            provide: RouterAuthService,
+            useValue: routerAuthServiceSpy,
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: { verification_code: 'ouX8dwsbLCLv', org_id: 'orNVthTo2Zyo' },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: { verification_code: 'ouX8dwsbLCLv', org_id: 'orNVthTo2Zyo' },
+                },
             },
-          },
         },
         {
-          provide: UserEventService,
-          useValue: userEventServiceSpy,
+            provide: UserEventService,
+            useValue: userEventServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(VerifyPage);
     component = fixture.componentInstance;

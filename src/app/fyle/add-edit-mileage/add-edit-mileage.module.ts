@@ -14,22 +14,22 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    AddEditMileagePageRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatCheckboxModule,
-    SharedModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSnackBarModule,
-  ],
-  declarations: [AddEditMileagePage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        AddEditMileagePageRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatCheckboxModule,
+        SharedModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatSnackBarModule,
+        AddEditMileagePage,
+    ],
 })
 export class AddEditMileagePageModule {}

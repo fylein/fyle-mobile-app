@@ -2,10 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { FyCurrencyPipe } from './fy-currency.pipe';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Pipe({
-  name: 'humanizeCurrency',
-  standalone: false,
-})
+@Pipe({ name: 'humanizeCurrency', })
 export class HumanizeCurrencyPipe implements PipeTransform {
   constructor(private fyCurrencyPipe: FyCurrencyPipe, private translocoService: TranslocoService) {}
 

@@ -1,15 +1,20 @@
 import { Component, Input } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-promote-opt-in-modal',
-  templateUrl: './promote-opt-in-modal.component.html',
-  styleUrls: ['./promote-opt-in-modal.component.scss'],
-  standalone: false,
+    selector: 'app-promote-opt-in-modal',
+    templateUrl: './promote-opt-in-modal.component.html',
+    styleUrls: ['./promote-opt-in-modal.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        TranslocoPipe,
+    ],
 })
 export class PromoteOptInModalComponent {
   @Input() extendedOrgUser: ExtendedOrgUser;

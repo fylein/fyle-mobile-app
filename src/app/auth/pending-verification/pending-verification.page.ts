@@ -2,17 +2,26 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { HttpErrorResponse } from '@angular/common/http';
+import { IonicModule } from '@ionic/angular';
+import { MatInput } from '@angular/material/input';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 
 @Component({
-  selector: 'app-pending-verification',
-  templateUrl: './pending-verification.page.html',
-  styleUrls: ['./pending-verification.page.scss'],
-  standalone: false,
+    selector: 'app-pending-verification',
+    templateUrl: './pending-verification.page.html',
+    styleUrls: ['./pending-verification.page.scss'],
+    imports: [
+        IonicModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatInput,
+        FormButtonValidationDirective,
+    ],
 })
 export class PendingVerificationPage {
   isLoading = false;

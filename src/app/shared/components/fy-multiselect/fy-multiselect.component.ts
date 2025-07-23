@@ -1,24 +1,30 @@
 import { Component, OnInit, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multiselect-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TranslocoService } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-fy-multiselect',
-  templateUrl: './fy-multiselect.component.html',
-  styleUrls: ['./fy-multiselect.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FyMultiselectComponent),
-      multi: true,
-    },
-  ],
-  standalone: false,
+    selector: 'app-fy-multiselect',
+    templateUrl: './fy-multiselect.component.html',
+    styleUrls: ['./fy-multiselect.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FyMultiselectComponent),
+            multi: true,
+        },
+    ],
+    imports: [
+        NgClass,
+        FormsModule,
+        MatIcon,
+    ],
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   @Input() options: { label: string; value: unknown }[] = [];

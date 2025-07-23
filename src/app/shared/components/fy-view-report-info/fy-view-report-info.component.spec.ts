@@ -52,39 +52,37 @@ describe('FyViewReportInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [TranslocoModule],
-      declarations: [FyViewReportInfoComponent],
-      providers: [
+    imports: [TranslocoModule, FyViewReportInfoComponent],
+    providers: [
         {
-          provide: SharedExpensesService,
-          useValue: mockSharedExpensesServiceSpy,
+            provide: SharedExpensesService,
+            useValue: mockSharedExpensesServiceSpy,
         },
         {
-          provide: PlatformEmployeeSettingsService,
-          useValue: mockPlatformEmployeeSettingsServiceSpy,
+            provide: PlatformEmployeeSettingsService,
+            useValue: mockPlatformEmployeeSettingsServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: mockTrackingServiceSpy,
+            provide: TrackingService,
+            useValue: mockTrackingServiceSpy,
         },
         {
-          provide: AuthService,
-          useValue: mockAuthServiceSpy,
-        },
-
-        {
-          provide: OrgSettingsService,
-          useValue: mockOrgSettingsServiceSpy,
+            provide: AuthService,
+            useValue: mockAuthServiceSpy,
         },
         {
-          provide: ModalController,
-          useValue: mockModalControllerSpy,
+            provide: OrgSettingsService,
+            useValue: mockOrgSettingsServiceSpy,
+        },
+        {
+            provide: ModalController,
+            useValue: mockModalControllerSpy,
         },
         DatePipe,
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(FyViewReportInfoComponent);
     component = fixture.componentInstance;

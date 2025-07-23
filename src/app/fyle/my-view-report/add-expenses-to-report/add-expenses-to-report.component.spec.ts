@@ -36,30 +36,29 @@ describe('AddExpensesToReportComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [AddExpensesToReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, AddExpensesToReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe],
+    providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: CurrencyService,
-          useValue: currencyServiceSpy,
+            provide: CurrencyService,
+            useValue: currencyServiceSpy,
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(AddExpensesToReportComponent);
     component = fixture.componentInstance;
 

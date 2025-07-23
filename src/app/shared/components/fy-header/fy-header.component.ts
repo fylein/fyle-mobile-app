@@ -1,12 +1,20 @@
 import { Component, Input, EventEmitter, Output, OnInit } from '@angular/core';
 import { HeaderState } from './header-state.enum';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { IonicModule } from '@ionic/angular';
+import { NgClass } from '@angular/common';
+import { FyMenuIconComponent } from '../fy-menu-icon/fy-menu-icon.component';
 
 @Component({
-  selector: 'app-fy-header',
-  templateUrl: './fy-header.component.html',
-  styleUrls: ['./fy-header.component.scss'],
-  standalone: false,
+    selector: 'app-fy-header',
+    templateUrl: './fy-header.component.html',
+    styleUrls: ['./fy-header.component.scss'],
+    imports: [
+        IonicModule,
+        NgClass,
+        FyMenuIconComponent,
+        TranslocoPipe,
+    ],
 })
 export class FyHeaderComponent implements OnInit {
   @Input() currentState: HeaderState;

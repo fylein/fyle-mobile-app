@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular
 import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -31,12 +31,40 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { FyHeaderComponent } from '../../shared/components/fy-header/fy-header.component';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { ReportsCardComponent } from '../../shared/components/reports-card/reports-card.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
-  selector: 'app-team-reports',
-  templateUrl: './team-reports.page.html',
-  styleUrls: ['./team-reports.page.scss'],
-  standalone: false,
+    selector: 'app-team-reports',
+    templateUrl: './team-reports.page.html',
+    styleUrls: ['./team-reports.page.scss'],
+    imports: [
+        FyHeaderComponent,
+        IonicModule,
+        MatFormField,
+        MatIcon,
+        MatPrefix,
+        MatInput,
+        FormsModule,
+        MatIconButton,
+        MatSuffix,
+        NgClass,
+        FyFilterPillsComponent,
+        ReportsCardComponent,
+        FyLoadingScreenComponent,
+        FyZeroStateComponent,
+        FooterComponent,
+        AsyncPipe,
+    ],
 })
 export class TeamReportsPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;

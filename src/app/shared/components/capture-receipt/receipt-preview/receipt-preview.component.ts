@@ -1,28 +1,38 @@
 import { Component, Input, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController, IonicModule } from '@ionic/angular';
 import { from, Subscription } from 'rxjs';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
-import { SwiperComponent } from 'swiper/angular';
+import { SwiperComponent, SwiperModule } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Image } from 'src/app/core/models/image-type.model';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { Router } from '@angular/router';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
 
 @Component({
-  selector: 'app-receipt-preview',
-  templateUrl: './receipt-preview.component.html',
-  styleUrls: ['./receipt-preview.component.scss'],
-  standalone: false,
+    selector: 'app-receipt-preview',
+    templateUrl: './receipt-preview.component.html',
+    styleUrls: ['./receipt-preview.component.scss'],
+    imports: [
+        IonicModule,
+        NgClass,
+        MatIcon,
+        SwiperModule,
+        PinchZoomComponent,
+        TranslocoPipe,
+    ],
 })
 export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;

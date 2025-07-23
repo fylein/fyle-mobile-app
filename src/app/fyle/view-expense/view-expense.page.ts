@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, takeUntil, take, filter } from 'rxjs/operators';
 import { FileService } from 'src/app/core/services/file.service';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -14,7 +14,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass, AsyncPipe, TitleCasePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -40,12 +40,47 @@ import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/p
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { TransactionStatusComponent } from '../../shared/components/transaction-status/transaction-status.component';
+import { ReceiptPreviewThumbnailComponent } from '../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { ViewDependentFieldsComponent } from '../../shared/components/view-dependent-fields/view-dependent-fields.component';
+import { ViewExpenseSkeletonLoaderComponent } from '../../shared/components/view-expense-skeleton-loader/view-expense-skeleton-loader.component';
+import { NavigationFooterComponent } from '../../shared/components/navigation-footer/navigation-footer.component';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
+import { HumanizeCurrencyPipe } from '../../shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
+import { ExpenseState as ExpenseState_1 } from '../../shared/pipes/expense-state.pipe';
+import { MaskNumber } from '../../shared/pipes/mask-number.pipe';
+import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 
 @Component({
-  selector: 'app-view-expense',
-  templateUrl: './view-expense.page.html',
-  styleUrls: ['./view-expense.page.scss'],
-  standalone: false,
+    selector: 'app-view-expense',
+    templateUrl: './view-expense.page.html',
+    styleUrls: ['./view-expense.page.scss'],
+    imports: [
+        IonicModule,
+        NgClass,
+        FyPolicyViolationInfoComponent,
+        FyAlertInfoComponent,
+        TransactionStatusComponent,
+        ReceiptPreviewThumbnailComponent,
+        ViewDependentFieldsComponent,
+        ViewExpenseSkeletonLoaderComponent,
+        NavigationFooterComponent,
+        AsyncPipe,
+        TitleCasePipe,
+        CurrencyPipe,
+        DatePipe,
+        EllipsisPipe,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        SnakeCaseToSpaceCase,
+        ExpenseState_1,
+        MaskNumber,
+        FyCurrencyPipe,
+    ],
 })
 export class ViewExpensePage {
   @ViewChild('comments') commentsContainer: ElementRef;

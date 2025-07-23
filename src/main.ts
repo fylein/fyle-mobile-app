@@ -1,8 +1,8 @@
-import { enableProdMode } from '@angular/core';
+import { enableProdMode, provideAppInitializer, inject, ErrorHandler, InjectionToken, importProvidersFrom } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { Capacitor } from '@capacitor/core';
 
-import { AppModule } from './app/app.module';
+import { MyHammerConfig, MIN_SCREEN_WIDTH } from './app/app.module';
 import { environment } from './environments/environment';
 
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
@@ -10,6 +10,26 @@ import * as Sentry from '@sentry/angular';
 import 'hammerjs';
 
 import { GlobalCacheConfig } from 'ts-cacheable';
+import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
+import { provideTransloco, TranslocoService } from '@jsverse/transloco';
+import { environment as environment_1 } from 'src/environments/environment';
+import { TranslocoHttpLoader } from './app/transloco-http-loader';
+import { firstValueFrom, BehaviorSubject } from 'rxjs';
+import { HAMMER_GESTURE_CONFIG, HammerGestureConfig, BrowserModule, HammerModule, bootstrapApplication } from '@angular/platform-browser';
+import { RouteReuseStrategy, Router } from '@angular/router';
+import { IonicRouteStrategy, IonicModule } from '@ionic/angular';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
+import { HttpConfigInterceptor } from './app/core/interceptors/httpInterceptor';
+import { CurrencyPipe } from '@angular/common';
+import { ConfigService } from './app/core/services/config.service';
+import { TIMEZONE, PAGINATION_SIZE, DEVICE_PLATFORM } from './app/constants';
+import { AppRoutingModule } from './app/app-routing.module';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { SharedModule } from './app/shared/shared.module';
+import { NgOtpInputModule } from 'ng-otp-input';
+import { AppComponent } from './app/app.component';
 
 // Global cache config
 GlobalCacheConfig.maxAge = 10 * 60 * 1000;
@@ -74,8 +94,80 @@ if (environment.production) {
   enableProdMode();
 }
 
-platformBrowserDynamic()
-  .bootstrapModule(AppModule)
+bootstrapApplication(AppComponent, {
+    providers: [
+        importProvidersFrom(BrowserModule, IonicModule.forRoot({
+            innerHTMLTemplatesEnabled: true,
+        }), AppRoutingModule, SharedModule, HammerModule, HammerModule, NgOtpInputModule),
+        GooglePlus,
+        InAppBrowser,
+        Smartlook,
+        provideTransloco({
+            config: {
+                availableLangs: ['en'],
+                defaultLang: 'en',
+                reRenderOnLangChange: true,
+                prodMode: environment.production,
+            },
+            loader: TranslocoHttpLoader,
+        }),
+        provideAppInitializer(() => {
+            const initializerFn = ((transloco: TranslocoService) => async (): Promise<void> => {
+                await firstValueFrom(transloco.load('en'));
+                transloco.setActiveLang('en');
+            })(inject(TranslocoService));
+            return initializerFn();
+        }),
+        {
+            provide: HAMMER_GESTURE_CONFIG,
+            useClass: MyHammerConfig,
+        },
+        {
+            provide: RouteReuseStrategy,
+            useClass: IonicRouteStrategy,
+        },
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: HttpConfigInterceptor,
+            multi: true,
+        },
+        {
+            provide: ErrorHandler,
+            useValue: Sentry.createErrorHandler({
+                showDialog: false,
+            }),
+        },
+        CurrencyPipe,
+        ConfigService,
+        {
+            provide: TIMEZONE,
+            useValue: new BehaviorSubject<string>('UTC'),
+        },
+        provideAppInitializer((): Promise<void> => {
+            inject(Sentry.TraceService);
+            const configService = inject(ConfigService);
+            return configService.loadConfigurationData();
+        }),
+        {
+            provide: Sentry.TraceService,
+            deps: [Router],
+        },
+        {
+            provide: MIN_SCREEN_WIDTH,
+            useValue: 375,
+        },
+        {
+            provide: PAGINATION_SIZE,
+            useValue: 200,
+        },
+        {
+            provide: DEVICE_PLATFORM,
+            useValue: Capacitor.getPlatform(),
+        },
+        provideHttpClient(withInterceptorsFromDi(), withJsonpSupport()),
+        provideAnimations(),
+    ]
+})
   .catch(() => {});
 
 // Call the element loader after the platform has been bootstrapped

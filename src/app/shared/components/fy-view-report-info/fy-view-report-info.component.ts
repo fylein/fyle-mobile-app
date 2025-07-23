@@ -1,9 +1,9 @@
 import { Component, Input, ElementRef } from '@angular/core';
-import { ModalController, Platform } from '@ionic/angular';
+import { ModalController, Platform, IonicModule } from '@ionic/angular';
 
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { KeyValue, DatePipe } from '@angular/common';
+import { KeyValue, DatePipe, CurrencyPipe, KeyValuePipe } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
@@ -15,14 +15,23 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ReportInfoPaymentMode } from 'src/app/core/models/report-info-payment-mode.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/approver/employee-settings.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { AmountDetails } from 'src/app/core/models/amount-details.model';
+import { MatIcon } from '@angular/material/icon';
+import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 
 @Component({
-  selector: 'app-fy-view-report-info-v2',
-  templateUrl: './fy-view-report-info.component.html',
-  styleUrls: ['./fy-view-report-info.component.scss'],
-  standalone: false,
+    selector: 'app-fy-view-report-info-v2',
+    templateUrl: './fy-view-report-info.component.html',
+    styleUrls: ['./fy-view-report-info.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        CurrencyPipe,
+        KeyValuePipe,
+        TranslocoPipe,
+        FyCurrencyPipe,
+    ],
 })
 export class FyViewReportInfoComponent {
   @Input() report$: Observable<Report>;

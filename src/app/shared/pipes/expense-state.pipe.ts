@@ -1,10 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Pipe({
-  name: 'expenseState',
-  standalone: false,
-})
+@Pipe({ name: 'expenseState', })
 export class ExpenseState implements PipeTransform {
   constructor(private translocoService: TranslocoService) {}
 

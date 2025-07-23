@@ -1,11 +1,13 @@
 import { Component, Input, EventEmitter, Output, OnInit } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
-  selector: 'app-fy-alert-info',
-  templateUrl: './fy-alert-info.component.html',
-  styleUrls: ['./fy-alert-info.component.scss'],
-  standalone: false,
+    selector: 'app-fy-alert-info',
+    templateUrl: './fy-alert-info.component.html',
+    styleUrls: ['./fy-alert-info.component.scss'],
+    imports: [MatIcon, IonicModule],
 })
 export class FyAlertInfoComponent implements OnInit {
   @Input() message: string;

@@ -61,29 +61,28 @@ describe('FyAddToReportModalComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [FyAddToReportModalComponent, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, FyAddToReportModalComponent, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
+    providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: ChangeDetectorRef,
-          useValue: cdrSpy,
+            provide: ChangeDetectorRef,
+            useValue: cdrSpy,
         },
         {
-          provide: CurrencyService,
-          useValue: currencyServiceSpy,
+            provide: CurrencyService,
+            useValue: currencyServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(FyAddToReportModalComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;

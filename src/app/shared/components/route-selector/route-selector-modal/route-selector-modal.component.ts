@@ -1,23 +1,33 @@
 import { Component, Input, OnInit } from '@angular/core';
-import {
-  AbstractControl,
-  UntypedFormArray,
-  UntypedFormBuilder,
-  UntypedFormControl,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { switchMap } from 'rxjs/operators';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { MileageLocation } from '../../route-visualizer/mileage-locations.interface';
+import { NgClass, TitleCasePipe } from '@angular/common';
+import { FyLocationComponent } from '../../fy-location/fy-location.component';
+import { MatIcon } from '@angular/material/icon';
+import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-route-selector-modal',
-  templateUrl: './route-selector-modal.component.html',
-  styleUrls: ['./route-selector-modal.component.scss'],
-  standalone: false,
+    selector: 'app-route-selector-modal',
+    templateUrl: './route-selector-modal.component.html',
+    styleUrls: ['./route-selector-modal.component.scss'],
+    imports: [
+        IonicModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NgClass,
+        FyLocationComponent,
+        MatIcon,
+        FyAlertInfoComponent,
+        MatCheckbox,
+        TitleCasePipe,
+        TranslocoPipe,
+    ],
 })
 export class RouteSelectorModalComponent implements OnInit {
   @Input() unit: 'KM' | 'MILES';

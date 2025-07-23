@@ -61,40 +61,37 @@ describe('AddTxnToReportDialogComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [
-        AddTxnToReportDialogComponent,
+    imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule, TranslocoModule, AddTxnToReportDialogComponent,
         FyZeroStateComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         ReportState,
-        SnakeCaseToSpaceCase,
-      ],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule, TranslocoModule],
-      providers: [
+        SnakeCaseToSpaceCase],
+    providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: CurrencyService,
-          useValue: currencyServiceSpy,
+            provide: CurrencyService,
+            useValue: currencyServiceSpy,
         },
         {
-          provide: MatBottomSheet,
-          useValue: matBottomsheetSpy,
+            provide: MatBottomSheet,
+            useValue: matBottomsheetSpy,
         },
         {
-          provide: MAT_BOTTOM_SHEET_DATA,
-          useValue: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
+            provide: MAT_BOTTOM_SHEET_DATA,
+            useValue: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(AddTxnToReportDialogComponent);
     component = fixture.componentInstance;

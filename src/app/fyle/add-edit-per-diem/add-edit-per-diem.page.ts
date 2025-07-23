@@ -30,15 +30,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import {
-  AbstractControl,
-  UntypedFormArray,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-  ValidationErrors,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { DateService } from 'src/app/core/services/date.service';
 import dayjs from 'dayjs';
@@ -54,7 +46,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, Platform, IonicModule } from '@ionic/angular';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -109,12 +101,58 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { NgClass, AsyncPipe, SlicePipe, DecimalPipe, CurrencyPipe } from '@angular/common';
+import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
+import { MatIcon } from '@angular/material/icon';
+import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
+import { FormatDateDirective } from '../../shared/directive/format-date.directive';
+import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
+import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { DependentFieldsComponent as DependentFieldsComponent_1 } from '../../shared/components/dependent-fields/dependent-fields.component';
+import { VirtualSelectComponent } from '../../shared/components/virtual-select/virtual-select.component';
+import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
+import { FyMultiselectComponent } from '../../shared/components/fy-multiselect/fy-multiselect.component';
+import { FyAddToReportComponent } from '../../shared/components/fy-add-to-report/fy-add-to-report.component';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { ReviewFooterComponent } from '../../shared/components/review-footer/review-footer.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
+import { FyCurrencyPipe as FyCurrencyPipe_1 } from '../../shared/pipes/fy-currency.pipe';
 
 @Component({
-  selector: 'app-add-edit-per-diem',
-  templateUrl: './add-edit-per-diem.page.html',
-  styleUrls: ['./add-edit-per-diem.page.scss'],
-  standalone: false,
+    selector: 'app-add-edit-per-diem',
+    templateUrl: './add-edit-per-diem.page.html',
+    styleUrls: ['./add-edit-per-diem.page.scss'],
+    imports: [
+        IonicModule,
+        NgClass,
+        FormsModule,
+        ReactiveFormsModule,
+        FyPolicyViolationInfoComponent,
+        MatIcon,
+        FySelectComponent,
+        FormatDateDirective,
+        FyNumberComponent,
+        FySelectProjectComponent,
+        MatCheckbox,
+        DependentFieldsComponent_1,
+        VirtualSelectComponent,
+        FyLocationComponent,
+        FyMultiselectComponent,
+        FyAddToReportComponent,
+        FyAlertInfoComponent,
+        FyZeroStateComponent,
+        ReviewFooterComponent,
+        FormButtonValidationDirective,
+        AsyncPipe,
+        SlicePipe,
+        DecimalPipe,
+        CurrencyPipe,
+        EllipsisPipe,
+        FyCurrencyPipe_1,
+    ],
 })
 export class AddEditPerDiemPage implements OnInit {
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;

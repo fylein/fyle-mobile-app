@@ -64,60 +64,59 @@ describe('MyCreateReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [MyCreateReportPage, HumanizeCurrencyPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, MatCheckboxModule],
-      providers: [
+    imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, MatCheckboxModule, MyCreateReportPage, HumanizeCurrencyPipe, ExactCurrencyPipe],
+    providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                txnIds: [],
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        txnIds: [],
+                    },
+                },
             },
-          },
         },
         {
-          provide: OrgSettingsService,
-          useValue: orgSettingsServiceSpy,
+            provide: OrgSettingsService,
+            useValue: orgSettingsServiceSpy,
         },
         {
-          provide: TransactionService,
-          useValue: transactionServiceSpy,
+            provide: TransactionService,
+            useValue: transactionServiceSpy,
         },
         {
-          provide: CurrencyService,
-          useValue: currencyServiceSpy,
+            provide: CurrencyService,
+            useValue: currencyServiceSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: StorageService,
-          useValue: storageServiceSpy,
+            provide: StorageService,
+            useValue: storageServiceSpy,
         },
         {
-          provide: ExpensesService,
-          useValue: expensesServiceSpy,
+            provide: ExpensesService,
+            useValue: expensesServiceSpy,
         },
         {
-          provide: SpenderReportsService,
-          useValue: spenderReportsServiceSpy,
+            provide: SpenderReportsService,
+            useValue: spenderReportsServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(MyCreateReportPage);
     component = fixture.componentInstance;
 

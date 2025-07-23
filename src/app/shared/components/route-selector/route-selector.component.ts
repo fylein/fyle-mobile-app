@@ -9,41 +9,47 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import {
-  AbstractControl,
-  ControlValueAccessor,
-  UntypedFormArray,
-  UntypedFormBuilder,
-  UntypedFormControl,
-  UntypedFormGroup,
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  Validators,
-} from '@angular/forms';
+import { AbstractControl, ControlValueAccessor, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
 import { Subscription, distinctUntilChanged } from 'rxjs';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
 import { MileageLocation } from '../route-visualizer/mileage-locations.interface';
+import { NgClass, TitleCasePipe } from '@angular/common';
+import { FyLocationComponent } from '../fy-location/fy-location.component';
+import { MatIcon } from '@angular/material/icon';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { FyNumberComponent } from '../fy-number/fy-number.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-route-selector',
-  templateUrl: './route-selector.component.html',
-  styleUrls: ['./route-selector.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      multi: true,
-      useExisting: RouteSelectorComponent,
-    },
-    {
-      provide: NG_VALIDATORS,
-      useExisting: RouteSelectorComponent,
-      multi: true,
-    },
-  ],
-  standalone: false,
+    selector: 'app-route-selector',
+    templateUrl: './route-selector.component.html',
+    styleUrls: ['./route-selector.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            multi: true,
+            useExisting: RouteSelectorComponent,
+        },
+        {
+            provide: NG_VALIDATORS,
+            useExisting: RouteSelectorComponent,
+            multi: true,
+        },
+    ],
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        NgClass,
+        FyLocationComponent,
+        MatIcon,
+        MatCheckbox,
+        FyNumberComponent,
+        TitleCasePipe,
+        TranslocoPipe,
+    ],
 })
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
   @Input() unit: 'KM' | 'MILES';

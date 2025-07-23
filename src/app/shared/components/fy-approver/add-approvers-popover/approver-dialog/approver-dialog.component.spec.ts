@@ -72,8 +72,7 @@ describe('ApproverDialogComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ApproverDialogComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         MatIconTestingModule,
         MatIconModule,
@@ -81,26 +80,27 @@ describe('ApproverDialogComponent', () => {
         MatChipsModule,
         MatCheckboxModule,
         TranslocoModule,
-      ],
-      providers: [
+        ApproverDialogComponent,
+    ],
+    providers: [
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: EmployeesService,
-          useValue: employeesServiceSpy,
+            provide: EmployeesService,
+            useValue: employeesServiceSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(ApproverDialogComponent);
     component = fixture.componentInstance;
 

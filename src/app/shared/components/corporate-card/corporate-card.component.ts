@@ -2,12 +2,21 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { IonicModule } from '@ionic/angular';
+import { CardNumberComponent } from '../card-number/card-number.component';
+import { DatePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-corporate-card',
-  templateUrl: './corporate-card.component.html',
-  styleUrls: ['./corporate-card.component.scss'],
-  standalone: false,
+    selector: 'app-corporate-card',
+    templateUrl: './corporate-card.component.html',
+    styleUrls: ['./corporate-card.component.scss'],
+    imports: [
+        IonicModule,
+        CardNumberComponent,
+        DatePipe,
+        TranslocoPipe,
+    ],
 })
 export class CorporateCardComponent implements OnInit {
   @Input() card: PlatformCorporateCard;

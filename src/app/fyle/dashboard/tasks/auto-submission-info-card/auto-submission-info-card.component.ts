@@ -1,10 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-auto-submission-info-card',
-  templateUrl: './auto-submission-info-card.component.html',
-  styleUrls: ['./auto-submission-info-card.component.scss'],
-  standalone: false,
+    selector: 'app-auto-submission-info-card',
+    templateUrl: './auto-submission-info-card.component.html',
+    styleUrls: ['./auto-submission-info-card.component.scss'],
+    imports: [DatePipe, TranslocoPipe],
 })
 export class AutoSubmissionInfoCardComponent implements OnInit {
   @Input() autoSubmissionReportDate: Date;

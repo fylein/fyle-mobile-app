@@ -1,17 +1,28 @@
 import { Component } from '@angular/core';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
+import { NgClass, DatePipe } from '@angular/common';
+import { ExpenseCardLiteComponent } from '../../shared/components/expense-card-lite/expense-card-lite.component';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { CurrencySymbolPipe } from '../../shared/pipes/currency-symbol.pipe';
 @Component({
-  selector: 'app-personal-cards-matched-expenses',
-  templateUrl: './personal-cards-matched-expenses.page.html',
-  styleUrls: ['./personal-cards-matched-expenses.page.scss'],
-  standalone: false,
+    selector: 'app-personal-cards-matched-expenses',
+    templateUrl: './personal-cards-matched-expenses.page.html',
+    styleUrls: ['./personal-cards-matched-expenses.page.scss'],
+    imports: [
+        IonicModule,
+        NgClass,
+        ExpenseCardLiteComponent,
+        DatePipe,
+        ExactCurrencyPipe,
+        CurrencySymbolPipe,
+    ],
 })
 export class PersonalCardsMatchedExpensesPage {
   headerState: HeaderState = HeaderState.base;

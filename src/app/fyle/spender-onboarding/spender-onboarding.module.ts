@@ -12,20 +12,20 @@ import { NgOtpInputModule } from 'ng-otp-input';
 import { NgxMaskModule } from 'ngx-mask';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    SharedModule,
-    IonicModule,
-    MatButtonModule,
-    SpenderOnboardingRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    NgOtpInputModule,
-    NgxMaskModule.forRoot({
-      validation: false,
-    }),
-  ],
-  declarations: [SpenderOnboardingPage, SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        SharedModule,
+        IonicModule,
+        MatButtonModule,
+        SpenderOnboardingRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NgOtpInputModule,
+        NgxMaskModule.forRoot({
+            validation: false,
+        }),
+        SpenderOnboardingPage, SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent,
+    ],
 })
 export class SpenderOnboardingPageModule {}

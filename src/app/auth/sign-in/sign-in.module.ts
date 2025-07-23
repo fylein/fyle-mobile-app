@@ -10,16 +10,16 @@ import { ErrorComponent } from './error/error.component';
 import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    SignInPageRoutingModule,
-    MatInputModule,
-    SharedModule,
-    MatButtonModule,
-    ReactiveFormsModule,
-  ],
-  declarations: [SignInPage, ErrorComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        SignInPageRoutingModule,
+        MatInputModule,
+        SharedModule,
+        MatButtonModule,
+        ReactiveFormsModule,
+        SignInPage, ErrorComponent,
+    ],
 })
 export class SignInPageModule {}

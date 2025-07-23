@@ -12,18 +12,18 @@ import { ViewTeamReportPage } from './view-team-report.page';
 import { ViewTeamReportPageRoutingModule } from './view-team-report-routing.module';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ViewTeamReportPageRoutingModule,
-    MatIconModule,
-    MatButtonModule,
-    MatRippleModule,
-    SharedModule,
-    MatFormFieldModule,
-    MatSnackBarModule,
-  ],
-  declarations: [ViewTeamReportPage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        ViewTeamReportPageRoutingModule,
+        MatIconModule,
+        MatButtonModule,
+        MatRippleModule,
+        SharedModule,
+        MatFormFieldModule,
+        MatSnackBarModule,
+        ViewTeamReportPage,
+    ],
 })
 export class ViewTeamReportPageModule {}

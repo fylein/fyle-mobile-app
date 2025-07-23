@@ -1,14 +1,7 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
-import {
-  AbstractControl,
-  UntypedFormArray,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -43,12 +36,43 @@ import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';
 import { AdvanceRequestDeleteParams } from 'src/app/core/models/advance-request-delete-params.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { FyCurrencyComponent } from './fy-currency/fy-currency.component';
+import { ReceiptPreviewThumbnailComponent } from '../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
+import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
+import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
+import { FormatDateDirective } from '../../shared/directive/format-date.directive';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
+import { FyMultiselectComponent } from '../../shared/components/fy-multiselect/fy-multiselect.component';
+import { FyUserlistComponent } from '../../shared/components/fy-userlist/fy-userlist.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 
 @Component({
-  selector: 'app-add-edit-advance-request',
-  templateUrl: './add-edit-advance-request.page.html',
-  styleUrls: ['./add-edit-advance-request.page.scss'],
-  standalone: false,
+    selector: 'app-add-edit-advance-request',
+    templateUrl: './add-edit-advance-request.page.html',
+    styleUrls: ['./add-edit-advance-request.page.scss'],
+    imports: [
+        IonicModule,
+        NgClass,
+        FormsModule,
+        ReactiveFormsModule,
+        FyCurrencyComponent,
+        ReceiptPreviewThumbnailComponent,
+        FySelectComponent,
+        FySelectProjectComponent,
+        FyNumberComponent,
+        FormatDateDirective,
+        MatCheckbox,
+        FyLocationComponent,
+        FyMultiselectComponent,
+        FyUserlistComponent,
+        FormButtonValidationDirective,
+        AsyncPipe,
+        EllipsisPipe,
+    ],
 })
 export class AddEditAdvanceRequestPage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef;

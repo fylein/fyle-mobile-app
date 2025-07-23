@@ -1,12 +1,27 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { AdvanceApprover } from 'src/app/core/models/advance-approver.model';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass, LowerCasePipe, TitleCasePipe, DatePipe } from '@angular/common';
+import { FyApproverComponent } from '../fy-approver/fy-approver.component';
+import { EllipsisPipe } from '../../pipes/ellipses.pipe';
+import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 @Component({
-  selector: 'app-summary-tile',
-  templateUrl: './summary-tile.component.html',
-  styleUrls: ['./summary-tile.component.scss'],
-  standalone: false,
+    selector: 'app-summary-tile',
+    templateUrl: './summary-tile.component.html',
+    styleUrls: ['./summary-tile.component.scss'],
+    imports: [
+        NgClass,
+        FyApproverComponent,
+        LowerCasePipe,
+        TitleCasePipe,
+        DatePipe,
+        TranslocoPipe,
+        EllipsisPipe,
+        SnakeCaseToSpaceCase,
+        ExactCurrencyPipe,
+    ],
 })
 export class FySummaryTileComponent implements OnInit, OnChanges {
   @Input() category: string;

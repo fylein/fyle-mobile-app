@@ -1,12 +1,29 @@
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass, DatePipe } from '@angular/common';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { MatRipple } from '@angular/material/core';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { EllipsisPipe } from '../../pipes/ellipses.pipe';
+import { ReportState } from '../../pipes/report-state.pipe';
+import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 @Component({
-  selector: 'app-reports-card',
-  templateUrl: './reports-card.component.html',
-  styleUrls: ['./reports-card.component.scss'],
-  standalone: false,
+    selector: 'app-reports-card',
+    templateUrl: './reports-card.component.html',
+    styleUrls: ['./reports-card.component.scss'],
+    imports: [
+        MatRipple,
+        NgClass,
+        MatIcon,
+        DatePipe,
+        TranslocoPipe,
+        EllipsisPipe,
+        ReportState,
+        SnakeCaseToSpaceCase,
+        ExactCurrencyPipe,
+    ],
 })
 export class ReportsCardComponent implements OnInit {
   @Input() report: Report;

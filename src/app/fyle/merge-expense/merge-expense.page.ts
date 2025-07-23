@@ -1,8 +1,8 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { NavController, IonicModule } from '@ionic/angular';
 import { BehaviorSubject, Observable, forkJoin, noop } from 'rxjs';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { CategoryDependentFieldsFormValues } from 'src/app/core/models/category-dependent-fields-form-values.model';
@@ -33,12 +33,30 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { GenericFieldsFormComponent } from './generic-fields-form/generic-fields-form.component';
+import { CategoryDependentFieldsFormComponent } from './category-dependent-fields-form/category-dependent-fields-form.component';
+import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form/custom-inputs-fields-form.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-merge-expense',
-  templateUrl: './merge-expense.page.html',
-  styleUrls: ['./merge-expense.page.scss'],
-  standalone: false,
+    selector: 'app-merge-expense',
+    templateUrl: './merge-expense.page.html',
+    styleUrls: ['./merge-expense.page.scss'],
+    imports: [
+        IonicModule,
+        FormsModule,
+        ReactiveFormsModule,
+        FySelectComponent,
+        FyAlertInfoComponent,
+        GenericFieldsFormComponent,
+        CategoryDependentFieldsFormComponent,
+        CustomInputsFieldsFormComponent,
+        FormButtonValidationDirective,
+        AsyncPipe,
+    ],
 })
 export class MergeExpensePage implements OnInit, AfterViewChecked {
   expenses: Partial<Expense>[];

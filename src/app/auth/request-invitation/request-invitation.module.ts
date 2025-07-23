@@ -14,17 +14,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    RequestInvitationPageRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-  ],
-  declarations: [RequestInvitationPage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        RequestInvitationPageRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        RequestInvitationPage,
+    ],
 })
 export class RequestInvitationPageModule {}

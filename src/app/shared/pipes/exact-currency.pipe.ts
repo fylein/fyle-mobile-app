@@ -2,10 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { FyCurrencyPipe } from './fy-currency.pipe';
 import { CurrencyPipeConfig } from 'src/app/core/models/currency-pipe-config.model';
 
-@Pipe({
-  name: 'exactCurrency',
-  standalone: false,
-})
+@Pipe({ name: 'exactCurrency', })
 export class ExactCurrencyPipe implements PipeTransform {
   constructor(private fyCurrencyPipe: FyCurrencyPipe) {}
 

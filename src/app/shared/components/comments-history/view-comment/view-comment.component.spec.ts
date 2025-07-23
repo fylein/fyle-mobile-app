@@ -79,12 +79,11 @@ describe('ViewCommentComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    declarations: [ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
     imports: [IonicModule.forRoot(),
         MatIconModule,
         MatIconTestingModule,
         FormsModule,
-        TranslocoModule],
+        TranslocoModule, ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
     providers: [
         { provide: StatusService, useValue: statusService },
         { provide: AuthService, useValue: authService },

@@ -32,8 +32,8 @@ describe('ReceiptPreviewComponent', () => {
     selector: 'swiper',
     template: '',
     providers: [{ provide: SwiperComponent, useClass: SwiperStubComponent }],
-    standalone: false,
-  })
+    imports: [MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent,],
+})
   class SwiperStubComponent {
     @Input() pagination;
 
@@ -77,36 +77,35 @@ describe('ReceiptPreviewComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ReceiptPreviewComponent, SwiperStubComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent],
-      providers: [
+    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent, ReceiptPreviewComponent, SwiperStubComponent],
+    providers: [
         Platform,
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: MatBottomSheet,
-          useValue: matBottomSheetSpy,
+            provide: MatBottomSheet,
+            useValue: matBottomSheetSpy,
         },
         {
-          provide: ImagePicker,
-          useValue: imagePickerSpy,
+            provide: ImagePicker,
+            useValue: imagePickerSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ReceiptPreviewComponent);
     component = fixture.componentInstance;

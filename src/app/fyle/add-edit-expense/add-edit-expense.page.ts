@@ -1,20 +1,12 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { TitleCasePipe } from '@angular/common';
+import { TitleCasePipe, NgClass, AsyncPipe, SlicePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
-import {
-  AbstractControl,
-  UntypedFormArray,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-  ValidationErrors,
-  Validators,
-  ValidatorFn,
-} from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators, ValidatorFn, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController, IonicModule } from '@ionic/angular';
 import dayjs from 'dayjs';
 import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
 import {
@@ -152,6 +144,30 @@ import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-ca
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { UnlinkCardTransactionResponse } from 'src/app/core/models/platform/unlink-card-transaction-response.model';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
+import { MatIcon } from '@angular/material/icon';
+import { TransactionStatusComponent } from '../../shared/components/transaction-status/transaction-status.component';
+import { FyCurrencyComponent } from '../../shared/components/fy-currency/fy-currency.component';
+import { ReceiptPreviewThumbnailComponent } from '../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { FormatDateDirective } from '../../shared/directive/format-date.directive';
+import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
+import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { DependentFieldsComponent as DependentFieldsComponent_1 } from '../../shared/components/dependent-fields/dependent-fields.component';
+import { VirtualSelectComponent } from '../../shared/components/virtual-select/virtual-select.component';
+import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
+import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
+import { FySelectVendorComponent } from '../../shared/components/fy-select-vendor/fy-select-vendor.component';
+import { FyMultiselectComponent } from '../../shared/components/fy-multiselect/fy-multiselect.component';
+import { FyUserlistComponent } from '../../shared/components/fy-userlist/fy-userlist.component';
+import { FyAddToReportComponent } from '../../shared/components/fy-add-to-report/fy-add-to-report.component';
+import { ReviewFooterComponent } from '../../shared/components/review-footer/review-footer.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
+import { HumanizeCurrencyPipe } from '../../shared/pipes/humanize-currency.pipe';
+import { MaskNumber } from '../../shared/pipes/mask-number.pipe';
+import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -191,10 +207,43 @@ type FormValue = {
 };
 
 @Component({
-  selector: 'app-add-edit-expense',
-  templateUrl: './add-edit-expense.page.html',
-  styleUrls: ['./add-edit-expense.page.scss'],
-  standalone: false,
+    selector: 'app-add-edit-expense',
+    templateUrl: './add-edit-expense.page.html',
+    styleUrls: ['./add-edit-expense.page.scss'],
+    imports: [
+        IonicModule,
+        NgClass,
+        FormsModule,
+        ReactiveFormsModule,
+        FyAlertInfoComponent,
+        FyPolicyViolationInfoComponent,
+        MatIcon,
+        TransactionStatusComponent,
+        FyCurrencyComponent,
+        ReceiptPreviewThumbnailComponent,
+        FormatDateDirective,
+        FySelectComponent,
+        FySelectProjectComponent,
+        MatCheckbox,
+        DependentFieldsComponent_1,
+        VirtualSelectComponent,
+        FyNumberComponent,
+        FyLocationComponent,
+        FySelectVendorComponent,
+        FyMultiselectComponent,
+        FyUserlistComponent,
+        FyAddToReportComponent,
+        ReviewFooterComponent,
+        FormButtonValidationDirective,
+        AsyncPipe,
+        SlicePipe,
+        CurrencyPipe,
+        DatePipe,
+        EllipsisPipe,
+        HumanizeCurrencyPipe,
+        MaskNumber,
+        FyCurrencyPipe,
+    ],
 })
 export class AddEditExpensePage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;

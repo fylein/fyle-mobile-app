@@ -128,8 +128,7 @@ describe('SwitchOrgPage', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         MatIconTestingModule,
         MatIconModule,
@@ -139,125 +138,126 @@ describe('SwitchOrgPage', () => {
         FormsModule,
         ReactiveFormsModule,
         TranslocoModule,
-      ],
-      providers: [
+        SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent,
+    ],
+    providers: [
         UrlSerializer,
         ChangeDetectorRef,
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                navigate_back: false,
-                choose: JSON.stringify(true),
-                invite_link: JSON.stringify(true),
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        navigate_back: false,
+                        choose: JSON.stringify(true),
+                        invite_link: JSON.stringify(true),
+                    },
+                },
             },
-          },
         },
         {
-          provide: LaunchDarklyService,
-          useValue: ldSpy,
+            provide: LaunchDarklyService,
+            useValue: ldSpy,
         },
         {
-          provide: Platform,
-          useValue: platformSpy,
+            provide: Platform,
+            useValue: platformSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: OrgSettingsService,
-          useValue: orgSettingsServiceSpy,
+            provide: OrgSettingsService,
+            useValue: orgSettingsServiceSpy,
         },
         {
-          provide: SpenderOnboardingService,
-          useValue: spenderOnboardingServiceSpy,
+            provide: SpenderOnboardingService,
+            useValue: spenderOnboardingServiceSpy,
         },
         {
-          provide: UserService,
-          useValue: userServiceSpy,
+            provide: UserService,
+            useValue: userServiceSpy,
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
         {
-          provide: SecureStorageService,
-          useValue: secureStorageServiceSpy,
+            provide: SecureStorageService,
+            useValue: secureStorageServiceSpy,
         },
         {
-          provide: StorageService,
-          useValue: storageServiceSpy,
+            provide: StorageService,
+            useValue: storageServiceSpy,
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: OrgService,
-          useValue: orgServiceSpy,
+            provide: OrgService,
+            useValue: orgServiceSpy,
         },
         {
-          provide: UserEventService,
-          useValue: userEventServiceSpy,
+            provide: UserEventService,
+            useValue: userEventServiceSpy,
         },
         {
-          provide: RecentLocalStorageItemsService,
-          useValue: recentLocalStorageItemsServiceSpy,
+            provide: RecentLocalStorageItemsService,
+            useValue: recentLocalStorageItemsServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: DeviceService,
-          useValue: deviceServiceSpy,
+            provide: DeviceService,
+            useValue: deviceServiceSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: OrgUserService,
-          useValue: orgUserServiceSpy,
+            provide: OrgUserService,
+            useValue: orgUserServiceSpy,
         },
         {
-          provide: AppVersionService,
-          useValue: appVersionServiceSpy,
+            provide: AppVersionService,
+            useValue: appVersionServiceSpy,
         },
         {
-          provide: MatSnackBar,
-          useValue: matSnackBarSpy,
+            provide: MatSnackBar,
+            useValue: matSnackBarSpy,
         },
         {
-          provide: SnackbarPropertiesService,
-          useValue: snackbarPropertiesSpy,
+            provide: SnackbarPropertiesService,
+            useValue: snackbarPropertiesSpy,
         },
         {
-          provide: RouterAuthService,
-          useValue: routerAuthServiceSpy,
+            provide: RouterAuthService,
+            useValue: routerAuthServiceSpy,
         },
         {
-          provide: TransactionService,
-          useValue: transactionServiceSpy,
+            provide: TransactionService,
+            useValue: transactionServiceSpy,
         },
         {
-          provide: ExpensesService,
-          useValue: expensesServiceSpy,
+            provide: ExpensesService,
+            useValue: expensesServiceSpy,
         },
         {
-          provide: DeepLinkService,
-          useValue: deepLinkServiceSpy,
+            provide: DeepLinkService,
+            useValue: deepLinkServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(SwitchOrgPage);
     component = fixture.componentInstance;
 

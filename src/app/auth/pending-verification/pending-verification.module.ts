@@ -10,17 +10,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    PendingVerificationPageRoutingModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    SharedModule,
-  ],
-  declarations: [PendingVerificationPage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        PendingVerificationPageRoutingModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        SharedModule,
+        PendingVerificationPage,
+    ],
 })
 export class PendingVerificationPageModule {}

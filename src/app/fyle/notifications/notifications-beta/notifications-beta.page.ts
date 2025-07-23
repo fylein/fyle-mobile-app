@@ -9,7 +9,7 @@ import { NotificationsBetaPageService } from './notifications-beta.page.service'
 import { NotificationConfig } from 'src/app/core/models/notification-config.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { EmailNotificationsComponent } from '../email-notifications/email-notifications.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -17,12 +17,18 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { MatIcon } from '@angular/material/icon';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-notifications-beta',
-  templateUrl: './notifications-beta.page.html',
-  styleUrls: ['./notifications-beta.page.scss'],
-  standalone: false,
+    selector: 'app-notifications-beta',
+    templateUrl: './notifications-beta.page.html',
+    styleUrls: ['./notifications-beta.page.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        AsyncPipe,
+    ],
 })
 export class NotificationsBetaPage implements OnInit {
   selectedPreference: 'onlyMe' | 'onlyDelegate' | 'both';

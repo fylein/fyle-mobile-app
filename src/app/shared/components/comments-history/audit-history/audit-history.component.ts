@@ -1,13 +1,24 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass, KeyValuePipe } from '@angular/common';
+import { StatusesDiffComponent } from './statuses-diff/statuses-diff.component';
+import { DateWithTimezonePipe } from '../../../pipes/date-with-timezone.pipe';
 
 @Component({
-  selector: 'app-audit-history',
-  templateUrl: './audit-history.component.html',
-  styleUrls: ['./audit-history.component.scss'],
-  standalone: false,
+    selector: 'app-audit-history',
+    templateUrl: './audit-history.component.html',
+    styleUrls: ['./audit-history.component.scss'],
+    imports: [
+        MatIcon,
+        NgClass,
+        StatusesDiffComponent,
+        KeyValuePipe,
+        TranslocoPipe,
+        DateWithTimezonePipe,
+    ],
 })
 export class AuditHistoryComponent implements OnInit {
   @Input() estatuses: ExtendedStatus[];

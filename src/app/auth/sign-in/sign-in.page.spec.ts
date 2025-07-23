@@ -74,8 +74,7 @@ describe('SignInPage', () => {
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
     TestBed.configureTestingModule({
-      declarations: [SignInPage],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         FormsModule,
         ReactiveFormsModule,
@@ -85,68 +84,69 @@ describe('SignInPage', () => {
         MatButtonModule,
         RouterModule,
         RouterTestingModule,
-      ],
-      providers: [
+        SignInPage,
+    ],
+    providers: [
         UntypedFormBuilder,
         {
-          provide: ActivatedRoute,
-          useValue: { snapshot: { params: { email: 'ajain@fyle.in' } } },
+            provide: ActivatedRoute,
+            useValue: { snapshot: { params: { email: 'ajain@fyle.in' } } },
         },
         {
-          provide: RouterAuthService,
-          useValue: routerAuthServiceSpy,
+            provide: RouterAuthService,
+            useValue: routerAuthServiceSpy,
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
         {
-          provide: GoogleAuthService,
-          useValue: googleAuthServiceSpy,
+            provide: GoogleAuthService,
+            useValue: googleAuthServiceSpy,
         },
         {
-          provide: InAppBrowser,
-          useValue: inAppBrowserSpy,
+            provide: InAppBrowser,
+            useValue: inAppBrowserSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: DeviceService,
-          useValue: deviceServiceSpy,
+            provide: DeviceService,
+            useValue: deviceServiceSpy,
         },
         {
-          provide: LoginInfoService,
-          useValue: loginInfoServiceSpy,
+            provide: LoginInfoService,
+            useValue: loginInfoServiceSpy,
         },
         {
-          provide: InAppBrowserService,
-          useValue: inAppBrowserServiceSpy,
+            provide: InAppBrowserService,
+            useValue: inAppBrowserServiceSpy,
         },
         {
-          provide: PlatformHandlerService,
-          useValue: platformHandlerServiceSpy,
+            provide: PlatformHandlerService,
+            useValue: platformHandlerServiceSpy,
         },
         {
-          provide: BackButtonService,
-          useValue: backButtonServiceSpy,
+            provide: BackButtonService,
+            useValue: backButtonServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(SignInPage);
     component = fixture.componentInstance;
 

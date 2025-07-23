@@ -3,19 +3,38 @@ import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { switchMap, map, finalize, startWith, distinctUntilChanged } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipGrid, MatChipRow, MatChipRemove, MatChipInput } from '@angular/material/chips';
 import { Approver } from '../models/approver.model';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatPrefix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
-  selector: 'app-approver-dialog',
-  templateUrl: './approver-dialog.component.html',
-  styleUrls: ['./approver-dialog.component.scss'],
-  standalone: false,
+    selector: 'app-approver-dialog',
+    templateUrl: './approver-dialog.component.html',
+    styleUrls: ['./approver-dialog.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        NgClass,
+        MatFormField,
+        MatChipGrid,
+        MatChipRow,
+        MatChipRemove,
+        MatPrefix,
+        FormsModule,
+        MatChipInput,
+        MatCheckbox,
+        AsyncPipe,
+        TranslocoPipe,
+    ],
 })
 export class ApproverDialogComponent implements AfterViewInit, OnInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLElement>;

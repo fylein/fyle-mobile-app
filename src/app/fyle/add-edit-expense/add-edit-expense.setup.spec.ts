@@ -250,9 +250,8 @@ describe('AddEditExpensePage', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-    imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, TranslocoModule],
+    imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, TranslocoModule, AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
     providers: [
         UntypedFormBuilder,
         {

@@ -1,6 +1,6 @@
 import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges } from '@angular/core';
 
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, UntypedFormBuilder, UntypedFormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { noop, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
@@ -12,20 +12,34 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { CurrencyAmountFormValues } from 'src/app/core/models/currency-amount-form-values.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass, DecimalPipe, CurrencyPipe } from '@angular/common';
+import { FyNumberComponent } from '../fy-number/fy-number.component';
+import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 
 @Component({
-  selector: 'app-currency',
-  templateUrl: './fy-currency.component.html',
-  styleUrls: ['./fy-currency.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FyCurrencyComponent),
-      multi: true,
-    },
-  ],
-  standalone: false,
+    selector: 'app-currency',
+    templateUrl: './fy-currency.component.html',
+    styleUrls: ['./fy-currency.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FyCurrencyComponent),
+            multi: true,
+        },
+    ],
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        MatIcon,
+        NgClass,
+        FyNumberComponent,
+        DecimalPipe,
+        CurrencyPipe,
+        TranslocoPipe,
+        FyCurrencyPipe,
+    ],
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChanges {
   @Input() txnDt: Date;

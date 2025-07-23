@@ -32,32 +32,31 @@ describe('PendingVerificationPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
-      declarations: [PendingVerificationPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule],
-      providers: [
+    imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule, PendingVerificationPage],
+    providers: [
         UntypedFormBuilder,
         {
-          provide: RouterAuthService,
-          useValue: routerAuthServiceSpy,
+            provide: RouterAuthService,
+            useValue: routerAuthServiceSpy,
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: MatSnackBar,
-          useValue: matSnackBarSpy,
+            provide: MatSnackBar,
+            useValue: matSnackBarSpy,
         },
         {
-          provide: SnackbarPropertiesService,
-          useValue: snackbarPropertiesServiceSpy,
+            provide: SnackbarPropertiesService,
+            useValue: snackbarPropertiesServiceSpy,
         },
         {
-          provide: ActivatedRoute,
-          useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' } } },
+            provide: ActivatedRoute,
+            useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' } } },
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(PendingVerificationPage);
     component = fixture.componentInstance;

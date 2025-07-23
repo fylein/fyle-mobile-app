@@ -242,8 +242,7 @@ describe('SplitExpensePage', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [SplitExpensePage, FyAlertInfoComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         IconModule,
         FormsModule,
@@ -255,16 +254,17 @@ describe('SplitExpensePage', () => {
         RouterTestingModule,
         MatIconTestingModule,
         TranslocoModule,
-      ],
-      providers: [
+        SplitExpensePage, FyAlertInfoComponent,
+    ],
+    providers: [
         UntypedFormBuilder,
         {
-          provide: CategoriesService,
-          useValue: categoriesServiceSpy,
+            provide: CategoriesService,
+            useValue: categoriesServiceSpy,
         },
         {
-          provide: DateService,
-          useValue: dateServiceSpy,
+            provide: DateService,
+            useValue: dateServiceSpy,
         },
         { provide: SplitExpenseService, useValue: splitExpenseServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
@@ -284,43 +284,42 @@ describe('SplitExpensePage', () => {
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         { provide: ProjectsService, useValue: projectsServiceSpy },
         {
-          provide: NavController,
-          useValue: navControllerSpy,
+            provide: NavController,
+            useValue: navControllerSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                currencyObj: '{"currency":"USD","symbol":"$","id":"USD"}',
-                splitConfig:
-                  '{"category":{"is_mandatory":false,"is_visible":true},"costCenter":{"is_mandatory":false,"is_visible":true},"project":{"is_mandatory":true,"is_visible":true}}',
-                txnFields: '{"project_id":"test","cost_center_id":"test"}',
-                fileObjs: '[{"url":"mockUrl"}]',
-                txn: '{"project_id": "3943"}',
-                selectedCCCTransaction: '{"id":"tx3qwe4ty"}',
-                selectedReportId: '"rpt3qwe4ty"',
-                selectedProject: JSON.stringify(expectedProjectsResponse[0]),
-                expenseFields: JSON.stringify(expenseFieldResponse),
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        currencyObj: '{"currency":"USD","symbol":"$","id":"USD"}',
+                        splitConfig: '{"category":{"is_mandatory":false,"is_visible":true},"costCenter":{"is_mandatory":false,"is_visible":true},"project":{"is_mandatory":true,"is_visible":true}}',
+                        txnFields: '{"project_id":"test","cost_center_id":"test"}',
+                        fileObjs: '[{"url":"mockUrl"}]',
+                        txn: '{"project_id": "3943"}',
+                        selectedCCCTransaction: '{"id":"tx3qwe4ty"}',
+                        selectedReportId: '"rpt3qwe4ty"',
+                        selectedProject: JSON.stringify(expectedProjectsResponse[0]),
+                        expenseFields: JSON.stringify(expenseFieldResponse),
+                    },
+                },
             },
-          },
         },
         {
-          provide: TimezoneService,
-          useValue: timezoneServiceSpy,
+            provide: TimezoneService,
+            useValue: timezoneServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(SplitExpensePage);
     component = fixture.componentInstance;
 

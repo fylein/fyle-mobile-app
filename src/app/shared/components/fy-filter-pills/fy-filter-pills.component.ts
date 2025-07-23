@@ -1,11 +1,20 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { FilterPill } from './filter-pill.interface';
+import { IonicModule } from '@ionic/angular';
+import { TitleCasePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 
 @Component({
-  selector: 'app-fy-filter-pills',
-  templateUrl: './fy-filter-pills.component.html',
-  styleUrls: ['./fy-filter-pills.component.scss'],
-  standalone: false,
+    selector: 'app-fy-filter-pills',
+    templateUrl: './fy-filter-pills.component.html',
+    styleUrls: ['./fy-filter-pills.component.scss'],
+    imports: [
+        IonicModule,
+        TitleCasePipe,
+        TranslocoPipe,
+        SnakeCaseToSpaceCase,
+    ],
 })
 export class FyFilterPillsComponent implements OnInit {
   @Input() filterPills: FilterPill[];

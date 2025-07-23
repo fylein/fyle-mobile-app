@@ -1,15 +1,22 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Observable, Subject, distinctUntilKeyChanged, finalize, map, of, takeUntil } from 'rxjs';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { DependentFieldComponent } from './dependent-field/dependent-field.component';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
-  selector: 'app-dependent-fields',
-  templateUrl: './dependent-fields.component.html',
-  styleUrls: ['./dependent-fields.component.scss'],
-  standalone: false,
+    selector: 'app-dependent-fields',
+    templateUrl: './dependent-fields.component.html',
+    styleUrls: ['./dependent-fields.component.scss'],
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        DependentFieldComponent,
+        IonicModule,
+    ],
 })
 export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   @Input() dependentFieldsFormArray: UntypedFormArray;

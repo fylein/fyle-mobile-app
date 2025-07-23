@@ -22,31 +22,30 @@ describe('RequestInvitationPage', () => {
     const invitationRequestsServiceSpy = jasmine.createSpyObj('InvitationRequestsService', ['upsertRouter']);
 
     TestBed.configureTestingModule({
-      declarations: [RequestInvitationPage],
-      imports: [IonicModule.forRoot(), RouterModule.forRoot([]), FormsModule, ReactiveFormsModule],
-      providers: [
+    imports: [IonicModule.forRoot(), RouterModule.forRoot([]), FormsModule, ReactiveFormsModule, RequestInvitationPage],
+    providers: [
         UntypedFormBuilder,
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: InvitationRequestsService,
-          useValue: invitationRequestsServiceSpy,
+            provide: InvitationRequestsService,
+            useValue: invitationRequestsServiceSpy,
         },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                email: '',
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        email: '',
+                    },
+                },
             },
-          },
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(RequestInvitationPage);
 
     fb = TestBed.inject(UntypedFormBuilder);
