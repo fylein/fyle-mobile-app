@@ -59,6 +59,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report-v2/create-new-report.component';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -88,6 +89,7 @@ import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-par
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { driver, DriveStep } from 'driver.js';
 
 @Component({
   selector: 'app-my-expenses',
@@ -242,7 +244,8 @@ export class MyExpensesPage implements OnInit {
     private featureConfigService: FeatureConfigService,
     private extendQueryParamsService: ExtendQueryParamsService,
     private footerService: FooterService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
+    private walkthroughService: WalkthroughService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -775,6 +778,59 @@ export class MyExpensesPage implements OnInit {
         this.setNavigationSubscription();
       }
     });
+
+    // Check if status pill walkthrough should be shown
+    this.checkAndShowStatusPillWalkthrough();
+  }
+
+  private checkAndShowStatusPillWalkthrough(): void {
+    // Subscribe to expenses to check if there are any with status pills that need explanation
+    this.myExpenses$.pipe(
+      take(1),
+      switchMap(expenses => {
+        // Check if there are any incomplete or blocked expenses that would show status pills
+        const hasStatusPills = expenses.some(expense => 
+          expense.state === 'DRAFT' || 
+          expense.state === 'UNREPORTABLE'
+        );
+        
+        if (hasStatusPills) {
+          // Check org settings for new critical policy violation flow
+          return this.orgSettings$.pipe(
+            take(1),
+            switchMap(orgSettings => {
+              const isNewFlowEnabled = orgSettings?.is_new_critical_policy_violation_flow_enabled;
+              
+              if (isNewFlowEnabled) {
+                // Check if walkthrough has been shown before
+                const statusPillWalkthroughConfig = {
+                  feature: 'STATUS_PILL_WALKTHROUGH',
+                  key: 'STATUS_PILL_WALKTHROUGH_SHOWN',
+                };
+                
+                return this.featureConfigService.getConfiguration(statusPillWalkthroughConfig).pipe(
+                  map(config => {
+                    const shouldShow = !(config?.value as { isFinished?: boolean })?.isFinished;
+                    return { shouldShow, expenses };
+                  })
+                );
+              }
+              
+              return of({ shouldShow: false, expenses });
+            })
+          );
+        }
+        
+        return of({ shouldShow: false, expenses });
+      })
+    ).subscribe(({ shouldShow, expenses }) => {
+      if (shouldShow) {
+        // Add a small delay to ensure the page is fully loaded
+        setTimeout(() => {
+          this.startTour();
+        }, 1000);
+      }
+    });
   }
 
   onPageClick(): void {
@@ -1251,13 +1307,32 @@ export class MyExpensesPage implements OnInit {
       } ${this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.withPendingTransactions')}.`;
     }
     if (policyViolationsCount > 0) {
-      message += `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
-        policyViolationsCount > 1
-          ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
-          : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
-      } ${this.translocoService.translate(
-        'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations'
-      )}.`;
+      // Get org settings and handle the policy violation text based on the setting
+      this.orgSettings$.pipe(take(1)).subscribe((orgSettings) => {
+        const isNewFlowEnabled = orgSettings?.is_new_critical_policy_violation_flow_enabled;
+        
+        let policyViolationText: string;
+        if (isNewFlowEnabled) {
+          // Use new blocked state translation keys
+          policyViolationText = policyViolationsCount > 1
+            ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.areBlockedState')
+            : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.isBlockedState');
+        } else {
+          // Use existing critical policy violations translation key
+          policyViolationText = this.translocoService.translate(
+            'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations'
+          );
+        }
+
+        const finalMessage = message + `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
+          policyViolationsCount > 1
+            ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
+            : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
+        } ${policyViolationText}.`;
+
+        this.openCriticalPolicyViolationPopOver({ title, message: finalMessage, reportType });
+      });
+      return; // Exit early since we're handling the popover in the subscription
     }
 
     this.openCriticalPolicyViolationPopOver({ title, message, reportType });
@@ -1834,6 +1909,68 @@ export class MyExpensesPage implements OnInit {
         }
       })
     );
+  }
+
+  startTour(): void {
+    // Get the current expenses to pass to the walkthrough service
+    this.myExpenses$.pipe(take(1)).subscribe(expenses => {
+      const statusPillWalkthroughSteps = this.walkthroughService.newStatusPillWalkthrough(expenses);
+      
+      // Only start the walkthrough if there are steps to show
+      if (statusPillWalkthroughSteps.length === 0) {
+        return;
+      }
+      
+      const driverInstance = driver({
+        overlayOpacity: 0.5,
+        allowClose: true,
+        overlayClickBehavior: 'close',
+        showProgress: true,
+        overlayColor: '#161528',
+        stageRadius: 2,
+        stagePadding: 16,
+        popoverClass: 'custom-popover',
+        doneBtnText: 'Got it',
+        nextBtnText: 'Next',
+        prevBtnText: 'Back',
+        // Enable smooth scrolling
+        smoothScroll: true,
+        // Callback used for the cancel walkthrough button
+        onCloseClick: () => {
+          this.walkthroughService.setIsOverlayClicked(false);
+          driverInstance.destroy();
+        },
+        //Callback used for registering the active index of the walkthrough
+        onDeselected: () => {
+          const activeIndex = driverInstance.getActiveIndex();
+          if (activeIndex) {
+            this.walkthroughService.setActiveWalkthroughIndex(activeIndex);
+          }
+        },
+        // Callback used to check for the next step and finish button
+        onNextClick: () => {
+          driverInstance.moveNext();
+          if (this.walkthroughService.getActiveWalkthroughIndex() === statusPillWalkthroughSteps.length - 1) {
+            this.walkthroughService.setIsOverlayClicked(false);
+          }
+        },
+        // Callback used for performing actions when the walkthrough is destroyed
+        onDestroyStarted: () => {
+          if (this.walkthroughService.getIsOverlayClicked()) {
+            driverInstance.destroy();
+          } else {
+            driverInstance.destroy();
+          }
+        },
+      });
+
+      // Explicitly set the steps
+      driverInstance.setSteps(statusPillWalkthroughSteps);
+      
+      let activeStepIndex = this.walkthroughService.getActiveWalkthroughIndex();
+
+      driverInstance.drive(activeStepIndex);
+    });
   }
 
   private isZeroAmountPerDiemOrMileage(expense: PlatformExpense): boolean {
