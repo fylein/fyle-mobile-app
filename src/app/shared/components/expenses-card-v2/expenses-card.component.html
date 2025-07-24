@@ -274,7 +274,7 @@
           }
 
           <!-- Expense state (Incomplete / Complete) & Critical policy violations-->
-          <div class="expenses-card--default-view-container">
+          <div id="expense-state-pill-{{ expense.id }}" class="expenses-card--default-view-container">
             <div class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}">
               <span>
                 {{ expense.state | expenseState | titlecase }}
