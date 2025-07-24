@@ -28,7 +28,6 @@ import {
 } from 'src/app/core/mock-data/notification-events.data';
 import { EmailNotificationsComponent } from '../email-notifications/email-notifications.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
 describe('NotificationsBetaPage', () => {
@@ -43,7 +42,6 @@ describe('NotificationsBetaPage', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
 
   beforeEach(waitForAsync(() => {
@@ -63,9 +61,6 @@ describe('NotificationsBetaPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
-      'checkIfExpenseMarkedPersonalEventIsEnabled',
-    ]);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
@@ -109,10 +104,6 @@ describe('NotificationsBetaPage', () => {
           useValue: trackingServiceSpy,
         },
         {
-          provide: LaunchDarklyService,
-          useValue: launchDarklyServiceSpy,
-        },
-        {
           provide: LoaderService,
           useValue: loaderServiceSpy,
         },
@@ -136,7 +127,6 @@ describe('NotificationsBetaPage', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalPropertiesService = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
 
     // Setup default mock responses
@@ -146,7 +136,6 @@ describe('NotificationsBetaPage', () => {
     employeesService.getByParams.and.returnValue(of(null));
     notificationsBetaPageService.getEmailNotificationsConfig.and.returnValue(mockEmailNotificationsConfig);
     notificationsBetaPageService.getInitialDelegateNotificationPreference.and.returnValue('onlyMe');
-    launchDarklyService.checkIfExpenseMarkedPersonalEventIsEnabled.and.returnValue(of(false));
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
   }));
@@ -213,7 +202,6 @@ describe('NotificationsBetaPage', () => {
 
       component.orgSettings = orgSettingsData;
       component.employeeSettings = employeeSettingsData;
-      component.isExpenseMarkedPersonalEventEnabled = false;
       component.currentEou = apiEouRes;
 
       component.initializeEmailNotificationsConfig();
@@ -221,8 +209,7 @@ describe('NotificationsBetaPage', () => {
       expect(notificationsBetaPageService.getEmailNotificationsConfig).toHaveBeenCalledOnceWith(
         orgSettingsData,
         employeeSettingsData,
-        apiEouRes,
-        false
+        apiEouRes
       );
       expect(component.expenseNotificationsConfig).toEqual(mockEmailNotificationsConfig2.expenseNotificationsConfig);
       expect(component.expenseReportNotificationsConfig).toEqual(
