@@ -1928,7 +1928,7 @@ export class MyExpensesPage implements OnInit {
         showProgress: true,
         overlayColor: '#161528',
         stageRadius: 2,
-        stagePadding: 16,
+        stagePadding: 0,
         popoverClass: 'custom-popover',
         doneBtnText: 'Got it',
         nextBtnText: 'Next',
