@@ -21,21 +21,21 @@
       <div class="email-notifications--event-name">Events</div>
       <div class="email-notifications--checkbox-col">
         <mat-checkbox [(ngModel)]="selectAll" (ngModelChange)="toggleAllNotifications($event)">
-          <span>Email</span>
+          <span class="email-notifications--checkbox-label">Email</span>
         </mat-checkbox>
       </div>
     </div>
     <div>
       @for (notification of notifications; track notification) {
-        <div class="email-notifications--flex-row">
-          <div class="email-notifications--event-name" (click)="toggleNotification(notification)">
-            {{ notification.event }}
-          </div>
-          <div class="email-notifications--checkbox-col">
-            <mat-checkbox [ngModel]="notification.email" (ngModelChange)="toggleNotification(notification)">
-            </mat-checkbox>
-          </div>
+      <div class="email-notifications--flex-row">
+        <div class="email-notifications--event-name" (click)="toggleNotification(notification)">
+          {{ notification.event }}
         </div>
+        <div class="email-notifications--checkbox-col">
+          <mat-checkbox [ngModel]="notification.email" (ngModelChange)="toggleNotification(notification)">
+          </mat-checkbox>
+        </div>
+      </div>
       }
     </div>
   </div>
