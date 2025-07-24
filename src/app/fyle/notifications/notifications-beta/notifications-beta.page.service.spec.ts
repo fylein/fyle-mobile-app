@@ -66,13 +66,13 @@ describe('NotificationsBetaPageService', () => {
 
   describe('getExpenseNotifications():', () => {
     it('should return expense notifications with correct structure', () => {
-      const result = service.getExpenseNotifications(mockCurrentEou, mockIsExpenseMarkedPersonalEventEnabled);
+      const result = service.getExpenseNotifications(mockCurrentEou);
       expect(result).toEqual(expenseNotifications);
     });
 
-    it('should return 4 expense notifications', () => {
-      const result = service.getExpenseNotifications(mockCurrentEou, mockIsExpenseMarkedPersonalEventEnabled);
-      expect(result.length).toBe(4);
+    it('should return 5 expense notifications', () => {
+      const result = service.getExpenseNotifications(mockCurrentEou);
+      expect(result.length).toBe(5);
     });
   });
 
@@ -110,12 +110,7 @@ describe('NotificationsBetaPageService', () => {
     });
 
     it('should return email notifications config with correct structure', () => {
-      const result = service.getEmailNotificationsConfig(
-        orgSettings,
-        employeeSettings,
-        mockCurrentEou,
-        mockIsExpenseMarkedPersonalEventEnabled
-      );
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings, mockCurrentEou);
 
       expect(result).toEqual({
         expenseNotificationsConfig: {
@@ -138,12 +133,7 @@ describe('NotificationsBetaPageService', () => {
         unsubscribed_events: [NotificationEventsEnum.EOUS_FORWARD_EMAIL_TO_USER],
       };
 
-      const result = service.getEmailNotificationsConfig(
-        orgSettings,
-        employeeSettings,
-        mockCurrentEou,
-        mockIsExpenseMarkedPersonalEventEnabled
-      );
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings, mockCurrentEou);
 
       const expenseNotifications = result.expenseNotificationsConfig.notifications;
       const filteredNotification = expenseNotifications.find(
@@ -156,12 +146,7 @@ describe('NotificationsBetaPageService', () => {
     it('should apply user preferences to filter notifications', () => {
       employeeSettings.notification_settings.email_unsubscribed_events = [NotificationEventsEnum.ERPTS_SUBMITTED];
 
-      const result = service.getEmailNotificationsConfig(
-        orgSettings,
-        employeeSettings,
-        mockCurrentEou,
-        mockIsExpenseMarkedPersonalEventEnabled
-      );
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings, mockCurrentEou);
 
       const reportNotifications = result.expenseReportNotificationsConfig.notifications;
       const userUnsubscribedNotification = reportNotifications.find(
@@ -176,14 +161,9 @@ describe('NotificationsBetaPageService', () => {
         unsubscribed_events: [],
       };
 
-      const result = service.getEmailNotificationsConfig(
-        orgSettings,
-        employeeSettings,
-        mockCurrentEou,
-        mockIsExpenseMarkedPersonalEventEnabled
-      );
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings, mockCurrentEou);
 
-      expect(result.expenseNotificationsConfig.notifications.length).toBe(4);
+      expect(result.expenseNotificationsConfig.notifications.length).toBe(5);
       expect(result.expenseReportNotificationsConfig.notifications.length).toBe(6);
       expect(result.advanceNotificationsConfig.notifications.length).toBe(6);
     });
@@ -191,12 +171,7 @@ describe('NotificationsBetaPageService', () => {
     it('should handle empty user unsubscribed events', () => {
       employeeSettings.notification_settings.email_unsubscribed_events = [];
 
-      const result = service.getEmailNotificationsConfig(
-        orgSettings,
-        employeeSettings,
-        mockCurrentEou,
-        mockIsExpenseMarkedPersonalEventEnabled
-      );
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings, mockCurrentEou);
 
       const allNotifications = [
         ...result.expenseNotificationsConfig.notifications,
@@ -218,15 +193,10 @@ describe('NotificationsBetaPageService', () => {
       // User unsubscribes from one report notification
       employeeSettings.notification_settings.email_unsubscribed_events = [NotificationEventsEnum.ERPTS_SUBMITTED];
 
-      const result = service.getEmailNotificationsConfig(
-        orgSettings,
-        employeeSettings,
-        mockCurrentEou,
-        mockIsExpenseMarkedPersonalEventEnabled
-      );
+      const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings, mockCurrentEou);
 
-      // Expense notifications should be filtered by admin (3 remaining, 1 removed)
-      expect(result.expenseNotificationsConfig.notifications.length).toBe(3);
+      // Expense notifications should be filtered by admin (4 remaining, 1 removed)
+      expect(result.expenseNotificationsConfig.notifications.length).toBe(4);
 
       // Report notifications should have one with email: false due to user preference
       const reportNotifications = result.expenseReportNotificationsConfig.notifications;

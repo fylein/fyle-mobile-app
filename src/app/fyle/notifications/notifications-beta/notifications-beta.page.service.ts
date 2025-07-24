@@ -21,10 +21,7 @@ export class NotificationsBetaPageService {
     }
   }
 
-  getExpenseNotifications(
-    currentEou: ExtendedOrgUser,
-    isExpenseMarkedPersonalEventEnabled: boolean
-  ): NotificationEventItem[] {
+  getExpenseNotifications(currentEou: ExtendedOrgUser): NotificationEventItem[] {
     const expenseNotifications = [
       {
         event: 'When an expense is created via email',
@@ -49,7 +46,7 @@ export class NotificationsBetaPageService {
     ];
 
     const allowedRoles = ['ADMIN', 'FINANCE'];
-    if (isExpenseMarkedPersonalEventEnabled && currentEou.ou.roles.some((role) => allowedRoles.includes(role))) {
+    if (currentEou.ou.roles.some((role) => allowedRoles.includes(role))) {
       expenseNotifications.push({
         event: 'When an expense is marked as personal',
         email: true,
@@ -139,8 +136,7 @@ export class NotificationsBetaPageService {
   getEmailNotificationsConfig(
     orgSettings: OrgSettings,
     employeeSettings: EmployeeSettings,
-    currentEou: ExtendedOrgUser,
-    isExpenseMarkedPersonalEventEnabled: boolean
+    currentEou: ExtendedOrgUser
   ): {
     expenseNotificationsConfig: NotificationConfig;
     expenseReportNotificationsConfig: NotificationConfig;
@@ -158,9 +154,7 @@ export class NotificationsBetaPageService {
           email: !unsubscribedEventsByUser.includes(notification.eventEnum),
         }));
 
-    const expenseNotifications = processNotifications(
-      this.getExpenseNotifications(currentEou, isExpenseMarkedPersonalEventEnabled)
-    );
+    const expenseNotifications = processNotifications(this.getExpenseNotifications(currentEou));
     const reportNotifications = processNotifications(this.getReportNotifications(currentEou));
     const advanceNotifications = processNotifications(this.getAdvanceNotifications());
 

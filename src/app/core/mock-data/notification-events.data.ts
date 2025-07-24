@@ -658,6 +658,11 @@ export const expenseNotifications: NotificationEventItem[] = deepFreeze([
     email: true,
     eventEnum: NotificationEventsEnum.ETXNS_ADMIN_UPDATED,
   },
+  {
+    event: 'When an expense is marked as personal',
+    email: true,
+    eventEnum: NotificationEventsEnum.ETXNS_MARKED_PERSONAL,
+  },
 ]);
 
 export const expenseReportNotifications: NotificationEventItem[] = deepFreeze([
