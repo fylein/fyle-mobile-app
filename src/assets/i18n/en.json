@@ -1130,7 +1130,8 @@
     "projectLabel": "Project:",
     "approvers": "Approvers",
     "approved": "Approved",
-    "pending": "Pending"
+    "pending": "Pending",
+    "sentBack": "Sent back"
   },
   "genericFieldsForm": {
     "amount": "Amount",
