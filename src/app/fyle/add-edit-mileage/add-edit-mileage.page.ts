@@ -15,6 +15,7 @@ import {
   Subscription,
   combineLatest,
   concat,
+  EMPTY,
   forkJoin,
   from,
   iif,
@@ -111,6 +112,7 @@ import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { MileageSettings } from 'src/app/core/models/mileage-settings.model';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -151,6 +153,8 @@ export class AddEditMileagePage implements OnInit {
   filteredCategories$: Observable<OrgCategoryListItem[]>;
 
   etxn$: Observable<Partial<UnflattenedTransaction>>;
+
+  platformExpense$: Observable<PlatformExpense>;
 
   isIndividualProjectsEnabled$: Observable<boolean>;
 
@@ -1594,6 +1598,10 @@ export class AddEditMileagePage implements OnInit {
     this.getMileageRatesOptions();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
+
+    this.platformExpense$ = this.etxn$.pipe(
+      switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : EMPTY))
+    );
 
     this.setupTfcDefaultValues();
 

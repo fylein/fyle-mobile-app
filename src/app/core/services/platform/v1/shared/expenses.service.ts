@@ -24,6 +24,10 @@ export class ExpensesService {
     return expense.state && expense.state === ExpenseState.DRAFT;
   }
 
+  isExpenseUnreportable(expense: Expense): boolean {
+    return expense.state && expense.state === ExpenseState.UNREPORTABLE;
+  }
+
   isCriticalPolicyViolatedExpense(expense: Expense): boolean {
     return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
   }
@@ -121,12 +125,17 @@ export class ExpensesService {
         (expense) =>
           !this.isCriticalPolicyViolatedExpense(expense) &&
           !this.isExpenseInDraft(expense) &&
+          !this.isExpenseUnreportable(expense) &&
           expense.id &&
           !this.doesExpenseHavePendingCardTransaction(expense)
       );
     } else {
       return expenses.filter(
-        (expense) => !this.isCriticalPolicyViolatedExpense(expense) && !this.isExpenseInDraft(expense) && expense.id
+        (expense) =>
+          !this.isCriticalPolicyViolatedExpense(expense) &&
+          !this.isExpenseInDraft(expense) &&
+          !this.isExpenseUnreportable(expense) &&
+          expense.id
       );
     }
   }
@@ -335,6 +344,10 @@ export class ExpensesService {
 
       if (filters.state.includes(FilterState.POLICY_VIOLATED)) {
         stateOrFilter.push('and(is_policy_flagged.eq.true,or(policy_amount.is.null,policy_amount.gt.0.0001))');
+      }
+
+      if (filters.state.includes(FilterState.BLOCKED)) {
+        stateOrFilter.push('state.in.(UNREPORTABLE)');
       }
 
       if (filters.state.includes(FilterState.CANNOT_REPORT)) {

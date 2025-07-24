@@ -107,6 +107,7 @@ export interface Expense {
   tax_group_id: string;
   travel_classes: string[];
   updated_at: Date;
+  unreportable: boolean;
   user: User;
   user_id: string;
   verifications?: string[];
