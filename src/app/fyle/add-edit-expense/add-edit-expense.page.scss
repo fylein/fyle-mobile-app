@@ -781,4 +781,34 @@
     width: 12px;
     margin-right: 4px;
   }
+
+  // Skeleton Loading Styles
+  &--skeleton-container {
+    padding: 16px;
+  }
+
+  &--skeleton-receipt {
+    height: 40px;
+    width: 60px;
+    border-radius: 8px;
+  }
+
+  &--skeleton-currency {
+    height: 60px;
+    border-radius: 8px;
+    margin-top: 16px;
+  }
+
+  &--skeleton-label {
+    height: 16px;
+    width: 100px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--skeleton-input {
+    height: 28px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
 }

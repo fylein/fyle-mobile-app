@@ -313,7 +313,6 @@ describe('MyViewReportPage', () => {
     it('should load report and report status', fakeAsync(() => {
       const report = cloneDeep(sentBackReportData);
       spyOn(component, 'setupNetworkWatcher');
-      loaderService.showLoader.and.resolveTo();
       spenderReportsService.getReportById.and.returnValue(of(sentBackReportData));
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatusData = cloneDeep(newEstatusData1);
@@ -328,9 +327,7 @@ describe('MyViewReportPage', () => {
       tick(2000);
 
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(spenderReportsService.getReportById).toHaveBeenCalledOnceWith(component.reportId);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
 
       component.report$.subscribe((res) => {
@@ -394,7 +391,6 @@ describe('MyViewReportPage', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
       component.objectType = 'transactions';
-      loaderService.showLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatusData = cloneDeep(newEstatusData1);
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
@@ -409,9 +405,7 @@ describe('MyViewReportPage', () => {
       tick(2000);
 
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(spenderReportsService.getReportById).toHaveBeenCalledOnceWith(component.reportId);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
 
       component.report$.subscribe((res) => {
@@ -467,7 +461,6 @@ describe('MyViewReportPage', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
       component.objectType = 'transactions';
-      loaderService.showLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatusData = cloneDeep(newEstatusData1);
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
@@ -520,7 +513,9 @@ describe('MyViewReportPage', () => {
     it('should edit report name', fakeAsync(() => {
       component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
       component.canEdit$ = of(true);
+      component.isLoading = false;
       fixture.detectChanges();
+      tick(100);
 
       spyOn(component, 'updateReportName').and.returnValue(null);
 
@@ -546,7 +541,9 @@ describe('MyViewReportPage', () => {
     it('should not edit report name if data does not contain name', fakeAsync(() => {
       component.report$ = of(cloneDeep({ ...expectedReportsSinglePage[0], state: 'DRAFT' }));
       component.canEdit$ = of(true);
+      component.isLoading = false;
       fixture.detectChanges();
+      tick(100);
 
       spyOn(component, 'updateReportName').and.returnValue(null);
 
@@ -960,10 +957,12 @@ describe('MyViewReportPage', () => {
     expect(component.isCommentAdded).toBeTrue();
   });
 
-  it('addExpense(): should navigate to expense page', () => {
+  it('addExpense(): should navigate to expense page', async () => {
     component.segmentValue = ReportPageSegment.EXPENSES;
     component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
+    component.isLoading = false;
     fixture.detectChanges();
+    await fixture.whenStable();
 
     const addExpenseButton = getElementBySelector(fixture, '#add-expense') as HTMLElement;
     click(addExpenseButton);

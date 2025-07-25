@@ -258,6 +258,8 @@ export class AddEditMileagePage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
+  isLoading = true;
+
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
@@ -1736,30 +1738,31 @@ export class AddEditMileagePage implements OnInit {
       this.updateDistanceOnRoundTripChange();
     });
 
-    from(this.loaderService.showLoader('Please wait...', 10000))
+    this.isLoading = true;
+
+    forkJoin({
+      etxn: this.etxn$,
+      paymentMode: selectedPaymentMode$,
+      project: selectedProject$,
+      subCategory: selectedSubCategory$,
+      txnFields: this.txnFields$.pipe(take(1)),
+      report: selectedReport$,
+      costCenter: selectedCostCenter$,
+      customExpenseFields: customExpenseFields$,
+      allMileageRates: this.allMileageRates$,
+      defaultPaymentMode: defaultPaymentMode$,
+      employeeSettings: employeeSettings$,
+      orgSettings: orgSettings$,
+      recentValue: this.recentlyUsedValues$,
+      recentProjects: this.recentlyUsedProjects$,
+      recentCostCenters: this.recentlyUsedCostCenters$,
+      commuteDeductionDetails: commuteDeductionDetails$,
+    })
       .pipe(
-        switchMap(() =>
-          forkJoin({
-            etxn: this.etxn$,
-            paymentMode: selectedPaymentMode$,
-            project: selectedProject$,
-            subCategory: selectedSubCategory$,
-            txnFields: this.txnFields$.pipe(take(1)),
-            report: selectedReport$,
-            costCenter: selectedCostCenter$,
-            customExpenseFields: customExpenseFields$,
-            allMileageRates: this.allMileageRates$,
-            defaultPaymentMode: defaultPaymentMode$,
-            employeeSettings: employeeSettings$,
-            orgSettings: orgSettings$,
-            recentValue: this.recentlyUsedValues$,
-            recentProjects: this.recentlyUsedProjects$,
-            recentCostCenters: this.recentlyUsedCostCenters$,
-            commuteDeductionDetails: commuteDeductionDetails$,
-          })
-        ),
         take(1),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.isLoading = false;
+        })
       )
       .subscribe(
         ({

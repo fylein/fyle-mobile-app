@@ -283,8 +283,6 @@ export function TestCases5(getTestBed) {
       authService.getEou.and.resolveTo(apiEouRes);
       recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(recentlyUsedProjectRes));
       customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       customInputsService.filterByCategory.and.returnValue(transformedResponse);
       customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties4);
     }
@@ -325,8 +323,6 @@ export function TestCases5(getTestBed) {
       expect(component.getReports).toHaveBeenCalledTimes(1);
       expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
       expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     }
 
     it('should create', () => {

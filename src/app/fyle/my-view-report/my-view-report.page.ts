@@ -120,6 +120,8 @@ export class MyViewReportPage {
 
   submitReportLoader = false;
 
+  isLoading = true;
+
   showViewApproverModal = false;
 
   approvals: ReportApprovals[];
@@ -253,11 +255,15 @@ export class MyViewReportPage {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.segmentValue = ReportPageSegment.EXPENSES;
+    this.isLoading = true;
 
     this.report$ = this.loadReportDetails$.pipe(
-      map(() => from(this.loaderService.showLoader())),
       switchMap(() =>
-        this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
+        this.spenderReportsService.getReportById(this.reportId).pipe(
+          finalize(() => {
+            this.isLoading = false;
+          })
+        )
       ),
       map((report) => {
         this.setupComments(report);

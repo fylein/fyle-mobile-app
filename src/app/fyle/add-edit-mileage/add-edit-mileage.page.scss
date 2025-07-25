@@ -276,6 +276,7 @@
     font-weight: 500;
     text-transform: lowercase;
     color: $black-2;
+    padding: 0 16px;
   }
 
   &--add-stop {
@@ -488,6 +489,48 @@
   &--cost-center-alert {
     margin-top: 8px;
     display: block;
+  }
+
+  // Skeleton Loading Styles
+  &--skeleton-container {
+    padding: 16px;
+  }
+
+  &--skeleton-map {
+    height: 200px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  &--skeleton-distance {
+    height: 24px;
+    width: 80px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-rate {
+    height: 20px;
+    width: 120px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-amount {
+    height: 28px;
+    width: 100px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-label {
+    height: 16px;
+    width: 100px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--skeleton-input {
+    height: 48px;
+    border-radius: 8px;
+    margin-bottom: 16px;
   }
 
   &__skeleton-loader {

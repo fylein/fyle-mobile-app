@@ -238,6 +238,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
+  isLoading = true;
+
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
@@ -907,20 +909,21 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
+      shareReplay(1)
     );
 
-    const allowedPerDiemRates$ = from(this.loaderService.showLoader())
+    this.isLoading = true;
+    const allowedPerDiemRates$ = forkJoin({
+      orgSettings: orgSettings$,
+      allowedPerDiemRates: perDiemRates$.pipe(
+        switchMap((perDiemRates) => this.perDiemService.getAllowedPerDiems(perDiemRates))
+      ),
+    })
       .pipe(
-        switchMap(() =>
-          forkJoin({
-            orgSettings: orgSettings$,
-            allowedPerDiemRates: perDiemRates$.pipe(
-              switchMap((perDiemRates) => this.perDiemService.getAllowedPerDiems(perDiemRates))
-            ),
-          })
-        ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.isLoading = false;
+        })
       )
       .pipe(
         switchMap(({ orgSettings, allowedPerDiemRates }) =>
@@ -940,16 +943,16 @@ export class AddEditPerDiemPage implements OnInit {
         )
       );
 
-    this.canCreatePerDiem$ = from(this.loaderService.showLoader())
+    this.isLoading = true;
+    this.canCreatePerDiem$ = forkJoin({
+      orgSettings: orgSettings$,
+      perDiemRates: perDiemRates$,
+      allowedPerDiemRates: allowedPerDiemRates$,
+    })
       .pipe(
-        switchMap(() =>
-          forkJoin({
-            orgSettings: orgSettings$,
-            perDiemRates: perDiemRates$,
-            allowedPerDiemRates: allowedPerDiemRates$,
-          })
-        ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.isLoading = false;
+        })
       )
       .pipe(
         map(({ orgSettings, perDiemRates, allowedPerDiemRates }) => {
@@ -1044,7 +1047,8 @@ export class AddEditPerDiemPage implements OnInit {
     }).pipe(
       concatMap(({ costCenters, recentValue }) =>
         this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue)
-      )
+      ),
+      shareReplay(1)
     );
 
     this.reports$ = this.platformReportService
@@ -1382,28 +1386,29 @@ export class AddEditPerDiemPage implements OnInit {
 
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
-    from(this.loaderService.showLoader())
+    this.isLoading = true;
+
+    forkJoin({
+      etxn: this.etxn$,
+      paymentMode: selectedPaymentMode$,
+      project: selectedProject$,
+      subCategory: selectedSubCategory$,
+      perDiemRate: selectedPerDiemOption$,
+      report: selectedReport$,
+      costCenter: selectedCostCenter$,
+      customExpenseFields: customExpenseFields$,
+      defaultPaymentMode: defaultPaymentMode$,
+      employeeSettings: employeeSettings$,
+      orgSettings: orgSettings$,
+      recentValue: this.recentlyUsedValues$,
+      recentProjects: this.recentlyUsedProjects$,
+      recentCostCenters: this.recentlyUsedCostCenters$,
+    })
       .pipe(
-        switchMap(() =>
-          forkJoin({
-            etxn: this.etxn$,
-            paymentMode: selectedPaymentMode$,
-            project: selectedProject$,
-            subCategory: selectedSubCategory$,
-            perDiemRate: selectedPerDiemOption$,
-            report: selectedReport$,
-            costCenter: selectedCostCenter$,
-            customExpenseFields: customExpenseFields$,
-            defaultPaymentMode: defaultPaymentMode$,
-            employeeSettings: employeeSettings$,
-            orgSettings: orgSettings$,
-            recentValue: this.recentlyUsedValues$,
-            recentProjects: this.recentlyUsedProjects$,
-            recentCostCenters: this.recentlyUsedCostCenters$,
-          })
-        ),
         take(1),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.isLoading = false;
+        })
       )
       .subscribe(
         ({
@@ -2107,8 +2112,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
-    const formContainer = this.formContainer.nativeElement as HTMLElement;
-    if (formContainer) {
+    if (this.formContainer?.nativeElement) {
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
       const invalidElement = formContainer.querySelector('.ng-invalid');
       if (invalidElement) {
         invalidElement.scrollIntoView({

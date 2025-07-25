@@ -595,4 +595,103 @@
     margin: 26% 0;
     padding: 12px 0;
   }
+
+  // Skeleton Loading Styles
+  &--skeleton-purpose {
+    height: 20px;
+    width: 200px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-state {
+    height: 24px;
+    width: 80px;
+    border-radius: 12px;
+  }
+
+  &--skeleton-amount {
+    height: 28px;
+    width: 150px;
+    border-radius: 4px;
+    margin-top: 8px;
+  }
+
+  &--skeleton-date {
+    height: 16px;
+    width: 180px;
+    border-radius: 4px;
+    margin-top: 12px;
+  }
+
+  &--skeleton-info {
+    height: 16px;
+    width: 60px;
+    border-radius: 4px;
+    margin-top: 12px;
+  }
+
+  &--skeleton-approvers-header {
+    height: 18px;
+    width: 100px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+
+  &--skeleton-approver-name {
+    height: 16px;
+    width: 120px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+
+  &--skeleton-approver-state {
+    height: 14px;
+    width: 80px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-segment {
+    height: 40px;
+    width: 100%;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  &--skeleton-expenses {
+    margin-top: 16px;
+  }
+
+  &--skeleton-expense-item {
+    background-color: $pure-white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid $grey-lightest;
+  }
+
+  &--skeleton-expense-icon {
+    height: 40px;
+    width: 40px;
+    border-radius: 8px;
+  }
+
+  &--skeleton-expense-title {
+    height: 16px;
+    width: 140px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--skeleton-expense-subtitle {
+    height: 14px;
+    width: 100px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-expense-amount {
+    height: 18px;
+    width: 80px;
+    border-radius: 4px;
+    margin-left: auto;
+  }
 }

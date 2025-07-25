@@ -395,8 +395,6 @@ export function TestCases2(getTestBed) {
         storageService.get.and.resolveTo(true);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
-        loaderService.showLoader.and.resolveTo();
-        loaderService.hideLoader.and.resolveTo();
         platformReportService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         customFieldsService.standardizeCustomFields.and.returnValue(cloneDeep(expectedTxnCustomProperties));
@@ -529,37 +527,23 @@ export function TestCases2(getTestBed) {
 
       it('should update canCreatePerDiem$ to true if perDiemRates is not empty array', (done) => {
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
-            expect(res).toBeTrue();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
+          expect(res).toBeTrue();
+          done();
+        });
       });
 
       it('should update canCreatePerDiem$ to false if perDiemRates is empty array', (done) => {
         perDiemService.getAllowedPerDiems.and.returnValue(of([]));
         perDiemService.getRates.and.returnValue(of([]));
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
-            expect(res).toBeFalse();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
+          expect(res).toBeFalse();
+          done();
+        });
       });
 
       it('should update canCreatePerDiem$ to true if enable_individual_per_diem_rates is enabled in orgSettings and allowedPerDiemRates and perDiemRates are not empty', (done) => {
@@ -567,18 +551,11 @@ export function TestCases2(getTestBed) {
         mockOrgSettings.advanced_per_diems_settings.enable_employee_restriction = true;
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
-            expect(res).toBeTrue();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
+          expect(res).toBeTrue();
+          done();
+        });
       });
 
       it('should update canCreatePerDiem$ to false if enable_individual_per_diem_rates is enabled in orgSettings and allowedPerDiemRates and perDiemRates are empty', (done) => {
@@ -588,18 +565,11 @@ export function TestCases2(getTestBed) {
         mockOrgSettings.advanced_per_diems_settings.enable_employee_restriction = true;
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
-            expect(res).toBeFalse();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
+          expect(res).toBeFalse();
+          done();
+        });
       });
 
       it('should update txnFields$, homeCurrency$, subCategories$, projectCategoryIds$, isProjectVisible$ and comments$ correctly', (done) => {

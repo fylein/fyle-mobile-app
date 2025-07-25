@@ -273,13 +273,9 @@ describe('MyCreateReportPage', () => {
     });
 
     it('show report name error if there is no name', fakeAsync(() => {
-      const el = getElementBySelector(fixture, "[data-testid='report-name']") as HTMLInputElement;
-      el.value = '';
-      el.dispatchEvent(new Event('input'));
-
-      tick(500);
-      fixture.detectChanges();
-
+      component.reportTitle = '';
+      component.isLoading = false;
+      component.selectedElements = [];
       component.emptyInput = true;
       fixture.detectChanges();
 
@@ -341,18 +337,12 @@ describe('MyCreateReportPage', () => {
     component.selectedElements = cloneDeep(readyToReportExpensesData);
     spyOn(component, 'getTotalSelectedExpensesAmount').and.returnValue(150);
     spenderReportsService.suggestPurpose.and.returnValue(of('#Sept 24'));
-    const el = getElementBySelector(fixture, "[data-testid='report-name']") as HTMLInputElement;
-    el.value = 'New Report';
-    el.dispatchEvent(new Event('input'));
-
-    tick(500);
+    component.isLoading = false;
+    component.reportTitle = 'New Report';
     fixture.detectChanges();
 
-    Object.defineProperty(component.reportTitleInput, 'dirty', {
-      get: () => false,
-    });
-
     component.getReportTitle();
+    tick(500);
 
     expect(spenderReportsService.suggestPurpose).toHaveBeenCalledOnceWith([
       readyToReportExpensesData[0].id,
@@ -393,8 +383,6 @@ describe('MyCreateReportPage', () => {
   });
 
   it('ionViewWillEnter(): should setup expenses', fakeAsync(() => {
-    loaderService.showLoader.and.resolveTo();
-    loaderService.hideLoader.and.resolveTo();
     expensesService.getAllExpenses.and.returnValue(of(readyToReportExpensesData));
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     spyOn(component, 'getReportTitle').and.returnValue(null);
@@ -413,7 +401,6 @@ describe('MyCreateReportPage', () => {
         or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
       },
     });
-    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(component.getReportTitle).toHaveBeenCalledTimes(1);
 
     expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
@@ -421,8 +408,6 @@ describe('MyCreateReportPage', () => {
 
   describe('ionViewWillEnter():', () => {
     beforeEach(() => {
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       const mockSelectedExpense = cloneDeep(readyToReportExpensesData);
       mockSelectedExpense[0].matched_corporate_card_transaction_ids = [];
       mockSelectedExpense[1].matched_corporate_card_transactions[0].status = ExpenseTransactionStatus.PENDING;
@@ -446,7 +431,6 @@ describe('MyCreateReportPage', () => {
           or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
         },
       });
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.getReportTitle).toHaveBeenCalledTimes(1);
 
       expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
@@ -468,7 +452,6 @@ describe('MyCreateReportPage', () => {
           or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
         },
       });
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.getReportTitle).toHaveBeenCalledTimes(1);
 
       expect(component.checkTxnIds).toHaveBeenCalledTimes(1);

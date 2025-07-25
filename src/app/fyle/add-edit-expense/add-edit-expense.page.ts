@@ -11,10 +11,7 @@ import {
   Validators,
   ValidatorFn,
 } from '@angular/forms';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -467,6 +464,8 @@ export class AddEditExpensePage implements OnInit {
   vendorOptions: string[] = [];
 
   showBillable = false;
+
+  isLoading = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1683,6 +1682,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupFormInit(): void {
+    // Set loading state when form initialization starts
+    this.isLoading = true;
+
     const selectedProject$ = this.getSelectedProjects();
 
     this.selectedCategory$ = this.getSelectedCategory().pipe(shareReplay(1));
@@ -1705,39 +1707,41 @@ export class AddEditExpensePage implements OnInit {
 
     const txnReceiptsCount$ = this.getReceiptCount();
 
-    // To conditionally change the loader for add and edit expense
-    const loader$ = this.activatedRoute.snapshot.params.dataUrl
-      ? from(
-          this.loaderService.showLoader('Scanning information from the receipt...', 15000, 'assets/images/scanning.gif')
-        )
-      : from(this.loaderService.showLoader('Loading expense...', 15000));
+    // Keep the scanning loader for receipt scanning, but remove the general loading overlay
+    if (this.activatedRoute.snapshot.params.dataUrl) {
+      from(
+        this.loaderService.showLoader('Scanning information from the receipt...', 15000, 'assets/images/scanning.gif')
+      ).subscribe();
+    }
 
-    loader$
+    // Load data without overlay loader, using skeleton loading instead
+    forkJoin({
+      etxn: this.etxn$,
+      paymentMode: selectedPaymentMode$,
+      project: selectedProject$,
+      category: this.selectedCategory$,
+      report: selectedReport$,
+      costCenter: selectedCostCenter$,
+      customExpenseFields: customExpenseFields$,
+      txnReceiptsCount: txnReceiptsCount$,
+      homeCurrency: this.currencyService.getHomeCurrency(),
+      orgSettings: this.orgSettingsService.get(),
+      defaultPaymentMode: defaultPaymentMode$,
+      employeeSettings: this.employeeSettings$,
+      recentValue: this.recentlyUsedValues$,
+      recentProjects: this.recentlyUsedProjects$,
+      recentCurrencies: this.recentlyUsedCurrencies$,
+      recentCostCenters: this.recentlyUsedCostCenters$,
+      recentCategories: this.recentlyUsedCategories$,
+      taxGroups: this.taxGroups$,
+    })
       .pipe(
-        switchMap(() =>
-          forkJoin({
-            etxn: this.etxn$,
-            paymentMode: selectedPaymentMode$,
-            project: selectedProject$,
-            category: this.selectedCategory$,
-            report: selectedReport$,
-            costCenter: selectedCostCenter$,
-            customExpenseFields: customExpenseFields$,
-            txnReceiptsCount: txnReceiptsCount$,
-            homeCurrency: this.currencyService.getHomeCurrency(),
-            orgSettings: this.orgSettingsService.get(),
-            defaultPaymentMode: defaultPaymentMode$,
-            employeeSettings: this.employeeSettings$,
-            recentValue: this.recentlyUsedValues$,
-            recentProjects: this.recentlyUsedProjects$,
-            recentCurrencies: this.recentlyUsedCurrencies$,
-            recentCostCenters: this.recentlyUsedCostCenters$,
-            recentCategories: this.recentlyUsedCategories$,
-            taxGroups: this.taxGroups$,
-          })
-        ),
         finalize(() => {
-          this.loaderService.hideLoader();
+          this.isLoading = false;
+          // Hide scanning loader if it was shown
+          if (this.activatedRoute.snapshot.params.dataUrl) {
+            this.loaderService.hideLoader();
+          }
         })
       )
       .subscribe(
