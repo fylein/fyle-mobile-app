@@ -4,28 +4,30 @@ import { TASKEVENT } from '../models/task-event.enum';
 import { TaskIcon } from '../models/task-icon.enum';
 
 export const draftExpenseTaskSample = deepFreeze({
+  hideAmount: true,
   amount: '132.57B',
   count: 161,
   header: 'Incomplete expenses',
-  subheader: '161 expenses worth ₹132.57B require additional information',
+  subheader: 'Fill in missing details for incomplete expenses',
   icon: TaskIcon.WARNING,
   ctas: [
     {
-      content: 'Review expenses',
+      content: 'Review expense',
       event: TASKEVENT.reviewExpenses,
     },
   ],
 });
 
 export const draftExpenseTaskSample2 = deepFreeze({
+  hideAmount: true,
   amount: '76234.47',
   count: 339,
-  header: 'Incomplete expenses',
-  subheader: '339 expenses worth ₹76234.47 require additional information',
+  header: 'Complete 339 expenses',
+  subheader: 'Fill in missing details for incomplete expenses',
   icon: TaskIcon.WARNING,
   ctas: [
     {
-      content: 'Review expenses',
+      content: 'Complete',
       event: TASKEVENT.reviewExpenses,
     },
   ],
@@ -34,64 +36,68 @@ export const draftExpenseTaskSample2 = deepFreeze({
 export const potentailDuplicateTaskSample = deepFreeze({
   hideAmount: true,
   count: 13,
-  header: '34 Potential Duplicates',
-  subheader: 'We detected 34 expenses which may be duplicates',
+  header: 'Merge duplicate expenses',
+  subheader: 'Merge duplicate expenses present in your account',
   icon: TaskIcon.WARNING,
   ctas: [
     {
-      content: 'Review',
+      content: 'Merge',
       event: TASKEVENT.openPotentialDuplicates,
     },
   ],
 });
 
 export const teamReportTaskSample = deepFreeze({
+  hideAmount: true,
   amount: '5177243929.65',
   count: 2,
-  header: 'Reports to be approved',
-  subheader: '2 reports worth ₹5177243929.65 require your approval',
+  header: "Approve team's 2 reports",
+  subheader: 'Approve pending reports from your team.',
   icon: TaskIcon.REPORT,
   ctas: [
     {
-      content: 'Show Reports',
+      content: 'Approve',
       event: TASKEVENT.openTeamReport,
     },
   ],
 });
 
 export const sentBackReportTaskSample = deepFreeze({
+  hideAmount: true,
   amount: '4500.00',
   count: 2,
-  header: 'Reports sent back!',
-  subheader: '2 reports worth ₹4500.00 were sent back by your approver',
+  header: 'Review sent back reports',
+  subheader: 'Fix issues in your reports to resubmit.',
   icon: TaskIcon.REPORT,
   ctas: [
     {
-      content: 'View Reports',
+      content: 'Review',
       event: TASKEVENT.openSentBackReport,
     },
   ],
 });
 
 export const sentBackReportTaskSingularSample = deepFreeze({
+  hideAmount: true,
   amount: '4500.00',
   count: 1,
-  header: 'Report sent back!',
-  subheader: '1 report worth ₹4500.00 was sent back by your approver',
+  header: 'Review sent back report',
+  subheader: 'Fix issues in your report to resubmit.',
   icon: TaskIcon.REPORT,
   ctas: [
     {
-      content: 'View Report',
+      content: 'Review',
       event: TASKEVENT.openSentBackReport,
     },
   ],
 });
 
 export const unreportedExpenseTaskSample = deepFreeze({
+  hideAmount: true,
   amount: '142.26K',
   count: 13,
   header: 'Expenses are ready to report',
-  subheader: '13 expenses  worth ₹142.26K can be added to a report',
+  subheader: 'Add complete expenses to a report and submit.',
   icon: TaskIcon.REPORT,
   ctas: [
     {
@@ -102,42 +108,45 @@ export const unreportedExpenseTaskSample = deepFreeze({
 });
 
 export const unreportedExpenseTaskSample2 = deepFreeze({
+  hideAmount: true,
   amount: '30.00',
   count: 3,
-  header: 'Expenses are ready to report',
-  subheader: '3 expenses worth ₹30.00 can be added to a report',
+  header: 'Add 3 expenses to report',
+  subheader: 'Add complete expenses to a report and submit.',
   icon: TaskIcon.REPORT,
   ctas: [
     {
-      content: 'Add to report',
+      content: 'Add',
       event: TASKEVENT.expensesAddToReport,
     },
   ],
 });
 
 export const unsubmittedReportTaskSample = deepFreeze({
+  hideAmount: true,
   amount: '93165.91',
   count: 2,
-  header: 'Unsubmitted reports',
-  subheader: '2 reports worth ₹93165.91 remain in draft state',
+  header: 'Submit 2 expense reports',
+  subheader: 'Submit reports for approval.',
   icon: TaskIcon.REPORT,
   ctas: [
     {
-      content: 'Submit Reports',
+      content: 'Submit',
       event: TASKEVENT.openDraftReports,
     },
   ],
 });
 
 export const sentBackAdvanceTaskSample = deepFreeze({
+  hideAmount: true,
   amount: '123370000.00',
   count: 5,
-  header: 'Advances sent back!',
-  subheader: '5 advances worth ₹123370000.00 were sent back by your approver',
+  header: 'Review sent back advances',
+  subheader: 'Fix issues in your advances to resubmit.',
   icon: TaskIcon.ADVANCE,
   ctas: [
     {
-      content: 'View Advances',
+      content: 'Review',
       event: TASKEVENT.openSentBackAdvance,
     },
   ],
@@ -159,7 +168,7 @@ export const addMobileNumberTask = deepFreeze({
 export const verifyMobileNumberTask = deepFreeze({
   hideAmount: true,
   header: 'Opt in to text receipts',
-  subheader: 'Opt-in to activate text messages for instant expense submission',
+  subheader: 'Enable texting your receipts and instantly submit expenses',
   icon: TaskIcon.STARS,
   ctas: [
     {
@@ -171,12 +180,12 @@ export const verifyMobileNumberTask = deepFreeze({
 
 export const verifyMobileNumberTask2 = deepFreeze({
   hideAmount: true,
-  header: 'Update phone number to opt in to text receipts',
-  subheader: 'Add a +1 country code to your mobile number to receive text message receipts.',
+  header: 'Update phone number',
+  subheader: 'Update your number to receive reminders for receipts through text messaging.',
   icon: TaskIcon.STARS,
   ctas: [
     {
-      content: 'Update and Opt in',
+      content: 'Update',
       event: TASKEVENT.mobileNumberVerification,
     },
   ],
