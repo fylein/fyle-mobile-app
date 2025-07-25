@@ -839,7 +839,8 @@ export class TasksService {
           }),
           count: aggregate.count,
           header: this.translocoService.translate(
-            aggregate.count === 1 ? 'services.tasks.unsubmittedReport' : 'services.tasks.unsubmittedReports'
+            aggregate.count === 1 ? 'services.tasks.unsubmittedReport' : 'services.tasks.unsubmittedReports',
+            { count: aggregate.count }
           ),
           subheader: this.translocoService.translate(
             aggregate.count === 1

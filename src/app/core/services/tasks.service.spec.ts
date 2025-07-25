@@ -123,54 +123,51 @@ describe('TasksService', () => {
         'services.tasks.draft': 'Draft',
         'services.tasks.sentBack': 'Sent Back',
         'services.tasks.unapproved': 'Unapproved',
-        'services.tasks.updatePhoneNumberHeader': 'Update phone number to opt in to text receipts',
+        'services.tasks.updatePhoneNumberHeader': 'Update phone number',
         'services.tasks.optInToTextReceiptsHeader': 'Opt in to text receipts',
         'services.tasks.updatePhoneNumberSubheader':
-          'Add a +1 country code to your mobile number to receive text message receipts.',
-        'services.tasks.optInToTextReceiptsSubheader':
-          'Opt-in to activate text messages for instant expense submission',
-        'services.tasks.updateAndOptIn': 'Update and Opt in',
+          'Update your number to receive reminders for receipts through text messaging.',
+        'services.tasks.optInToTextReceiptsSubheader': 'Enable texting your receipts and instantly submit expenses',
+        'services.tasks.updateAndOptIn': 'Update',
         'services.tasks.optIn': 'Opt in',
-        'services.tasks.addCorporateCard': 'Add Corporate Card',
-        'services.tasks.addCorporateCardSubheader': 'Add your corporate card to track expenses.',
+        'services.tasks.addCorporateCard': 'Add corporate card',
+        'services.tasks.addCorporateCardSubheader': 'Link your corporate card to sync expenses from your card.',
         'services.tasks.addCard': 'Add Card',
-        'services.tasks.potentialDuplicatesHeader': '{count} Potential Duplicates',
-        'services.tasks.potentialDuplicatesSubheader': 'We detected {count} expenses which may be duplicates',
+        'services.tasks.potentialDuplicatesHeader': 'Merge duplicate expenses',
+        'services.tasks.potentialDuplicatesSubheader': 'Merge duplicate expenses present in your account',
         'services.tasks.review': 'Review',
+        'services.tasks.merge': 'Merge',
         'services.tasks.worth': 'worth',
-        'services.tasks.reportSentBack': 'Report sent back!',
-        'services.tasks.reportsSentBack': 'Reports sent back!',
-        'services.tasks.sentBackReportSubheader': '{count} report {amount} was sent back by your approver',
-        'services.tasks.sentBackReportsSubheader': '{count} reports {amount} were sent back by your approver',
+        'services.tasks.reportSentBack': 'Review sent back report',
+        'services.tasks.reportsSentBack': 'Review sent back reports',
+        'services.tasks.sentBackReportSubheader': 'Fix issues in your report to resubmit.',
+        'services.tasks.sentBackReportsSubheader': 'Fix issues in your reports to resubmit.',
         'services.tasks.viewReport': 'View Report',
         'services.tasks.viewReports': 'View Reports',
-        'services.tasks.advanceSentBack': 'Advance sent back!',
-        'services.tasks.advancesSentBack': 'Advances sent back!',
-        'services.tasks.sentBackAdvanceSubheader': '{count} advance {amount} was sent back by your approver',
-        'services.tasks.sentBackAdvancesSubheader': '{count} advances {amount} were sent back by your approver',
+        'services.tasks.advanceSentBack': 'Review sent back advance',
+        'services.tasks.advancesSentBack': 'Review sent back advances',
+        'services.tasks.sentBackAdvanceSubheader': 'Fix issues in your advance to resubmit.',
+        'services.tasks.sentBackAdvancesSubheader': 'Fix issues in your advances to resubmit.',
         'services.tasks.viewAdvance': 'View Advance',
         'services.tasks.viewAdvances': 'View Advances',
-        'services.tasks.unsubmittedReport': 'Unsubmitted report',
-        'services.tasks.unsubmittedReports': 'Unsubmitted reports',
-        'services.tasks.unsubmittedReportSubheader': '{count} report {amount} remains in draft state',
-        'services.tasks.unsubmittedReportsSubheader': '{count} reports {amount} remain in draft state',
-        'services.tasks.submitReport': 'Submit Report',
-        'services.tasks.submitReports': 'Submit Reports',
-        'services.tasks.reportToBeApproved': 'Report to be approved',
-        'services.tasks.reportsToBeApproved': 'Reports to be approved',
-        'services.tasks.teamReportSubheader': '{count} report {amount} requires your approval',
-        'services.tasks.teamReportsSubheader': '{count} reports {amount} require your approval',
-        'services.tasks.showReport': 'Show Report',
-        'services.tasks.showReports': 'Show Reports',
-        'services.tasks.incompleteExpense': 'Incomplete expense',
-        'services.tasks.incompleteExpenses': 'Incomplete expenses',
-        'services.tasks.draftExpenseSubheader': '{count} expense {amount} require additional information',
-        'services.tasks.draftExpensesSubheader': '{count} expenses {amount} require additional information',
-        'services.tasks.reviewExpense': 'Review expense',
-        'services.tasks.reviewExpenses': 'Review expenses',
-        'services.tasks.expensesReadyToReport': 'Expenses are ready to report',
-        'services.tasks.unreportedExpenseSubheader': '{count} expense {amount} can be added to a report',
-        'services.tasks.unreportedExpensesSubheader': '{count} expenses {amount} can be added to a report',
+        'services.tasks.unsubmittedReport': 'Submit {count} expense report',
+        'services.tasks.unsubmittedReports': 'Submit {count} expense reports',
+        'services.tasks.unsubmittedReportSubheader': 'Submit report for approval.',
+        'services.tasks.unsubmittedReportsSubheader': 'Submit reports for approval.',
+        'services.tasks.submitReport': 'Submit',
+        'services.tasks.reportToBeApproved': "Approve team's {count} report",
+        'services.tasks.reportsToBeApproved': "Approve team's {count} reports",
+        'services.tasks.teamReportSubheader': 'Approve pending report from your team.',
+        'services.tasks.teamReportsSubheader': 'Approve pending reports from your team.',
+        'services.tasks.approveReport': 'Approve',
+        'services.tasks.incompleteExpense': 'Complete {count} expense',
+        'services.tasks.incompleteExpenses': 'Complete {count} expenses',
+        'services.tasks.draftExpenseSubheader': 'Fill in missing details for incomplete expense',
+        'services.tasks.draftExpensesSubheader': 'Fill in missing details for incomplete expenses',
+        'services.tasks.completeExpense': 'Complete',
+        'services.tasks.expenseReadyToReport': 'Add {count} expense to report',
+        'services.tasks.expensesReadyToReport': 'Add {count} expenses to report',
+        'services.tasks.unreportedExpenseSubheader': 'Add complete expenses to a report and submit.',
         'services.tasks.addToReport': 'Add to report',
         'services.tasks.addCommuteDetails': 'Add Commute Details',
         'services.tasks.addCommuteDetailsSubheader':
@@ -182,14 +179,14 @@ describe('TasksService', () => {
 
       // Handle parameter interpolation
       if (params) {
-        if (params.count) {
-          translation = translation.replace('{count}', params.count);
+        if (params.count !== undefined) {
+          translation = translation.replace(/\{count\}/g, params.count);
         }
         if (params.amount !== undefined) {
           // For amount parameter, replace with the actual amount or empty string if not provided
           // If amount is provided, it should include a space before it
           const amountValue = params.amount ? `${params.amount}` : '';
-          translation = translation.replace('{amount}', amountValue);
+          translation = translation.replace(/\{amount\}/g, amountValue);
         }
       }
 
@@ -786,7 +783,7 @@ describe('TasksService', () => {
       },
       homeCurrency
     );
-    expect(tasks[0].subheader).toEqual('1 expense worth ₹339.00 can be added to a report');
+    expect(tasks[0].subheader).toEqual('Add complete expenses to a report and submit.');
   });
 
   it('should not be generating tasks when no corresponding data is present', () => {
@@ -912,13 +909,13 @@ describe('TasksService', () => {
     setupData();
     tasksService.getTasks(false, undefined, true).subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
-        '34 Potential Duplicates',
-        'Reports sent back!',
-        'Incomplete expenses',
-        'Unsubmitted reports',
-        'Expenses are ready to report',
-        'Reports to be approved',
-        'Advances sent back!',
+        'Merge duplicate expenses',
+        'Review sent back reports',
+        'Review sent back advances',
+        "Approve team's 2 reports",
+        'Complete 339 expenses',
+        'Submit 2 expense reports',
+        'Add 3 expenses to report',
       ]);
       done();
     });
@@ -937,7 +934,7 @@ describe('TasksService', () => {
         unreportedExpenses: false,
       })
       .subscribe((tasks) => {
-        expect(tasks.map((task) => task.header)).toEqual(['Advances sent back!']);
+        expect(tasks.map((task) => task.header)).toEqual(['Review sent back advances']);
         done();
       });
   });
@@ -946,10 +943,10 @@ describe('TasksService', () => {
     setupData();
     tasksService.getTasks(true).subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
-        '34 Potential Duplicates',
-        'Reports sent back!',
-        'Incomplete expenses',
-        'Advances sent back!',
+        'Merge duplicate expenses',
+        'Review sent back reports',
+        'Review sent back advances',
+        'Complete 339 expenses',
       ]);
       done();
     });
@@ -1006,14 +1003,15 @@ describe('TasksService', () => {
 
     expect(sentBackAdvanceTask).toEqual([
       {
+        hideAmount: true,
         amount: '123370000.00',
         count: 1,
-        header: 'Advance sent back!',
-        subheader: '1 advance worth ₹123370000.00 was sent back by your approver',
+        header: 'Review sent back advance',
+        subheader: 'Fix issues in your advance to resubmit.',
         icon: TaskIcon.ADVANCE,
         ctas: [
           {
-            content: 'View Advance',
+            content: 'Review',
             event: TASKEVENT.openSentBackAdvance,
           },
         ],
@@ -1046,14 +1044,15 @@ describe('TasksService', () => {
 
     expect(sentBackReportTask).toEqual([
       {
+        hideAmount: true,
         amount: '44.53',
         count: 2,
-        header: 'Reports sent back!',
-        subheader: '2 reports worth ₹44.53 were sent back by your approver',
+        header: 'Review sent back reports',
+        subheader: 'Fix issues in your reports to resubmit.',
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: 'View Reports',
+            content: 'Review',
             event: TASKEVENT.openSentBackReport,
           },
         ],
@@ -1083,14 +1082,15 @@ describe('TasksService', () => {
 
     expect(tasks).toEqual([
       {
+        hideAmount: true,
         amount: '132573333762.37',
         count: 1,
-        header: 'Incomplete expense',
-        subheader: '1 expense worth ₹132573333762.37 require additional information',
+        header: 'Complete 1 expense',
+        subheader: 'Fill in missing details for incomplete expense',
         icon: TaskIcon.WARNING,
         ctas: [
           {
-            content: 'Review expense',
+            content: 'Complete',
             event: TASKEVENT.reviewExpenses,
           },
         ],
@@ -1117,14 +1117,15 @@ describe('TasksService', () => {
 
     expect(tasks).toEqual([
       {
+        hideAmount: true,
         amount: '0.00',
         count: 1,
-        header: 'Unsubmitted report',
-        subheader: '1 report  remains in draft state',
+        header: 'Submit 1 expense report',
+        subheader: 'Submit report for approval.',
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: 'Submit Report',
+            content: 'Submit',
             event: TASKEVENT.openDraftReports,
           },
         ],
@@ -1157,14 +1158,15 @@ describe('TasksService', () => {
 
     expect(tasks).toEqual([
       {
+        hideAmount: true,
         amount: '733479.83',
         count: 1,
-        header: 'Report to be approved',
-        subheader: '1 report worth ₹733479.83 requires your approval',
+        header: "Approve team's 1 report",
+        subheader: 'Approve pending report from your team.',
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: 'Show Report',
+            content: 'Approve',
             event: TASKEVENT.openTeamReport,
           },
         ],
