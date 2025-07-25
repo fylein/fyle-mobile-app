@@ -374,15 +374,15 @@ export class TasksService {
             !filters?.sentBackAdvances
           ) {
             return mobileNumberVerification
-              .concat(setCommuteDetails)
+              .concat(addCorporateCard)
               .concat(potentialDuplicates)
               .concat(sentBackReports)
+              .concat(sentBackAdvances)
+              .concat(teamReports)
               .concat(draftExpenses)
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
-              .concat(teamReports)
-              .concat(sentBackAdvances)
-              .concat(addCorporateCard);
+              .concat(setCommuteDetails);
           } else {
             return this.getFilteredTaskList(filters, {
               potentialDuplicates,
@@ -875,7 +875,8 @@ export class TasksService {
           }),
           count: aggregate.count,
           header: this.translocoService.translate(
-            aggregate.count === 1 ? 'services.tasks.reportToBeApproved' : 'services.tasks.reportsToBeApproved'
+            aggregate.count === 1 ? 'services.tasks.reportToBeApproved' : 'services.tasks.reportsToBeApproved',
+            { count: aggregate.count }
           ),
           subheader: this.translocoService.translate(
             aggregate.count === 1 ? 'services.tasks.teamReportSubheader' : 'services.tasks.teamReportsSubheader',
@@ -884,9 +885,7 @@ export class TasksService {
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: this.translocoService.translate(
-                aggregate.count === 1 ? 'services.tasks.showReport' : 'services.tasks.showReports'
-              ),
+              content: this.translocoService.translate('services.tasks.approveReport'),
               event: TASKEVENT.openTeamReport,
             },
           ],
@@ -911,7 +910,8 @@ export class TasksService {
           }),
           count: aggregate.totalCount,
           header: this.translocoService.translate(
-            aggregate.totalCount === 1 ? 'services.tasks.incompleteExpense' : 'services.tasks.incompleteExpenses'
+            aggregate.totalCount === 1 ? 'services.tasks.incompleteExpense' : 'services.tasks.incompleteExpenses',
+            { count: aggregate.totalCount }
           ),
           subheader: this.translocoService.translate(
             aggregate.totalCount === 1
@@ -922,9 +922,7 @@ export class TasksService {
           icon: TaskIcon.WARNING,
           ctas: [
             {
-              content: this.translocoService.translate(
-                aggregate.totalCount === 1 ? 'services.tasks.reviewExpense' : 'services.tasks.reviewExpenses'
-              ),
+              content: this.translocoService.translate('services.tasks.completeExpense'),
               event: TASKEVENT.reviewExpenses,
             },
           ],
