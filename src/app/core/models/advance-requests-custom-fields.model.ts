@@ -8,10 +8,8 @@ export interface AdvanceRequestsCustomFields {
   type?: string;
   name: string;
   options?: string[] | { label: string; value: string }[];
-  mandatory?: boolean;
-  active: boolean;
-  added_by: string;
-  last_updated_by?: string;
+  is_mandatory?: boolean;
+  is_enabled: boolean;
   placeholder?: string;
   control?: AbstractControl;
 }

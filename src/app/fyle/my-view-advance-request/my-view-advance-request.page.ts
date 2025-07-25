@@ -8,7 +8,7 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
@@ -60,7 +60,6 @@ export class MyViewAdvanceRequestPage {
     private router: Router,
     private popoverController: PopoverController,
     private modalController: ModalController,
-    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
@@ -147,7 +146,7 @@ export class MyViewAdvanceRequestPage {
       reduce((acc: FileObject[], curr: FileObject) => acc.concat(curr), [] as FileObject[])
     );
 
-    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
+    this.customFields$ = this.advanceRequestService.getCustomFieldsForSpender();
 
     this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$,
