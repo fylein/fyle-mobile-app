@@ -11,10 +11,7 @@ import {
   Validators,
   ValidatorFn,
 } from '@angular/forms';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -3732,6 +3729,7 @@ export class AddEditExpensePage implements OnInit {
       map((customFields) => {
         const allDependentFields = [...this.getProjectDependentFields(), ...this.getCostCenterDependentFields()];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
+          ...(dependentField.id && { id: dependentField.id }),
           name: dependentField.label,
           value: dependentField.value,
         }));
