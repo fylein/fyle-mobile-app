@@ -37,7 +37,6 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     extractedUrl: new UrlTree(),
     trigger: 'imperative',
     previousNavigation: undefined,
-    abort: () => {},
   };
 
   beforeEach(waitForAsync(() => {
