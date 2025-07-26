@@ -153,8 +153,7 @@ export class TasksComponent implements OnInit {
        * and hide it if the user is navigating to tasks section from teams section
        * Since we don't have tasks for team advances, have added a check only for team reports filter
        */
-      this.showReportAutoSubmissionInfoCard =
-        autoSubmissionReportDate && !isIncompleteExpensesTaskShown && paramFilters !== 'team_reports';
+      this.showReportAutoSubmissionInfoCard = autoSubmissionReportDate && paramFilters !== 'team_reports';
     });
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters as string;
