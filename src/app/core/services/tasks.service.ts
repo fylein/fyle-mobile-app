@@ -374,15 +374,15 @@ export class TasksService {
             !filters?.sentBackAdvances
           ) {
             return mobileNumberVerification
-              .concat(setCommuteDetails)
+              .concat(addCorporateCard)
               .concat(potentialDuplicates)
               .concat(sentBackReports)
+              .concat(sentBackAdvances)
+              .concat(teamReports)
               .concat(draftExpenses)
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
-              .concat(teamReports)
-              .concat(sentBackAdvances)
-              .concat(addCorporateCard);
+              .concat(setCommuteDetails);
           } else {
             return this.getFilteredTaskList(filters, {
               potentialDuplicates,
@@ -609,7 +609,7 @@ export class TasksService {
         icon: TaskIcon.CARD,
         ctas: [
           {
-            content: this.translocoService.translate('services.tasks.addCard'),
+            content: this.translocoService.translate('services.tasks.add'),
             event: TASKEVENT.addCorporateCard,
           },
         ],
@@ -635,7 +635,7 @@ export class TasksService {
           icon: TaskIcon.WARNING,
           ctas: [
             {
-              content: this.translocoService.translate('services.tasks.review'),
+              content: this.translocoService.translate('services.tasks.merge'),
               event: TASKEVENT.openPotentialDuplicates,
             },
           ],
@@ -758,6 +758,7 @@ export class TasksService {
     if (aggregate.count > 0) {
       return [
         {
+          hideAmount: true,
           amount: this.exactCurrency.transform({
             value: aggregate.total_amount,
             currencyCode: homeCurrency,
@@ -776,9 +777,7 @@ export class TasksService {
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: this.translocoService.translate(
-                aggregate.count === 1 ? 'services.tasks.viewReport' : 'services.tasks.viewReports'
-              ),
+              content: this.translocoService.translate('services.tasks.review'),
               event: TASKEVENT.openSentBackReport,
             },
           ],
@@ -805,6 +804,7 @@ export class TasksService {
       );
       return [
         {
+          hideAmount: true,
           amount: this.exactCurrency.transform({
             value: aggregate.totalAmount,
             currencyCode: homeCurrency,
@@ -816,9 +816,7 @@ export class TasksService {
           icon: TaskIcon.ADVANCE,
           ctas: [
             {
-              content: this.translocoService.translate(
-                aggregate.totalCount === 1 ? 'services.tasks.viewAdvance' : 'services.tasks.viewAdvances'
-              ),
+              content: this.translocoService.translate('services.tasks.review'),
               event: TASKEVENT.openSentBackAdvance,
             },
           ],
@@ -833,6 +831,7 @@ export class TasksService {
     if (aggregate.count > 0) {
       return [
         {
+          hideAmount: true,
           amount: this.exactCurrency.transform({
             value: aggregate.total_amount,
             currencyCode: homeCurrency,
@@ -840,20 +839,19 @@ export class TasksService {
           }),
           count: aggregate.count,
           header: this.translocoService.translate(
-            aggregate.count === 1 ? 'services.tasks.unsubmittedReport' : 'services.tasks.unsubmittedReports'
+            aggregate.count === 1 ? 'services.tasks.unsubmittedReport' : 'services.tasks.unsubmittedReports',
+            { count: aggregate.count }
           ),
           subheader: this.translocoService.translate(
             aggregate.count === 1
               ? 'services.tasks.unsubmittedReportSubheader'
               : 'services.tasks.unsubmittedReportsSubheader',
-            { count: aggregate.count, amount: this.getAmountString(aggregate.total_amount, homeCurrency) }
+            { count: aggregate.count }
           ),
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: this.translocoService.translate(
-                aggregate.count === 1 ? 'services.tasks.submitReport' : 'services.tasks.submitReports'
-              ),
+              content: this.translocoService.translate('services.tasks.submitReport'),
               event: TASKEVENT.openDraftReports,
             },
           ],
@@ -868,6 +866,7 @@ export class TasksService {
     if (aggregate.count > 0) {
       return [
         {
+          hideAmount: true,
           amount: this.exactCurrency.transform({
             value: aggregate.total_amount,
             currencyCode: homeCurrency,
@@ -875,7 +874,8 @@ export class TasksService {
           }),
           count: aggregate.count,
           header: this.translocoService.translate(
-            aggregate.count === 1 ? 'services.tasks.reportToBeApproved' : 'services.tasks.reportsToBeApproved'
+            aggregate.count === 1 ? 'services.tasks.reportToBeApproved' : 'services.tasks.reportsToBeApproved',
+            { count: aggregate.count }
           ),
           subheader: this.translocoService.translate(
             aggregate.count === 1 ? 'services.tasks.teamReportSubheader' : 'services.tasks.teamReportsSubheader',
@@ -884,9 +884,7 @@ export class TasksService {
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: this.translocoService.translate(
-                aggregate.count === 1 ? 'services.tasks.showReport' : 'services.tasks.showReports'
-              ),
+              content: this.translocoService.translate('services.tasks.approveReport'),
               event: TASKEVENT.openTeamReport,
             },
           ],
@@ -904,6 +902,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
+          hideAmount: true,
           amount: this.exactCurrency.transform({
             value: aggregate.totalAmount,
             currencyCode: homeCurrency,
@@ -911,7 +910,8 @@ export class TasksService {
           }),
           count: aggregate.totalCount,
           header: this.translocoService.translate(
-            aggregate.totalCount === 1 ? 'services.tasks.incompleteExpense' : 'services.tasks.incompleteExpenses'
+            aggregate.totalCount === 1 ? 'services.tasks.incompleteExpense' : 'services.tasks.incompleteExpenses',
+            { count: aggregate.totalCount }
           ),
           subheader: this.translocoService.translate(
             aggregate.totalCount === 1
@@ -922,9 +922,7 @@ export class TasksService {
           icon: TaskIcon.WARNING,
           ctas: [
             {
-              content: this.translocoService.translate(
-                aggregate.totalCount === 1 ? 'services.tasks.reviewExpense' : 'services.tasks.reviewExpenses'
-              ),
+              content: this.translocoService.translate('services.tasks.completeExpense'),
               event: TASKEVENT.reviewExpenses,
             },
           ],
@@ -941,23 +939,24 @@ export class TasksService {
   ): DashboardTask[] {
     if (aggregate.totalCount > 0) {
       const task = {
+        hideAmount: true,
         amount: this.exactCurrency.transform({
           value: aggregate.totalAmount,
           currencyCode: homeCurrency,
           skipSymbol: true,
         }),
         count: aggregate.totalCount,
-        header: this.translocoService.translate('services.tasks.expensesReadyToReport'),
-        subheader: this.translocoService.translate(
-          aggregate.totalCount === 1
-            ? 'services.tasks.unreportedExpenseSubheader'
-            : 'services.tasks.unreportedExpensesSubheader',
-          { count: aggregate.totalCount, amount: this.getAmountString(aggregate.totalAmount, homeCurrency) }
+        header: this.translocoService.translate(
+          aggregate.totalCount === 1 ? 'services.tasks.expenseReadyToReport' : 'services.tasks.expensesReadyToReport',
+          { count: aggregate.totalCount }
         ),
+        subheader: this.translocoService.translate('services.tasks.unreportedExpenseSubheader', {
+          count: aggregate.totalCount,
+        }),
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: this.translocoService.translate('services.tasks.addToReport'),
+            content: this.translocoService.translate('services.tasks.add'),
             event: TASKEVENT.expensesAddToReport,
           },
         ],
