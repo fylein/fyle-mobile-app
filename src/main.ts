@@ -123,6 +123,7 @@ bootstrapApplication(AppComponent, {
     DecimalPipe,
     HumanizeCurrencyPipe,
     ExactCurrencyPipe,
+    SpinnerDialog,
     provideTransloco({
       config: {
         availableLangs: ['en'],
