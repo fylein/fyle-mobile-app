@@ -7,7 +7,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -48,7 +48,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let actionSheetController: jasmine.SpyObj<ActionSheetController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let advanceRequestsCustomFieldsService: jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
   let authService: jasmine.SpyObj<AuthService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
@@ -68,6 +68,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       'sendBack',
       'reject',
       'getActiveApproversByAdvanceRequestIdPlatformForApprover',
+      'getCustomFieldsForApprover',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
       'findByAdvanceRequestId',
@@ -80,9 +81,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const advanceRequestsCustomFieldsServiceSpy = jasmine.createSpyObj('AdvanceRequestsCustomFieldsService', [
-      'getAll',
-    ]);
+
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
@@ -105,7 +104,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: ActionSheetController, useValue: actionSheetControllerSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
-        { provide: AdvanceRequestsCustomFieldsService, useValue: advanceRequestsCustomFieldsServiceSpy },
+
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
@@ -140,9 +139,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    advanceRequestsCustomFieldsService = TestBed.inject(
-      AdvanceRequestsCustomFieldsService
-    ) as jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
@@ -182,7 +179,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
         of(advanceReqApprovalsPublic)
       );
       spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
-      advanceRequestsCustomFieldsService.getAll.and.returnValue(of(advanceRequestCustomFieldData2));
+      advanceRequestService.getCustomFieldsForApprover.and.returnValue(of(advanceRequestCustomFieldData2));
       authService.getEou.and.resolveTo(apiEouRes);
       advanceRequestService.modifyAdvanceRequestCustomFields.and.returnValue(customFields);
       advanceRequestService.modifyAdvanceRequestCustomFields.and.returnValue(customFields);
@@ -238,20 +235,20 @@ describe('ViewTeamAdvanceRequestPage', () => {
 
       component.customFields$.subscribe((data) => {
         expect(data).toEqual(advanceRequestCustomFieldData2);
-        expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
+        expect(advanceRequestService.getCustomFieldsForApprover).toHaveBeenCalledTimes(1);
       });
     }));
 
-    it('should set advanceRequestCustomFields$ equal to custom fields returned by advanceRequestsCustomFieldsService.getAll', fakeAsync(() => {
+    it('should set advanceRequestCustomFields$ equal to custom fields returned by advanceRequestService.getCustomFieldsForApprover', fakeAsync(() => {
       const mockCustomField = cloneDeep(advanceRequestCustomFieldData2);
-      advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockCustomField));
+      advanceRequestService.getCustomFieldsForApprover.and.returnValue(of(mockCustomField));
 
       component.ionViewWillEnter();
       tick(100);
 
       component.advanceRequestCustomFields$.subscribe((data) => {
         expect(data).toEqual(mockCustomField);
-        expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
+        expect(advanceRequestService.getCustomFieldsForApprover).toHaveBeenCalledTimes(1);
       });
     }));
 

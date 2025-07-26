@@ -145,11 +145,9 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
   ngAfterViewInit(): void {
     // This is a way to get reference of parent component's form control, we can propagate errors to the parent component
-    const ngControl: NgControl = this.injector.get(NgControl);
+    const ngControl: NgControl = this.injector.get(NgControl, null);
 
-    if (ngControl) {
-      this.control = ngControl.control as UntypedFormControl;
-    }
+    this.control = ngControl.control as UntypedFormControl;
   }
 
   // This is a hack to handle the comma key on ios devices in regions where the decimal separator is a comma

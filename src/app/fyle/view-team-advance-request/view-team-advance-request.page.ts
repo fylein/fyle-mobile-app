@@ -19,7 +19,7 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { File } from 'src/app/core/models/file.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -96,7 +96,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     private popoverController: PopoverController,
     private actionSheetController: ActionSheetController,
     private loaderService: LoaderService,
-    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private authService: AuthService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
@@ -162,7 +161,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     this.attachedFiles$ = this.getAttachedReceipts(id);
 
-    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
+    this.customFields$ = this.advanceRequestService.getCustomFieldsForApprover();
 
     const customFields$ = forkJoin({
       advanceRequest: this.advanceRequest$.pipe(take(1)),
