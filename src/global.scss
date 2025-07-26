@@ -101,7 +101,7 @@ ion-popover.error-popover {
 
 .msb-success {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #24a148;
+    --mdc-snackbar-container-color: #24a148;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 30px !important;
@@ -110,7 +110,7 @@ ion-popover.error-popover {
 
 .msb-failure {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #da1e28;
+    --mdc-snackbar-container-color: #da1e28;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 30px !important;
@@ -119,7 +119,7 @@ ion-popover.error-popover {
 
 .msb-info {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #1c1f36;
+    --mdc-snackbar-container-color: #1c1f36;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 30px !important;
@@ -128,7 +128,7 @@ ion-popover.error-popover {
 
 .msb-bulkfyle-prompt {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #1c1f36;
+    --mdc-snackbar-container-color: #1c1f36;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px calc(124px + env(safe-area-inset-bottom)) !important;
@@ -149,7 +149,7 @@ ion-popover.error-popover {
 
 .msb-success-with-camera-icon {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #24a148;
+    --mdc-snackbar-container-color: #24a148;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 133px !important;
@@ -159,7 +159,7 @@ ion-popover.error-popover {
 
 .msb-success-with-camera-icon-for-split-exp {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #24a148;
+    --mdc-snackbar-container-color: #24a148;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 24px !important;
@@ -169,7 +169,7 @@ ion-popover.error-popover {
 
 .msb-failure-with-camera-icon-for-split-exp {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #da1e28;
+    --mdc-snackbar-container-color: #da1e28;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 24px !important;
@@ -179,7 +179,7 @@ ion-popover.error-popover {
 
 .msb-failure-with-camera-icon {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #da1e28;
+    --mdc-snackbar-container-color: #da1e28;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 133px !important;
@@ -189,7 +189,7 @@ ion-popover.error-popover {
 
 .msb-success-with-report-btn {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #24a148;
+    --mdc-snackbar-container-color: #24a148;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 84px !important;
@@ -199,7 +199,7 @@ ion-popover.error-popover {
 
 .msb-failure-with-report-btn {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #da1e28;
+    --mdc-snackbar-container-color: #da1e28;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 96px !important;
@@ -600,7 +600,7 @@ input {
 }
 
 html {
-  --mat-form-field-outlined-focus-outline-color: #5a5d72;
+  --mdc-outlined-text-field-focus-outline-color: #5a5d72;
 }
 
 .mat-mdc-form-field-icon-prefix > .mat-icon,
@@ -619,12 +619,12 @@ html {
 }
 
 .mat-mdc-chip.mat-mdc-standard-chip {
-  --mat-chip-container-height: 20px;
+  --mdc-chip-container-height: 20px;
   border: 1px solid colors.$grey-lighter;
 }
 
 .mat-mdc-chip:hover .mat-mdc-chip-focus-overlay {
-  --mat-chip-focus-state-layer-color: colors.$grey-lighter;
+  --mdc-chip-focus-state-layer-color: colors.$grey-lighter;
 }
 
 .mat-mdc-standard-chip {
