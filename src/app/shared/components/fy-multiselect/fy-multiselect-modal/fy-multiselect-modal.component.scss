@@ -1,5 +1,5 @@
-@import '../../../../../assets/styles/fy_select';
-@import '../../../../../theme/colors.scss';
+@use '../../../../../assets/styles/fy_select';
+@use '../../../../../theme/colors.scss';
 
 .selection-modal {
   color: black;
@@ -71,7 +71,7 @@
   &--form-input {
     margin-top: -4px !important;
     font-size: 14px;
-    color: $black-2;
+    color: colors.$black-2;
     margin-left: 6px !important;
 
     &__chips {
@@ -80,7 +80,7 @@
   }
 
   &--selected-count {
-    color: $grey-light;
+    color: colors.$grey-light;
     text-align: left;
     margin: 0 16px 10px;
   }

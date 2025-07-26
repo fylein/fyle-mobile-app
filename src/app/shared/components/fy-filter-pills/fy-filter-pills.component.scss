@@ -1,4 +1,4 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .filter-pills {
   &--pills {
@@ -10,10 +10,10 @@
   }
 
   &--pill {
-    background: $pure-white;
-    border: 1px solid $grey;
+    background: colors.$pure-white;
+    border: 1px solid colors.$grey;
     border-radius: 16px;
-    color: $black-light;
+    color: colors.$black-light;
     padding: 8px 8px 8px 16px;
     white-space: nowrap;
     display: flex;
@@ -22,7 +22,7 @@
     line-height: 15px;
     margin-right: 8px;
     &__clear-all {
-      color: $brand-primary;
+      color: colors.$brand-primary;
       display: inline-block;
       padding-left: 16px;
       padding-right: 16px;
@@ -31,7 +31,7 @@
 
   &--close-icon {
     font-size: 14px;
-    color: $grey;
+    color: colors.$grey;
   }
 
   &--label {

@@ -8,6 +8,7 @@ import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actio
   selector: 'app-fy-approver',
   templateUrl: './fy-approver.component.html',
   styleUrls: ['./fy-approver.component.scss'],
+  standalone: false,
 })
 export class FyApproverComponent {
   @Input() approverEmailsList;

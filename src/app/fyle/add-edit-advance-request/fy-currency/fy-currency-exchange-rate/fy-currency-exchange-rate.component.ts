@@ -19,6 +19,7 @@ import { from } from 'rxjs';
   selector: 'app-fy-currency-exchange-rate',
   templateUrl: './fy-currency-exchange-rate.component.html',
   styleUrls: ['./fy-currency-exchange-rate.component.scss'],
+  standalone: false,
 })
 export class FyCurrencyExchangeRateComponent implements OnInit {
   @Input() amount;

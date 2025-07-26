@@ -10,6 +10,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-dashboard-opt-in',
   templateUrl: './dashboard-opt-in.component.html',
   styleUrls: ['./dashboard-opt-in.component.scss'],
+  standalone: false,
 })
 export class DashboardOptInComponent {
   @Input() extendedOrgUser: ExtendedOrgUser;

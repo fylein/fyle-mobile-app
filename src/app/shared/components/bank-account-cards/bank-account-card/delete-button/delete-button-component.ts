@@ -5,6 +5,7 @@ import { PopoverController } from '@ionic/angular';
   selector: 'app-delete-button',
   templateUrl: './delete-button-component.html',
   styleUrls: ['./delete-button-component.scss'],
+  standalone: false,
 })
 export class DeleteButtonComponent {
   constructor(private popoverController: PopoverController) {}

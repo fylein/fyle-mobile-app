@@ -1,5 +1,5 @@
-@import '../../../../../assets/styles/fy_select';
-@import '../../../../../theme/colors.scss';
+@use '../../../../../assets/styles/fy_select';
+@use '../../../../../theme/colors.scss';
 
 .selection-modal {
   color: black;
@@ -33,7 +33,7 @@
     &-icon {
       font-size: 18px;
       margin-right: 8px;
-      color: $black-light;
+      color: colors.$black-light;
     }
 
     &-close {
@@ -50,7 +50,7 @@
   &--list-element-icon {
     min-width: 24px;
     margin-right: 12px;
-    color: $black;
+    color: colors.$black;
   }
 
   &--title {
@@ -76,7 +76,7 @@
     font-size: 16px;
     line-height: 20px;
     font-weight: 500;
-    color: $black;
+    color: colors.$black;
     white-space: nowrap;
     max-width: 288px;
     text-overflow: ellipsis;
@@ -87,7 +87,7 @@
     font-size: 14px;
     line-height: 18px;
     font-weight: 400;
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 
   &--search-icon {
@@ -97,11 +97,11 @@
   &--form-field-container {
     text-align: center;
     margin-bottom: 0;
-    border-bottom: 1px solid $border-grey;
+    border-bottom: 1px solid colors.$border-grey;
     margin-top: calc(env(safe-area-inset-top));
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: $black-light !important;
+        color: colors.$black-light !important;
       }
     }
   }
@@ -131,6 +131,6 @@
   }
 
   &--cta-button {
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 }

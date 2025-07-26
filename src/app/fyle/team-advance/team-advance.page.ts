@@ -26,6 +26,7 @@ type Filters = Partial<{
   selector: 'app-team-advance',
   templateUrl: './team-advance.page.html',
   styleUrls: ['./team-advance.page.scss'],
+  standalone: false,
 })
 export class TeamAdvancePage implements AfterViewChecked {
   teamAdvancerequests$: Observable<ExtendedAdvanceRequest[]>;

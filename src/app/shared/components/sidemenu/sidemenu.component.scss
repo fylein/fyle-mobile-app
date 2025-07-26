@@ -1,8 +1,8 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .sidemenu {
-  --ion-background-color: #{$black};
-  --ion-text-color: #{$pure-white};
+  --ion-background-color: #{colors.$black};
+  --ion-text-color: #{colors.$pure-white};
 
   &__content-container {
     display: flex;

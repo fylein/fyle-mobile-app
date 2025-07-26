@@ -11,6 +11,7 @@ import { StaticMapPropertiesService } from 'src/app/core/services/static-map-pro
   selector: 'app-route-visualizer',
   templateUrl: './route-visualizer.component.html',
   styleUrls: ['./route-visualizer.component.scss'],
+  standalone: false,
 })
 export class RouteVisualizerComponent implements OnChanges, OnInit {
   @Input() mileageLocations: MileageLocation[];

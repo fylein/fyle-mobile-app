@@ -5,6 +5,7 @@ import { CaptureReceiptComponent } from 'src/app/shared/components/capture-recei
   selector: 'app-camera-overlay',
   templateUrl: './camera-overlay.page.html',
   styleUrls: ['./camera-overlay.page.scss'],
+  standalone: false,
 })
 export class CameraOverlayPage implements OnInit {
   @ViewChild('captureReceipt') captureReceipt: CaptureReceiptComponent;

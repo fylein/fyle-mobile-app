@@ -114,6 +114,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
   selector: 'app-add-edit-per-diem',
   templateUrl: './add-edit-per-diem.page.html',
   styleUrls: ['./add-edit-per-diem.page.scss'],
+  standalone: false,
 })
 export class AddEditPerDiemPage implements OnInit {
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;

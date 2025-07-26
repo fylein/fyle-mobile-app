@@ -7,6 +7,7 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
   selector: 'app-corporate-card',
   templateUrl: './corporate-card.component.html',
   styleUrls: ['./corporate-card.component.scss'],
+  standalone: false,
 })
 export class CorporateCardComponent implements OnInit {
   @Input() card: PlatformCorporateCard;

@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
   selector: 'app-team-adv-card',
   templateUrl: './team-adv-card.component.html',
   styleUrls: ['./team-adv-card.component.scss'],
+  standalone: false,
 })
 export class TeamAdvCardComponent implements OnInit {
   @Input() advanceRequest: ExtendedAdvanceRequest;

@@ -1,4 +1,5 @@
-@import '../../../../../assets/styles/fy_select';
+@use '../../../../../assets/styles/fy_select';
+@use '../../../../../../src/theme/colors';
 
 .selection-modal {
   color: black;
@@ -33,16 +34,16 @@
   }
 
   &--sub-title {
-    color: $gray-3;
+    color: colors.$gray-3;
     font-size: 14px;
     font-weight: 700;
     padding: 5px 14px;
-    border-bottom: 1px solid $grey-light;
+    border-bottom: 1px solid colors.$grey-light;
   }
 
   &--clear {
-    background-color: $pure-white;
-    color: $black-light;
+    background-color: colors.$pure-white;
+    color: colors.$black-light;
     padding: 8px 5px;
   }
 

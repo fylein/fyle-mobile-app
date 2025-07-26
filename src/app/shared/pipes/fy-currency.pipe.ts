@@ -8,6 +8,7 @@ import { Pipe, PipeTransform } from '@angular/core';
  */
 @Pipe({
   name: 'currency',
+  standalone: false,
 })
 export class FyCurrencyPipe implements PipeTransform {
   constructor(private currencyPipe: CurrencyPipe) {}

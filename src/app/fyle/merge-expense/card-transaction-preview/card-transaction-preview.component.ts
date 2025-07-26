@@ -4,6 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
   selector: 'app-card-transaction-preview',
   templateUrl: './card-transaction-preview.component.html',
   styleUrls: ['./card-transaction-preview.component.scss'],
+  standalone: false,
 })
 export class CardTransactionPreviewComponent implements OnInit {
   @Input() transactionDetails;

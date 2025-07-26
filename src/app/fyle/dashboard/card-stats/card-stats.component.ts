@@ -18,6 +18,7 @@ import { CardStatus } from 'src/app/core/enums/card-status.enum';
   selector: 'app-card-stats',
   templateUrl: './card-stats.component.html',
   styleUrls: ['./card-stats.component.scss'],
+  standalone: false,
 })
 export class CardStatsComponent implements OnInit {
   @Output() cardAdded = new EventEmitter<void>();

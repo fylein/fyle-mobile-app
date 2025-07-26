@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .error-internal {
   &__header {
@@ -7,7 +7,7 @@
     font-weight: 500;
     display: flex;
     flex-direction: row;
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
     gap: 12px;
 
     &__header-text {
@@ -30,7 +30,7 @@
   &__details {
     font-size: 14px;
     padding: 20px 16px;
-    color: $black;
+    color: colors.$black;
   }
 
   &__redirect {

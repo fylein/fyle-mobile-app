@@ -1,11 +1,11 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .audit-history {
   padding: 0 22px 12px 30px;
 
   &--block {
     padding-bottom: 24px;
-    border-left: 2px solid $lighter-grey;
+    border-left: 2px solid colors.$lighter-grey;
 
     &:last-child {
       border-left: 0;
@@ -21,8 +21,8 @@
     height: 20px;
     width: 20px;
     margin: 0 16px 0 -12px;
-    background-color: $pure-white;
-    color: $black;
+    background-color: colors.$pure-white;
+    color: colors.$black;
   }
 
   &--circle {
@@ -36,15 +36,15 @@
     height: 18px;
     width: 18px;
     margin: 0 20px 0 -10px;
-    color: $red;
+    color: colors.$red;
   }
 
   &--merge {
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 
   &--success {
-    color: $green !important;
+    color: colors.$green !important;
   }
 
   &--timestamp {
@@ -77,14 +77,14 @@
   }
 
   &--card-filled {
-    color: $green;
+    color: colors.$green;
   }
 
   &--flagged {
-    color: $red;
+    color: colors.$red;
   }
 
   &--unflagged {
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 }

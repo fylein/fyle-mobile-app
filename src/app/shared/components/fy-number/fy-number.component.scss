@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .fy-number {
   &--input {
@@ -7,12 +7,12 @@
     font-weight: 400;
     height: 24px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 100%;
     margin: 4px 0;
     padding: 0;
     &::placeholder {
-      color: $grey-light !important;
+      color: colors.$grey-light !important;
     }
   }
 }

@@ -5,6 +5,7 @@ import { Org } from 'src/app/core/models/org.model';
   selector: 'app-org-card',
   templateUrl: './org-card.component.html',
   styleUrls: ['./org-card.component.scss'],
+  standalone: false,
 })
 export class OrgCardComponent implements OnInit {
   @Input() org: Org;

@@ -48,6 +48,7 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
   styleUrls: ['./my-view-report.page.scss'],
+  standalone: false,
 })
 export class MyViewReportPage {
   @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;

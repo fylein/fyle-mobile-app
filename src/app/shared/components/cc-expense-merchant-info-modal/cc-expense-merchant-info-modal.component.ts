@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
   selector: 'app-cc-expense-merchant-info',
   templateUrl: './cc-expense-merchant-info-modal.component.html',
   styleUrls: ['./cc-expense-merchant-info-modal.component.scss'],
+  standalone: false,
 })
 export class CCExpenseMerchantInfoModalComponent {
   constructor(private modalController: ModalController) {}

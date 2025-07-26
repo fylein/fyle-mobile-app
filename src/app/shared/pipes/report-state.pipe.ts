@@ -3,6 +3,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Pipe({
   name: 'reportState',
+  standalone: false,
 })
 export class ReportState implements PipeTransform {
   private stateKeyMap: Record<string, string> = {

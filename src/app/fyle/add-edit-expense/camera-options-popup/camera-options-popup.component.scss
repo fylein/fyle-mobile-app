@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 $details-color: #ababab;
 
 .camera-options {
@@ -10,7 +10,7 @@ $details-color: #ababab;
 
   &--header-container {
     &__header {
-      color: $grey-light;
+      color: colors.$grey-light;
       padding-top: 24px;
       line-height: 1.3;
     }
@@ -23,7 +23,7 @@ $details-color: #ababab;
     height: 35%;
 
     &-first {
-      border-bottom: 1px solid $grey;
+      border-bottom: 1px solid colors.$grey;
     }
   }
 
@@ -34,11 +34,11 @@ $details-color: #ababab;
       vertical-align: middle;
 
       &--camera {
-        color: $grey-light;
+        color: colors.$grey-light;
       }
 
       &--gallery {
-        color: $grey-light;
+        color: colors.$grey-light;
       }
     }
   }
@@ -47,7 +47,7 @@ $details-color: #ababab;
     font-size: 18px;
     line-height: 1.3;
     font-weight: 400;
-    color: $black;
+    color: colors.$black;
     margin-left: 20px;
   }
 }

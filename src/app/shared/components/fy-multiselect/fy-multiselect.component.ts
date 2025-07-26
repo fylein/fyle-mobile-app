@@ -18,6 +18,7 @@ import { TranslocoService } from '@jsverse/transloco';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   @Input() options: { label: string; value: unknown }[] = [];

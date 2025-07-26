@@ -1,8 +1,8 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .loading-screen-container {
   padding: 12px;
-  border-bottom: 1px solid $grey-lighter;
+  border-bottom: 1px solid colors.$grey-lighter;
 
   &--checkbox {
     margin-top: 30px;

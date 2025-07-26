@@ -29,6 +29,7 @@ import { AdvanceRequestPopoverData } from 'src/app/core/models/popover-data.mode
   selector: 'app-my-view-advance-request',
   templateUrl: './my-view-advance-request.page.html',
   styleUrls: ['./my-view-advance-request.page.scss'],
+  standalone: false,
 })
 export class MyViewAdvanceRequestPage {
   advanceRequest$: Observable<ExtendedAdvanceRequestPublic>;

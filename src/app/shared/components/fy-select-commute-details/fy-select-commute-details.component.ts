@@ -19,6 +19,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-select-commute-details',
   templateUrl: './fy-select-commute-details.component.html',
   styleUrls: ['./fy-select-commute-details.component.scss'],
+  standalone: false,
 })
 export class FySelectCommuteDetailsComponent implements OnInit {
   @Input() existingCommuteDetails?: CommuteDetails;

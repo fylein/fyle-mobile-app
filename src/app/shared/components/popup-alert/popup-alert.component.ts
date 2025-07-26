@@ -5,6 +5,7 @@ import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
   selector: 'app-popup-alert',
   templateUrl: './popup-alert.component.html',
   styleUrls: ['./popup-alert.component.scss'],
+  standalone: false,
 })
 export class PopupAlertComponent {
   @Input() title: string;

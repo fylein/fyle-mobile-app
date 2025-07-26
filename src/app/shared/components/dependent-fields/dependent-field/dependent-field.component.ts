@@ -16,6 +16,7 @@ import { DependentFieldModalComponent } from './dependent-field-modal/dependent-
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class DependentFieldComponent implements ControlValueAccessor {
   @Input() label = '';

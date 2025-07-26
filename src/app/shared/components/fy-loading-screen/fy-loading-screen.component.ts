@@ -4,6 +4,7 @@ import { Component, OnInit, Input } from '@angular/core';
   selector: 'app-fy-loading-screen',
   templateUrl: './fy-loading-screen.component.html',
   styleUrls: ['./fy-loading-screen.component.scss'],
+  standalone: false,
 })
 export class FyLoadingScreenComponent implements OnInit {
   @Input() isSelectionModeEnabled: boolean;

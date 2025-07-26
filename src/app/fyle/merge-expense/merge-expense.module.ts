@@ -11,7 +11,7 @@ import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -35,10 +35,10 @@ import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form/cus
     MatNativeDateModule,
     MatCheckboxModule,
     SharedModule,
-    PinchZoomModule,
     PdfViewerModule,
     MatButtonModule,
     MatSnackBarModule,
+    PinchZoomComponent,
   ],
   declarations: [
     MergeExpensePage,

@@ -1,9 +1,9 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .reports-card {
   padding: 12px;
   margin-bottom: 6px;
-  background-color: $pure-white;
+  background-color: colors.$pure-white;
 
   &__no-top-margin {
     margin-top: 0;
@@ -14,10 +14,10 @@
   }
 
   &--date {
-    color: $black-light;
+    color: colors.$black-light;
     font-size: 14px;
     padding: 24px 14px 16px 14px;
-    background-color: $white;
+    background-color: colors.$white;
     font-weight: 500;
   }
 
@@ -44,14 +44,14 @@
     width: 16px;
     height: 16px;
     padding-top: 2px;
-    color: $black-light;
+    color: colors.$black-light;
   }
 
   &--icon-policy-violation {
     height: 16px;
     width: 18px;
     margin: 0 4px;
-    color: $dark-yellow;
+    color: colors.$dark-yellow;
   }
 
   &--secondary-info-block {
@@ -66,7 +66,7 @@
   }
 
   &--currency {
-    color: $black-light;
+    color: colors.$black-light;
     font-weight: 500;
     font-size: 16px;
     line-height: 1.3;
@@ -78,14 +78,14 @@
   }
 
   &--amount {
-    color: $black;
+    color: colors.$black;
     font-size: 16px;
     line-height: 1.3;
     font-weight: 500;
   }
 
   &--purpose {
-    color: $black-2;
+    color: colors.$black-2;
     font-size: 14px;
     font-weight: 500;
     max-width: 90%;
@@ -100,7 +100,7 @@
   &--no-transactions {
     font-size: 14px;
     line-height: 18px;
-    color: $dark-grey;
+    color: colors.$dark-grey;
   }
 }
 

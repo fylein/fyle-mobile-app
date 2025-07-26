@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .invited-user {
   display: flex;
@@ -17,25 +17,25 @@
   }
 
   &__error {
-    color: $red;
+    color: colors.$red;
     font-size: 12px;
     display: flex;
     align-items: center;
   }
 
   &__text {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid colors.$red;
     }
     &__password-focus {
-      border-bottom: 1px solid $black;
+      border-bottom: 1px solid colors.$black;
     }
   }
 
   &__mandatory {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -46,7 +46,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -58,7 +58,7 @@
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 100%;
     margin: 6px 0;
     padding: 0;
@@ -67,7 +67,7 @@
   &__password-icon {
     width: 20px;
     height: 20px;
-    fill: $black-light;
+    fill: colors.$black-light;
   }
 
   &__password-icon-container {
@@ -80,7 +80,7 @@
     margin: 0 0 10px;
     position: relative;
     margin-bottom: 24px;
-    color: $black;
+    color: colors.$black;
     font-weight: 500;
   }
 
@@ -108,13 +108,13 @@
     font-size: 16px;
     display: block;
     margin-bottom: 16px;
-    color: $grey-light-2;
+    color: colors.$grey-light-2;
     line-height: 1.5;
     font-weight: 500;
     margin-bottom: 16px;
   }
   &__sub-title {
-    color: $gray-3;
+    color: colors.$gray-3;
     display: block;
     font-size: 16px;
     font-weight: 300;

@@ -38,6 +38,7 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
   selector: 'app-switch-org',
   templateUrl: './switch-org.page.html',
   styleUrls: ['./switch-org.page.scss'],
+  standalone: false,
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
   @ViewChild('search') searchRef: ElementRef<HTMLElement>;

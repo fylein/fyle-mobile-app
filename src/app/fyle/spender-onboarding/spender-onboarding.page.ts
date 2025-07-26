@@ -17,6 +17,7 @@ import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-cor
   selector: 'app-spender-onboarding',
   templateUrl: './spender-onboarding.page.html',
   styleUrls: ['./spender-onboarding.page.scss'],
+  standalone: false,
 })
 export class SpenderOnboardingPage {
   isLoading = true;

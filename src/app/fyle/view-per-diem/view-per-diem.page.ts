@@ -38,6 +38,7 @@ import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/
   selector: 'app-view-per-diem',
   templateUrl: './view-per-diem.page.html',
   styleUrls: ['./view-per-diem.page.scss'],
+  standalone: false,
 })
 export class ViewPerDiemPage {
   @ViewChild('comments') commentsContainer: ElementRef;

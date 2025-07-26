@@ -1,15 +1,15 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .nav-footer {
   padding-top: 8px;
-  background-color: $pure-white;
+  background-color: colors.$pure-white;
 
   &__footer {
     height: 60px;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 
     &__btn {
-      border-right: 1px solid $grey;
+      border-right: 1px solid colors.$grey;
     }
 
     &__icon {

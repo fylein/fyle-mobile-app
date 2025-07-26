@@ -6,6 +6,7 @@ import { FileService } from 'src/app/core/services/file.service';
   selector: 'app-camera-options-popup',
   templateUrl: './camera-options-popup.component.html',
   styleUrls: ['./camera-options-popup.component.scss'],
+  standalone: false,
 })
 export class CameraOptionsPopupComponent implements OnInit {
   @ViewChild('fileUpload', { static: false }) fileUpload: any;

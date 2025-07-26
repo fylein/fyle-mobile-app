@@ -24,6 +24,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-opt-in',
   templateUrl: './fy-opt-in.component.html',
   styleUrls: ['./fy-opt-in.component.scss'],
+  standalone: false,
 })
 export class FyOptInComponent implements OnInit, AfterViewInit {
   @ViewChild('mobileInput') mobileInputEl: ElementRef<HTMLInputElement>;

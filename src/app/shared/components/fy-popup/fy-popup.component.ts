@@ -6,6 +6,7 @@ import { PopupConfig } from './popup.model';
   selector: 'app-fy-popup',
   templateUrl: './fy-popup.component.html',
   styleUrls: ['./fy-popup.component.scss'],
+  standalone: false,
 })
 export class FyPopupComponent implements OnInit {
   @Input() config: PopupConfig;

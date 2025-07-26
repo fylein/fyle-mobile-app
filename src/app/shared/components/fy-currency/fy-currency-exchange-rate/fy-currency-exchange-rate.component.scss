@@ -1,4 +1,4 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .exchange-rate-modal {
   padding: 16px 16px 8px 16px;
@@ -6,17 +6,17 @@
   &--label {
     font-size: 12px;
     line-height: 1.5;
-    color: $black-light;
+    color: colors.$black-light;
   }
 
   &--input {
-    color: $blue-black;
+    color: colors.$blue-black;
     margin: 6px 0;
   }
 
   &--form-control {
     margin-bottom: 20px;
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 }
 
@@ -24,7 +24,7 @@
   line-height: 26px;
   font-size: 20px;
   font-weight: 500;
-  color: $black-2;
+  color: colors.$black-2;
   margin: 0 auto;
   text-align: center;
 }
@@ -34,12 +34,12 @@
 }
 
 .exchange-rate-save {
-  color: $brand-primary;
+  color: colors.$brand-primary;
   font-size: 16px;
   line-height: 20px;
   font-weight: 500;
   padding-right: 12px;
-  background-color: $pure-white;
+  background-color: colors.$pure-white;
 }
 
 .exchange-rate-header-block {
@@ -53,5 +53,5 @@
 }
 
 .exchange-rate-value {
-  border-bottom: 1px solid $grey-lighter;
+  border-bottom: 1px solid colors.$grey-lighter;
 }

@@ -1,11 +1,11 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .opt-in {
   &--header,
   &--content,
   &--footer {
-    --ion-background-color: #{$grey-9};
-    background: #{$grey-9};
+    --ion-background-color: #{colors.$grey-9};
+    background: #{colors.$grey-9};
   }
 
   &--toolbar {
@@ -45,7 +45,7 @@
   }
 
   &--edit-icon {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     margin-left: 4px;
     margin-bottom: -2px;
   }
@@ -53,14 +53,14 @@
   &--mobile-input-container {
     &__label {
       margin-right: 8px;
-      color: $black-light;
+      color: colors.$black-light;
       line-height: 1.3;
       font-weight: 400;
       font-size: 12px;
     }
 
     &__mandatory {
-      color: $red;
+      color: colors.$red;
     }
 
     &__input::placeholder {
@@ -73,23 +73,23 @@
       border-radius: 0;
       font-weight: 600;
       line-height: 1.3;
-      color: $blue-black;
+      color: colors.$blue-black;
       width: 100%;
       padding: 6px 0;
-      border-bottom: 1px solid $grey-lighter;
+      border-bottom: 1px solid colors.$grey-lighter;
       font-size: 20px;
 
       &__error {
-        border-bottom: 1px solid $red;
+        border-bottom: 1px solid colors.$red;
       }
     }
 
     &__input:focus {
-      border-bottom: 1px solid $blue-black;
+      border-bottom: 1px solid colors.$blue-black;
     }
 
     &__error {
-      color: $red;
+      color: colors.$red;
       font-size: 12px;
     }
   }
@@ -113,7 +113,7 @@
 
     &__label {
       margin: 0 8px 0 0;
-      color: $black-light;
+      color: colors.$black-light;
       line-height: 1.3;
       font-weight: 400;
       display: flex;
@@ -126,7 +126,7 @@
       }
 
       &__resend {
-        color: $brand-primary;
+        color: colors.$brand-primary;
         font-size: 14px;
         font-weight: 500;
         background: none;
@@ -141,13 +141,13 @@
         font-size: 14px;
 
         &--timer {
-          color: $brand-primary;
+          color: colors.$brand-primary;
         }
       }
     }
 
     &__mandatory {
-      color: $red;
+      color: colors.$red;
     }
 
     &__input {
@@ -155,22 +155,22 @@
       border-radius: 0;
       font-weight: 400;
       line-height: 1.3;
-      color: $blue-black;
+      color: colors.$blue-black;
       width: 100%;
       padding: 8px 0;
-      border-bottom: 1px solid $grey-lighter;
+      border-bottom: 1px solid colors.$grey-lighter;
 
       &--error {
-        border-bottom: 1px solid $red;
+        border-bottom: 1px solid colors.$red;
       }
     }
 
     &__input:focus {
-      border-bottom: 1px solid $blue-black;
+      border-bottom: 1px solid colors.$blue-black;
     }
 
     &__error {
-      color: $red;
+      color: colors.$red;
       font-size: 12px;
     }
 
@@ -200,7 +200,7 @@
       width: 80px;
       height: 80px;
       margin-bottom: 24px;
-      color: $green;
+      color: colors.$green;
     }
 
     &__header {

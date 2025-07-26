@@ -1,8 +1,8 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .profile-opt-in-card {
   &__container {
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     border-radius: 8px;
     margin-bottom: 24px;
     padding: 16px;
@@ -17,12 +17,12 @@
   &__title {
     font-size: 16px;
     font-weight: 500;
-    color: $pure-black;
+    color: colors.$pure-black;
   }
 
   &__opt-in-btn {
     font-size: 14px;
-    color: $brand-primary;
+    color: colors.$brand-primary;
     white-space: nowrap;
     font-weight: 500;
   }
@@ -30,7 +30,7 @@
   &__description {
     margin-top: 6px;
     font-size: 14px;
-    color: $dark-grey;
+    color: colors.$dark-grey;
     line-height: 1.3;
     font-weight: 400;
   }
@@ -42,7 +42,7 @@
       margin-top: 20px;
       font-size: 14px;
       font-weight: 400;
-      color: $black-light;
+      color: colors.$black-light;
     }
 
     &__icon-container {
@@ -57,11 +57,11 @@
       width: 8px;
       margin-right: 6px;
       flex-shrink: 0;
-      background-color: $green;
+      background-color: colors.$green;
 
       &--inactive {
         @extend .profile-opt-in-card__status__icon;
-        background-color: $red;
+        background-color: colors.$red;
       }
     }
 
@@ -76,7 +76,7 @@
   }
 
   &__divider {
-    border-bottom: 1px solid $border-tertiary;
+    border-bottom: 1px solid colors.$border-tertiary;
     margin-top: 16px;
   }
 
@@ -84,7 +84,7 @@
     margin-top: 16px;
     font-size: 14px;
     font-weight: 400;
-    color: $black-light;
+    color: colors.$black-light;
 
     &__number-container {
       margin-top: 4px;
@@ -93,19 +93,19 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      color: $black;
+      color: colors.$black;
     }
 
     &__edit-icon {
       width: 20px;
       height: 20px;
-      color: $brand-primary;
+      color: colors.$brand-primary;
       margin-left: 12px;
     }
 
     &__delete-icon {
       @extend .profile-opt-in-card__mobile__edit-icon;
-      color: $red;
+      color: colors.$red;
     }
   }
 
@@ -115,7 +115,7 @@
     justify-content: space-between;
     font-size: 14px;
     font-weight: 400;
-    color: $black-light;
+    color: colors.$black-light;
 
     &__text {
       width: 80%;
@@ -125,7 +125,7 @@
   &__copy-icon {
     width: 24px;
     height: 24px;
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 
   &__non-us-number-card {
@@ -133,13 +133,13 @@
     display: flex;
     padding: 12px;
     border-radius: 6px;
-    background-color: $alice-blue;
+    background-color: colors.$alice-blue;
     font-size: 12px;
     gap: 8px;
 
     &__cta {
       white-space: nowrap;
-      color: $brand-primary;
+      color: colors.$brand-primary;
       font-weight: 500;
     }
   }

@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
   selector: 'app-dashboard-email-opt-in',
   templateUrl: './dashboard-email-opt-in.component.html',
   styleUrls: ['./dashboard-email-opt-in.component.scss'],
+  standalone: false,
 })
 export class DashboardEmailOptInComponent {
   @Output() toggleEmailOptInBanner = new EventEmitter<{ optedIn: boolean }>();

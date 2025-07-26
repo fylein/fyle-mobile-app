@@ -43,6 +43,7 @@ import { MileageLocation } from '../route-visualizer/mileage-locations.interface
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
   @Input() unit: 'KM' | 'MILES';

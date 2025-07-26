@@ -34,6 +34,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
   styleUrls: ['./my-reports.page.scss'],
+  standalone: false,
 })
 export class MyReportsPage {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;

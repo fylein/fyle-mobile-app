@@ -5,6 +5,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
   selector: 'app-transaction-status',
   templateUrl: './transaction-status.component.html',
   styleUrls: ['./transaction-status.component.scss'],
+  standalone: false,
 })
 export class TransactionStatusComponent {
   @Input() transactionStatus: ExpenseTransactionStatus;

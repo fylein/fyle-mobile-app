@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $black: #161528 !default;
 $black-2: #161528 !default;
 $black-3: #0000004d !default;
@@ -117,12 +119,12 @@ $states: (
   'submitted': #2196f3,
   'inquiry': #da1e28,
   'sent_back': #da1e28,
-  'auto_flagged': darken(#4a90e2, 20%),
+  'auto_flagged': color.adjust(#4a90e2, $lightness: -20%),
   'rejected': $rejected-color,
   'approved': $highlight-green,
   'payment_pending': $highlight-green,
-  'processing': darken(#5cb85c, 8%),
-  'paid': darken(#5cb85c, 15%),
+  'processing': color.adjust(#5cb85c, $lightness: -8%),
+  'paid': color.adjust(#5cb85c, $lightness: -15%),
   'disabled': $grey-8,
   //state pill in advance requests
   'pending': #2196f3,

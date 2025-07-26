@@ -19,6 +19,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
   styleUrls: ['./my-create-report.page.scss'],
+  standalone: false,
 })
 export class MyCreateReportPage implements OnInit {
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;

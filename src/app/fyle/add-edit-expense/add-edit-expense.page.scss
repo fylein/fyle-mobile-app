@@ -1,5 +1,5 @@
-@import '../../../theme/colors.scss';
-@import '../../../theme/forms.scss';
+@use '../../../theme/colors.scss';
+@use '../../../theme/forms.scss';
 
 .add-edit-expense {
   &--toolbar {
@@ -19,7 +19,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
-      color: $black-light;
+      color: colors.$black-light;
     }
 
     &__icon {
@@ -40,7 +40,7 @@
       padding-inline-end: 0;
       position: relative;
       line-height: 26px;
-      color: $black;
+      color: colors.$black;
       font-weight: 400;
       top: 12px;
       height: 64px;
@@ -103,7 +103,7 @@
     margin: 0;
     border-radius: 0;
     &__border {
-      border-right: 1px solid $grey;
+      border-right: 1px solid colors.$grey;
     }
   }
 
@@ -141,7 +141,7 @@
   }
 
   &--receipt-image {
-    background-color: $light-grey;
+    background-color: colors.$light-grey;
     min-width: 64px;
     min-height: 64px;
     max-width: 64px;
@@ -157,7 +157,7 @@
     font-size: 64px;
     height: 36px;
     width: 34px;
-    background-color: $light-grey;
+    background-color: colors.$light-grey;
     border-radius: 16px;
   }
 
@@ -166,7 +166,7 @@
     padding-top: 10px;
     padding-bottom: 6px;
     &__count {
-      color: $blue-black;
+      color: colors.$blue-black;
       font-size: 24px;
       font-weight: 400;
       text-align: center;
@@ -208,10 +208,10 @@
   }
 
   &--date {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid colors.$red;
     }
   }
 
@@ -220,7 +220,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -239,10 +239,10 @@
   }
 
   &--text {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid colors.$red;
     }
   }
 
@@ -251,7 +251,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -263,7 +263,7 @@
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 100%;
     margin: 6px 0;
     padding: 0;
@@ -271,7 +271,7 @@
 
   &--checkbox {
     font-size: 14px;
-    color: $blue-black;
+    color: colors.$blue-black;
     font-weight: 400;
   }
 
@@ -317,16 +317,16 @@
   &--split-expense-container {
     display: flex;
     flex-direction: row;
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     padding: 0;
   }
 
   &--split-expense-title {
     font-size: 12px;
     font-weight: 500;
-    color: $black-2;
+    color: colors.$black-2;
     margin-bottom: 20px;
-    border: 1px solid $grey-light;
+    border: 1px solid colors.$grey-light;
     border-radius: 4px;
     padding: 10px 20px;
     width: max-content;
@@ -345,7 +345,7 @@
 
     &__with-border {
       margin: 8px 0px;
-      border: 1px solid $grey-lighter;
+      border: 1px solid colors.$grey-lighter;
       margin-left: 0;
       border-radius: 4px;
       padding: 8px;
@@ -353,13 +353,13 @@
   }
 
   &--split-info-icon {
-    color: $highlight-blue;
+    color: colors.$highlight-blue;
     margin-right: 10px;
   }
 
   &--split-info-message {
     width: 100%;
-    color: $blue-black;
+    color: colors.$blue-black;
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.16px;
@@ -367,7 +367,7 @@
 
   &--comment {
     border-radius: 4px;
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
     padding: 12px;
     margin-bottom: 10px;
   }
@@ -376,7 +376,7 @@
     display: flex;
     align-items: center;
     padding: 12px;
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
     border-radius: 4px;
   }
 
@@ -553,26 +553,26 @@
 
   &--payment-mode-header {
     font-size: 14px;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--payment-mode-section {
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     margin-top: 4px;
   }
 
   &--check {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     font-size: 20px;
   }
 
   &--error {
-    color: $red;
+    color: colors.$red;
   }
 
   &--card-header {
-    color: $black-light;
+    color: colors.$black-light;
     margin-bottom: 8px;
     font-size: 12px;
     font-weight: 400;
@@ -580,11 +580,11 @@
   }
 
   &--card-txn-container {
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
     border-radius: 8px;
     padding: 8px;
     display: flex;
-    color: $grey-light;
+    color: colors.$grey-light;
     align-items: center;
     margin-top: 8px;
     font-size: 12px;
@@ -604,12 +604,12 @@
   }
 
   &--matching-card {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
     display: flex;
     padding: 4px 0;
     justify-content: space-between;
     font-size: 14px;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--icon-loading {
@@ -634,17 +634,17 @@
   }
 
   &--card-arrow {
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 
   &--error {
-    color: $red;
+    color: colors.$red;
     line-height: 16px;
     font-size: 12px;
   }
 
   &--amount-error {
-    color: $red;
+    color: colors.$red;
     font-size: 12px;
     margin: -14px 0 0 53%;
   }
@@ -654,7 +654,7 @@
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -662,7 +662,7 @@
 
   &--ccc-expense {
     pointer-events: none;
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 
   &--text-block {
@@ -675,7 +675,7 @@
   }
 
   &--card-container {
-    background: $pink-gradient-2;
+    background: colors.$pink-gradient-2;
     padding: 16px;
     margin: 12px 0;
     border-radius: 8px;
@@ -683,14 +683,14 @@
     &__merchant_block {
       display: flex;
       gap: 6px;
-      border-top: 1px solid $grey;
+      border-top: 1px solid colors.$grey;
       padding-top: 12px;
       margin-top: 12px;
       align-items: center;
     }
 
     &__merchant_label {
-      color: $black-light;
+      color: colors.$black-light;
       font-size: 12px;
     }
 
@@ -698,25 +698,25 @@
       display: flex;
       align-items: center;
       gap: 2px;
-      color: $blue-black;
+      color: colors.$blue-black;
       font-weight: 500;
       font-size: 12px;
     }
 
     &__merchant_info_icon {
-      color: $blue-black;
+      color: colors.$blue-black;
       width: 16px;
       height: 16px;
     }
 
     &__label {
-      color: $black-light;
+      color: colors.$black-light;
       font-size: 12px;
       margin-bottom: 6px;
     }
 
     &__value {
-      color: $blue-black;
+      color: colors.$blue-black;
       font-weight: 500;
     }
 
@@ -726,7 +726,7 @@
     }
 
     &__credit {
-      color: $green;
+      color: colors.$green;
       font-weight: 500;
     }
 
@@ -741,7 +741,7 @@
   }
 
   &__skeleton-loader {
-    background: $off-white;
+    background: colors.$off-white;
     border-radius: 4px;
     height: 16px;
 
@@ -755,7 +755,7 @@
   &--date-error,
   &--travel-text-error,
   &--distance-error {
-    color: $red;
+    color: colors.$red;
     line-height: 16px;
     font-size: 12px;
     margin-top: 6px;
@@ -763,7 +763,7 @@
 
   &--travel-select-error,
   &--distance-unit-error {
-    color: $red;
+    color: colors.$red;
     line-height: 16px;
     font-size: 12px;
   }
@@ -773,7 +773,7 @@
     align-items: center;
     height: 12px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     margin-top: 4px;
   }
 

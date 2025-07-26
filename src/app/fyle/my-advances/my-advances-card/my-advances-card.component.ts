@@ -9,6 +9,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-my-advances-card',
   templateUrl: './my-advances-card.component.html',
   styleUrls: ['./my-advances-card.component.scss'],
+  standalone: false,
 })
 export class MyAdvancesCardComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

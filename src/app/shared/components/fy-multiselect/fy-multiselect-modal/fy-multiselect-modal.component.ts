@@ -10,6 +10,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
   selector: 'app-fy-multiselect-modal',
   templateUrl: './fy-multiselect-modal.component.html',
   styleUrls: ['./fy-multiselect-modal.component.scss'],
+  standalone: false,
 })
 export class FyMultiselectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;

@@ -1,9 +1,9 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .bank-accounts {
   padding: 12px 0;
   height: 140px;
-  background-color: $pure-white;
+  background-color: colors.$pure-white;
 
   &--swiper {
     height: 136px;

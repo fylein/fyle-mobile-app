@@ -6,6 +6,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-header',
   templateUrl: './fy-header.component.html',
   styleUrls: ['./fy-header.component.scss'],
+  standalone: false,
 })
 export class FyHeaderComponent implements OnInit {
   @Input() currentState: HeaderState;

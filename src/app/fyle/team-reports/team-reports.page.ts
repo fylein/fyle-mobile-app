@@ -36,6 +36,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
   selector: 'app-team-reports',
   templateUrl: './team-reports.page.html',
   styleUrls: ['./team-reports.page.scss'],
+  standalone: false,
 })
 export class TeamReportsPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;

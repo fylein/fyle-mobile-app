@@ -16,6 +16,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-expense-preview',
   templateUrl: './expense-preview.component.html',
   styleUrls: ['./expense-preview.component.scss'],
+  standalone: false,
 })
 export class ExpensePreviewComponent implements OnInit {
   @Input() expenseId: string;

@@ -1,5 +1,5 @@
-@import '../../../../theme/colors.scss';
-@import '../../../../theme/forms.scss';
+@use '../../../../theme/colors.scss';
+@use '../../../../theme/forms.scss';
 
 .merge-expenses {
   &--text-label {
@@ -7,7 +7,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
   }
@@ -16,7 +16,7 @@
     border: 0;
     height: 24px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 100%;
     margin: 6px 0;
     padding: 0;
@@ -29,7 +29,7 @@
 
   &--internal-block {
     padding: 6px 0;
-    background: $pure-white;
+    background: colors.$pure-white;
     line-height: 1;
     margin-bottom: 12px;
     &__margin {
@@ -38,18 +38,18 @@
   }
 
   &--error {
-    color: $red;
+    color: colors.$red;
     line-height: 16px;
     margin-top: -12px;
     font-size: 12px;
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     display: inline-block;
   }
 
   &--disabled {
-    background: $grey-7;
+    background: colors.$grey-7;
   }
 }

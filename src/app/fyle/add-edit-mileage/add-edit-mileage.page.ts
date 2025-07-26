@@ -116,6 +116,7 @@ import { MileageSettings } from 'src/app/core/models/mileage-settings.model';
   selector: 'app-add-edit-mileage',
   templateUrl: './add-edit-mileage.page.html',
   styleUrls: ['./add-edit-mileage.page.scss'],
+  standalone: false,
 })
 export class AddEditMileagePage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;

@@ -3,6 +3,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Pipe({
   name: 'mileageRateName',
+  standalone: false,
 })
 export class MileageRateName implements PipeTransform {
   constructor(private translocoService: TranslocoService) {}

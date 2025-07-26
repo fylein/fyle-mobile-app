@@ -1,7 +1,7 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .camera-preview {
-  --background: #{$pure-black};
+  --background: #{colors.$pure-black};
 
   &--active {
     --background: transparent;
@@ -15,19 +15,19 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: $black;
+    background-color: colors.$black;
     opacity: 0.5;
     z-index: 2;
   }
 
   &__flash-msg {
-    background-color: $black-3;
+    background-color: colors.$black-3;
     width: 180px;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: $pure-white;
+    color: colors.$pure-white;
     border-radius: 8px;
 
     &__content {
@@ -48,9 +48,9 @@
 
     &__info-box {
       font-size: 14px;
-      background: $black-shadow;
+      background: colors.$black-shadow;
       border-radius: 8px;
-      color: $pure-white;
+      color: colors.$pure-white;
       padding: 4px 16px;
       font-weight: 600;
       width: 160px;
@@ -112,7 +112,7 @@
       }
 
       &--highlight {
-        border: 1px solid $lighter-grey;
+        border: 1px solid colors.$lighter-grey;
         border-radius: 8px;
       }
 
@@ -128,7 +128,7 @@
     }
 
     &__text {
-      color: $pure-white;
+      color: colors.$pure-white;
       font-size: 15px;
       font-weight: 500;
 
@@ -144,7 +144,7 @@
     }
 
     &__thumbnail {
-      background-color: $black-4;
+      background-color: colors.$black-4;
       border-radius: 8px;
       display: flex;
       padding: 4px 12px;
@@ -153,10 +153,10 @@
       margin: auto;
 
       &__count {
-        background: $pink-gradient-light;
-        border: 1px solid $pink-gradient-light;
+        background: colors.$pink-gradient-light;
+        border: 1px solid colors.$pink-gradient-light;
         border-radius: 50%;
-        color: $pure-white;
+        color: colors.$pure-white;
         font-weight: 500;
         position: relative;
         left: 54px;

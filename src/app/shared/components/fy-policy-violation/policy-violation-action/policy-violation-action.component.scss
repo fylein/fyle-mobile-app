@@ -1,9 +1,9 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .policy-violation-action {
   &--container {
     padding: 16px;
-    border: 1px solid $alice-blue;
+    border: 1px solid colors.$alice-blue;
     &__multiple-actions {
       border-radius: 4px 4px 0px 0px;
     }

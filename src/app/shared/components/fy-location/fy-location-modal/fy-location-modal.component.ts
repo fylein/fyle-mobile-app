@@ -37,6 +37,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-location-modal',
   templateUrl: './fy-location-modal.component.html',
   styleUrls: ['./fy-location-modal.component.scss'],
+  standalone: false,
 })
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -22,6 +22,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
   selector: 'app-notifications-beta',
   templateUrl: './notifications-beta.page.html',
   styleUrls: ['./notifications-beta.page.scss'],
+  standalone: false,
 })
 export class NotificationsBetaPage implements OnInit {
   selectedPreference: 'onlyMe' | 'onlyDelegate' | 'both';

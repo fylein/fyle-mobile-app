@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
   selector: 'app-fy-critical-policy-violation',
   templateUrl: './fy-critical-policy-violation.component.html',
   styleUrls: ['./fy-critical-policy-violation.component.scss'],
+  standalone: false,
 })
 export class FyCriticalPolicyViolationComponent {
   @Input() criticalViolationMessages = [];

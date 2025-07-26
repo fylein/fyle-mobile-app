@@ -45,6 +45,7 @@ import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/c
   selector: 'app-view-expense',
   templateUrl: './view-expense.page.html',
   styleUrls: ['./view-expense.page.scss'],
+  standalone: false,
 })
 export class ViewExpensePage {
   @ViewChild('comments') commentsContainer: ElementRef;

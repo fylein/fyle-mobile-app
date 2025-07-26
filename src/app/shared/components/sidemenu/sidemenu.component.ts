@@ -28,6 +28,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-sidemenu',
   templateUrl: './sidemenu.component.html',
   styleUrls: ['./sidemenu.component.scss'],
+  standalone: false,
 })
 export class SidemenuComponent implements OnInit {
   @Output() switchDelegator = new EventEmitter<boolean>();

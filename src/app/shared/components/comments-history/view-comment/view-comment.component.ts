@@ -21,6 +21,7 @@ import { Router } from '@angular/router';
   templateUrl: './view-comment.component.html',
   styleUrls: ['./view-comment.component.scss'],
   providers: [DateWithTimezonePipe],
+  standalone: false,
 })
 export class ViewCommentComponent implements OnInit {
   @Input() objectType: string;

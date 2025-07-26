@@ -34,6 +34,7 @@ import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-request
   selector: 'app-view-team-advance',
   templateUrl: './view-team-advance-request.page.html',
   styleUrls: ['./view-team-advance-request.page.scss'],
+  standalone: false,
 })
 export class ViewTeamAdvanceRequestPage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;

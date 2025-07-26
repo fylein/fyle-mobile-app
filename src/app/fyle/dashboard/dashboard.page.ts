@@ -46,6 +46,7 @@ SwiperCore.use([Pagination, Autoplay]);
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
+  standalone: false,
 })
 export class DashboardPage {
   @ViewChild(StatsComponent) statsComponent: StatsComponent;

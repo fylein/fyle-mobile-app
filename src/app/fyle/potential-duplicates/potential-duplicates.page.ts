@@ -16,6 +16,7 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
   selector: 'app-potential-duplicates',
   templateUrl: './potential-duplicates.page.html',
   styleUrls: ['./potential-duplicates.page.scss'],
+  standalone: false,
 })
 export class PotentialDuplicatesPage {
   duplicateSets$: Observable<Expense[][]>;

@@ -1,15 +1,15 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .sidemenu-header {
   &__toolbar {
-    --background: #{$black};
+    --background: #{colors.$black};
   }
 
   &__grid {
     margin-top: 36px;
     padding: 0 8px 36px 24px;
     line-height: 1.3;
-    border-bottom: 1px solid $border-translucent-grey;
+    border-bottom: 1px solid colors.$border-translucent-grey;
   }
 
   &__icon-container {
@@ -38,14 +38,14 @@
     }
 
     &__sub-title {
-      color: $grey-light;
+      color: colors.$grey-light;
       padding-left: 2px;
     }
 
     &__icon {
       height: 16px;
       min-width: 18px;
-      color: $grey-light;
+      color: colors.$grey-light;
     }
   }
 }

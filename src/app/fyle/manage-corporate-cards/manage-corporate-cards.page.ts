@@ -39,6 +39,7 @@ import { isNumber } from 'lodash';
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
   styleUrls: ['./manage-corporate-cards.page.scss'],
+  standalone: false,
 })
 export class ManageCorporateCardsPage {
   corporateCards$: Observable<PlatformCorporateCard[]>;

@@ -11,6 +11,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   selector: 'app-email-notifications',
   templateUrl: './email-notifications.component.html',
   styleUrls: ['./email-notifications.component.scss'],
+  standalone: false,
 })
 export class EmailNotificationsComponent implements OnInit {
   @Input() title: string;

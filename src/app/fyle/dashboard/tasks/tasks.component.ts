@@ -46,6 +46,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-tasks',
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.scss'],
+  standalone: false,
 })
 export class TasksComponent implements OnInit {
   @Output() optedIn = new EventEmitter<void>();

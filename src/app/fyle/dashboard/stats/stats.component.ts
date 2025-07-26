@@ -21,6 +21,7 @@ import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/re
   selector: 'app-stats',
   templateUrl: './stats.component.html',
   styleUrls: ['./stats.component.scss'],
+  standalone: false,
 })
 export class StatsComponent implements OnInit {
   draftStats$: Observable<PlatformReportsStatsResponse>;

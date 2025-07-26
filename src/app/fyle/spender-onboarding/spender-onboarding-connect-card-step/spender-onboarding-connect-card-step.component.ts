@@ -26,6 +26,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-spender-onboarding-connect-card-step',
   templateUrl: './spender-onboarding-connect-card-step.component.html',
   styleUrls: ['./spender-onboarding-connect-card-step.component.scss'],
+  standalone: false,
 })
 export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChanges {
   @Input() orgSettings: OrgSettings;

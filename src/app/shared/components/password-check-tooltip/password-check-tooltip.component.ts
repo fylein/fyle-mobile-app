@@ -7,6 +7,7 @@ import { PasswordCriteria } from './password-criteria.model';
   selector: 'app-password-check-tooltip',
   templateUrl: './password-check-tooltip.component.html',
   styleUrls: ['./password-check-tooltip.component.scss'],
+  standalone: false,
 })
 export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
   @Input() password: string;

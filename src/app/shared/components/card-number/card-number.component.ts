@@ -4,6 +4,7 @@ import { Component, Input } from '@angular/core';
   selector: 'app-card-number',
   templateUrl: './card-number.component.html',
   styleUrls: ['./card-number.component.scss'],
+  standalone: false,
 })
 export class CardNumberComponent {
   @Input() cardNumber: string;

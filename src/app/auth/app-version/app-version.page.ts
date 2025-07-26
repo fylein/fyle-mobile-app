@@ -11,6 +11,7 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
   selector: 'app-app-version',
   templateUrl: './app-version.page.html',
   styleUrls: ['./app-version.page.scss'],
+  standalone: false,
 })
 export class AppVersionPage implements OnInit {
   message: string;

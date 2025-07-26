@@ -1,4 +1,4 @@
-@import '../../../theme/colors';
+@use '../../../theme/colors';
 $item-border-color: #e0e0e0;
 $background-color: #fff;
 $menu-botton-color: #000;
@@ -24,7 +24,7 @@ $toolbar-border: #ababab6b;
   }
 
   &--content {
-    --background: #{$white};
+    --background: #{colors.$white};
     --padding-bottom: 100px;
   }
 

@@ -51,6 +51,7 @@ import { properties } from 'src/app/core/mock-data/modal-properties.data';
 @Component({
   selector: 'app-corporate-card',
   template: '<div></div>',
+  standalone: false,
 })
 class MockCorporateCardComponent {
   @Input() card: PlatformCorporateCard;

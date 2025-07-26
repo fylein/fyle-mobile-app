@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .transaction-status {
   &__container {
@@ -13,11 +13,11 @@
     margin-right: 6px;
 
     &.posted {
-      background-color: $green;
+      background-color: colors.$green;
     }
 
     &.pending {
-      background-color: $red;
+      background-color: colors.$red;
     }
   }
 
@@ -27,13 +27,13 @@
   }
 
   &__status-label {
-    color: $black-light;
+    color: colors.$black-light;
     font-size: 12px;
     margin-bottom: 2px;
   }
 
   &__status-value {
-    color: $blue-black;
+    color: colors.$blue-black;
     font-weight: 500;
     margin-left: 6px;
     margin-right: 2px;
@@ -42,7 +42,7 @@
   }
 
   &__info-icon {
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 16px;
     height: 16px;
   }

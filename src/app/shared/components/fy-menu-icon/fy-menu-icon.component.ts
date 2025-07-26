@@ -5,6 +5,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   selector: 'app-fy-menu-icon',
   templateUrl: './fy-menu-icon.component.html',
   styleUrls: ['./fy-menu-icon.component.scss'],
+  standalone: false,
 })
 export class FyMenuIconComponent implements OnInit {
   constructor(private trackingService: TrackingService) {}

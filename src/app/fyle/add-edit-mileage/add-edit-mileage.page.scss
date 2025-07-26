@@ -1,5 +1,5 @@
-@import '../../../theme/colors.scss';
-@import '../../../theme/forms.scss';
+@use '../../../theme/colors.scss';
+@use '../../../theme/forms.scss';
 
 .add-edit-mileage {
   &--toolbar {
@@ -20,7 +20,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
@@ -36,7 +36,7 @@
       padding-inline-end: 0;
       position: relative;
       line-height: 26px;
-      color: $black;
+      color: colors.$black;
       font-weight: 400;
       top: 12px;
       height: 64px;
@@ -91,7 +91,7 @@
   }
 
   &--date {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &--date-label {
@@ -99,7 +99,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -117,10 +117,10 @@
   }
 
   &--text {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid colors.$red;
     }
   }
 
@@ -129,7 +129,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -146,7 +146,7 @@
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 100%;
     padding: 0;
     margin: 6px 0;
@@ -154,7 +154,7 @@
 
   &--checkbox {
     font-size: 14px;
-    color: $blue-black;
+    color: colors.$blue-black;
     font-weight: 400;
   }
 
@@ -192,12 +192,12 @@
     }
 
     &__invalid {
-      border-color: $red;
+      border-color: colors.$red;
     }
   }
 
   &--conversion {
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
     background-color: #f2f2f2;
     border-radius: 4px;
   }
@@ -207,7 +207,7 @@
     align-items: center;
     padding: 12px;
     border-radius: 4px;
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
   }
 
   &--delete-icon {
@@ -246,7 +246,7 @@
   }
 
   &--error {
-    color: $red;
+    color: colors.$red;
     line-height: 16px;
     margin-top: -16px;
     font-size: 12px;
@@ -265,21 +265,21 @@
   }
 
   &--amount-box {
-    background: $pure-white;
+    background: colors.$pure-white;
     border-radius: 16px;
     margin: 8px 0;
     display: flex;
     height: 52px;
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
     align-items: center;
     justify-content: space-between;
     font-weight: 500;
     text-transform: lowercase;
-    color: $black-2;
+    color: colors.$black-2;
   }
 
   &--add-stop {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     display: flex;
     align-items: center;
     font-size: 12px;
@@ -300,7 +300,7 @@
   }
 
   &--comment {
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
     padding: 12px;
     margin-bottom: 10px;
   }
@@ -436,12 +436,12 @@
 
   &--payment-mode-header {
     font-size: 14px;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--payment-mode-section {
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     margin-top: 4px;
   }
 
@@ -454,18 +454,18 @@
     &--icon {
       width: 14px;
       height: 14px;
-      color: $brand-primary;
+      color: colors.$brand-primary;
       margin-right: 8px;
     }
   }
 
   &--check {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     font-size: 20px;
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -491,7 +491,7 @@
   }
 
   &__skeleton-loader {
-    background: $off-white;
+    background: colors.$off-white;
     border-radius: 4px;
     height: 16px;
 

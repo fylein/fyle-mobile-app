@@ -29,6 +29,7 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 @Component({
   selector: 'app-fy-alert-info',
   template: '<div></div>',
+  standalone: false,
 })
 export class MockFyAlertInfoComponent {
   @Input() message: string;

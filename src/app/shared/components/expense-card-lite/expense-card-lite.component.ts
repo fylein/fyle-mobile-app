@@ -5,6 +5,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
   selector: 'app-expense-card-lite',
   templateUrl: './expense-card-lite.component.html',
   styleUrls: ['./expense-card-lite.component.scss'],
+  standalone: false,
 })
 export class ExpenseCardLiteComponent implements OnInit {
   @Input() expense: Expense;

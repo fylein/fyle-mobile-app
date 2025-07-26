@@ -48,6 +48,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
   selector: 'app-add-edit-advance-request',
   templateUrl: './add-edit-advance-request.page.html',
   styleUrls: ['./add-edit-advance-request.page.scss'],
+  standalone: false,
 })
 export class AddEditAdvanceRequestPage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef;

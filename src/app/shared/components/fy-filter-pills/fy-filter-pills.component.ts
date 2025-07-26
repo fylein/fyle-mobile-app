@@ -5,6 +5,7 @@ import { FilterPill } from './filter-pill.interface';
   selector: 'app-fy-filter-pills',
   templateUrl: './fy-filter-pills.component.html',
   styleUrls: ['./fy-filter-pills.component.scss'],
+  standalone: false,
 })
 export class FyFilterPillsComponent implements OnInit {
   @Input() filterPills: FilterPill[];

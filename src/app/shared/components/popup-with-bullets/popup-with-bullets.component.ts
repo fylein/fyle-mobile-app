@@ -11,6 +11,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-popup-with-bullets',
   templateUrl: './popup-with-bullets.component.html',
   styleUrls: ['./popup-with-bullets.component.scss'],
+  standalone: false,
 })
 export class PopupWithBulletsComponent {
   @Input() title: string;

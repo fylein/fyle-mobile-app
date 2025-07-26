@@ -10,6 +10,7 @@ SwiperCore.use([Pagination]);
   selector: 'app-spent-cards',
   templateUrl: './spent-cards.component.html',
   styleUrls: ['./spent-cards.component.scss'],
+  standalone: false,
 })
 export class SpentCardsComponent {
   @Input() cardDetails: PlatformCorporateCardDetail[];

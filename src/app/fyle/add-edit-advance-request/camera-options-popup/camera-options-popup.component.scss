@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 $details-color: #ababab;
 
 .camera-options {
@@ -15,7 +15,7 @@ $details-color: #ababab;
     height: 45%;
 
     &-first {
-      border-bottom: 1px solid $grey;
+      border-bottom: 1px solid colors.$grey;
     }
   }
 
@@ -25,18 +25,18 @@ $details-color: #ababab;
     vertical-align: middle;
 
     &--camera {
-      color: $grey-light;
+      color: colors.$grey-light;
     }
 
     &--gallery {
-      color: $grey-light;
+      color: colors.$grey-light;
     }
   }
 
   &--content {
     font-size: 18px;
     line-height: 1.3;
-    color: $black;
+    color: colors.$black;
     margin-left: 20px;
   }
 }

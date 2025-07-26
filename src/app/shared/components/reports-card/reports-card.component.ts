@@ -6,6 +6,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
   selector: 'app-reports-card',
   templateUrl: './reports-card.component.html',
   styleUrls: ['./reports-card.component.scss'],
+  standalone: false,
 })
 export class ReportsCardComponent implements OnInit {
   @Input() report: Report;

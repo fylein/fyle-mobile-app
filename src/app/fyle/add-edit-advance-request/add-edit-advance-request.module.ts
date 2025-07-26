@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
@@ -31,8 +31,8 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     MatInputModule,
     SharedModule,
     MatCheckboxModule,
-    PinchZoomModule,
     PdfViewerModule,
+    PinchZoomComponent,
   ],
   declarations: [
     AddEditAdvanceRequestPage,

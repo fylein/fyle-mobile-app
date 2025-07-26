@@ -7,6 +7,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   template: `<button appFormButtonValidation>Save</button>`,
+  standalone: false,
 })
 class TestFormValidationButtonComponent {}
 

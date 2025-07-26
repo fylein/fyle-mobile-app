@@ -1,13 +1,13 @@
-@import '.././../../../theme/colors.scss';
+@use '.././../../../theme/colors.scss';
 
 .add-expenses-to-report {
   &--toolbar {
-    background-color: $pure-white;
-    border-bottom: 1px solid $grey-lighter;
+    background-color: colors.$pure-white;
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &--title-container {
-    color: $blue-black;
+    color: colors.$blue-black;
     font-weight: 500;
   }
 
@@ -33,7 +33,7 @@
   &--select-all-checkbox {
     font-size: 14px;
     padding: 16px 16px;
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
   }
 
   &--zero-state {
@@ -41,7 +41,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: $blue-black;
+    color: colors.$blue-black;
     line-height: 1.5;
     font-weight: 500;
     margin: 20% 20px 10px;
@@ -50,7 +50,7 @@
       margin-top: 12px;
       margin-bottom: 10px;
       font-size: 15px;
-      color: $black;
+      color: colors.$black;
       font-weight: 500;
       display: flex;
       flex-direction: column;
@@ -59,7 +59,7 @@
     &--sub-header {
       font-size: 14px;
       text-align: center;
-      color: $dark-grey;
+      color: colors.$dark-grey;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -68,7 +68,7 @@
       white-space: nowrap;
       &--icon {
         height: 14px;
-        color: $dark-grey;
+        color: colors.$dark-grey;
       }
     }
   }

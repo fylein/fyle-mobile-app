@@ -10,6 +10,7 @@ dayjs.extend(timezone);
 
 @Pipe({
   name: 'dateWithTimezone',
+  standalone: false,
 })
 @Injectable({ providedIn: 'root' })
 export class DateWithTimezonePipe implements PipeTransform {

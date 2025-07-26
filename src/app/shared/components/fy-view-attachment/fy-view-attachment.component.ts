@@ -21,6 +21,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-view-attachment',
   templateUrl: './fy-view-attachment.component.html',
   styleUrls: ['./fy-view-attachment.component.scss'],
+  standalone: false,
 })
 export class FyViewAttachmentComponent implements OnInit {
   @Input() attachments: FileObject[];

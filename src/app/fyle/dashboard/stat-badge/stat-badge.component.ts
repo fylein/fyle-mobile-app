@@ -5,6 +5,7 @@ import { ReportStates } from './report-states.enum';
   selector: 'app-stat-badge',
   templateUrl: './stat-badge.component.html',
   styleUrls: ['./stat-badge.component.scss'],
+  standalone: false,
 })
 export class StatBadgeComponent {
   @Input() reportState: ReportStates;

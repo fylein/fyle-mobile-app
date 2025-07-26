@@ -16,6 +16,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-create-new-report',
   templateUrl: './create-new-report.component.html',
   styleUrls: ['./create-new-report.component.scss'],
+  standalone: false,
 })
 export class CreateNewReportComponent implements OnInit {
   @Input() selectedExpensesToReport: Expense[];

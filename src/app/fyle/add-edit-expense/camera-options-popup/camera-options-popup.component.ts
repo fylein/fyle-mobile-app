@@ -12,6 +12,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-camera-options-popup',
   templateUrl: './camera-options-popup.component.html',
   styleUrls: ['./camera-options-popup.component.scss'],
+  standalone: false,
 })
 export class CameraOptionsPopupComponent implements OnInit {
   @Input() mode: string;

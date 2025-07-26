@@ -37,6 +37,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-spender-onboarding-opt-in-step',
   templateUrl: './spender-onboarding-opt-in-step.component.html',
   styleUrls: ['./spender-onboarding-opt-in-step.component.scss'],
+  standalone: false,
 })
 export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   @ViewChild('mobileInput') mobileInputEl: ElementRef<HTMLInputElement>;

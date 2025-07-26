@@ -6,6 +6,7 @@ import { from } from 'rxjs';
   selector: 'app-delegated-acc-message',
   templateUrl: './delegated-acc-message.component.html',
   styleUrls: ['./delegated-acc-message.component.scss'],
+  standalone: false,
 })
 export class DelegatedAccMessageComponent implements OnInit {
   delegateeName;

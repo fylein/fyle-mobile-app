@@ -31,6 +31,7 @@ interface CombinedOptions {
   templateUrl: './custom-inputs-fields-form.component.html',
   styleUrls: ['./custom-inputs-fields-form.component.scss'],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: CustomInputsFieldsFormComponent, multi: true }],
+  standalone: false,
 })
 export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges {
   @Input() customInputs: CustomInputsField[];

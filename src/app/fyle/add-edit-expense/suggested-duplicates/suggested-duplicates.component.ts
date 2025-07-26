@@ -14,6 +14,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-suggested-duplicates',
   templateUrl: './suggested-duplicates.component.html',
   styleUrls: ['./suggested-duplicates.component.scss'],
+  standalone: false,
 })
 export class SuggestedDuplicatesComponent {
   @Input() duplicateExpenseIDs: string[];

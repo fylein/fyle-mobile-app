@@ -7,6 +7,7 @@ import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.m
   selector: 'app-show-all-approvers-popover',
   templateUrl: './show-all-approvers-popover.component.html',
   styleUrls: ['./show-all-approvers-popover.component.scss'],
+  standalone: false,
 })
 export class ShowAllApproversPopoverComponent {
   @Input() approvals: ReportApprovals[];
