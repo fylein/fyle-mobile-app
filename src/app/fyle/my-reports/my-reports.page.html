@@ -27,31 +27,29 @@
   </ng-container>
 
   <ng-container simpleSearch>
-    <div class="expense-report-search my-reports--simple-search-container">
+    <div class="my-reports--simple-search-container">
       <mat-form-field appearance="outline" class="mat-form-field-no-padding my-reports--simple-search">
-        <div class="my-reports--simple-search-block">
-          <mat-icon class="my-reports--simple-search-icon" matPrefix svgIcon="search"></mat-icon>
-          <input
-            #simpleSearchInput
-            [(ngModel)]="simpleSearchText"
-            class="my-reports--simple-search-input smartlook-show"
-            matInput
-            [placeholder]="'myReportsPage.searchPlaceholder' | transloco"
-            (focus)="onSearchBarFocus()"
-          />
-          @if (simpleSearchText) {
-          <button
-            (click)="clearText('isFromSearchBar')"
-            aria-label="Clear"
-            class="my-reports--simple-search-close"
-            mat-button
-            mat-icon-button
-            matSuffix
-          >
-            <mat-icon svgIcon="clear"></mat-icon>
-          </button>
-          }
-        </div>
+        <mat-icon class="my-reports--simple-search-icon" matPrefix svgIcon="search"></mat-icon>
+        <input
+          #simpleSearchInput
+          [(ngModel)]="simpleSearchText"
+          class="my-reports--simple-search-input smartlook-show"
+          matInput
+          [placeholder]="'myReportsPage.searchPlaceholder' | transloco"
+          (focus)="onSearchBarFocus()"
+        />
+        @if (simpleSearchText) {
+        <button
+          (click)="clearText('isFromSearchBar')"
+          aria-label="Clear"
+          class="my-reports--simple-search-close"
+          mat-button
+          mat-icon-button
+          matSuffix
+        >
+          <mat-icon svgIcon="clear"></mat-icon>
+        </button>
+        }
       </mat-form-field>
     </div>
   </ng-container>
@@ -87,7 +85,6 @@
         image="../../../assets/images/zero-states/reports.png"
         [message]="'myReportsPage.zeroState.noReports' | transloco"
       ></app-fy-zero-state>
-      }
       <button
         type="button"
         [routerLink]="['/', 'enterprise', 'my_create_report']"
@@ -96,7 +93,7 @@
       >
         {{ 'myReportsPage.createExpenseReport' | transloco }}
       </button>
-      @if ((filters?.state || filters?.date)) {
+      } @if ((filters?.state || filters?.date)) {
       <app-fy-zero-state
         [unscaledImage]="true"
         [useNewStyling]="true"
