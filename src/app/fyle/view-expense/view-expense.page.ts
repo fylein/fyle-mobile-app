@@ -40,6 +40,7 @@ import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/p
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { ThemeService } from 'src/app/core/services/theme.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -158,7 +159,8 @@ export class ViewExpensePage {
     private approverFileService: ApproverFileService,
     private approverReportsService: ApproverReportsService,
     private spenderExpenseCommentService: SpenderExpenseCommentService,
-    private approverExpenseCommentService: ApproverExpenseCommentService
+    private approverExpenseCommentService: ApproverExpenseCommentService,
+    private themeService: ThemeService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {

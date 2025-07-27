@@ -2,7 +2,7 @@
 
 .my-expenses {
   &--toolbar-header {
-    border-bottom: 1px solid #e6e6e6;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--header-btn {
@@ -20,7 +20,7 @@
   &--filter-pills {
     position: fixed;
     width: 100%;
-    background-color: $white;
+    background-color: var(--background-primary);
     z-index: 99;
   }
 
@@ -40,7 +40,7 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    color: $blue-black;
+    color: var(--primary-text);
     padding: 20px 0px 20px 12px;
     font-size: 18px;
     gap: 4px;
@@ -49,10 +49,11 @@
   &--multiselect-amount {
     font-size: 14px;
     font-weight: 400;
+    color: var(--secondary-text);
   }
 
   &--content {
-    --background: #{$white};
+    --background: var(--background-primary);
     --padding-bottom: 82px;
   }
 
@@ -76,7 +77,7 @@
   }
 
   &--stats {
-    color: black;
+    color: var(--primary-text);
     position: relative;
     top: 8px;
   }
@@ -84,17 +85,19 @@
   &--amount {
     font-size: 24px;
     font-weight: 500;
+    color: var(--primary-text);
   }
 
   &--homeCurrency {
     font-size: 18px;
     font-weight: 500;
+    color: var(--primary-text);
   }
 
   &--count {
     font-size: 16px;
     font-weight: 500;
-    color: #ababab;
+    color: var(--secondary-text);
     margin-bottom: 12px;
   }
 
@@ -136,7 +139,7 @@
     padding-left: 12px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: $black-light !important;
+        color: var(--border-color) !important;
       }
     }
   }
@@ -144,22 +147,24 @@
   &--simple-search {
     width: 100%;
     font-size: 14px;
+    color: var(--primary-text);
 
     &-icon {
       font-size: 18px;
       margin: auto 8px auto 0;
-      color: $black-light;
+      color: var(--icon-color);
       height: auto;
     }
 
     &-close {
       margin: -10px;
       font-size: 18px;
+      color: var(--icon-color);
     }
   }
 
   &--footer-container {
-    background: white;
+    background: var(--background-primary);
     padding: 16px;
   }
 
@@ -201,10 +206,11 @@
     line-height: 1;
     font-weight: 500;
     padding: 0 12px;
+    color: var(--primary-text);
   }
 
   &--offline-sub-header {
-    color: #4a4a4a;
+    color: var(--secondary-text);
     line-height: 1.5;
     font-size: 12px;
     padding: 0 12px;
@@ -238,20 +244,20 @@
       font-size: 18px;
       display: block;
       margin-bottom: 8px;
-      color: $dark-blue;
+      color: var(--primary-text);
       line-height: 1.5;
       font-weight: normal;
     }
 
     &-content {
-      color: $blue-black;
+      color: var(--secondary-text);
       font-size: 14px;
       font-weight: normal;
       margin: 0 auto;
     }
 
     &-subheader {
-      color: $gray-3;
+      color: var(--secondary-text);
       display: block;
       font-size: 16px;
       font-weight: 300;
@@ -259,7 +265,7 @@
       padding: 0 8px;
 
       &__title {
-        color: #4a4a4a;
+        color: var(--primary-text);
         font-weight: 500;
       }
     }
@@ -267,7 +273,7 @@
 
   &--needs-receipt {
     &-header {
-      color: #4a4a4a;
+      color: var(--primary-text);
       font-size: 20px;
       padding-bottom: 12px;
       font-weight: 500;
@@ -277,14 +283,14 @@
       font-size: 16px;
       font-weight: 500;
       line-height: 1.43;
-      color: #ababab;
+      color: var(--secondary-text);
       margin-bottom: 16px;
     }
   }
 
   &--body {
     padding-bottom: 20px;
-    background-color: $white;
+    background-color: var(--background-primary);
   }
 
   &--zero-states-body {
@@ -304,7 +310,7 @@
     gap: 16px;
     bottom: 0;
     width: 100%;
-    background-color: $pure-white;
+    background-color: var(--background-primary);
     box-shadow: 0 -2px 12px $pink-shadow;
     z-index: 999;
   }
@@ -325,10 +331,10 @@
   &--secondary-cta {
     height: auto;
     background-color: transparent;
-    color: $black;
+    color: var(--primary-text);
     font-size: 14px;
     line-height: 1.25;
-    border: 1px solid $grey;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
 
     &__disabled {

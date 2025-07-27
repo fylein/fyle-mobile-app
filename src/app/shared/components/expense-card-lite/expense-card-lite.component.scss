@@ -2,14 +2,14 @@
 
 .expenses-card {
   &--date {
-    color: $dark-grey;
+    color: var(--secondary-text);
     font-size: 12px;
   }
 
   &--body {
     min-height: 92px;
     padding: 12px;
-    background: $pure-white;
+    background: var(--background-card);
     position: relative;
   }
 
@@ -20,7 +20,7 @@
   }
 
   &--receipt-container {
-    background-color: $light-grey;
+    background-color: var(--background-secondary);
     border-radius: 8px;
     height: 72px;
     max-width: 56px;
@@ -32,7 +32,7 @@
   }
 
   &--receipt-image-container {
-    background-color: $light-grey;
+    background-color: var(--background-secondary);
     border-radius: 8px;
     height: 72px;
     max-width: 56px;
@@ -55,11 +55,11 @@
   &--receipt-icon {
     height: 28px;
     width: 28px;
-    stroke: $black-light;
+    stroke: var(--icon-color);
 
     &__pdf {
       stroke: none;
-      color: $black-light;
+      color: var(--icon-color);
     }
   }
 
@@ -70,7 +70,7 @@
   }
 
   &--vertical-dotted-border {
-    border-left: 2px dashed $border-tertiary;
+    border-left: 2px dashed var(--border-color);
     height: 90%;
     margin: 0 8px;
     position: absolute;
@@ -105,8 +105,8 @@
   }
 
   &--category {
-    color: $black;
-    font-size: 14px;
+    color: var(--primary-text);
+    font-size: 16px;
     font-weight: 500;
     line-height: 1.3;
     white-space: nowrap;
@@ -115,35 +115,31 @@
   }
 
   &--vendor {
-    color: $blue-black;
+    color: var(--secondary-text);
     font-size: 14px;
     line-height: 1.2;
     margin-top: 2px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;
-
-    &__not-filled {
-      color: $black-light;
-    }
   }
 
   &--currency-amount-container {
-    width: 100%;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
   }
 
   &--currency {
-    color: $black;
-    font-weight: 400;
+    color: var(--secondary-text);
+    font-weight: 500;
     font-size: 16px;
     line-height: 1.3;
-    margin-right: -2px;
-    vertical-align: initial;
+    margin-right: 1px;
   }
 
   &--amount {
-    color: $black;
+    color: var(--primary-text);
     font-size: 16px;
     line-height: 1.3;
     margin-right: 6px;
@@ -151,9 +147,10 @@
   }
 
   &--icon {
-    vertical-align: baseline;
-    height: 13px;
-    width: 13px;
-    color: $brand-primary;
+    vertical-align: text-bottom;
+    height: 20px;
+    width: 20px;
+    font-size: 20px;
+    color: var(--icon-color);
   }
 }

@@ -30,6 +30,7 @@ import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-r
 import { MyReportsFilters } from 'src/app/core/models/my-reports-filters.model';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { TranslocoService } from '@jsverse/transloco';
+import { ThemeService } from 'src/app/core/services/theme.service';
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
@@ -110,7 +111,8 @@ export class MyReportsPage {
     private reportStatePipe: ReportState,
     private expensesService: ExpensesService,
     private spenderReportsService: SpenderReportsService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
+    private themeService: ThemeService
   ) {}
 
   get HeaderState(): typeof HeaderState {

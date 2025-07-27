@@ -2,19 +2,19 @@
 
 .expenses-card {
   &--date {
-    color: $black-light;
+    color: var(--secondary-text);
     font-size: 14px;
     padding: 24px 0 16px 12px;
-    background-color: $white;
+    background-color: var(--background-primary);
     font-weight: 500;
 
     &__from-reports {
-      background-color: $white;
+      background-color: var(--background-primary);
     }
   }
 
   &--body {
-    background-color: $pure-white;
+    background-color: var(--background-card);
     min-height: 106px;
     padding: 12px;
     margin-bottom: 6px;
@@ -28,7 +28,7 @@
   }
 
   &--missing-info-text {
-    color: $dark-grey;
+    color: var(--secondary-text);
     font-size: 12px;
     font-weight: 400;
 
@@ -38,7 +38,7 @@
   }
 
   &--vertical-dotted-border {
-    border-left: 2px dashed $border-tertiary;
+    border-left: 2px dashed var(--border-color);
     height: 90%;
     margin: 0 8px;
     position: absolute;
@@ -86,7 +86,7 @@
     }
 
     &__header {
-      color: $black;
+      color: var(--primary-text);
       font-weight: 500;
       font-size: 16px;
       line-height: 1.3;
@@ -107,7 +107,7 @@
     }
 
     &__content {
-      color: $blue-black;
+      color: var(--secondary-text);
       font-size: 14px;
       line-height: 1.3;
       margin-top: 5px;
@@ -122,7 +122,7 @@
   }
 
   &--receipt-container {
-    background-color: $light-grey;
+    background-color: var(--background-secondary);
     border-radius: 8px;
     padding: 20px;
     height: 72px;
@@ -132,7 +132,7 @@
   }
 
   &--receipt-image-container {
-    background-color: $light-grey;
+    background-color: var(--background-secondary);
     border-radius: 8px;
     height: 72px;
     width: 56px;
@@ -156,11 +156,11 @@
   &--receipt-icon {
     height: 20px;
     width: 20px;
-    color: $black-light;
+    color: var(--icon-color);
 
     &__pdf {
       stroke: none;
-      color: $black-light;
+      color: var(--icon-color);
     }
 
     &__image {
@@ -200,7 +200,7 @@
   }
 
   &--category {
-    color: $black;
+    color: var(--primary-text);
     font-size: 14px;
     font-weight: 500;
     line-height: 1.3;
@@ -239,7 +239,7 @@
   }
 
   &--edit-text {
-    color: $blue-black;
+    color: var(--secondary-text);
     font-size: 14px;
     line-height: 1.3;
     white-space: nowrap;
@@ -247,7 +247,7 @@
   }
 
   &--vendor {
-    color: $dark-grey;
+    color: var(--secondary-text);
     font-size: 14px;
     line-height: 1.2;
     margin-top: 2px;
@@ -256,12 +256,12 @@
     overflow-x: hidden;
 
     &__not-filled {
-      color: $black-light;
+      color: var(--disabled-text);
     }
   }
 
   &--project {
-    color: $blue-black;
+    color: var(--secondary-text);
     font-size: 14px;
     margin-top: 2px;
     white-space: nowrap;
@@ -270,7 +270,7 @@
     line-height: 1.2;
 
     &__not-filled {
-      color: $black-light;
+      color: var(--disabled-text);
     }
   }
 
@@ -292,7 +292,7 @@
   }
 
   &--currency {
-    color: $black;
+    color: var(--primary-text);
     font-weight: 500;
     font-size: 16px;
     line-height: 1.3;
@@ -300,7 +300,7 @@
   }
 
   &--amount {
-    color: $black;
+    color: var(--primary-text);
     font-size: 16px;
     line-height: 1.3;
     margin-right: 2px;
@@ -316,11 +316,11 @@
     height: 20px;
     width: 20px;
     font-size: 20px;
-    color: $black;
+    color: var(--primary-text);
   }
 
   &--exchange-rate {
-    color: $black-light;
+    color: var(--secondary-text);
     font-size: 14px;
     line-height: 1.25;
     margin-top: 2px;
@@ -364,6 +364,7 @@
   &--dismiss {
     margin: 0 0 0 8px;
     padding: 2px;
+    color: var(--icon-color);
   }
 }
 
