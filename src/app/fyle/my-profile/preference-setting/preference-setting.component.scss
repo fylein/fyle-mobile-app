@@ -8,12 +8,12 @@
     &__title {
       font-size: 16px;
       font-weight: 500;
-      color: $pure-black;
+      color: var(--primary-text);
     }
 
     &__content {
       font-size: 12px;
-      color: $black-light;
+      color: var(--secondary-text);
       width: calc(100% - 76px);
     }
   }
@@ -28,12 +28,12 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px 0 6px;
-    color: $grey-light;
-    border-bottom: 1px solid $grey-lighter;
+    color: var(--secondary-text);
+    border-bottom: 1px solid var(--border-color);
 
     &__input {
       line-height: 18px;
-      color: $blue-black;
+      color: var(--primary-text);
       border: none;
       width: 100%;
       padding: 0;

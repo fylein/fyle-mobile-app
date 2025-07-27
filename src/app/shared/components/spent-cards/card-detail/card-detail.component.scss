@@ -4,7 +4,7 @@
   &--expenses-amount-currency {
     font-size: 16px;
     line-height: 15px;
-    color: $black;
+    color: var(--primary-text);
   }
 
   &--ccc-card-details {
@@ -27,7 +27,7 @@
 
   &--ccc-stats {
     padding: 64px 32px 32px 32px;
-    background: $pure-white;
+    background: var(--background-card);
     border-radius: 16px;
     width: 100%;
     position: relative;
@@ -52,24 +52,24 @@
     font-weight: 500;
     font-size: 16px;
     line-height: 28px;
-    color: $black;
+    color: var(--primary-text);
   }
 
   &--ccc-classified-amount {
     font-weight: 500;
     font-size: 16px;
     line-height: 28px;
-    color: $black;
+    color: var(--primary-text);
   }
 
   &--ccc-stats-title {
     font-size: 14px;
     line-height: 20px;
-    color: $black-2;
+    color: var(--secondary-text);
   }
 
   &--ccc-stats-divider {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid var(--border-color);
     margin-top: 24px;
   }
 }

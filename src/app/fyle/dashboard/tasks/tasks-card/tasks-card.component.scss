@@ -1,11 +1,11 @@
 @import '../../../../../theme/colors.scss';
 
 .task {
-  background-color: $pure-white;
+  background-color: var(--background-card);
   &--icon {
     font-size: 20px;
     padding-top: 4px;
-    color: $blue-black;
+    color: var(--primary-text);
   }
 
   &--row {
@@ -18,7 +18,7 @@
     display: flex;
 
     &-icon {
-      color: $black;
+      color: var(--primary-text);
       font-size: 14px;
       padding: 0;
     }
@@ -31,7 +31,7 @@
   &--amount-currency {
     font-size: 14px;
     line-height: 20px;
-    color: $black-light;
+    color: var(--secondary-text);
   }
 
   &--icon-col {
@@ -43,7 +43,7 @@
   }
 
   &--card {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid var(--border-color);
     margin: 0 16px;
   }
 
@@ -51,14 +51,14 @@
     font-size: 22px;
     line-height: 28px;
     font-weight: 500;
-    color: $dark-blue;
+    color: var(--primary-text);
   }
 
   &--amount {
     font-size: 14px;
     line-height: 28px;
     padding: 0;
-    color: $dark-blue;
+    color: var(--primary-text);
     display: flex;
     align-items: center;
     gap: 2px;
@@ -68,14 +68,14 @@
     font-size: 14px;
     line-height: 23px;
     font-weight: 500;
-    color: $blue-black;
+    color: var(--primary-text);
     padding: 6px 0 0 0;
   }
 
   &--subheader {
     font-size: 14px;
     line-height: 20px;
-    color: $blue-black;
+    color: var(--primary-text);
     padding: 0;
   }
 
@@ -83,7 +83,7 @@
     font-size: 16px;
     line-height: 20px;
     font-weight: 500;
-    color: $blue-black;
+    color: var(--primary-text);
     white-space: nowrap;
     padding: 0;
   }

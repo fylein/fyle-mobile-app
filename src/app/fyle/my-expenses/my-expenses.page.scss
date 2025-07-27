@@ -1,8 +1,8 @@
-@import '../../../theme/colors';
+@import '../../../theme/colors.scss';
 
 .my-expenses {
   &--toolbar-header {
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: var(--header-border-bottom, 1px solid var(--border-color));
   }
 
   &--header-btn {
@@ -227,7 +227,7 @@
   &--zero-state {
     display: flex;
     flex-direction: column;
-    height: 90%;
+    height: 100%;
     justify-content: center;
     text-align: center;
 
@@ -358,4 +358,28 @@
   &--merge-icon {
     color: $brand-primary;
   }
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
 }

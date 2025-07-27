@@ -36,7 +36,7 @@
     &__block {
       position: absolute;
       top: 0;
-      background-color: $pure-white;
+      background-color: var(--background-primary);
       padding: 0 16px;
     }
 
@@ -76,11 +76,11 @@
       &__title {
         font-size: 18px;
         font-weight: 500;
-        color: $black;
+        color: var(--primary-text);
       }
 
       &__sub-title {
-        color: $black-light;
+        color: var(--secondary-text);
         padding-top: 4px;
       }
 
@@ -88,7 +88,7 @@
         height: 20px;
         width: 20px;
         padding: 6px;
-        border: 1px solid $black-light;
+        border: 1px solid var(--border-color);
         border-radius: 4px;
       }
     }
@@ -102,7 +102,7 @@
 
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: $black-light !important;
+        color: var(--secondary-text) !important;
       }
     }
 
@@ -113,7 +113,7 @@
       &__search-icon {
         font-size: 18px;
         margin: auto 8px auto 0;
-        color: $black-light;
+        color: var(--secondary-text);
         height: auto;
       }
 
@@ -121,12 +121,12 @@
         margin: -10px;
         font-size: 18px;
         background-color: transparent;
-        color: $black;
+        color: var(--primary-text);
       }
     }
 
     &__cancel {
-      color: $black-light;
+      color: var(--secondary-text);
       padding-left: 8px;
     }
   }
@@ -136,4 +136,19 @@
     top: 80px;
     padding: 16px;
   }
+}
+
+// Add background color to the main page content
+ion-content {
+  --background: var(--background-primary);
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
 }

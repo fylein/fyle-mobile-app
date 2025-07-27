@@ -4,16 +4,16 @@
   padding: 16px 0;
 
   &__container {
-    background: $grey-9;
-    border: 1px solid $alice-blue;
+    background: var(--background-card);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
-    color: $black-light;
+    color: var(--secondary-text);
     padding: 12px 16px;
   }
 
   &__date {
-    border-bottom: 1px solid $grey;
-    color: $blue-black;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--primary-text);
     font-size: 18px;
     font-weight: 500;
     padding: 4px 0 12px;

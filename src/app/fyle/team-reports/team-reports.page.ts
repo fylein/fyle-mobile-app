@@ -31,6 +31,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ThemeService } from 'src/app/core/services/theme.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -106,7 +107,8 @@ export class TeamReportsPage implements OnInit {
     private reportStatePipe: ReportState,
     private approverReportsService: ApproverReportsService,
     private authService: AuthService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private themeService: ThemeService
   ) {}
 
   get HeaderState(): typeof HeaderState {

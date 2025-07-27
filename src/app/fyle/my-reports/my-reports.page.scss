@@ -1,8 +1,8 @@
-@import '../../../theme/colors';
+@import '../../../theme/colors.scss';
 
 .my-reports {
   &--toolbar-header {
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: var(--header-border-bottom, 1px solid var(--border-color));
   }
 
   &--zero-state-cta {
@@ -85,4 +85,32 @@
     justify-content: center;
     text-align: center;
   }
+
+  &--simple-search-icon {
+    color: var(--secondary-text);
+  }
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
 }

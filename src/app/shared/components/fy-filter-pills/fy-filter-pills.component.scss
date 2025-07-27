@@ -10,10 +10,10 @@
   }
 
   &--pill {
-    background: $pure-white;
-    border: 1px solid $grey;
+    background: var(--background-card);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
-    color: $black-light;
+    color: var(--primary-text);
     padding: 8px 8px 8px 16px;
     white-space: nowrap;
     display: flex;
@@ -31,7 +31,7 @@
 
   &--close-icon {
     font-size: 14px;
-    color: $grey;
+    color: var(--secondary-text);
   }
 
   &--label {
@@ -46,4 +46,20 @@
     margin-right: 4px;
     text-transform: capitalize;
   }
+}
+
+// Style Ionic grid elements for dark mode
+ion-grid {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+ion-row {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+ion-col {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
 }

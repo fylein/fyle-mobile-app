@@ -12,6 +12,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NetworkService } from '../../core/services/network.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
+import { ThemeService } from 'src/app/core/services/theme.service';
 
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
@@ -72,7 +73,8 @@ export class MyAdvancesPage implements AfterViewChecked {
     private tasksService: TasksService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private themeService: ThemeService
   ) {}
 
   ionViewWillLeave(): void {

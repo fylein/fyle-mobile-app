@@ -15,7 +15,7 @@
   background-size: cover;
 
   &__bank-name {
-    color: $dark-grey;
+    color: var(--secondary-text);
     font-size: 14px;
     line-height: 8px;
   }
@@ -34,8 +34,8 @@
     &--default {
       width: 38px;
       height: 26px;
-      background-color: $white;
-      border: 1px solid $lighter-grey;
+      background-color: var(--background-secondary);
+      border: 1px solid var(--border-color);
       border-radius: 5px;
       display: flex;
       align-items: center;
@@ -44,7 +44,7 @@
       &__icon {
         width: 18px;
         height: 18px;
-        color: $grey-light;
+        color: var(--secondary-text);
       }
     }
 
@@ -82,14 +82,14 @@
   }
 
   &__feed-label {
-    color: $black-light;
+    color: var(--secondary-text);
     font-size: 14px;
     line-height: normal;
   }
 
   &__feed-value {
     font-size: 14px;
-    color: $blue-black;
+    color: var(--primary-text);
     line-height: 1.16;
   }
 
@@ -113,15 +113,15 @@
   &__more-options-btn-icon {
     width: 20px;
     height: 20px;
-    color: $dark-grey;
+    color: var(--secondary-text);
   }
 }
 
 .corporate-card-badge-container {
   display: flex;
   align-items: center;
-  background-color: $pure-white;
-  border: 1px solid $grey-2;
+  background-color: var(--background-card);
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   max-height: 20px;
   padding: 4px;
@@ -129,7 +129,7 @@
 }
 
 .corporate-card-badge {
-  color: $dark-grey;
+  color: var(--secondary-text);
   text-align: center;
   font-size: 12px;
   line-height: 8px;

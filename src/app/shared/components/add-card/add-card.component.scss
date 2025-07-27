@@ -9,9 +9,9 @@
   justify-content: center;
   align-items: center;
   gap: 16px;
-  border: 1px dashed $grey-light;
+  border: 1px dashed var(--border-color);
   border-radius: 16px;
-  background-color: $translucent-white-2;
+  background-color: var(--background-secondary);
   font-size: 14px;
 
   &__img {

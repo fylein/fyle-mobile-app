@@ -1,9 +1,9 @@
 @import '../../../../theme/colors';
 
 .stat-badge {
-  background-color: $pure-white;
+  background-color: var(--background-card);
   border-radius: 8px;
-  border: 1px solid $lighter-grey;
+  border: 1px solid var(--border-color);
 
   &--container {
     padding: 10px 16px;
@@ -20,7 +20,7 @@
   &--currency {
     font-size: 12px;
     line-height: 15px;
-    color: $black-light;
+    color: var(--secondary-text);
   }
 
   &--grid-outer-col {
@@ -99,13 +99,13 @@
   &--amount {
     font-weight: 500;
     font-size: 16px;
-    color: $black;
+    color: var(--primary-text);
   }
 
   &--name {
     font-size: 14px;
     line-height: 18px;
-    color: $blue-black;
+    color: var(--primary-text);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;

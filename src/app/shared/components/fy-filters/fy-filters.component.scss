@@ -2,12 +2,13 @@
 
 .fy-filters {
   &--header {
-    border-bottom: 1px solid $grey-2;
+    border-bottom: var(--header-border-bottom, 1px solid var(--border-color));
+    --background: var(--background-primary);
   }
 
   &--title {
     line-height: 26px;
-    color: $black;
+    color: var(--primary-text);
     font-weight: 400;
     padding: 18px 12px 14px;
   }
@@ -23,6 +24,7 @@
     --ion-grid-padding: 0;
     --ion-grid-column-padding: 0;
     height: 100%;
+    --background: var(--background-primary);
   }
 
   &--row {
@@ -34,13 +36,13 @@
     --inner-padding-start: 16px;
     --inner-padding-top: 13px;
     --inner-padding-bottom: 14px;
-    --background: #{$white};
-    --ion-item-border-color: #{$grey};
-    color: $black-light;
+    --background: var(--background-card);
+    --ion-item-border-color: var(--border-color);
+    color: var(--secondary-text);
 
     &__active {
-      --background: #{$pure-white};
-      color: $black;
+      --background: var(--background-primary);
+      color: var(--primary-text);
       font-weight: 500;
     }
   }
@@ -49,18 +51,18 @@
   &--radio {
     font-size: 20px;
     margin-right: 16px;
-    color: $black;
+    color: var(--primary-text);
     min-width: 20px;
   }
 
   &--filter-option {
     --inner-padding-top: 25px;
     --inner-padding-bottom: 24px;
-    --background: #{$pure-white};
+    --background: var(--background-primary);
     font-size: 14px;
     --border-style: none;
     line-height: 18px;
-    color: $blue-black;
+    color: var(--primary-text);
   }
 
   &--filter-item-label {
@@ -71,18 +73,29 @@
   }
 
   &--filter-col {
-    background-color: $white;
+    background-color: var(--background-card);
   }
 
   &--custom-date-filters {
     padding: 16px;
+    background-color: var(--background-primary);
     .mat-form-field {
       width: 100%;
+      ::ng-deep .mat-form-field-outline {
+        color: var(--secondary-text) !important;
+      }
+      ::ng-deep .mat-form-field-label {
+        color: var(--secondary-text) !important;
+      }
+      ::ng-deep .mat-form-field-input {
+        color: var(--primary-text) !important;
+      }
     }
   }
 
   &--footer {
-    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+    box-shadow: var(--card-shadow, 0px -2px 40px rgba(215, 215, 215, 0.4));
+    --background: var(--background-card);
   }
 
   &--skeleton-loader {
@@ -92,4 +105,38 @@
       width: 80%;
     }
   }
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
+}
+
+// Style ion-content background
+ion-content {
+  --background: var(--background-primary);
+}
+
+// Style ion-footer background
+ion-footer {
+  --background: var(--background-card);
 }
