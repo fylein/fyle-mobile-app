@@ -238,8 +238,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
-  isLoading = true;
-
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
@@ -249,6 +247,12 @@ export class AddEditPerDiemPage implements OnInit {
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
   private _isExpandedView = false;
+
+  private loadingOperations$ = new BehaviorSubject<number>(0);
+
+  isLoading$ = this.loadingOperations$.pipe(map((count) => count > 0));
+
+  isLoading = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -913,7 +917,7 @@ export class AddEditPerDiemPage implements OnInit {
       shareReplay(1)
     );
 
-    this.isLoading = true;
+    this.incrementLoadingOperations();
     const allowedPerDiemRates$ = forkJoin({
       orgSettings: orgSettings$,
       allowedPerDiemRates: perDiemRates$.pipe(
@@ -922,7 +926,7 @@ export class AddEditPerDiemPage implements OnInit {
     })
       .pipe(
         finalize(() => {
-          this.isLoading = false;
+          this.decrementLoadingOperations();
         })
       )
       .pipe(
@@ -943,7 +947,7 @@ export class AddEditPerDiemPage implements OnInit {
         )
       );
 
-    this.isLoading = true;
+    this.incrementLoadingOperations();
     this.canCreatePerDiem$ = forkJoin({
       orgSettings: orgSettings$,
       perDiemRates: perDiemRates$,
@@ -951,7 +955,7 @@ export class AddEditPerDiemPage implements OnInit {
     })
       .pipe(
         finalize(() => {
-          this.isLoading = false;
+          this.decrementLoadingOperations();
         })
       )
       .pipe(
@@ -1386,7 +1390,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
-    this.isLoading = true;
+    this.incrementLoadingOperations();
 
     forkJoin({
       etxn: this.etxn$,
@@ -1407,7 +1411,7 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(
         take(1),
         finalize(() => {
-          this.isLoading = false;
+          this.decrementLoadingOperations();
         })
       )
       .subscribe(
@@ -1544,6 +1548,11 @@ export class AddEditPerDiemPage implements OnInit {
           }, 1000);
         }
       );
+
+    // Subscribe to loading state changes
+    this.isLoading$.subscribe((isLoading) => {
+      this.isLoading = isLoading;
+    });
   }
 
   generateEtxnFromFg(
@@ -2353,5 +2362,16 @@ export class AddEditPerDiemPage implements OnInit {
     this.costCenterDependentFieldsRef?.ngOnDestroy();
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
+  }
+
+  private incrementLoadingOperations(): void {
+    this.loadingOperations$.next(this.loadingOperations$.value + 1);
+  }
+
+  private decrementLoadingOperations(): void {
+    const currentCount = this.loadingOperations$.value;
+    if (currentCount > 0) {
+      this.loadingOperations$.next(currentCount - 1);
+    }
   }
 }
