@@ -29,26 +29,26 @@
           </ion-row>
           <ion-row>
             @if (!task.hideAmount) {
-              <ion-col size="4" class="task--amount task--header-col">
-                <span class="task--amount-currency">
-                  {{ currencySymbol$ | async }}
-                </span>
-                {{ task.amount }}
-              </ion-col>
+            <ion-col size="4" class="task--amount task--header-col">
+              <span class="task--amount-currency">
+                {{ currencySymbol$ | async }}
+              </span>
+              {{ task.amount }}
+            </ion-col>
             }
           </ion-row>
           <ion-row>
             @if (task.hideAmount) {
-              <ion-col class="task--subheader">
-                {{ task.subheader }}
-              </ion-col>
+            <ion-col class="task--subheader">
+              {{ task.subheader }}
+            </ion-col>
             }
           </ion-row>
           <ion-row class="ion-justify-content-start task--cta-row">
             @for (cta of task.ctas; track cta) {
-              <ion-col class="task--cta">
-                {{ cta.content }}
-              </ion-col>
+            <ion-col class="task--cta">
+              {{ cta.content }}
+            </ion-col>
             }
             <ion-col class="task--cta-row-icon-container">
               <ion-icon class="task--cta-row-icon" src="../../../../../assets/svg/arrow-right.svg"></ion-icon>
@@ -56,17 +56,6 @@
           </ion-row>
         </ion-col>
       </ion-row>
-      @if (showReportAutoSubmissionInfo) {
-        <ion-row>
-          <ion-col class="ion-col-no-padding">
-            <app-auto-submission-info-card
-              [autoSubmissionReportDate]="autoSubmissionReportDate"
-              (cardClicked)="onInfoCardClicked()"
-              >
-            </app-auto-submission-info-card>
-          </ion-col>
-        </ion-row>
-      }
     </ion-grid>
   </div>
 </div>
