@@ -77,9 +77,7 @@
       "reportsTabDescription": "Tap here to quickly access and manage your expense reports!",
       "approverDescription": "Easily manage and approve reports — Access your team's reports right from the home page!",
       "profileEmailOptInDescription": "Forward receipts to this email ID and your expense will be created automatically.",
-      "dashboardAddExpenseDescription": "With the Add Expense button - manually create expenses or upload receipts with ease — all from one place.",
-      "incompleteExpenseDescription": "Expenses that are missing mandatory information will show a yellow incomplete tag.",
-      "blockedExpenseDescription": "Expenses that are violating a critical policies will be blocked and show a red tag."
+      "dashboardAddExpenseDescription": "With the Add Expense button - manually create expenses or upload receipts with ease — all from one place."
     },
     "customInputs": {
       "deletedSuffix": " (Deleted)",
