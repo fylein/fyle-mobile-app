@@ -69,7 +69,7 @@ export const filterOptions2: FilterOptions<string>[] = deepFreeze([
         value: 'DRAFT',
       },
       {
-        label: 'services.myExpenses.blocked',
+        label: 'Blocked',
         value: 'BLOCKED',
       },
       {
