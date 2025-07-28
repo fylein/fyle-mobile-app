@@ -30,7 +30,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
     this.policyViolations = this.policyDetails
       ?.filter((ids) => ids.run_status === 'VIOLATED_ACTION_SUCCESS')
       .map((ids) => ids.expense_policy_rule.description) || [];
-    this.showPolicyInfo = this.policyViolations.length > 0 || !!this.criticalPolicyViolated;
+    this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated;
   }
 
   async openPolicyViolationDetails(): Promise<void> {
@@ -64,10 +64,10 @@ export class FyPolicyViolationInfoComponent implements OnInit {
   }
 
   private isUnflattenedTransactionWithUnreportableState(expense: Expense | UnflattenedTransaction): expense is UnflattenedTransaction {
-    return 'tx' in expense && expense.tx && 'state' in expense.tx && expense.tx.state === 'UNREPORTABLE';
+    return 'tx' in expense && expense.tx?.state === 'UNREPORTABLE';
   }
 
   private isExpenseWithUnreportableState(expense: Expense | UnflattenedTransaction): expense is Expense {
-    return 'state' in expense && expense.state === 'UNREPORTABLE';
+    return 'state' in expense && expense?.state === 'UNREPORTABLE';
   }
 }
