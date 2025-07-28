@@ -12,9 +12,11 @@
 <ion-content class="notifications--content-container">
   @if (isInitialLoading) {
   <div class="notifications--skeleton-wrapper">
-    <ion-skeleton-text animated class="notifications--skeleton-card" *ngFor="let i of [1,2,3,4,5]"></ion-skeleton-text>
+    @for (i of [1,2,3,4,5]; track i) {
+    <ion-skeleton-text animated class="notifications--skeleton-card"></ion-skeleton-text>
+    }
   </div>
-  } @if (!isInitialLoading) { @if (isNotificationsDisabled) {
+  } @else { @if (isNotificationsDisabled) {
   <div class="notifications--zero-state-container" data-testid="zero-state">
     <img class="notifications--zero-state-img" src="../../../../assets/images/zero-states/notifications.png" />
     <div class="notifications--zero-state-subheading">
