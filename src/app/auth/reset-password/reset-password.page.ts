@@ -12,6 +12,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   selector: 'app-reset-password',
   templateUrl: './reset-password.page.html',
   styleUrls: ['./reset-password.page.scss'],
+  standalone: false,
 })
 export class ResetPasswordPage {
   currentPageState: PageState;

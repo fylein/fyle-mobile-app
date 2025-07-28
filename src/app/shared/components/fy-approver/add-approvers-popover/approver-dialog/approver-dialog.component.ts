@@ -15,6 +15,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-approver-dialog',
   templateUrl: './approver-dialog.component.html',
   styleUrls: ['./approver-dialog.component.scss'],
+  standalone: false,
 })
 export class ApproverDialogComponent implements AfterViewInit, OnInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLElement>;

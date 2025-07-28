@@ -1,22 +1,19 @@
 <ion-header mode="md">
   <ion-toolbar class="view-mileage--toolbar">
-    @if (this.reportId) {
-      <ion-buttons mode="md" slot="start">
-        <ion-button (click)="goBack()">
-          <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
+    @if (reportId) {
+    <ion-buttons mode="md" slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     }
     <ion-title
       mode="md"
       class="page-title"
       [ngClass]="{'view-mileage--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
-      >
-      View mileage
-      @if (reportExpenseCount > 1) {
-        <p class="view-mileage--subtitle">
-          Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
-        </p>
+    >
+      View mileage @if (reportExpenseCount > 1) {
+      <p class="view-mileage--subtitle">Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses</p>
       }
     </ion-title>
     <ion-buttons class="view-mileage--header-btn-container" slot="end">
@@ -25,9 +22,9 @@
       </ion-button>
 
       @if (view === ExpenseView.team && canDelete$|async) {
-        <ion-button class="view-mileage--header-btn-container__btn" (click)="removeExpenseFromReport()">
-          <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
-        </ion-button>
+      <ion-button class="view-mileage--header-btn-container__btn" (click)="removeExpenseFromReport()">
+        <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
       }
     </ion-buttons>
   </ion-toolbar>
@@ -35,474 +32,447 @@
 
 <ion-content>
   @if (mileageExpense$|async; as expense) {
-    <div class="view-mileage--container">
-      @if (expense.is_policy_flagged) {
-        @if (policyDetails) {
-          <app-fy-policy-violation-info
-            [policyDetails]="policyDetails"
-            [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
-          ></app-fy-policy-violation-info>
+  <div class="view-mileage--container">
+    @if (expense.is_policy_flagged) { @if (policyDetails) {
+    <app-fy-policy-violation-info
+      [policyDetails]="policyDetails"
+      [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+    ></app-fy-policy-violation-info>
+    } } @if ((isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)) {
+    <div class="view-mileage--policy-container">
+      <span class="info-text m-0">
+        Claimed amount {{ expense.claim_amount | currency:expense.currency: 'symbol-narrow' }} was capped to {{
+        expense.amount | currency:expense.currency: 'symbol-narrow'}} due to policy.
+      </span>
+    </div>
+    }
+    <div class="d-flex view-mileage--card-container">
+      <div class="view-mileage--card-container__block">
+        <div class="view-mileage--card-container__category">Mileage</div>
+        <div class="view-mileage--card-container__merchant">
+          {{expense.distance || 0}} {{expense.distance_unit | titlecase}}
+        </div>
+        @if (isProjectShown) {
+        <div class="view-mileage--card-container__project">
+          {{ projectFieldName | titlecase }} : {{ expense.project?.name || '-' }}
+        </div>
         }
-      }
-      @if ((isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)) {
-        <div class="view-mileage--policy-container">
-          <span class="info-text m-0">
-            Claimed amount {{ expense.claim_amount | currency:expense.currency: 'symbol-narrow' }} was capped to {{
-            expense.amount | currency:expense.currency: 'symbol-narrow'}} due to policy.
+        <div class="view-mileage--card-container__amount-container">
+          <span>{{ expenseCurrencySymbol }}</span>
+          <span class="view-mileage--card-container__amount">
+            {{ { value: expense.amount || 0, currencyCode: expense.currency , skipSymbol: true} | exactCurrency }}
           </span>
+          <ion-icon
+            class="view-mileage--card-container__icon"
+            [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+          ></ion-icon>
         </div>
-      }
-      <div class="d-flex view-mileage--card-container">
-        <div class="view-mileage--card-container__block">
-          <div class="view-mileage--card-container__category">Mileage</div>
-          <div class="view-mileage--card-container__merchant">
-            {{expense.distance || 0}} {{expense.distance_unit | titlecase}}
-          </div>
-          @if (isProjectShown) {
-            <div class="view-mileage--card-container__project">
-              {{ projectFieldName | titlecase }} : {{ expense.project?.name || '-' }}
-            </div>
-          }
-          <div class="view-mileage--card-container__amount-container">
-            <span>{{ expenseCurrencySymbol }}</span>
-            <span class="view-mileage--card-container__amount">
-              {{ { value: expense.amount || 0, currencyCode: expense.currency , skipSymbol: true} | exactCurrency }}
-            </span>
-            <ion-icon
-              class="view-mileage--card-container__icon"
-              [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
-            ></ion-icon>
-          </div>
-        </div>
-        <div class="ion-text-right view-mileage--card-container__block">
-          <div
-            class="view-mileage--card-container__state-pill ion-text-right"
-            [ngClass]="{'view-mileage--card-container__state-pill--with-project': isProjectShown}"
-            >
-            <div class="state-pill state-{{expense.state | expenseState}}">
-              {{ expense.state | expenseState | snakeCaseToSpaceCase | titlecase }}
-            </div>
+      </div>
+      <div class="ion-text-right view-mileage--card-container__block">
+        <div
+          class="view-mileage--card-container__state-pill ion-text-right"
+          [ngClass]="{'view-mileage--card-container__state-pill--with-project': isProjectShown}"
+        >
+          <div class="state-pill state-{{expense.state | expenseState}}">
+            {{ expense.state | expenseState | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
       </div>
-      @if (expense.locations.length > 0) {
-        @if (mapAttachment$|async; as mapAttachment) {
-          <app-receipt-preview-thumbnail
-            [attachments]="[mapAttachment]"
-            (viewAttachments)="viewAttachment()"
-            [canEdit]="false"
-            [isMileageExpense]="true"
-            >
-          </app-receipt-preview-thumbnail>
-        }
-        <div class="view-mileage--route-block">
-          @for (control of expense.locations; track control; let i = $index; let isFirst = $first; let isLast = $last) {
-            <div
-              class="view-mileage--route-block__div"
-              >
-              <div>
-                <ion-icon
-                  slot="icon-only"
-                  [src]="'../../../assets/svg/' + (isFirst ? 'radio-circle-outline' : 'rectangle') + '.svg'"
-                  class="view-mileage--route-block__icon"
-                  [ngClass]="{'view-mileage--route-block__icon-filled': isFirst || isLast }"
-                ></ion-icon>
-                <span class="view-mileage--label">{{ isFirst ? 'Start' : isLast ? 'End' : 'Stop ' + i }}</span>
-                <div class="view-mileage--value view-mileage--route-block__value pt-0">{{ control.display }}</div>
-              </div>
-            </div>
-          }
+    </div>
+    @if (expense.locations.length > 0) { @if (mapAttachment$|async; as mapAttachment) {
+    <app-receipt-preview-thumbnail
+      [attachments]="[mapAttachment]"
+      (viewAttachments)="viewAttachment()"
+      [canEdit]="false"
+      [isMileageExpense]="true"
+    >
+    </app-receipt-preview-thumbnail>
+    }
+    <div class="view-mileage--route-block">
+      @for (control of expense.locations; track control; let i = $index; let isFirst = $first; let isLast = $last) {
+      <div class="view-mileage--route-block__div">
+        <div>
+          <ion-icon
+            slot="icon-only"
+            [src]="'../../../assets/svg/' + (isFirst ? 'radio-circle-outline' : 'rectangle') + '.svg'"
+            class="view-mileage--route-block__icon"
+            [ngClass]="{'view-mileage--route-block__icon-filled': isFirst || isLast }"
+          ></ion-icon>
+          <span class="view-mileage--label">{{ isFirst ? 'Start' : isLast ? 'End' : 'Stop ' + i }}</span>
+          <div class="view-mileage--value view-mileage--route-block__value pt-0">{{ control.display }}</div>
         </div>
-        @if (expense.mileage_is_round_trip) {
-          <ion-grid class="view-mileage--grid">
+      </div>
+      }
+    </div>
+    @if (expense.mileage_is_round_trip) {
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon
+              class="view-mileage--icon-container__icon"
+              src="../../../assets/svg/house-filled-arrow-clockwise.svg"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Round trip</div>
+          <div class="view-mileage--value">{{ expense.mileage_is_round_trip ? 'Yes' : 'No' }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    }
+    <div class="view-mileage--divider"></div>
+    }
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/folder.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Report name</div>
+          <div class="view-mileage--value">{{ expense.report?.title }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    @if (view === ExpenseView.team) {
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/user-one.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Employee</div>
+          <div class="view-mileage--value smartlook-hide">{{ expense.user.full_name }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    }
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Expense number</div>
+          <div class="view-mileage--value">{{ expense.seq_num }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <div class="view-mileage--divider"></div>
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon-lg"
+                    src="../../../assets/svg/calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Created date</div>
+                <div class="view-mileage--value">{{ expense.created_at | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        @if (expense.spent_at) {
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon-lg"
+                    src="../../../assets/svg/calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Spend date</div>
+                <div class="view-mileage--value">{{ expense.spent_at | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon
+              class="view-mileage--icon-container__icon-lg"
+              [src]="'../../../assets/svg/' + (paymentModeIcon === 'card' ? 'card' : paymentModeIcon) + '.svg'"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Payment mode</div>
+          <div class="view-mileage--value">{{ paymentMode }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    @if (expense.purpose) {
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Purpose</div>
+          <div class="view-mileage--value">{{ expense.purpose }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    }
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        @if (expense.category && expense.category.name && expense.category.sub_category && (expense.category.name !==
+        expense.category.sub_category)) {
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/tag.svg"></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Sub-category</div>
+                <div class="view-mileage--value">{{ expense.category.sub_category }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+    @if (mileageRate$ | async; as mileageRate) {
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col>
+          <ion-grid>
             <ion-row>
               <ion-col class="view-mileage--icon-container">
                 <div class="view-mileage--icon-container__background">
                   <ion-icon
                     class="view-mileage--icon-container__icon"
-                    src="../../../assets/svg/house-filled-arrow-clockwise.svg"
+                    [src]="'../../../assets/svg/' + vehicleType + '.svg'"
                   ></ion-icon>
                 </div>
               </ion-col>
               <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Round trip</div>
-                <div class="view-mileage--value">{{ expense.mileage_is_round_trip ? 'Yes' : 'No' }}</div>
+                <div class="view-mileage--label">Mileage rate</div>
+                <div class="view-mileage--value">
+                  {{ mileageRate.vehicle_type | mileageRateName }} ({{ mileageRate.rate | currency:expense.currency:
+                  'symbol-narrow'}} / {{ mileageRate.unit | titlecase}})
+                </div>
               </ion-col>
             </ion-row>
           </ion-grid>
-        }
-        <div class="view-mileage--divider"></div>
-      }
-      <ion-grid class="view-mileage--grid">
-        <ion-row>
-          <ion-col class="view-mileage--icon-container">
-            <div class="view-mileage--icon-container__background">
-              <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/folder.svg"></ion-icon>
-            </div>
-          </ion-col>
-          <ion-col class="view-mileage--content-container">
-            <div class="view-mileage--label">Report name</div>
-            <div class="view-mileage--value">{{ expense.report?.title }}</div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-      @if (view === ExpenseView.team) {
-        <ion-grid class="view-mileage--grid">
-          <ion-row>
-            <ion-col class="view-mileage--icon-container">
-              <div class="view-mileage--icon-container__background">
-                <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/user-one.svg"></ion-icon>
-              </div>
-            </ion-col>
-            <ion-col class="view-mileage--content-container">
-              <div class="view-mileage--label">Employee</div>
-              <div class="view-mileage--value smartlook-hide">{{ expense.user.full_name }}</div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      }
-      <ion-grid class="view-mileage--grid">
-        <ion-row>
-          <ion-col class="view-mileage--icon-container">
-            <div class="view-mileage--icon-container__background">
-              <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-            </div>
-          </ion-col>
-          <ion-col class="view-mileage--content-container">
-            <div class="view-mileage--label">Expense number</div>
-            <div class="view-mileage--value">{{ expense.seq_num }}</div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-      <div class="view-mileage--divider"></div>
-      <ion-grid class="view-mileage--grid">
-        <ion-row>
-          <ion-col size="6">
-            <ion-grid>
-              <ion-row>
-                <ion-col class="view-mileage--icon-container">
-                  <div class="view-mileage--icon-container__background">
-                    <ion-icon
-                      class="view-mileage--icon-container__icon-lg"
-                      src="../../../assets/svg/calendar.svg"
-                    ></ion-icon>
-                  </div>
-                </ion-col>
-                <ion-col class="view-mileage--content-container">
-                  <div class="view-mileage--label">Created date</div>
-                  <div class="view-mileage--value">{{ expense.created_at | date: 'MMM dd, YYYY' }}</div>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          </ion-col>
-          @if (expense.spent_at) {
-            <ion-col>
-              <ion-grid>
-                <ion-row>
-                  <ion-col class="view-mileage--icon-container">
-                    <div class="view-mileage--icon-container__background">
-                      <ion-icon
-                        class="view-mileage--icon-container__icon-lg"
-                        src="../../../assets/svg/calendar.svg"
-                      ></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-mileage--content-container">
-                    <div class="view-mileage--label">Spend date</div>
-                    <div class="view-mileage--value">{{ expense.spent_at | date: 'MMM dd, YYYY' }}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </ion-col>
-          }
-        </ion-row>
-      </ion-grid>
-      <ion-grid class="view-mileage--grid">
-        <ion-row>
-          <ion-col class="view-mileage--icon-container">
-            <div class="view-mileage--icon-container__background">
-              <ion-icon
-                class="view-mileage--icon-container__icon-lg"
-                [src]="'../../../assets/svg/' + (paymentModeIcon === 'card' ? 'card' : paymentModeIcon) + '.svg'"
-              ></ion-icon>
-            </div>
-          </ion-col>
-          <ion-col class="view-mileage--content-container">
-            <div class="view-mileage--label">Payment mode</div>
-            <div class="view-mileage--value">{{ paymentMode }}</div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-      @if (expense.purpose) {
-        <ion-grid class="view-mileage--grid">
-          <ion-row>
-            <ion-col class="view-mileage--icon-container">
-              <div class="view-mileage--icon-container__background">
-                <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-              </div>
-            </ion-col>
-            <ion-col class="view-mileage--content-container">
-              <div class="view-mileage--label">Purpose</div>
-              <div class="view-mileage--value">{{ expense.purpose }}</div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      }
-      <ion-grid class="view-mileage--grid">
-        <ion-row>
-          @if (expense.category && expense.category.name && expense.category.sub_category && (expense.category.name !== expense.category.sub_category)) {
-            <ion-col
-              size="6"
-              >
-              <ion-grid>
-                <ion-row>
-                  <ion-col class="view-mileage--icon-container">
-                    <div class="view-mileage--icon-container__background">
-                      <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/tag.svg"></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-mileage--content-container">
-                    <div class="view-mileage--label">Sub-category</div>
-                    <div class="view-mileage--value">{{ expense.category.sub_category }}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </ion-col>
-          }
-        </ion-row>
-      </ion-grid>
-      @if (mileageRate$ | async; as mileageRate) {
-        <ion-grid class="view-mileage--grid">
-          <ion-row>
-            <ion-col>
-              <ion-grid>
-                <ion-row>
-                  <ion-col class="view-mileage--icon-container">
-                    <div class="view-mileage--icon-container__background">
-                      <ion-icon
-                        class="view-mileage--icon-container__icon"
-                        [src]="'../../../assets/svg/' + vehicleType + '.svg'"
-                      ></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-mileage--content-container">
-                    <div class="view-mileage--label">Mileage rate</div>
-                    <div class="view-mileage--value">
-                      {{ mileageRate.vehicle_type | mileageRateName }} ({{ mileageRate.rate | currency:expense.currency:
-                      'symbol-narrow'}} / {{ mileageRate.unit | titlecase}})
-                    </div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      }
-      @if (expense.commute_deduction) {
-        <ion-grid class="view-mileage--grid">
-          <ion-row>
-            <ion-col>
-              <ion-grid>
-                <ion-row>
-                  <ion-col class="view-mileage--icon-container">
-                    <div class="view-mileage--icon-container__background">
-                      <ion-icon
-                        class="view-mileage--icon-container__icon-lg"
-                        src="../../../assets/svg/location.svg"
-                      ></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-mileage--content-container">
-                    <div class="view-mileage--label">Commute deduction</div>
-                    @if (expense.commute_deduction !== 'NO_DEDUCTION') {
-                      <div class="view-mileage--value">
-                        {{commuteDeduction}} - {{expense.commute_details?.distance?.toFixed(2)}}
-                        {{expense.commute_details?.distance_unit | titlecase}}
-                      </div>
-                    }
-                    @if (expense.commute_deduction === 'NO_DEDUCTION') {
-                      <div class="view-mileage--value">
-                        {{commuteDeduction}}
-                      </div>
-                    }
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      }
-      @if (expense.distance || expense.mileage_calculated_distance) {
-        <ion-grid class="view-mileage--grid">
-          <ion-row>
-            @if (expense.distance) {
-              <ion-col size="6">
-                <ion-grid>
-                  <ion-row>
-                    <ion-col class="view-mileage--icon-container">
-                      <div class="view-mileage--icon-container__background">
-                        <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-                      </div>
-                    </ion-col>
-                    <ion-col class="view-mileage--content-container">
-                      <div class="view-mileage--label">Claimed distance</div>
-                      <div class="view-mileage--value">{{expense.distance}} {{expense.distance_unit | titlecase}}</div>
-                    </ion-col>
-                  </ion-row>
-                </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } @if (expense.commute_deduction) {
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon-lg"
+                    src="../../../assets/svg/location.svg"
+                  ></ion-icon>
+                </div>
               </ion-col>
-            }
-            @if (expense.mileage_calculated_distance) {
-              <ion-col>
-                <ion-grid>
-                  <ion-row>
-                    <ion-col class="view-mileage--icon-container">
-                      <div class="view-mileage--icon-container__background">
-                        <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-                      </div>
-                    </ion-col>
-                    <ion-col class="view-mileage--content-container">
-                      <div class="view-mileage--label">Calculated distance</div>
-                      <div class="view-mileage--value">
-                        {{expense.mileage_calculated_distance}} {{expense.distance_unit | titlecase}}
-                      </div>
-                    </ion-col>
-                  </ion-row>
-                </ion-grid>
-              </ion-col>
-            }
-          </ion-row>
-        </ion-grid>
-      }
-      @if (expense.mileage_calculated_amount) {
-        <ion-grid class="view-mileage--grid">
-          <ion-row>
-            <ion-col size="6">
-              <ion-grid>
-                <ion-row>
-                  <ion-col class="view-mileage--icon-container">
-                    <div class="view-mileage--icon-container__background">
-                      <ion-icon
-                        class="view-mileage--icon-container__icon-lg"
-                        [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
-                      ></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-mileage--content-container">
-                    <div class="view-mileage--label">Calculated amount</div>
-                    <div class="view-mileage--value">
-                      {{expense.mileage_calculated_amount | currency:expense.currency: 'symbol-narrow'}}
-                    </div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      }
-      @if ({ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async}; as data) {
-        @if (!data.costCenterDependentCustomProperties?.length) {
-          @if (orgSettings?.cost_centers?.enabled && expense.cost_center_id) {
-            <ion-grid class="view-mileage--grid">
-              <ion-row>
-                <ion-col size="6">
-                  <ion-grid>
-                    <ion-row>
-                      <ion-col class="view-mileage--icon-container">
-                        <div class="view-mileage--icon-container__background">
-                          <ion-icon
-                            class="view-mileage--icon-container__icon"
-                            src="../../../assets/svg/building.svg"
-                          ></ion-icon>
-                        </div>
-                      </ion-col>
-                      <ion-col class="view-mileage--content-container">
-                        <div class="view-mileage--label">Cost center</div>
-                        <div class="view-mileage--value">{{ expense.cost_center?.name }}</div>
-                      </ion-col>
-                    </ion-row>
-                  </ion-grid>
-                </ion-col>
-                @if (expense.cost_center?.code) {
-                  <ion-col size="6">
-                    <ion-grid>
-                      <ion-row>
-                        <ion-col class="view-mileage--icon-container">
-                          <div class="view-mileage--icon-container__background">
-                            <ion-icon
-                              class="view-mileage--icon-container__icon"
-                              src="../../../assets/svg/building.svg"
-                            ></ion-icon>
-                          </div>
-                        </ion-col>
-                        <ion-col class="view-mileage--content-container">
-                          <div class="view-mileage--label">Cost center code</div>
-                          <div class="view-mileage--value">{{ expense.cost_center?.code }}</div>
-                        </ion-col>
-                      </ion-row>
-                    </ion-grid>
-                  </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Commute deduction</div>
+                @if (expense.commute_deduction !== 'NO_DEDUCTION') {
+                <div class="view-mileage--value">
+                  {{commuteDeduction}} - {{expense.commute_details?.distance?.toFixed(2)}}
+                  {{expense.commute_details?.distance_unit | titlecase}}
+                </div>
+                } @if (expense.commute_deduction === 'NO_DEDUCTION') {
+                <div class="view-mileage--value">{{commuteDeduction}}</div>
                 }
-              </ion-row>
-            </ion-grid>
-          }
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } @if (expense.distance || expense.mileage_calculated_distance) {
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        @if (expense.distance) {
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Claimed distance</div>
+                <div class="view-mileage--value">{{expense.distance}} {{expense.distance_unit | titlecase}}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        } @if (expense.mileage_calculated_distance) {
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Calculated distance</div>
+                <div class="view-mileage--value">
+                  {{expense.mileage_calculated_distance}} {{expense.distance_unit | titlecase}}
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
         }
-      }
-      <!-- Project dependent fields -->
-      @if (projectDependentCustomProperties$ | async; as projectDependentCustomProperties) {
-        @if (expenseFields$ | async; as expenseFields) {
-          @if (expenseFields?.project_id?.length) {
-            <app-view-dependent-fields
-              parentFieldType="PROJECT"
-              [parentFieldName]="expenseFields.project_id[0]?.field_name"
-              [parentFieldValue]="expense.project?.name"
-              [dependentCustomProperties]="projectDependentCustomProperties"
-            ></app-view-dependent-fields>
-          }
+      </ion-row>
+    </ion-grid>
+    } @if (expense.mileage_calculated_amount) {
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon-lg"
+                    [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Calculated amount</div>
+                <div class="view-mileage--value">
+                  {{expense.mileage_calculated_amount | currency:expense.currency: 'symbol-narrow'}}
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } @if ({ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async}; as data) { @if
+    (!data.costCenterDependentCustomProperties?.length) { @if (orgSettings?.cost_centers?.enabled &&
+    expense.cost_center_id) {
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon"
+                    src="../../../assets/svg/building.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Cost center</div>
+                <div class="view-mileage--value">{{ expense.cost_center?.name }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        @if (expense.cost_center?.code) {
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon"
+                    src="../../../assets/svg/building.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Cost center code</div>
+                <div class="view-mileage--value">{{ expense.cost_center?.code }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
         }
-      }
-      <!-- Cost center dependent fields -->
-      @if (costCenterDependentCustomProperties$ | async; as costCenterDependentCustomProperties) {
-        @if (expenseFields$ | async; as expenseFields) {
-          @if (expenseFields?.cost_center_id?.length) {
-            <app-view-dependent-fields
-              parentFieldType="COST_CENTER"
-              [parentFieldName]="expenseFields.cost_center_id[0]?.field_name"
-              [parentFieldValue]="expense.cost_center?.name"
-              [costCenterCode]="expense.cost_center?.code"
-              [dependentCustomProperties]="costCenterDependentCustomProperties"
-            ></app-view-dependent-fields>
-          }
-        }
-      }
-      @if (mileageCustomFields$|async; as customProperties) {
-        @if (customProperties?.length > 0) {
-          <div class="view-mileage--divider"></div>
-          @for (customProperty of customProperties; track customProperty) {
-            <ion-grid class="view-mileage--grid">
-              <ion-row>
-                <ion-col class="view-mileage--icon-container">
-                  <div class="view-mileage--icon-container__background">
-                    <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-                  </div>
-                </ion-col>
-                <ion-col class="view-mileage--content-container">
-                  <div class="view-mileage--label">{{customProperty.name}}</div>
-                  <div class="view-mileage--value">{{ customProperty.displayValue }}</div>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          }
-        }
-      }
-    </div>
+      </ion-row>
+    </ion-grid>
+    } } }
+    <!-- Project dependent fields -->
+    @if (projectDependentCustomProperties$ | async; as projectDependentCustomProperties) { @if (expenseFields$ | async;
+    as expenseFields) { @if (expenseFields?.project_id?.length) {
+    <app-view-dependent-fields
+      parentFieldType="PROJECT"
+      [parentFieldName]="expenseFields.project_id[0]?.field_name"
+      [parentFieldValue]="expense.project?.name"
+      [dependentCustomProperties]="projectDependentCustomProperties"
+    ></app-view-dependent-fields>
+    } } }
+    <!-- Cost center dependent fields -->
+    @if (costCenterDependentCustomProperties$ | async; as costCenterDependentCustomProperties) { @if (expenseFields$ |
+    async; as expenseFields) { @if (expenseFields?.cost_center_id?.length) {
+    <app-view-dependent-fields
+      parentFieldType="COST_CENTER"
+      [parentFieldName]="expenseFields.cost_center_id[0]?.field_name"
+      [parentFieldValue]="expense.cost_center?.name"
+      [costCenterCode]="expense.cost_center?.code"
+      [dependentCustomProperties]="costCenterDependentCustomProperties"
+    ></app-view-dependent-fields>
+    } } } @if (mileageCustomFields$|async; as customProperties) { @if (customProperties?.length > 0) {
+    <div class="view-mileage--divider"></div>
+    @for (customProperty of customProperties; track customProperty) {
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">{{customProperty.name}}</div>
+          <div class="view-mileage--value">{{ customProperty.displayValue }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } } }
+  </div>
   }
 </ion-content>
 
 <!-- TODO: Rename etxn terminology to expense in navigation footer component -->
 @if (reportExpenseCount > 1) {
-  <app-navigation-footer
-    [activeExpenseIndex]="activeExpenseIndex"
-    [reportExpenseCount]="reportExpenseCount"
-  ></app-navigation-footer>
+<app-navigation-footer
+  [activeExpenseIndex]="activeExpenseIndex"
+  [reportExpenseCount]="reportExpenseCount"
+></app-navigation-footer>
 }

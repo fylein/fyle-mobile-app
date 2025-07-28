@@ -11,6 +11,7 @@ import { Observable } from 'rxjs';
   selector: 'app-navigation-footer',
   templateUrl: './navigation-footer.component.html',
   styleUrls: ['./navigation-footer.component.scss'],
+  standalone: false,
 })
 export class NavigationFooterComponent implements OnInit {
   @Input() reportExpenseCount: number;

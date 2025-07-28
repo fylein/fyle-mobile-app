@@ -45,6 +45,7 @@ import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/
   selector: 'app-view-mileage',
   templateUrl: './view-mileage.page.html',
   styleUrls: ['./view-mileage.page.scss'],
+  standalone: false,
 })
 export class ViewMileagePage {
   @ViewChild('comments') commentsContainer: ElementRef;

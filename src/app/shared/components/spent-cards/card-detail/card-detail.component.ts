@@ -8,6 +8,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   selector: 'app-card-detail',
   templateUrl: './card-detail.component.html',
   styleUrls: ['./card-detail.component.scss'],
+  standalone: false,
 })
 export class CardDetailComponent {
   @Input() cardDetail: PlatformCorporateCardDetail;

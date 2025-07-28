@@ -20,6 +20,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-select-modal',
   templateUrl: './fy-select-project-modal.component.html',
   styleUrls: ['./fy-select-project-modal.component.scss'],
+  standalone: false,
 })
 export class FyProjectSelectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;

@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .view-team-advance-request {
   &--toolbar {
@@ -29,7 +29,7 @@
 
   &--divider {
     margin: 24px 0px;
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &--title-sm {
@@ -43,7 +43,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 

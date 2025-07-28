@@ -20,6 +20,7 @@ import { of } from 'rxjs';
 @Component({
   selector: 'app-card-number',
   template: '<div></div>',
+  standalone: false,
 })
 class MockCardNumberComponent {
   @Input() cardNumber: string;

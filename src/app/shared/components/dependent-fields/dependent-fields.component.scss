@@ -1,5 +1,5 @@
-@import '../../../../theme/colors.scss';
-@import '../../../../theme/forms.scss';
+@use '../../../../theme/colors.scss';
+@use '../../../../theme/forms.scss';
 
 .dependent-fields {
   &--primary-block {
@@ -17,7 +17,7 @@
   }
 
   &__skeleton-loader {
-    background: $off-white;
+    background: colors.$off-white;
     border-radius: 4px;
     height: 16px;
 

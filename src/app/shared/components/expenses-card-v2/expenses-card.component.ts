@@ -35,6 +35,7 @@ import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
   selector: 'app-expense-card-v2',
   templateUrl: './expenses-card.component.html',
   styleUrls: ['./expenses-card.component.scss'],
+  standalone: false,
 })
 export class ExpensesCardComponent implements OnInit {
   // Cache key for localStorage

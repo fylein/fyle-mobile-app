@@ -8,6 +8,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
   selector: 'app-add-txn-to-report-dialog',
   templateUrl: './add-txn-to-report-dialog.component.html',
   styleUrls: ['./add-txn-to-report-dialog.component.scss'],
+  standalone: false,
 })
 export class AddTxnToReportDialogComponent implements OnInit {
   @Input() openReports;

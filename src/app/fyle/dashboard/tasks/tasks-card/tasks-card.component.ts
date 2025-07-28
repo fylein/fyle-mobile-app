@@ -11,6 +11,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-tasks-card',
   templateUrl: './tasks-card.component.html',
   styleUrls: ['./tasks-card.component.scss'],
+  standalone: false,
 })
 export class TasksCardComponent implements OnInit {
   @Input() task: DashboardTask;

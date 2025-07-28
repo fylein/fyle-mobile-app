@@ -6,6 +6,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
   selector: 'app-employee-details-card',
   templateUrl: './employee-details-card.component.html',
   styleUrls: ['./employee-details-card.component.scss'],
+  standalone: false,
 })
 export class EmployeeDetailsCardComponent implements OnInit {
   @Input() eou: ExtendedOrgUser;

@@ -12,6 +12,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   selector: 'app-sidemenu-content',
   templateUrl: './sidemenu-content.component.html',
   styleUrls: ['./sidemenu-content.component.scss'],
+  standalone: false,
 })
 export class SidemenuContentComponent implements OnInit {
   @Input() sideMenuList: Partial<SidemenuItem>[];
