@@ -42,6 +42,7 @@ export class FySummaryTileComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     this.status =
       this.status === 'APPROVAL PENDING' ? this.translocoService.translate('summaryTile.pending') : this.status;
+      this.status = this.status === 'INQUIRY' ? this.translocoService.translate('summaryTile.sentBack') : this.status;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
