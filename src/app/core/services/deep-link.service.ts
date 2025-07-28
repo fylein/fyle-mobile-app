@@ -63,8 +63,8 @@ export class DeepLinkService {
             id: reportId,
           },
         ]);
-      } else if (redirectUri.match('/view_expense/tx') && redirectUri.split('/view_expense/').pop().length === 12) {
-        const txnId = redirectUri.split('/view_expense/').pop();
+      } else if (redirectUri.match('/my_expenses/') && redirectUri.split('txnId=').pop().length === 12) {
+        const txnId = redirectUri.split('txnId=').pop();
         const subModule = 'expense';
         this.router.navigate([
           '/',
