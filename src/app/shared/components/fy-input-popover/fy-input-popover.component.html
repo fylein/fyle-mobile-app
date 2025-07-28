@@ -33,12 +33,12 @@
     [placeholder]="
       placeholder?.length
         ? placeholder
-        : ('fyInputPopover.enterLabelPlaceholder' | transloco : { inputLabel: inputLabel })
+        : ('fyInputPopover.enterLabelPlaceholder' | transloco: { inputLabel: inputLabel })
     "
     [type]="inputType"
     [maxlength]="inputType === 'tel' ? 15 : null"
     [minlength]="inputType === 'tel' ? 7 : null"
-    />
+  />
   @if (error?.length) {
     <span class="input-popover--input-container__error">{{ error }}</span>
   }

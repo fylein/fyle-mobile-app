@@ -9,7 +9,7 @@
     type="number"
     [(ngModel)]="negativeExpense"
     (keydown)="handleNegativeExpenseChange($event)"
-    />
+  />
 } @else {
   @if (isAndroid && isAmount && isAndroidNegativeExpensePluginEnabled) {
     <input
@@ -22,7 +22,7 @@
       type="text"
       inputmode="numeric"
       [(ngModel)]="negativeExpense"
-      />
+    />
   } @else {
     @if (isIos && isKeyboardPluginEnabled) {
       <input
@@ -35,7 +35,7 @@
         type="number"
         inputmode="decimal"
         (keyup)="handleChange($event)"
-        />
+      />
     } @else {
       <input
         class="fy-number--input smartlook-show"
@@ -46,10 +46,7 @@
         (blur)="(onBlur)"
         type="number"
         inputmode="decimal"
-        />
+      />
     }
   }
 }
-
-
-

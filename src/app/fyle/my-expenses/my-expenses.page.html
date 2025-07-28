@@ -1,5 +1,5 @@
 <app-fy-header
-  [ngClass]="{'d-none': isCameraPreviewStarted}"
+  [ngClass]="{ 'd-none': isCameraPreviewStarted }"
   [currentState]="headerState"
   [navigateBack]="navigateBack"
   [title]="'myExpensesPage.title' | transloco"
@@ -13,20 +13,22 @@
       </ion-button>
       <ion-button class="my-expenses--header-btn" (click)="openFilters()">
         @if (filterPills?.length) {
-        <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
         } @else {
-        <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
         }
       </ion-button>
-      @if (isConnected$ | async) { @if ((orgSettings$ | async) && (specialCategories$ | async)) {
-      <ion-button class="my-expenses--header-btn" (click)="openActionSheet()">
-        <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
-      </ion-button>
-      } @else {
-      <div class="my-expenses--header-btn--skeleton-loader">
-        <ion-skeleton-text class="m-0" animated></ion-skeleton-text>
-      </div>
-      } }
+      @if (isConnected$ | async) {
+        @if ((orgSettings$ | async) && (specialCategories$ | async)) {
+          <ion-button class="my-expenses--header-btn" (click)="openActionSheet()">
+            <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
+          </ion-button>
+        } @else {
+          <div class="my-expenses--header-btn--skeleton-loader">
+            <ion-skeleton-text class="m-0" animated></ion-skeleton-text>
+          </div>
+        }
+      }
     </ion-buttons>
   </ng-container>
 
@@ -43,37 +45,43 @@
           (focus)="onSearchBarFocus()"
         />
         @if (simpleSearchText) {
-        <button
-          (click)="clearText('isFromSearchBar')"
-          aria-label="Clear"
-          class="my-expenses--simple-search-close"
-          mat-button
-          mat-icon-button
-          matSuffix
-        >
-          <mat-icon svgIcon="clear"></mat-icon>
-        </button>
+          <button
+            (click)="clearText('isFromSearchBar')"
+            aria-label="Clear"
+            class="my-expenses--simple-search-close"
+            mat-button
+            mat-icon-button
+            matSuffix
+          >
+            <mat-icon svgIcon="clear"></mat-icon>
+          </button>
         }
       </mat-form-field>
     </div>
   </ng-container>
   <ng-container multiselect>
-    @if (homeCurrency$ | async; as homeCurrency) { @if (allExpensesStats$ | async; as allExpensesStats) {
-    <div class="my-expenses--multiselect-title page-title">
-      <span
-        >{{allExpensesStats?.count}} {{(allExpensesStats?.count > 1) ? ('myExpensesPage.expenses' | transloco) :
-        ('myExpensesPage.expense' | transloco)}}</span
-      >
-      <span class="my-expenses--multiselect-amount">
-        ({{ { value: allExpensesStats.amount || 0, currencyCode: homeCurrency } | exactCurrency }})
-      </span>
-    </div>
-    } }
+    @if (homeCurrency$ | async; as homeCurrency) {
+      @if (allExpensesStats$ | async; as allExpensesStats) {
+        <div class="my-expenses--multiselect-title page-title">
+          <span
+            >{{ allExpensesStats?.count }}
+            {{
+              allExpensesStats?.count > 1
+                ? ('myExpensesPage.expenses' | transloco)
+                : ('myExpensesPage.expense' | transloco)
+            }}</span
+          >
+          <span class="my-expenses--multiselect-amount">
+            ({{ { value: allExpensesStats.amount || 0, currencyCode: homeCurrency } | exactCurrency }})
+          </span>
+        </div>
+      }
+    }
     <ion-buttons mode="md" slot="end">
       @if (isMergeAllowed) {
-      <ion-button (click)="mergeExpenses()">
-        <ion-icon class="my-expenses--merge-icon" src="../../../assets/svg/merge.svg"></ion-icon>
-      </ion-button>
+        <ion-button (click)="mergeExpenses()">
+          <ion-icon class="my-expenses--merge-icon" src="../../../assets/svg/merge.svg"></ion-icon>
+        </ion-button>
       }
       <ion-button (click)="openDeleteExpensesPopover()" [disabled]="isDeleteDisabled">
         <ion-icon src="../../../assets/svg/bin.svg"></ion-icon>
@@ -91,192 +99,229 @@
 
 <ion-content
   [ngClass]="{
-  'd-none': isCameraPreviewStarted,
-  'my-expenses--content-zero-state': ((pendingTransactions.length === 0) && ((count$ | async) === 0) && isConnected$ | async)
-}"
+    'd-none': isCameraPreviewStarted,
+    'my-expenses--content-zero-state':
+      (pendingTransactions.length === 0 && (count$ | async) === 0 && isConnected$ | async),
+  }"
   class="my-expenses--content"
   (click)="onPageClick()"
 >
   <div
     class="my-expenses--body"
-    [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}"
+    [ngClass]="{
+      'my-expenses--zero-states-body':
+        ((count$ | async) === 0 && isConnected$ | async) ||
+        (pendingTransactions.length === 0 && !(isConnected$ | async)),
+    }"
   >
-    @if (isConnected$|async) {
-    <ion-refresher (ionRefresh)="doRefresh($event)" slot="fixed">
-      <ion-refresher-content></ion-refresher-content>
-    </ion-refresher>
-    } @if (filterPills?.length) {
-    <div class="my-expenses--filter-pills-container">
-      <app-fy-filter-pills
-        class="my-expenses--filter-pills"
-        (filterClose)="onFilterClose($event)"
-        (filterClicked)="onFilterClick($event)"
-        (clearAll)="onFilterPillsClearAll()"
-        [filterPills]="filterPills"
-      ></app-fy-filter-pills>
-    </div>
-    } @if (isLoading) {
-    <app-fy-loading-screen
-      [isSelectionModeEnabled]="selectionMode"
-      class="my-expenses--shimmers"
-    ></app-fy-loading-screen>
-    } @if ((pendingTransactions.length === 0) && ((count$ | async) === 0) && isConnected$|async) {
-    <div class="my-expenses--zero-state">
-      @if (!simpleSearchText) {
-      <img
-        alt="Create First Expenses"
-        class="my-expenses--zero-state-img"
-        src="../../../assets/images/zero-states/new-expenses.png"
-      />
-      } @if (simpleSearchText) {
-      <img
-        alt="Create First Expenses"
-        class="my-expenses--zero-state-img"
-        src="../../../assets/images/zero-states/search.png"
-      />
-      } @if (!(filters?.state || filters?.date || simpleSearchText)) {
-      <div class="my-expenses--zero-state-subheader">
-        @if (isNewUser$|async) {
-        <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noExpenses' | transloco }}</div>
-        <button
-          type="button"
-          (click)="openActionSheet(true)"
-          class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
-        >
-          {{ 'myExpensesPage.addExpense' | transloco }}
-        </button>
-        } @else {
-        <div class="my-expenses--zero-state-subheader__title">
-          <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noExpenses' | transloco }}</div>
-          <button
-            type="button"
-            (click)="openActionSheet(true)"
-            class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
-          >
-            {{ 'myExpensesPage.addExpense' | transloco }}
-          </button>
-        </div>
+    @if (isConnected$ | async) {
+      <ion-refresher (ionRefresh)="doRefresh($event)" slot="fixed">
+        <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
+    }
+    @if (filterPills?.length) {
+      <div class="my-expenses--filter-pills-container">
+        <app-fy-filter-pills
+          class="my-expenses--filter-pills"
+          (filterClose)="onFilterClose($event)"
+          (filterClicked)="onFilterClick($event)"
+          (clearAll)="onFilterPillsClearAll()"
+          [filterPills]="filterPills"
+        ></app-fy-filter-pills>
+      </div>
+    }
+    @if (isLoading) {
+      <app-fy-loading-screen
+        [isSelectionModeEnabled]="selectionMode"
+        class="my-expenses--shimmers"
+      ></app-fy-loading-screen>
+    }
+    @if (pendingTransactions.length === 0 && (count$ | async) === 0 && isConnected$ | async) {
+      <div class="my-expenses--zero-state">
+        @if (!simpleSearchText) {
+          <img
+            alt="Create First Expenses"
+            class="my-expenses--zero-state-img"
+            src="../../../assets/images/zero-states/new-expenses.png"
+          />
+        }
+        @if (simpleSearchText) {
+          <img
+            alt="Create First Expenses"
+            class="my-expenses--zero-state-img"
+            src="../../../assets/images/zero-states/search.png"
+          />
+        }
+        @if (!(filters?.state || filters?.date || simpleSearchText)) {
+          <div class="my-expenses--zero-state-subheader">
+            @if (isNewUser$ | async) {
+              <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noExpenses' | transloco }}</div>
+              <button
+                type="button"
+                (click)="openActionSheet(true)"
+                class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
+              >
+                {{ 'myExpensesPage.addExpense' | transloco }}
+              </button>
+            } @else {
+              <div class="my-expenses--zero-state-subheader__title">
+                <div class="my-expenses--zero-state-content">
+                  {{ 'myExpensesPage.zeroState.noExpenses' | transloco }}
+                </div>
+                <button
+                  type="button"
+                  (click)="openActionSheet(true)"
+                  class="my-expenses--primary-cta my-expenses--zero-state-cta text-center"
+                >
+                  {{ 'myExpensesPage.addExpense' | transloco }}
+                </button>
+              </div>
+            }
+          </div>
+        }
+        @if (filters?.state || filters?.date) {
+          <div class="my-expenses--zero-state-header">
+            <div class="my-expenses--zero-state-content">
+              {{ 'myExpensesPage.zeroState.noExpensesMatchingFilters' | transloco }}
+            </div>
+          </div>
+        }
+        @if (!filters?.state && !filters?.date && simpleSearchText) {
+          <div class="my-expenses--zero-state-header">
+            <div class="my-expenses--zero-state-content">
+              {{ 'myExpensesPage.zeroState.noResultsFound' | transloco }}
+            </div>
+            <div class="my-expenses--zero-state-content">
+              {{ 'myExpensesPage.zeroState.tryDifferentKeyword' | transloco }}
+            </div>
+          </div>
         }
       </div>
-      } @if ((filters?.state || filters?.date)) {
-      <div class="my-expenses--zero-state-header">
-        <div class="my-expenses--zero-state-content">
-          {{ 'myExpensesPage.zeroState.noExpensesMatchingFilters' | transloco }}
+    }
+    @if (!(isConnected$ | async)) {
+      @if (pendingTransactions.length > 0) {
+        <div class="my-expenses--syncing">
+          <app-fy-alert-info
+            [type]="'information'"
+            [message]="'myExpensesPage.offline.syncMessage' | transloco"
+          ></app-fy-alert-info>
         </div>
-      </div>
-      } @if (!filters?.state && !filters?.date && simpleSearchText) {
-      <div class="my-expenses--zero-state-header">
-        <div class="my-expenses--zero-state-content">{{ 'myExpensesPage.zeroState.noResultsFound' | transloco }}</div>
-        <div class="my-expenses--zero-state-content">
-          {{ 'myExpensesPage.zeroState.tryDifferentKeyword' | transloco }}
+      }
+      @if (pendingTransactions.length === 0) {
+        <div class="my-expenses--zero-state">
+          <app-fy-zero-state
+            class="stats--zero-state"
+            image="../../../../assets/images/no-internet.svg"
+            [header]="'myExpensesPage.offline.offlineHeader' | transloco"
+            [message]="'myExpensesPage.offline.offlineMessage' | transloco"
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
         </div>
+      }
+    }
+    @if (!(filters?.state || filters?.date || simpleSearchText) && !isLoading) {
+      <div>
+        @for (pendingTransaction of pendingTransactions; track pendingTransaction.id; let i = $index) {
+          <app-expense-card
+            [expense]="pendingTransaction"
+            [isFirstOfflineExpense]="i === 0"
+            [previousExpenseTxnDate]="pendingTransactions[i - 1]?.tx_txn_dt"
+            [previousExpenseCreatedAt]="pendingTransactions[i - 1]?.tx_created_at"
+            [isSelectionModeEnabled]="selectionMode"
+            [selectedElements]="selectedOutboxExpenses"
+            [isOutboxExpense]="true"
+            (setMultiselectMode)="switchOutboxSelectionMode($event)"
+            (cardClickedForSelection)="selectOutboxExpense($event)"
+          >
+          </app-expense-card>
+        }
       </div>
+    }
+    @if (isConnected$ | async) {
+      @let expenses = myExpenses$ | async;
+      @for (expense of expenses; track expense.id; let i = $index) {
+        <app-expense-card-v2
+          [expense]="expense"
+          [previousExpenseTxnDate]="expenses[i - 1]?.spent_at"
+          [previousExpenseCreatedAt]="expenses[i - 1]?.created_at"
+          [isSelectionModeEnabled]="selectionMode"
+          [selectedElements]="selectedElements"
+          (goToTransaction)="goToTransaction($event)"
+          (setMultiselectMode)="switchSelectionMode($event)"
+          (cardClickedForSelection)="selectExpense($event)"
+          (showCamera)="showCamera($event)"
+        >
+        </app-expense-card-v2>
       }
-    </div>
-    } @if (!(isConnected$|async)) { @if (pendingTransactions.length > 0) {
-    <div class="my-expenses--syncing">
-      <app-fy-alert-info
-        [type]="'information'"
-        [message]="'myExpensesPage.offline.syncMessage' | transloco"
-      ></app-fy-alert-info>
-    </div>
-    } @if (pendingTransactions.length === 0) {
-    <div class="my-expenses--zero-state">
-      <app-fy-zero-state
-        class="stats--zero-state"
-        image="../../../../assets/images/no-internet.svg"
-        [header]="'myExpensesPage.offline.offlineHeader' | transloco"
-        [message]="'myExpensesPage.offline.offlineMessage' | transloco"
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-      ></app-fy-zero-state>
-    </div>
-    } } @if (!(filters?.state || filters?.date || simpleSearchText) && !isLoading) {
-    <div>
-      @for (pendingTransaction of pendingTransactions; track pendingTransaction.id; let i = $index) {
-      <app-expense-card
-        [expense]="pendingTransaction"
-        [isFirstOfflineExpense]="i === 0"
-        [previousExpenseTxnDate]="pendingTransactions[i-1]?.tx_txn_dt"
-        [previousExpenseCreatedAt]="pendingTransactions[i-1]?.tx_created_at"
-        [isSelectionModeEnabled]="selectionMode"
-        [selectedElements]="selectedOutboxExpenses"
-        [isOutboxExpense]="true"
-        (setMultiselectMode)="switchOutboxSelectionMode($event)"
-        (cardClickedForSelection)="selectOutboxExpense($event)"
-      >
-      </app-expense-card>
+    }
+    @if (isConnected$ | async) {
+      @if (isLoadingDataInInfiniteScroll) {
+        <app-fy-loading-screen
+          [isSelectionModeEnabled]="selectionMode"
+          class="my-expenses--shimmers"
+        ></app-fy-loading-screen>
       }
-    </div>
-    } @if (isConnected$|async) { @let expenses = myExpenses$ | async; @for (expense of expenses; track expense.id; let i
-    = $index) {
-    <app-expense-card-v2
-      [expense]="expense"
-      [previousExpenseTxnDate]="expenses[i-1]?.spent_at"
-      [previousExpenseCreatedAt]="expenses[i-1]?.created_at"
-      [isSelectionModeEnabled]="selectionMode"
-      [selectedElements]="selectedElements"
-      (goToTransaction)="goToTransaction($event)"
-      (setMultiselectMode)="switchSelectionMode($event)"
-      (cardClickedForSelection)="selectExpense($event)"
-      (showCamera)="showCamera($event)"
-    >
-    </app-expense-card-v2>
-    } } @if (isConnected$|async) { @if (isLoadingDataInInfiniteScroll) {
-    <app-fy-loading-screen
-      [isSelectionModeEnabled]="selectionMode"
-      class="my-expenses--shimmers"
-    ></app-fy-loading-screen>
-    } }
+    }
   </div>
 
-  @if (isConnected$|async) { @if (!isLoadingDataInInfiniteScroll) { @if (isInfiniteScrollRequired$ | async) {
-  <ion-infinite-scroll (ionInfinite)="loadData($event)" threshold="100px">
-    <ion-infinite-scroll-content></ion-infinite-scroll-content>
-  </ion-infinite-scroll>
-  } } }
+  @if (isConnected$ | async) {
+    @if (!isLoadingDataInInfiniteScroll) {
+      @if (isInfiniteScrollRequired$ | async) {
+        <ion-infinite-scroll (ionInfinite)="loadData($event)" threshold="100px">
+          <ion-infinite-scroll-content></ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+      }
+    }
+  }
 </ion-content>
 
 @if (!isSearchBarFocused) {
-<ion-footer [ngClass]="{'d-none': isCameraPreviewStarted}">
-  @if (!selectionMode) {
-  <app-fy-footer
-    (homeClicked)="onHomeClicked()"
-    (taskClicked)="onTaskClicked()"
-    (cameraClicked)="onCameraClicked()"
-    [taskCount]="expensesTaskCount"
-  ></app-fy-footer>
-  } @if (openReports$ | async; as openReports) { @if (selectionMode && !reviewMode) {
-  <div class="my-expenses--footer-conatiner">
-    @if (openReports.length > 0) {
-    <button
-      type="button"
-      class="my-expenses--cta-button my-expenses--secondary-cta text-center"
-      [ngClass]="{'my-expenses--secondary-cta__disabled': !isReportableExpensesSelected || (openReports.length === 0)}"
-      (click)="openCreateReportWithSelectedIds('oldReport')"
-    >
-      {{ 'myExpensesPage.addToReports' | transloco }}
-    </button>
+  <ion-footer [ngClass]="{ 'd-none': isCameraPreviewStarted }">
+    @if (!selectionMode) {
+      <app-fy-footer
+        (homeClicked)="onHomeClicked()"
+        (taskClicked)="onTaskClicked()"
+        (cameraClicked)="onCameraClicked()"
+        [taskCount]="expensesTaskCount"
+      ></app-fy-footer>
     }
-    <button
-      type="submit"
-      class="my-expenses--cta-button my-expenses--primary-cta text-center"
-      [ngClass]="{'my-expenses--primary-cta__disabled': !isReportableExpensesSelected}"
-      (click)="openCreateReportWithSelectedIds('newReport')"
-    >
-      {{ 'myExpensesPage.createNewReport' | transloco }}
-    </button>
-  </div>
-  } @if (selectionMode && reviewMode) {
-  <div class="my-expenses--footer-conatiner">
-    <button
-      type="submit"
-      class="my-expenses--cta-button my-expenses--primary-cta text-center"
-      (click)="openReviewExpenses()"
-    >
-      {{ 'myExpensesPage.startReview' | transloco }}
-    </button>
-  </div>
-  } }
-</ion-footer>
+    @if (openReports$ | async; as openReports) {
+      @if (selectionMode && !reviewMode) {
+        <div class="my-expenses--footer-conatiner">
+          @if (openReports.length > 0) {
+            <button
+              type="button"
+              class="my-expenses--cta-button my-expenses--secondary-cta text-center"
+              [ngClass]="{
+                'my-expenses--secondary-cta__disabled': !isReportableExpensesSelected || openReports.length === 0,
+              }"
+              (click)="openCreateReportWithSelectedIds('oldReport')"
+            >
+              {{ 'myExpensesPage.addToReports' | transloco }}
+            </button>
+          }
+          <button
+            type="submit"
+            class="my-expenses--cta-button my-expenses--primary-cta text-center"
+            [ngClass]="{ 'my-expenses--primary-cta__disabled': !isReportableExpensesSelected }"
+            (click)="openCreateReportWithSelectedIds('newReport')"
+          >
+            {{ 'myExpensesPage.createNewReport' | transloco }}
+          </button>
+        </div>
+      }
+      @if (selectionMode && reviewMode) {
+        <div class="my-expenses--footer-conatiner">
+          <button
+            type="submit"
+            class="my-expenses--cta-button my-expenses--primary-cta text-center"
+            (click)="openReviewExpenses()"
+          >
+            {{ 'myExpensesPage.startReview' | transloco }}
+          </button>
+        </div>
+      }
+    }
+  </ion-footer>
 }

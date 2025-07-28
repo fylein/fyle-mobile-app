@@ -24,11 +24,7 @@
   @if (!isNotificationsDisabled) {
     <div class="notifications--container">
       @if (expenseNotificationsConfig?.notifications?.length > 0) {
-        <div
-          class="notifications--card"
-          matRipple
-          (click)="openNotificationModal(expenseNotificationsConfig)"
-          >
+        <div class="notifications--card" matRipple (click)="openNotificationModal(expenseNotificationsConfig)">
           <div class="notifications--card--title">{{ expenseNotificationsConfig.title }}</div>
           <ion-icon
             class="notifications--navigate-icon"
@@ -38,11 +34,7 @@
         </div>
       }
       @if (expenseReportNotificationsConfig?.notifications?.length > 0) {
-        <div
-          class="notifications--card"
-          matRipple
-          (click)="openNotificationModal(expenseReportNotificationsConfig)"
-          >
+        <div class="notifications--card" matRipple (click)="openNotificationModal(expenseReportNotificationsConfig)">
           <div class="notifications--card--title">{{ expenseReportNotificationsConfig.title }}</div>
           <ion-icon
             class="notifications--navigate-icon"
@@ -52,11 +44,7 @@
         </div>
       }
       @if (isAdvancesEnabled && advanceNotificationsConfig?.notifications?.length > 0) {
-        <div
-          class="notifications--card"
-          matRipple
-          (click)="openNotificationModal(advanceNotificationsConfig)"
-          >
+        <div class="notifications--card" matRipple (click)="openNotificationModal(advanceNotificationsConfig)">
           <div class="notifications--card--title">{{ advanceNotificationsConfig.title }}</div>
           <ion-icon
             class="notifications--navigate-icon"
@@ -80,7 +68,7 @@
                 mode="md"
                 button
                 (click)="selectPreference(option.value)"
-                >
+              >
                 @if (selectedPreference === option.value) {
                   <ion-icon
                     class="notifications--radio"

@@ -11,11 +11,11 @@
     <input
       class="fy-location--input smartlook-show"
       type="text"
-      [placeholder]="placeholder || ('fyLocation.selectLocation' | transloco : { label: label })"
+      [placeholder]="placeholder || ('fyLocation.selectLocation' | transloco: { label: label })"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
-      />
+    />
     @if (!hideSuffix) {
       <mat-icon class="fy-location--icon" svgIcon="arrow-down"></mat-icon>
     }

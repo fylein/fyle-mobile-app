@@ -19,17 +19,12 @@
         mat-flat-button
         color="accent"
         (click)="secondaryCtaClicked()"
-        >
+      >
         {{ config.secondaryCta.text }}
       </button>
     }
     @if (config.primaryCta) {
-      <button
-        class="fy-popup--button"
-        mat-flat-button
-        color="primary"
-        (click)="primaryCtaClicked()"
-        >
+      <button class="fy-popup--button" mat-flat-button color="primary" (click)="primaryCtaClicked()">
         {{ config.primaryCta.text }}
       </button>
     }

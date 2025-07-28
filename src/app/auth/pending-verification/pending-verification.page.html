@@ -27,13 +27,9 @@
                 formControlName="email"
                 pattern="\S+@\S+\.\S{2,}"
                 class="pending-verification__input-container__input"
-                />
+              />
               @if (fg.controls.email.touched && !fg.controls.email.valid) {
-                <div
-                  class="pending-verification__error-message"
-                  >
-                  Please enter a valid email.
-                </div>
+                <div class="pending-verification__error-message">Please enter a valid email.</div>
               }
             </form>
           </div>
@@ -46,7 +42,7 @@
               appFormButtonValidation
               [loading]="isLoading"
               [loadingText]="'Sending invite'"
-              >
+            >
               Send invite
             </ion-button>
             <div class="pending-verification__cta-secondary" (click)="onGotoSignInClick()">
@@ -74,8 +70,8 @@
               <section class="pending-verification__text">
                 <h1 class="pending-verification__header">Invitation link sent</h1>
                 <p class="pending-verification__content">
-                  A new invitation link has been sent to your registered email address. Check your inbox to continue setting
-                  up your account.
+                  A new invitation link has been sent to your registered email address. Check your inbox to continue
+                  setting up your account.
                 </p>
               </section>
             </div>
@@ -87,7 +83,7 @@
               fill="clear"
               aria-label="Navigate back to sign in page"
               role="button"
-              >
+            >
               <div class="pending-verification__cta-content">
                 <ion-icon
                   class="pending-verification__arrow-icon"

@@ -19,7 +19,7 @@
         matInput
         [placeholder]="'fyCurrencyChooseCurrency.search' | transloco"
         [(ngModel)]="value"
-        />
+      />
       @if (value) {
         <button
           matSuffix
@@ -27,7 +27,7 @@
           [attr.aria-label]="'fyCurrencyChooseCurrency.clear' | transloco"
           class="selection-modal--clear"
           (click)="clearValue()"
-          >
+        >
           <mat-icon>close</mat-icon>
         </button>
       }
@@ -43,7 +43,7 @@
       class="selection-modal--list-element"
       [attr.id]="'currency' + currency.shortCode"
       (click)="onCurrencySelect(currency)"
-      >
+    >
       <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
       @if (currency.shortCode === currentSelection) {
         <mat-icon class="selection-modal--check"> check </mat-icon>

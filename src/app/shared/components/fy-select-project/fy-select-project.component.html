@@ -11,11 +11,11 @@
     <input
       class="fy-select-project--input smartlook-show"
       type="text"
-      [placeholder]="placeholder || ('fySelectProject.selectLabel' | transloco : { label: label })"
+      [placeholder]="placeholder || ('fySelectProject.selectLabel' | transloco: { label: label })"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
-      />
+    />
     <mat-icon class="fy-select-project--icon" svgIcon="arrow-down"></mat-icon>
   </div>
 </label>

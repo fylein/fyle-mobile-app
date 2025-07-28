@@ -5,18 +5,14 @@
     [src]="image"
     [ngStyle]="taskImageStyle"
     [alt]="'fyZeroState.altText' | transloco"
-    />
+  />
   @if (header) {
     <div [ngClass]="{ 'zero-state--header__new': useNewStyling }" class="zero-state--header">
       {{ header }}
     </div>
   }
   @if (message) {
-    <div
-      #messageRef
-      [ngClass]="{ 'zero-state--description__new': useNewStyling }"
-      class="zero-state--description"
-      >
+    <div #messageRef [ngClass]="{ 'zero-state--description__new': useNewStyling }" class="zero-state--description">
       {{ message }}
     </div>
   }

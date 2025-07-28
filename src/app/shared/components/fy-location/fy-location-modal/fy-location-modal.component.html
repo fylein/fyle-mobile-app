@@ -8,14 +8,14 @@
     <mat-form-field
       appearance="outline"
       class="mat-form-field-no-padding selection-modal--simple-search selection-modal--simple-search-container"
-      >
+    >
       <input
         #searchBar
         [(ngModel)]="value"
         class="selection-modal--simple-search-input smartlook-show"
         matInput
         [placeholder]="'fyLocationModal.search' | transloco"
-        />
+      />
       @if (loader) {
         <mat-icon class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix> </mat-icon>
       }
@@ -26,7 +26,7 @@
           class="selection-modal--simple-search-close"
           mat-icon-button
           matSuffix
-          >
+        >
           <mat-icon class="selection-modal--simple-search-icon" svgIcon="clear"></mat-icon>
         </button>
       }
@@ -38,7 +38,7 @@
           class="text-capitalize selection-modal--cta-button"
           mode="md"
           (click)="onDoneClick()"
-          >
+        >
           {{ 'fyLocationModal.save' | transloco }}
         </ion-button>
       </ion-buttons>
@@ -60,7 +60,7 @@
         [showActionButton]="true"
         (actionClick)="askForEnableLocationSettings()"
         [actionButtonContent]="'fyLocationModal.enable' | transloco"
-        >
+      >
       </app-fy-alert-info>
     </div>
   }
@@ -75,11 +75,7 @@
     </div>
   }
   @for (filteredListItem of recentItemsFilteredList$ | async; track filteredListItem) {
-    <div
-      matRipple
-      class="selection-modal--list-element"
-      (click)="onRecentItemSelect(filteredListItem.display)"
-      >
+    <div matRipple class="selection-modal--list-element" (click)="onRecentItemSelect(filteredListItem.display)">
       <mat-icon class="selection-modal--list-element-icon" svgIcon="clock"> </mat-icon>
       <div>
         <div class="selection-modal--location-main-text">
@@ -92,11 +88,7 @@
     </div>
   }
   @for (filteredListItem of filteredList$ | async; track filteredListItem) {
-    <div
-      matRipple
-      class="selection-modal--list-element"
-      (click)="onElementSelect(filteredListItem)"
-      >
+    <div matRipple class="selection-modal--list-element" (click)="onElementSelect(filteredListItem)">
       <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
       <div>
         @if (filteredListItem.structured_formatting?.main_text) {
@@ -115,7 +107,7 @@
       matRipple
       class="selection-modal--list-element selection-modal--list-element__current-location"
       (click)="getCurrentLocation()"
-      >
+    >
       <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
       <div class="selection-modal--location-main-text">{{ 'fyLocationModal.useCurrentLocation' | transloco }}</div>
     </div>

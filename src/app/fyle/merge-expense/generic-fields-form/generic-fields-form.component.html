@@ -15,9 +15,9 @@
     </app-fy-select>
   </div>
   @if (genericFieldsFormGroup.controls.amount.touched && genericFieldsFormGroup.controls.amount.invalid) {
-  <div class="merge-expenses--error">
-    {{ 'genericFieldsForm.invalidAmountError' | transloco }}
-  </div>
+    <div class="merge-expenses--error">
+      {{ 'genericFieldsForm.invalidAmountError' | transloco }}
+    </div>
   }
 
   <div class="merge-expenses--primary-block">
@@ -26,7 +26,7 @@
         <ion-col size="6">
           <div
             [ngClass]="{
-              'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.dateOfSpend.value
+              'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.dateOfSpend.value,
             }"
             class="merge-expenses--internal-block merge-expenses--internal-block__margin"
           >
@@ -52,7 +52,7 @@
         <ion-col size="6">
           <div
             [ngClass]="{
-              'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.paymentMode.value
+              'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.paymentMode.value,
             }"
             class="merge-expenses--internal-block"
           >
@@ -75,11 +75,12 @@
             </app-fy-select>
           </div>
 
-          @if ( genericFieldsFormGroup.controls.paymentMode.touched &&
-          genericFieldsFormGroup.controls.paymentMode.invalid ) {
-          <div class="merge-expenses--error">
-            {{ 'genericFieldsForm.invalidPaymentModeError' | transloco }}
-          </div>
+          @if (
+            genericFieldsFormGroup.controls.paymentMode.touched && genericFieldsFormGroup.controls.paymentMode.invalid
+          ) {
+            <div class="merge-expenses--error">
+              {{ 'genericFieldsForm.invalidPaymentModeError' | transloco }}
+            </div>
           }
         </ion-col>
       </ion-row>
@@ -87,119 +88,131 @@
   </div>
 
   @if (receiptOptions?.length !== 0) {
-  <div class="merge-expenses--internal-block">
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'genericFieldsForm.receipt' | transloco"
-      [disabled]="disableFormElements || receiptOptions?.length === 0"
-      [mandatory]="false"
-      [nullOption]="false"
-      [options]="receiptOptions"
-      [selectModalHeader]="'genericFieldsForm.selectReceipt' | transloco"
-      formControlName="receipts_from"
-      [touchedInParent]="genericFieldsFormGroup.controls.receipts_from.touched"
-      [validInParent]="genericFieldsFormGroup.controls.receipts_from.valid"
-    >
-    </app-fy-select>
-  </div>
-  } @if (receiptOptions?.length === 0) {
-  <div class="merge-expenses--internal-block merge-expenses--text">
-    <div class="merge-expenses--text-label merge-expenses--text-label__large">
-      {{ 'genericFieldsForm.selectReceipt' | transloco }}
+    <div class="merge-expenses--internal-block">
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'genericFieldsForm.receipt' | transloco"
+        [disabled]="disableFormElements || receiptOptions?.length === 0"
+        [mandatory]="false"
+        [nullOption]="false"
+        [options]="receiptOptions"
+        [selectModalHeader]="'genericFieldsForm.selectReceipt' | transloco"
+        formControlName="receipts_from"
+        [touchedInParent]="genericFieldsFormGroup.controls.receipts_from.touched"
+        [validInParent]="genericFieldsFormGroup.controls.receipts_from.valid"
+      >
+      </app-fy-select>
     </div>
-    <div class="merge-expenses--disabled">
-      <input
-        [disabled]="disableFormElements || true"
-        [placeholder]="'genericFieldsForm.noReceiptPlaceholder' | transloco"
-        class="merge-expenses--text-input smartlook-show"
-        type="text"
-      />
+  }
+  @if (receiptOptions?.length === 0) {
+    <div class="merge-expenses--internal-block merge-expenses--text">
+      <div class="merge-expenses--text-label merge-expenses--text-label__large">
+        {{ 'genericFieldsForm.selectReceipt' | transloco }}
+      </div>
+      <div class="merge-expenses--disabled">
+        <input
+          [disabled]="disableFormElements || true"
+          [placeholder]="'genericFieldsForm.noReceiptPlaceholder' | transloco"
+          class="merge-expenses--text-input smartlook-show"
+          type="text"
+        />
+      </div>
     </div>
-  </div>
-  } @if (attachments?.length > 0) {
-  <app-receipt-preview-thumbnail [attachments]="attachments" [canEdit]="false" [hideLabel]="true">
-  </app-receipt-preview-thumbnail>
-  } @for (selectedCCCTransaction of CCCTxns; track selectedCCCTransaction.id) { @if
-  (genericFieldsFormGroup.controls.paymentMode.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-  <app-card-transaction-preview [transactionDetails]="selectedCCCTransaction"> </app-card-transaction-preview>
-  } } @if (projectOptionsData?.options?.length !== 0) {
-  <div class="merge-expenses--primary-block">
-    <ion-grid class="merge-expenses--grid">
-      <ion-row>
-        <ion-col [size]="!showBillable ? '12.3' : '6'">
-          <div
-            [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.project.value }"
-            class="merge-expenses--internal-block merge-expenses--internal-block__margin"
-          >
-            <app-fy-select
-              [enableSearch]="false"
-              [label]="'genericFieldsForm.project' | transloco"
-              [mandatory]="false"
-              [nullOption]="false"
-              [disabled]="
-                disableFormElements || projectOptionsData?.options?.length === 0 || projectOptionsData?.areSameValues
-              "
-              [options]="projectOptionsData?.options"
-              [selectModalHeader]="'genericFieldsForm.selectProject' | transloco"
-              formControlName="project"
-              [touchedInParent]="genericFieldsFormGroup.controls.project.touched"
-              [validInParent]="genericFieldsFormGroup.controls.project.valid"
+  }
+  @if (attachments?.length > 0) {
+    <app-receipt-preview-thumbnail [attachments]="attachments" [canEdit]="false" [hideLabel]="true">
+    </app-receipt-preview-thumbnail>
+  }
+  @for (selectedCCCTransaction of CCCTxns; track selectedCCCTransaction.id) {
+    @if (genericFieldsFormGroup.controls.paymentMode.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+      <app-card-transaction-preview [transactionDetails]="selectedCCCTransaction"> </app-card-transaction-preview>
+    }
+  }
+  @if (projectOptionsData?.options?.length !== 0) {
+    <div class="merge-expenses--primary-block">
+      <ion-grid class="merge-expenses--grid">
+        <ion-row>
+          <ion-col [size]="!showBillable ? '12.3' : '6'">
+            <div
+              [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.project.value }"
+              class="merge-expenses--internal-block merge-expenses--internal-block__margin"
             >
-            </app-fy-select>
-          </div>
-        </ion-col>
-        @if (showBillable) {
-        <ion-col size="6">
-          <div
-            [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.billable.value }"
-            class="merge-expenses--internal-block"
-          >
-            <app-fy-select
-              [enableSearch]="false"
-              [label]="'genericFieldsForm.billable' | transloco"
-              [mandatory]="false"
-              [nullOption]="false"
-              [disabled]="
-                disableFormElements || billableOptionsData?.options?.length === 0 || billableOptionsData?.areSameValues
-              "
-              [options]="billableOptionsData?.options"
-              [selectModalHeader]="'genericFieldsForm.selectBillable' | transloco"
-              formControlName="billable"
-              [touchedInParent]="genericFieldsFormGroup.controls.billable.touched"
-              [validInParent]="genericFieldsFormGroup.controls.billable.valid"
-            >
-            </app-fy-select>
-          </div>
-        </ion-col>
-        }
-      </ion-row>
-    </ion-grid>
-  </div>
-  } @if (projectDependentFields?.length) { @for (projectDependentField of projectDependentFields; track
-  projectDependentField.name) { @if (projectDependentField.value) {
-  <div class="merge-expenses--internal-block">
-    <app-fy-select-disabled [label]="projectDependentField.name" [value]="projectDependentField.value">
-    </app-fy-select-disabled>
-  </div>
-  } } } @if (vendorOptionsData?.options.length > 0) {
-  <div
-    [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.vendor.value }"
-    class="merge-expenses--internal-block"
-  >
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="'genericFieldsForm.merchant' | transloco"
-      [mandatory]="false"
-      [nullOption]="false"
-      [disabled]="disableFormElements || vendorOptionsData?.options?.length === 0 || vendorOptionsData?.areSameValues"
-      [options]="vendorOptionsData?.options"
-      [selectModalHeader]="'genericFieldsForm.selectMerchant' | transloco"
-      formControlName="vendor"
-      [touchedInParent]="genericFieldsFormGroup.controls.vendor.touched"
-      [validInParent]="genericFieldsFormGroup.controls.vendor.valid"
+              <app-fy-select
+                [enableSearch]="false"
+                [label]="'genericFieldsForm.project' | transloco"
+                [mandatory]="false"
+                [nullOption]="false"
+                [disabled]="
+                  disableFormElements || projectOptionsData?.options?.length === 0 || projectOptionsData?.areSameValues
+                "
+                [options]="projectOptionsData?.options"
+                [selectModalHeader]="'genericFieldsForm.selectProject' | transloco"
+                formControlName="project"
+                [touchedInParent]="genericFieldsFormGroup.controls.project.touched"
+                [validInParent]="genericFieldsFormGroup.controls.project.valid"
+              >
+              </app-fy-select>
+            </div>
+          </ion-col>
+          @if (showBillable) {
+            <ion-col size="6">
+              <div
+                [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.billable.value }"
+                class="merge-expenses--internal-block"
+              >
+                <app-fy-select
+                  [enableSearch]="false"
+                  [label]="'genericFieldsForm.billable' | transloco"
+                  [mandatory]="false"
+                  [nullOption]="false"
+                  [disabled]="
+                    disableFormElements ||
+                    billableOptionsData?.options?.length === 0 ||
+                    billableOptionsData?.areSameValues
+                  "
+                  [options]="billableOptionsData?.options"
+                  [selectModalHeader]="'genericFieldsForm.selectBillable' | transloco"
+                  formControlName="billable"
+                  [touchedInParent]="genericFieldsFormGroup.controls.billable.touched"
+                  [validInParent]="genericFieldsFormGroup.controls.billable.valid"
+                >
+                </app-fy-select>
+              </div>
+            </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+    </div>
+  }
+  @if (projectDependentFields?.length) {
+    @for (projectDependentField of projectDependentFields; track projectDependentField.name) {
+      @if (projectDependentField.value) {
+        <div class="merge-expenses--internal-block">
+          <app-fy-select-disabled [label]="projectDependentField.name" [value]="projectDependentField.value">
+          </app-fy-select-disabled>
+        </div>
+      }
+    }
+  }
+  @if (vendorOptionsData?.options.length > 0) {
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.vendor.value }"
+      class="merge-expenses--internal-block"
     >
-    </app-fy-select>
-  </div>
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'genericFieldsForm.merchant' | transloco"
+        [mandatory]="false"
+        [nullOption]="false"
+        [disabled]="disableFormElements || vendorOptionsData?.options?.length === 0 || vendorOptionsData?.areSameValues"
+        [options]="vendorOptionsData?.options"
+        [selectModalHeader]="'genericFieldsForm.selectMerchant' | transloco"
+        formControlName="vendor"
+        [touchedInParent]="genericFieldsFormGroup.controls.vendor.touched"
+        [validInParent]="genericFieldsFormGroup.controls.vendor.valid"
+      >
+      </app-fy-select>
+    </div>
   }
 
   <div
@@ -288,13 +301,16 @@
     </app-fy-select>
   </div>
 
-  @if (costCenterDependentFields?.length) { @for (costCenterDependentField of costCenterDependentFields; track
-  costCenterDependentField.name) { @if (costCenterDependentField.value) {
-  <div class="merge-expenses--internal-block">
-    <app-fy-select-disabled [label]="costCenterDependentField.name" [value]="costCenterDependentField.value">
-    </app-fy-select-disabled>
-  </div>
-  } } }
+  @if (costCenterDependentFields?.length) {
+    @for (costCenterDependentField of costCenterDependentFields; track costCenterDependentField.name) {
+      @if (costCenterDependentField.value) {
+        <div class="merge-expenses--internal-block">
+          <app-fy-select-disabled [label]="costCenterDependentField.name" [value]="costCenterDependentField.value">
+          </app-fy-select-disabled>
+        </div>
+      }
+    }
+  }
 
   <div
     [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.purpose.value }"

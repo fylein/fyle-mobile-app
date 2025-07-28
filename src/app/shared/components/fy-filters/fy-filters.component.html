@@ -26,7 +26,7 @@
             [ngClass]="{ 'fy-filters--filter-item__active': activeFilter.name === filterDefinition.name }"
             button
             (click)="onFilterClick(filterDefinition)"
-            >
+          >
             <ion-label>
               <div class="fy-filters--filter-item-label">
                 <div>
@@ -36,19 +36,19 @@
                   @if (
                     filterDefinition.optionType === FilterOptionType.singleselect &&
                     currentFilterValueMap[filterDefinition.name]
-                    ) {
+                  ) {
                     1
                   }
                   @if (
                     filterDefinition.optionType === FilterOptionType.date &&
                     currentFilterValueMap[filterDefinition.name]
-                    ) {
+                  ) {
                     1
                   }
                   @if (
                     filterDefinition.optionType === FilterOptionType.multiselect &&
                     currentFilterValueMap[filterDefinition.name]?.length
-                    ) {
+                  ) {
                     {{ currentFilterValueMap[filterDefinition.name]?.length }}
                   }
                 </div>
@@ -62,12 +62,7 @@
         @if (activeFilter.optionType === FilterOptionType.multiselect) {
           @if ((simplifyReportsSettings$ | async) !== null && (nonReimbursableOrg$ | async) !== null) {
             @for (option of activeFilter.options; track option) {
-              <ion-item
-                class="fy-filters--filter-option"
-                mode="md"
-                button
-                (click)="switchFilter(activeFilter, option)"
-                >
+              <ion-item class="fy-filters--filter-option" mode="md" button (click)="switchFilter(activeFilter, option)">
                 @if (currentFilterValueMap[activeFilter.name]?.includes(option.value)) {
                   <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/check-square-fill.svg"></ion-icon>
                 } @else {
@@ -90,12 +85,7 @@
 
         @if (activeFilter.optionType === FilterOptionType.singleselect) {
           @for (option of activeFilter.options; track option) {
-            <ion-item
-              class="fy-filters--filter-option"
-              mode="md"
-              button
-              (click)="switchFilter(activeFilter, option)"
-              >
+            <ion-item class="fy-filters--filter-option" mode="md" button (click)="switchFilter(activeFilter, option)">
               @if (currentFilterValueMap[activeFilter.name] === option.value) {
                 <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-fill.svg"></ion-icon>
               } @else {
@@ -108,12 +98,7 @@
 
         @if (activeFilter.optionType === FilterOptionType.date) {
           @for (option of activeFilter.options; track option) {
-            <ion-item
-              class="fy-filters--filter-option"
-              mode="md"
-              button
-              (click)="switchFilter(activeFilter, option)"
-              >
+            <ion-item class="fy-filters--filter-option" mode="md" button (click)="switchFilter(activeFilter, option)">
               @if (currentFilterValueMap[activeFilter.name] === option.value) {
                 <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-fill.svg"></ion-icon>
               } @else {
@@ -132,7 +117,7 @@
                   [(ngModel)]="startDate"
                   (ngModelChange)="onDateChange()"
                   [matDatepicker]="picker1"
-                  />
+                />
                 <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                 <mat-datepicker #picker1></mat-datepicker>
               </mat-form-field>
@@ -144,7 +129,7 @@
                   [(ngModel)]="endDate"
                   (ngModelChange)="onDateChange()"
                   [matDatepicker]="picker2"
-                  />
+                />
                 <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
                 <mat-datepicker #picker2></mat-datepicker>
               </mat-form-field>

@@ -2,7 +2,7 @@
   class="policy-violation-rule--container"
   [ngClass]="{
     'policy-violation-rule--container__normal-violation': violationType === 'normal',
-    'policy-violation-rule--container__critical-violation': violationType === 'critical'
+    'policy-violation-rule--container__critical-violation': violationType === 'critical',
   }"
 >
   <div [innerHTML]="message"></div>

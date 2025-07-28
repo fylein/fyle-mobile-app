@@ -9,11 +9,11 @@
   class="sidemenu-item"
   [ngClass]="{ 'sidemenu-item--disabled': sidemenuItem.disabled }"
   (click)="goToRoute(sidemenuItem)"
-  >
+>
   <a
     class="sidemenu-item__content ion-grid-no-padding"
     [routerLinkActive]="isRoute ? 'sidemenu-item__content--active' : ''"
-    >
+  >
     <ion-grid class="sidemenu-item__content__block">
       <ion-row>
         <ion-col class="sidemenu-item__icon-container">
@@ -21,11 +21,11 @@
             <div>
               <ion-icon
                 class="sidemenu-item__icon-container__icon"
-              [ngClass]="{
-                'sidemenu-item__icon-container__icon--sm': ['folder', 'dashboard', 'fy-switch'].includes(
-                  sidemenuItem.icon
-                )
-              }"
+                [ngClass]="{
+                  'sidemenu-item__icon-container__icon--sm': ['folder', 'dashboard', 'fy-switch'].includes(
+                    sidemenuItem.icon
+                  ),
+                }"
                 [src]="'../../../../../assets/svg/' + sidemenuItem.icon + '.svg'"
                 slot="icon-only"
               ></ion-icon>
@@ -54,7 +54,7 @@
   class="sidemenu-item__dropdown-items"
   [ngStyle]="{ height: dropdownHeight + 'px' }"
   [ngClass]="{ 'sidemenu-item__dropdown-items--hide': !sidemenuItem.isDropdownOpen }"
-  >
+>
   @for (sidemenuSubItem of sidemenuItem.dropdownOptions; track sidemenuSubItem) {
     <app-sidemenu-content-item
       [sidemenuItem]="sidemenuSubItem"

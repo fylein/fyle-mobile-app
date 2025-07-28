@@ -9,156 +9,200 @@
 
 <ion-content class="my-profile__content-container">
   @if (eou$ | async; as eou) {
-  <app-employee-details-card [eou]="eou"></app-employee-details-card>
+    <app-employee-details-card [eou]="eou"></app-employee-details-card>
   }
   <div class="my-profile__content-container__content">
-    @if (onboardingPending$ | async; as onboardingPending) { @if (!onboardingPending.hideOtherOptions) { @if
-    (isConnected$ | async) {
-    <!-- Hide Opt in flow for IN cluster -->
-    @if (!(isUserFromINCluster$ | async)) { @if (eou$ | async; as eou) { @if ((eou.org.currency === 'CAD' ||
-    eou.org.currency === 'USD')) {
-    <app-profile-opt-in-card
-      [extendedOrgUser]="eou"
-      (copiedText)="showToastMessage($event, 'success')"
-      (optInClicked)="optInMobileNumber($event)"
-      (optOutClicked)="optOutClick()"
-      (editMobileNumberClicked)="optInMobileNumber($event)"
-      (deleteMobileNumberClicked)="onDeleteCTAClicked()"
-    ></app-profile-opt-in-card>
-    } @else { @if (eou$ | async; as eou) {
-    <app-mobile-number-card
-      [extendedOrgUser]="eou"
-      (addMobileNumberClicked)="updateMobileNumber($event)"
-      (deleteMobileNumberClicked)="onDeleteCTAClicked()"
-      (editMobileNumberClicked)="updateMobileNumber($event)"
-    ></app-mobile-number-card>
-    } } } } @else { @if (eou$ | async; as eou) {
-    <app-mobile-number-card
-      [extendedOrgUser]="eou"
-      (addMobileNumberClicked)="updateMobileNumber($event)"
-      (deleteMobileNumberClicked)="onDeleteCTAClicked()"
-      (editMobileNumberClicked)="updateMobileNumber($event)"
-    ></app-mobile-number-card>
-    } } @if (infoCardsData?.length) {
-    <div class="my-profile__info-card-container" id="profile-email-opt-in-walkthrough">
-      @for (infoCardData of infoCardsData; track infoCardData; let isLast = $last) {
-      <div matRipple>
-        <div
-          class="my-profile__info-card-container__card"
-          [ngClass]="{'my-profile__info-card-container__card--last': isLast}"
-        >
-          <app-info-card
-            [title]="infoCardData.title"
-            [content]="infoCardData.content"
-            [contentToCopy]="infoCardData.contentToCopy"
-            [toastMessageContent]="infoCardData.toastMessageContent"
-            (copiedText)="showToastMessage($event, 'success')"
-          ></app-info-card>
-        </div>
-      </div>
-      }
-    </div>
-    }
-    <!-- TODO - Re-enable again at the time of release -->
-    @if (isMileageEnabled && isCommuteDeductionEnabled) {
-    <div class="my-profile__section-header">Commute details</div>
-    @if (!commuteDetails?.home_location) {
-    <div class="my-profile__card" (click)="openCommuteDetailsModal()" matRipple>
-      <div class="my-profile__card__title">Add location</div>
-      <ion-icon class="my-profile__navigate-icon" src="../../../assets/svg/arrow-right.svg" slot="icon-only"></ion-icon>
-    </div>
-    } @if (commuteDetails?.home_location) {
-    <div class="my-profile__card">
-      <div class="my-profile__card__content-container">
-        <div class="my-profile__card__location-detail-card">
-          <div class="my-profile__card__location-icon-container">
-            <ion-icon class="my-profile__icon" src="../../../assets/svg/house-outline.svg" slot="icon-only"></ion-icon>
-          </div>
-          <div>
-            <div class="my-profile__card__location-detail-card__header">Home</div>
-            <div class="my-profile__card__location-detail-card__content">
-              {{ commuteDetails.home_location.formatted_address }}
+    @if (onboardingPending$ | async; as onboardingPending) {
+      @if (!onboardingPending.hideOtherOptions) {
+        @if (isConnected$ | async) {
+          <!-- Hide Opt in flow for IN cluster -->
+          @if (!(isUserFromINCluster$ | async)) {
+            @if (eou$ | async; as eou) {
+              @if (eou.org.currency === 'CAD' || eou.org.currency === 'USD') {
+                <app-profile-opt-in-card
+                  [extendedOrgUser]="eou"
+                  (copiedText)="showToastMessage($event, 'success')"
+                  (optInClicked)="optInMobileNumber($event)"
+                  (optOutClicked)="optOutClick()"
+                  (editMobileNumberClicked)="optInMobileNumber($event)"
+                  (deleteMobileNumberClicked)="onDeleteCTAClicked()"
+                ></app-profile-opt-in-card>
+              } @else {
+                @if (eou$ | async; as eou) {
+                  <app-mobile-number-card
+                    [extendedOrgUser]="eou"
+                    (addMobileNumberClicked)="updateMobileNumber($event)"
+                    (deleteMobileNumberClicked)="onDeleteCTAClicked()"
+                    (editMobileNumberClicked)="updateMobileNumber($event)"
+                  ></app-mobile-number-card>
+                }
+              }
+            }
+          } @else {
+            @if (eou$ | async; as eou) {
+              <app-mobile-number-card
+                [extendedOrgUser]="eou"
+                (addMobileNumberClicked)="updateMobileNumber($event)"
+                (deleteMobileNumberClicked)="onDeleteCTAClicked()"
+                (editMobileNumberClicked)="updateMobileNumber($event)"
+              ></app-mobile-number-card>
+            }
+          }
+          @if (infoCardsData?.length) {
+            <div class="my-profile__info-card-container" id="profile-email-opt-in-walkthrough">
+              @for (infoCardData of infoCardsData; track infoCardData; let isLast = $last) {
+                <div matRipple>
+                  <div
+                    class="my-profile__info-card-container__card"
+                    [ngClass]="{ 'my-profile__info-card-container__card--last': isLast }"
+                  >
+                    <app-info-card
+                      [title]="infoCardData.title"
+                      [content]="infoCardData.content"
+                      [contentToCopy]="infoCardData.contentToCopy"
+                      [toastMessageContent]="infoCardData.toastMessageContent"
+                      (copiedText)="showToastMessage($event, 'success')"
+                    ></app-info-card>
+                  </div>
+                </div>
+              }
             </div>
+          }
+          <!-- TODO - Re-enable again at the time of release -->
+          @if (isMileageEnabled && isCommuteDeductionEnabled) {
+            <div class="my-profile__section-header">Commute details</div>
+            @if (!commuteDetails?.home_location) {
+              <div class="my-profile__card" (click)="openCommuteDetailsModal()" matRipple>
+                <div class="my-profile__card__title">Add location</div>
+                <ion-icon
+                  class="my-profile__navigate-icon"
+                  src="../../../assets/svg/arrow-right.svg"
+                  slot="icon-only"
+                ></ion-icon>
+              </div>
+            }
+            @if (commuteDetails?.home_location) {
+              <div class="my-profile__card">
+                <div class="my-profile__card__content-container">
+                  <div class="my-profile__card__location-detail-card">
+                    <div class="my-profile__card__location-icon-container">
+                      <ion-icon
+                        class="my-profile__icon"
+                        src="../../../assets/svg/house-outline.svg"
+                        slot="icon-only"
+                      ></ion-icon>
+                    </div>
+                    <div>
+                      <div class="my-profile__card__location-detail-card__header">Home</div>
+                      <div class="my-profile__card__location-detail-card__content">
+                        {{ commuteDetails.home_location.formatted_address }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="my-profile__card__location-detail-card">
+                    <div class="my-profile__card__location-icon-container">
+                      <ion-icon
+                        class="my-profile__icon"
+                        src="../../../assets/svg/building.svg"
+                        slot="icon-only"
+                      ></ion-icon>
+                    </div>
+                    <div>
+                      <div class="my-profile__card__location-detail-card__header">Work</div>
+                      <div class="my-profile__card__location-detail-card__content">
+                        {{ commuteDetails.work_location.formatted_address }}
+                      </div>
+                    </div>
+                  </div>
+                  <div (click)="openCommuteDetailsModal()" class="my-profile__card__edit-commute-button">
+                    <ion-icon
+                      class="my-profile__card__edit-commute-button__icon"
+                      src="../../../assets/svg/edit.svg"
+                      slot="icon-only"
+                    ></ion-icon>
+                    <span class="my-profile__card__edit-commute-button__text">Edit location</span>
+                  </div>
+                  <div class="my-profile__card__emphasized-content">Commute distance:</div>
+                  <div class="my-profile__card__commute-distance-row">
+                    <ion-icon
+                      class="my-profile__icon"
+                      src="../../../assets/svg/arrow-tail-up.svg"
+                      slot="icon-only"
+                    ></ion-icon>
+                    <span>One way distance - </span>
+                    <span class="my-profile__card__emphasized-content">{{
+                      commuteDetails.distance.toFixed(2) + ' ' + mileageDistanceUnit
+                    }}</span>
+                  </div>
+                  <div class="my-profile__card__commute-distance-row">
+                    <ion-icon
+                      class="my-profile__icon"
+                      src="../../../assets/svg/arrow-tail-up-down.svg"
+                      slot="icon-only"
+                    ></ion-icon>
+                    <span>Round trip distance - </span>
+                    <span class="my-profile__card__emphasized-content">{{
+                      (commuteDetails.distance * 2).toFixed(2) + ' ' + mileageDistanceUnit
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          }
+          <div class="my-profile__section-header">Notifications</div>
+          <div
+            class="my-profile__card"
+            role="button"
+            aria-label="Manage notifications"
+            [routerLink]="['/', 'enterprise', 'notifications']"
+            matRipple
+          >
+            <div class="my-profile__card__title">Manage notifications</div>
+            <ion-icon
+              class="my-profile__navigate-icon"
+              src="../../../assets/svg/arrow-right.svg"
+              slot="icon-only"
+            ></ion-icon>
           </div>
-        </div>
-        <div class="my-profile__card__location-detail-card">
-          <div class="my-profile__card__location-icon-container">
-            <ion-icon class="my-profile__icon" src="../../../assets/svg/building.svg" slot="icon-only"></ion-icon>
-          </div>
-          <div>
-            <div class="my-profile__card__location-detail-card__header">Work</div>
-            <div class="my-profile__card__location-detail-card__content">
-              {{ commuteDetails.work_location.formatted_address }}
+          @if (isCCCEnabled && (isVisaRTFEnabled || isMastercardRTFEnabled || isVirtualCardsEnabled)) {
+            <div class="my-profile__section-header">My cards</div>
+            <div class="my-profile__card" [routerLink]="['/', 'enterprise', 'manage_corporate_cards']" matRipple>
+              <div class="my-profile__card__title">Manage cards</div>
+              <ion-icon
+                class="my-profile__navigate-icon"
+                src="../../../assets/svg/arrow-right.svg"
+                slot="icon-only"
+              ></ion-icon>
             </div>
-          </div>
-        </div>
-        <div (click)="openCommuteDetailsModal()" class="my-profile__card__edit-commute-button">
-          <ion-icon
-            class="my-profile__card__edit-commute-button__icon"
-            src="../../../assets/svg/edit.svg"
-            slot="icon-only"
-          ></ion-icon>
-          <span class="my-profile__card__edit-commute-button__text">Edit location</span>
-        </div>
-        <div class="my-profile__card__emphasized-content">Commute distance:</div>
-        <div class="my-profile__card__commute-distance-row">
-          <ion-icon class="my-profile__icon" src="../../../assets/svg/arrow-tail-up.svg" slot="icon-only"></ion-icon>
-          <span>One way distance - </span>
-          <span class="my-profile__card__emphasized-content"
-            >{{commuteDetails.distance.toFixed(2) + ' ' + mileageDistanceUnit}}</span
-          >
-        </div>
-        <div class="my-profile__card__commute-distance-row">
-          <ion-icon
-            class="my-profile__icon"
-            src="../../../assets/svg/arrow-tail-up-down.svg"
-            slot="icon-only"
-          ></ion-icon>
-          <span>Round trip distance - </span>
-          <span class="my-profile__card__emphasized-content"
-            >{{ (commuteDetails.distance * 2).toFixed(2) + ' ' + mileageDistanceUnit}}</span
-          >
-        </div>
-      </div>
-    </div>
-    } }
-    <div class="my-profile__section-header">Notifications</div>
-    <div
-      class="my-profile__card"
-      role="button"
-      aria-label="Manage notifications"
-      [routerLink]="[ '/', 'enterprise', 'notifications' ]"
-      matRipple
-    >
-      <div class="my-profile__card__title">Manage notifications</div>
-      <ion-icon class="my-profile__navigate-icon" src="../../../assets/svg/arrow-right.svg" slot="icon-only"></ion-icon>
-    </div>
-    @if (isCCCEnabled && (isVisaRTFEnabled || isMastercardRTFEnabled || isVirtualCardsEnabled)) {
-    <div class="my-profile__section-header">My cards</div>
-    <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'manage_corporate_cards' ]" matRipple>
-      <div class="my-profile__card__title">Manage cards</div>
-      <ion-icon class="my-profile__navigate-icon" src="../../../assets/svg/arrow-right.svg" slot="icon-only"></ion-icon>
-    </div>
-    } @if (preferenceSettings?.length > 0) {
-    <div>
-      <div class="my-profile__section-header">Preferences</div>
-      <div class="my-profile__preference-container">
-        @for (preferenceSetting of preferenceSettings; track preferenceSetting; let i = $index; let isLast = $last) {
-        <div [ngClass]="{'my-profile__preference-container__card': !isLast}">
-          <app-preference-setting
-            [title]="preferenceSetting.title"
-            [content]="preferenceSetting.content"
-            [isEnabled]="preferenceSetting.isEnabled"
-            [key]="preferenceSetting.key"
-            [defaultCurrency]="preferenceSetting.defaultCurrency"
-            (preferenceChanged)="toggleSetting($event)"
-          >
-          </app-preference-setting>
-        </div>
+          }
+          @if (preferenceSettings?.length > 0) {
+            <div>
+              <div class="my-profile__section-header">Preferences</div>
+              <div class="my-profile__preference-container">
+                @for (
+                  preferenceSetting of preferenceSettings;
+                  track preferenceSetting;
+                  let i = $index;
+                  let isLast = $last
+                ) {
+                  <div [ngClass]="{ 'my-profile__preference-container__card': !isLast }">
+                    <app-preference-setting
+                      [title]="preferenceSetting.title"
+                      [content]="preferenceSetting.content"
+                      [isEnabled]="preferenceSetting.isEnabled"
+                      [key]="preferenceSetting.key"
+                      [defaultCurrency]="preferenceSetting.defaultCurrency"
+                      (preferenceChanged)="toggleSetting($event)"
+                    >
+                    </app-preference-setting>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         }
-      </div>
-    </div>
-    } } } }
+      }
+    }
     <div class="my-profile__card" (click)="signOut()" matRipple>
       <div class="my-profile__signout-container d-flex">
         <ion-icon
