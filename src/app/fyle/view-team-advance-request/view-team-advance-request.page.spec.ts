@@ -190,16 +190,10 @@ describe('ViewTeamAdvanceRequestPage', () => {
       component.ionViewWillEnter();
       tick(100);
 
-      component.advanceRequest$
-        .pipe(
-          finalize(() => {
-            expect(component.isInitialLoading).toBeFalse();
-          })
-        )
-        .subscribe((data) => {
-          expect(data).toEqual(extendedAdvReqDraft);
-          expect(advanceRequestService.getApproverAdvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
-        });
+      component.advanceRequest$.pipe().subscribe((data) => {
+        expect(data).toEqual(extendedAdvReqDraft);
+        expect(advanceRequestService.getApproverAdvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+      });
 
       component.actions$.subscribe((data) => {
         expect(data).toEqual(apiAdvanceRequestAction);

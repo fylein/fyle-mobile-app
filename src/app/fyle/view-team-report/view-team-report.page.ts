@@ -194,10 +194,30 @@ export class ViewTeamReportPage {
   }
 
   loadReports(): Observable<Report> {
-    return this.loadReportDetails$.pipe(
-      switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
-      shareReplay(1)
+    return this.approverReportsService
+      .getReportById(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
+  }
+
+  setupReportData(report: Report): Report {
+    if (!report) {
+      // If no report details are available, user might have been removed as approver
+      this.router.navigate(['/', 'enterprise', 'team_reports']);
+      return null;
+    }
+
+    this.approvals = report?.approvals?.filter((approval) =>
+      [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
     );
+    if (this.showViewApproverModal) {
+      this.approvals.sort((a, b) => a.approver_order - b.approver_order);
+      this.setupApproverToShow(report);
+    }
+    this.setupComments(report);
+    this.reportCurrencySymbol = getCurrencySymbol(report.currency, 'wide');
+    this.reportName = report.purpose;
+    this.isReportReported = ['APPROVER_PENDING'].indexOf(report.state) > -1;
+    return report;
   }
 
   getApprovalSettings(orgSettings: OrgSettings): boolean {
@@ -209,6 +229,9 @@ export class ViewTeamReportPage {
   }
 
   convertToEstatus(comments: ExtendedComment[]): ExtendedStatus[] {
+    if (!comments) {
+      return [];
+    }
     return comments.map((comment) => {
       const status: ExtendedStatus = {
         st_comment: comment.comment,
@@ -286,44 +309,19 @@ export class ViewTeamReportPage {
       this.navigateBack = JSON.parse(navigateBack) as boolean;
     }
 
-    this.report$ = this.loadReports();
-    this.eou$ = from(this.authService.getEou());
+    this.loadReportDetails$.next(null);
 
+    this.report$ = this.loadReports().pipe(
+      map((report) => this.setupReportData(report)),
+      filter((report): report is Report => !!report)
+    );
+
+    this.eou$ = from(this.authService.getEou());
     this.eou$.subscribe((eou) => (this.eou = eou));
 
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
       map((orgSettings) => ({ enabled: this.getReportClosureSettings(orgSettings) }))
-    );
-
-    this.report$ = this.refreshApprovals$.pipe(
-      startWith(true),
-      switchMap(() =>
-        this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string).pipe(
-          map((report) => {
-            if (!report) {
-              // If no report details are available, user might have been removed as approver
-              this.router.navigate(['/', 'enterprise', 'team_reports']);
-              return null;
-            }
-
-            this.approvals = report?.approvals?.filter((approval) =>
-              [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
-            );
-            if (this.showViewApproverModal) {
-              this.approvals.sort((a, b) => a.approver_order - b.approver_order);
-              this.setupApproverToShow(report);
-            }
-            this.setupComments(report);
-            this.reportCurrencySymbol = getCurrencySymbol(report.currency, 'wide');
-            this.reportName = report.purpose;
-            this.isReportReported = ['APPROVER_PENDING'].indexOf(report.state) > -1;
-            return report;
-          })
-        )
-      ),
-      filter((report): report is Report => !!report),
-      shareReplay(1)
     );
 
     this.expenses$ = this.expensesService

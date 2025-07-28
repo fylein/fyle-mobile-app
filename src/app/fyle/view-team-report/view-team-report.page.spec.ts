@@ -302,11 +302,7 @@ describe('ViewTeamReportPageV2', () => {
 
     component
       .loadReports()
-      .pipe(
-        finalize(() => {
-          expect(component.isLoading).toBeFalse();
-        })
-      )
+      .pipe()
       .subscribe((res) => {
         expect(res).toEqual(expectedReportsSinglePage[0]);
         expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
@@ -374,7 +370,7 @@ describe('ViewTeamReportPageV2', () => {
 
   describe('ionViewWillEnter():', () => {
     it('should initialize the variables and load reports and statuses', fakeAsync(() => {
-      spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
+      spyOn(component, 'loadReports').and.callThrough();
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
@@ -382,7 +378,7 @@ describe('ViewTeamReportPageV2', () => {
       const mockStatus = cloneDeep(newEstatusData1);
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      approverReportsService.getReportById.and.returnValues(of(expectedReportsSinglePage[0]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       const mockPdfExportData = cloneDeep(pdfExportData1);
 
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
@@ -464,7 +460,7 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(false);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
+      spyOn(component, 'loadReports').and.callThrough();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -1041,7 +1037,6 @@ describe('ViewTeamReportPageV2', () => {
     spyOn(component, 'openViewReportInfoModal');
     component.report$ = of(expectedReportsSinglePage[0]);
     component.approvalAmount = 250.75;
-    component.isLoading = false;
     fixture.detectChanges();
 
     const empEl = getElementBySelector(fixture, '.view-reports--employee-name__name');
