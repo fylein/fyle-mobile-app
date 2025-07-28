@@ -136,7 +136,7 @@
     "karma-jasmine-html-reporter": "^1.5.0",
     "karma-parallel": "^0.3.1",
     "lint-staged": "^11.1.2",
-    "prettier": "^2.3.2",
+    "prettier": "^3.0.0",
     "ts-node": "~8.3.0",
     "typescript": "~5.4.5"
   },
@@ -165,10 +165,18 @@
     "useTabs": false,
     "tabWidth": 2,
     "semi": true,
-    "bracketSpacing": true
+    "bracketSpacing": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
   },
   "lint-staged": {
-    "*.{ts,scss,html}": "prettier --write",
+    "*.{ts,scss,html}": "npm run format",
     "*.{ts,html}": [
       "npm run lint:check"
     ]
