@@ -1520,7 +1520,9 @@
       "expense": "expense",
       "inDraftState": "in draft state",
       "withPendingTransactions": "with pending transactions",
-      "withCriticalPolicyViolations": "with Critical Policy Violations"
+      "withCriticalPolicyViolations": "with Critical Policy Violations",
+      "isBlockedState": "is blocked",
+      "areBlockedState": "are blocked"
     },
     "openCreateReportWithSelectedIds": {
       "pleaseSelectExpensesToBeReported": "Please select one or more expenses to be reported"
