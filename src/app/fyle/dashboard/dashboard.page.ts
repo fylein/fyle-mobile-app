@@ -1,6 +1,6 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
+import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
+import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { StatsComponent } from './stats/stats.component';
@@ -37,7 +37,7 @@ import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import SwiperCore, { Pagination, Autoplay } from 'swiper';
-import { PaginationOptions } from 'swiper/types';
+import { PaginationOptions, SwiperOptions } from 'swiper/types';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -104,6 +104,8 @@ export class DashboardPage {
   walkthroughOverlayStartIndex = 0;
 
   userName = '';
+
+  swiperConfig: SwiperOptions;
 
   optInBannerPagination: PaginationOptions = {
     dynamicBullets: true,
@@ -379,17 +381,18 @@ export class DashboardPage {
     );
   }
 
-  setShowOptInBanner(): void {
+  setShowOptInBanner(): Observable<boolean> {
     const optInBannerConfig = {
       feature: 'DASHBOARD_OPT_IN_BANNER',
       key: 'OPT_IN_BANNER_SHOWN',
     };
 
-    const isBannerShown$ = this.featureConfigService
-      .getConfiguration(optInBannerConfig)
-      .pipe(map((config) => config?.value));
+    const isBannerShown$ = this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+      map((config) => config?.value),
+      shareReplay(1)
+    );
 
-    this.canShowOptInBanner$ = forkJoin({
+    return forkJoin({
       isBannerShown: isBannerShown$,
       eou: this.eou$,
     }).pipe(
@@ -402,31 +405,64 @@ export class DashboardPage {
         }
 
         return true;
-      })
+      }),
+      shareReplay(1)
     );
   }
 
-  setShowEmailOptInBanner(): void {
+  setShowEmailOptInBanner(): Observable<boolean> {
     const optInBannerConfig = {
       feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
       key: 'EMAIL_OPT_IN_BANNER_SHOWN',
     };
 
-    const isBannerShown$ = this.featureConfigService
-      .getConfiguration(optInBannerConfig)
-      .pipe(map((config) => config?.value));
-
-    this.canShowEmailOptInBanner$ = forkJoin({
-      isBannerShown: isBannerShown$,
-    }).pipe(
-      map(({ isBannerShown }) => {
-        if (isBannerShown) {
-          return false;
-        }
-
-        return true;
-      })
+    return this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+      map((config) => config?.value),
+      map((isBannerShown) => !isBannerShown),
+      shareReplay(1)
     );
+  }
+
+  setSwiperConfig(): void {
+    // Ensure both observables exist before using them
+    if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
+      // Set default config if observables aren't ready
+      this.swiperConfig = {
+        slidesPerView: 1,
+        spaceBetween: 0,
+        centeredSlides: true,
+        loop: false,
+        autoplay: false,
+        pagination: false,
+      };
+      return;
+    }
+
+    combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$])
+      .pipe(take(1))
+      .subscribe(([canShowOptInBanner, canShowEmailOptInBanner]) => {
+        const showBothBanners = canShowOptInBanner && canShowEmailOptInBanner;
+
+        this.swiperConfig = {
+          slidesPerView: 1,
+          spaceBetween: 0,
+          centeredSlides: true,
+          loop: showBothBanners,
+          autoplay: showBothBanners
+            ? {
+                delay: 4000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: false,
+              }
+            : false,
+          pagination: {
+            dynamicBullets: true,
+            renderBullet: (index: number, className: string): string => {
+              return `<span class="opt-in-banners ${className}"> </span>`;
+            },
+          },
+        };
+      });
   }
 
   async openSMSOptInDialog(extendedOrgUser: ExtendedOrgUser): Promise<void> {
@@ -508,8 +544,26 @@ export class DashboardPage {
         .subscribe(noop);
     }
 
-    this.setShowOptInBanner();
-    this.setShowEmailOptInBanner();
+    const optInBanner$ = this.setShowOptInBanner();
+    const emailOptInBanner$ = this.setShowEmailOptInBanner();
+
+    this.canShowOptInBanner$ = optInBanner$;
+    this.canShowEmailOptInBanner$ = emailOptInBanner$;
+
+    forkJoin({
+      optInBanner: optInBanner$,
+      emailOptInBanner: emailOptInBanner$,
+    })
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.setSwiperConfig();
+        },
+        error: () => {
+          // If there's an error, still set up default swiper config
+          this.setSwiperConfig();
+        },
+      });
 
     if (openSMSOptInDialog === 'true') {
       this.eou$
@@ -781,6 +835,9 @@ export class DashboardPage {
 
     this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
 
+    // Update swiper config when banner is dismissed
+    this.setSwiperConfig();
+
     if (data.isOptedIn) {
       this.trackingService.optedInFromDashboardBanner();
       this.eou$ = this.authService.refreshEou();
@@ -801,6 +858,9 @@ export class DashboardPage {
 
     this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
 
+    // Update swiper config when banner is dismissed
+    this.setSwiperConfig();
+
     if (data.optedIn) {
       this.trackingService.optedInFromDashboardEmailOptInBanner();
     } else {
@@ -810,5 +870,8 @@ export class DashboardPage {
 
   hideOptInDashboardBanner(): void {
     this.canShowOptInBanner$ = of(false);
+
+    // Update swiper config when banner is hidden
+    this.setSwiperConfig();
   }
 }

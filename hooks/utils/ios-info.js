@@ -57,6 +57,8 @@ module.exports.getIosInfo = () =>
     <string>Fyle needs location access to calculate distance in your mileage expenses.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>Fyle needs location access to calculate distance in your mileage expenses.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Fyle needs location access to calculate distance in your mileage expenses.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>To Record Audio With Video</string>
     <key>NSPhotoLibraryAddUsageDescription</key>

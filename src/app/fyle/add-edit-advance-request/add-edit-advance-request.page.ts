@@ -12,7 +12,7 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { AuthService } from 'src/app/core/services/auth.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -99,7 +99,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private authService: AuthService,
     private router: Router,
     private formBuilder: UntypedFormBuilder,
-    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private advanceRequestService: AdvanceRequestService,
     private modalController: ModalController,
     private loaderService: LoaderService,
@@ -475,7 +474,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',
-        deleteMethod: (): Observable<AdvanceRequests> =>
+        deleteMethod: (): Observable<void> =>
           this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id as string),
       },
     };
@@ -515,12 +514,17 @@ export class AddEditAdvanceRequestPage implements OnInit {
       });
     }
 
-    const isEditFromTeamView = this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE';
-    const editAdvanceRequestSource$ = isEditFromTeamView
-      ? this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string)
-      : this.advanceRequestService.getEReqFromPlatform(this.activatedRoute.snapshot.params.id as string);
-
-    const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = editAdvanceRequestSource$.pipe(
+    const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => {
+        const isEditFromTeamView = this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE';
+        if (isEditFromTeamView) {
+          // Team view uses approver API (/platform/v1/approver/advance_requests)
+          return this.advanceRequestService.getEReqFromApprover(this.activatedRoute.snapshot.params.id as string);
+        } else {
+          // Spender view uses spender API (/platform/v1/spender/advance_requests)
+          return this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string);
+        }
+      }),
       map((res) => {
         this.fg.patchValue({
           currencyObj: {
@@ -596,7 +600,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
       map((projects) => projects.length > 0)
     );
 
-    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
+    this.customFields$ = (
+      this.from === 'TEAM_ADVANCE'
+        ? this.advanceRequestService.getCustomFieldsForApprover()
+        : this.advanceRequestService.getCustomFieldsForSpender()
+    ).pipe(
       map((customFields) => {
         const customFieldsFormArray = this.fg.controls.customFieldValues as UntypedFormArray;
         customFieldsFormArray.clear();
@@ -608,14 +616,14 @@ export class AddEditAdvanceRequestPage implements OnInit {
             }
           });
           if (customField.type === 'BOOLEAN') {
-            customField.mandatory = false;
+            customField.is_mandatory = false;
             value = false;
           }
           customFieldsFormArray.push(
             this.formBuilder.group({
               id: customField.id,
               name: customField.name,
-              value: [value, customField.mandatory && Validators.required],
+              value: [value, customField.is_mandatory && Validators.required],
             })
           );
         }
