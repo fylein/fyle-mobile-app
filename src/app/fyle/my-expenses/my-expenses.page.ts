@@ -1251,13 +1251,32 @@ export class MyExpensesPage implements OnInit {
       } ${this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.withPendingTransactions')}.`;
     }
     if (policyViolationsCount > 0) {
-      message += `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
-        policyViolationsCount > 1
-          ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
-          : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
-      } ${this.translocoService.translate(
-        'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations'
-      )}.`;
+      // Get org settings and handle the policy violation text based on the setting
+      this.orgSettings$.pipe(take(1)).subscribe((orgSettings) => {
+        const isNewFlowEnabled = orgSettings?.is_new_critical_policy_violation_flow_enabled;
+        
+        let policyViolationText: string;
+        if (isNewFlowEnabled) {
+          // Use new blocked state translation keys
+          policyViolationText = policyViolationsCount > 1
+            ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.areBlockedState')
+            : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.isBlockedState');
+        } else {
+          // Use existing critical policy violations translation key
+          policyViolationText = this.translocoService.translate(
+            'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations'
+          );
+        }
+
+        const finalMessage = message + `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
+          policyViolationsCount > 1
+            ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
+            : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
+        } ${policyViolationText}.`;
+
+        this.openCriticalPolicyViolationPopOver({ title, message: finalMessage, reportType });
+      });
+      return;
     }
 
     this.openCriticalPolicyViolationPopOver({ title, message, reportType });
