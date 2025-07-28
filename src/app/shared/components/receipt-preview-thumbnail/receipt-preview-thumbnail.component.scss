@@ -6,7 +6,7 @@
     margin-top: 6px;
     display: flex;
     justify-content: space-between;
-    color: $black-light;
+    color: var(--secondary-text);
   }
 
   &--add-more {
@@ -18,7 +18,7 @@
     margin: 5px;
     font-size: 16px;
     display: block;
-    color: $brand-primary;
+    color: var(--info-color);
     font-weight: normal;
   }
 
@@ -26,11 +26,12 @@
     margin-top: 2px;
     font-size: 14px;
     font-weight: 500;
+    color: var(--primary-text);
   }
 
   &--receipt-index {
     font-size: 12px;
-    color: $black-light;
+    color: var(--secondary-text);
     margin-top: 10px;
   }
 
@@ -57,7 +58,7 @@
 
   &--slider-container {
     position: relative;
-    border: 1px solid $translucent-black;
+    border: 1px solid var(--border-color);
     height: 100%;
     width: 100%;
   }
@@ -78,7 +79,7 @@
     pointer-events: auto;
 
     &__btn {
-      background-color: $translucent-black;
+      background-color: rgba(0, 0, 0, 0.5);
       text-align: center;
       border-radius: 50%;
       font-size: 18px;
@@ -97,7 +98,7 @@
     pointer-events: auto;
 
     &__btn {
-      background-color: $translucent-black;
+      background-color: rgba(0, 0, 0, 0.5);
       text-align: center;
       border-radius: 50%;
       font-size: 18px;
@@ -109,7 +110,7 @@
   }
 
   &--spinner-overlay {
-    background-color: $translucent-white-2;
+    background-color: rgba(255, 255, 255, 0.8);
     position: absolute;
     height: 240px;
     width: 100%;
@@ -128,14 +129,14 @@
 
   &--spinner {
     zoom: 2;
-    color: $brand-primary-light;
+    color: var(--info-color);
     width: 100%;
   }
 
   &--spinner-text {
     margin: 3px;
     font-size: 14px;
-    color: $blue-black;
+    color: var(--primary-text);
     font-weight: 500;
   }
 }

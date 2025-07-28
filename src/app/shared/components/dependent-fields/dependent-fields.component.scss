@@ -8,7 +8,7 @@
 
   &--internal-block {
     padding: 6px 0;
-    background: #fff;
+    background: var(--background-card);
     line-height: 1;
     margin-bottom: 12px;
     &__margin {
@@ -17,7 +17,7 @@
   }
 
   &__skeleton-loader {
-    background: $off-white;
+    background: var(--background-secondary);
     border-radius: 4px;
     height: 16px;
 

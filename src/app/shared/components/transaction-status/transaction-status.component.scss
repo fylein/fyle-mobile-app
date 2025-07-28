@@ -13,11 +13,11 @@
     margin-right: 6px;
 
     &.posted {
-      background-color: $green;
+      background-color: var(--success-color);
     }
 
     &.pending {
-      background-color: $red;
+      background-color: var(--error-color);
     }
   }
 
@@ -27,13 +27,13 @@
   }
 
   &__status-label {
-    color: $black-light;
+    color: var(--secondary-text);
     font-size: 12px;
     margin-bottom: 2px;
   }
 
   &__status-value {
-    color: $blue-black;
+    color: var(--primary-text);
     font-weight: 500;
     margin-left: 6px;
     margin-right: 2px;
@@ -42,7 +42,7 @@
   }
 
   &__info-icon {
-    color: $blue-black;
+    color: var(--primary-text);
     width: 16px;
     height: 16px;
   }

@@ -31,4 +31,13 @@
     text-transform: capitalize;
     margin: 0;
   }
+
+  // Fix header button colors in dark mode
+  ion-button {
+    --color: var(--primary-text);
+  }
+
+  ion-icon {
+    color: var(--primary-text);
+  }
 }

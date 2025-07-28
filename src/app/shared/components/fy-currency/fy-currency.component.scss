@@ -8,13 +8,13 @@
     line-height: 16px;
     font-weight: 400;
     line-height: 1.5;
-    color: $black-light;
+    color: var(--secondary-text);
   }
 
   &--input {
     font-size: 14px;
     line-height: 18px;
-    color: $blue-black;
+    color: var(--primary-text);
     border: none;
     width: 100%;
     margin: 6px 0;
@@ -22,18 +22,18 @@
   }
 
   &--input-invalid {
-    border-bottom: 1px solid $red;
+    border-bottom: 1px solid var(--error-color);
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: var(--info-color);
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
   }
 
   &--input-container {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--form {
@@ -47,6 +47,7 @@
     line-height: 1.2;
     font-weight: 500;
     margin-top: 0;
+    color: var(--primary-text);
   }
 
   &--currency-block {
@@ -65,7 +66,7 @@
     height: 12px;
     font-size: 12px;
     margin-top: 5px;
-    color: $black-light;
+    color: var(--secondary-text);
   }
 
   &__sparkle-icon {
@@ -74,14 +75,14 @@
   }
 
   &__invalid {
-    border-bottom: 1px solid $red;
+    border-bottom: 1px solid var(--error-color);
   }
 
   &--exchange-rate-container {
     display: flex;
     align-items: center;
     height: 42px;
-    border: 1px solid $grey-lighter;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 8px;
     margin-top: 16px;
@@ -92,21 +93,21 @@
   }
 
   &--exchange-rate-icon {
-    color: $highlight-blue;
+    color: var(--info-color);
     margin-right: 10px;
   }
 
   &--exchange-rate-message {
     width: 100%;
-    color: $blue-black;
+    color: var(--primary-text);
     font-size: 12px;
     line-height: 16px;
   }
 
   &--exchange-rate-modify {
-    color: $brand-primary;
+    color: var(--info-color);
     font-size: 12px;
-    background-color: $pure-white;
+    background-color: var(--background-card);
     font-weight: 500;
   }
 }

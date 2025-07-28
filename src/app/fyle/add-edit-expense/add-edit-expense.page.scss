@@ -4,12 +4,14 @@
 .add-edit-expense {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    border-bottom: var(--header-border-bottom, 1px solid var(--border-color));
     &__review {
       min-height: 80px;
     }
 
     &__title {
       text-align: center;
+      color: var(--primary-text);
     }
   }
 
@@ -19,12 +21,13 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
-      color: $black-light;
+      color: var(--primary-text);
     }
 
     &__icon {
       height: 28px;
       width: 28px;
+      color: var(--primary-text);
     }
   }
 
@@ -40,7 +43,7 @@
       padding-inline-end: 0;
       position: relative;
       line-height: 26px;
-      color: $black;
+      color: var(--primary-text);
       font-weight: 400;
       top: 12px;
       height: 64px;
@@ -48,7 +51,7 @@
   }
 
   &--sub-header {
-    color: #ababab;
+    color: var(--secondary-text);
     font-size: 14px;
     font-weight: 400;
   }
@@ -59,7 +62,7 @@
   }
 
   &--footer-box {
-    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+    box-shadow: var(--card-shadow, 0px -2px 40px rgba(215, 215, 215, 0.4));
   }
 
   &--footer-container {
@@ -70,9 +73,9 @@
 
   &--footer-toolbar {
     padding: 14px 16px;
-    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+    box-shadow: var(--card-shadow, 0px -2px 40px rgba(215, 215, 215, 0.4));
     &__shadow {
-      box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+      box-shadow: var(--card-shadow, 0px -2px 40px rgba(215, 215, 215, 0.4));
     }
     &__offline {
       padding-bottom: 36px;
@@ -103,7 +106,7 @@
     margin: 0;
     border-radius: 0;
     &__border {
-      border-right: 1px solid $grey;
+      border-right: 1px solid var(--border-color);
     }
   }
 
@@ -133,7 +136,7 @@
     justify-content: center;
     flex-direction: column;
     border-radius: 4px;
-    color: #ababab;
+    color: var(--secondary-text);
     margin-left: 0;
     margin-top: 12px;
     margin-right: 12px;
@@ -141,7 +144,7 @@
   }
 
   &--receipt-image {
-    background-color: $light-grey;
+    background-color: var(--background-secondary);
     min-width: 64px;
     min-height: 64px;
     max-width: 64px;
@@ -157,7 +160,7 @@
     font-size: 64px;
     height: 36px;
     width: 34px;
-    background-color: $light-grey;
+    background-color: var(--background-secondary);
     border-radius: 16px;
   }
 
@@ -166,7 +169,7 @@
     padding-top: 10px;
     padding-bottom: 6px;
     &__count {
-      color: $blue-black;
+      color: var(--primary-text);
       font-size: 24px;
       font-weight: 400;
       text-align: center;
@@ -188,7 +191,7 @@
 
   &--spinner-icon {
     margin-top: 12px;
-    color: #f36;
+    color: var(--error-color);
   }
 
   &--currency {
@@ -208,10 +211,10 @@
   }
 
   &--date {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid var(--border-color);
 
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid var(--error-color);
     }
   }
 
@@ -220,7 +223,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: var(--secondary-text);
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -239,10 +242,10 @@
   }
 
   &--text {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid var(--border-color);
 
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid var(--error-color);
     }
   }
 
@@ -251,7 +254,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: var(--secondary-text);
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -263,7 +266,7 @@
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: $blue-black;
+    color: var(--primary-text);
     width: 100%;
     margin: 6px 0;
     padding: 0;
@@ -271,7 +274,7 @@
 
   &--checkbox {
     font-size: 14px;
-    color: $blue-black;
+    color: var(--primary-text);
     font-weight: 400;
   }
 
@@ -300,7 +303,7 @@
 
   &--internal-block {
     padding: 6px 0;
-    background: #fff;
+    background: var(--background-card);
     line-height: 1;
     margin-bottom: 12px;
     &__margin {
@@ -317,16 +320,16 @@
   &--split-expense-container {
     display: flex;
     flex-direction: row;
-    background-color: $pure-white;
+    background-color: var(--background-card);
     padding: 0;
   }
 
   &--split-expense-title {
     font-size: 12px;
     font-weight: 500;
-    color: $black-2;
+    color: var(--primary-text);
     margin-bottom: 20px;
-    border: 1px solid $grey-light;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 10px 20px;
     width: max-content;
@@ -345,7 +348,7 @@
 
     &__with-border {
       margin: 8px 0px;
-      border: 1px solid $grey-lighter;
+      border: 1px solid var(--border-color);
       margin-left: 0;
       border-radius: 4px;
       padding: 8px;
@@ -353,13 +356,13 @@
   }
 
   &--split-info-icon {
-    color: $highlight-blue;
+    color: var(--info-color);
     margin-right: 10px;
   }
 
   &--split-info-message {
     width: 100%;
-    color: $blue-black;
+    color: var(--primary-text);
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.16px;
@@ -367,7 +370,7 @@
 
   &--comment {
     border-radius: 4px;
-    border: 1px solid $grey-lighter;
+    border: 1px solid var(--border-color);
     padding: 12px;
     margin-bottom: 10px;
   }
@@ -376,23 +379,23 @@
     display: flex;
     align-items: center;
     padding: 12px;
-    border: 1px solid $grey-lighter;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
   }
 
   &--delete-icon {
     font-size: 24px;
-    color: #ababab;
+    color: var(--secondary-text);
   }
 
   &--delete-msg {
     font-size: 16px;
     margin: 4px 0 0 16px;
-    color: #f00;
+    color: var(--error-color);
   }
 
   &--duplicates-box {
-    background-color: #f3f5f8;
+    background-color: var(--background-secondary);
     border: 0;
     padding: 0;
   }
@@ -410,12 +413,12 @@
   }
 
   &--duplicate-warning-icon {
-    color: #ffb25c;
+    color: var(--warning-color);
     margin-right: 5px;
   }
 
   &--duplicate-cta {
-    color: #387ef5;
+    color: var(--info-color);
     text-decoration: underline;
     font-weight: bold;
   }
@@ -457,7 +460,7 @@
     border-top-right-radius: 100px;
     padding-right: 18px;
 
-    background-color: #999;
+    background-color: var(--secondary-text);
     opacity: 0.8;
     &__disabled {
       opacity: 0.2;
@@ -479,7 +482,7 @@
 
     padding-left: 18px;
 
-    background-color: #999;
+    background-color: var(--secondary-text);
     opacity: 0.8;
     &__disabled {
       opacity: 0.2;
@@ -495,7 +498,7 @@
     width: 100%;
     bottom: 0;
     background: rgba(221, 0, 0, 0.7);
-    color: #fff;
+    color: var(--primary-text);
     padding: 16px;
   }
 
@@ -517,27 +520,27 @@
 
   &--duplicate-pointer-text {
     border-radius: 6px;
-    background: #f2f2f2;
+    background: var(--background-secondary);
     padding: 8px 16px;
     margin-bottom: 16px;
     padding: 12px 16px;
     width: 96%;
     margin-bottom: 12px;
-    color: #4a4a4a;
+    color: var(--primary-text);
     font-weight: 700;
     font-size: 16px;
-    box-shadow: 0 2px 4px 0 rgba(#838383, 0.75);
+    box-shadow: 0 2px 4px 0 rgba(131, 131, 131, 0.75);
     text-align: center;
   }
 
   &--duplicate-pointer-icon {
     border-radius: 50%;
-    background: #f2f2f2;
+    background: var(--background-secondary);
     padding: 8px 16px;
     margin-bottom: 16px;
     padding: 12px 16px;
     margin-bottom: 12px;
-    color: #4a4a4a;
+    color: var(--primary-text);
     font-size: 16px;
     top: -10px;
     box-shadow: 0 2px 4px 0 rgba(131, 131, 131, 0.75);
@@ -553,26 +556,26 @@
 
   &--payment-mode-header {
     font-size: 14px;
-    color: $blue-black;
+    color: var(--primary-text);
   }
 
   &--payment-mode-section {
     font-size: 12px;
-    color: $black-light;
+    color: var(--secondary-text);
     margin-top: 4px;
   }
 
   &--check {
-    color: $brand-primary;
+    color: var(--info-color);
     font-size: 20px;
   }
 
   &--error {
-    color: $red;
+    color: var(--error-color);
   }
 
   &--card-header {
-    color: $black-light;
+    color: var(--secondary-text);
     margin-bottom: 8px;
     font-size: 12px;
     font-weight: 400;
@@ -580,11 +583,11 @@
   }
 
   &--card-txn-container {
-    border: 1px solid $grey-lighter;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 8px;
     display: flex;
-    color: $grey-light;
+    color: var(--border-color);
     align-items: center;
     margin-top: 8px;
     font-size: 12px;
@@ -604,12 +607,12 @@
   }
 
   &--matching-card {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     padding: 4px 0;
     justify-content: space-between;
     font-size: 14px;
-    color: $blue-black;
+    color: var(--primary-text);
   }
 
   &--icon-loading {
@@ -634,17 +637,17 @@
   }
 
   &--card-arrow {
-    color: $grey-light;
+    color: var(--border-color);
   }
 
   &--error {
-    color: $red;
+    color: var(--error-color);
     line-height: 16px;
     font-size: 12px;
   }
 
   &--amount-error {
-    color: $red;
+    color: var(--error-color);
     font-size: 12px;
     margin: -14px 0 0 53%;
   }
@@ -654,7 +657,7 @@
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: var(--info-color);
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -662,7 +665,7 @@
 
   &--ccc-expense {
     pointer-events: none;
-    color: $grey-light;
+    color: var(--border-color);
   }
 
   &--text-block {
@@ -675,7 +678,7 @@
   }
 
   &--card-container {
-    background: $pink-gradient-2;
+    background: var(--background-secondary);
     padding: 16px;
     margin: 12px 0;
     border-radius: 8px;
@@ -683,14 +686,14 @@
     &__merchant_block {
       display: flex;
       gap: 6px;
-      border-top: 1px solid $grey;
+      border-top: 1px solid var(--border-color);
       padding-top: 12px;
       margin-top: 12px;
       align-items: center;
     }
 
     &__merchant_label {
-      color: $black-light;
+      color: var(--secondary-text);
       font-size: 12px;
     }
 
@@ -698,25 +701,25 @@
       display: flex;
       align-items: center;
       gap: 2px;
-      color: $blue-black;
+      color: var(--primary-text);
       font-weight: 500;
       font-size: 12px;
     }
 
     &__merchant_info_icon {
-      color: $blue-black;
+      color: var(--primary-text);
       width: 16px;
       height: 16px;
     }
 
     &__label {
-      color: $black-light;
+      color: var(--secondary-text);
       font-size: 12px;
       margin-bottom: 6px;
     }
 
     &__value {
-      color: $blue-black;
+      color: var(--primary-text);
       font-weight: 500;
     }
 
@@ -726,7 +729,7 @@
     }
 
     &__credit {
-      color: $green;
+      color: var(--success-color);
       font-weight: 500;
     }
 
@@ -741,7 +744,7 @@
   }
 
   &__skeleton-loader {
-    background: $off-white;
+    background: var(--background-secondary);
     border-radius: 4px;
     height: 16px;
 
@@ -755,7 +758,7 @@
   &--date-error,
   &--travel-text-error,
   &--distance-error {
-    color: $red;
+    color: var(--error-color);
     line-height: 16px;
     font-size: 12px;
     margin-top: 6px;
@@ -763,7 +766,7 @@
 
   &--travel-select-error,
   &--distance-unit-error {
-    color: $red;
+    color: var(--error-color);
     line-height: 16px;
     font-size: 12px;
   }
@@ -773,12 +776,68 @@
     align-items: center;
     height: 12px;
     font-size: 12px;
-    color: $black-light;
+    color: var(--secondary-text);
     margin-top: 4px;
   }
 
   &--sparkle-icon {
     width: 12px;
     margin-right: 4px;
+  }
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
+}
+
+// Add background color to the content
+ion-content {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// General text color for the add-edit-expense page
+.add-edit-expense {
+  color: var(--primary-text);
+}
+
+// Ensure all text elements inherit the proper color
+.add-edit-expense * {
+  color: inherit;
+}
+
+// Override specific elements that need different colors
+.add-edit-expense {
+  &--date-label,
+  &--text-label,
+  &--card-header,
+  &--payment-mode-section,
+  &--auto-coded {
+    color: var(--secondary-text);
+  }
+
+  &--date-input,
+  &--text-input {
+    color: var(--primary-text);
   }
 }

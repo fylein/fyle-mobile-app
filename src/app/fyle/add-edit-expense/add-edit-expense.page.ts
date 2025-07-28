@@ -155,6 +155,7 @@ import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-ca
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { UnlinkCardTransactionResponse } from 'src/app/core/models/platform/unlink-card-transaction-response.model';
+import { ThemeService } from 'src/app/core/services/theme.service';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -518,7 +519,8 @@ export class AddEditExpensePage implements OnInit {
     private platformHandlerService: PlatformHandlerService,
     private expensesService: ExpensesService,
     private advanceWalletsService: AdvanceWalletsService,
-    private expenseCommentService: ExpenseCommentService
+    private expenseCommentService: ExpenseCommentService,
+    private themeService: ThemeService
   ) {}
 
   get isExpandedView(): boolean {

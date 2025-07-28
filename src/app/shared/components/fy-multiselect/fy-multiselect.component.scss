@@ -12,7 +12,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: var(--secondary-text);
     line-height: 16px;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -24,30 +24,30 @@
     align-items: center;
     justify-content: space-between;
     padding: 6px 0;
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--input {
     font-size: 14px;
     line-height: 18px;
-    color: $blue-black;
+    color: var(--primary-text);
     border: none;
     width: 100%;
     padding: 0;
   }
 
   &--input-invalid {
-    border-bottom: 1px solid $red;
+    border-bottom: 1px solid var(--error-color);
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: var(--info-color);
     font-size: 14px;
     font-weight: 400;
   }
 
   &--icon {
-    color: $grey-light;
+    color: var(--icon-color);
   }
 
   &--input-disabled {
