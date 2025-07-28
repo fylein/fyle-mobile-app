@@ -52,12 +52,12 @@ $small-screen: 700px;
     box-sizing: border-box;
     border-radius: 8px;
     max-height: 40vh;
-    @media (max-height: $small-screen) {
-      max-height: 27vh;
-    }
     overflow-y: auto;
     padding: 12px 8px;
     display: flex;
+    @media (max-height: $small-screen) {
+      max-height: 27vh;
+    }
   }
 
   &--error-icon {
