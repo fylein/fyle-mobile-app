@@ -1276,7 +1276,7 @@ export class MyExpensesPage implements OnInit {
 
         this.openCriticalPolicyViolationPopOver({ title, message: finalMessage, reportType });
       });
-      return; // Exit early since we're handling the popover in the subscription
+      return;
     }
 
     this.openCriticalPolicyViolationPopOver({ title, message, reportType });
