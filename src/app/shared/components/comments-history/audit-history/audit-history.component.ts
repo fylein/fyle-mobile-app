@@ -56,7 +56,10 @@ export class AuditHistoryComponent implements OnInit {
     this.estatuses = this.estatuses.map(function (estatus) {
       if (estatus) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        estatus.has_details = estatus.st_diff !== null && Object.keys(estatus.st_diff).length > 0;
+        estatus.has_details =
+          estatus.st_diff &&
+          typeof estatus.st_diff === 'object' &&
+          Object.keys(estatus.st_diff as Record<string, unknown>).length > 0;
       }
       return estatus;
     });
