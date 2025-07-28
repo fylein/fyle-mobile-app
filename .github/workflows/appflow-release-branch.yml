@@ -18,6 +18,7 @@ jobs:
           build-type: debug
           environment: staging
           native-config: staging
+          build-stack: "Linux - 2025.06"
           filename: android.apk
 
       - name: Move android.apk to current directory
@@ -40,6 +41,7 @@ jobs:
           certificate: Fyle signing
           environment: staging
           native-config: staging
+          build-stack: "macOS - 2025.06 - Apple silicon"
           filename: ios.ipa
 
       - name: Move ios.ipa to current directory
