@@ -39,8 +39,6 @@ export class NotificationsBetaPage implements OnInit {
 
   isAdvancesEnabled = false;
 
-  isExpenseMarkedPersonalEventEnabled = false;
-
   expenseNotificationsConfig: NotificationConfig;
 
   expenseReportNotificationsConfig: NotificationConfig;
@@ -78,26 +76,22 @@ export class NotificationsBetaPage implements OnInit {
   private loaderService = inject(LoaderService);
 
   ngOnInit(): void {
-    this.getOrgSettings().subscribe(
-      ({ orgSettings, employeeSettings, currentEou, isExpenseMarkedPersonalEventEnabled }) => {
-        this.orgSettings = orgSettings;
-        this.employeeSettings = employeeSettings;
-        this.currentEou = currentEou;
-        this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
-        this.isExpenseMarkedPersonalEventEnabled = isExpenseMarkedPersonalEventEnabled;
+    this.getOrgSettings().subscribe(({ orgSettings, employeeSettings, currentEou }) => {
+      this.orgSettings = orgSettings;
+      this.employeeSettings = employeeSettings;
+      this.currentEou = currentEou;
+      this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
-        this.initializeEmailNotificationsConfig();
-        this.initializeDelegateNotification();
-      }
-    );
+      this.initializeEmailNotificationsConfig();
+      this.initializeDelegateNotification();
+    });
   }
 
   initializeEmailNotificationsConfig(): void {
     const emailNotificationsConfig = this.notificationsBetaPageService.getEmailNotificationsConfig(
       this.orgSettings,
       this.employeeSettings,
-      this.currentEou,
-      this.isExpenseMarkedPersonalEventEnabled
+      this.currentEou
     );
 
     this.expenseNotificationsConfig = emailNotificationsConfig.expenseNotificationsConfig;
@@ -114,7 +108,6 @@ export class NotificationsBetaPage implements OnInit {
     orgSettings: OrgSettings;
     employeeSettings: EmployeeSettings;
     currentEou: ExtendedOrgUser;
-    isExpenseMarkedPersonalEventEnabled: boolean;
   }> {
     return from(this.loaderService.showLoader()).pipe(
       switchMap(() =>
@@ -122,7 +115,6 @@ export class NotificationsBetaPage implements OnInit {
           orgSettings: this.orgSettingsService.get(),
           employeeSettings: this.platformEmployeeSettingsService.get(),
           currentEou: from(this.authService.getEou()),
-          isExpenseMarkedPersonalEventEnabled: this.launchDarklyService.checkIfExpenseMarkedPersonalEventIsEnabled(),
         })
       ),
       finalize(() => from(this.loaderService.hideLoader()))
