@@ -1,9 +1,9 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .dashboard-opt-in {
   &--container {
     background: linear-gradient(80deg, rgb(236 245 255 / 21%) 54.75%, rgb(255 237 252 / 30%) 86.07%);
-    border-bottom: 2px solid $pure-white;
+    border-bottom: 2px solid colors.$pure-white;
     border-radius: 0 0 40px 40px;
     margin-bottom: 24px;
     margin-top: 6px;
@@ -18,7 +18,7 @@
 
   &__skip {
     text-decoration: underline;
-    color: $dark-grey;
+    color: colors.$dark-grey;
     text-align: end;
     position: relative;
     bottom: 35px;
@@ -59,7 +59,7 @@
     position: relative;
 
     &:after {
-      background-color: $bright-yellow;
+      background-color: colors.$bright-yellow;
       content: ' ';
       height: 14px;
       width: 68px;

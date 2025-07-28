@@ -14,6 +14,7 @@ import { ApproverReportsService } from '../core/services/platform/v1/approver/re
   selector: 'app-deep-link-redirection',
   templateUrl: './deep-link-redirection.page.html',
   styleUrls: ['./deep-link-redirection.page.scss'],
+  standalone: false,
 })
 export class DeepLinkRedirectionPage {
   constructor(

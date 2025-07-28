@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .sign-in {
   &__video-container {
@@ -34,7 +34,7 @@
     margin: 0 0 10px;
     position: relative;
     margin-bottom: 32px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 1.28;
   }
 
@@ -58,12 +58,12 @@
     margin: 12px 0;
     height: 20px;
     align-items: center;
-    color: $black;
+    color: colors.$black;
   }
 
   &__divider {
     height: 1px;
-    background-color: $border-tertiary;
+    background-color: colors.$border-tertiary;
     width: 100%;
   }
 
@@ -80,7 +80,7 @@
       &__label {
         margin: 0 8px 0 0;
         font-size: 12px;
-        color: $black-light;
+        color: colors.$black-light;
         line-height: 1.3;
         font-weight: 400;
       }
@@ -90,22 +90,22 @@
         font-size: 14px;
         font-weight: 400;
         line-height: 1.3;
-        color: $blue-black;
+        color: colors.$blue-black;
         width: 100%;
         padding: 6px 0;
-        border-bottom: 1px solid $grey-lighter;
+        border-bottom: 1px solid colors.$grey-lighter;
         -webkit-border-radius: 0px;
         -webkit-appearance: none;
         border-radius: 0;
       }
 
       &__input:focus {
-        border-bottom: 1px solid $blue-black;
+        border-bottom: 1px solid colors.$blue-black;
       }
     }
 
     &__error-message {
-      color: $red;
+      color: colors.$red;
     }
 
     &__disabled {
@@ -130,8 +130,8 @@
 
     &__forgot-password_button {
       font-weight: 500;
-      background: $pure-white;
-      color: $black-light;
+      background: colors.$pure-white;
+      color: colors.$black-light;
       font-size: 12px;
     }
 
@@ -139,7 +139,7 @@
       font-size: 14px;
       font-weight: 500;
       line-height: 1.3;
-      color: $blue-black;
+      color: colors.$blue-black;
       padding-top: 4px;
       margin-bottom: 24px;
       display: flex;
@@ -147,7 +147,7 @@
     }
 
     &__email-edit {
-      fill: $black-light;
+      fill: colors.$black-light;
       height: 20px;
       width: 20px;
       margin-left: 8px;
@@ -156,7 +156,7 @@
     &__password-icon {
       width: 20px;
       height: 20px;
-      fill: $black-light;
+      fill: colors.$black-light;
     }
 
     &__password-icon-container {
@@ -170,21 +170,21 @@
       font-weight: 400;
       height: 18px;
       line-height: 18px;
-      color: $blue-black;
+      color: colors.$blue-black;
       width: 100%;
       margin: 6px 0;
       padding: 0;
     }
 
     &__text {
-      border-bottom: 1px solid $grey-lighter;
+      border-bottom: 1px solid colors.$grey-lighter;
 
       &__invalid {
-        border-bottom: 1px solid $red;
+        border-bottom: 1px solid colors.$red;
       }
 
       &__password-focus {
-        border-bottom: 1px solid $black;
+        border-bottom: 1px solid colors.$black;
       }
     }
 
@@ -197,7 +197,7 @@
       max-width: 90%;
       min-width: 120px;
       font-size: 12px;
-      color: $black-light;
+      color: colors.$black-light;
       line-height: 16px;
       white-space: nowrap;
       font-weight: 400;
@@ -207,7 +207,7 @@
       &__label {
         margin: 0 8px 0 0;
         font-size: 12px;
-        color: $black-light;
+        color: colors.$black-light;
         line-height: 1.3;
         font-weight: 400;
       }
@@ -217,19 +217,19 @@
         font-size: 14px;
         font-weight: 400;
         line-height: 1.3;
-        color: $blue-black;
+        color: colors.$blue-black;
         width: 100%;
         padding: 6px 0;
-        border-bottom: 1px solid $grey-lighter;
+        border-bottom: 1px solid colors.$grey-lighter;
       }
 
       &__input:focus {
-        border-bottom: 1px solid $blue-black;
+        border-bottom: 1px solid colors.$blue-black;
       }
     }
 
     &__error-message {
-      color: $red;
+      color: colors.$red;
     }
 
     &__disabled {
@@ -241,13 +241,13 @@
       margin: 0 0 10px;
       position: relative;
       margin-bottom: 32px;
-      color: $black-light;
+      color: colors.$black-light;
       line-height: 1.28;
     }
   }
 
   &__secondary-cta {
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     &__btn {
       display: flex;
       height: 50px;
@@ -257,9 +257,9 @@
       gap: 8px;
       align-self: stretch;
       border-radius: 4px;
-      border: 1px solid $grey;
-      background: $pure-white;
-      color: $black;
+      border: 1px solid colors.$grey;
+      background: colors.$pure-white;
+      color: colors.$black;
       color: var(--buttons-secondary-outline-btn-outline-secondary-text-color, #2c304e);
       text-align: center;
 

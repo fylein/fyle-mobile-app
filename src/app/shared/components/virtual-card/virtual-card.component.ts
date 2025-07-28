@@ -12,6 +12,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-virtual-card',
   templateUrl: './virtual-card.component.html',
   styleUrls: ['./virtual-card.component.scss'],
+  standalone: false,
 })
 export class VirtualCardComponent implements OnInit {
   @Input() cardNumber: string;

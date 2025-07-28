@@ -18,6 +18,7 @@ import { ProjectOption } from 'src/app/core/models/project-options.model';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy {
   @Input() mandatory = false;

@@ -7,6 +7,7 @@ import { EventEmitter } from '@angular/core';
   selector: 'app-sidemenu-header',
   templateUrl: './sidemenu-header.component.html',
   styleUrls: ['./sidemenu-header.component.scss'],
+  standalone: false,
 })
 export class SidemenuHeaderComponent implements OnInit {
   @Input() eou: ExtendedOrgUser;

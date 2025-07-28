@@ -31,6 +31,7 @@ import { tap } from 'rxjs/operators';
 @Component({
   selector: 'app-spent-cards',
   template: '<div></div>',
+  standalone: false,
 })
 class MockSpentCardsComponent {
   @Input() cardDetails: PlatformCorporateCardDetail[];
@@ -45,6 +46,7 @@ class MockSpentCardsComponent {
 @Component({
   selector: 'app-add-card',
   template: '<div></div>',
+  standalone: false,
 })
 class MockAddCardComponent {
   @Input() showZeroStateMessage: boolean;

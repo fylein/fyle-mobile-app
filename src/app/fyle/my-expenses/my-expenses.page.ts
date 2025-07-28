@@ -93,6 +93,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
+  standalone: false,
 })
 export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;

@@ -9,30 +9,31 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+@use 'sass:map';
 /* Core CSS required for Ionic components to work properly */
-@import '@ionic/angular/css/core.css';
+@use '@ionic/angular/css/core.css';
 
 /* Basic CSS for apps built with Ionic */
-@import '@ionic/angular/css/normalize.css';
-@import '@ionic/angular/css/structure.css';
-@import '@ionic/angular/css/typography.css';
-@import '@ionic/angular/css/display.css';
+@use '@ionic/angular/css/normalize.css';
+@use '@ionic/angular/css/structure.css';
+@use '@ionic/angular/css/typography.css';
+@use '@ionic/angular/css/display.css';
 
 /* Optional CSS utils that can be commented out */
-@import '@ionic/angular/css/padding.css';
-@import '@ionic/angular/css/float-elements.css';
-@import '@ionic/angular/css/text-alignment.css';
-@import '@ionic/angular/css/text-transformation.css';
-@import '@ionic/angular/css/flex-utils.css';
+@use '@ionic/angular/css/padding.css';
+@use '@ionic/angular/css/float-elements.css';
+@use '@ionic/angular/css/text-alignment.css';
+@use '@ionic/angular/css/text-transformation.css';
+@use '@ionic/angular/css/flex-utils.css';
 
-@import 'assets/fonts/font.css';
-@import 'theme/colors';
+@use 'assets/fonts/font.css';
+@use 'theme/colors';
 
-@import 'swiper/scss';
-@import 'swiper/scss/navigation';
-@import 'swiper/scss/pagination';
-@import 'driver.js/dist/driver.css';
-@import '../src/assets/styles/fy_driver_tour';
+@use 'swiper/scss';
+@use 'swiper/scss/navigation';
+@use 'swiper/scss/pagination';
+@use 'driver.js/dist/driver.css';
+@use '../src/assets/styles/fy_driver_tour';
 
 $header-input-interior: #eeeeee;
 
@@ -100,8 +101,8 @@ ion-popover.error-popover {
 
 .msb-success {
   .mdc-snackbar__surface {
-    --mdc-snackbar-container-color: #24a148;
-    color: $pure-white;
+    --mat-snack-bar-container-color: #24a148;
+    color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 30px !important;
   }
@@ -109,8 +110,8 @@ ion-popover.error-popover {
 
 .msb-failure {
   .mdc-snackbar__surface {
-    --mdc-snackbar-container-color: #da1e28;
-    color: $pure-white;
+    --mat-snack-bar-container-color: #da1e28;
+    color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 30px !important;
   }
@@ -118,8 +119,8 @@ ion-popover.error-popover {
 
 .msb-info {
   .mdc-snackbar__surface {
-    --mdc-snackbar-container-color: #1c1f36;
-    color: $pure-white;
+    --mat-snack-bar-container-color: #1c1f36;
+    color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 30px !important;
   }
@@ -127,8 +128,8 @@ ion-popover.error-popover {
 
 .msb-bulkfyle-prompt {
   .mdc-snackbar__surface {
-    --mdc-snackbar-container-color: #1c1f36;
-    color: $pure-white;
+    --mat-snack-bar-container-color: #1c1f36;
+    color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px calc(124px + env(safe-area-inset-bottom)) !important;
   }
@@ -142,14 +143,14 @@ ion-popover.error-popover {
     bottom: -6px;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-top: 10px solid $dark-blue;
+    border-top: 10px solid colors.$dark-blue;
   }
 }
 
 .msb-success-with-camera-icon {
   .mdc-snackbar__surface {
-    --mdc-snackbar-container-color: #24a148;
-    color: $pure-white;
+    --mat-snack-bar-container-color: #24a148;
+    color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 133px !important;
   }
@@ -157,8 +158,8 @@ ion-popover.error-popover {
 
 .msb-success-with-camera-icon-for-split-exp {
   .mdc-snackbar__surface {
-    --mdc-snackbar-container-color: #24a148;
-    color: $pure-white;
+    --mat-snack-bar-container-color: #24a148;
+    color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 24px !important;
   }
@@ -166,8 +167,8 @@ ion-popover.error-popover {
 
 .msb-failure-with-camera-icon-for-split-exp {
   .mdc-snackbar__surface {
-    --mdc-snackbar-container-color: #da1e28;
-    color: $pure-white;
+    --mat-snack-bar-container-color: #da1e28;
+    color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 24px !important;
   }
@@ -175,8 +176,8 @@ ion-popover.error-popover {
 
 .msb-failure-with-camera-icon {
   .mdc-snackbar__surface {
-    --mdc-snackbar-container-color: #da1e28;
-    color: $pure-white;
+    --mat-snack-bar-container-color: #da1e28;
+    color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 133px !important;
   }
@@ -184,8 +185,8 @@ ion-popover.error-popover {
 
 .msb-success-with-report-btn {
   .mdc-snackbar__surface {
-    --mdc-snackbar-container-color: #24a148;
-    color: $pure-white;
+    --mat-snack-bar-container-color: #24a148;
+    color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 84px !important;
   }
@@ -193,32 +194,32 @@ ion-popover.error-popover {
 
 .msb-failure-with-report-btn {
   .mdc-snackbar__surface {
-    --mdc-snackbar-container-color: #da1e28;
-    color: $pure-white;
+    --mat-snack-bar-container-color: #da1e28;
+    color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 96px !important;
   }
 }
 
 .icon--toast-danger {
-  color: $white !important;
+  color: colors.$white !important;
 }
 
 .icon--alert-warning {
-  color: $dark-yellow !important;
+  color: colors.$dark-yellow !important;
 }
 
 .icon--flagged {
-  color: $red;
+  color: colors.$red;
 }
 
 .icon--unflagged {
   color: transparent;
-  stroke: $black-light;
+  stroke: colors.$black-light;
 }
 
 .intermediate-loader .loading-wrapper .loading-spinner ion-spinner {
-  color: $brand-primary;
+  color: colors.$brand-primary;
 }
 
 ion-popover.dialog-popover {
@@ -535,19 +536,19 @@ ion-popover.camera-options-popover {
 
 .mat-mdc-checkbox-checked.mat-accent {
   .mdc-checkbox__background {
-    background-color: $blue-black !important;
+    background-color: colors.$blue-black !important;
   }
 }
 
 .mdc-checkbox__checkmark {
-  color: $white !important;
+  color: colors.$white !important;
   padding: 2px;
 }
 
 mat-checkbox {
   .mdc-checkbox__background {
     border-radius: 4px !important;
-    border-color: $black-2 !important;
+    border-color: colors.$black-2 !important;
     border-width: 1.5px !important;
   }
 }
@@ -556,7 +557,7 @@ mat-checkbox {
   .mdc-label {
     font-size: 14px;
     font-weight: 400;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 }
 
@@ -593,7 +594,7 @@ input {
 }
 
 html {
-  --mdc-outlined-text-field-focus-outline-color: #5a5d72;
+  --mat-form-field-outlined-focus-outline-color: #5a5d72;
 }
 
 .mat-mdc-form-field-icon-prefix > .mat-icon,
@@ -612,24 +613,24 @@ html {
 }
 
 .mat-mdc-chip.mat-mdc-standard-chip {
-  --mdc-chip-container-height: 20px;
-  border: 1px solid $grey-lighter;
+  --mat-chip-container-height: 20px;
+  border: 1px solid colors.$grey-lighter;
 }
 
 .mat-mdc-chip:hover .mat-mdc-chip-focus-overlay {
-  --mdc-chip-focus-state-layer-color: $grey-lighter;
+  --mat-chip-focus-state-layer-color: colors.$grey-lighter;
 }
 
 .mat-mdc-standard-chip {
   min-height: 20px !important;
   font-size: 12px;
-  color: $black-light !important;
+  color: colors.$black-light !important;
   padding-right: 0 !important;
   font-weight: 500 !important;
 }
 
 .mat-mdc-chip.mat-mdc-standard-chip .mat-mdc-chip-remove {
-  color: $grey-lighter !important;
+  color: colors.$grey-lighter !important;
   font-size: 16px;
   opacity: 1;
   margin: 4px 3px 3px 4px;
@@ -648,7 +649,7 @@ html {
 .selection-modal--form-field,
 .dependent-field-modal__form-field {
   .mat-form-field-wrapper {
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
     border-radius: 4px;
     height: 40px;
   }
@@ -711,6 +712,12 @@ html {
   }
 }
 
+.opt-in--send-code-btn {
+  .mdc-button__label {
+    display: flex;
+  }
+}
+
 .other-details--container {
   mat-tab-group {
     .mat-mdc-tab-body-content {
@@ -734,7 +741,7 @@ input[type='date']::after {
 }
 
 input::placeholder {
-  color: $grey-light !important;
+  color: colors.$grey-light !important;
 }
 
 #fc_frame {
@@ -763,11 +770,11 @@ ref - https://stackoverflow.com/a/31162426
       position: absolute;
       content: attr(data-date);
       display: inline-block;
-      color: $blue-black;
+      color: colors.$blue-black;
     }
 
     &::after {
-      color: $grey-light;
+      color: colors.$grey-light;
     }
 
     &::-webkit-datetime-edit,
@@ -784,15 +791,15 @@ ref - https://stackoverflow.com/a/31162426
 
   &__placeholder {
     &::before {
-      color: $grey-light;
+      color: colors.$grey-light;
     }
   }
 }
 
 .fy-action-sheet {
-  --background: $white;
+  --background: colors.$white;
   .action-sheet-button {
-    background: $white;
+    background: colors.$white;
     min-height: 73px;
     margin-inline-end: 16px;
     padding: 0 24px;
@@ -800,37 +807,37 @@ ref - https://stackoverflow.com/a/31162426
   }
 
   .action-sheet-icon {
-    fill: $grey-light;
+    fill: colors.$grey-light;
     margin-inline-end: 16px;
   }
 
   .capture-receipt {
-    fill: $grey-light;
+    fill: colors.$grey-light;
     stroke: none !important;
   }
 
   .action-sheet-title {
-    background: $white;
+    background: colors.$white;
     border-radius: 16px 16px 0 0;
     height: 40px;
     padding: 24px 16px 16px 24px;
     font-size: 12px;
-    --color: #{$grey-light};
-    color: $grey-light;
+    --color: #{colors.$grey-light};
+    color: colors.$grey-light;
     font-weight: 500;
   }
 
   .danger {
-    color: $red;
+    color: colors.$red;
 
     .action-sheet-icon {
-      color: $red;
+      color: colors.$red;
     }
   }
 
   .action-sheet-button-inner {
     min-height: 73px;
-    border-bottom: 1px solid $translucent-grey;
+    border-bottom: 1px solid colors.$translucent-grey;
   }
 }
 
@@ -868,7 +875,7 @@ ref - https://stackoverflow.com/a/31162426
     .refresher-refreshing-icon {
       margin-top: 200px !important;
       .spinner-circular {
-        --ion-color-primary: #{$brand-primary};
+        --ion-color-primary: #{colors.$brand-primary};
       }
     }
   }
@@ -879,7 +886,7 @@ ref - https://stackoverflow.com/a/31162426
   border-radius: 4px !important;
   font-size: 14px !important;
   line-height: 18px;
-  color: $pure-white;
+  color: colors.$pure-white;
   font-weight: 500 !important;
   height: 52px !important;
   text-transform: inherit;
@@ -888,8 +895,8 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .btn-secondary {
-  background: $pure-white;
-  color: $black-2;
+  background: colors.$pure-white;
+  color: colors.$black-2;
   font-size: 16px !important;
   line-height: 20px;
   font-weight: 400 !important;
@@ -901,7 +908,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .btn-outline-secondary {
   @extend .btn-secondary;
-  border: 1px solid $grey;
+  border: 1px solid colors.$grey;
   border-radius: 4px;
 }
 
@@ -927,27 +934,27 @@ ref - https://stackoverflow.com/a/31162426
   letter-spacing: 0;
 
   &--primary {
-    --background: #{$pink-gradient};
+    --background: #{colors.$pink-gradient};
   }
 
   &--secondary {
-    --background: #{$blue-black};
+    --background: #{colors.$blue-black};
   }
 
   &--tertiary-primary {
     --background: transparent;
-    --color: #{$brand-primary};
+    --color: #{colors.$brand-primary};
   }
 
   &--tertiary-secondary {
     --background: transparent;
-    --color: #{$black-light};
+    --color: #{colors.$black-light};
   }
 
   &--outline-secondary {
     --background: transparent;
-    --color: #{$black-light};
-    border: 1px solid #{$grey};
+    --color: #{colors.$black-light};
+    border: 1px solid #{colors.$grey};
     border-radius: 4px;
   }
 }
@@ -1021,11 +1028,11 @@ ion-modal.flag-unflag-modal {
 .fy-icon-close {
   height: 20px !important;
   width: 20px !important;
-  color: $grey-light;
+  color: colors.$grey-light;
 }
 
 .fy-modal-toolbar {
-  border-bottom: 1px solid $grey-lighter;
+  border-bottom: 1px solid colors.$grey-lighter;
   margin-bottom: 8px;
   padding-top: 0 !important;
 }
@@ -1072,7 +1079,7 @@ ion-popover.delete-dialog {
 
 .ios .segment-button-checked {
   --indicator-color: #2c304e;
-  color: $pure-white !important;
+  color: colors.$pure-white !important;
   margin: 2px;
   padding: 0 8px;
 }
@@ -1091,10 +1098,10 @@ ion-popover.delete-dialog {
   height: 40px;
   padding: 2px !important;
   margin: 12px auto;
-  background: $pure-white;
-  border: 2px solid $pure-white;
+  background: colors.$pure-white;
+  border: 2px solid colors.$pure-white;
   box-sizing: border-box;
-  box-shadow: 0px -2px 13px 4px $transparent-pearl-grey;
+  box-shadow: 0px -2px 13px 4px colors.$transparent-pearl-grey;
   border-radius: 8px;
 }
 
@@ -1232,8 +1239,8 @@ ion-popover.delete-button-class {
 .fyle.swiper-pagination-bullet {
   width: 6px !important;
   height: 6px !important;
-  background: $pure-white !important;
-  border: 1px solid $black !important;
+  background: colors.$pure-white !important;
+  border: 1px solid colors.$black !important;
   box-sizing: border-box !important;
   opacity: 0.3;
 }
@@ -1241,7 +1248,7 @@ ion-popover.delete-button-class {
 .fyle.swiper-pagination-bullet-active {
   width: 16px !important;
   height: 6px !important;
-  background: $black !important;
+  background: colors.$black !important;
   border-radius: 4px !important;
   opacity: 0.3;
 }
@@ -1249,8 +1256,8 @@ ion-popover.delete-button-class {
 .spent-cards.swiper-pagination-bullet {
   width: 6px !important;
   height: 6px !important;
-  background: $pure-white !important;
-  border: 1px solid $black !important;
+  background: colors.$pure-white !important;
+  border: 1px solid colors.$black !important;
   box-sizing: border-box !important;
   opacity: 0.3;
 }
@@ -1258,7 +1265,7 @@ ion-popover.delete-button-class {
 .spent-cards.swiper-pagination-bullet-active {
   width: 16px !important;
   height: 6px !important;
-  background: $black !important;
+  background: colors.$black !important;
   border-radius: 4px !important;
   opacity: 0.3;
 }
@@ -1303,8 +1310,8 @@ ion-popover.delete-button-class {
 .opt-in-banners.swiper-pagination-bullet {
   width: 6px !important;
   height: 6px !important;
-  background: $pure-white !important;
-  border: 1px solid $black !important;
+  background: colors.$pure-white !important;
+  border: 1px solid colors.$black !important;
   box-sizing: border-box !important;
   opacity: 0.3;
 }
@@ -1312,7 +1319,7 @@ ion-popover.delete-button-class {
 .opt-in-banners.swiper-pagination-bullet-active {
   width: 16px !important;
   height: 6px !important;
-  background: $black !important;
+  background: colors.$black !important;
   border-radius: 4px !important;
   opacity: 0.3;
 }
@@ -1336,7 +1343,7 @@ ion-popover.delete-button-class {
 .filter-pills {
   position: fixed;
   width: 100%;
-  background-color: $white;
+  background-color: colors.$white;
   z-index: 99;
 }
 
@@ -1358,7 +1365,7 @@ ion-modal.personal-cards-range-modal {
 }
 
 .md .view-reports--segment-block-container {
-  background: $pure-white;
+  background: colors.$pure-white;
   box-shadow: 0px -2px 40px rgb(215 215 215 / 50%);
   border-radius: 8px 8px 0px 0px;
   margin-top: 16px;
@@ -1375,8 +1382,8 @@ ion-modal.personal-cards-range-modal {
 ion-toggle {
   height: 22px;
   width: 52px;
-  --track-background: #{$grey-light};
-  --track-background-checked: #{$brand-primary};
+  --track-background: #{colors.$grey-light};
+  --track-background-checked: #{colors.$brand-primary};
   --handle-spacing: 4px;
   --handle-border-radius: 50%;
   --handle-width: 14px;
@@ -1389,7 +1396,7 @@ ion-toggle {
 
 ion-toggle::before {
   position: absolute;
-  color: #{$pure-white};
+  color: #{colors.$pure-white};
   content: 'No';
   font-size: 12px;
   font-weight: 500;
@@ -1400,7 +1407,7 @@ ion-toggle::before {
 
 ion-toggle.toggle-checked::before {
   position: absolute;
-  color: #{$pure-white};
+  color: #{colors.$pure-white};
   content: 'Yes';
   font-size: 12px;
   font-weight: 500;
@@ -1410,8 +1417,8 @@ ion-toggle.toggle-checked::before {
 }
 
 .mat-tooltip.tooltip {
-  background: $blue-black;
-  color: #{$pure-white};
+  background: colors.$blue-black;
+  color: #{colors.$pure-white};
   position: relative;
   top: -16px;
 }
@@ -1419,19 +1426,19 @@ ion-toggle.toggle-checked::before {
 .capped-info {
   margin: 8px 0;
   display: flex;
-  border: 1px solid $grey-lighter;
+  border: 1px solid colors.$grey-lighter;
   border-radius: 8px;
   padding: 12px 8px;
   align-items: center;
   .capped-icon {
-    color: $highlight-blue;
+    color: colors.$highlight-blue;
     height: 20px;
     width: 20px;
     margin: 6px;
   }
   .capped-message {
     width: 100%;
-    color: $blue-black;
+    color: colors.$blue-black;
     font-size: 12px;
   }
 }
@@ -1510,18 +1517,18 @@ ion-toggle.toggle-checked::before {
 
 @mixin state($color) {
   &.state-#{$color} {
-    background-color: map-get($fdl-state-bg-map, $color);
-    color: map-get($fdl-state-color-map, $color);
+    background-color: map.get(colors.$fdl-state-bg-map, $color);
+    color: map.get(colors.$fdl-state-color-map, $color);
     border: 1px solid;
-    border-color: map-get($fdl-state-border-color-map, $color);
+    border-color: map.get(colors.$fdl-state-border-color-map, $color);
   }
 }
 
 .state-pill {
   background-color: transparent;
-  border: 1px solid $brand-primary;
+  border: 1px solid colors.$brand-primary;
   border-radius: 14px;
-  color: $brand-primary;
+  color: colors.$brand-primary;
   font-size: 12px;
   font-weight: 500;
   display: inline-block;
@@ -1533,7 +1540,7 @@ ion-toggle.toggle-checked::before {
   height: max-content;
 
   //get state keys for generating state class
-  @each $state in map-keys($states) {
+  @each $state in map.keys(colors.$states) {
     @include state($state);
   }
 }
@@ -1543,7 +1550,7 @@ ion-toggle.toggle-checked::before {
     position: relative;
 
     &:after {
-      background-color: $bright-yellow;
+      background-color: colors.$bright-yellow;
       content: ' ';
       height: 14px;
       width: 68px;
@@ -1561,7 +1568,7 @@ ion-toggle.toggle-checked::before {
     position: relative;
 
     &:after {
-      background-color: $bright-yellow;
+      background-color: colors.$bright-yellow;
       content: ' ';
       height: 14px;
       width: 68px;
@@ -1581,7 +1588,7 @@ ion-toggle.toggle-checked::before {
     align-items: center;
     flex-direction: column;
     height: 80%;
-    color: $blue-black;
+    color: colors.$blue-black;
 
     &__icon {
       height: 16px;

@@ -5,6 +5,7 @@ import { PopoverController } from '@ionic/angular';
   selector: 'app-fy-msg-popover',
   templateUrl: './fy-msg-popover.component.html',
   styleUrls: ['./fy-msg-popover.component.scss'],
+  standalone: false,
 })
 export class FyMsgPopoverComponent {
   @Input() msg = '';

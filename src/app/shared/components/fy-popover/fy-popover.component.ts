@@ -5,6 +5,7 @@ import { PopoverController } from '@ionic/angular';
   selector: 'app-fy-popover',
   templateUrl: './fy-popover.component.html',
   styleUrls: ['./fy-popover.component.scss'],
+  standalone: false,
 })
 export class FyPopoverComponent implements AfterViewInit {
   @ViewChild('simpleFormInput') simpleFormInput: ElementRef;

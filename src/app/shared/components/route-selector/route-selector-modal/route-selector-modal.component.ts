@@ -17,6 +17,7 @@ import { MileageLocation } from '../../route-visualizer/mileage-locations.interf
   selector: 'app-route-selector-modal',
   templateUrl: './route-selector-modal.component.html',
   styleUrls: ['./route-selector-modal.component.scss'],
+  standalone: false,
 })
 export class RouteSelectorModalComponent implements OnInit {
   @Input() unit: 'KM' | 'MILES';
