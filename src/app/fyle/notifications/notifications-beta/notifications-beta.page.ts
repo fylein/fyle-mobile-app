@@ -112,7 +112,6 @@ export class NotificationsBetaPage implements OnInit {
       orgSettings: this.orgSettingsService.get(),
       employeeSettings: this.platformEmployeeSettingsService.get(),
       currentEou: from(this.authService.getEou()),
-      isExpenseMarkedPersonalEventEnabled: this.launchDarklyService.checkIfExpenseMarkedPersonalEventIsEnabled(),
     }).pipe(finalize(() => (this.isInitialLoading = false)));
   }
 
