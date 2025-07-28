@@ -15,6 +15,7 @@ jobs:
           certificate: Android Prod Release
           environment: production
           native-config: prod
+          build-stack: "Linux - 2025.06"
           destinations: Fyle - Android prod
 
   build-ios:
@@ -30,6 +31,7 @@ jobs:
           certificate: iOS Prod Release
           environment: production
           native-config: prod
+          build-stack: "macOS - 2025.06 - Apple silicon"
           destinations: iOS Prod Release
 
   send-to-slack:

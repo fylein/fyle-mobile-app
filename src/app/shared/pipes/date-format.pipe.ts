@@ -4,6 +4,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Pipe({
   name: 'dateFormat',
+  standalone: false,
 })
 export class DateFormatPipe implements PipeTransform {
   constructor(private translocoService: TranslocoService) {}

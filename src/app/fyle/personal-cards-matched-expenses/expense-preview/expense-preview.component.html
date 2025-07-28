@@ -1,6 +1,6 @@
 <ion-header mode="md">
   @if (isIos) {
-    <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   }
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar expense-preview--toolbar">
     <ion-buttons slot="start">
@@ -11,10 +11,9 @@
     <ion-title>
       <div class="expense-preview--toolbar__title">
         @if (type === 'match') {
-          {{ 'expensePreview.confirmMatchingExpense' | transloco }}
-        }
-        @if (type === 'edit') {
-          {{ 'expensePreview.viewMatchingExpense' | transloco }}
+        {{ 'expensePreview.confirmMatchingExpense' | transloco }}
+        } @if (type === 'edit') {
+        {{ 'expensePreview.viewMatchingExpense' | transloco }}
         }
       </div>
     </ion-title>
@@ -23,104 +22,97 @@
 
 <ion-content>
   @if (expenseDetails$ | async; as expenseDetails) {
-    <ion-grid class="expense-preview--body-container">
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">{{ 'expensePreview.expenseNumber' | transloco }}</div>
-        </ion-col>
-        <ion-col size="7" (click)="editExpense()">
-          <div class="expense-preview--body-container__value expense-preview--link">
-            {{ expenseDetails.seq_num }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">{{ 'expensePreview.amount' | transloco }}</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ expenseDetails.amount | currency : expenseDetails.currency : 'symbol-narrow' }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">{{ 'expensePreview.createdDate' | transloco }}</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ expenseDetails.created_at | date : 'MMM dd, YYYY' }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">{{ 'expensePreview.spentDate' | transloco }}</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ expenseDetails.spent_at | date : 'MMM dd, YYYY' }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">{{ 'expensePreview.merchant' | transloco }}</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ expenseDetails.merchant }}
-            @if (!expenseDetails.merchant) {
-              -
-            }
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">{{ 'expensePreview.category' | transloco }}</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ expenseDetails.category?.name }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">{{ 'expensePreview.cardEndingIn' | transloco }}</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            {{ card }}
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="expense-preview--body-container__content">
-        <ion-col size="5">
-          <div class="expense-preview--body-container__title">{{ 'expensePreview.receipt' | transloco }}</div>
-        </ion-col>
-        <ion-col size="7">
-          <div class="expense-preview--body-container__value">
-            @if (!expenseDetails.file_ids?.length) {
-              {{ 'expensePreview.notAttached' | transloco }}
-              <ion-icon
-                [src]="'assets/svg/attachment-none.svg'"
-                class="expense-preview--icon"
-                slot="icon-only"
-              ></ion-icon>
-            }
-            @if (expenseDetails.file_ids?.length) {
-              {{ 'expensePreview.attached' | transloco }}
-              <ion-icon [src]="'assets/svg/attachment.svg'" class="expense-preview--icon" slot="icon-only"></ion-icon>
-            }
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+  <ion-grid class="expense-preview--body-container">
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">{{ 'expensePreview.expenseNumber' | transloco }}</div>
+      </ion-col>
+      <ion-col size="7" (click)="editExpense()">
+        <div class="expense-preview--body-container__value expense-preview--link">
+          {{ expenseDetails.seq_num }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">{{ 'expensePreview.amount' | transloco }}</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ expenseDetails.amount | currency : expenseDetails.currency : 'symbol-narrow' }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">{{ 'expensePreview.createdDate' | transloco }}</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ expenseDetails.created_at | date : 'MMM dd, yyyy' }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">{{ 'expensePreview.spentDate' | transloco }}</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ expenseDetails.spent_at | date : 'MMM dd, yyyy' }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">{{ 'expensePreview.merchant' | transloco }}</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ expenseDetails.merchant }}
+          @if (!expenseDetails.merchant) { - }
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">{{ 'expensePreview.category' | transloco }}</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ expenseDetails.category?.name }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">{{ 'expensePreview.cardEndingIn' | transloco }}</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          {{ card }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="expense-preview--body-container__content">
+      <ion-col size="5">
+        <div class="expense-preview--body-container__title">{{ 'expensePreview.receipt' | transloco }}</div>
+      </ion-col>
+      <ion-col size="7">
+        <div class="expense-preview--body-container__value">
+          @if (!expenseDetails.file_ids?.length) {
+          {{ 'expensePreview.notAttached' | transloco }}
+          <ion-icon [src]="'assets/svg/attachment-none.svg'" class="expense-preview--icon" slot="icon-only"></ion-icon>
+          } @if (expenseDetails.file_ids?.length) {
+          {{ 'expensePreview.attached' | transloco }}
+          <ion-icon [src]="'assets/svg/attachment.svg'" class="expense-preview--icon" slot="icon-only"></ion-icon>
+          }
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
   } @else {
-    <app-expense-preview-shimmer> </app-expense-preview-shimmer>
+  <app-expense-preview-shimmer> </app-expense-preview-shimmer>
   }
 
   <!-- shimmers -->
@@ -132,28 +124,27 @@
   <ion-toolbar mode="md">
     <div class="expense-preview--footer-toolbar">
       @if (type === 'match') {
-        <ion-buttons>
-          <ion-button (click)="closeModal()" [disabled]="loading" class="btn-secondary">
-            {{ 'expensePreview.cancel' | transloco }}
-          </ion-button>
-          <ion-button
-            (click)="matchExpense()"
-            [disabled]="loading"
-            [loadingText]="'expensePreview.matching' | transloco"
-            [loading]="loading"
-            appFormButtonValidation
-            class="btn-primary"
-            >
-            {{ 'expensePreview.confirmMatch' | transloco }}
-          </ion-button>
-        </ion-buttons>
-      }
-      @if (type === 'edit') {
-        <ion-buttons>
-          <ion-button (click)="editExpense()" appFormButtonValidation class="btn-primary">
-            {{ 'expensePreview.edit' | transloco }}
-          </ion-button>
-        </ion-buttons>
+      <ion-buttons>
+        <ion-button (click)="closeModal()" [disabled]="loading" class="btn-secondary">
+          {{ 'expensePreview.cancel' | transloco }}
+        </ion-button>
+        <ion-button
+          (click)="matchExpense()"
+          [disabled]="loading"
+          [loadingText]="'expensePreview.matching' | transloco"
+          [loading]="loading"
+          appFormButtonValidation
+          class="btn-primary"
+        >
+          {{ 'expensePreview.confirmMatch' | transloco }}
+        </ion-button>
+      </ion-buttons>
+      } @if (type === 'edit') {
+      <ion-buttons>
+        <ion-button (click)="editExpense()" appFormButtonValidation class="btn-primary">
+          {{ 'expensePreview.edit' | transloco }}
+        </ion-button>
+      </ion-buttons>
       }
     </div>
   </ion-toolbar>

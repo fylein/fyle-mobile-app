@@ -38,6 +38,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
   selector: 'app-merge-expense',
   templateUrl: './merge-expense.page.html',
   styleUrls: ['./merge-expense.page.scss'],
+  standalone: false,
 })
 export class MergeExpensePage implements OnInit, AfterViewChecked {
   expenses: Partial<Expense>[];

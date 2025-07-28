@@ -19,6 +19,7 @@ import { TranslocoService } from '@jsverse/transloco';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   @Input() options: { label: string; value: VirtualSelectOptions }[] = [];

@@ -4,6 +4,7 @@ import { CurrencyPipeConfig } from 'src/app/core/models/currency-pipe-config.mod
 
 @Pipe({
   name: 'exactCurrency',
+  standalone: false,
 })
 export class ExactCurrencyPipe implements PipeTransform {
   constructor(private fyCurrencyPipe: FyCurrencyPipe) {}

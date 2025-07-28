@@ -15,6 +15,7 @@ import { NavController } from '@ionic/angular';
   selector: 'app-delegated-accounts',
   templateUrl: './delegated-accounts.page.html',
   styleUrls: ['./delegated-accounts.page.scss'],
+  standalone: false,
 })
 export class DelegatedAccountsPage {
   @ViewChild('searchDelegatees') searchDelegatees: ElementRef<HTMLInputElement>;

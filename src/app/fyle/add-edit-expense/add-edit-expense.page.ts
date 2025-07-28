@@ -11,10 +11,7 @@ import {
   Validators,
   ValidatorFn,
 } from '@angular/forms';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
@@ -197,6 +194,7 @@ type FormValue = {
   selector: 'app-add-edit-expense',
   templateUrl: './add-edit-expense.page.html',
   styleUrls: ['./add-edit-expense.page.scss'],
+  standalone: false,
 })
 export class AddEditExpensePage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;

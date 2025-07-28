@@ -13,6 +13,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-add-corporate-card',
   templateUrl: './add-corporate-card.component.html',
   styleUrls: ['./add-corporate-card.component.scss'],
+  standalone: false,
 })
 export class AddCorporateCardComponent implements OnInit {
   @Input() isVisaRTFEnabled: boolean;

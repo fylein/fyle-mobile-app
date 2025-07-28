@@ -12,6 +12,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   selector: 'app-pending-verification',
   templateUrl: './pending-verification.page.html',
   styleUrls: ['./pending-verification.page.scss'],
+  standalone: false,
 })
 export class PendingVerificationPage {
   isLoading = false;

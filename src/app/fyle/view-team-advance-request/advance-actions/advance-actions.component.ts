@@ -5,6 +5,7 @@ import { PopoverController } from '@ionic/angular';
   selector: 'app-advance-actions',
   templateUrl: './advance-actions.component.html',
   styleUrls: ['./advance-actions.component.scss'],
+  standalone: false,
 })
 export class AdvanceActionsComponent implements OnInit {
   @Input() actions;
