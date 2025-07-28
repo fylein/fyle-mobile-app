@@ -176,7 +176,7 @@
     ]
   },
   "lint-staged": {
-    "*.{ts,scss,html}": "npm run format",
+    "*.{ts,scss,html}": "prettier --write",
     "*.{ts,html}": [
       "npm run lint:check"
     ]
