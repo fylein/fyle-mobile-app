@@ -712,6 +712,12 @@ html {
   }
 }
 
+.opt-in--send-code-btn {
+  .mdc-button__label {
+    display: flex;
+  }
+}
+
 .other-details--container {
   mat-tab-group {
     .mat-mdc-tab-body-content {
