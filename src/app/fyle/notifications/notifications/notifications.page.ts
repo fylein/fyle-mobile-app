@@ -5,7 +5,7 @@ import { finalize, forkJoin, from, map, Observable, switchMap, tap } from 'rxjs'
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
-import { NotificationsBetaPageService } from './notifications-beta.page.service';
+import { NotificationsPageService } from './notifications.page.service';
 import { NotificationConfig } from 'src/app/core/models/notification-config.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
@@ -19,11 +19,11 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
-  selector: 'app-notifications-beta',
-  templateUrl: './notifications-beta.page.html',
-  styleUrls: ['./notifications-beta.page.scss'],
+  selector: 'app-notifications',
+  templateUrl: './notifications.page.html',
+  styleUrls: ['./notifications.page.scss'],
 })
-export class NotificationsBetaPage implements OnInit {
+export class NotificationsPage implements OnInit {
   selectedPreference: 'onlyMe' | 'onlyDelegate' | 'both';
 
   isDelegateePresent$: Observable<boolean>;
@@ -54,7 +54,7 @@ export class NotificationsBetaPage implements OnInit {
 
   private router = inject(Router);
 
-  private notificationsBetaPageService = inject(NotificationsBetaPageService);
+  private notificationsPageService = inject(NotificationsPageService);
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
@@ -87,7 +87,7 @@ export class NotificationsBetaPage implements OnInit {
   }
 
   initializeEmailNotificationsConfig(): void {
-    const emailNotificationsConfig = this.notificationsBetaPageService.getEmailNotificationsConfig(
+    const emailNotificationsConfig = this.notificationsPageService.getEmailNotificationsConfig(
       this.orgSettings,
       this.employeeSettings,
       this.currentEou
@@ -137,7 +137,7 @@ export class NotificationsBetaPage implements OnInit {
   }
 
   initializeSelectedPreference(): void {
-    this.selectedPreference = this.notificationsBetaPageService.getInitialDelegateNotificationPreference(
+    this.selectedPreference = this.notificationsPageService.getInitialDelegateNotificationPreference(
       this.employeeSettings
     );
   }

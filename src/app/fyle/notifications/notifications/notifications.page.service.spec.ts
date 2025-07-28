@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { NotificationsBetaPageService } from './notifications-beta.page.service';
+import { NotificationsPageService } from './notifications.page.service';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
@@ -13,15 +13,15 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 describe('NotificationsBetaPageService', () => {
-  let service: NotificationsBetaPageService;
+  let service: NotificationsPageService;
   let mockCurrentEou: ExtendedOrgUser;
   let mockIsExpenseMarkedPersonalEventEnabled: boolean;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [NotificationsBetaPageService],
+      providers: [NotificationsPageService],
     });
-    service = TestBed.inject(NotificationsBetaPageService);
+    service = TestBed.inject(NotificationsPageService);
 
     // Setup mock data
     mockCurrentEou = apiEouRes;

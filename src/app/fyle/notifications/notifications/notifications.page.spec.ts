@@ -11,11 +11,11 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
-import { NotificationsBetaPageService } from './notifications-beta.page.service';
+import { NotificationsPageService } from './notifications.page.service';
 import { ModalController } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { NotificationsBetaPage } from './notifications-beta.page';
+import { NotificationsPage } from './notifications.page';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import {
   platformEmployeeData,
@@ -30,15 +30,15 @@ import { EmailNotificationsComponent } from '../email-notifications/email-notifi
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
-describe('NotificationsBetaPage', () => {
-  let component: NotificationsBetaPage;
-  let fixture: ComponentFixture<NotificationsBetaPage>;
+describe('NotificationsPage', () => {
+  let component: NotificationsPage;
+  let fixture: ComponentFixture<NotificationsPage>;
   let router: jasmine.SpyObj<Router>;
   let authService: jasmine.SpyObj<AuthService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
-  let notificationsBetaPageService: jasmine.SpyObj<NotificationsBetaPageService>;
+  let notificationsPageService: jasmine.SpyObj<NotificationsPageService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -54,7 +54,7 @@ describe('NotificationsBetaPage', () => {
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getByParams']);
-    const notificationsBetaPageServiceSpy = jasmine.createSpyObj('NotificationsBetaPageService', [
+    const notificationsPageServiceSpy = jasmine.createSpyObj('NotificationsPageService', [
       'getEmailNotificationsConfig',
       'getInitialDelegateNotificationPreference',
     ]);
@@ -64,7 +64,7 @@ describe('NotificationsBetaPage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
-      declarations: [NotificationsBetaPage],
+      declarations: [NotificationsPage],
       imports: [RouterTestingModule, ReactiveFormsModule],
       providers: [
         {
@@ -88,8 +88,8 @@ describe('NotificationsBetaPage', () => {
           useValue: employeesServiceSpy,
         },
         {
-          provide: NotificationsBetaPageService,
-          useValue: notificationsBetaPageServiceSpy,
+          provide: notificationsPageService,
+          useValue: notificationsPageServiceSpy,
         },
         {
           provide: ModalController,
@@ -111,7 +111,7 @@ describe('NotificationsBetaPage', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(NotificationsBetaPage);
+    fixture = TestBed.createComponent(NotificationsPage);
     component = fixture.componentInstance;
 
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -121,9 +121,7 @@ describe('NotificationsBetaPage', () => {
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
-    notificationsBetaPageService = TestBed.inject(
-      NotificationsBetaPageService
-    ) as jasmine.SpyObj<NotificationsBetaPageService>;
+    notificationsPageService = TestBed.inject(NotificationsPageService) as jasmine.SpyObj<NotificationsPageService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalPropertiesService = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -134,8 +132,8 @@ describe('NotificationsBetaPage', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     authService.getEou.and.resolveTo(apiEouRes);
     employeesService.getByParams.and.returnValue(of(null));
-    notificationsBetaPageService.getEmailNotificationsConfig.and.returnValue(mockEmailNotificationsConfig);
-    notificationsBetaPageService.getInitialDelegateNotificationPreference.and.returnValue('onlyMe');
+    notificationsPageService.getEmailNotificationsConfig.and.returnValue(mockEmailNotificationsConfig);
+    notificationsPageService.getInitialDelegateNotificationPreference.and.returnValue('onlyMe');
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
   }));
@@ -198,7 +196,7 @@ describe('NotificationsBetaPage', () => {
 
   describe('initializeEmailNotificationsConfig():', () => {
     it('should initialize email notifications config from service', () => {
-      notificationsBetaPageService.getEmailNotificationsConfig.and.returnValue(mockEmailNotificationsConfig2);
+      notificationsPageService.getEmailNotificationsConfig.and.returnValue(mockEmailNotificationsConfig2);
 
       component.orgSettings = orgSettingsData;
       component.employeeSettings = employeeSettingsData;
@@ -206,7 +204,7 @@ describe('NotificationsBetaPage', () => {
 
       component.initializeEmailNotificationsConfig();
 
-      expect(notificationsBetaPageService.getEmailNotificationsConfig).toHaveBeenCalledOnceWith(
+      expect(notificationsPageService.getEmailNotificationsConfig).toHaveBeenCalledOnceWith(
         orgSettingsData,
         employeeSettingsData,
         apiEouRes
@@ -309,11 +307,11 @@ describe('NotificationsBetaPage', () => {
 
   describe('initializeSelectedPreference():', () => {
     it('should initialize selected preference', () => {
-      notificationsBetaPageService.getInitialDelegateNotificationPreference.and.returnValue('onlyMe');
+      notificationsPageService.getInitialDelegateNotificationPreference.and.returnValue('onlyMe');
       component.initializeSelectedPreference();
       expect(component.selectedPreference).toBe('onlyMe');
 
-      notificationsBetaPageService.getInitialDelegateNotificationPreference.and.returnValue('onlyDelegate');
+      notificationsPageService.getInitialDelegateNotificationPreference.and.returnValue('onlyDelegate');
       component.initializeSelectedPreference();
       expect(component.selectedPreference).toBe('onlyDelegate');
     });

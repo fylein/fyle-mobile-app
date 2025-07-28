@@ -9,7 +9,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 @Injectable({
   providedIn: 'root',
 })
-export class NotificationsBetaPageService {
+export class NotificationsPageService {
   getInitialDelegateNotificationPreference(employeeSettings: EmployeeSettings): 'onlyMe' | 'onlyDelegate' | 'both' {
     const notificationSettings = employeeSettings.notification_settings;
     if (notificationSettings.notify_user === true && notificationSettings.notify_delegatee === false) {
