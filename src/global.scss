@@ -101,7 +101,7 @@ ion-popover.error-popover {
 
 .msb-success {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #24a148;
+    --mat-snack-bar-container-color: #24a148;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 30px !important;
@@ -110,7 +110,7 @@ ion-popover.error-popover {
 
 .msb-failure {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #da1e28;
+    --mat-snack-bar-container-color: #da1e28;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 30px !important;
@@ -119,7 +119,7 @@ ion-popover.error-popover {
 
 .msb-info {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #1c1f36;
+    --mat-snack-bar-container-color: #1c1f36;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 30px !important;
@@ -128,7 +128,7 @@ ion-popover.error-popover {
 
 .msb-bulkfyle-prompt {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #1c1f36;
+    --mat-snack-bar-container-color: #1c1f36;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px calc(124px + env(safe-area-inset-bottom)) !important;
@@ -149,61 +149,55 @@ ion-popover.error-popover {
 
 .msb-success-with-camera-icon {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #24a148;
+    --mat-snack-bar-container-color: #24a148;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 133px !important;
-    padding: 12px 8px !important;
   }
 }
 
 .msb-success-with-camera-icon-for-split-exp {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #24a148;
+    --mat-snack-bar-container-color: #24a148;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 24px !important;
-    padding: 12px 8px !important;
   }
 }
 
 .msb-failure-with-camera-icon-for-split-exp {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #da1e28;
+    --mat-snack-bar-container-color: #da1e28;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 24px !important;
-    padding: 12px 8px !important;
   }
 }
 
 .msb-failure-with-camera-icon {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #da1e28;
+    --mat-snack-bar-container-color: #da1e28;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 133px !important;
-    padding: 12px 8px !important;
   }
 }
 
 .msb-success-with-report-btn {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #24a148;
+    --mat-snack-bar-container-color: #24a148;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 84px !important;
-    padding: 12px 8px !important;
   }
 }
 
 .msb-failure-with-report-btn {
   .mdc-snackbar__surface {
-    --mat-snackbar-container-color: #da1e28;
+    --mat-snack-bar-container-color: #da1e28;
     color: colors.$pure-white;
     border-radius: 8px !important;
     margin: 0 16px 96px !important;
-    padding: 12px 8px !important;
   }
 }
 
