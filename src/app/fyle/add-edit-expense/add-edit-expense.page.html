@@ -55,7 +55,8 @@
 
 <ion-content [ngClass]="{'d-none': isCameraPreviewStarted}">
   <!-- Skeleton Loading State -->
-  <ng-container *ngIf="isLoading">
+  @if(isLoading) {
+  <ng-container>
     <div class="add-edit-expense--form">
       <div class="add-edit-expense--skeleton-container">
         <!-- Receipt/Currency Section Skeleton -->
@@ -93,15 +94,18 @@
         </div>
 
         <!-- Additional Fields Skeleton -->
-        <div class="add-edit-expense--primary-block" *ngFor="let item of [1,2,3]">
+        @for (item of [1,2,3]; track $index) {
+        <div class="add-edit-expense--primary-block">
           <div class="add-edit-expense--internal-block">
             <ion-skeleton-text animated class="add-edit-expense--skeleton-label"></ion-skeleton-text>
             <ion-skeleton-text animated class="add-edit-expense--skeleton-input"></ion-skeleton-text>
           </div>
         </div>
+        }
       </div>
     </div>
   </ng-container>
+  }
 
   <!-- Actual Form Content -->
   @if (fg && !isLoading) {
