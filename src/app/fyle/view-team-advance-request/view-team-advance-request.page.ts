@@ -57,9 +57,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
   actionSheetButtons = [];
 
-  isInitialLoading = true;
-  isLoading = false;
-
   sendBackLoading = false;
 
   rejectLoading = false;
@@ -118,11 +115,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
       shareReplay(1)
     );
 
-    // Turn off initial skeleton when first data arrives
-    this.advanceRequest$.pipe(take(1)).subscribe(() => {
-      this.isInitialLoading = false;
-    });
-
     this.actions$ = this.advanceRequestService.getApproverPermissions(id).pipe(shareReplay(1));
 
     this.showAdvanceActions$ = this.actions$.pipe(
@@ -141,7 +133,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     this.customFields$ = this.advanceRequestService.getCustomFieldsForApprover();
 
-    const customFields$ = forkJoin({
+    this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$.pipe(take(1)),
       customFields: this.customFields$,
       eou: from(this.authService.getEou()),
@@ -173,7 +165,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
         }
       })
     );
-    this.advanceRequestCustomFields$ = customFields$;
 
     this.setupActionSheet();
     this.getAndUpdateProjectName().then((projectField) => (this.projectFieldName = projectField.field_name));
@@ -290,15 +281,13 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     };
 
     if (data && data.action === 'approve') {
-      this.isLoading = true;
       this.advanceRequestService
         .approve(areq.areq_id)
         .pipe(
           catchError(() => {
             this.trackingService.eventTrack('Team Advances Approval Failed', { id: areq.areq_id });
             return EMPTY;
-          }),
-          finalize(() => (this.isLoading = false))
+          })
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);

@@ -51,12 +51,6 @@ export class MyViewAdvanceRequestPage {
 
   currencySymbol: string;
 
-  private loadingStateController$ = new BehaviorSubject<boolean>(false);
-
-  isLoading$ = this.loadingStateController$.asObservable();
-
-  isLoading = false;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -69,16 +63,7 @@ export class MyViewAdvanceRequestPage {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
-  ) {
-    // Subscribe to loading state changes
-    this.isLoading$.subscribe((isLoading) => {
-      this.isLoading = isLoading;
-    });
-  }
-
-  private setLoadingState(loading: boolean): void {
-    this.loadingStateController$.next(loading);
-  }
+  ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
     return StatisticTypes;
@@ -131,19 +116,14 @@ export class MyViewAdvanceRequestPage {
   ionViewWillEnter(): void {
     const id: string = this.activatedRoute.snapshot.params.id as string;
 
-    this.setLoadingState(true);
-
     this.advanceRequest$ = this.advanceRequestService.getAdvanceRequestPlatform(id).pipe(
-      finalize(() => {
-        this.setLoadingState(false);
+      map((advanceRequest) => {
+        this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(advanceRequest);
+        this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
+        return advanceRequest;
       }),
       shareReplay(1)
     );
-
-    this.advanceRequest$.subscribe((advanceRequest) => {
-      this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(advanceRequest);
-      this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
-    });
 
     this.actions$ = this.advanceRequestService.getSpenderPermissions(id).pipe(shareReplay(1));
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(id);

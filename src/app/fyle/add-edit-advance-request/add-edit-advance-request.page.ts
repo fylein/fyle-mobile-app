@@ -92,8 +92,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   isCameraPreviewStarted = false;
 
-  isLoading: boolean;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
@@ -493,7 +491,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.isLoading = true;
     this.mode = (this.activatedRoute.snapshot.params.id as string) ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
@@ -520,10 +517,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
       switchMap((isEditFromTeamView) => {
         const requestId = this.activatedRoute.snapshot.params.id as string;
         if (isEditFromTeamView) {
-          // Team view uses approver API (/platform/v1/approver/advance_requests)
           return this.advanceRequestService.getEReqFromApprover(requestId);
         } else {
-          // Spender view uses spender API (/platform/v1/spender/advance_requests)
           return this.advanceRequestService.getEReq(requestId);
         }
       }),
@@ -580,11 +575,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
       editAdvanceRequestPipe$,
       newAdvanceRequestPipe$
     );
-
-    // turn off skeleton once data prepared
-    this.extendedAdvanceRequest$.pipe(take(1)).subscribe(() => {
-      this.isLoading = false;
-    });
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { from, Observable } from 'rxjs';
-import { finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { shareReplay, switchMap, map } from 'rxjs/operators';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { getCurrencySymbol } from '@angular/common';
@@ -23,8 +23,6 @@ export class MyViewAdvancePage {
   projectFieldName = 'Project';
 
   currencySymbol: string;
-
-  isLoading = false;
 
   constructor(
     private advanceService: AdvanceService,
@@ -51,12 +49,11 @@ export class MyViewAdvancePage {
   ionViewWillEnter(): void {
     const id = this.activatedRoute.snapshot.params.id as string;
 
-    this.isLoading = true;
-
     // Setup the advance$ stream before subscribing
     this.advance$ = this.advanceService.getAdvance(id).pipe(
-      finalize(() => {
-        this.isLoading = false;
+      map((advance) => {
+        this.currencySymbol = getCurrencySymbol(advance?.adv_currency, 'wide');
+        return advance;
       }),
       shareReplay(1)
     );
@@ -66,11 +63,6 @@ export class MyViewAdvancePage {
       switchMap((advance) => this.advanceRequestService.getAdvanceRequestPlatform(advance.areq_id)),
       shareReplay(1)
     );
-
-    // Subscribe to get currency symbol
-    this.advance$.subscribe((advance) => {
-      this.currencySymbol = getCurrencySymbol(advance?.adv_currency, 'wide');
-    });
 
     this.getAndUpdateProjectName();
   }

@@ -38,59 +38,9 @@
 </ion-header>
 
 <ion-content [ngClass]="{'d-none': isCameraPreviewStarted}">
-  <!-- Skeleton Loading State -->
-  @if (isLoading) {
-  <div class="add-edit-advance-request--form">
-    <div class="add-edit-advance-request--skeleton-container">
-      <!-- Receipt / Currency Skeleton -->
-      <div class="add-edit-advance-request--receipt-currency-container">
-        <div class="add-edit-advance-request--receipt">
-          <div class="add-edit-advance-request--receipt-image"></div>
-        </div>
-        <div>
-          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-currency"></ion-skeleton-text>
-        </div>
-      </div>
-
-      <!-- Purpose Field Skeleton -->
-      <div class="add-edit-advance-request--primary-block">
-        <div class="add-edit-advance-request--internal-block">
-          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-label"></ion-skeleton-text>
-          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-input"></ion-skeleton-text>
-        </div>
-      </div>
-
-      <!-- Project Field Skeleton -->
-      <div class="add-edit-advance-request--primary-block">
-        <div class="add-edit-advance-request--internal-block">
-          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-label"></ion-skeleton-text>
-          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-input"></ion-skeleton-text>
-        </div>
-      </div>
-
-      <!-- Additional Notes Field Skeleton -->
-      <div class="add-edit-advance-request--primary-block">
-        <div class="add-edit-advance-request--internal-block">
-          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-label"></ion-skeleton-text>
-          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-input"></ion-skeleton-text>
-        </div>
-      </div>
-
-      <!-- Custom Fields Skeleton -->
-      @for (item of [1,2,3]; track $index) {
-      <div class="add-edit-advance-request--primary-block">
-        <div class="add-edit-advance-request--internal-block">
-          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-label"></ion-skeleton-text>
-          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-input"></ion-skeleton-text>
-        </div>
-      </div>
-      }
-    </div>
-  </div>
-  }
-
+  @if (extendedAdvanceRequest$ | async; as extendedAdvanceRequest) {
   <!-- Actual Form Content -->
-  @if (fg && !isLoading) {
+  @if (fg) {
   <form [formGroup]="fg" class="add-edit-advance-request--form" #formContainer>
     <div class="add-edit-advance-request--receipt-currency-container">
       @if (dataUrls && dataUrls.length === 0) {
@@ -99,7 +49,7 @@
           <img class="add-edit-advance-request--receipt-image-icon" src="../../../assets/svg/list-plus.svg" />
         </div>
       </div>
-      } @if (extendedAdvanceRequest$|async; as extendedAdvanceRequest) {
+      } @if (extendedAdvanceRequest) {
       <div class="add-edit-advance-request--currency">
         @if (homeCurrency$|async; as homeCurrency) {
         <app-fy-currency
@@ -168,7 +118,7 @@
       </div>
     </div>
 
-    @if (extendedAdvanceRequest$|async) {
+    @if (extendedAdvanceRequest) {
     <div>
       @if (customFields$ | async; as customFields) { @if (customFields.length > 0) {
       <div class="add-edit-advance-request--primary-block">
@@ -277,6 +227,55 @@
     </div>
     }
   </form>
+  } } @else {
+  <!-- Skeleton Loading State -->
+  <div class="add-edit-advance-request--form">
+    <div class="add-edit-advance-request--skeleton-container">
+      <!-- Receipt / Currency Skeleton -->
+      <div class="add-edit-advance-request--receipt-currency-container">
+        <div class="add-edit-advance-request--receipt">
+          <div class="add-edit-advance-request--receipt-image"></div>
+        </div>
+        <div>
+          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-currency"></ion-skeleton-text>
+        </div>
+      </div>
+
+      <!-- Purpose Field Skeleton -->
+      <div class="add-edit-advance-request--primary-block">
+        <div class="add-edit-advance-request--internal-block">
+          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-label"></ion-skeleton-text>
+          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-input"></ion-skeleton-text>
+        </div>
+      </div>
+
+      <!-- Project Field Skeleton -->
+      <div class="add-edit-advance-request--primary-block">
+        <div class="add-edit-advance-request--internal-block">
+          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-label"></ion-skeleton-text>
+          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-input"></ion-skeleton-text>
+        </div>
+      </div>
+
+      <!-- Additional Notes Field Skeleton -->
+      <div class="add-edit-advance-request--primary-block">
+        <div class="add-edit-advance-request--internal-block">
+          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-label"></ion-skeleton-text>
+          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-input"></ion-skeleton-text>
+        </div>
+      </div>
+
+      <!-- Custom Fields Skeleton -->
+      @for (item of [1,2,3]; track $index) {
+      <div class="add-edit-advance-request--primary-block">
+        <div class="add-edit-advance-request--internal-block">
+          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-label"></ion-skeleton-text>
+          <ion-skeleton-text animated class="add-edit-advance-request--skeleton-input"></ion-skeleton-text>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
   }
 </ion-content>
 
