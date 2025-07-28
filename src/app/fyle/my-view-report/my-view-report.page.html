@@ -49,7 +49,7 @@
             <ion-col size="3.5">
               @if ((simplifyReportsSettings$ | async); as simplifyReportsSettings) {
               <div class="view-reports--report-state-pill state-pill state-{{report.state | reportState}}">
-                {{report.state | reportState | titlecase }}
+                {{report.state | reportState | titlecase | snakeCaseToSpaceCase}}
               </div>
               }
             </ion-col>
