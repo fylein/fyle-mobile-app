@@ -19,15 +19,17 @@
       <ion-skeleton-text animated class="view-advance--skeleton-status"></ion-skeleton-text>
     </div>
     <!-- Statistic Rows Skeleton -->
-    <div class="view-advance--skeleton-row" *ngFor="let i of [1,2,3,4,5]">
+    @for (item of [1,2,3,4,5]; track $index) {
+    <div class="view-advance--skeleton-row">
       <ion-skeleton-text animated class="view-advance--skeleton-label"></ion-skeleton-text>
       <ion-skeleton-text animated class="view-advance--skeleton-value"></ion-skeleton-text>
     </div>
-
-    <div class="view-advance--skeleton-row" *ngFor="let i of [1,2,3,4,5]">
+    } @for (item of [1,2,3,4,5]; track $index) {
+    <div class="view-advance--skeleton-row">
       <ion-skeleton-text animated class="view-advance--skeleton-label"></ion-skeleton-text>
       <ion-skeleton-text animated class="view-advance--skeleton-value"></ion-skeleton-text>
     </div>
+    }
   </div>
   } @if (!isLoading) { @if (advance$|async; as advance) {
   <div>

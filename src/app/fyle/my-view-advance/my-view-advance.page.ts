@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { from, Observable } from 'rxjs';
-import { finalize, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { getCurrencySymbol } from '@angular/common';
@@ -24,7 +24,7 @@ export class MyViewAdvancePage {
 
   currencySymbol: string;
 
-  isLoading = true;
+  isLoading = false;
 
   constructor(
     private advanceService: AdvanceService,
@@ -49,19 +49,25 @@ export class MyViewAdvancePage {
   }
 
   ionViewWillEnter(): void {
-    this.isLoading = true;
     const id = this.activatedRoute.snapshot.params.id as string;
 
+    this.isLoading = true;
+
+    // Setup the advance$ stream before subscribing
     this.advance$ = this.advanceService.getAdvance(id).pipe(
-      tap(() => (this.isLoading = true)),
-      finalize(() => (this.isLoading = false)),
+      finalize(() => {
+        this.isLoading = false;
+      }),
       shareReplay(1)
     );
 
+    // Setup dependent streams
     this.advanceRequest$ = this.advance$.pipe(
-      switchMap((advance) => this.advanceRequestService.getAdvanceRequestPlatform(advance.areq_id))
+      switchMap((advance) => this.advanceRequestService.getAdvanceRequestPlatform(advance.areq_id)),
+      shareReplay(1)
     );
 
+    // Subscribe to get currency symbol
     this.advance$.subscribe((advance) => {
       this.currencySymbol = getCurrencySymbol(advance?.adv_currency, 'wide');
     });

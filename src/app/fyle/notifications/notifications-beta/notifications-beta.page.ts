@@ -37,8 +37,6 @@ export class NotificationsBetaPage implements OnInit {
 
   isAdvancesEnabled = false;
 
-  isExpenseMarkedPersonalEventEnabled = false;
-
   expenseNotificationsConfig: NotificationConfig;
 
   expenseReportNotificationsConfig: NotificationConfig;
@@ -77,26 +75,22 @@ export class NotificationsBetaPage implements OnInit {
 
   ngOnInit(): void {
     this.isInitialLoading = true;
-    this.getOrgSettings().subscribe(
-      ({ orgSettings, employeeSettings, currentEou, isExpenseMarkedPersonalEventEnabled }) => {
-        this.orgSettings = orgSettings;
-        this.employeeSettings = employeeSettings;
-        this.currentEou = currentEou;
-        this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
-        this.isExpenseMarkedPersonalEventEnabled = isExpenseMarkedPersonalEventEnabled;
+    this.getOrgSettings().subscribe(({ orgSettings, employeeSettings, currentEou }) => {
+      this.orgSettings = orgSettings;
+      this.employeeSettings = employeeSettings;
+      this.currentEou = currentEou;
+      this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
-        this.initializeEmailNotificationsConfig();
-        this.initializeDelegateNotification();
-      }
-    );
+      this.initializeEmailNotificationsConfig();
+      this.initializeDelegateNotification();
+    });
   }
 
   initializeEmailNotificationsConfig(): void {
     const emailNotificationsConfig = this.notificationsBetaPageService.getEmailNotificationsConfig(
       this.orgSettings,
       this.employeeSettings,
-      this.currentEou,
-      this.isExpenseMarkedPersonalEventEnabled
+      this.currentEou
     );
 
     this.expenseNotificationsConfig = emailNotificationsConfig.expenseNotificationsConfig;
@@ -113,7 +107,6 @@ export class NotificationsBetaPage implements OnInit {
     orgSettings: OrgSettings;
     employeeSettings: EmployeeSettings;
     currentEou: ExtendedOrgUser;
-    isExpenseMarkedPersonalEventEnabled: boolean;
   }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),

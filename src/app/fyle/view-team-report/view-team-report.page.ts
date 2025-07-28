@@ -147,7 +147,11 @@ export class ViewTeamReportPage {
 
   canApproveReport = false;
 
-  isLoading = true;
+  private loadingStateController$ = new BehaviorSubject<boolean>(false);
+
+  isLoading$ = this.loadingStateController$.asObservable();
+
+  isLoading = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -172,7 +176,12 @@ export class ViewTeamReportPage {
     private approverReportsService: ApproverReportsService,
     private dateWithTimezonePipe: DateWithTimezonePipe,
     private browserHandlerService: BrowserHandlerService
-  ) {}
+  ) {
+    // Subscribe to loading state changes
+    this.isLoading$.subscribe((isLoading) => {
+      this.isLoading = isLoading;
+    });
+  }
 
   ionViewWillLeave(): void {
     this.onPageExit.next(null);
@@ -197,9 +206,20 @@ export class ViewTeamReportPage {
     return reportApprovals.map((approver) => approver.approver_user.email);
   }
 
+  private setLoadingState(loading: boolean): void {
+    this.loadingStateController$.next(loading);
+  }
+
   loadReports(): Observable<Report> {
     return this.loadReportDetails$.pipe(
-      switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
+      switchMap(() => {
+        this.setLoadingState(true);
+        return this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string).pipe(
+          finalize(() => {
+            this.setLoadingState(false);
+          })
+        );
+      }),
       shareReplay(1)
     );
   }
@@ -302,19 +322,24 @@ export class ViewTeamReportPage {
     );
 
     this.report$ = this.refreshApprovals$.pipe(
-      tap(() => (this.isLoading = true)),
-      switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
-      map((report) => {
-        this.approvals = report?.approvals?.filter((approval) =>
-          [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
+      switchMap(() => {
+        this.setLoadingState(true);
+        return this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string).pipe(
+          map((report) => {
+            this.approvals = report?.approvals?.filter((approval) =>
+              [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
+            );
+            if (this.showViewApproverModal) {
+              this.approvals.sort((a, b) => a.approver_order - b.approver_order);
+              this.setupApproverToShow(report);
+            }
+            this.setupComments(report);
+            return report;
+          }),
+          finalize(() => {
+            this.setLoadingState(false);
+          })
         );
-        if (this.showViewApproverModal) {
-          this.approvals.sort((a, b) => a.approver_order - b.approver_order);
-          this.setupApproverToShow(report);
-        }
-        this.setupComments(report);
-        this.isLoading = false;
-        return report;
       }),
       shareReplay(1)
     );
@@ -354,30 +379,39 @@ export class ViewTeamReportPage {
       eou: this.eou$,
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-    }).subscribe(({ expenses, eou, report, orgSettings }) => {
-      this.reportExpensesIds = expenses.map((expense) => expense.id);
-      this.showViewApproverModal =
-        orgSettings?.simplified_multi_stage_approvals?.allowed && orgSettings.simplified_multi_stage_approvals.enabled;
-      this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
-      this.canApprove =
-        this.isSequentialApprovalEnabled || this.showViewApproverModal
-          ? report.next_approver_user_ids &&
-            report.next_approver_user_ids.length > 0 &&
-            report.next_approver_user_ids.includes(eou.us.id)
-          : true;
-      this.canShowTooltip = true;
-      if (this.showViewApproverModal) {
-        this.approvals.sort((a, b) => a.approver_order - b.approver_order);
-        this.setupApproverToShow(report);
-      }
+    })
+      .pipe(
+        finalize(() => {
+          this.setLoadingState(false);
+        })
+      )
+      .subscribe({
+        next: ({ expenses, eou, report, orgSettings }) => {
+          this.reportExpensesIds = expenses.map((expense) => expense.id);
+          this.showViewApproverModal =
+            orgSettings?.simplified_multi_stage_approvals?.allowed &&
+            orgSettings.simplified_multi_stage_approvals.enabled;
+          this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
+          this.canApprove =
+            this.isSequentialApprovalEnabled || this.showViewApproverModal
+              ? report.next_approver_user_ids &&
+                report.next_approver_user_ids.length > 0 &&
+                report.next_approver_user_ids.includes(eou.us.id)
+              : true;
+          this.canShowTooltip = true;
+          if (this.showViewApproverModal) {
+            this.approvals.sort((a, b) => a.approver_order - b.approver_order);
+            this.setupApproverToShow(report);
+          }
 
-      if (this.expensesAmountSum$) {
-        this.expensesAmountSum$.pipe(take(1)).subscribe((sum) => {
-          this.approvalAmount = sum;
-          this.setApproverInfoMessage(expenses, report);
-        });
-      }
-    });
+          if (this.expensesAmountSum$) {
+            this.expensesAmountSum$.pipe(take(1)).subscribe((sum) => {
+              this.approvalAmount = sum;
+              this.setApproverInfoMessage(expenses, report);
+            });
+          }
+        },
+      });
 
     this.permissions$.subscribe((permissions) => {
       this.canApproveReport = permissions.can_approve;

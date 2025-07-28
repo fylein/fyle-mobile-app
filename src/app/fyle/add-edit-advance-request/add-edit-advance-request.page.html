@@ -77,12 +77,14 @@
       </div>
 
       <!-- Custom Fields Skeleton -->
-      <div class="add-edit-advance-request--primary-block" *ngFor="let item of [1,2,3]">
+      @for (item of [1,2,3]; track $index) {
+      <div class="add-edit-advance-request--primary-block">
         <div class="add-edit-advance-request--internal-block">
           <ion-skeleton-text animated class="add-edit-advance-request--skeleton-label"></ion-skeleton-text>
           <ion-skeleton-text animated class="add-edit-advance-request--skeleton-input"></ion-skeleton-text>
         </div>
       </div>
+      }
     </div>
   </div>
   }

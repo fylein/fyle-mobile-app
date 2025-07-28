@@ -1,14 +1,14 @@
 import { Component, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular';
-import { forkJoin, from, Observable } from 'rxjs';
-import { finalize, map, reduce, shareReplay, switchMap, concatMap, tap } from 'rxjs/operators';
+import { forkJoin, from, Observable, BehaviorSubject } from 'rxjs';
+import { finalize, map, reduce, shareReplay, switchMap, concatMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
@@ -51,7 +51,11 @@ export class MyViewAdvanceRequestPage {
 
   currencySymbol: string;
 
-  isLoading = true;
+  private loadingStateController$ = new BehaviorSubject<boolean>(false);
+
+  isLoading$ = this.loadingStateController$.asObservable();
+
+  isLoading = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -61,12 +65,20 @@ export class MyViewAdvanceRequestPage {
     private router: Router,
     private popoverController: PopoverController,
     private modalController: ModalController,
-    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
-  ) {}
+  ) {
+    // Subscribe to loading state changes
+    this.isLoading$.subscribe((isLoading) => {
+      this.isLoading = isLoading;
+    });
+  }
+
+  private setLoadingState(loading: boolean): void {
+    this.loadingStateController$.next(loading);
+  }
 
   get StatisticTypes(): typeof StatisticTypes {
     return StatisticTypes;
@@ -118,9 +130,13 @@ export class MyViewAdvanceRequestPage {
 
   ionViewWillEnter(): void {
     const id: string = this.activatedRoute.snapshot.params.id as string;
+
+    this.setLoadingState(true);
+
     this.advanceRequest$ = this.advanceRequestService.getAdvanceRequestPlatform(id).pipe(
-      tap(() => (this.isLoading = true)),
-      finalize(() => (this.isLoading = false)),
+      finalize(() => {
+        this.setLoadingState(false);
+      }),
       shareReplay(1)
     );
 
@@ -148,7 +164,7 @@ export class MyViewAdvanceRequestPage {
       reduce((acc: FileObject[], curr: FileObject) => acc.concat(curr), [] as FileObject[])
     );
 
-    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
+    this.customFields$ = this.advanceRequestService.getCustomFieldsForSpender();
 
     this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$,
