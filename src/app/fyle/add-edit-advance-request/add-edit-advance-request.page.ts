@@ -10,7 +10,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 
 import { AuthService } from 'src/app/core/services/auth.service';

@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular';
-import { forkJoin, from, Observable, BehaviorSubject } from 'rxjs';
+import { forkJoin, from, Observable } from 'rxjs';
 import { finalize, map, reduce, shareReplay, switchMap, concatMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
