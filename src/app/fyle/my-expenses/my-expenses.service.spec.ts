@@ -81,6 +81,7 @@ describe('MyExpensesService', () => {
         'services.myExpenses.no': 'No',
         'services.myExpenses.policyViolated': 'Policy Violated',
         'services.myExpenses.cannotReport': 'Cannot Report',
+        'services.myExpenses.blocked': 'Blocked',
         'services.myExpenses.dateNewToOldSort': 'Date - New to Old',
         'services.myExpenses.dateOldToNewSort': 'Date - Old to New',
         'services.myExpenses.amountHighToLowSort': 'Amount - High to Low',

@@ -2611,6 +2611,7 @@ describe('MyExpensesPage', () => {
   describe('reportableExpenseDialogHandler():', () => {
     beforeEach(() => {
       spyOn(component, 'openCriticalPolicyViolationPopOver');
+      component.orgSettings$ = of(orgSettingsRes);
       // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
     });
 
