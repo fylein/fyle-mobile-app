@@ -1,8 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular';
-import { forkJoin, from, Observable } from 'rxjs';
-import { finalize, map, reduce, shareReplay, switchMap, concatMap, tap } from 'rxjs/operators';
+import { forkJoin, from, Observable, BehaviorSubject } from 'rxjs';
+import { finalize, map, reduce, shareReplay, switchMap, concatMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -51,7 +51,11 @@ export class MyViewAdvanceRequestPage {
 
   currencySymbol: string;
 
-  isLoading = true;
+  private loadingStateController$ = new BehaviorSubject<boolean>(false);
+
+  isLoading$ = this.loadingStateController$.asObservable();
+
+  isLoading = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -65,7 +69,16 @@ export class MyViewAdvanceRequestPage {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
-  ) {}
+  ) {
+    // Subscribe to loading state changes
+    this.isLoading$.subscribe((isLoading) => {
+      this.isLoading = isLoading;
+    });
+  }
+
+  private setLoadingState(loading: boolean): void {
+    this.loadingStateController$.next(loading);
+  }
 
   get StatisticTypes(): typeof StatisticTypes {
     return StatisticTypes;
@@ -117,9 +130,13 @@ export class MyViewAdvanceRequestPage {
 
   ionViewWillEnter(): void {
     const id: string = this.activatedRoute.snapshot.params.id as string;
+
+    this.setLoadingState(true);
+
     this.advanceRequest$ = this.advanceRequestService.getAdvanceRequestPlatform(id).pipe(
-      tap(() => (this.isLoading = true)),
-      finalize(() => (this.isLoading = false)),
+      finalize(() => {
+        this.setLoadingState(false);
+      }),
       shareReplay(1)
     );
 

@@ -514,15 +514,17 @@ export class AddEditAdvanceRequestPage implements OnInit {
       });
     }
 
-    const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        const isEditFromTeamView = this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE';
+    const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = of(
+      this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE'
+    ).pipe(
+      switchMap((isEditFromTeamView) => {
+        const requestId = this.activatedRoute.snapshot.params.id as string;
         if (isEditFromTeamView) {
           // Team view uses approver API (/platform/v1/approver/advance_requests)
-          return this.advanceRequestService.getEReqFromApprover(this.activatedRoute.snapshot.params.id as string);
+          return this.advanceRequestService.getEReqFromApprover(requestId);
         } else {
           // Spender view uses spender API (/platform/v1/spender/advance_requests)
-          return this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string);
+          return this.advanceRequestService.getEReq(requestId);
         }
       }),
       map((res) => {
@@ -547,7 +549,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
         if (res.areq.custom_field_values) {
           this.modifyAdvanceRequestCustomFields(res.areq.custom_field_values);
         }
-        this.getAttachedReceipts(this.activatedRoute.snapshot.params.id as string).subscribe((files) => {
+
+        const requestId = this.activatedRoute.snapshot.params.id as string;
+        this.getAttachedReceipts(requestId).subscribe((files) => {
           this.dataUrls = files;
         });
         return res.areq;

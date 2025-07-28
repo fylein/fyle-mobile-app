@@ -52,10 +52,12 @@
     </div>
 
     <!-- Details Skeleton -->
-    <div class="view-advance-request--skeleton-details" *ngFor="let item of [1,2,3,4,5,6]">
+    @for (item of [1,2,3,4,5,6]; track $index) {
+    <div class="view-advance-request--skeleton-details">
       <ion-skeleton-text animated class="view-advance-request--skeleton-label"></ion-skeleton-text>
       <ion-skeleton-text animated class="view-advance-request--skeleton-value"></ion-skeleton-text>
     </div>
+    }
   </div>
   } @if (!isLoading) { @if (advanceRequest$|async; as advanceRequest) {
   <div>
