@@ -1,7 +1,7 @@
-@import '../../theme/colors.scss';
+@use '../../theme/colors.scss';
 
 .driver-popover {
-  background-color: $walkthrough-bg;
+  background-color: colors.$walkthrough-bg;
   color: white;
   min-height: 154px;
   max-width: 280px;
@@ -11,7 +11,7 @@
 .driver-popover-arrow {
   content: '';
   position: absolute;
-  border: 5px solid $walkthrough-bg;
+  border: 5px solid colors.$walkthrough-bg;
 }
 
 .driver-popover-arrow-side-top {
@@ -34,7 +34,7 @@
 }
 
 .driver-popover-close-btn {
-  color: $walkthrough-text-color !important;
+  color: colors.$walkthrough-text-color !important;
   font-weight: normal;
   font-size: 24px;
   top: 5px;
@@ -70,7 +70,7 @@
 }
 
 .driver-popover-progress-text {
-  color: $walkthrough-text-color;
+  color: colors.$walkthrough-text-color;
 }
 
 .driver-popover-navigation-btns {

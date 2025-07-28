@@ -9,6 +9,7 @@ import { HelpAdminInfo } from 'src/app/core/models/help-admin-info.model';
   selector: 'app-support-dialog',
   templateUrl: './support-dialog.page.html',
   styleUrls: ['./support-dialog.page.scss'],
+  standalone: false,
 })
 export class SupportDialogPage {
   @Input() adminEous: HelpAdminInfo[] = [];

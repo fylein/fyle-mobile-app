@@ -1,8 +1,8 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .receipt-preview {
   &__toolbar {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
     margin-top: 16px;
     padding-bottom: 16px;
     line-height: 1.3;
@@ -14,7 +14,7 @@
 
   &__title {
     font-size: 16px;
-    color: $black;
+    color: colors.$black;
 
     &--with-delete {
       padding-left: 12px;
@@ -23,7 +23,7 @@
 
   &__sub-title {
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     margin-top: 8px;
   }
 
@@ -32,15 +32,15 @@
     min-width: 40px;
 
     &--delete {
-      stroke: $black-light;
+      stroke: colors.$black-light;
     }
 
     &--crop {
-      color: $black-light;
+      color: colors.$black-light;
     }
 
     &--rotate {
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
@@ -71,7 +71,7 @@
         padding: 12px;
         height: 40px;
         width: 40px;
-        color: $pure-white;
+        color: colors.$pure-white;
       }
     }
   }
@@ -83,7 +83,7 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    background-color: $off-white;
+    background-color: colors.$off-white;
     border-radius: 8px;
     margin: 16px;
     background-color: white !important;
@@ -106,8 +106,8 @@
     padding: 14px 16px;
     bottom: 0;
     width: 100%;
-    background-color: $pure-white;
-    box-shadow: 0 -2px 12px $pink-shadow;
+    background-color: colors.$pure-white;
+    box-shadow: 0 -2px 12px colors.$pink-shadow;
     z-index: 999;
   }
 }

@@ -1,9 +1,9 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .suggested-duplicates {
   &--toolbar {
     &__title {
-      color: $black;
+      color: colors.$black;
       padding-left: 15px;
     }
   }
@@ -11,20 +11,20 @@
   &--header {
     font-size: 18px;
     line-height: 23px;
-    color: $pure-black;
+    color: colors.$pure-black;
     padding: 10px;
   }
 
   &--divider {
     height: 1px;
-    background-color: $grey;
+    background-color: colors.$grey;
   }
   &--container {
     height: 88%;
     width: 93%;
     margin: 10px auto 20px auto;
-    background: $off-white;
-    border: 1px solid $grey;
+    background: colors.$off-white;
+    border: 1px solid colors.$grey;
     box-sizing: border-box;
     border-radius: 16px;
     align-content: center;

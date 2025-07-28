@@ -194,6 +194,7 @@ type FormValue = {
   selector: 'app-add-edit-expense',
   templateUrl: './add-edit-expense.page.html',
   styleUrls: ['./add-edit-expense.page.scss'],
+  standalone: false,
 })
 export class AddEditExpensePage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;

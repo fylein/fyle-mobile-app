@@ -1,4 +1,4 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .connection {
   position: fixed;
@@ -18,12 +18,12 @@
   }
 
   &--offline {
-    background-color: $red;
-    color: $white;
+    background-color: colors.$red;
+    color: colors.$white;
   }
 
   &--online-message {
-    background-color: $green;
-    color: $pure-white;
+    background-color: colors.$green;
+    color: colors.$pure-white;
   }
 }

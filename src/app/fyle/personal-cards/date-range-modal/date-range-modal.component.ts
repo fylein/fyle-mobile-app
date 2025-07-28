@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
   selector: 'app-date-range-modal',
   templateUrl: './date-range-modal.component.html',
   styleUrls: ['./date-range-modal.component.scss'],
+  standalone: false,
 })
 export class DateRangeModalComponent implements OnInit {
   @ViewChild('dateRangeStart') dateRangeStart: ElementRef;

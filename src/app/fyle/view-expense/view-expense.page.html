@@ -1,21 +1,18 @@
 <ion-header mode="md">
   <ion-toolbar class="view-expense--toolbar">
-    @if (this.reportId) {
-      <ion-buttons mode="md" slot="start">
-        <ion-button (click)="goBack()">
-          <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
+    @if (reportId) {
+    <ion-buttons mode="md" slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     }
     <ion-title
       mode="md"
       class="page-title"
       [ngClass]="{'view-expense--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
-      >View expense
-      @if (reportExpenseCount > 1) {
-        <p class="view-expense--subtitle">
-          Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
-        </p>
+      >View expense @if (reportExpenseCount > 1) {
+      <p class="view-expense--subtitle">Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses</p>
       }
     </ion-title>
     <ion-buttons class="view-expense--header-btn-container" slot="end">
@@ -24,707 +21,645 @@
       </ion-button>
 
       @if (view === ExpenseView.team && canDelete$|async) {
-        <ion-button class="view-expense--header-btn-container__btn" (click)="removeExpenseFromReport()">
-          <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
-        </ion-button>
+      <ion-button class="view-expense--header-btn-container__btn" (click)="removeExpenseFromReport()">
+        <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
       }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  @if (!isLoading) {
-    @if (expense$|async; as expense) {
-      <div class="view-expense--container">
-        @if (expense.is_policy_flagged) {
-          @if (policyDetails) {
-            <app-fy-policy-violation-info
-              [policyDetails]="policyDetails"
-              [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
-            ></app-fy-policy-violation-info>
-          }
-        }
-        @if ((isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)) {
-          <div class="view-expense--policy-container">
-            <span class="info-text m-0">
-              Claimed amount {{ expense.claim_amount | currency:expense.currency: 'symbol-narrow' }} was capped to {{
-              expense.amount | currency:expense.currency: 'symbol-narrow'}} due to policy.
-            </span>
+  @if (!isLoading) { @if (expense$|async; as expense) {
+  <div class="view-expense--container">
+    @if (expense.is_policy_flagged) { @if (policyDetails) {
+    <app-fy-policy-violation-info
+      [policyDetails]="policyDetails"
+      [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+    ></app-fy-policy-violation-info>
+    } } @if ((isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)) {
+    <div class="view-expense--policy-container">
+      <span class="info-text m-0">
+        Claimed amount {{ expense.claim_amount | currency:expense.currency: 'symbol-narrow' }} was capped to {{
+        expense.amount | currency:expense.currency: 'symbol-narrow'}} due to policy.
+      </span>
+    </div>
+    } @if (isSplitExpense) {
+    <div class="view-expense--alert-split">
+      <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
+    </div>
+    }
+    <div class="view-expense--card-container">
+      <div class="d-flex">
+        <div class="view-expense--card-container__block">
+          <div class="view-expense--card-container__category">{{ expense.category.display_name }}</div>
+          @if (!expense.matched_corporate_card_transactions[0]) {
+          <div class="view-expense--card-container__merchant">{{ expense.merchant || '-' }}</div>
+          } @if (isProjectShown) {
+          <div class="view-expense--card-container__project">
+            {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
           </div>
-        }
-        @if (isSplitExpense) {
-          <div class="view-expense--alert-split">
-            <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
-          </div>
-        }
-        <div class="view-expense--card-container">
-          <div class="d-flex">
-            <div class="view-expense--card-container__block">
-              <div class="view-expense--card-container__category">{{ expense.category.display_name }}</div>
-              @if (!expense.matched_corporate_card_transactions[0]) {
-                <div class="view-expense--card-container__merchant">
-                  {{ expense.merchant || '-' }}
-                </div>
-              }
-              @if (isProjectShown) {
-                <div class="view-expense--card-container__project">
-                  {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
-                </div>
-              }
-              @if (isCCCTransaction && cardNumber) {
-                <div>
-                  Card ending in... {{ cardNumber | maskNumber }}
-                  @if (cardNickname) {
-                    <span>{{'(' + cardNickname + ')'}}</span>
-                  }
-                </div>
-              }
-            </div>
-            <div class="ion-text-right view-expense--card-container__block">
-              <div class="view-expense--card-container__amount-section">
-                <span class="view-expense--card-container__currency">{{ expenseCurrencySymbol }}</span>
-                <span class="view-expense--card-container__amount">
-                  {{ { value: expense.amount, currencyCode: expense.currency , skipSymbol: true } | exactCurrency }}
-                </span>
-                @if (isCCCTransaction) {
-                  <div>
-                    <div
-                      class="view-expense--card-container__txn-type"
-                      [ngClass]="{'view-expense--card-container__credit': expense.amount < 0}"
-                      >
-                      {{ expense.amount > 0 ? 'DR' : 'CR' }}
-                    </div>
-                  </div>
-                }
-                <ion-icon
-                  class="view-expense--card-container__icon"
-                  [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
-                ></ion-icon>
-              </div>
-              @if (foreignCurrencySymbol) {
-                <div class="view-expense--card-container__exchange-rate">
-                  {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
-                  expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
-                </div>
-              }
-            </div>
-            <div class="ion-text-right view-expense--card-container__block">
-              <div
-                class="view-expense--card-container__state-pill ion-text-right"
-                [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
-                >
-                <div class="state-pill state-{{expense.state | expenseState}}">
-                  {{ expense.state | expenseState | snakeCaseToSpaceCase | titlecase }}
-                </div>
-              </div>
-            </div>
-          </div>
-          @if (expense.matched_corporate_card_transactions[0]) {
-            <div class="view-expense--card-container__merchant_block">
-              <div class="view-expense--card-container__merchant_label">Merchant:</div>
-              <div class="view-expense--card-container__merchant_value">
-                <span> {{ expense.matched_corporate_card_transactions[0].merchant || 'Unavailable' }} </span>
-                <ion-icon
-                  (click)="openCCExpenseMerchantInfoModal()"
-                  src="../../../assets/svg/info-circle-outline.svg"
-                  class="view-expense--card-container__merchant_info_icon"
-                  data-testid="merchant-info-icon"
-                ></ion-icon>
-              </div>
-            </div>
-          }
-          @if (isCCCTransaction && isRTFEnabled) {
-            @if (expense.matched_corporate_card_transactions[0]?.status; as transactionStatus) {
-              <div
-                class="view-expense--card-container__transaction-status"
-                >
-                <app-transaction-status
-                  [transactionStatus]="transactionStatus"
-                  (statusClick)="openTransactionStatusInfoModal($event)"
-                ></app-transaction-status>
-              </div>
+          } @if (isCCCTransaction && cardNumber) {
+          <div>
+            Card ending in... {{ cardNumber | maskNumber }} @if (cardNickname) {
+            <span>{{'(' + cardNickname + ')'}}</span>
             }
+          </div>
           }
         </div>
-        @if (attachments$|async; as attachments) {
-          @if (attachments.length > 0) {
-            <app-receipt-preview-thumbnail
-              [attachments]="attachments"
-              (viewAttachments)="viewAttachments()"
-              [canEdit]="false"
+        <div class="ion-text-right view-expense--card-container__block">
+          <div class="view-expense--card-container__amount-section">
+            <span class="view-expense--card-container__currency">{{ expenseCurrencySymbol }}</span>
+            <span class="view-expense--card-container__amount">
+              {{ { value: expense.amount, currencyCode: expense.currency , skipSymbol: true } | exactCurrency }}
+            </span>
+            @if (isCCCTransaction) {
+            <div>
+              <div
+                class="view-expense--card-container__txn-type"
+                [ngClass]="{'view-expense--card-container__credit': expense.amount < 0}"
               >
-            </app-receipt-preview-thumbnail>
-          } @else {
-            <ion-grid class="view-expense--grid">
-              <ion-row>
-                <ion-col class="view-expense--icon-container">
-                  <div class="view-expense--icon-container__background">
-                    <ion-icon
-                      class="view-expense--icon-container__icon-lg"
-                      src="../../../assets/svg/attachment-none.svg"
-                    ></ion-icon>
-                  </div>
-                </ion-col>
-                <ion-col class="view-expense--content-container">
-                  <div class="view-expense--label">Receipt</div>
-                  <div class="view-expense--value">Not attached</div>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          }
-        }
-        <ion-grid class="view-expense--grid">
-          <ion-row>
-            <ion-col class="view-expense--icon-container">
-              <div class="view-expense--icon-container__background">
-                <ion-icon class="view-expense--icon-container__icon" src="../../../assets/svg/folder.svg"></ion-icon>
+                {{ expense.amount > 0 ? 'DR' : 'CR' }}
               </div>
-            </ion-col>
-            <ion-col class="view-expense--content-container">
-              <div class="view-expense--label">Report name</div>
-              <div class="view-expense--value">{{ expense.report?.title }}</div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-        @if (view === ExpenseView.team) {
-          <ion-grid class="view-expense--grid">
-            <ion-row>
-              <ion-col class="view-expense--icon-container">
-                <div class="view-expense--icon-container__background">
-                  <ion-icon class="view-expense--icon-container__icon" src="../../../assets/svg/user-one.svg"></ion-icon>
-                </div>
-              </ion-col>
-              <ion-col class="view-expense--content-container">
-                <div class="view-expense--label">Employee</div>
-                <div class="view-expense--value smartlook-hide">{{ expense.user.full_name }}</div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        }
-        <ion-grid class="view-expense--grid">
-          <ion-row>
-            <ion-col class="view-expense--icon-container">
-              <div class="view-expense--icon-container__background">
-                <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-              </div>
-            </ion-col>
-            <ion-col class="view-expense--content-container">
-              <div class="view-expense--label">Expense number</div>
-              <div class="view-expense--value">{{ expense.seq_num }}</div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-        <div class="view-expense--divider"></div>
-        <ion-grid class="view-expense--grid">
-          <ion-row>
-            <ion-col size="6">
-              <ion-grid>
-                <ion-row>
-                  <ion-col class="view-expense--icon-container">
-                    <div class="view-expense--icon-container__background">
-                      <ion-icon
-                        class="view-expense--icon-container__icon-lg"
-                        src="../../../assets/svg/calendar.svg"
-                      ></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-expense--content-container">
-                    <div class="view-expense--label">Created date</div>
-                    <div class="view-expense--value">{{ expense.created_at | date: 'MMM dd, YYYY' }}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </ion-col>
-            @if (expense.spent_at) {
-              <ion-col>
-                <ion-grid>
-                  <ion-row>
-                    <ion-col class="view-expense--icon-container">
-                      <div class="view-expense--icon-container__background">
-                        <ion-icon
-                          class="view-expense--icon-container__icon-lg"
-                          src="../../../assets/svg/calendar.svg"
-                        ></ion-icon>
-                      </div>
-                    </ion-col>
-                    <ion-col class="view-expense--content-container">
-                      <div class="d-flex">
-                        <div class="view-expense--label">Spend date</div>
-                        @if (expense.extracted_data && (expense.spent_at | date:'MMM dd, YYYY') === (expense.extracted_data.date | date:'MMM dd, YYYY')) {
-                          <ion-icon
-                            class="view-expense--sparkle-icon"
-                            src="../../../assets/svg/sparkle.svg"
-                          ></ion-icon>
-                        }
-                      </div>
-                      <div class="view-expense--value">{{ expense.spent_at | date: 'MMM dd, YYYY' }}</div>
-                    </ion-col>
-                  </ion-row>
-                </ion-grid>
-              </ion-col>
+            </div>
             }
-          </ion-row>
-        </ion-grid>
-        <ion-grid class="view-expense--grid">
-          <ion-row>
-            <ion-col class="view-expense--icon-container">
-              <div class="view-expense--icon-container__background">
-                <ion-icon
-                  class="view-expense--icon-container__icon-lg"
-                  [src]="'../../../assets/svg/' + (paymentModeIcon === 'card' ? 'card' : paymentModeIcon) + '.svg'"
-                ></ion-icon>
-              </div>
-            </ion-col>
-            <ion-col class="view-expense--content-container">
-              <div class="view-expense--label">Payment mode</div>
-              <div class="view-expense--value">{{ paymentMode }}</div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-        @if (isCCCTransaction) {
-          <ion-grid class="view-expense--grid">
-            <ion-row>
-              <ion-col class="view-expense--icon-container">
-                <div class="view-expense--icon-container__background">
-                  <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/card.svg"></ion-icon>
-                </div>
-              </ion-col>
-              <ion-col class="view-expense--content-container">
-                <div class="view-expense--label">Card transaction</div>
-                <div class="view-expense--value">
-                  @if (expense.matched_corporate_card_transactions[0]; as matchedTransaction) {
-                    {{ (matchedTransaction.description || matchedTransaction.merchant) | ellipsis:20}}
-                  } @else {
-                    No matching card transaction
-                  }
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        }
-        @if (expense.purpose) {
-          <ion-grid class="view-expense--grid">
-            <ion-row>
-              <ion-col class="view-expense--icon-container">
-                <div class="view-expense--icon-container__background">
-                  <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-                </div>
-              </ion-col>
-              <ion-col class="view-expense--content-container">
-                <div class="view-expense--label">Purpose</div>
-                <div class="view-expense--value">{{ expense.purpose }}</div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        }
-        @if (expense.tax_group?.name) {
-          <ion-grid class="view-expense--grid">
-            <ion-row>
-              <ion-col class="view-expense--icon-container">
-                <div class="view-expense--icon-container__background">
-                  <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/cash.svg"></ion-icon>
-                </div>
-              </ion-col>
-              <ion-col class="view-expense--content-container">
-                <div class="view-expense--label">Tax group</div>
-                <div class="view-expense--value">{{ expense.tax_group?.name }}</div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        }
-        @if (orgSettings?.tax_settings?.enabled && orgSettings?.tax_settings?.name) {
-          <ion-grid
-            class="view-expense--grid"
-            >
-            <ion-row>
-              <ion-col class="view-expense--icon-container">
-                <div class="view-expense--icon-container__background">
-                  <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/cash.svg"></ion-icon>
-                </div>
-              </ion-col>
-              <ion-col class="view-expense--content-container">
-                <div class="view-expense--label">{{ orgSettings?.tax_settings?.name }}</div>
-                <div class="view-expense--value">
-                  {{ (expense.tax_amount | currency:expense.currency: 'symbol-narrow') || 'Not Added' }}
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        }
-        @if ({ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async}; as data) {
-          @if (!data.costCenterDependentCustomProperties?.length) {
-            @if (orgSettings?.cost_centers?.enabled && expense.cost_center_id) {
-              <ion-grid class="view-expense--grid">
-                <ion-row>
-                  <ion-col size="6">
-                    <ion-grid>
-                      <ion-row>
-                        <ion-col class="view-expense--icon-container">
-                          <div class="view-expense--icon-container__background">
-                            <ion-icon
-                              class="view-expense--icon-container__icon"
-                              src="../../../assets/svg/building.svg"
-                            ></ion-icon>
-                          </div>
-                        </ion-col>
-                        <ion-col class="view-expense--content-container">
-                          <div class="view-expense--label">Cost center</div>
-                          <div class="view-expense--value">{{ expense.cost_center?.name }}</div>
-                        </ion-col>
-                      </ion-row>
-                    </ion-grid>
-                  </ion-col>
-                  @if (expense.cost_center?.code) {
-                    <ion-col size="6">
-                      <ion-grid>
-                        <ion-row>
-                          <ion-col class="view-expense--icon-container">
-                            <div class="view-expense--icon-container__background">
-                              <ion-icon
-                                class="view-expense--icon-container__icon"
-                                src="../../../assets/svg/building.svg"
-                              ></ion-icon>
-                            </div>
-                          </ion-col>
-                          <ion-col class="view-expense--content-container">
-                            <div class="view-expense--label">Cost center code</div>
-                            <div class="view-expense--value">{{ expense.cost_center?.code }}</div>
-                          </ion-col>
-                        </ion-row>
-                      </ion-grid>
-                    </ion-col>
-                  }
-                </ion-row>
-              </ion-grid>
-            }
+            <ion-icon
+              class="view-expense--card-container__icon"
+              [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+            ></ion-icon>
+          </div>
+          @if (foreignCurrencySymbol) {
+          <div class="view-expense--card-container__exchange-rate">
+            {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
+            expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
+          </div>
           }
-        }
-        @if (systemCategoriesWithTaxi?.includes(expense.category?.system_category)) {
-          <div class="view-expense--divider"></div>
-          @if (expense.category.system_category === 'Taxi') {
-            @if (expense.distance) {
-              <ion-grid class="view-expense--grid">
-                <ion-row>
-                  <ion-col class="view-expense--icon-container">
-                    <div class="view-expense--icon-container__background">
-                      <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/car.svg"></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-expense--content-container">
-                    <div class="view-expense--label">Distance</div>
-                    <div class="view-expense--value">{{ expense.distance }}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            }
-            @if (expense.distance_unit) {
-              <ion-grid class="view-expense--grid">
-                <ion-row>
-                  <ion-col class="view-expense--icon-container">
-                    <div class="view-expense--icon-container__background">
-                      <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/car.svg"></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-expense--content-container">
-                    <div class="view-expense--label">Unit</div>
-                    <div class="view-expense--value">{{ expense.distance_unit | titlecase }}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            }
-          }
-          @if (travelSystemCategories?.includes(expense.category?.system_category)) {
-            @if (expense.locations.length > 0 && expense.locations[0].city) {
-              <ion-grid class="view-expense--grid">
-                <ion-row>
-                  <ion-col size="6">
-                    <ion-grid>
-                      <ion-row>
-                        <ion-col class="view-expense--icon-container">
-                          <div class="view-expense--icon-container__background">
-                            <ion-icon
-                              class="view-expense--icon-container__icon-lg"
-                              src="../../../assets/svg/location.svg"
-                            ></ion-icon>
-                          </div>
-                        </ion-col>
-                        <ion-col class="view-expense--content-container">
-                          <div class="view-expense--label">From</div>
-                          <div class="view-expense--value">{{ expense.locations[0].city }}</div>
-                        </ion-col>
-                      </ion-row>
-                    </ion-grid>
-                  </ion-col>
-                  @if (expense.locations[1]?.city) {
-                    <ion-col size="6">
-                      <ion-grid>
-                        <ion-row>
-                          <ion-col class="view-expense--icon-container">
-                            <div class="view-expense--icon-container__background">
-                              <ion-icon
-                                class="view-expense--icon-container__icon-lg"
-                                src="../../../assets/svg/location.svg"
-                              ></ion-icon>
-                            </div>
-                          </ion-col>
-                          <ion-col class="view-expense--content-container">
-                            <div class="view-expense--label">To</div>
-                            <div class="view-expense--value">{{ expense.locations[1].city }}</div>
-                          </ion-col>
-                        </ion-row>
-                      </ion-grid>
-                    </ion-col>
-                  }
-                </ion-row>
-              </ion-grid>
-            }
-            @if (expense.started_at) {
-              <ion-grid class="view-expense--grid">
-                <ion-row>
-                  <ion-col size="6">
-                    <ion-grid>
-                      <ion-row>
-                        <ion-col class="view-expense--icon-container">
-                          <div class="view-expense--icon-container__background">
-                            <ion-icon
-                              class="view-expense--icon-container__icon-lg"
-                              src="../../../assets/svg/calendar.svg"
-                            ></ion-icon>
-                          </div>
-                        </ion-col>
-                        <ion-col class="view-expense--content-container">
-                          <div class="view-expense--label">Onward date</div>
-                          <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, YYYY' }}</div>
-                        </ion-col>
-                      </ion-row>
-                    </ion-grid>
-                  </ion-col>
-                  @if (expense.ended_at) {
-                    <ion-col>
-                      <ion-grid>
-                        <ion-row>
-                          <ion-col class="view-expense--icon-container">
-                            <div class="view-expense--icon-container__background">
-                              <ion-icon
-                                class="view-expense--icon-container__icon-lg"
-                                src="../../../assets/svg/calendar.svg"
-                              ></ion-icon>
-                            </div>
-                          </ion-col>
-                          <ion-col class="view-expense--content-container">
-                            <div class="view-expense--label">Return date</div>
-                            <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, YYYY' }}</div>
-                          </ion-col>
-                        </ion-row>
-                      </ion-grid>
-                    </ion-col>
-                  }
-                </ion-row>
-              </ion-grid>
-            }
-          }
-          @if (['Train', 'Bus'].includes(expense.category?.system_category)) {
-            @if (expense.travel_classes[0]) {
-              <ion-grid class="view-expense--grid">
-                <ion-row>
-                  <ion-col class="view-expense--icon-container">
-                    <div class="view-expense--icon-container__background">
-                      <ion-icon
-                        class="view-expense--icon-container__icon-lg"
-                        [src]="'../../../assets/svg/' + expense.category.system_category.toLowerCase() + '.svg'"
-                      ></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-expense--content-container">
-                    <div class="view-expense--label">Travel class</div>
-                    <div class="view-expense--value">{{ expense.travel_classes[0] }}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            }
-          }
-          @if (flightSystemCategories?.includes(expense.category?.system_category) && expense.travel_classes[0]) {
-            <ion-grid class="view-expense--grid">
-              <ion-row>
-                <ion-col size="6">
-                  <ion-grid>
-                    <ion-row>
-                      <ion-col class="view-expense--icon-container">
-                        <div class="view-expense--icon-container__background">
-                          <ion-icon
-                            class="view-expense--icon-container__icon-lg"
-                            src="../../../assets/svg/calendar.svg"
-                          ></ion-icon>
-                        </div>
-                      </ion-col>
-                      <ion-col class="view-expense--content-container">
-                        <div class="view-expense--label">Onward class</div>
-                        <div class="view-expense--value">{{ expense.travel_classes[0] }}</div>
-                      </ion-col>
-                    </ion-row>
-                  </ion-grid>
-                </ion-col>
-                @if (expense.travel_classes[1]) {
-                  <ion-col>
-                    <ion-grid>
-                      <ion-row>
-                        <ion-col class="view-expense--icon-container">
-                          <div class="view-expense--icon-container__background">
-                            <ion-icon
-                              class="view-expense--icon-container__icon-lg"
-                              src="../../../assets/svg/calendar.svg"
-                            ></ion-icon>
-                          </div>
-                        </ion-col>
-                        <ion-col class="view-expense--content-container">
-                          <div class="view-expense--label">Return class</div>
-                          <div class="view-expense--value">{{ expense.travel_classes[1] }}</div>
-                        </ion-col>
-                      </ion-row>
-                    </ion-grid>
-                  </ion-col>
-                }
-              </ion-row>
-            </ion-grid>
-          }
-          @if (breakfastSystemCategories?.includes(expense.category?.system_category) && (expense.locations[0]?.city || expense.started_at || expense.ended_at)) {
-            @if (expense.locations[0]?.city) {
-              <ion-grid class="view-expense--grid">
-                <ion-row>
-                  <ion-col class="view-expense--icon-container">
-                    <div class="view-expense--icon-container__background">
-                      <ion-icon
-                        class="view-expense--icon-container__icon-lg"
-                        src="../../../assets/svg/location.svg"
-                      ></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-expense--content-container">
-                    <div class="view-expense--label">City</div>
-                    <div class="view-expense--value">{{ expense.locations[0].city }}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            }
-            @if (expense.started_at) {
-              <ion-grid class="view-expense--grid">
-                <ion-row>
-                  <ion-col size="6">
-                    <ion-grid>
-                      <ion-row>
-                        <ion-col class="view-expense--icon-container">
-                          <div class="view-expense--icon-container__background">
-                            <ion-icon
-                              class="view-expense--icon-container__icon-lg"
-                              src="../../../assets/svg/calendar.svg"
-                            ></ion-icon>
-                          </div>
-                        </ion-col>
-                        <ion-col class="view-expense--content-container">
-                          <div class="view-expense--label">Check in</div>
-                          <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, YYYY' }}</div>
-                        </ion-col>
-                      </ion-row>
-                    </ion-grid>
-                  </ion-col>
-                  @if (expense.ended_at) {
-                    <ion-col>
-                      <ion-grid>
-                        <ion-row>
-                          <ion-col class="view-expense--icon-container">
-                            <div class="view-expense--icon-container__background">
-                              <ion-icon
-                                class="view-expense--icon-container__icon-lg"
-                                src="../../../assets/svg/calendar.svg"
-                              ></ion-icon>
-                            </div>
-                          </ion-col>
-                          <ion-col class="view-expense--content-container">
-                            <div class="view-expense--label">Check out</div>
-                            <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, YYYY' }}</div>
-                          </ion-col>
-                        </ion-row>
-                      </ion-grid>
-                    </ion-col>
-                  }
-                </ion-row>
-              </ion-grid>
-            }
-            @if (expense.hotel_is_breakfast_provided) {
-              <ion-grid class="view-expense--grid">
-                <ion-row>
-                  <ion-col class="view-expense--icon-container">
-                    <div class="view-expense--icon-container__background">
-                      <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-expense--content-container">
-                    <div class="view-expense--label">Breakfast provided</div>
-                    <div class="view-expense--value">{{ expense.hotel_is_breakfast_provided ? 'Yes' : 'No' }}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            }
-          }
-        }
-        <!-- Project dependent fields -->
-        @if (projectDependentCustomProperties$ | async; as projectDependentCustomProperties) {
-          @if (expenseFields$ | async; as expenseFields) {
-            @if (expenseFields?.project_id?.length) {
-              <app-view-dependent-fields
-                parentFieldType="PROJECT"
-                [parentFieldName]="expenseFields.project_id[0]?.field_name"
-                [parentFieldValue]="expense.project?.name"
-                [dependentCustomProperties]="projectDependentCustomProperties"
-              ></app-view-dependent-fields>
-            }
-          }
-        }
-        <!-- Cost center dependent fields -->
-        @if (costCenterDependentCustomProperties$ | async; as costCenterDependentCustomProperties) {
-          @if (expenseFields$ | async; as expenseFields) {
-            @if (expenseFields?.cost_center_id?.length) {
-              <app-view-dependent-fields
-                parentFieldType="COST_CENTER"
-                [parentFieldName]="expenseFields.cost_center_id[0]?.field_name"
-                [parentFieldValue]="expense.cost_center?.name"
-                [costCenterCode]="expense.cost_center?.code"
-                [dependentCustomProperties]="costCenterDependentCustomProperties"
-              ></app-view-dependent-fields>
-            }
-          }
-        }
-        @if (customProperties$|async; as customProperties) {
-          @if (customProperties?.length > 0) {
-            <div class="view-expense--divider"></div>
-            @for (customProperty of customProperties; track customProperty) {
-              <ion-grid class="view-expense--grid">
-                <ion-row>
-                  <ion-col class="view-expense--icon-container">
-                    <div class="view-expense--icon-container__background">
-                      <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-                    </div>
-                  </ion-col>
-                  <ion-col class="view-expense--content-container">
-                    <div class="view-expense--label">{{customProperty.name}}</div>
-                    <div class="view-expense--value">{{customProperty.displayValue}}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            }
-          }
-        }
+        </div>
+        <div class="ion-text-right view-expense--card-container__block">
+          <div
+            class="view-expense--card-container__state-pill ion-text-right"
+            [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
+          >
+            <div class="state-pill state-{{expense.state | expenseState}}">
+              {{ expense.state | expenseState | snakeCaseToSpaceCase | titlecase }}
+            </div>
+          </div>
+        </div>
       </div>
+      @if (expense.matched_corporate_card_transactions[0]) {
+      <div class="view-expense--card-container__merchant_block">
+        <div class="view-expense--card-container__merchant_label">Merchant:</div>
+        <div class="view-expense--card-container__merchant_value">
+          <span> {{ expense.matched_corporate_card_transactions[0].merchant || 'Unavailable' }} </span>
+          <ion-icon
+            (click)="openCCExpenseMerchantInfoModal()"
+            src="../../../assets/svg/info-circle-outline.svg"
+            class="view-expense--card-container__merchant_info_icon"
+            data-testid="merchant-info-icon"
+          ></ion-icon>
+        </div>
+      </div>
+      } @if (isCCCTransaction && isRTFEnabled) { @if (expense.matched_corporate_card_transactions[0]?.status; as
+      transactionStatus) {
+      <div class="view-expense--card-container__transaction-status">
+        <app-transaction-status
+          [transactionStatus]="transactionStatus"
+          (statusClick)="openTransactionStatusInfoModal($event)"
+        ></app-transaction-status>
+      </div>
+      } }
+    </div>
+    @if (attachments$|async; as attachments) { @if (attachments.length > 0) {
+    <app-receipt-preview-thumbnail [attachments]="attachments" (viewAttachments)="viewAttachments()" [canEdit]="false">
+    </app-receipt-preview-thumbnail>
+    } @else {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon
+              class="view-expense--icon-container__icon-lg"
+              src="../../../assets/svg/attachment-none.svg"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Receipt</div>
+          <div class="view-expense--value">Not attached</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } }
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon" src="../../../assets/svg/folder.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Report name</div>
+          <div class="view-expense--value">{{ expense.report?.title }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    @if (view === ExpenseView.team) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon" src="../../../assets/svg/user-one.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Employee</div>
+          <div class="view-expense--value smartlook-hide">{{ expense.user.full_name }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
     }
-  } @else {
-    <app-view-expense-skeleton-loader></app-view-expense-skeleton-loader>
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Expense number</div>
+          <div class="view-expense--value">{{ expense.seq_num }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <div class="view-expense--divider"></div>
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-lg"
+                    src="../../../assets/svg/calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Created date</div>
+                <div class="view-expense--value">{{ expense.created_at | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        @if (expense.spent_at) {
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-lg"
+                    src="../../../assets/svg/calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="d-flex">
+                  <div class="view-expense--label">Spend date</div>
+                  @if (expense.extracted_data && (expense.spent_at | date:'MMM dd, yyyy') ===
+                  (expense.extracted_data.date | date:'MMM dd, yyyy')) {
+                  <ion-icon class="view-expense--sparkle-icon" src="../../../assets/svg/sparkle.svg"></ion-icon>
+                  }
+                </div>
+                <div class="view-expense--value">{{ expense.spent_at | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon
+              class="view-expense--icon-container__icon-lg"
+              [src]="'../../../assets/svg/' + (paymentModeIcon === 'card' ? 'card' : paymentModeIcon) + '.svg'"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Payment mode</div>
+          <div class="view-expense--value">{{ paymentMode }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    @if (isCCCTransaction) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/card.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Card transaction</div>
+          <div class="view-expense--value">
+            @if (expense.matched_corporate_card_transactions[0]; as matchedTransaction) { {{
+            (matchedTransaction.description || matchedTransaction.merchant) | ellipsis:20}} } @else { No matching card
+            transaction }
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } @if (expense.purpose) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Purpose</div>
+          <div class="view-expense--value">{{ expense.purpose }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } @if (expense.tax_group?.name) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/cash.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Tax group</div>
+          <div class="view-expense--value">{{ expense.tax_group?.name }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } @if (orgSettings?.tax_settings?.enabled && orgSettings?.tax_settings?.name) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/cash.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">{{ orgSettings?.tax_settings?.name }}</div>
+          <div class="view-expense--value">
+            {{ (expense.tax_amount | currency:expense.currency: 'symbol-narrow') || 'Not Added' }}
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } @if ({ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async}; as data) { @if
+    (!data.costCenterDependentCustomProperties?.length) { @if (orgSettings?.cost_centers?.enabled &&
+    expense.cost_center_id) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon"
+                    src="../../../assets/svg/building.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Cost center</div>
+                <div class="view-expense--value">{{ expense.cost_center?.name }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        @if (expense.cost_center?.code) {
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon"
+                    src="../../../assets/svg/building.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Cost center code</div>
+                <div class="view-expense--value">{{ expense.cost_center?.code }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+    } } } @if (systemCategoriesWithTaxi?.includes(expense.category?.system_category)) {
+    <div class="view-expense--divider"></div>
+    @if (expense.category.system_category === 'Taxi') { @if (expense.distance) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/car.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Distance</div>
+          <div class="view-expense--value">{{ expense.distance }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } @if (expense.distance_unit) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/car.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Unit</div>
+          <div class="view-expense--value">{{ expense.distance_unit | titlecase }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } } @if (travelSystemCategories?.includes(expense.category?.system_category)) { @if (expense.locations.length > 0 &&
+    expense.locations[0].city) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-lg"
+                    src="../../../assets/svg/location.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">From</div>
+                <div class="view-expense--value">{{ expense.locations[0].city }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        @if (expense.locations[1]?.city) {
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-lg"
+                    src="../../../assets/svg/location.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">To</div>
+                <div class="view-expense--value">{{ expense.locations[1].city }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+    } @if (expense.started_at) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-lg"
+                    src="../../../assets/svg/calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Onward date</div>
+                <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        @if (expense.ended_at) {
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-lg"
+                    src="../../../assets/svg/calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Return date</div>
+                <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+    } } @if (['Train', 'Bus'].includes(expense.category?.system_category)) { @if (expense.travel_classes[0]) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon
+              class="view-expense--icon-container__icon-lg"
+              [src]="'../../../assets/svg/' + expense.category.system_category.toLowerCase() + '.svg'"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Travel class</div>
+          <div class="view-expense--value">{{ expense.travel_classes[0] }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } } @if (flightSystemCategories?.includes(expense.category?.system_category) && expense.travel_classes[0]) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-lg"
+                    src="../../../assets/svg/calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Onward class</div>
+                <div class="view-expense--value">{{ expense.travel_classes[0] }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        @if (expense.travel_classes[1]) {
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-lg"
+                    src="../../../assets/svg/calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Return class</div>
+                <div class="view-expense--value">{{ expense.travel_classes[1] }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+    } @if (breakfastSystemCategories?.includes(expense.category?.system_category) && (expense.locations[0]?.city ||
+    expense.started_at || expense.ended_at)) { @if (expense.locations[0]?.city) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/location.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">City</div>
+          <div class="view-expense--value">{{ expense.locations[0].city }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } @if (expense.started_at) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-lg"
+                    src="../../../assets/svg/calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Check in</div>
+                <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        @if (expense.ended_at) {
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-lg"
+                    src="../../../assets/svg/calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Check out</div>
+                <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+    } @if (expense.hotel_is_breakfast_provided) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Breakfast provided</div>
+          <div class="view-expense--value">{{ expense.hotel_is_breakfast_provided ? 'Yes' : 'No' }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } } }
+    <!-- Project dependent fields -->
+    @if (projectDependentCustomProperties$ | async; as projectDependentCustomProperties) { @if (expenseFields$ | async;
+    as expenseFields) { @if (expenseFields?.project_id?.length) {
+    <app-view-dependent-fields
+      parentFieldType="PROJECT"
+      [parentFieldName]="expenseFields.project_id[0]?.field_name"
+      [parentFieldValue]="expense.project?.name"
+      [dependentCustomProperties]="projectDependentCustomProperties"
+    ></app-view-dependent-fields>
+    } } }
+    <!-- Cost center dependent fields -->
+    @if (costCenterDependentCustomProperties$ | async; as costCenterDependentCustomProperties) { @if (expenseFields$ |
+    async; as expenseFields) { @if (expenseFields?.cost_center_id?.length) {
+    <app-view-dependent-fields
+      parentFieldType="COST_CENTER"
+      [parentFieldName]="expenseFields.cost_center_id[0]?.field_name"
+      [parentFieldValue]="expense.cost_center?.name"
+      [costCenterCode]="expense.cost_center?.code"
+      [dependentCustomProperties]="costCenterDependentCustomProperties"
+    ></app-view-dependent-fields>
+    } } } @if (customProperties$|async; as customProperties) { @if (customProperties?.length > 0) {
+    <div class="view-expense--divider"></div>
+    @for (customProperty of customProperties; track customProperty) {
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">{{customProperty.name}}</div>
+          <div class="view-expense--value">{{customProperty.displayValue}}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    } } }
+  </div>
+  } } @else {
+  <app-view-expense-skeleton-loader></app-view-expense-skeleton-loader>
   }
 </ion-content>
 
 <!-- TODO: Rename etxn terminology to expense in navigation footer component -->
 @if (reportExpenseCount > 1) {
-  <app-navigation-footer
-    [activeExpenseIndex]="activeExpenseIndex"
-    [reportExpenseCount]="reportExpenseCount"
-  ></app-navigation-footer>
+<app-navigation-footer
+  [activeExpenseIndex]="activeExpenseIndex"
+  [reportExpenseCount]="reportExpenseCount"
+></app-navigation-footer>
 }

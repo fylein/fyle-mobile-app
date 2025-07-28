@@ -1,8 +1,8 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .crop-receipt {
   &__toolbar {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
     margin-top: 16px;
     padding-bottom: 16px;
     --min-height: 0;
@@ -10,7 +10,7 @@
 
   &__title {
     font-size: 20px;
-    color: $black;
+    color: colors.$black;
     padding-right: 44px;
   }
 
@@ -20,11 +20,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: $white;
+    background-color: colors.$white;
   }
 
   &__cropper {
-    --cropper-overlay-color: #{$white};
+    --cropper-overlay-color: #{colors.$white};
   }
 
   &__cta-container {
@@ -33,8 +33,8 @@
     padding: 14px 16px;
     bottom: 0;
     width: 100%;
-    background-color: $pure-white;
-    box-shadow: 0 -2px 12px $pink-shadow;
+    background-color: colors.$pure-white;
+    box-shadow: 0 -2px 12px colors.$pink-shadow;
     z-index: 999;
   }
 }

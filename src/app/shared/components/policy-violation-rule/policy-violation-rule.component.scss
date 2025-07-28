@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .policy-violation-rule {
   &--container {
@@ -7,13 +7,13 @@
     margin-bottom: 12px;
 
     &__normal-violation {
-      background-color: $floral-white;
-      border: 1px solid $pale-orange;
+      background-color: colors.$floral-white;
+      border: 1px solid colors.$pale-orange;
     }
 
     &__critical-violation {
-      background-color: $snow-white;
-      border: 1px solid $pale-pink;
+      background-color: colors.$snow-white;
+      border: 1px solid colors.$pale-pink;
     }
   }
 }

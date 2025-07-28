@@ -74,6 +74,7 @@ describe('CaptureReceiptComponent', () => {
     selector: 'app-camera-preview',
     template: '',
     providers: [{ provide: CameraPreviewComponent, useClass: CameraPreviewStubComponent }],
+    standalone: false,
   })
   class CameraPreviewStubComponent {
     setUpAndStartCamera() {

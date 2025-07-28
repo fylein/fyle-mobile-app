@@ -12,6 +12,7 @@ import { EmployeeParams } from 'src/app/core/models/employee-params.model';
   selector: 'app-fy-userlist-modal',
   templateUrl: './fy-userlist-modal.component.html',
   styleUrls: ['./fy-userlist-modal.component.scss'],
+  standalone: false,
 })
 export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;

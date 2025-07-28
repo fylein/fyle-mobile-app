@@ -7,6 +7,7 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
   selector: 'app-audit-history',
   templateUrl: './audit-history.component.html',
   styleUrls: ['./audit-history.component.scss'],
+  standalone: false,
 })
 export class AuditHistoryComponent implements OnInit {
   @Input() estatuses: ExtendedStatus[];

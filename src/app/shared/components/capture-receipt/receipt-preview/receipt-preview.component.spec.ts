@@ -9,7 +9,7 @@ import { ReceiptPreviewComponent } from './receipt-preview.component';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
@@ -32,6 +32,7 @@ describe('ReceiptPreviewComponent', () => {
     selector: 'swiper',
     template: '',
     providers: [{ provide: SwiperComponent, useClass: SwiperStubComponent }],
+    standalone: false,
   })
   class SwiperStubComponent {
     @Input() pagination;
@@ -77,7 +78,7 @@ describe('ReceiptPreviewComponent', () => {
     });
     TestBed.configureTestingModule({
       declarations: [ReceiptPreviewComponent, SwiperStubComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, PinchZoomModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent],
       providers: [
         Platform,
         {

@@ -9,6 +9,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-promote-opt-in-modal',
   templateUrl: './promote-opt-in-modal.component.html',
   styleUrls: ['./promote-opt-in-modal.component.scss'],
+  standalone: false,
 })
 export class PromoteOptInModalComponent {
   @Input() extendedOrgUser: ExtendedOrgUser;

@@ -6,6 +6,7 @@ import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-p
   selector: 'app-personal-card-transaction',
   templateUrl: './personal-card-transaction.component.html',
   styleUrls: ['./personal-card-transaction.component.scss'],
+  standalone: false,
 })
 export class PersonalCardTransactionComponent implements OnInit {
   @Input() transaction: PlatformPersonalCardTxn;

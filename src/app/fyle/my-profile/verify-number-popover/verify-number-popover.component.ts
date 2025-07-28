@@ -10,6 +10,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-verify-number-popover',
   templateUrl: './verify-number-popover.component.html',
   styleUrls: ['./verify-number-popover.component.scss'],
+  standalone: false,
 })
 export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;

@@ -15,6 +15,7 @@ import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-r
   selector: 'app-help',
   templateUrl: './help.page.html',
   styleUrls: ['./help.page.scss'],
+  standalone: false,
 })
 export class HelpPage implements OnInit {
   orgAdmins: PlatformApiResponse<Partial<Employee>[]>;
