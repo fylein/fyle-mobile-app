@@ -544,6 +544,7 @@ export class TasksComponent implements OnInit {
               id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
+              navigate_back: true,
             },
           ]);
         } else if (category === 'per diem') {
@@ -555,6 +556,7 @@ export class TasksComponent implements OnInit {
               id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
+              navigate_back: true,
             },
           ]);
         } else {
@@ -566,6 +568,7 @@ export class TasksComponent implements OnInit {
               id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
+              navigate_back: true,
             },
           ]);
         }
