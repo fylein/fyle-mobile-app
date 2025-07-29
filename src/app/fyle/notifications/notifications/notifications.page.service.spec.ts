@@ -12,10 +12,9 @@ import {
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
-describe('NotificationsBetaPageService', () => {
+describe('NotificationsPageService', () => {
   let service: NotificationsPageService;
   let mockCurrentEou: ExtendedOrgUser;
-  let mockIsExpenseMarkedPersonalEventEnabled: boolean;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -23,9 +22,7 @@ describe('NotificationsBetaPageService', () => {
     });
     service = TestBed.inject(NotificationsPageService);
 
-    // Setup mock data
     mockCurrentEou = apiEouRes;
-    mockIsExpenseMarkedPersonalEventEnabled = false;
   });
 
   it('should be created', () => {

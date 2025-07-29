@@ -88,7 +88,7 @@ describe('NotificationsPage', () => {
           useValue: employeesServiceSpy,
         },
         {
-          provide: notificationsPageService,
+          provide: NotificationsPageService,
           useValue: notificationsPageServiceSpy,
         },
         {
