@@ -92,7 +92,7 @@
                   [icon]="'../../../../assets/svg/calendar.svg'"
                   [type]="StatisticTypes.DATE"
                   [label]="'Created date'"
-                  [value]="advanceRequest.areq_created_at | date: 'MMM dd, YYYY'"
+                  [value]="advanceRequest.areq_created_at | date: 'MMM dd, yyyy'"
                 ></app-fy-statistic>
               </div>
             </ion-col>
@@ -154,7 +154,7 @@
                         [icon]="'../../../../assets/svg/calendar.svg'"
                         [type]="StatisticTypes.DATE"
                         [label]="advanceRequestCustomField.name"
-                        [value]="advanceRequestCustomField.value | date: 'MMM dd, YYYY'"
+                        [value]="advanceRequestCustomField.value | date: 'MMM dd, yyyy'"
                       ></app-fy-statistic>
                     </div>
                   }
