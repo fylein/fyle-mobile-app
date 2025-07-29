@@ -53,7 +53,8 @@ export class MyViewAdvancePage {
     // Setup the advance$ stream before subscribing
     this.advance$ = this.advanceService.getAdvance(id).pipe(
       map((advance) => {
-        this.currencySymbol = getCurrencySymbol(advance?.adv_currency, 'wide');
+        // Set currency symbol using the wide format to get symbols like ₹ instead of INR
+        this.currencySymbol = advance?.currency ? getCurrencySymbol(advance.currency, 'wide') : undefined;
         return advance;
       }),
       shareReplay(1),

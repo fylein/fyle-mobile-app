@@ -193,8 +193,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
-    const formContainer = this.formContainer.nativeElement as HTMLElement;
-    if (formContainer) {
+
+    if (this.formContainer?.nativeElement) {
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
       const invalidElement = formContainer.querySelector('.ng-invalid');
       if (invalidElement) {
         invalidElement.scrollIntoView({

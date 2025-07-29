@@ -105,6 +105,10 @@ describe('MyViewAdvancePage', () => {
 
     it('should set currencySymbol to ₹ if advance currency is defined', fakeAsync(() => {
       component.ionViewWillEnter();
+
+      // Subscribe to advance$ to ensure the map operator runs
+      component.advance$.subscribe();
+
       tick(100);
 
       expect(component.currencySymbol).toEqual('₹');
@@ -113,6 +117,10 @@ describe('MyViewAdvancePage', () => {
     it('should set currencySymbol to undefined if advance is undefined', fakeAsync(() => {
       advanceService.getAdvance.and.returnValue(of(undefined));
       component.ionViewWillEnter();
+
+      // Subscribe to advance$ to ensure the map operator runs
+      component.advance$.subscribe();
+
       tick(100);
 
       expect(component.currencySymbol).toBeUndefined();

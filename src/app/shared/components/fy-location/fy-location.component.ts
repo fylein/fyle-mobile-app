@@ -1,17 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-
-// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
-interface LocationValue {
-  display: string;
-  value?: string;
-}
 
 @Component({
   selector: 'app-fy-location',
@@ -26,7 +18,7 @@ interface LocationValue {
   ],
   standalone: false,
 })
-export class FyLocationComponent implements ControlValueAccessor {
+export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() label = 'location';
 
   @Input() mandatory = false;
@@ -39,7 +31,7 @@ export class FyLocationComponent implements ControlValueAccessor {
 
   @Input() recentLocations: string[] = [];
 
-  @Input() cacheName?: string;
+  @Input() cacheName;
 
   @Input() placeholder: string;
 
@@ -49,13 +41,14 @@ export class FyLocationComponent implements ControlValueAccessor {
 
   @Input() disableEnteringManualLocation? = false;
 
-  displayValue = '';
+  displayValue;
 
-  innerValue: LocationValue | null = null;
+  innerValue;
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (_: LocationValue | null) => void = noop;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onChangeCallback: (_: any) => void = noop;
 
   constructor(
     private modalController: ModalController,
@@ -70,11 +63,13 @@ export class FyLocationComponent implements ControlValueAccessor {
     }
   }
 
-  get value(): LocationValue | null {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get value(): any {
     return this.innerValue;
   }
 
-  set value(v: LocationValue | null) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       const selectedOption = this.innerValue;
@@ -88,7 +83,6 @@ export class FyLocationComponent implements ControlValueAccessor {
     }
   }
 
-  // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method, @typescript-eslint/no-empty-function
   ngOnInit() {}
 
   async openModal() {
@@ -118,7 +112,8 @@ export class FyLocationComponent implements ControlValueAccessor {
     this.onTouchedCallback();
   }
 
-  writeValue(value: LocationValue | null): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  writeValue(value: any): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       const selectedOption = this.innerValue;
@@ -130,12 +125,10 @@ export class FyLocationComponent implements ControlValueAccessor {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerOnTouched(fn: any) {
     this.onTouchedCallback = fn;
   }

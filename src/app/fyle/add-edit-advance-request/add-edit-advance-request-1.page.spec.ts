@@ -65,7 +65,7 @@ export function TestCases1(getTestBed) {
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       transactionsOutboxService = TestBed.inject(
-        TransactionsOutboxService
+        TransactionsOutboxService,
       ) as jasmine.SpyObj<TransactionsOutboxService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
@@ -76,7 +76,7 @@ export function TestCases1(getTestBed) {
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -187,7 +187,7 @@ export function TestCases1(getTestBed) {
       expect(advanceRequestService.createAdvReqWithFilesAndSubmit).toHaveBeenCalledOnceWith(
         advanceRequests,
         mockFileData,
-        false
+        false,
       );
       result.subscribe((res) => {
         expect(res).toEqual(advRequestFile);
@@ -227,9 +227,12 @@ export function TestCases1(getTestBed) {
       });
     });
 
-    it('showFormValidationErrors(): should show form validation errors', () => {
+    it('showFormValidationErrors(): should show form validation errors', fakeAsync(() => {
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
+      component.ngOnInit();
       fixture.detectChanges();
+      tick();
+
       Object.defineProperty(component.fg, 'valid', {
         get: () => false,
       });
@@ -237,7 +240,7 @@ export function TestCases1(getTestBed) {
 
       component.showFormValidationErrors();
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-    });
+    }));
 
     describe('showAdvanceSummaryPopover():', () => {
       beforeEach(() => {
