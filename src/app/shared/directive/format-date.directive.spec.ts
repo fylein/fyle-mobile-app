@@ -6,6 +6,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   template: `<input appFormatDate type="date" />`,
+  standalone: false,
 })
 class TestFormatDateDirectiveComponent {}
 

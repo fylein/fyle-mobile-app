@@ -19,6 +19,7 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
   selector: 'app-invited-user',
   templateUrl: './invited-user.page.html',
   styleUrls: ['./invited-user.page.scss'],
+  standalone: false,
 })
 export class InvitedUserPage implements OnInit {
   isConnected$: Observable<boolean>;

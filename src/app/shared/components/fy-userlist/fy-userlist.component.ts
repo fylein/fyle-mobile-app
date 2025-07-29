@@ -18,6 +18,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FyUserlistComponent implements OnInit {
   @Input() options: { label: string; value: any }[];

@@ -11,6 +11,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-virtual-select-modal',
   templateUrl: './virtual-select-modal.component.html',
   styleUrls: ['./virtual-select-modal.component.scss'],
+  standalone: false,
 })
 export class VirtualSelectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;

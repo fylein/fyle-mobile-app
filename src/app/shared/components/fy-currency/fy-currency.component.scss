@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .fy-currency {
   &--label {
@@ -8,13 +8,13 @@
     line-height: 16px;
     font-weight: 400;
     line-height: 1.5;
-    color: $black-light;
+    color: colors.$black-light;
   }
 
   &--input {
     font-size: 14px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     border: none;
     width: 100%;
     margin: 6px 0;
@@ -22,18 +22,18 @@
   }
 
   &--input-invalid {
-    border-bottom: 1px solid $red;
+    border-bottom: 1px solid colors.$red;
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
   }
 
   &--input-container {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &--form {
@@ -65,7 +65,7 @@
     height: 12px;
     font-size: 12px;
     margin-top: 5px;
-    color: $black-light;
+    color: colors.$black-light;
   }
 
   &__sparkle-icon {
@@ -74,14 +74,14 @@
   }
 
   &__invalid {
-    border-bottom: 1px solid $red;
+    border-bottom: 1px solid colors.$red;
   }
 
   &--exchange-rate-container {
     display: flex;
     align-items: center;
     height: 42px;
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
     border-radius: 8px;
     padding: 8px;
     margin-top: 16px;
@@ -92,21 +92,21 @@
   }
 
   &--exchange-rate-icon {
-    color: $highlight-blue;
+    color: colors.$highlight-blue;
     margin-right: 10px;
   }
 
   &--exchange-rate-message {
     width: 100%;
-    color: $blue-black;
+    color: colors.$blue-black;
     font-size: 12px;
     line-height: 16px;
   }
 
   &--exchange-rate-modify {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     font-size: 12px;
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     font-weight: 500;
   }
 }

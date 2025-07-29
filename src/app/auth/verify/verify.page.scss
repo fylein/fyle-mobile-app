@@ -1,4 +1,4 @@
-@import '../../../theme/colors';
+@use '../../../theme/colors';
 
 @mixin loader {
   border-radius: 50%;
@@ -27,14 +27,14 @@
   &__verifying-loader {
     &__icon {
       @include loader;
-      fill: $brand-primary;
+      fill: colors.$brand-primary;
       height: 40px;
       width: 40px;
     }
 
     &__text {
       margin-top: 8px;
-      color: $black;
+      color: colors.$black;
     }
   }
 }

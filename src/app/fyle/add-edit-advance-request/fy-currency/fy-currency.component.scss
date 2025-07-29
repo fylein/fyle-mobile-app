@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .fy-currency {
   &--label {
@@ -7,13 +7,13 @@
     font-size: 12px;
     line-height: 16px;
     font-weight: 400;
-    color: $black-light;
+    color: colors.$black-light;
   }
 
   &--input {
     font-size: 14px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     border: none;
     width: 100%;
     margin: 6px 0;
@@ -21,14 +21,14 @@
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
   }
 
   &--input-container {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &--form {
@@ -53,6 +53,6 @@
   }
 
   &__invalid {
-    border-bottom: 1px solid $red;
+    border-bottom: 1px solid colors.$red;
   }
 }

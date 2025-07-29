@@ -6,6 +6,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
   selector: 'app-transaction-status-info-popover',
   templateUrl: './transaction-status-info-popover.component.html',
   styleUrls: ['./transaction-status-info-popover.component.scss'],
+  standalone: false,
 })
 export class TransactionStatusInfoPopoverComponent {
   @Input() transactionStatus: ExpenseTransactionStatus;

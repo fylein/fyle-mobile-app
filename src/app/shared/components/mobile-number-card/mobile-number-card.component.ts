@@ -5,6 +5,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
   selector: 'app-mobile-number-card',
   templateUrl: './mobile-number-card.component.html',
   styleUrls: ['./mobile-number-card.component.scss'],
+  standalone: false,
 })
 export class MobileNumberCardComponent implements OnInit {
   @Input() extendedOrgUser: ExtendedOrgUser;

@@ -5,6 +5,7 @@ import { CustomProperty } from 'src/app/core/models/custom-properties.model';
   selector: 'app-view-dependent-fields',
   templateUrl: './view-dependent-fields.component.html',
   styleUrls: ['./view-dependent-fields.component.scss'],
+  standalone: false,
 })
 export class ViewDependentFieldsComponent implements OnInit {
   @Input() parentFieldType: 'PROJECT' | 'COST_CENTER';

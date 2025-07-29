@@ -17,6 +17,7 @@ enum RequestInvitationPageState {
   selector: 'app-request-invitation',
   templateUrl: './request-invitation.page.html',
   styleUrls: ['./request-invitation.page.scss'],
+  standalone: false,
 })
 export class RequestInvitationPage implements OnInit {
   fg: UntypedFormGroup;

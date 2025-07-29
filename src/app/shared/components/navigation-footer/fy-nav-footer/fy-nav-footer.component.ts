@@ -4,6 +4,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   selector: 'app-fy-nav-footer',
   templateUrl: './fy-nav-footer.component.html',
   styleUrls: ['./fy-nav-footer.component.scss'],
+  standalone: false,
 })
 export class FyNavFooterComponent {
   @Input() activeExpenseIndex: number;

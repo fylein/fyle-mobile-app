@@ -1,56 +1,54 @@
 @if (!showDate) {
-  <div class="advance-card--date">
-    {{ advanceRequest.areq_created_at | date : 'MMM dd, YYYY' }}
-  </div>
-}
-
-@if (!actionOpened) {
-  <div class="advance-card" (click)="onGoToAdvances()" matRipple>
-    @if (showDate) {
-      <div class="advance-card--divider"></div>
-    }
-    <div class="advance-card--main-info">
-      <div class="advance-card--purpose-amount-date-block">
-        <!-- Icon -->
-        <div class="advance-card--icon-container">
-          <mat-icon class="advance-card--list-icon" svgIcon="list-new"></mat-icon>
+<div class="advance-card--date">
+  {{ advanceRequest.areq_created_at | date : 'MMM dd, yyyy' }}
+</div>
+} @if (!actionOpened) {
+<div class="advance-card" (click)="onGoToAdvances()" matRipple>
+  @if (showDate) {
+  <div class="advance-card--divider"></div>
+  }
+  <div class="advance-card--main-info">
+    <div class="advance-card--purpose-amount-date-block">
+      <!-- Icon -->
+      <div class="advance-card--icon-container">
+        <mat-icon class="advance-card--list-icon" svgIcon="list-new"></mat-icon>
+      </div>
+      <!-- Purpose -->
+      <div class="advance-card--purpose-amount-date-container">
+        <div class="advance-card--purpose">
+          <span>{{ advanceRequest.areq_purpose | ellipsis : 30 }}</span>
         </div>
-        <!-- Purpose -->
-        <div class="advance-card--purpose-amount-date-container">
-          <div class="advance-card--purpose">
-            <span>{{ advanceRequest.areq_purpose | ellipsis : 30 }}</span>
-          </div>
-          <!-- Amount -->
-          <div class="advance-card--amount-block">
-            <span class="advance-card--currency">{{ currencySymbol }}</span>
-            @if (advanceRequest.areq_amount && advanceRequest.areq_currency) {
-              <span class="advance-card--amount">
-                {{
-                { value: advanceRequest.areq_amount || 0, currencyCode: advanceRequest.areq_currency, skipSymbol: true }
+        <!-- Amount -->
+        <div class="advance-card--amount-block">
+          <span class="advance-card--currency">{{ currencySymbol }}</span>
+          @if (advanceRequest.areq_amount && advanceRequest.areq_currency) {
+          <span class="advance-card--amount">
+            {{
+              { value: advanceRequest.areq_amount || 0, currencyCode: advanceRequest.areq_currency, skipSymbol: true }
                 | exactCurrency
-                }}
-              </span>
+            }}
+          </span>
+          }
+        </div>
+        <!-- Approved date -->
+        <div class="advance-card--secondary-info-block">
+          <div class="advance-card--approval">
+            @if (advanceRequest.areq_approved_at) {
+            <div>
+              <span
+                >{{ 'teamAdvCard.approvedDate' | transloco
+                }}{{ advanceRequest.areq_approved_at | date : 'MMM dd, yyyy' }}</span
+              >
+            </div>
             }
           </div>
-          <!-- Approved date -->
-          <div class="advance-card--secondary-info-block">
-            <div class="advance-card--approval">
-              @if (advanceRequest.areq_approved_at) {
-                <div>
-                  <span
-                    >{{ 'teamAdvCard.approvedDate' | transloco
-                    }}{{ advanceRequest.areq_approved_at | date : 'MMM dd, YYYY' }}</span
-                    >
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- State -->
-        <div class="state-pill" [class]="'state-' + internalState.state">
-          {{ internalState.name }}
         </div>
       </div>
     </div>
-  }
+    <!-- State -->
+    <div class="state-pill" [class]="'state-' + internalState.state">
+      {{ internalState.name }}
+    </div>
+  </div>
+</div>
+}
