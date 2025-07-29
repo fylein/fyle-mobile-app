@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { PolicyDetail } from 'src/app/core/models/policy-detail.model';
 
 describe('FyPolicyViolationInfoComponent', () => {
   let component: FyPolicyViolationInfoComponent;
@@ -27,6 +28,20 @@ describe('FyPolicyViolationInfoComponent', () => {
       },
       langChanges$: of('en'),
       _loadDependencies: () => Promise.resolve(),
+    });
+
+    // Setup modal creation spy
+    const mockModal = jasmine.createSpyObj('Modal', ['present']);
+    modalControllerSpy.create.and.resolveTo(mockModal);
+    modalPropertiesSpy.getModalDefaultProperties.and.returnValue({
+      cssClass: 'auto-height',
+      showBackdrop: true,
+      canDismiss: true,
+      backdropDismiss: true,
+      animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
     });
     TestBed.configureTestingModule({
       declarations: [FyPolicyViolationInfoComponent],
@@ -51,11 +66,12 @@ describe('FyPolicyViolationInfoComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'fyPolicyViolationInfo.policy': 'Policy',
+        'fyPolicyViolationInfo.policy': 'policy',
         'fyPolicyViolationInfo.violation': 'violation',
         'fyPolicyViolationInfo.violations': 'violations',
         'fyPolicyViolationInfo.found': 'found.',
         'fyPolicyViolationInfo.viewDetails': 'View details',
+        'fyPolicyViolationInfo.critical': 'Critical',
         'fyPolicyViolationInfo.criticalViolationNotice':
           'This expense has a critical policy violation. It cannot be added to a report until resolved.',
       };
@@ -73,7 +89,7 @@ describe('FyPolicyViolationInfoComponent', () => {
     });
     fixture = TestBed.createComponent(FyPolicyViolationInfoComponent);
     component = fixture.componentInstance;
-    component.policyDetails = [individualExpPolicyStateData1];
+    component.policyDetails = [individualExpPolicyStateData1] as PolicyDetail[];
     fixture.detectChanges();
   }));
 
@@ -92,19 +108,19 @@ describe('FyPolicyViolationInfoComponent', () => {
     fixture.detectChanges();
     tick();
     expect(getTextContent(getElementBySelector(fixture, '.policy-violation-info--content'))).toEqual(
-      'Policy violation found.'
+      'Critical policy violation'
     );
   }));
 
   it('should open policy violation modal on clicking', fakeAsync(() => {
-    spyOn(component, 'openPolicyViolationDetails').and.resolveTo(null);
+    component.expense = { unreportable: false } as any;
     fixture.detectChanges();
     tick();
     const viewDetailsButton = getElementBySelector(fixture, '.policy-violation-info--view-more') as HTMLElement;
     expect(getTextContent(viewDetailsButton)).toEqual('View details');
     click(viewDetailsButton);
 
-    expect(component.openPolicyViolationDetails).toHaveBeenCalledTimes(1);
+    expect(modalController.create).toHaveBeenCalledTimes(1);
   }));
 
   it('should not show the container if there are no policy violations', () => {
@@ -118,27 +134,8 @@ describe('FyPolicyViolationInfoComponent', () => {
   describe('openPolicyViolationDetails():', () => {
     it('should open critical policy violation details', async () => {
       component.criticalPolicyViolated = true;
+      component.expense = { unreportable: true } as any;
       fixture.detectChanges();
-
-      const properties = {
-        cssClass: 'auto-height',
-        showBackdrop: true,
-        canDismiss: true,
-        backdropDismiss: true,
-        animated: true,
-        initialBreakpoint: 1,
-        breakpoints: [0, 1],
-        handle: false,
-      };
-
-      modalController.create.and.returnValue(
-        new Promise((resolve) => {
-          const policyDetailsModalSpy = jasmine.createSpyObj('policyDetailsModal', ['present']) as any;
-          resolve(policyDetailsModalSpy);
-        })
-      );
-
-      modalProperties.getModalDefaultProperties.and.returnValue(properties);
 
       component.openPolicyViolationDetails();
 
@@ -152,15 +149,6 @@ describe('FyPolicyViolationInfoComponent', () => {
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyCriticalPolicyViolationComponent,
         componentProps: componentProperties,
-        ...properties,
-      });
-    });
-
-    it('should open policy violation details', async () => {
-      component.criticalPolicyViolated = false;
-      fixture.detectChanges();
-
-      const properties = {
         cssClass: 'auto-height',
         showBackdrop: true,
         canDismiss: true,
@@ -169,16 +157,13 @@ describe('FyPolicyViolationInfoComponent', () => {
         initialBreakpoint: 1,
         breakpoints: [0, 1],
         handle: false,
-      };
+      });
+    });
 
-      modalController.create.and.returnValue(
-        new Promise((resolve) => {
-          const policyDetailsModalSpy = jasmine.createSpyObj('policyDetailsModal', ['present']) as any;
-          resolve(policyDetailsModalSpy);
-        })
-      );
-
-      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+    it('should open policy violation details', async () => {
+      component.criticalPolicyViolated = false;
+      component.expense = { unreportable: false } as any;
+      fixture.detectChanges();
 
       component.openPolicyViolationDetails();
 
@@ -193,7 +178,14 @@ describe('FyPolicyViolationInfoComponent', () => {
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyPolicyViolationComponent,
         componentProps: componentProperties,
-        ...properties,
+        cssClass: 'auto-height',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
       });
     });
   });

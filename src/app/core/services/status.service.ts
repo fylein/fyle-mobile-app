@@ -90,10 +90,18 @@ export class StatusService {
         };
         break;
       case lowerCaseComment.indexOf('policy violation will trigger the following action') > -1:
-        statusCategory = {
-          category: this.translocoService.translate('services.status.policyViolation'),
-          icon: 'warning-fill',
-        };
+        // Check if the report is blocked (contains "could not be added to a report")
+        if (lowerCaseComment.indexOf('could not be added to a report') > -1) {
+          statusCategory = {
+            category: this.translocoService.translate('services.status.criticalPolicyViolation'),
+            icon: 'warning-fill',
+          };
+        } else {
+          statusCategory = {
+            category: this.translocoService.translate('services.status.policyViolation'),
+            icon: 'warning-fill',
+          };
+        }
         break;
       case lowerCaseComment.indexOf('added to the report') > -1:
         statusCategory = {

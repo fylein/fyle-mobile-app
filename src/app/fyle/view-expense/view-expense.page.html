@@ -36,6 +36,7 @@
     <app-fy-policy-violation-info
       [policyDetails]="policyDetails"
       [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+      [expense]="expense"
     ></app-fy-policy-violation-info>
     } } @if ((isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)) {
     <div class="view-expense--policy-container">
