@@ -37,7 +37,7 @@ export class PotentialDuplicatesPage {
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar,
     private trackingService: TrackingService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
   ) {}
 
   ionViewWillEnter(): void {
@@ -69,16 +69,16 @@ export class PotentialDuplicatesPage {
                 map((expenses) => {
                   const expensesArray = expenses as [];
                   return duplicateSets.map((duplicateSet) =>
-                    this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                    this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray),
                   );
-                })
+                }),
               );
           }),
           finalize(() => {
             this.isLoading = false;
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
     this.duplicateSets$.subscribe((duplicateExpenses) => {
       this.duplicateExpenses = duplicateExpenses;
@@ -93,7 +93,7 @@ export class PotentialDuplicatesPage {
 
   addExpenseDetailsToDuplicateSets(duplicateSet: string[], expensesArray: Expense[]): Expense[] {
     return duplicateSet.map(
-      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: Expense) => expenseId === duplicateTxn.id)]
+      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: Expense) => expenseId === duplicateTxn.id)],
     );
   }
 
@@ -130,10 +130,10 @@ export class PotentialDuplicatesPage {
       this.trackingService.dismissedIndividualExpenses();
       this.showDismissedSuccessToast();
       this.duplicateSetData[this.selectedSet] = this.duplicateSetData[this.selectedSet].filter(
-        (expId) => expId !== expense.id
+        (expId) => expId !== expense.id,
       );
       this.duplicateExpenses[this.selectedSet] = this.duplicateExpenses[this.selectedSet].filter(
-        (exp) => exp.id !== expense.id
+        (exp) => exp.id !== expense.id,
       );
     }
   }

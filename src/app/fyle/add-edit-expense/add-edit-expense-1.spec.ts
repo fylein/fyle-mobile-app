@@ -1416,11 +1416,26 @@ export function TestCases1(getTestBed) {
 
     it('showFormValidationErrors(): should show form validation errors', () => {
       spyOn(component.fg, 'markAllAsTouched');
-
+      component.isLoading = false;
       fixture.detectChanges();
+
+      // Create a mock form container
+      const mockFormContainer = document.createElement('form');
+      const mockInvalidElement = document.createElement('div');
+      mockInvalidElement.classList.add('ng-invalid');
+      mockFormContainer.appendChild(mockInvalidElement);
+      spyOn(mockInvalidElement, 'scrollIntoView');
+
+      // Set the formContainer ViewChild
+      component.formContainer = {
+        nativeElement: mockFormContainer,
+      };
 
       component.showFormValidationErrors();
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
+      expect(mockInvalidElement.scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+      });
     });
   });
 }

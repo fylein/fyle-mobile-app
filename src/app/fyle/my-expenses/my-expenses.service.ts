@@ -18,7 +18,10 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 export class MyExpensesService {
   maskNumber = new MaskNumber();
 
-  constructor(private translocoService: TranslocoService, private orgSettingsService: OrgSettingsService) {}
+  constructor(
+    private translocoService: TranslocoService,
+    private orgSettingsService: OrgSettingsService,
+  ) {}
 
   generateSortFilterPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
     this.generateSortTxnDatePills(filter, filterPills);
@@ -29,7 +32,7 @@ export class MyExpensesService {
   }
 
   convertSelectedOptionsToExpenseFilters(
-    selectedFilters: SelectedFilters<string | string[]>[]
+    selectedFilters: SelectedFilters<string | string[]>[],
   ): Partial<ExpenseFilters> {
     const generatedFilters: Partial<ExpenseFilters> = {};
 
@@ -265,7 +268,7 @@ export class MyExpensesService {
 
   convertSelectedSortFitlersToFilters(
     sortBy: SelectedFilters<string | string[]>,
-    generatedFilters: Partial<ExpenseFilters>
+    generatedFilters: Partial<ExpenseFilters>,
   ): void {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
@@ -510,7 +513,7 @@ export class MyExpensesService {
 
   addSortToGeneratedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     this.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
 
@@ -521,7 +524,7 @@ export class MyExpensesService {
 
   convertCategorySortToSelectedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'category->name' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -538,7 +541,7 @@ export class MyExpensesService {
 
   convertAmountSortToSelectedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
@@ -555,7 +558,7 @@ export class MyExpensesService {
 
   convertTxnDtSortToSelectedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'spent_at' && filter.sortDir === 'asc') {
       generatedFilters.push({

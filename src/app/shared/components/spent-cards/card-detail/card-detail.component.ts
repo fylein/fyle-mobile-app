@@ -23,7 +23,7 @@ export class CardDetailComponent {
   constructor(
     private router: Router,
     private trackingService: TrackingService,
-    private orgSettingService: OrgSettingsService
+    private orgSettingService: OrgSettingsService,
   ) {}
 
   goToExpensesPage(state: string, cardDetail: PlatformCorporateCardDetail): void {

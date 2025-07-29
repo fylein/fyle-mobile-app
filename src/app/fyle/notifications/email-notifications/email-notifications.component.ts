@@ -73,7 +73,7 @@ export class EmailNotificationsComponent implements OnInit {
 
     // Keep events unsubscribed from other notification types
     const otherUnsubscribedEvents = this.unsubscribedEventsByUser.filter(
-      (event) => !currentEventTypes.has(event as NotificationEventsEnum)
+      (event) => !currentEventTypes.has(event as NotificationEventsEnum),
     );
 
     // Add events that are currently unsubscribed in this modal
@@ -97,7 +97,7 @@ export class EmailNotificationsComponent implements OnInit {
       .post(this.employeeSettings)
       .pipe(
         tap(() => this.platformEmployeeSettingsService.clearEmployeeSettings()),
-        finalize(() => this.updateSaveText('Saved'))
+        finalize(() => this.updateSaveText('Saved')),
       )
       .subscribe();
   }

@@ -35,7 +35,7 @@ export class ResetPasswordPage {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
   ) {}
 
   ionViewWillEnter(): void {
@@ -61,7 +61,7 @@ export class ResetPasswordPage {
       .pipe(
         finalize(() => {
           this.isLoading = false;
-        })
+        }),
       )
       .subscribe({
         next: () => {

@@ -27,7 +27,7 @@ export class PopupWithBulletsComponent {
     private clipboardService: ClipboardService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   dismissPopover(): void {

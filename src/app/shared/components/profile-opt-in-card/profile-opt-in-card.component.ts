@@ -34,7 +34,7 @@ export class ProfileOptInCardComponent implements OnInit {
   constructor(
     private clipboardService: ClipboardService,
     private trackingService: TrackingService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {

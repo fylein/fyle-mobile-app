@@ -159,14 +159,16 @@ describe('StatusService', () => {
   });
 
   it('should return "Critical policy violation found" for blocked reports', () => {
-    const blockedComment = 'The policy violation will trigger the following action(s): expense will be flagged for verification and approval, expense could not be added to a report or submitted';
+    const blockedComment =
+      'The policy violation will trigger the following action(s): expense will be flagged for verification and approval, expense could not be added to a report or submitted';
     const result = statusService.getStatusCategory(blockedComment, 'transactions');
     expect(result.category).toBe('Critical policy violation found');
     expect(result.icon).toBe('warning-fill');
   });
 
   it('should return "Policy violation" for non-blocked policy violations', () => {
-    const nonBlockedComment = 'The policy violation will trigger the following action(s): expense will be flagged for verification and approval';
+    const nonBlockedComment =
+      'The policy violation will trigger the following action(s): expense will be flagged for verification and approval';
     const result = statusService.getStatusCategory(nonBlockedComment, 'transactions');
     expect(result.category).toBe('Policy violation');
     expect(result.icon).toBe('warning-fill');

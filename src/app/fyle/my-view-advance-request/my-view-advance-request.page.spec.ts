@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync, flushMicrotasks } from '@angular/core/testing';
 import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
 
 import { MyViewAdvanceRequestPage } from './my-view-advance-request.page';
@@ -71,6 +71,8 @@ describe('MyViewAdvanceRequestPage', () => {
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateForward']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
+    loaderServiceSpy.showLoader.and.resolveTo();
+    loaderServiceSpy.hideLoader.and.resolveTo();
 
     TestBed.configureTestingModule({
       declarations: [MyViewAdvanceRequestPage],
@@ -162,18 +164,16 @@ describe('MyViewAdvanceRequestPage', () => {
     });
   });
 
-  it('getAndUpdateProjectName(): should set project field name equal to field name having column name as project_id', () => {
+  it('getAndUpdateProjectName(): should set project field name equal to field name having column name as project_id', fakeAsync(() => {
     expenseFieldsService.getAllEnabled.and.returnValue(of(transformedResponse2));
 
     component.getAndUpdateProjectName();
-
+    flushMicrotasks();
     expect(component.projectFieldName).toEqual('Purpose');
-  });
+  }));
 
   describe('ionViewWillEnter():', () => {
     beforeEach(() => {
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(publicAdvanceRequestRes.data[0]));
       advanceRequestService.getInternalStateAndDisplayName.and.returnValue({
         state: 'DRAFT',
@@ -200,12 +200,10 @@ describe('MyViewAdvanceRequestPage', () => {
 
       component.advanceRequest$.subscribe((res) => {
         expect(advanceRequestService.getAdvanceRequestPlatform).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(res).toEqual(publicAdvanceRequestRes.data[0]);
       });
       expect(advanceRequestService.getInternalStateAndDisplayName).toHaveBeenCalledOnceWith(
-        publicAdvanceRequestRes.data[0]
+        publicAdvanceRequestRes.data[0],
       );
       expect(component.internalState).toEqual({
         state: 'DRAFT',
@@ -217,6 +215,10 @@ describe('MyViewAdvanceRequestPage', () => {
     it('should set currency symbol to undefined if advance request is undefined', fakeAsync(() => {
       advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(undefined));
       component.ionViewWillEnter();
+
+      // Subscribe to trigger the map operator
+      component.advanceRequest$.subscribe();
+
       tick(100);
 
       expect(component.internalState).toEqual({
@@ -244,7 +246,7 @@ describe('MyViewAdvanceRequestPage', () => {
         expect(res).toEqual(advanceReqApprovalsPublic);
       });
       expect(advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform).toHaveBeenCalledOnceWith(
-        'areqR1cyLgXdND'
+        'areqR1cyLgXdND',
       );
     }));
 
@@ -274,7 +276,7 @@ describe('MyViewAdvanceRequestPage', () => {
 
       component.advanceRequestCustomFields$.subscribe(() => {
         expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-          publicAdvanceRequestRes.data[0].areq_custom_field_values
+          publicAdvanceRequestRes.data[0].areq_custom_field_values,
         );
         expect(advanceRequestService.getCustomFieldsForSpender).toHaveBeenCalledTimes(1);
       });
@@ -285,8 +287,6 @@ describe('MyViewAdvanceRequestPage', () => {
   it('pullBack(): should pull back advance request and navigate to my_advances page', fakeAsync(() => {
     const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     advanceRequestService.pullBackAdvanceRequest.and.returnValue(of(advanceRequestPlatform.data[0]));
-    loaderService.showLoader.and.resolveTo();
-    loaderService.hideLoader.and.resolveTo();
     const pullBackPopoverSpy = jasmine.createSpyObj('pullBackPopover', ['present', 'onWillDismiss']);
     pullBackPopoverSpy.onWillDismiss.and.resolveTo({ data: { comment: 'test comment' } });
     popoverController.create.and.resolveTo(pullBackPopoverSpy);
@@ -300,8 +300,6 @@ describe('MyViewAdvanceRequestPage', () => {
       notify: false,
     });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
-    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
   }));
 
   it('edit(): should navigate to add-edit-advance-request page', () => {

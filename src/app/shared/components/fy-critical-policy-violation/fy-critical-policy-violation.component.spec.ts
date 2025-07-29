@@ -113,8 +113,10 @@ describe('FyCriticalPolicyViolationComponent', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.critical-policy-violation--info'))).toEqual(
-      'You cannot report this expense due to the following violation(s):'
+      'You cannot report this expense due to the following violation(s):',
     );
-    expect(getTextContent(getElementBySelector(fixture, '.policy-violation-rule--container div'))).toEqual('A violation message');
+    expect(getTextContent(getElementBySelector(fixture, '.policy-violation-rule--container div'))).toEqual(
+      'A violation message',
+    );
   });
 });

@@ -17,7 +17,7 @@ export class PromoteOptInModalComponent {
   constructor(
     private modalController: ModalController,
     private popoverController: PopoverController,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   async optInClick(): Promise<void> {

@@ -18,7 +18,7 @@ export class DashboardEmailOptInComponent {
     private popoverController: PopoverController,
     private trackingService: TrackingService,
     private router: Router,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   async emailOptInClick(): Promise<void> {

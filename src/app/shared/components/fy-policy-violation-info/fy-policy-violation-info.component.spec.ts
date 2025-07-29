@@ -108,7 +108,7 @@ describe('FyPolicyViolationInfoComponent', () => {
     fixture.detectChanges();
     tick();
     expect(getTextContent(getElementBySelector(fixture, '.policy-violation-info--content'))).toEqual(
-      'Critical policy violation'
+      'Critical policy violation',
     );
   }));
 

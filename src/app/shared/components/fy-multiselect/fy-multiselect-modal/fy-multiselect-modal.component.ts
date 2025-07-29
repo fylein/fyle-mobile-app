@@ -31,7 +31,10 @@ export class FyMultiselectModalComponent implements AfterViewInit {
 
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
 
-  constructor(private modalController: ModalController, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private modalController: ModalController,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   clearValue(): void {
     this.value = '';
@@ -72,8 +75,8 @@ export class FyMultiselectModalComponent implements AfterViewInit {
               option.selected = this.currentSelections.some((selection) => isEqual(option.value, selection));
             }
             return option;
-          })
-      )
+          }),
+      ),
     );
     this.cdr.detectChanges();
   }

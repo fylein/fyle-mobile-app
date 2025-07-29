@@ -32,7 +32,7 @@ export class FooterComponent implements OnInit {
   constructor(
     private networkService: NetworkService,
     private trackingService: TrackingService,
-    private router: Router
+    private router: Router,
   ) {}
 
   get ConnectionMessageStatus(): typeof ConnectionMessageStatus {

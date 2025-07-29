@@ -35,7 +35,7 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
     private popoverController: PopoverController,
     private authService: AuthService,
     private orgUserService: OrgUserService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -79,7 +79,7 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
           .postOrgUser(updatedOrgUserDetails)
           .pipe(
             switchMap(() => this.authService.refreshEou()),
-            finalize(() => (this.updatingMobileNumber = false))
+            finalize(() => (this.updatingMobileNumber = false)),
           )
           .subscribe({
             complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),

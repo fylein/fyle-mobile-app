@@ -28,7 +28,7 @@ export class RequestInvitationPage implements OnInit {
     private fb: UntypedFormBuilder,
     private activateRoute: ActivatedRoute,
     private loaderService: LoaderService,
-    private invitationRequestsService: InvitationRequestsService
+    private invitationRequestsService: InvitationRequestsService,
   ) {}
 
   get RequestInvitationStates() {
@@ -49,7 +49,7 @@ export class RequestInvitationPage implements OnInit {
         concatMap(() => this.invitationRequestsService.upsertRouter(this.fg.controls.email.value)),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        })
+        }),
       )
       .subscribe({
         next: () => {

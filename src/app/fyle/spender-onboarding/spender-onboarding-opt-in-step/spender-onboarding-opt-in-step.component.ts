@@ -122,7 +122,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
     private userEventService: UserEventService,
     private snackbarProperties: SnackbarPropertiesService,
     private spenderOnboardingService: SpenderOnboardingService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get OptInFlowState(): typeof OptInFlowState {
@@ -188,7 +188,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
             switchMap(() => this.authService.refreshEou()),
             finalize(() => {
               this.savingMobileNumber = false;
-            })
+            }),
           )
           .subscribe({
             complete: () => {
@@ -221,7 +221,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
         this.toastWithoutCTA(
           this.translocoService.translate('spenderOnboardingOptInStep.codeSentSuccess'),
           ToastType.SUCCESS,
-          'msb-success-with-camera-icon'
+          'msb-success-with-camera-icon',
         );
         this.ngOtpInput.setValue('');
       }
@@ -230,7 +230,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
       this.toastWithoutCTA(
         this.translocoService.translate('spenderOnboardingOptInStep.otpLimitReached'),
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       this.disableResendOtp = true;
       this.trackingService.eventTrack('Sms Opt In Onboarding Step - Max Otp Attempts Reached');
@@ -248,7 +248,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
         this.toastWithoutCTA(
           this.translocoService.translate('spenderOnboardingOptInStep.otpLimitReached'),
           ToastType.FAILURE,
-          'msb-failure-with-camera-icon'
+          'msb-failure-with-camera-icon',
         );
         this.ngOtpInput?.setValue('');
         this.disableResendOtp = true;
@@ -256,20 +256,20 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
         this.toastWithoutCTA(
           this.translocoService.translate('spenderOnboardingOptInStep.invalidMobileNumberToast'),
           ToastType.FAILURE,
-          'msb-failure-with-camera-icon'
+          'msb-failure-with-camera-icon',
         );
       } else if (errorMessage.includes('expired')) {
         this.toastWithoutCTA(
           this.translocoService.translate('spenderOnboardingOptInStep.codeExpired'),
           ToastType.FAILURE,
-          'msb-failure-with-camera-icon'
+          'msb-failure-with-camera-icon',
         );
         this.ngOtpInput?.setValue('');
       } else {
         this.toastWithoutCTA(
           this.translocoService.translate('spenderOnboardingOptInStep.invalidCode'),
           ToastType.FAILURE,
-          'msb-failure-with-camera-icon'
+          'msb-failure-with-camera-icon',
         );
         this.ngOtpInput?.setValue('');
       }
@@ -293,12 +293,12 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   verifyOtp(otp: string): void {
     this.verifyingOtp = true;
     from(
-      this.loaderService.showLoader(this.translocoService.translate('spenderOnboardingOptInStep.verifyingCodeLoader'))
+      this.loaderService.showLoader(this.translocoService.translate('spenderOnboardingOptInStep.verifyingCodeLoader')),
     )
       .pipe(
         switchMap(() => this.mobileNumberVerificationService.verifyOtp(otp)),
         switchMap(() => this.authService.refreshEou()),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe({
         complete: () => {
@@ -312,7 +312,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
           this.toastWithoutCTA(
             this.translocoService.translate('spenderOnboardingOptInStep.invalidCode'),
             ToastType.FAILURE,
-            'msb-failure-with-camera-icon'
+            'msb-failure-with-camera-icon',
           );
           this.ngOtpInput.setValue('');
           this.verifyingOtp = false;

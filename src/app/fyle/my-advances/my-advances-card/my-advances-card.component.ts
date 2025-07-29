@@ -28,7 +28,10 @@ export class MyAdvancesCardComponent implements OnInit {
 
   showDate = false;
 
-  constructor(private advanceRequestService: AdvanceRequestService, private translocoService: TranslocoService) {}
+  constructor(
+    private advanceRequestService: AdvanceRequestService,
+    private translocoService: TranslocoService,
+  ) {}
 
   ngOnInit(): void {
     if (this.advanceRequest && this.prevDate) {

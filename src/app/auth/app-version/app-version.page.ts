@@ -20,7 +20,7 @@ export class AppVersionPage implements OnInit {
     private deviceService: DeviceService,
     private activatedRoute: ActivatedRoute,
     private browserHandlerService: BrowserHandlerService,
-    private platformHandlerService: PlatformHandlerService
+    private platformHandlerService: PlatformHandlerService,
   ) {}
 
   ngOnInit() {
@@ -40,14 +40,14 @@ export class AppVersionPage implements OnInit {
     deviceAndroid$.subscribe(async () => {
       await this.browserHandlerService.openLinkWithWindowName(
         '_system',
-        'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781'
+        'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781',
       );
     });
 
     deviceIos$.subscribe(async () => {
       await this.browserHandlerService.openLinkWithWindowName(
         '_system',
-        'https://itunes.apple.com/in/app/fyle/id1137906166'
+        'https://itunes.apple.com/in/app/fyle/id1137906166',
       );
     });
   }

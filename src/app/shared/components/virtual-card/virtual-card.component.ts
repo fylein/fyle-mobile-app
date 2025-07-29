@@ -40,14 +40,14 @@ export class VirtualCardComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private popoverController: PopoverController,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   showToastMessage(message: string): void {
     const successToastProperties = this.snackbarProperties.setSnackbarProperties(
       'success',
       { message },
-      'check-circle-outline'
+      'check-circle-outline',
     );
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...successToastProperties,

@@ -18,7 +18,10 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class ExpensesService {
-  constructor(private dateService: DateService, private translocoService: TranslocoService) {}
+  constructor(
+    private dateService: DateService,
+    private translocoService: TranslocoService,
+  ) {}
 
   isExpenseInDraft(expense: Expense): boolean {
     return expense.state && expense.state === ExpenseState.DRAFT;
@@ -127,7 +130,7 @@ export class ExpensesService {
           !this.isExpenseInDraft(expense) &&
           !this.isExpenseUnreportable(expense) &&
           expense.id &&
-          !this.doesExpenseHavePendingCardTransaction(expense)
+          !this.doesExpenseHavePendingCardTransaction(expense),
       );
     } else {
       return expenses.filter(
@@ -135,7 +138,7 @@ export class ExpensesService {
           !this.isCriticalPolicyViolatedExpense(expense) &&
           !this.isExpenseInDraft(expense) &&
           !this.isExpenseUnreportable(expense) &&
-          expense.id
+          expense.id,
       );
     }
   }
@@ -143,7 +146,7 @@ export class ExpensesService {
   isMergeAllowed(expenses: Expense[]): boolean {
     if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some((expense) =>
-        ['Mileage', 'Per Diem'].includes(expense.category.system_category)
+        ['Mileage', 'Per Diem'].includes(expense.category.system_category),
       );
       const areAllExpensesSubmitted = expenses.every((expense) =>
         [
@@ -152,10 +155,10 @@ export class ExpensesService {
           ExpenseState.PAYMENT_PENDING,
           ExpenseState.PAYMENT_PROCESSING,
           ExpenseState.PAID,
-        ].includes(expense.state)
+        ].includes(expense.state),
       );
       const areAllCCCMatchedExpenses = expenses.every(
-        (expense) => expense.matched_corporate_card_transactions.length > 0
+        (expense) => expense.matched_corporate_card_transactions.length > 0,
       );
       return !areSomeMileageOrPerDiemExpenses && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
     } else {
@@ -192,11 +195,11 @@ export class ExpensesService {
     expensesToBeDeletedCount: number,
     cccExpenses: number,
     expenseDeletionMessage: string,
-    cccExpensesMessage: string
+    cccExpensesMessage: string,
   ): string {
     const irreversibleActionMessage = this.translocoService.translate('services.expenses.actionCannotBeReversed');
     const permanentDeleteConfirmation = this.translocoService.translate(
-      'services.expenses.permanentDeleteConfirmation'
+      'services.expenses.permanentDeleteConfirmation',
     );
     let dialogBody: string;
 
@@ -223,7 +226,7 @@ export class ExpensesService {
 
   generateCardNumberParams(
     newQueryParams: Record<string, string | string[] | boolean>,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): Record<string, string | string[] | boolean> {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
@@ -236,7 +239,7 @@ export class ExpensesService {
 
   generateDateParams(
     newQueryParams: Record<string, string | string[] | boolean>,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): Record<string, string | string[] | boolean> {
     let newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date) {
@@ -265,7 +268,7 @@ export class ExpensesService {
 
   generateCustomDateParams(
     newQueryParams: Record<string, string | string[] | boolean>,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): Record<string, string | string[] | boolean> {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date === DateFilters.custom) {
@@ -285,7 +288,7 @@ export class ExpensesService {
 
   generateReceiptAttachedParams(
     newQueryParams: Record<string, string | string[] | boolean>,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): Record<string, string | string[] | boolean> {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.receiptsAttached) {
@@ -302,7 +305,7 @@ export class ExpensesService {
 
   generatePotentialDuplicatesParams(
     newQueryParams: Record<string, string | string[] | boolean>,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): Record<string, string | string[] | boolean> {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.potentialDuplicates === 'YES') {
@@ -315,7 +318,7 @@ export class ExpensesService {
 
   generateStateFilters(
     newQueryParams: Record<string, string | string[] | boolean>,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): Record<string, string | string[] | boolean> {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
@@ -333,7 +336,7 @@ export class ExpensesService {
 
   generateStateOrFilter(
     filters: Partial<ExpenseFilters>,
-    newQueryParamsCopy: Record<string, string | string[] | boolean>
+    newQueryParamsCopy: Record<string, string | string[] | boolean>,
   ): string[] {
     const stateOrFilter: string[] = [];
     if (filters.state) {
@@ -364,7 +367,7 @@ export class ExpensesService {
 
   generateTypeFilters(
     newQueryParams: Record<string, string | string[] | boolean>,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): Record<string, string | string[] | boolean> {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const typeOrFilter = this.generateTypeOrFilter(filters);
@@ -402,7 +405,7 @@ export class ExpensesService {
 
   setSortParams(
     currentParams: Partial<GetExpenseQueryParam>,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): Partial<GetExpenseQueryParam> {
     const currentParamsCopy = cloneDeep(currentParams);
     if (filters.sortParam && filters.sortDir) {
@@ -418,7 +421,7 @@ export class ExpensesService {
 
   generateSplitExpenseParams(
     newQueryParams: Record<string, string | string[] | boolean>,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): Record<string, string | string[] | boolean> {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const split_or_arr = [];
@@ -438,7 +441,7 @@ export class ExpensesService {
   isExpenseInPaymentMode(
     expenseIsReimbursable: boolean,
     expenseSourceAccountType: string,
-    paymentMode: 'reimbursable' | 'nonReimbursable' | 'advance' | 'ccc'
+    paymentMode: 'reimbursable' | 'nonReimbursable' | 'advance' | 'ccc',
   ): boolean {
     let expenseInPaymentMode = false;
     const isAdvanceOrCCCExpense =
@@ -476,8 +479,8 @@ export class ExpensesService {
       this.isExpenseInPaymentMode(
         expenseIsReimbursable,
         expenseSourceAccountType,
-        paymentMode.key as 'reimbursable' | 'nonReimbursable' | 'advance' | 'ccc'
-      )
+        paymentMode.key as 'reimbursable' | 'nonReimbursable' | 'advance' | 'ccc',
+      ),
     );
   }
 
@@ -485,7 +488,7 @@ export class ExpensesService {
     currencyMap: Record<string, CurrencySummary>,
     expenseCurrency: string,
     expenseAmount: number,
-    expenseForeignAmount: number = null
+    expenseForeignAmount: number = null,
   ): void {
     if (currencyMap.hasOwnProperty(expenseCurrency)) {
       currencyMap[expenseCurrency].origAmount += expenseForeignAmount ? expenseForeignAmount : expenseAmount;

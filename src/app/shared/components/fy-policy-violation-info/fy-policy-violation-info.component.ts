@@ -24,13 +24,17 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   showPolicyInfo = false;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+  ) {}
 
   ngOnInit(): void {
     this.policyViolations = [];
-    this.policyViolations = this.policyDetails
-      ?.filter((ids) => ids.run_status === 'VIOLATED_ACTION_SUCCESS')
-      .map((ids) => ids.expense_policy_rule.description) || [];
+    this.policyViolations =
+      this.policyDetails
+        ?.filter((ids) => ids.run_status === 'VIOLATED_ACTION_SUCCESS')
+        .map((ids) => ids.expense_policy_rule.description) || [];
     this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated;
   }
 
@@ -64,7 +68,9 @@ export class FyPolicyViolationInfoComponent implements OnInit {
     return 'unreportable' in expense && expense.unreportable === true;
   }
 
-  private isUnflattenedTransactionWithUnreportableState(expense: Expense | UnflattenedTransaction): expense is UnflattenedTransaction {
+  private isUnflattenedTransactionWithUnreportableState(
+    expense: Expense | UnflattenedTransaction,
+  ): expense is UnflattenedTransaction {
     return 'tx' in expense && expense.tx?.state === 'UNREPORTABLE';
   }
 

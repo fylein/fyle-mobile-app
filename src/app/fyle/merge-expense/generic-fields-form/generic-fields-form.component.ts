@@ -79,7 +79,10 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   onTouched: () => void = noop;
 
-  constructor(private formBuilder: UntypedFormBuilder, private injector: Injector) {}
+  constructor(
+    private formBuilder: UntypedFormBuilder,
+    private injector: Injector,
+  ) {}
 
   isFieldTouched = (fieldName: string): boolean => this.genericFieldsFormGroup.get(fieldName).touched;
 
