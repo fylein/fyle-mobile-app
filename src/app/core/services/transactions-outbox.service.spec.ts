@@ -46,8 +46,8 @@ describe('TransactionsOutboxService', () => {
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-    imports: [],
-    providers: [
+      imports: [],
+      providers: [
         TransactionsOutboxService,
         { provide: StorageService, useValue: storageServiceSpy },
         { provide: DateService, useValue: dateServiceSpy },
@@ -60,8 +60,8 @@ describe('TransactionsOutboxService', () => {
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-});
+      ],
+    });
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService);
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
@@ -302,7 +302,8 @@ describe('TransactionsOutboxService', () => {
       const mockParsedResponse = cloneDeep(parsedResponseData1);
       mockParsedResponse.date = null;
       const res = transactionsOutboxService.getExpenseDate(mockQueue, mockParsedResponse);
-      expect(res).toEqual(new Date());
+      const expectedDate = new Date();
+      expect(res.getTime()).toEqual(expectedDate.getTime());
     });
   });
 });
