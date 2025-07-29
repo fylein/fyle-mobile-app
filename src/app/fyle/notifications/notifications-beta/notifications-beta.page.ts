@@ -22,6 +22,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
   selector: 'app-notifications-beta',
   templateUrl: './notifications-beta.page.html',
   styleUrls: ['./notifications-beta.page.scss'],
+  standalone: false,
 })
 export class NotificationsBetaPage implements OnInit {
   selectedPreference: 'onlyMe' | 'onlyDelegate' | 'both';
@@ -90,7 +91,7 @@ export class NotificationsBetaPage implements OnInit {
     const emailNotificationsConfig = this.notificationsBetaPageService.getEmailNotificationsConfig(
       this.orgSettings,
       this.employeeSettings,
-      this.currentEou
+      this.currentEou,
     );
 
     this.expenseNotificationsConfig = emailNotificationsConfig.expenseNotificationsConfig;
@@ -114,9 +115,9 @@ export class NotificationsBetaPage implements OnInit {
           orgSettings: this.orgSettingsService.get(),
           employeeSettings: this.platformEmployeeSettingsService.get(),
           currentEou: from(this.authService.getEou()),
-        })
+        }),
       ),
-      finalize(() => from(this.loaderService.hideLoader()))
+      finalize(() => from(this.loaderService.hideLoader())),
     );
   }
 
@@ -132,13 +133,13 @@ export class NotificationsBetaPage implements OnInit {
         if (isDelegateePresent) {
           this.initializeSelectedPreference();
         }
-      })
+      }),
     );
   }
 
   initializeSelectedPreference(): void {
     this.selectedPreference = this.notificationsBetaPageService.getInitialDelegateNotificationPreference(
-      this.employeeSettings
+      this.employeeSettings,
     );
   }
 

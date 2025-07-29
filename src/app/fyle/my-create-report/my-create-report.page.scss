@@ -1,9 +1,9 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .my-create-report {
   &--header {
-    background-color: $pure-white;
-    border-bottom: 1px solid $grey-lighter;
+    background-color: colors.$pure-white;
+    border-bottom: 1px solid colors.$grey-lighter;
 
     &-closebutton {
       height: 65px;
@@ -11,7 +11,7 @@
   }
 
   &--title-container {
-    color: $black;
+    color: colors.$black;
     font-weight: 500;
     margin-left: -10%;
     padding: 12px;
@@ -26,7 +26,7 @@
   &--sub-title {
     margin-top: 4px;
     font-weight: 500;
-    color: $blue-black;
+    color: colors.$blue-black;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -38,23 +38,23 @@
     font-size: 14px;
     margin-top: 2px;
     font-weight: 400;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
   }
 
   &--report-card {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
     margin: 16px 16px 2px;
   }
 
   &--report-title {
-    color: $black-light;
+    color: colors.$black-light;
     font-size: 12px;
     display: contents;
   }
@@ -62,7 +62,7 @@
   &--report-name {
     width: 100%;
     font-size: 14px;
-    color: $blue-black;
+    color: colors.$blue-black;
     border: 0;
     padding: 6px 0;
   }
@@ -70,7 +70,7 @@
   &--error-message {
     font-size: 12px;
     margin: 0 16px;
-    color: $red;
+    color: colors.$red;
   }
 
   &--zero-state {
@@ -89,24 +89,24 @@
       font-size: 14px;
       display: block;
       margin-bottom: 16px;
-      color: $blue-black;
+      color: colors.$blue-black;
       line-height: 1.5;
       font-weight: 500;
     }
   }
 
   &--heading {
-    color: $black-light;
+    color: colors.$black-light;
     font-size: 14px;
     padding: 16px 16px;
-    background-color: $white;
+    background-color: colors.$white;
     font-weight: 500;
   }
 
   &--select-all-checkbox {
     font-size: 14px;
     padding: 16px 16px;
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
   }
 
   // Skeleton Loading Styles

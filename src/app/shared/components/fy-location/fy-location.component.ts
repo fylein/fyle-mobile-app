@@ -16,6 +16,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() label = 'location';
@@ -48,9 +49,12 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   onChangeCallback: (_: any) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+  ) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.touchedInParent) {
       return this.validInParent;
     } else {
@@ -76,9 +80,10 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  ngOnInit() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function, @angular-eslint/no-empty-lifecycle-method
+  ngOnInit(): void {}
 
-  async openModal() {
+  async openModal(): Promise<void> {
     if (!this.disabled) {
       const selectionModal = await this.modalController.create({
         component: FyLocationModalComponent,
@@ -101,7 +106,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
@@ -117,11 +122,12 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  registerOnChange(fn: any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  registerOnChange(fn: any): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: any): void {
     this.onTouchedCallback = fn;
   }
 }

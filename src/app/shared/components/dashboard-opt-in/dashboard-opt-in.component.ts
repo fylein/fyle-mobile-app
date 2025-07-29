@@ -10,6 +10,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-dashboard-opt-in',
   templateUrl: './dashboard-opt-in.component.html',
   styleUrls: ['./dashboard-opt-in.component.scss'],
+  standalone: false,
 })
 export class DashboardOptInComponent {
   @Input() extendedOrgUser: ExtendedOrgUser;
@@ -20,7 +21,7 @@ export class DashboardOptInComponent {
     private modalController: ModalController,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   async optInClick(): Promise<void> {

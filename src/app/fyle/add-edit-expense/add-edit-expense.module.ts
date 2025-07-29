@@ -15,7 +15,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -37,10 +37,10 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
     MatNativeDateModule,
     MatCheckboxModule,
     SharedModule,
-    PinchZoomModule,
     PdfViewerModule,
     MatButtonModule,
     MatSnackBarModule,
+    PinchZoomComponent,
   ],
   declarations: [AddEditExpensePage, CameraOptionsPopupComponent, SuggestedDuplicatesComponent],
 })

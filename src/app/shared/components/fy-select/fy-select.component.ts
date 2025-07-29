@@ -19,6 +19,7 @@ import { TranslocoService } from '@jsverse/transloco';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FySelectComponent implements ControlValueAccessor {
   @Input() options: { label: string; value: any }[] = [];
@@ -70,7 +71,7 @@ export class FySelectComponent implements ControlValueAccessor {
   constructor(
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get valid(): boolean {

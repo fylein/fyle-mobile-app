@@ -15,6 +15,7 @@ import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advan
   selector: 'app-my-view-advance',
   templateUrl: './my-view-advance.page.html',
   styleUrls: ['./my-view-advance.page.scss'],
+  standalone: false,
 })
 export class MyViewAdvancePage {
   advance$: Observable<ExtendedAdvance>;
@@ -30,7 +31,7 @@ export class MyViewAdvancePage {
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private expenseFieldsService: ExpenseFieldsService,
-    private advanceRequestService: AdvanceRequestService
+    private advanceRequestService: AdvanceRequestService,
   ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
@@ -54,11 +55,11 @@ export class MyViewAdvancePage {
     this.advance$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.advanceService.getAdvance(id)),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.advanceRequest$ = this.advance$.pipe(
-      switchMap((advance) => this.advanceRequestService.getAdvanceRequestPlatform(advance.areq_id))
+      switchMap((advance) => this.advanceRequestService.getAdvanceRequestPlatform(advance.areq_id)),
     );
 
     this.advance$.subscribe((advance) => {

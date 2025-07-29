@@ -8,7 +8,7 @@
         <div class="spender-onboarding__user-greeting">
           <div class="spender-onboarding__wave">👋</div>
           <div class="spender-onboarding_user-greeting-text">
-            <div class="spender-onboarding__user-name">Hello {{userFullName}},</div>
+            <div class="spender-onboarding__user-name">Hello {{ userFullName }},</div>
             <div class="spender-onboarding__content">Let’s get started!</div>
           </div>
         </div>
@@ -24,12 +24,15 @@
                 class="spender-onboarding__progress-bar spender-onboarding__progress-bar-right"
                 [src]="'/assets/svg/progress-bar.svg'"
                 slot="icon-only"
-                [ngClass]="{'spender-onboarding__step-next': currentStep === 'CONNECT_CARD', 'spender-onboarding__step-hide': showOneStep}"
+                [ngClass]="{
+                  'spender-onboarding__step-next': currentStep === 'CONNECT_CARD',
+                  'spender-onboarding__step-hide': showOneStep,
+                }"
               ></ion-icon>
             </div>
             <div class="spender-onboarding__skip-cta" (click)="skipOnboardingStep()">Skip</div>
           </div>
-          @if (this.currentStep === 'CONNECT_CARD') {
+          @if (currentStep === 'CONNECT_CARD') {
             <app-spender-onboarding-connect-card-step
               [orgSettings]="orgSettings"
               (isStepComplete)="markStepAsComplete()"
@@ -37,7 +40,7 @@
               class="spender-onboarding__onboarding-step"
             ></app-spender-onboarding-connect-card-step>
           }
-          @if (this.currentStep === 'OPT_IN') {
+          @if (currentStep === 'OPT_IN') {
             <app-spender-onboarding-opt-in-step
               [eou]="eou"
               [areCardsEnrolled]="areCardsEnrolled"
@@ -61,7 +64,7 @@
       <div class="spender-onboarding-loader">
         <img src="/assets/images/onboarding-success.gif" />
         <div class="spender-onboarding-loader__header-text">You're all set!</div>
-        <div class="spender-onboarding-loader__description-text">Redirecting in {{redirectionCount}}</div>
+        <div class="spender-onboarding-loader__description-text">Redirecting in {{ redirectionCount }}</div>
       </div>
     }
   </ion-content>

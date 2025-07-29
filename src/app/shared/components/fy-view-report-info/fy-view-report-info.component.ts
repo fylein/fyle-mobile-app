@@ -22,6 +22,7 @@ import { AmountDetails } from 'src/app/core/models/amount-details.model';
   selector: 'app-fy-view-report-info-v2',
   templateUrl: './fy-view-report-info.component.html',
   styleUrls: ['./fy-view-report-info.component.scss'],
+  standalone: false,
 })
 export class FyViewReportInfoComponent {
   @Input() report$: Observable<Report>;
@@ -58,7 +59,7 @@ export class FyViewReportInfoComponent {
     private trackingService: TrackingService,
     private orgSettingsService: OrgSettingsService,
     private authService: AuthService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -135,7 +136,7 @@ export class FyViewReportInfoComponent {
     this.isSwipe = true;
     if (event && event.direction === 2) {
       const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
-        'view-info--segment-block-container__btn'
+        'view-info--segment-block-container__btn',
       )[1] as HTMLElement;
       elementRef.click();
       this.trackingService.viewReportInfo({
@@ -151,14 +152,14 @@ export class FyViewReportInfoComponent {
 
     if (event && event.direction === 4) {
       const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
-        'view-info--segment-block-container__btn'
+        'view-info--segment-block-container__btn',
       )[0] as HTMLElement;
       elementRef.click();
     }
 
     if (this.view === ExpenseView.team && event && event.direction === 2) {
       const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
-        'view-info--segment-block-container__btn'
+        'view-info--segment-block-container__btn',
       )[2] as HTMLElement;
       elementRef.click();
     }
@@ -173,7 +174,7 @@ export class FyViewReportInfoComponent {
     this.isSwipe = true;
     if (event && event.direction === 4) {
       const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
-        'view-info--segment-block-container__btn'
+        'view-info--segment-block-container__btn',
       )[1] as HTMLElement;
       elementRef.click();
       this.trackingService.viewReportInfo({

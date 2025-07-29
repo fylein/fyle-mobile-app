@@ -1,7 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar class="view-advance--toolbar">
     <ion-buttons mode="md" slot="start">
-      <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
+      <ion-button [routerLink]="['/', 'enterprise', 'my_advances']" routerLinkActive="router-link-active">
         <img [src]="'../../../../assets/svg/arrow-left.svg'" />
       </ion-button>
     </ion-buttons>
@@ -10,7 +10,7 @@
 </ion-header>
 
 <ion-content>
-  @if (advance$|async; as advance) {
+  @if (advance$ | async; as advance) {
     <div>
       <div class="view-advance--container">
         <app-summary-tile
@@ -47,7 +47,7 @@
                         [icon]="'../../../../assets/svg/calendar.svg'"
                         [type]="StatisticTypes.DATE"
                         [label]="'Approved date'"
-                        [value]="advance.areq_approved_at | date: 'MMM dd, YYYY'"
+                        [value]="advance.areq_approved_at | date: 'MMM dd, yyyy'"
                       ></app-fy-statistic>
                     </div>
                   </ion-col>
@@ -57,7 +57,7 @@
                     [icon]="'../../../../assets/svg/calendar.svg'"
                     [type]="StatisticTypes.DATE"
                     [label]="'Issued date'"
-                    [value]="advance.adv_issued_at | date: 'MMM dd, YYYY'"
+                    [value]="advance.adv_issued_at | date: 'MMM dd, yyyy'"
                   ></app-fy-statistic>
                 </ion-col>
               </ng-container>
@@ -91,7 +91,7 @@
               ></app-fy-statistic>
             </div>
           }
-          @if (advance.areq_id && advanceRequest$|async; as advanceRequest) {
+          @if (advance.areq_id && advanceRequest$ | async; as advanceRequest) {
             <div class="view-advance--element">
               <app-fy-statistic
                 [icon]="'../../../../assets/svg/list.svg'"
@@ -113,14 +113,14 @@
             <div>
               <a
                 class="view-advance--anchor"
-                [routerLink]="['/', 'enterprise', 'my_view_advance_request', {id: advance.areq_id}]"
-                >
+                [routerLink]="['/', 'enterprise', 'my_view_advance_request', { id: advance.areq_id }]"
+              >
                 View advance request</a
-                >
-              </div>
+              >
             </div>
-          }
-        </div>
+          </div>
+        }
       </div>
-    }
-  </ion-content>
+    </div>
+  }
+</ion-content>

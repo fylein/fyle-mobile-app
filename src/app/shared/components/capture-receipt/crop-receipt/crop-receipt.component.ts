@@ -14,6 +14,7 @@ type Image = Partial<{
   selector: 'app-crop-receipt',
   templateUrl: './crop-receipt.component.html',
   styleUrls: ['./crop-receipt.component.scss'],
+  standalone: false,
 })
 export class CropReceiptComponent implements OnInit {
   @Input() base64ImageWithSource: Image;
@@ -25,7 +26,7 @@ export class CropReceiptComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private loaderService: LoaderService,
-    private platform: Platform
+    private platform: Platform,
   ) {}
 
   ngOnInit() {

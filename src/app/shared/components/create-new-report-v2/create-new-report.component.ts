@@ -16,6 +16,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-create-new-report',
   templateUrl: './create-new-report.component.html',
   styleUrls: ['./create-new-report.component.scss'],
+  standalone: false,
 })
 export class CreateNewReportComponent implements OnInit {
   @Input() selectedExpensesToReport: Expense[];
@@ -46,7 +47,7 @@ export class CreateNewReportComponent implements OnInit {
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
     private spenderReportsService: SpenderReportsService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   getReportTitle(): Subscription {
@@ -122,7 +123,7 @@ export class CreateNewReportComponent implements OnInit {
             this.trackingService.createReport({
               Expense_Count: txnIds.length,
               Report_Value: this.selectedTotalAmount,
-            })
+            }),
           ),
           switchMap((report: Report) => {
             if (txnIds.length > 0) {
@@ -133,7 +134,7 @@ export class CreateNewReportComponent implements OnInit {
           }),
           finalize(() => {
             this.saveDraftReportLoader = false;
-          })
+          }),
         )
         .subscribe((report) => {
           this.modalController.dismiss({
@@ -154,7 +155,7 @@ export class CreateNewReportComponent implements OnInit {
           }),
           finalize(() => {
             this.submitReportLoader = false;
-          })
+          }),
         )
         .subscribe((report) => {
           this.modalController.dismiss({

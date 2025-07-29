@@ -10,6 +10,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-split-expense-policy-violation',
   templateUrl: './split-expense-policy-violation.component.html',
   styleUrls: ['./split-expense-policy-violation.component.scss'],
+  standalone: false,
 })
 export class SplitExpensePolicyViolationComponent implements OnInit {
   @Input() policyViolations: { [id: number]: FilteredSplitPolicyViolations };
@@ -29,7 +30,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private fb: UntypedFormBuilder,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get formComments(): UntypedFormArray {
@@ -45,7 +46,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
 
     if (this.isSplitBlocked) {
       this.splitExpenseModalHeader = this.translocoService.translate(
-        'splitExpensePolicyViolation.expenseCannotBeSplit'
+        'splitExpensePolicyViolation.expenseCannotBeSplit',
       );
     }
   }

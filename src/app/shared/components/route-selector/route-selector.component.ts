@@ -43,6 +43,7 @@ import { MileageLocation } from '../route-visualizer/mileage-locations.interface
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
   @Input() unit: 'KM' | 'MILES';
@@ -79,7 +80,10 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     roundTrip: [],
   });
 
-  constructor(private fb: UntypedFormBuilder, private modalController: ModalController) {}
+  constructor(
+    private fb: UntypedFormBuilder,
+    private modalController: ModalController,
+  ) {}
 
   get mileageLocations(): UntypedFormArray {
     return this.form.controls.mileageLocations as UntypedFormArray;
@@ -141,7 +145,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
       if (this.txnFields[txnFieldKey].is_mandatory) {
         if (txnFieldKey === 'distance') {
           control.setValidators(
-            this.isConnected ? Validators.compose([Validators.required, this.customDistanceValidator]) : null
+            this.isConnected ? Validators.compose([Validators.required, this.customDistanceValidator]) : null,
           );
         }
       }
@@ -166,12 +170,12 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
       if (value.mileageLocations) {
         value.mileageLocations.forEach((location) => {
           this.mileageLocations.push(
-            new UntypedFormControl(location, this.mileageConfig.location_mandatory && Validators.required)
+            new UntypedFormControl(location, this.mileageConfig.location_mandatory && Validators.required),
           );
         });
         if (value.mileageLocations.length === 1) {
           this.mileageLocations.push(
-            new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required)
+            new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required),
           );
         }
       }
@@ -248,7 +252,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
       data.mileageLocations?.forEach((mileageLocation: MileageLocation) => {
         this.mileageLocations.push(
-          new UntypedFormControl(mileageLocation || {}, this.mileageConfig.location_mandatory && Validators.required)
+          new UntypedFormControl(mileageLocation || {}, this.mileageConfig.location_mandatory && Validators.required),
         );
       });
 

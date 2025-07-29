@@ -9,6 +9,7 @@ import { LoaderPosition } from '../../directive/loader-position.enum';
   selector: 'app-fy-delete-dialog',
   templateUrl: './fy-delete-dialog.component.html',
   styleUrls: ['./fy-delete-dialog.component.scss'],
+  standalone: false,
 })
 export class FyDeleteDialogComponent implements OnInit {
   @Input() deleteMethod: () => Observable<any>;
@@ -50,9 +51,9 @@ export class FyDeleteDialogComponent implements OnInit {
           catchError(() =>
             of({
               status: 'error',
-            })
+            }),
           ),
-          finalize(() => (this.deleteCallInProgress = false))
+          finalize(() => (this.deleteCallInProgress = false)),
         )
         .subscribe((res) => {
           this.popoverController.dismiss(res);

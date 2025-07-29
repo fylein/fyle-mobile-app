@@ -10,6 +10,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-verify-number-popover',
   templateUrl: './verify-number-popover.component.html',
   styleUrls: ['./verify-number-popover.component.scss'],
+  standalone: false,
 })
 export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
@@ -35,7 +36,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   constructor(
     private popoverController: PopoverController,
     private mobileNumberVerificationService: MobileNumberVerificationService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {

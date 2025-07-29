@@ -10,6 +10,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
   selector: 'app-fy-multiselect-modal',
   templateUrl: './fy-multiselect-modal.component.html',
   styleUrls: ['./fy-multiselect-modal.component.scss'],
+  standalone: false,
 })
 export class FyMultiselectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
@@ -30,7 +31,10 @@ export class FyMultiselectModalComponent implements AfterViewInit {
 
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
 
-  constructor(private modalController: ModalController, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private modalController: ModalController,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   clearValue(): void {
     this.value = '';
@@ -71,8 +75,8 @@ export class FyMultiselectModalComponent implements AfterViewInit {
               option.selected = this.currentSelections.some((selection) => isEqual(option.value, selection));
             }
             return option;
-          })
-      )
+          }),
+      ),
     );
     this.cdr.detectChanges();
   }

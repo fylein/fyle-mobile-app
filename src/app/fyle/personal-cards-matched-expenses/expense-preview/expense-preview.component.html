@@ -40,7 +40,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.amount | currency : expenseDetails.currency : 'symbol-narrow' }}
+            {{ expenseDetails.amount | currency: expenseDetails.currency : 'symbol-narrow' }}
           </div>
         </ion-col>
       </ion-row>
@@ -50,7 +50,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.created_at | date : 'MMM dd, YYYY' }}
+            {{ expenseDetails.created_at | date: 'MMM dd, yyyy' }}
           </div>
         </ion-col>
       </ion-row>
@@ -60,7 +60,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.spent_at | date : 'MMM dd, YYYY' }}
+            {{ expenseDetails.spent_at | date: 'MMM dd, yyyy' }}
           </div>
         </ion-col>
       </ion-row>
@@ -143,7 +143,7 @@
             [loading]="loading"
             appFormButtonValidation
             class="btn-primary"
-            >
+          >
             {{ 'expensePreview.confirmMatch' | transloco }}
           </ion-button>
         </ion-buttons>

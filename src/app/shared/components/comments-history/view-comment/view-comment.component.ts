@@ -21,6 +21,7 @@ import { Router } from '@angular/router';
   templateUrl: './view-comment.component.html',
   styleUrls: ['./view-comment.component.scss'],
   providers: [DateWithTimezonePipe],
+  standalone: false,
 })
 export class ViewCommentComponent implements OnInit {
   @Input() objectType: string;
@@ -70,7 +71,7 @@ export class ViewCommentComponent implements OnInit {
     private approverExpenseCommentService: ApproverExpenseCommentService,
     private translocoService: TranslocoService,
     private advanceRequestService: AdvanceRequestService,
-    private router: Router
+    private router: Router,
   ) {}
 
   setContentScrollToBottom(): void {
@@ -179,7 +180,7 @@ export class ViewCommentComponent implements OnInit {
     this.isSwipe = true;
     if (event && event.direction === 2) {
       const historyBtn = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
-        'view-comment--segment-block__btn'
+        'view-comment--segment-block__btn',
       )[1] as HTMLElement;
       historyBtn.click();
       this.trackingService.commentsHistoryActions({
@@ -193,7 +194,7 @@ export class ViewCommentComponent implements OnInit {
     this.isSwipe = true;
     if (event && event.direction === 4) {
       const commentsBtn = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
-        'view-comment--segment-block__btn'
+        'view-comment--segment-block__btn',
       )[0] as HTMLElement;
       commentsBtn.click();
       this.trackingService.commentsHistoryActions({
@@ -223,10 +224,10 @@ export class ViewCommentComponent implements OnInit {
             ? this.approverExpenseCommentService.getTransformedComments(this.objectId)
             : this.spenderExpenseCommentService.getTransformedComments(this.objectId)
           : this.objectType === 'advance_requests'
-          ? this.isTeamAdvanceRoute()
-            ? this.advanceRequestService.getCommentsByAdvanceRequestIdPlatformForApprover(this.objectId)
-            : this.advanceRequestService.getCommentsByAdvanceRequestIdPlatform(this.objectId)
-          : this.statusService.find(this.objectType, this.objectId);
+            ? this.isTeamAdvanceRoute()
+              ? this.advanceRequestService.getCommentsByAdvanceRequestIdPlatformForApprover(this.objectId)
+              : this.advanceRequestService.getCommentsByAdvanceRequestIdPlatform(this.objectId)
+            : this.statusService.find(this.objectType, this.objectId);
 
         return comments$.pipe(
           map((res) =>
@@ -239,16 +240,16 @@ export class ViewCommentComponent implements OnInit {
                 status.isOthersComment = userId !== status?.st_org_user_id;
               }
               return status;
-            })
+            }),
           ),
           map((res) => res.sort((a, b) => new Date(a.st_created_at).valueOf() - new Date(b.st_created_at).valueOf())),
           finalize(() => {
             setTimeout(() => {
               this.setContentScrollToBottom();
             }, 500);
-          })
+          }),
         );
-      })
+      }),
     );
 
     this.estatuses$.subscribe((estatuses) => {
@@ -265,10 +266,10 @@ export class ViewCommentComponent implements OnInit {
 
       for (let i = 0; i < this.userComments.length; i++) {
         const prevCommentDt = this.dateWithTimezonePipe.transform(
-          this.userComments[i - 1] && this.userComments[i - 1].st_created_at
+          this.userComments[i - 1] && this.userComments[i - 1].st_created_at,
         );
         const currentCommentDt = this.dateWithTimezonePipe.transform(
-          this.userComments[i] && this.userComments[i].st_created_at
+          this.userComments[i] && this.userComments[i].st_created_at,
         );
         if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
@@ -279,7 +280,7 @@ export class ViewCommentComponent implements OnInit {
     });
 
     this.totalCommentsCount$ = this.estatuses$.pipe(
-      map((res) => res.filter((estatus) => !estatus.isBotComment).length)
+      map((res) => res.filter((estatus) => !estatus.isBotComment).length),
     );
   }
 

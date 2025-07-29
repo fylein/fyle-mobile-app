@@ -5,6 +5,7 @@ import { PopoverController } from '@ionic/angular';
   selector: 'app-edit-report-name-popover',
   templateUrl: './edit-report-name-popover.component.html',
   styleUrls: ['./edit-report-name-popover.component.scss'],
+  standalone: false,
 })
 export class EditReportNamePopoverComponent implements OnInit {
   @Input() reportName: string;

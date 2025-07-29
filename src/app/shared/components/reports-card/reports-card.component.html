@@ -1,18 +1,13 @@
 <!-- Report Date -->
 @if (showDate) {
   <div class="reports-card--date">
-    {{ report.created_at | date : 'MMM dd, YYYY' }}
+    {{ report.created_at | date: 'MMM dd, yyyy' }}
   </div>
 }
 
 <!-- Report cards -->
 @if (!actionOpened) {
-  <div
-    class="reports-card"
-    [ngClass]="{ 'reports-card__with-border': !showDate }"
-    (click)="onGoToReport()"
-    matRipple
-    >
+  <div class="reports-card" [ngClass]="{ 'reports-card__with-border': !showDate }" (click)="onGoToReport()" matRipple>
     <div class="reports-card--container">
       <div class="reports-card--main-info">
         <!-- Icon -->
@@ -20,7 +15,7 @@
         <div class="reports-card--purpose-num-amount-block">
           <!-- Report name  -->
           <div class="reports-card--purpose">
-            <span>{{ report.purpose | ellipsis : 205 }}</span>
+            <span>{{ report.purpose | ellipsis: 205 }}</span>
           </div>
           <!-- Number of expenses -->
           <div class="reports-card--no-transactions">
@@ -48,10 +43,7 @@
   </div>
 }
 @if (actionOpened) {
-  <div
-    class="reports-card-menu"
-    [ngClass]="{ 'reports-card-menu__no-top-margin': report.is_policy_flagged }"
-    >
+  <div class="reports-card-menu" [ngClass]="{ 'reports-card-menu__no-top-margin': report.is_policy_flagged }">
     <div class="reports-card-menu--close">
       <div matRipple (click)="actionOpened = false" class="reports-card-menu--cancel">
         <mat-icon> close </mat-icon>

@@ -34,7 +34,7 @@
 
     <!-- Expenses List Skeleton -->
     <div class="my-create-report--skeleton-expenses">
-      <div class="my-create-report--skeleton-expense-item" *ngFor="let item of [1,2,3,4,5]">
+      <div class="my-create-report--skeleton-expense-item" *ngFor="let item of [1, 2, 3, 4, 5]">
         <ion-grid>
           <ion-row>
             <ion-col size="1">
@@ -74,49 +74,53 @@
       />
     </div>
     @if (showReportNameError) {
-    <div class="my-create-report--error-message">Please enter expense report name.</div>
-    } @if (readyToReportExpenses?.length === 0) {
-    <div class="my-create-report--zero-state">
-      <div>
-        <img
-          alt="Create First Expenses"
-          class="my-create-report--zero-state-img"
-          src="../../../assets/images/zero-states/new-expenses.png"
-        />
-        <div class="my-create-report--zero-state-text">You have no reportable</div>
-        <div class="my-create-report--zero-state-text">expenses right now</div>
+      <div class="my-create-report--error-message">Please enter expense report name.</div>
+    }
+    @if (readyToReportExpenses?.length === 0) {
+      <div class="my-create-report--zero-state">
+        <div>
+          <img
+            alt="Create First Expenses"
+            class="my-create-report--zero-state-img"
+            src="../../../assets/images/zero-states/new-expenses.png"
+          />
+          <div class="my-create-report--zero-state-text">You have no reportable</div>
+          <div class="my-create-report--zero-state-text">expenses right now</div>
+        </div>
       </div>
-    </div>
-    } @if (readyToReportExpenses?.length > 0) {
-    <div class="my-create-report--heading">Expenses</div>
-    } @if (readyToReportExpenses?.length > 0) {
-    <div class="my-create-report--select-all-checkbox">
-      <mat-checkbox
-        class="custom-mat-checkbox create-new-report--checkbox"
-        [(ngModel)]="isSelectedAll"
-        (ngModelChange)="toggleSelectAll($event)"
-      >
-        Select all</mat-checkbox
-      >
-    </div>
-    } @if (readyToReportExpenses) {
-    <div>
-      @for (etxn of readyToReportExpenses; track etxn.id; let i = $index) {
-      <div>
-        <app-expense-card-v2
-          [expense]="etxn"
-          [previousExpenseTxnDate]="readyToReportExpenses[i - 1]?.spent_at"
-          [previousExpenseCreatedAt]="readyToReportExpenses[i - 1]?.created_at"
-          [showDt]="checkShowDt(etxn,i)"
-          [isSelectionModeEnabled]="true"
-          [selectedElements]="selectedElements"
-          (cardClickedForSelection)="selectExpense($event)"
-          [isFromReports]="true"
+    }
+    @if (readyToReportExpenses?.length > 0) {
+      <div class="my-create-report--heading">Expenses</div>
+    }
+    @if (readyToReportExpenses?.length > 0) {
+      <div class="my-create-report--select-all-checkbox">
+        <mat-checkbox
+          class="custom-mat-checkbox create-new-report--checkbox"
+          [(ngModel)]="isSelectedAll"
+          (ngModelChange)="toggleSelectAll($event)"
         >
-        </app-expense-card-v2>
+          Select all</mat-checkbox
+        >
       </div>
-      }
-    </div>
+    }
+    @if (readyToReportExpenses) {
+      <div>
+        @for (etxn of readyToReportExpenses; track etxn.id; let i = $index) {
+          <div>
+            <app-expense-card-v2
+              [expense]="etxn"
+              [previousExpenseTxnDate]="readyToReportExpenses[i - 1]?.spent_at"
+              [previousExpenseCreatedAt]="readyToReportExpenses[i - 1]?.created_at"
+              [showDt]="checkShowDt(etxn, i)"
+              [isSelectionModeEnabled]="true"
+              [selectedElements]="selectedElements"
+              (cardClickedForSelection)="selectExpense($event)"
+              [isFromReports]="true"
+            >
+            </app-expense-card-v2>
+          </div>
+        }
+      </div>
     }
   </div>
 </ion-content>
@@ -140,7 +144,7 @@
         appFormButtonValidation
         [loading]="saveReportLoading"
         [loadingText]="'Submitting Report'"
-        [disabled]="(this.selectedElements?.length === 0) || saveDraftReportLoading  || saveReportLoading"
+        [disabled]="selectedElements?.length === 0 || saveDraftReportLoading || saveReportLoading"
       >
         Submit report
       </ion-button>

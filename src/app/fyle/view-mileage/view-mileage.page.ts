@@ -45,6 +45,7 @@ import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/
   selector: 'app-view-mileage',
   templateUrl: './view-mileage.page.html',
   styleUrls: ['./view-mileage.page.scss'],
+  standalone: false,
 })
 export class ViewMileagePage {
   @ViewChild('comments') commentsContainer: ElementRef;
@@ -133,7 +134,7 @@ export class ViewMileagePage {
     private spenderFileService: SpenderFileService,
     private approverFileService: ApproverFileService,
     private spenderExpenseCommentService: SpenderExpenseCommentService,
-    private approverExpenseCommentService: ApproverExpenseCommentService
+    private approverExpenseCommentService: ApproverExpenseCommentService,
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -149,7 +150,7 @@ export class ViewMileagePage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit$),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -264,12 +265,12 @@ export class ViewMileagePage {
           switchMap(() =>
             this.view === ExpenseView.team
               ? this.approverExpensesService.getExpenseById(this.expenseId)
-              : this.spenderExpensesService.getExpenseById(this.expenseId)
-          )
-        )
+              : this.spenderExpensesService.getExpenseById(this.expenseId),
+          ),
+        ),
       ),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.mapAttachment$ = this.mileageExpense$.pipe(
@@ -301,7 +302,7 @@ export class ViewMileagePage {
         } else {
           return null;
         }
-      })
+      }),
     );
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
@@ -314,9 +315,9 @@ export class ViewMileagePage {
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           expense.custom_fields as Partial<CustomInput>[],
-          expenseFields.project_id[0]?.id
-        )
-      )
+          expenseFields.project_id[0]?.id,
+        ),
+      ),
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
@@ -327,10 +328,10 @@ export class ViewMileagePage {
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           expense.custom_fields as Partial<CustomInput[]>,
-          expenseFields.cost_center_id[0]?.id
-        )
+          expenseFields.cost_center_id[0]?.id,
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.mileageExpense$.subscribe((expense) => {
@@ -365,7 +366,7 @@ export class ViewMileagePage {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap.project_id[0]?.is_mandatory;
           this.isProjectShown = this.orgSettings?.projects?.enabled && (!!expense.project?.name || isProjectMandatory);
-        })
+        }),
       )
       .subscribe(noop);
 
@@ -381,15 +382,15 @@ export class ViewMileagePage {
       switchMap((expense) =>
         this.customInputsService.fillCustomProperties(
           expense.category_id,
-          expense.custom_fields as Partial<CustomInput>[]
-        )
+          expense.custom_fields as Partial<CustomInput>[],
+        ),
       ),
       map((customProperties) =>
         customProperties.map((customProperty) => {
           customProperty.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperty);
           return customProperty;
-        })
-      )
+        }),
+      ),
     );
 
     this.mileageRate$ = this.mileageExpense$.pipe(
@@ -398,20 +399,20 @@ export class ViewMileagePage {
         return this.view === ExpenseView.team
           ? this.mileageRatesService.getApproverMileageRateById(id)
           : this.mileageRatesService.getSpenderMileageRateById(id);
-      })
+      }),
     );
 
     this.canDelete$ = this.mileageExpense$.pipe(
       take(1),
       filter(() => this.view === ExpenseView.team),
       switchMap((expense) =>
-        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense })))
+        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense }))),
       ),
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
-      )
+          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state),
+      ),
     );
 
     if (this.expenseId) {
@@ -429,13 +430,13 @@ export class ViewMileagePage {
         : this.spenderExpenseCommentService.getTransformedComments(this.expenseId);
 
     this.isCriticalPolicyViolated$ = this.mileageExpense$.pipe(
-      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
+      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001),
     );
 
     this.getPolicyDetails(this.expenseId);
 
     this.isAmountCapped$ = this.mileageExpense$.pipe(
-      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
+      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount)),
     );
 
     this.updateFlag$.next(null);
@@ -456,7 +457,7 @@ export class ViewMileagePage {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => this.mapAttachment$),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(async (mapAttachment) => {
         const attachmentsModal = await this.modalController.create({

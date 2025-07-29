@@ -12,6 +12,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-virtual-card',
   templateUrl: './virtual-card.component.html',
   styleUrls: ['./virtual-card.component.scss'],
+  standalone: false,
 })
 export class VirtualCardComponent implements OnInit {
   @Input() cardNumber: string;
@@ -39,14 +40,14 @@ export class VirtualCardComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private popoverController: PopoverController,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   showToastMessage(message: string): void {
     const successToastProperties = this.snackbarProperties.setSnackbarProperties(
       'success',
       { message },
-      'check-circle-outline'
+      'check-circle-outline',
     );
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...successToastProperties,

@@ -18,6 +18,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FyUserlistComponent implements OnInit {
   @Input() options: { label: string; value: any }[];
@@ -46,9 +47,12 @@ export class FyUserlistComponent implements OnInit {
 
   onChangeCallback: (_: any) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+  ) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.touchedInParent) {
       return this.validInParent;
     } else {

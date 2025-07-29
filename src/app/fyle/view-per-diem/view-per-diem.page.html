@@ -1,6 +1,6 @@
 <ion-header mode="md">
   <ion-toolbar class="view-per-diem--toolbar">
-    @if (this.reportId) {
+    @if (reportId) {
       <ion-buttons mode="md" slot="start">
         <ion-button (click)="goBack()">
           <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
@@ -10,13 +10,11 @@
     <ion-title
       mode="md"
       class="page-title"
-      [ngClass]="{'view-per-diem--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
-      >
+      [ngClass]="{ 'view-per-diem--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall }"
+    >
       View per diem
       @if (reportExpenseCount > 1) {
-        <p class="view-per-diem--subtitle">
-          Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
-        </p>
+        <p class="view-per-diem--subtitle">Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses</p>
       }
     </ion-title>
     <ion-buttons class="view-per-diem--header-btn-container" slot="end">
@@ -24,7 +22,7 @@
         <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
-      @if (view === ExpenseView.team && canDelete$|async) {
+      @if (view === ExpenseView.team && canDelete$ | async) {
         <ion-button class="view-per-diem--header-btn-container__btn" (click)="removeExpenseFromReport()">
           <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
         </ion-button>
@@ -34,21 +32,21 @@
 </ion-header>
 
 <ion-content>
-  @if (perDiemExpense$|async; as perDiemExpense) {
+  @if (perDiemExpense$ | async; as perDiemExpense) {
     <div class="view-per-diem--container">
       @if (perDiemExpense.is_policy_flagged) {
         @if (policyDetails) {
           <app-fy-policy-violation-info
             [policyDetails]="policyDetails"
-            [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+            [criticalPolicyViolated]="isCriticalPolicyViolated$ | async"
           ></app-fy-policy-violation-info>
         }
       }
-      @if ((isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)) {
+      @if ((isAmountCapped$ | async) && !(isCriticalPolicyViolated$ | async)) {
         <div class="view-per-diem--policy-container">
           <span class="info-text m-0">
-            Claimed amount {{perDiemExpense.claim_amount | currency: perDiemExpense.currency: 'symbol-narrow'}} was capped
-            to {{perDiemExpense.amount | currency: perDiemExpense.currency: 'symbol-narrow'}} due to policy.
+            Claimed amount {{ perDiemExpense.claim_amount | currency: perDiemExpense.currency : 'symbol-narrow' }} was
+            capped to {{ perDiemExpense.amount | currency: perDiemExpense.currency : 'symbol-narrow' }} due to policy.
           </span>
         </div>
       }
@@ -57,7 +55,7 @@
           <div class="view-per-diem--card-container__category">Per diem</div>
           @if (perDiemExpense.per_diem_num_days) {
             <div class="view-per-diem--card-container__merchant">
-              {{perDiemExpense.per_diem_num_days}} {{perDiemExpense.per_diem_num_days === 1 ? 'Day' : 'Days'}}
+              {{ perDiemExpense.per_diem_num_days }} {{ perDiemExpense.per_diem_num_days === 1 ? 'Day' : 'Days' }}
             </div>
           }
           @if (isProjectShown) {
@@ -68,8 +66,10 @@
           <div class="view-per-diem--card-container__amount-container">
             <span>{{ expenseCurrencySymbol }}</span>
             <span class="view-per-diem--card-container__amount">
-              {{ { value: perDiemExpense.amount || 0, currencyCode: perDiemExpense.currency, skipSymbol: true } |
-              exactCurrency }}
+              {{
+                { value: perDiemExpense.amount || 0, currencyCode: perDiemExpense.currency, skipSymbol: true }
+                  | exactCurrency
+              }}
             </span>
             <ion-icon
               class="view-per-diem--card-container__icon"
@@ -80,9 +80,9 @@
         <div class="ion-text-right view-per-diem--card-container__block">
           <div
             class="view-per-diem--card-container__state-pill ion-text-right"
-            [ngClass]="{'view-per-diem--card-container__state-pill--with-project': isProjectShown}"
-            >
-            <div class="state-pill state-{{perDiemExpense.state | expenseState}}">
+            [ngClass]="{ 'view-per-diem--card-container__state-pill--with-project': isProjectShown }"
+          >
+            <div class="state-pill state-{{ perDiemExpense.state | expenseState }}">
               {{ perDiemExpense.state | expenseState | snakeCaseToSpaceCase | titlecase }}
             </div>
           </div>
@@ -134,12 +134,15 @@
         <ion-row>
           <ion-col class="view-per-diem--icon-container">
             <div class="view-per-diem--icon-container__background">
-              <ion-icon class="view-per-diem--icon-container__icon-lg" src="../../../assets/svg/calendar.svg"></ion-icon>
+              <ion-icon
+                class="view-per-diem--icon-container__icon-lg"
+                src="../../../assets/svg/calendar.svg"
+              ></ion-icon>
             </div>
           </ion-col>
           <ion-col class="view-per-diem--content-container">
             <div class="view-per-diem--label">Created date</div>
-            <div class="view-per-diem--value">{{ perDiemExpense.created_at | date: 'MMM dd, YYYY' }}</div>
+            <div class="view-per-diem--value">{{ perDiemExpense.created_at | date: 'MMM dd, yyyy' }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -159,7 +162,7 @@
                   </ion-col>
                   <ion-col class="view-per-diem--content-container">
                     <div class="view-per-diem--label">Onward date</div>
-                    <div class="view-per-diem--value">{{ perDiemExpense.started_at | date: 'MMM dd, YYYY' }}</div>
+                    <div class="view-per-diem--value">{{ perDiemExpense.started_at | date: 'MMM dd, yyyy' }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -178,7 +181,7 @@
                     </ion-col>
                     <ion-col class="view-per-diem--content-container">
                       <div class="view-per-diem--label">Return date</div>
-                      <div class="view-per-diem--value">{{ perDiemExpense.ended_at | date: 'MMM dd, YYYY' }}</div>
+                      <div class="view-per-diem--value">{{ perDiemExpense.ended_at | date: 'MMM dd, yyyy' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -218,10 +221,13 @@
           </ion-row>
         </ion-grid>
       }
-      @if (perDiemExpense.category && perDiemExpense.category.name && perDiemExpense.category.sub_category && (perDiemExpense.category.name !== perDiemExpense.category.sub_category)) {
-        <ion-grid
-          class="view-per-diem--grid"
-          >
+      @if (
+        perDiemExpense.category &&
+        perDiemExpense.category.name &&
+        perDiemExpense.category.sub_category &&
+        perDiemExpense.category.name !== perDiemExpense.category.sub_category
+      ) {
+        <ion-grid class="view-per-diem--grid">
           <ion-row>
             <ion-col class="view-per-diem--icon-container">
               <div class="view-per-diem--icon-container__background">
@@ -235,7 +241,7 @@
           </ion-row>
         </ion-grid>
       }
-      @if (perDiemRate$|async; as perDiemRate) {
+      @if (perDiemRate$ | async; as perDiemRate) {
         <ion-grid class="view-per-diem--grid">
           <ion-row>
             <ion-col class="view-per-diem--icon-container">
@@ -246,18 +252,17 @@
             <ion-col class="view-per-diem--content-container">
               <div class="view-per-diem--label">Per diem type</div>
               <div class="view-per-diem--value">
-                {{perDiemRate.name}} ({{ perDiemRate.rate | currency: perDiemRate.currency: 'symbol-narrow' }} per day)
+                {{ perDiemRate.name }} ({{ perDiemRate.rate | currency: perDiemRate.currency : 'symbol-narrow' }} per
+                day)
               </div>
             </ion-col>
           </ion-row>
         </ion-grid>
       }
-      @if ({ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async}; as data) {
+      @if ({ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async }; as data) {
         @if (!data.costCenterDependentCustomProperties?.length) {
           @if (orgSettings?.cost_centers?.enabled && perDiemExpense.cost_center_id) {
-            <ion-grid
-              class="view-per-diem--grid"
-              >
+            <ion-grid class="view-per-diem--grid">
               <ion-row>
                 @if (perDiemExpense.cost_center?.name) {
                   <ion-col size="6">
@@ -331,7 +336,7 @@
           }
         }
       }
-      @if (perDiemCustomFields$|async; as customProperties) {
+      @if (perDiemCustomFields$ | async; as customProperties) {
         @if (customProperties?.length > 0) {
           <div class="view-per-diem--divider"></div>
           @for (customProperty of customProperties; track customProperty) {
@@ -339,12 +344,15 @@
               <ion-row>
                 <ion-col class="view-per-diem--icon-container">
                   <div class="view-per-diem--icon-container__background">
-                    <ion-icon class="view-per-diem--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+                    <ion-icon
+                      class="view-per-diem--icon-container__icon-lg"
+                      src="../../../assets/svg/list.svg"
+                    ></ion-icon>
                   </div>
                 </ion-col>
                 <ion-col class="view-per-diem--content-container">
-                  <div class="view-per-diem--label">{{customProperty.name}}</div>
-                  <div class="view-per-diem--value">{{customProperty.displayValue }}</div>
+                  <div class="view-per-diem--label">{{ customProperty.name }}</div>
+                  <div class="view-per-diem--value">{{ customProperty.displayValue }}</div>
                 </ion-col>
               </ion-row>
             </ion-grid>

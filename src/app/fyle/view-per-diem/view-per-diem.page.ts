@@ -38,6 +38,7 @@ import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/
   selector: 'app-view-per-diem',
   templateUrl: './view-per-diem.page.html',
   styleUrls: ['./view-per-diem.page.scss'],
+  standalone: false,
 })
 export class ViewPerDiemPage {
   @ViewChild('comments') commentsContainer: ElementRef;
@@ -113,7 +114,7 @@ export class ViewPerDiemPage {
     private approverExpensesService: ApproverExpensesService,
     private approverReportsService: ApproverReportsService,
     private spenderExpenseCommentService: SpenderExpenseCommentService,
-    private approverExpenseCommentService: ApproverExpenseCommentService
+    private approverExpenseCommentService: ApproverExpenseCommentService,
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -181,12 +182,12 @@ export class ViewPerDiemPage {
           switchMap(() =>
             this.view === ExpenseView.team
               ? this.approverExpensesService.getExpenseById(this.expenseId)
-              : this.spenderExpensesService.getExpenseById(this.expenseId)
-          )
-        )
+              : this.spenderExpensesService.getExpenseById(this.expenseId),
+          ),
+        ),
       ),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
@@ -196,14 +197,14 @@ export class ViewPerDiemPage {
       expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
       filter(
-        ({ perDiemExpense, expenseFields }) => perDiemExpense.custom_fields && expenseFields.project_id?.length > 0
+        ({ perDiemExpense, expenseFields }) => perDiemExpense.custom_fields && expenseFields.project_id?.length > 0,
       ),
       switchMap(({ perDiemExpense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           perDiemExpense.custom_fields as Partial<CustomInput>[],
-          expenseFields.project_id[0]?.id
-        )
-      )
+          expenseFields.project_id[0]?.id,
+        ),
+      ),
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
@@ -211,15 +212,15 @@ export class ViewPerDiemPage {
       expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
       filter(
-        ({ perDiemExpense, expenseFields }) => perDiemExpense.custom_fields && expenseFields.cost_center_id?.length > 0
+        ({ perDiemExpense, expenseFields }) => perDiemExpense.custom_fields && expenseFields.cost_center_id?.length > 0,
       ),
       switchMap(({ perDiemExpense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           perDiemExpense.custom_fields as Partial<CustomInput>[],
-          expenseFields.cost_center_id[0]?.id
-        )
+          expenseFields.cost_center_id[0]?.id,
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.perDiemExpense$.subscribe((perDiemExpense) => {
@@ -246,7 +247,7 @@ export class ViewPerDiemPage {
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown =
             this.orgSettings?.projects?.enabled && (!!perDiemExpense.project?.name || isProjectMandatory);
-        })
+        }),
       )
       .subscribe(noop);
 
@@ -262,34 +263,34 @@ export class ViewPerDiemPage {
       switchMap((expense) =>
         this.customInputsService.fillCustomProperties(
           expense.category_id,
-          expense.custom_fields as Partial<CustomInput>[]
-        )
+          expense.custom_fields as Partial<CustomInput>[],
+        ),
       ),
       map((customProperties) =>
         customProperties.map((customProperty) => {
           customProperty.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperty);
           return customProperty;
-        })
-      )
+        }),
+      ),
     );
 
     this.perDiemRate$ = this.perDiemExpense$.pipe(
       switchMap((perDiemExpense) => {
         const perDiemRateId = perDiemExpense.per_diem_rate_id;
         return this.perDiemService.getRate(perDiemRateId);
-      })
+      }),
     );
 
     this.canDelete$ = this.perDiemExpense$.pipe(
       filter(() => this.view === ExpenseView.team),
       switchMap((expense) =>
-        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense })))
+        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense }))),
       ),
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
-      )
+          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state),
+      ),
     );
 
     if (this.expenseId) {
@@ -307,13 +308,13 @@ export class ViewPerDiemPage {
         : this.spenderExpenseCommentService.getTransformedComments(this.expenseId);
 
     this.isCriticalPolicyViolated$ = this.perDiemExpense$.pipe(
-      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
+      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001),
     );
 
     this.getPolicyDetails(this.expenseId);
 
     this.isAmountCapped$ = this.perDiemExpense$.pipe(
-      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
+      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount)),
     );
 
     this.updateFlag$.next(null);

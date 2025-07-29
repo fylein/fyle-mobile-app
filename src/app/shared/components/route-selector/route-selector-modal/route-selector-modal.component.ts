@@ -17,6 +17,7 @@ import { MileageLocation } from '../../route-visualizer/mileage-locations.interf
   selector: 'app-route-selector-modal',
   templateUrl: './route-selector-modal.component.html',
   styleUrls: ['./route-selector-modal.component.scss'],
+  standalone: false,
 })
 export class RouteSelectorModalComponent implements OnInit {
   @Input() unit: 'KM' | 'MILES';
@@ -57,7 +58,7 @@ export class RouteSelectorModalComponent implements OnInit {
   constructor(
     private fb: UntypedFormBuilder,
     private modalController: ModalController,
-    private mileageService: MileageService
+    private mileageService: MileageService,
   ) {}
 
   get mileageLocations(): UntypedFormArray {
@@ -66,7 +67,7 @@ export class RouteSelectorModalComponent implements OnInit {
 
   addMileageLocation(): void {
     this.mileageLocations.push(
-      new UntypedFormControl(null, this.mileageConfig.location_mandatory && Validators.required)
+      new UntypedFormControl(null, this.mileageConfig.location_mandatory && Validators.required),
     );
   }
 
@@ -108,15 +109,15 @@ export class RouteSelectorModalComponent implements OnInit {
     if (this.value?.mileageLocations?.length > 0) {
       this.value.mileageLocations.forEach((location) => {
         this.mileageLocations.push(
-          new UntypedFormControl(location, this.mileageConfig.location_mandatory && Validators.required)
+          new UntypedFormControl(location, this.mileageConfig.location_mandatory && Validators.required),
         );
       });
     } else {
       this.mileageLocations.push(
-        new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required)
+        new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required),
       );
       this.mileageLocations.push(
-        new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required)
+        new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required),
       );
     }
 

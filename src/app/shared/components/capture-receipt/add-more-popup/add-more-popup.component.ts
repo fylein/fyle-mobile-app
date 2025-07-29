@@ -6,11 +6,15 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-add-more-popup',
   templateUrl: './add-more-popup.component.html',
   styleUrls: ['./add-more-popup.component.scss'],
+  standalone: false,
 })
 export class AddMorePopupComponent implements OnInit {
   actionButtons: { icon: string; title: string; mode: string }[];
 
-  constructor(private matBottomSheet: MatBottomSheet, private translocoService: TranslocoService) {}
+  constructor(
+    private matBottomSheet: MatBottomSheet,
+    private translocoService: TranslocoService,
+  ) {}
 
   ngOnInit(): void {
     this.actionButtons = [
