@@ -406,7 +406,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(
         component.convertToEstatus(component.systemComments),
-        component.type
+        component.type,
       );
 
       component.report$.subscribe((res) => {
@@ -492,7 +492,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(
         component.convertToEstatus(component.systemComments),
-        component.type
+        component.type,
       );
 
       expect(component.totalCommentsCount).toEqual(3);
@@ -1214,7 +1214,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.showApprovalInfoMessage).toBeTrue();
       expect(component.approvalInfoMessage).toEqual(
-        `You are approving $250.75 in expenses, which differs from the report total since the report also includes 2 other expenses (which may include credits) that don't require your approval based on your company's policies.`
+        `You are approving $250.75 in expenses, which differs from the report total since the report also includes 2 other expenses (which may include credits) that don't require your approval based on your company's policies.`,
       );
       expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
         value: 150.5,
@@ -1230,7 +1230,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
         '#280a31',
-        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
+        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87',
       );
     });
   });
