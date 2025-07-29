@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .disabled-user {
   display: flex;
@@ -15,7 +15,7 @@
   }
 
   &__arrow-icon {
-    fill: $pure-white;
+    fill: colors.$pure-white;
     margin-right: 8px;
   }
 
@@ -38,7 +38,7 @@
     width: 60px;
     height: 60px;
     border-radius: 8px;
-    background: $pale-pink;
+    background: colors.$pale-pink;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -58,7 +58,7 @@
   }
 
   &__header {
-    color: $black;
+    color: colors.$black;
     font-size: 20px;
     font-style: normal;
     font-weight: 500;
@@ -68,7 +68,7 @@
   }
 
   &__content {
-    color: $black-light;
+    color: colors.$black-light;
     text-align: center;
     font-size: 14px;
     font-style: normal;

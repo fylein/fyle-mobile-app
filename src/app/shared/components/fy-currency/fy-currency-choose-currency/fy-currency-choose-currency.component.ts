@@ -20,55 +20,56 @@ import { Currency } from 'src/app/core/models/currency.model';
   selector: 'app-fy-currency-choose-currency',
   templateUrl: './fy-currency-choose-currency.component.html',
   styleUrls: ['./fy-currency-choose-currency.component.scss'],
+  standalone: false,
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   @Input() currentSelection: string;
 
-  @Input() recentlyUsed: { shortCode: string; longName: string }[];
+  @Input() recentlyUsed: Currency[];
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
-  currencies$: Observable<{ shortCode: string; longName: string }[]>;
+  currencies$: Observable<Currency[]>;
 
-  filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
+  filteredCurrencies$: Observable<Currency[]>;
 
   recentlyUsedCurrencies$: Observable<Currency[]>;
 
-  value;
+  value = '';
 
   constructor(
     private currencyService: CurrencyService,
     private modalController: ModalController,
     private loaderService: LoaderService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
-  clearValue() {
+  clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
       concatMap(() => this.currencyService.getAll()),
       map((currenciesObj) =>
-        Object.keys(currenciesObj).map((shortCode) => ({ shortCode, longName: currenciesObj[shortCode] || shortCode }))
+        Object.keys(currenciesObj).map((shortCode) => ({ shortCode, longName: currenciesObj[shortCode] || shortCode })),
       ),
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.currencies$.subscribe(noop);
   }
 
-  getRecentlyUsedItems() {
+  getRecentlyUsedItems(): Observable<Currency[]> {
     if (this.recentlyUsed) {
       return of(this.recentlyUsed);
     } else {
@@ -77,51 +78,50 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   }
 
   ngAfterViewInit(): void {
-    this.filteredCurrencies$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+    this.filteredCurrencies$ = fromEvent<KeyboardEvent>(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) =>
+      switchMap((searchText: string) =>
         this.currencies$.pipe(
           map((currencies) =>
             currencies.filter(
               (currency) =>
                 currency.shortCode.toLowerCase().includes(searchText.toLowerCase()) ||
-                currency.longName.toLowerCase().includes(searchText.toLowerCase())
-            )
-          )
-        )
+                currency.longName.toLowerCase().includes(searchText.toLowerCase()),
+            ),
+          ),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
-    this.recentlyUsedCurrencies$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+    this.recentlyUsedCurrencies$ = fromEvent<KeyboardEvent>(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) =>
+      switchMap((searchText: string) =>
         this.getRecentlyUsedItems().pipe(
-          // filtering of recently used items wrt searchText is taken care in service method
           map((currencies) =>
             currencies.filter(
               (currency) =>
                 currency.shortCode.toLowerCase().includes(searchText.toLowerCase()) ||
-                currency.longName.toLowerCase().includes(searchText.toLowerCase())
-            )
-          )
-        )
+                currency.longName.toLowerCase().includes(searchText.toLowerCase()),
+            ),
+          ),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.cdr.detectChanges();
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss();
   }
 
-  onCurrencySelect(currency) {
+  onCurrencySelect(currency: Currency): void {
     this.recentLocalStorageItemsService.post('recent-currency-cache', currency, 'label');
     this.modalController.dismiss({
       currency,

@@ -10,6 +10,7 @@ import { Observable } from 'rxjs/internal/Observable';
   selector: 'app-fy-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
+  standalone: false,
 })
 export class FooterComponent implements OnInit {
   @Output() homeClicked = new EventEmitter();
@@ -31,7 +32,7 @@ export class FooterComponent implements OnInit {
   constructor(
     private networkService: NetworkService,
     private trackingService: TrackingService,
-    private router: Router
+    private router: Router,
   ) {}
 
   get ConnectionMessageStatus(): typeof ConnectionMessageStatus {

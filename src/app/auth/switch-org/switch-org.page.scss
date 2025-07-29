@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .switch-org {
   &__toolbar {
@@ -12,7 +12,7 @@
     }
 
     &__icon-container {
-      color: $red;
+      color: colors.$red;
       text-transform: none;
 
       &__icon {
@@ -36,7 +36,7 @@
     &__block {
       position: absolute;
       top: 0;
-      background-color: $pure-white;
+      background-color: colors.$pure-white;
       padding: 0 16px;
     }
 
@@ -76,11 +76,11 @@
       &__title {
         font-size: 18px;
         font-weight: 500;
-        color: $black;
+        color: colors.$black;
       }
 
       &__sub-title {
-        color: $black-light;
+        color: colors.$black-light;
         padding-top: 4px;
       }
 
@@ -88,7 +88,7 @@
         height: 20px;
         width: 20px;
         padding: 6px;
-        border: 1px solid $black-light;
+        border: 1px solid colors.$black-light;
         border-radius: 4px;
       }
     }
@@ -102,7 +102,7 @@
 
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: $black-light !important;
+        color: colors.$black-light !important;
       }
     }
 
@@ -113,7 +113,7 @@
       &__search-icon {
         font-size: 18px;
         margin: auto 8px auto 0;
-        color: $black-light;
+        color: colors.$black-light;
         height: auto;
       }
 
@@ -121,12 +121,12 @@
         margin: -10px;
         font-size: 18px;
         background-color: transparent;
-        color: $black;
+        color: colors.$black;
       }
     }
 
     &__cancel {
-      color: $black-light;
+      color: colors.$black-light;
       padding-left: 8px;
     }
   }

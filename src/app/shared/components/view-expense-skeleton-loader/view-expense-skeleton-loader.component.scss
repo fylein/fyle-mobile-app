@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 $shimmer-border-radius: 4px;
 
@@ -62,7 +62,7 @@ $shimmer-border-radius: 4px;
 }
 
 .skeleton-divider {
-  background-color: $grey-lighter;
+  background-color: colors.$grey-lighter;
   height: 1px;
   margin: calc(30px - 16px) 16px 30px;
 }

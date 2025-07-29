@@ -16,6 +16,7 @@ import { DependentFieldModalComponent } from './dependent-field-modal/dependent-
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class DependentFieldComponent implements ControlValueAccessor {
   @Input() label = '';
@@ -41,7 +42,7 @@ export class DependentFieldComponent implements ControlValueAccessor {
   constructor(
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   async openModal(): Promise<void> {

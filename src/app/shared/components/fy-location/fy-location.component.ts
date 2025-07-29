@@ -1,9 +1,15 @@
-import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
+import { Component, forwardRef, Input } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+
+// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
+interface LocationValue {
+  display: string;
+  value?: string;
+}
 
 @Component({
   selector: 'app-fy-location',
@@ -16,8 +22,9 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
+  standalone: false,
 })
-export class FyLocationComponent implements ControlValueAccessor, OnInit {
+export class FyLocationComponent implements ControlValueAccessor {
   @Input() label = 'location';
 
   @Input() mandatory = false;
@@ -30,7 +37,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   @Input() recentLocations: string[] = [];
 
-  @Input() cacheName;
+  @Input() cacheName?: string;
 
   @Input() placeholder: string;
 
@@ -40,17 +47,20 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   @Input() disableEnteringManualLocation? = false;
 
-  displayValue;
+  displayValue = '';
 
-  innerValue;
+  innerValue: LocationValue | null = null;
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (_: any) => void = noop;
+  onChangeCallback: (_: LocationValue | null) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+  ) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.touchedInParent) {
       return this.validInParent;
     } else {
@@ -58,11 +68,11 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  get value(): any {
+  get value(): LocationValue | null {
     return this.innerValue;
   }
 
-  set value(v: any) {
+  set value(v: LocationValue | null) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       const selectedOption = this.innerValue;
@@ -76,9 +86,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  ngOnInit() {}
-
-  async openModal() {
+  async openModal(): Promise<void> {
     if (!this.disabled) {
       const selectionModal = await this.modalController.create({
         component: FyLocationModalComponent,
@@ -101,11 +109,11 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any): void {
+  writeValue(value: LocationValue | null): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       const selectedOption = this.innerValue;
@@ -117,11 +125,11 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: (value: LocationValue | null) => void): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: () => void): void {
     this.onTouchedCallback = fn;
   }
 }

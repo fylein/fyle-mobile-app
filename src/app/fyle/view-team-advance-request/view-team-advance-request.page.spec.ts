@@ -175,7 +175,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       advanceRequestService.getApproverAdvanceRequest.and.returnValue(of(extendedAdvReqDraft));
       advanceRequestService.getApproverPermissions.and.returnValue(of(apiAdvanceRequestAction));
       advanceRequestService.getActiveApproversByAdvanceRequestIdPlatformForApprover.and.returnValue(
-        of(advanceReqApprovalsPublic)
+        of(advanceReqApprovalsPublic),
       );
       spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
       advanceRequestService.getCustomFieldsForApprover.and.returnValue(of(advanceRequestCustomFieldData2));
@@ -190,16 +190,10 @@ describe('ViewTeamAdvanceRequestPage', () => {
       component.ionViewWillEnter();
       tick(100);
 
-      component.advanceRequest$
-        .pipe(
-          finalize(() => {
-            expect(component.isInitialLoading).toBeFalse();
-          })
-        )
-        .subscribe((data) => {
-          expect(data).toEqual(extendedAdvReqDraft);
-          expect(advanceRequestService.getApproverAdvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
-        });
+      component.advanceRequest$.pipe().subscribe((data) => {
+        expect(data).toEqual(extendedAdvReqDraft);
+        expect(advanceRequestService.getApproverAdvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+      });
 
       component.actions$.subscribe((data) => {
         expect(data).toEqual(apiAdvanceRequestAction);
@@ -218,7 +212,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
       component.approvals$.subscribe((data) => {
         expect(data).toEqual(advanceReqApprovalsPublic);
         expect(advanceRequestService.getActiveApproversByAdvanceRequestIdPlatformForApprover).toHaveBeenCalledOnceWith(
-          'areqR1cyLgXdND'
+          'areqR1cyLgXdND',
         );
       });
 

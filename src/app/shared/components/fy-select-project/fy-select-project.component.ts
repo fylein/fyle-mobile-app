@@ -18,6 +18,7 @@ import { ProjectOption } from 'src/app/core/models/project-options.model';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy {
   @Input() mandatory = false;
@@ -52,7 +53,10 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   onChangeCallback: (value: ProjectV2) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {

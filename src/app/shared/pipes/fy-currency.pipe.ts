@@ -8,6 +8,7 @@ import { Pipe, PipeTransform } from '@angular/core';
  */
 @Pipe({
   name: 'currency',
+  standalone: false,
 })
 export class FyCurrencyPipe implements PipeTransform {
   constructor(private currencyPipe: CurrencyPipe) {}
@@ -18,7 +19,7 @@ export class FyCurrencyPipe implements PipeTransform {
     currencyCode?: string,
     display?: string | boolean,
     digitsInfo?: string,
-    locale?: string
+    locale?: string,
   ): string | null {
     // When amount passed is 0 avoid adding decimal point
     if (value === 0) {

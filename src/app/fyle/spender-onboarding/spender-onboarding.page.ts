@@ -17,6 +17,7 @@ import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-cor
   selector: 'app-spender-onboarding',
   templateUrl: './spender-onboarding.page.html',
   styleUrls: ['./spender-onboarding.page.scss'],
+  standalone: false,
 })
 export class SpenderOnboardingPage {
   isLoading = true;
@@ -48,7 +49,7 @@ export class SpenderOnboardingPage {
     private orgSettingsService: OrgSettingsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private router: Router,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
   ) {}
 
   isMobileVerified(eou: ExtendedOrgUser): boolean {
@@ -72,7 +73,7 @@ export class SpenderOnboardingPage {
     return this.spenderOnboardingService.markWelcomeModalStepAsComplete().pipe(
       map(() => {
         this.setPostOnboardingScreen(isComplete);
-      })
+      }),
     );
   }
 
@@ -109,7 +110,7 @@ export class SpenderOnboardingPage {
             this.orgSettingsService.get(),
             this.spenderOnboardingService.getOnboardingStatus(),
             this.corporateCreditCardExpenseService.getCorporateCards(),
-          ])
+          ]),
         ),
         map(([eou, orgSettings, onboardingStatus, corporateCards]) => {
           this.eou = eou;
@@ -134,7 +135,7 @@ export class SpenderOnboardingPage {
         finalize(() => {
           this.isLoading = false;
           return from(this.loaderService.hideLoader());
-        })
+        }),
       )
       .subscribe();
   }
@@ -155,7 +156,7 @@ export class SpenderOnboardingPage {
             } else {
               this.currentStep = OnboardingStep.OPT_IN;
             }
-          })
+          }),
         )
         .subscribe();
     } else if (this.currentStep === OnboardingStep.OPT_IN) {
@@ -166,7 +167,7 @@ export class SpenderOnboardingPage {
           map(() => {
             this.trackingService.eventTrack('Sms Opt In Onboarding Step - Skipped');
           }),
-          switchMap(() => this.completeOnboarding())
+          switchMap(() => this.completeOnboarding()),
         )
         .subscribe();
     }
@@ -183,7 +184,7 @@ export class SpenderOnboardingPage {
             } else {
               this.currentStep = OnboardingStep.OPT_IN;
             }
-          })
+          }),
         )
         .subscribe();
     } else if (this.currentStep === OnboardingStep.OPT_IN) {

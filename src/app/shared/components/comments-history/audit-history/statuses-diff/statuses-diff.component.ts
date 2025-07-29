@@ -4,6 +4,7 @@ import { Component, OnInit, Input } from '@angular/core';
   selector: 'app-statuses-diff',
   templateUrl: './statuses-diff.component.html',
   styleUrls: ['./statuses-diff.component.scss'],
+  standalone: false,
 })
 export class StatusesDiffComponent implements OnInit {
   @Input() key;

@@ -20,6 +20,7 @@ import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-opt
   templateUrl: './generic-fields-form.component.html',
   styleUrls: ['./generic-fields-form.component.scss'],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: GenericFieldsFormComponent, multi: true }],
+  standalone: false,
 })
 export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
   @Input() amountOptionsData: MergeExpensesOptionsData<string>;
@@ -78,7 +79,10 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   onTouched: () => void = noop;
 
-  constructor(private formBuilder: UntypedFormBuilder, private injector: Injector) {}
+  constructor(
+    private formBuilder: UntypedFormBuilder,
+    private injector: Injector,
+  ) {}
 
   isFieldTouched = (fieldName: string): boolean => this.genericFieldsFormGroup.get(fieldName).touched;
 

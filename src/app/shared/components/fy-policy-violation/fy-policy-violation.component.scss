@@ -1,9 +1,9 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .policy-violation {
   &--toolbar {
     &__title {
-      color: $black;
+      color: colors.$black;
       margin: 20px;
       font-size: 20px;
       font-weight: 500;
@@ -37,12 +37,12 @@
     margin-bottom: 25px;
     border-radius: 4px;
     padding: 10px;
-    background-color: $grey-7;
+    background-color: colors.$grey-7;
   }
 
   &--textarea {
     width: 100%;
-    border: 1px solid $grey-light;
+    border: 1px solid colors.$grey-light;
     border-radius: 4px;
     min-height: 75px;
     padding: 8px 11px;
@@ -54,13 +54,13 @@
   }
 
   &--additional-details-header {
-    color: $black-light;
+    color: colors.$black-light;
     margin: 24px 0px 10px 0px;
   }
 
   &--additional-details-comment-length {
     float: right;
-    color: $text-button-grey;
+    color: colors.$text-button-grey;
     font-size: 12px;
   }
 }

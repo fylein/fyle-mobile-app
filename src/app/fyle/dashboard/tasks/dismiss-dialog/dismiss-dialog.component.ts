@@ -8,6 +8,7 @@ import { of } from 'rxjs';
   selector: 'app-dismiss-dialog',
   templateUrl: './dismiss-dialog.component.html',
   styleUrls: ['./dismiss-dialog.component.scss'],
+  standalone: false,
 })
 export class DismissDialogComponent implements OnInit {
   @Input() dismissMethod: () => Observable<{}>;
@@ -34,9 +35,9 @@ export class DismissDialogComponent implements OnInit {
         catchError(() =>
           of({
             status: 'error',
-          })
+          }),
         ),
-        finalize(() => (this.dismissCallInProgress = false))
+        finalize(() => (this.dismissCallInProgress = false)),
       )
       .subscribe((res) => {
         this.popoverController.dismiss(res);

@@ -10,7 +10,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -48,6 +48,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
   selector: 'app-add-edit-advance-request',
   templateUrl: './add-edit-advance-request.page.html',
   styleUrls: ['./add-edit-advance-request.page.scss'],
+  standalone: false,
 })
 export class AddEditAdvanceRequestPage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -92,8 +93,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   isCameraPreviewStarted = false;
 
-  isLoading: boolean;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
@@ -112,7 +111,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private currencyService: CurrencyService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
   ) {}
 
   @HostListener('keydown')
@@ -261,9 +260,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
                 } else {
                   return this.router.navigate(['/', 'enterprise', 'my_advances']);
                 }
-              })
-            )
-          )
+              }),
+            ),
+          ),
         )
         .subscribe(noop);
     } else {
@@ -272,7 +271,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   generateAdvanceRequestFromFg(
-    extendedAdvanceRequest$: Observable<Partial<AdvanceRequests>>
+    extendedAdvanceRequest$: Observable<Partial<AdvanceRequests>>,
   ): Observable<Partial<AdvanceRequests>> {
     return forkJoin({
       extendedAdvanceRequest: extendedAdvanceRequest$,
@@ -293,7 +292,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
           source: 'MOBILE',
           custom_field_values: formValue.customFieldValues,
         };
-      })
+      }),
     );
   }
 
@@ -439,10 +438,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
-          })
-        )
+          }),
+        ),
       ),
-      reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+      reduce((acc: FileObject[], curr) => acc.concat(curr), []),
     );
   }
 
@@ -493,7 +492,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.isLoading = true;
     this.mode = (this.activatedRoute.snapshot.params.id as string) ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
@@ -515,15 +513,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
 
     const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = of(
-      this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE'
+      this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE',
     ).pipe(
       switchMap((isEditFromTeamView) => {
         const requestId = this.activatedRoute.snapshot.params.id as string;
         if (isEditFromTeamView) {
-          // Team view uses approver API (/platform/v1/approver/advance_requests)
           return this.advanceRequestService.getEReqFromApprover(requestId);
         } else {
-          // Spender view uses spender API (/platform/v1/spender/advance_requests)
           return this.advanceRequestService.getEReq(requestId);
         }
       }),
@@ -556,7 +552,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         });
         return res.areq;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     const newAdvanceRequestPipe$ = forkJoin({
@@ -572,22 +568,17 @@ export class AddEditAdvanceRequestPage implements OnInit {
           created_at: new Date(),
         };
         return advanceRequest;
-      })
+      }),
     );
 
     this.extendedAdvanceRequest$ = iif(
       () => !!this.activatedRoute.snapshot.params.id,
       editAdvanceRequestPipe$,
-      newAdvanceRequestPipe$
+      newAdvanceRequestPipe$,
     );
 
-    // turn off skeleton once data prepared
-    this.extendedAdvanceRequest$.pipe(take(1)).subscribe(() => {
-      this.isLoading = false;
-    });
-
     this.isProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
+      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled),
     );
     this.projects$ = this.projectsService.getAllActive();
 
@@ -598,10 +589,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
           this.platformEmployeeSettingsService
             .get()
             .pipe(map((employeeSettings) => employeeSettings.project_ids || [])),
-          this.projects$
-        )
+          this.projects$,
+        ),
       ),
-      map((projects) => projects.length > 0)
+      map((projects) => projects.length > 0),
     );
 
     this.customFields$ = (
@@ -628,7 +619,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
               id: customField.id,
               name: customField.name,
               value: [value, customField.is_mandatory && Validators.required],
-            })
+            }),
           );
         }
 
@@ -644,7 +635,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
           }
           return customField;
         });
-      })
+      }),
     );
     this.setupNetworkWatcher();
   }

@@ -6,6 +6,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
   styleUrls: ['./summary-tile.component.scss'],
+  standalone: false,
 })
 export class FySummaryTileComponent implements OnInit, OnChanges {
   @Input() category: string;

@@ -34,6 +34,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
   styleUrls: ['./my-reports.page.scss'],
+  standalone: false,
 })
 export class MyReportsPage {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
@@ -110,7 +111,7 @@ export class MyReportsPage {
     private reportStatePipe: ReportState,
     private expensesService: ExpensesService,
     private spenderReportsService: SpenderReportsService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -148,7 +149,7 @@ export class MyReportsPage {
       .pipe(
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
-        debounceTime(1000)
+        debounceTime(1000),
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -181,7 +182,7 @@ export class MyReportsPage {
                 data: [],
               });
             }
-          })
+          }),
         );
       }),
       map((res: PlatformApiResponse<Report[]>) => {
@@ -191,7 +192,7 @@ export class MyReportsPage {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
+      }),
     );
 
     this.myReports$ = paginatedPipe.pipe(shareReplay(1));
@@ -205,11 +206,11 @@ export class MyReportsPage {
         this.isLoadingDataInInfiniteScroll = true;
         return this.spenderReportsService.getReportsCount(queryParams);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     const paginatedScroll$ = this.myReports$.pipe(
-      switchMap((reports) => this.count$.pipe(map((count) => count > reports.length)))
+      switchMap((reports) => this.count$.pipe(map((count) => count > reports.length))),
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
@@ -235,16 +236,16 @@ export class MyReportsPage {
             map((stats) => ({
               count: stats.data.count,
               sum: stats.data.total_amount,
-            }))
-          )
-      )
+            })),
+          ),
+      ),
     );
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.simplifyReportsSettings$ = orgSettings$.pipe(
       map((orgSettings) => ({
         enabled: orgSettings?.simplified_report_closure_settings?.enabled,
-      }))
+      })),
     );
     this.nonReimbursableOrg$ = orgSettings$.pipe(
       map(
@@ -253,8 +254,8 @@ export class MyReportsPage {
           orgSettings.payment_mode_settings.enabled &&
           orgSettings.payment_mode_settings.payment_modes_order?.length === 1 &&
           orgSettings.payment_mode_settings.payment_modes_order[0] ===
-            AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT
-      )
+            AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
+      ),
     );
 
     this.myReports$.subscribe(noop);
@@ -265,7 +266,7 @@ export class MyReportsPage {
       this.filters = Object.assign(
         {},
         this.filters,
-        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<MyReportsFilters>
+        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<MyReportsFilters>,
       );
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -295,7 +296,7 @@ export class MyReportsPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -411,7 +412,7 @@ export class MyReportsPage {
       sortParam: string;
       sortDir: string;
       searchString: string;
-    }>
+    }>,
   ): void {
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
@@ -562,7 +563,7 @@ export class MyReportsPage {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<string>[]
+    generatedFilters: SelectedFilters<string>[],
   ): void {
     if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -586,7 +587,7 @@ export class MyReportsPage {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<string>[]
+    generatedFilters: SelectedFilters<string>[],
   ): void {
     this.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
@@ -632,7 +633,7 @@ export class MyReportsPage {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<string>[]
+    generatedFilters: SelectedFilters<string>[],
   ): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -656,7 +657,7 @@ export class MyReportsPage {
       customDateEnd: Date;
       sortParam: string;
       sortDir: string;
-    }>
+    }>,
   ): void {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
@@ -859,7 +860,7 @@ export class MyReportsPage {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<string>[]
+    generatedFilters: SelectedFilters<string>[],
   ): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({

@@ -10,6 +10,7 @@ SwiperCore.use([Pagination]);
   selector: 'app-bank-account-cards',
   templateUrl: './bank-account-cards.component.html',
   styleUrls: ['./bank-account-cards.component.scss'],
+  standalone: false,
 })
 export class BankAccountCardsComponent {
   @Input() linkedAccounts: PlatformPersonalCard[];

@@ -5,23 +5,32 @@ import { FilterOptionType } from './filter-option-type.enum';
 import { ModalController } from '@ionic/angular';
 import { forkJoin, Observable, of } from 'rxjs';
 
+// eslint-disable-next-line custom-rules/prefer-semantic-extension-name
+type FilterValue = string | number | boolean | Date;
+
+// eslint-disable-next-line custom-rules/one-interface-per-file, custom-rules/prefer-semantic-extension-name
+interface SimplifyReportsSettings {
+  enabled: boolean;
+}
+
 @Component({
   selector: 'app-fy-filters',
   templateUrl: './fy-filters.component.html',
   styleUrls: ['./fy-filters.component.scss'],
+  standalone: false,
 })
 export class FyFiltersComponent implements OnInit {
-  @Input() simplifyReportsSettings$: Observable<any> = of({ enabled: false });
+  @Input() simplifyReportsSettings$: Observable<SimplifyReportsSettings> = of({ enabled: false });
 
   @Input() nonReimbursableOrg$: Observable<boolean> = of(false);
 
-  @Input() selectedFilterValues: SelectedFilters<any>[];
+  @Input() selectedFilterValues: SelectedFilters<FilterValue>[];
 
-  @Input() activeFilterInitialName;
+  @Input() activeFilterInitialName: string;
 
-  filterOptions: FilterOptions<any>[];
+  filterOptions: FilterOptions<FilterValue>[];
 
-  currentFilterValueMap: { [key: string]: any | any[] } = {};
+  currentFilterValueMap: { [key: string]: FilterValue | FilterValue[] } = {};
 
   customDateMap: {
     [key: string]: {
@@ -30,7 +39,7 @@ export class FyFiltersComponent implements OnInit {
     };
   } = {};
 
-  activeFilter;
+  activeFilter: FilterOptions<FilterValue>;
 
   startDate: Date;
 
@@ -38,29 +47,35 @@ export class FyFiltersComponent implements OnInit {
 
   constructor(private modalController: ModalController) {}
 
-  get FilterOptionType() {
+  get FilterOptionType(): typeof FilterOptionType {
     return FilterOptionType;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     const activeFilterInitialIndex =
       (this.activeFilterInitialName &&
         this.filterOptions.findIndex((option) => option.name === this.activeFilterInitialName)) ||
       0;
     this.activeFilter = this.filterOptions[activeFilterInitialIndex];
-    this.currentFilterValueMap = this.selectedFilterValues.reduce((acc, curr) => {
-      acc[curr.name] = curr.value;
-      return acc;
-    }, {});
+    this.currentFilterValueMap = this.selectedFilterValues.reduce(
+      (acc, curr) => {
+        acc[curr.name] = curr.value;
+        return acc;
+      },
+      {} as { [key: string]: FilterValue | FilterValue[] },
+    );
     this.customDateMap = this.selectedFilterValues
       .filter((selectedFilters) => selectedFilters.name === 'Date' && selectedFilters.value === 'custom')
-      .reduce((acc, curr) => {
-        acc[curr.name] = {
-          startDate: curr.associatedData?.startDate,
-          endDate: curr.associatedData?.endDate,
-        };
-        return acc;
-      }, {});
+      .reduce(
+        (acc, curr) => {
+          acc[curr.name] = {
+            startDate: curr.associatedData?.startDate,
+            endDate: curr.associatedData?.endDate,
+          };
+          return acc;
+        },
+        {} as { [key: string]: { startDate?: Date; endDate?: Date } },
+      );
     if (this.activeFilter.name === 'Date') {
       this.startDate = this.customDateMap[this.activeFilter.name]?.startDate;
       this.endDate = this.customDateMap[this.activeFilter.name]?.endDate;
@@ -79,11 +94,13 @@ export class FyFiltersComponent implements OnInit {
     });
   }
 
-  getNoOfFilters() {
-    return Object.values(this.currentFilterValueMap).filter((value) => value && value.length).length;
+  getNoOfFilters(): number {
+    return Object.values(this.currentFilterValueMap).filter(
+      (value) => value && (Array.isArray(value) ? value.length : true),
+    ).length;
   }
 
-  onFilterClick(filterDefinition: FilterOptions<any>) {
+  onFilterClick(filterDefinition: FilterOptions<FilterValue>): void {
     this.activeFilter = filterDefinition;
     if (this.activeFilter.optionType === FilterOptionType.date) {
       const customDate = this.customDateMap[this.activeFilter.name];
@@ -94,25 +111,25 @@ export class FyFiltersComponent implements OnInit {
     }
   }
 
-  cancel() {
+  cancel(): void {
     this.modalController.dismiss();
   }
 
-  clearAll() {
+  clearAll(): void {
     this.currentFilterValueMap = {};
     this.customDateMap = {};
     this.startDate = null;
     this.endDate = null;
   }
 
-  onDateChange() {
+  onDateChange(): void {
     this.customDateMap[this.activeFilter.name] = {
       startDate: this.startDate,
       endDate: this.endDate,
     };
   }
 
-  switchFilter(currentFilter: FilterOptions<any>, option: { label: string; value: any }) {
+  switchFilter(currentFilter: FilterOptions<FilterValue>, option: { label: string; value: FilterValue }): void {
     const filter = this.currentFilterValueMap[currentFilter.name];
 
     if (currentFilter.optionType === FilterOptionType.singleselect) {
@@ -128,27 +145,27 @@ export class FyFiltersComponent implements OnInit {
     }
   }
 
-  save() {
+  save(): void {
     const filters = Object.keys(this.currentFilterValueMap).reduce(
       (acc, key) =>
         acc.concat({
           name: key,
           value: this.currentFilterValueMap[key],
           associatedData: this.customDateMap[key],
-        } as SelectedFilters<any>),
-      []
+        } as SelectedFilters<FilterValue>),
+      [] as SelectedFilters<FilterValue>[],
     );
     this.modalController.dismiss(filters);
   }
 
   switchDateFilter(
-    filter: any,
-    currentFilter: FilterOptions<any>,
+    filter: FilterValue | FilterValue[],
+    currentFilter: FilterOptions<FilterValue>,
     option: {
       label: string;
-      value: any;
-    }
-  ) {
+      value: FilterValue;
+    },
+  ): void {
     if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
       this.currentFilterValueMap[currentFilter.name] = null;
     } else {
@@ -162,21 +179,20 @@ export class FyFiltersComponent implements OnInit {
   }
 
   switchMultiselectFilter(
-    filter: any,
+    filter: FilterValue | FilterValue[],
     option: {
       label: string;
-      value: any;
+      value: FilterValue;
     },
-    currentFilter: FilterOptions<any>
-  ) {
+    currentFilter: FilterOptions<FilterValue>,
+  ): void {
     if (filter) {
-      const doesValueExistInFilter = filter.some((value) => value === option.value);
+      const filterArray = filter as FilterValue[];
+      const doesValueExistInFilter = filterArray.some((value) => value === option.value);
       if (doesValueExistInFilter) {
-        this.currentFilterValueMap[currentFilter.name] = this.currentFilterValueMap[currentFilter.name].filter(
-          (value) => value !== option.value
-        );
+        this.currentFilterValueMap[currentFilter.name] = filterArray.filter((value) => value !== option.value);
       } else {
-        this.currentFilterValueMap[currentFilter.name].push(option.value);
+        filterArray.push(option.value);
       }
     } else {
       this.currentFilterValueMap[currentFilter.name] = [option.value];
@@ -184,13 +200,13 @@ export class FyFiltersComponent implements OnInit {
   }
 
   switchSingleSelectFilter(
-    filter: any,
-    currentFilter: FilterOptions<any>,
+    filter: FilterValue | FilterValue[],
+    currentFilter: FilterOptions<FilterValue>,
     option: {
       label: string;
-      value: any;
-    }
-  ) {
+      value: FilterValue;
+    },
+  ): void {
     if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
       this.currentFilterValueMap[currentFilter.name] = null;
     } else {

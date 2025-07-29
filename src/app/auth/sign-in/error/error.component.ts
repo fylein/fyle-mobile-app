@@ -7,6 +7,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-error',
   templateUrl: './error.component.html',
   styleUrls: ['./error.component.scss'],
+  standalone: false,
 })
 export class ErrorComponent implements OnInit {
   @Input() header = '';
@@ -16,7 +17,7 @@ export class ErrorComponent implements OnInit {
   constructor(
     private popoverController: PopoverController,
     private router: Router,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {

@@ -28,6 +28,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-sidemenu',
   templateUrl: './sidemenu.component.html',
   styleUrls: ['./sidemenu.component.scss'],
+  standalone: false,
 })
 export class SidemenuComponent implements OnInit {
   @Output() switchDelegator = new EventEmitter<boolean>();
@@ -70,7 +71,7 @@ export class SidemenuComponent implements OnInit {
     private authService: AuthService,
     private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private spenderOnboardingService: SpenderOnboardingService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -83,7 +84,7 @@ export class SidemenuComponent implements OnInit {
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -179,7 +180,7 @@ export class SidemenuComponent implements OnInit {
 
         this.switchDelegator.emit(this.isSwitchedToDelegator);
         this.setupSideMenu(isConnected, orgs, isDelegatee);
-      }
+      },
     );
   }
 
@@ -297,12 +298,12 @@ export class SidemenuComponent implements OnInit {
   updateSidemenuOption(
     primaryOptions: Partial<SidemenuItem>[],
     dropdownTitle: string,
-    updatedOption: Partial<SidemenuItem>
+    updatedOption: Partial<SidemenuItem>,
   ): Partial<SidemenuItem>[] {
     return primaryOptions.splice(
       primaryOptions.findIndex((option) => option.title === dropdownTitle),
       1,
-      updatedOption
+      updatedOption,
     );
   }
 
@@ -333,7 +334,7 @@ export class SidemenuComponent implements OnInit {
     orgs: Org[],
     isDelegatee: boolean,
     isConnected: boolean,
-    isOnboardingPending: boolean
+    isOnboardingPending: boolean,
   ): Partial<SidemenuItem>[] {
     return [
       {

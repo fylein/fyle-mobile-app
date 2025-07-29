@@ -11,6 +11,7 @@ import * as Sentry from '@sentry/angular';
   selector: 'app-camera-preview',
   templateUrl: './camera-preview.component.html',
   styleUrls: ['./camera-preview.component.scss'],
+  standalone: false,
 })
 export class CameraPreviewComponent implements OnInit, OnChanges {
   @Input() isBulkMode = false;
@@ -52,7 +53,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   constructor(
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
     private cameraService: CameraService,
-    private cameraPreviewService: CameraPreviewService
+    private cameraPreviewService: CameraPreviewService,
   ) {}
 
   get CameraState(): typeof CameraState {

@@ -39,6 +39,7 @@ import { isNumber } from 'lodash';
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
   styleUrls: ['./manage-corporate-cards.page.scss'],
+  standalone: false,
 })
 export class ManageCorporateCardsPage {
   corporateCards$: Observable<PlatformCorporateCard[]>;
@@ -80,7 +81,7 @@ export class ManageCorporateCardsPage {
     private featureConfigService: FeatureConfigService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private authService: AuthService
+    private authService: AuthService,
   ) {}
 
   get Segment(): typeof ManageCardsPageSegment {
@@ -119,7 +120,7 @@ export class ManageCorporateCardsPage {
           includeCurrentAmount: true,
         };
         return this.virtualCardsService.getCardDetailsMap(virtualCardsParams);
-      })
+      }),
     );
   }
 
@@ -134,7 +135,7 @@ export class ManageCorporateCardsPage {
       catchError(() => {
         this.filteredCorporateCards = [];
         return of([]);
-      })
+      }),
     );
 
     const orgSettings$ = this.orgSettingsService.get();
@@ -144,26 +145,28 @@ export class ManageCorporateCardsPage {
           orgSettings.amex_feed_enrollment_settings.allowed &&
           orgSettings.amex_feed_enrollment_settings.enabled &&
           orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled,
-      }))
+      })),
     );
 
     this.virtualCardDetails$ = this.getVirtualCardDetails();
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+      map(
+        (orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled,
+      ),
     );
 
     this.isMastercardRTFEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
-      )
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled,
+      ),
     );
 
     this.isYodleeEnabled$ = forkJoin([orgSettings$]).pipe(
       map(
         ([orgSettings]) =>
-          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled
-      )
+          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled,
+      ),
     );
     this.isAddCorporateCardVisible$ = this.checkAddCorporateCardVisibility();
   }
@@ -213,7 +216,7 @@ export class ManageCorporateCardsPage {
         }
 
         return actionSheetButtons;
-      })
+      }),
     );
   }
 
@@ -250,7 +253,7 @@ export class ManageCorporateCardsPage {
         if (popoverResponse.data?.success) {
           this.handleEnrollmentSuccess();
         }
-      }
+      },
     );
   }
 
@@ -258,9 +261,9 @@ export class ManageCorporateCardsPage {
     return forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).pipe(
       map(
         ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) =>
-          isVisaRTFEnabled || isMastercardRTFEnabled || isYodleeEnabled
+          isVisaRTFEnabled || isMastercardRTFEnabled || isYodleeEnabled,
       ),
-      catchError(() => of(false))
+      catchError(() => of(false)),
     );
   }
 

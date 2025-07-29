@@ -8,6 +8,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-profile-opt-in-card',
   templateUrl: './profile-opt-in-card.component.html',
   styleUrls: ['./profile-opt-in-card.component.scss'],
+  standalone: false,
 })
 export class ProfileOptInCardComponent implements OnInit {
   @Input() extendedOrgUser: ExtendedOrgUser;
@@ -33,7 +34,7 @@ export class ProfileOptInCardComponent implements OnInit {
   constructor(
     private clipboardService: ClipboardService,
     private trackingService: TrackingService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {

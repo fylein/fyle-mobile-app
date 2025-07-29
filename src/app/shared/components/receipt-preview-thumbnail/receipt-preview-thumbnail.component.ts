@@ -8,6 +8,7 @@ import { SwiperComponent } from 'swiper/angular';
   selector: 'app-receipt-preview-thumbnail',
   templateUrl: './receipt-preview-thumbnail.component.html',
   styleUrls: ['./receipt-preview-thumbnail.component.scss'],
+  standalone: false,
 })
 export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   @ViewChild('slides', { static: false }) imageSlides?: SwiperComponent;

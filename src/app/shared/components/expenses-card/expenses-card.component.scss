@@ -1,20 +1,20 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .expenses-card {
   &--date {
-    color: $grey-light;
+    color: colors.$grey-light;
     font-size: 14px;
     padding: 12px 0 12px 12px;
-    background-color: $white;
+    background-color: colors.$white;
     font-weight: 500;
 
     &__from-reports {
-      background-color: $white;
+      background-color: colors.$white;
     }
   }
 
   &--body {
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     min-height: 106px;
     padding: 12px;
 
@@ -38,21 +38,23 @@
   &--checkbox {
     width: 20px;
     height: 20px;
+    display: flex;
+    justify-content: center;
   }
 
   &--divider {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
     margin-bottom: 16px;
   }
 
   &--edit-icon {
-    stroke: $brand-primary;
+    stroke: colors.$brand-primary;
     font-size: 16px;
   }
 
   &--scanning-icon {
     font-size: 24px;
-    color: $green;
+    color: colors.$green;
   }
 
   &--scaning-receipt {
@@ -68,17 +70,17 @@
     }
 
     &__header {
-      color: $black;
+      color: colors.$black;
       font-weight: 500;
       font-size: 16px;
       line-height: 1.3;
       white-space: nowrap;
       &-scanning {
-        color: $green;
+        color: colors.$green;
       }
 
       &-failed {
-        color: $red;
+        color: colors.$red;
       }
 
       &-scanning {
@@ -88,7 +90,7 @@
     }
 
     &__content {
-      color: $blue-black;
+      color: colors.$blue-black;
       font-size: 14px;
       line-height: 1.3;
       margin-top: 5px;
@@ -102,7 +104,7 @@
   }
 
   &--receipt-container {
-    background-color: $light-grey;
+    background-color: colors.$light-grey;
     border-radius: 8px;
     height: 74px;
     padding: 20px;
@@ -110,7 +112,7 @@
   }
 
   &--receipt-image-container {
-    background-color: $light-grey;
+    background-color: colors.$light-grey;
     border-radius: 8px;
     height: 74px;
     min-width: 75px;
@@ -133,11 +135,11 @@
   &--receipt-icon {
     height: 35px;
     width: 35px;
-    color: $black-light;
+    color: colors.$black-light;
 
     &__pdf {
       stroke: none;
-      color: $black-light;
+      color: colors.$black-light;
     }
 
     &__image {
@@ -163,7 +165,7 @@
     }
 
     &__error {
-      color: $red;
+      color: colors.$red;
       font-weight: 500;
       font-size: 14px;
       line-height: 1.3;
@@ -175,7 +177,7 @@
   }
 
   &--category {
-    color: $black;
+    color: colors.$black;
     font-size: 16px;
     font-weight: 500;
     line-height: 1.3;
@@ -192,7 +194,7 @@
       margin-left: 4px;
       width: 16px;
       height: 16px;
-      color: $red;
+      color: colors.$red;
       font-size: 16px;
     }
 
@@ -200,12 +202,12 @@
       margin-left: 4px;
       width: 16px;
       height: 16px;
-      color: $brand-primary-light;
+      color: colors.$brand-primary-light;
     }
   }
 
   &--edit-text {
-    color: $blue-black;
+    color: colors.$blue-black;
     font-size: 14px;
     line-height: 1.3;
     white-space: nowrap;
@@ -213,7 +215,7 @@
   }
 
   &--vendor {
-    color: $blue-black;
+    color: colors.$blue-black;
     font-size: 14px;
     line-height: 1.2;
     margin-top: 2px;
@@ -222,12 +224,12 @@
     overflow-x: hidden;
 
     &__not-filled {
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
   &--project {
-    color: $blue-black;
+    color: colors.$blue-black;
     font-size: 14px;
     margin-top: 2px;
     white-space: nowrap;
@@ -236,7 +238,7 @@
     line-height: 1.2;
 
     &__not-filled {
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
@@ -251,7 +253,7 @@
   }
 
   &--currency {
-    color: $black-light;
+    color: colors.$black-light;
     font-weight: 500;
     font-size: 16px;
     line-height: 1.3;
@@ -259,7 +261,7 @@
   }
 
   &--amount {
-    color: $black;
+    color: colors.$black;
     font-size: 16px;
     line-height: 1.3;
     margin-right: 6px;
@@ -271,11 +273,11 @@
     height: 20px;
     width: 20px;
     font-size: 20px;
-    color: $black;
+    color: colors.$black;
   }
 
   &--exchange-rate {
-    color: $black-light;
+    color: colors.$black-light;
     font-size: 14px;
     line-height: 1.25;
     margin-top: 2px;
@@ -283,11 +285,11 @@
   }
 
   &--critical-policy-violatios {
-    color: $red;
+    color: colors.$red;
     font-weight: 500;
     font-size: 10px;
     line-height: 1.3;
-    background-color: $red-1;
+    background-color: colors.$red-1;
     padding: 2px 3px;
     border-radius: 3px;
     margin-top: 6px;
@@ -306,7 +308,7 @@
   }
 
   &--spinner-icon {
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 
   &--spinner-subheader {

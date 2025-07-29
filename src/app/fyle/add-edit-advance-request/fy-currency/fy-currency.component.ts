@@ -23,6 +23,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   @Input() txnDt: Date;
@@ -46,7 +47,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     private fb: UntypedFormBuilder,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private injector: Injector
+    private injector: Injector,
   ) {}
 
   get valid() {

@@ -15,6 +15,7 @@ import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-r
   selector: 'app-help',
   templateUrl: './help.page.html',
   styleUrls: ['./help.page.scss'],
+  standalone: false,
 })
 export class HelpPage implements OnInit {
   orgAdmins: PlatformApiResponse<Partial<Employee>[]>;
@@ -27,7 +28,7 @@ export class HelpPage implements OnInit {
     private loaderService: LoaderService,
     private trackingService: TrackingService,
     private authService: AuthService,
-    private browserHandlerService: BrowserHandlerService
+    private browserHandlerService: BrowserHandlerService,
   ) {}
 
   openContactSupportDialog(): void {
@@ -44,9 +45,9 @@ export class HelpPage implements OnInit {
             id: 'neq.' + eou.ou.id,
             order: 'full_name.asc',
             limit: 5,
-          })
+          }),
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe((orgAdmins) => {
         this.orgAdmins = orgAdmins;

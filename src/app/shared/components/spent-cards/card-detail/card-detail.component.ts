@@ -8,6 +8,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   selector: 'app-card-detail',
   templateUrl: './card-detail.component.html',
   styleUrls: ['./card-detail.component.scss'],
+  standalone: false,
 })
 export class CardDetailComponent {
   @Input() cardDetail: PlatformCorporateCardDetail;
@@ -22,7 +23,7 @@ export class CardDetailComponent {
   constructor(
     private router: Router,
     private trackingService: TrackingService,
-    private orgSettingService: OrgSettingsService
+    private orgSettingService: OrgSettingsService,
   ) {}
 
   goToExpensesPage(state: string, cardDetail: PlatformCorporateCardDetail): void {

@@ -12,6 +12,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-select-modal',
   templateUrl: './fy-select-modal.component.html',
   styleUrls: ['./fy-select-modal.component.scss'],
+  standalone: false,
 })
 export class FySelectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
@@ -55,7 +56,7 @@ export class FySelectModalComponent implements AfterViewInit {
     private cdr: ChangeDetectorRef,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private utilityService: UtilityService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   clearValue(): void {
@@ -74,13 +75,13 @@ export class FySelectModalComponent implements AfterViewInit {
         map((options: ExtendedOption[]) =>
           options
             .filter(
-              (option: ExtendedOption) => option.custom || this.options.map((op) => op.label).includes(option.label)
+              (option: ExtendedOption) => option.custom || this.options.map((op) => op.label).includes(option.label),
             )
             .map((option: ExtendedOption) => {
               option.selected = isEqual(option.value, this.currentSelection);
               return option;
-            })
-        )
+            }),
+        ),
       );
     }
   }
@@ -124,10 +125,10 @@ export class FySelectModalComponent implements AfterViewInit {
                 return option;
               })
               .sort((a, b) => (this.isCustomSelect ? (a.selected === b.selected ? 0 : a.selected ? -1 : 1) : 0))
-              .slice(0, this.isCustomSelect ? 200 : this.options.length)
+              .slice(0, this.isCustomSelect ? 200 : this.options.length),
           );
         }),
-        shareReplay(1)
+        shareReplay(1),
       );
       this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement as HTMLElement, 'keyup').pipe(
         map((event: Event) => (event.target as HTMLInputElement).value),
@@ -136,10 +137,10 @@ export class FySelectModalComponent implements AfterViewInit {
         switchMap((searchText) =>
           this.getRecentlyUsedItems().pipe(
             // filtering of recently used items wrt searchText is taken care in service method
-            this.utilityService.searchArrayStream(searchText)
-          )
+            this.utilityService.searchArrayStream(searchText),
+          ),
         ),
-        shareReplay(1)
+        shareReplay(1),
       );
     } else {
       const initial: Option[] = [];
@@ -156,8 +157,8 @@ export class FySelectModalComponent implements AfterViewInit {
               return option;
             })
             .sort((a, b) => (this.isCustomSelect ? (a.selected === b.selected ? 0 : a.selected ? -1 : 1) : 0))
-            .slice(0, this.isCustomSelect ? 200 : this.options.length)
-        )
+            .slice(0, this.isCustomSelect ? 200 : this.options.length),
+        ),
       );
     }
 

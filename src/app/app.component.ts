@@ -31,6 +31,7 @@ import { TasksService } from './core/services/tasks.service';
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
+  standalone: false,
 })
 export class AppComponent implements OnInit {
   @ViewChild('sidemenuRef') sidemenuRef: SidemenuComponent;
@@ -90,7 +91,7 @@ export class AppComponent implements OnInit {
     private gmapsService: GmapsService,
     private spenderOnboardingService: SpenderOnboardingService,
     private footerService: FooterService,
-    private tasksService: TasksService
+    private tasksService: TasksService,
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -144,7 +145,7 @@ export class AppComponent implements OnInit {
             this.appVersionService.load(deviceInfo);
             return this.appVersionService.getUserAppVersionDetails(deviceInfo);
           }),
-          filter((userAppVersionDetails) => !!userAppVersionDetails)
+          filter((userAppVersionDetails) => !!userAppVersionDetails),
         )
         .subscribe((userAppVersionDetails) => {
           const { appSupportDetails, lastLoggedInVersion, deviceInfo } = userAppVersionDetails;
@@ -161,7 +162,7 @@ export class AppComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -176,7 +177,7 @@ export class AppComponent implements OnInit {
           } else {
             this.sidemenuRef.showSideMenuOffline();
           }
-        })
+        }),
       )
       .subscribe();
   }
@@ -387,7 +388,7 @@ export class AppComponent implements OnInit {
           const queryParams: { [key: string]: string } = urlTree.queryParams;
 
           return { lastSegment, matrixParams, queryParams };
-        })
+        }),
       )
       .subscribe(({ lastSegment, queryParams }: { lastSegment: string; queryParams: { [key: string]: string } }) => {
         this.currentPath = lastSegment;
