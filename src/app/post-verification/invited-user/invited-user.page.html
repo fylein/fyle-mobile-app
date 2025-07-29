@@ -1,5 +1,5 @@
 <ion-content scroll-y="false" class="no-keyboard-adjust">
-  @if ((isConnected$|async)) {
+  @if (isConnected$ | async) {
     <div class="invited-user">
       <div>
         <ion-icon
@@ -15,39 +15,47 @@
                 <div class="invited-user__input-container">
                   <div
                     class="invited-user__text invited-user__text-block"
-                    [ngClass]="{'invited-user__text__invalid': fg.controls.fullName.touched && !fg.controls.fullName.valid}"
-                    >
+                    [ngClass]="{
+                      'invited-user__text__invalid': fg.controls.fullName.touched && !fg.controls.fullName.valid,
+                    }"
+                  >
                     <div class="invited-user__text-label">Full name</div>
-                    <input [required]="true" class="invited-user__text-input smartlook-show" formControlName="fullName" />
+                    <input
+                      [required]="true"
+                      class="invited-user__text-input smartlook-show"
+                      formControlName="fullName"
+                    />
                   </div>
-                  @if (fg.controls.fullName.touched && fg.controls.fullName.invalid && fg.controls.fullName.errors.required) {
-                    <div
-                      class="invited-user__error"
-                      >
-                      Please enter your name
-                    </div>
+                  @if (
+                    fg.controls.fullName.touched && fg.controls.fullName.invalid && fg.controls.fullName.errors.required
+                  ) {
+                    <div class="invited-user__error">Please enter your name</div>
                   }
                 </div>
                 <div class="invited-user__input-container">
                   <div
                     class="invited-user__text invited-user__text-block"
-                    [ngClass]="{'invited-user__text__password-focus': focusOnPassword && !(fg.controls.password.touched && !fg.controls.password.valid), 'invited-user__text__invalid': fg.controls.password.touched && !fg.controls.password.valid}"
-                    >
+                    [ngClass]="{
+                      'invited-user__text__password-focus':
+                        focusOnPassword && !(fg.controls.password.touched && !fg.controls.password.valid),
+                      'invited-user__text__invalid': fg.controls.password.touched && !fg.controls.password.valid,
+                    }"
+                  >
                     <div class="invited-user__text-label">Password</div>
                     <div class="invited-user__password-container">
                       <input
                         placeholder="Enter password"
                         [required]="true"
-                        [type]="hide ? 'password': 'text'"
+                        [type]="hide ? 'password' : 'text'"
                         class="invited-user__text-input smartlook-show"
                         formControlName="password"
                         (focus)="setPasswordTooltip(true)"
                         (blur)="setPasswordTooltip(false)"
-                        />
+                      />
                       <div class="invited-user__password-icon-container" matSuffix (click)="hide = !hide">
                         <ion-icon
                           class="fy-icon invited-user__password-icon"
-                          src="{{hide ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg'}}"
+                          src="{{ hide ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg' }}"
                         ></ion-icon>
                       </div>
                     </div>
@@ -58,62 +66,68 @@
                       ></app-password-check-tooltip>
                     }
                   </div>
-                  @if (fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.required) {
-                    <div
-                      class="invited-user__error"
-                      >
-                      Password cannot be empty
-                    </div>
+                  @if (
+                    fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.required
+                  ) {
+                    <div class="invited-user__error">Password cannot be empty</div>
                   }
-                  @if (fg.controls.password.touched && fg.controls.password.invalid && fg.controls.password.errors.invalidPassword && !fg.controls.password.errors.required) {
-                    <div
-                      class="invited-user__error"
-                      >
-                      Please enter a valid password.
-                    </div>
+                  @if (
+                    fg.controls.password.touched &&
+                    fg.controls.password.invalid &&
+                    fg.controls.password.errors.invalidPassword &&
+                    !fg.controls.password.errors.required
+                  ) {
+                    <div class="invited-user__error">Please enter a valid password.</div>
                   }
                 </div>
                 <div class="invited-user__input-container">
                   <div
                     class="invited-user__text invited-user__text-block"
-                    [ngClass]="{'invited-user__text__password-focus': focusOnConfirmPassword && !(fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid), 'invited-user__text__invalid': fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid}"
-                    >
+                    [ngClass]="{
+                      'invited-user__text__password-focus':
+                        focusOnConfirmPassword &&
+                        !(fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid),
+                      'invited-user__text__invalid':
+                        fg.controls.confirmPassword.touched && !fg.controls.confirmPassword.valid,
+                    }"
+                  >
                     <div class="invited-user__text-label">Confirm password</div>
                     <div class="invited-user__password-container">
                       <input
                         placeholder="Re-enter password"
                         [required]="true"
-                        [type]="hideConfirmPassword ? 'password': 'text'"
+                        [type]="hideConfirmPassword ? 'password' : 'text'"
                         class="invited-user__text-input smartlook-show"
                         formControlName="confirmPassword"
                         (focus)="focusOnConfirmPassword = true"
                         (blur)="focusOnConfirmPassword = false"
-                        />
+                      />
                       <div
                         class="invited-user__password-icon-container"
                         matSuffix
                         (click)="hideConfirmPassword = !hideConfirmPassword"
-                        >
+                      >
                         <ion-icon
                           class="fy-icon invited-user__password-icon"
-                          src="{{hideConfirmPassword ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg'}}"
+                          src="{{ hideConfirmPassword ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg' }}"
                         ></ion-icon>
                       </div>
                     </div>
                   </div>
-                  @if (fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.required) {
-                    <div
-                      class="invited-user__error"
-                      >
-                      Password cannot be empty
-                    </div>
+                  @if (
+                    fg.controls.confirmPassword.touched &&
+                    fg.controls.confirmPassword.invalid &&
+                    fg.controls.confirmPassword.errors.required
+                  ) {
+                    <div class="invited-user__error">Password cannot be empty</div>
                   }
-                  @if (fg.controls.confirmPassword.touched && fg.controls.confirmPassword.invalid && fg.controls.confirmPassword.errors.passwordMismatch && !fg.controls.confirmPassword.errors.required) {
-                    <div
-                      class="invited-user__error"
-                      >
-                      Passwords do not match
-                    </div>
+                  @if (
+                    fg.controls.confirmPassword.touched &&
+                    fg.controls.confirmPassword.invalid &&
+                    fg.controls.confirmPassword.errors.passwordMismatch &&
+                    !fg.controls.confirmPassword.errors.required
+                  ) {
+                    <div class="invited-user__error">Passwords do not match</div>
                   }
                 </div>
               </form>
@@ -125,7 +139,7 @@
         <div>
           <ion-button
             fill="clear"
-            [ngClass]="{'invited-user__save__disabled': !fg.valid}"
+            [ngClass]="{ 'invited-user__save__disabled': !fg.valid }"
             [disabled]="!fg.valid"
             class="btn-primary invited-user__save"
             appFormButtonValidation
@@ -133,20 +147,20 @@
             [loading]="isLoading"
             [loadingText]="'Joining'"
             mat-flat-button
-            >
+          >
             Join
           </ion-button>
         </div>
       }
     </div>
   }
-  @if (!(isConnected$|async)) {
+  @if (!(isConnected$ | async)) {
     <div class="invited-user-offline ion-text-center">
       <img
         class="invited-user-offline__image"
         alt="offline-zer-state"
         src="../../../assets/images/zero-states/offline.svg"
-        />
+      />
       <div class="invited-user-offline__title">Looks like you are offline</div>
       <div class="invited-user-offline__sub-title">
         You need to be connected to internet to be able to login to the app. Please check if your internet connection is

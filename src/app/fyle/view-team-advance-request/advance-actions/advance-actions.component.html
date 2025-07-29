@@ -1,32 +1,20 @@
 <div class="advance-action">
   @if (actions.can_approve) {
-    <div
-      class="advance-action--action"
-      matRipple
-      (click)="openAnotherPopover('approveAdvance')"
-      >
+    <div class="advance-action--action" matRipple (click)="openAnotherPopover('approveAdvance')">
       <div class="advance-action--action-head">{{ 'advanceActions.approveAdvance' | transloco }}</div>
       <div class="advance-action--action-info">{{ 'advanceActions.approveAdvanceInfo' | transloco }}</div>
     </div>
   }
 
   @if (actions.can_inquire) {
-    <div
-      class="advance-action--action"
-      matRipple
-      (click)="openAnotherPopover('sendBackAdvance')"
-      >
+    <div class="advance-action--action" matRipple (click)="openAnotherPopover('sendBackAdvance')">
       <div class="advance-action--action-head">{{ 'advanceActions.sendBackAdvance' | transloco }}</div>
       <div class="advance-action--action-info">{{ 'advanceActions.sendBackAdvanceInfo' | transloco }}</div>
     </div>
   }
 
   @if (actions.can_reject) {
-    <div
-      class="advance-action--action"
-      matRipple
-      (click)="openAnotherPopover('rejectAdvance')"
-      >
+    <div class="advance-action--action" matRipple (click)="openAnotherPopover('rejectAdvance')">
       <div class="advance-action--action-head">{{ 'advanceActions.rejectAdvance' | transloco }}</div>
       <div class="advance-action--action-info">{{ 'advanceActions.rejectAdvanceInfo' | transloco }}</div>
     </div>

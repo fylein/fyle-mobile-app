@@ -6,7 +6,7 @@
         <ul
           class="policy-violation-info--list"
           [ngClass]="{ 'policy-violation-info--list__no-bullet': !criticalPolicyViolated }"
-          >
+        >
           @if (policyViolations.length >= 1) {
             <li>
               <span class="policy-violation-info--content"
@@ -18,19 +18,19 @@
                   <span>{{ 'fyPolicyViolationInfo.violations' | transloco }}</span>
                 }
                 {{ 'fyPolicyViolationInfo.found' | transloco }}</span
-                >
-                <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">{{
-                  'fyPolicyViolationInfo.viewDetails' | transloco
-                }}</span>
-              </li>
-            }
-            @if (criticalPolicyViolated) {
-              <li class="policy-violation-info--content">
-                {{ 'fyPolicyViolationInfo.criticalViolationNotice' | transloco }}
-              </li>
-            }
-          </ul>
-        </div>
+              >
+              <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">{{
+                'fyPolicyViolationInfo.viewDetails' | transloco
+              }}</span>
+            </li>
+          }
+          @if (criticalPolicyViolated) {
+            <li class="policy-violation-info--content">
+              {{ 'fyPolicyViolationInfo.criticalViolationNotice' | transloco }}
+            </li>
+          }
+        </ul>
       </div>
     </div>
-  }
+  </div>
+}

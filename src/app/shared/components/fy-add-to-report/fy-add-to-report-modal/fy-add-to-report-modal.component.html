@@ -34,10 +34,7 @@
               </ion-col>
               <ion-col size="1" class="ion-no-padding report-list--selected">
                 @if (!currentSelection) {
-                  <ion-icon
-                    class="report-list--selected__icon"
-                    src="../../../../../assets/svg/check.svg"
-                  ></ion-icon>
+                  <ion-icon class="report-list--selected__icon" src="../../../../../assets/svg/check.svg"></ion-icon>
                 }
               </ion-col>
             </ion-row>
@@ -55,8 +52,8 @@
                   <div class="report-list--count">
                     {{ option.value.num_expenses }}
                     {{
-                    (option.value.num_expenses > 1 ? 'fyAddToReportModal.expenses' : 'fyAddToReportModal.expense')
-                    | transloco
+                      (option.value.num_expenses > 1 ? 'fyAddToReportModal.expenses' : 'fyAddToReportModal.expense')
+                        | transloco
                     }}
                   </div>
                 </ion-col>
@@ -64,7 +61,7 @@
                   <div class="report-list--currency-amount-container">
                     <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
                     <span class="report-list--amount">{{
-                      option.value.amount || 0 | humanizeCurrency : option.value.currency : true
+                      option.value.amount || 0 | humanizeCurrency: option.value.currency : true
                     }}</span>
                   </div>
                   <div class="ion-text-right">
@@ -74,10 +71,7 @@
                   </div>
                 </ion-col>
                 @if (currentSelection || autoSubmissionReportName) {
-                  <ion-col
-                    size="1"
-                    class="ion-no-padding report-list--selected"
-                    >
+                  <ion-col size="1" class="ion-no-padding report-list--selected">
                     @if (option.selected) {
                       <ion-icon
                         class="report-list--selected__icon"
@@ -98,7 +92,7 @@
         class="report-list--zero-state__img"
         src="../../../../../assets/images/zero-states/reports.png"
         [alt]="'fyAddToReportModal.zeroStateAlt' | transloco"
-        />
+      />
       <div class="report-list--zero-state__subtitle">{{ 'fyAddToReportModal.noReports' | transloco }}</div>
       <div class="report-list--zero-state__subtitle">
         {{ 'fyAddToReportModal.createNewReport' | transloco }}
@@ -110,5 +104,4 @@
       </div>
     </div>
   }
-
 </ion-content>

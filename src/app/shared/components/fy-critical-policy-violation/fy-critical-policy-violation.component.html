@@ -21,7 +21,9 @@
 @if (!isSplitBlocked) {
   <div class="critical-policy-violation--content-section">
     <div class="critical-policy-violation--content">
-      <div class="critical-policy-violation--info">{{ 'fyCriticalPolicyViolation.cannotReportWarning' | transloco }}</div>
+      <div class="critical-policy-violation--info">
+        {{ 'fyCriticalPolicyViolation.cannotReportWarning' | transloco }}
+      </div>
       <div class="inner-content">
         @if (criticalViolationMessages) {
           @for (violation of criticalViolationMessages; track violation) {

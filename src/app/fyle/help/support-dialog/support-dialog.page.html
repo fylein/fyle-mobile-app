@@ -18,7 +18,7 @@
         <p class="support--heading">Having trouble with the process?</p>
         <p>Contact your admin</p>
         <div class="support--admin-list">
-          @for (admin of adminList; track admin; let i=$index) {
+          @for (admin of adminList; track admin; let i = $index) {
             <div class="support--admin-list-contact-card smartlook-hide">
               <div>{{ admin.full_name }}</div>
               <a href="mailto:{{ admin.email }}">{{ admin.email }}</a>

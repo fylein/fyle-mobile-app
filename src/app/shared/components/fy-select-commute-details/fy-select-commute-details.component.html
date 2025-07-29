@@ -12,7 +12,7 @@
         [loading]="saveCommuteDetailsLoading"
         appFormButtonValidation
         class="commute-details--header-save text-right"
-        >
+      >
         {{ 'fySelectCommuteDetails.save' | transloco }}
       </ion-button>
     </ion-buttons>
@@ -39,12 +39,10 @@
           [disableEnteringManualLocation]="true"
           [touchedInParent]="commuteDetails.controls.homeLocation?.touched"
           [validInParent]="commuteDetails.controls.homeLocation?.valid"
-          >
+        >
         </app-fy-location>
         @if (commuteDetails.controls.homeLocation.touched && !commuteDetails.controls.homeLocation.valid) {
-          <div
-            class="commute-details--error"
-            >
+          <div class="commute-details--error">
             {{ 'fySelectCommuteDetails.errorSelectHome' | transloco }}
           </div>
         }
@@ -65,12 +63,10 @@
           [disableEnteringManualLocation]="true"
           [touchedInParent]="commuteDetails.controls.workLocation?.touched"
           [validInParent]="commuteDetails.controls.workLocation?.valid"
-          >
+        >
         </app-fy-location>
         @if (commuteDetails.controls.workLocation.touched && !commuteDetails.controls.workLocation.valid) {
-          <div
-            class="commute-details--error"
-            >
+          <div class="commute-details--error">
             {{ 'fySelectCommuteDetails.errorSelectWork' | transloco }}
           </div>
         }

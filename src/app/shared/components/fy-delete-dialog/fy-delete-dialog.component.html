@@ -30,7 +30,7 @@
           [ngClass]="{ 'fy-delete-dialog--cancel__disabled': deleteCallInProgress }"
           class="fy-delete-dialog--cancel"
           (click)="cancel()"
-          >
+        >
           {{ 'fyDeleteDialog.cancel' | transloco }}
         </div>
       </ion-col>
@@ -43,7 +43,7 @@
           [loaderPosition]="LoaderPosition.prefix"
           [loading]="deleteCallInProgress"
           [loadingText]="ctaLoadingText ? ctaLoadingText : ('fyDeleteDialog.deleting' | transloco)"
-          >
+        >
           {{ ctaText ? ctaText : ('fyDeleteDialog.delete' | transloco) }}
         </div>
       </ion-col>

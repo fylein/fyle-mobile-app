@@ -6,7 +6,7 @@
           class="request-invitation--header-logo"
           src="../../../assets/svg/fyle-logo-light.svg"
           alt="fyle-logo-light"
-          />
+        />
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -26,7 +26,7 @@
             matInput
             placeholder="Work email"
             class="smartlook-show"
-            />
+          />
         </mat-form-field>
       </form>
       <div class="request-invitation--primary-cta">
@@ -36,7 +36,7 @@
           mat-flat-button
           color="primary"
           (click)="sendRequestInvitation()"
-          >
+        >
           Request invitation
         </button>
       </div>
@@ -74,7 +74,12 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-button fill="clear" expand="full" [routerLink]="['/','auth','sign_in']" routerLinkActive="router-link-active">
+    <ion-button
+      fill="clear"
+      expand="full"
+      [routerLink]="['/', 'auth', 'sign_in']"
+      routerLinkActive="router-link-active"
+    >
       Back to sign in
     </ion-button>
   </ion-toolbar>

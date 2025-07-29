@@ -22,7 +22,13 @@
 
     <div class="timeline--timeline route-selector-modal--timeline">
       <ng-container formArrayName="mileageLocations">
-        @for (control of mileageLocations.controls; track control; let i = $index; let isFirst = $first; let isLast = $last) {
+        @for (
+          control of mileageLocations.controls;
+          track control;
+          let i = $index;
+          let isFirst = $first;
+          let isLast = $last
+        ) {
           <div
             class="timeline--timeline-item"
             [ngClass]="{
@@ -30,16 +36,16 @@
               'timeline--timeline-item__internal-item': i > 1 && !isLast,
               'timeline--timeline-item__first': isFirst,
               'timeline--timeline-item__last': isLast,
-              'timeline--timeline-item__middle': !(isFirst || isLast)
+              'timeline--timeline-item__middle': !(isFirst || isLast),
             }"
-            >
+          >
             <div
               class="timeline--timeline-item-internal"
               [ngClass]="{
                 'timeline--timeline-item-internal__first': isFirst,
-                'timeline--timeline-item-internal__last': isLast
+                'timeline--timeline-item-internal__last': isLast,
               }"
-              >
+            >
               <app-fy-location
                 class="route-selector-modal--location"
                 [formControlName]="i"
@@ -47,8 +53,8 @@
                   isFirst
                     ? ('routeSelectorModal.start' | transloco)
                     : isLast
-                    ? ('routeSelectorModal.destination' | transloco)
-                    : ('routeSelectorModal.stop' | transloco) + i
+                      ? ('routeSelectorModal.destination' | transloco)
+                      : ('routeSelectorModal.stop' | transloco) + i
                 "
                 [mandatory]="mileageConfig.location_mandatory"
                 [hideSuffix]="true"
@@ -57,18 +63,15 @@
                   isFirst
                     ? recentlyUsedMileageLocations?.start_locations
                     : isLast
-                    ? recentlyUsedMileageLocations?.end_locations
-                    : recentlyUsedMileageLocations?.locations
+                      ? recentlyUsedMileageLocations?.end_locations
+                      : recentlyUsedMileageLocations?.locations
                 "
                 [touchedInParent]="control.touched"
                 [validInParent]="control.valid"
-                >
+              >
               </app-fy-location>
-              @if (
-                i >= 1 && (i !== mileageLocations.controls.length - 1 || mileageLocations.controls.length === 10)
-                ) {
-                <span
-                  >
+              @if (i >= 1 && (i !== mileageLocations.controls.length - 1 || mileageLocations.controls.length === 10)) {
+                <span>
                   <mat-icon (click)="removeMileageLocation(i)" class="route-selector-modal--remove-stop" svgIcon="bin">
                   </mat-icon>
                 </span>
@@ -83,8 +86,11 @@
             @if (control.touched && !control.valid) {
               <div
                 class="route-selector-modal--error"
-                [ngClass]="{ 'route-selector-modal--error__first': isFirst, 'route-selector-modal--error__last': isLast }"
-                >
+                [ngClass]="{
+                  'route-selector-modal--error__first': isFirst,
+                  'route-selector-modal--error__last': isLast,
+                }"
+              >
                 {{ 'routeSelectorModal.selectLocationError' | transloco }}
               </div>
             }
@@ -94,10 +100,7 @@
     </div>
 
     @if (mileageLocations.controls.length === 10) {
-      <app-fy-alert-info
-        [message]="'routeSelectorModal.maxLocationsInfo' | transloco"
-        [type]="'information'"
-        >
+      <app-fy-alert-info [message]="'routeSelectorModal.maxLocationsInfo' | transloco" [type]="'information'">
       </app-fy-alert-info>
     }
 

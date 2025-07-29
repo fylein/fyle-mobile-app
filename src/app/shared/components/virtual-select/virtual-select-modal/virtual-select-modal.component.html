@@ -23,14 +23,14 @@
           id="election-modal--search-input"
           matInput
           [placeholder]="placeholder || ('virtualSelectModal.searchPlaceholder' | transloco)"
-          />
+        />
         @if (value) {
           <button
             (click)="clearValue()"
             [attr.aria-label]="'virtualSelectModal.clearLabel' | transloco"
             mat-icon-button
             matSuffix
-            >
+          >
             <mat-icon>close</mat-icon>
           </button>
         }
@@ -45,13 +45,13 @@
     itemSize="56"
     minBufferPx="900"
     maxBufferPx="1350"
-    >
+  >
     <div class="selection-modal--container">
       @if (selectableOptions.length === 0) {
         <div>
           <app-fy-zero-state
-            [header]="'virtualSelectModal.noResultsHeader' | transloco : { label: label }"
-            [submessage]="'virtualSelectModal.noResultsSubmessage' | transloco : { label: label }"
+            [header]="'virtualSelectModal.noResultsHeader' | transloco: { label: label }"
+            [submessage]="'virtualSelectModal.noResultsSubmessage' | transloco: { label: label }"
             [image]="'../../../../assets/images/zero-states/search.png'"
             [unscaledImage]="true"
             [useNewStyling]="true"
@@ -63,11 +63,7 @@
         <div>
           <ng-container *cdkVirtualFor="let filteredListItem of selectableOptions">
             @if (filteredListItem.label.length > 0) {
-              <div
-                (click)="onElementSelect(filteredListItem)"
-                class="selection-modal--list-element"
-                matRipple
-                >
+              <div (click)="onElementSelect(filteredListItem)" class="selection-modal--list-element" matRipple>
                 <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
                   @if (filteredListItem.isRecentlyUsed) {
                     <div class="selection-modal--recently-used-item-content">
@@ -90,11 +86,11 @@
                   }
                 </ng-template>
                 <ng-container
-              *ngTemplateOutlet="
-                selectionElement ? selectionElement : defaultSelectionElement;
-                context: filteredListItem
-              "
-                  >
+                  *ngTemplateOutlet="
+                    selectionElement ? selectionElement : defaultSelectionElement;
+                    context: filteredListItem
+                  "
+                >
                 </ng-container>
               </div>
             }
@@ -109,7 +105,12 @@
   <ion-footer>
     <ion-toolbar>
       <div class="selection-modal--cta-container">
-        <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
+        <ion-button
+          (click)="saveToCacheAndUse()"
+          class="selection-modal--primary-cta"
+          color="fyle-primary"
+          fill="solid"
+        >
           {{ 'virtualSelectModal.saveButton' | transloco }}
         </ion-button>
       </div>

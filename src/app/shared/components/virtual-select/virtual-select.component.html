@@ -8,17 +8,17 @@
   <div
     class="fy-select--input-container"
     [ngClass]="{ 'fy-select--input-invalid': !valid, 'fy-select--disabled': disabled }"
-    >
+  >
     <input
       class="fy-select--input smartlook-show"
       type="text"
-      [placeholder]="!disabled ? placeholder || ('virtualSelect.placeholder' | transloco : { label: label }) : ''"
+      [placeholder]="!disabled ? placeholder || ('virtualSelect.placeholder' | transloco: { label: label }) : ''"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
       [ngClass]="{ 'fy-select--input-disabled': disabled }"
       [disabled]="disabled"
-      />
+    />
     <mat-icon
       class="fy-select--icon"
       [ngClass]="{ 'fy-select--input-disabled': disabled }"

@@ -1,161 +1,167 @@
 <ion-content class="sign-in no-keyboard-adjust" scroll-y="false">
   @if (currentStep === signInPageState.SELECT_SIGN_IN_METHOD) {
-  <div class="sign-in__select-sign-in">
-    <div class="sign-in__video-container">
-      <video
-        class="sign-in__video-container__video"
-        width="100%"
-        height="auto"
-        onloadedmetadata="muted = true"
-        oncanplay="play()"
-        poster="../../../assets/images/video-default-background.png"
-        loop
-        playsinline
-        autoplay
-      >
-        <source src="/assets/videos/mobile-onboarding.mp4" type="video/mp4" />
-      </video>
-    </div>
-    <div class="sign-in__cta-container">
-      <ion-button (click)="changeState(signInPageState.ENTER_EMAIL)" class="btn-primary" fill="clear">
-        Sign in with email address
-      </ion-button>
-      <div class="sign-in__divider-container">
-        <div class="sign-in__divider"></div>
-        Or
-        <div class="sign-in__divider"></div>
+    <div class="sign-in__select-sign-in">
+      <div class="sign-in__video-container">
+        <video
+          class="sign-in__video-container__video"
+          width="100%"
+          height="auto"
+          onloadedmetadata="muted = true"
+          oncanplay="play()"
+          poster="../../../assets/images/video-default-background.png"
+          loop
+          playsinline
+          autoplay
+        >
+          <source src="/assets/videos/mobile-onboarding.mp4" type="video/mp4" />
+        </video>
       </div>
-      <button
-        (click)="googleSignIn()"
-        appFormButtonValidation
-        [loading]="googleSignInLoading"
-        class="sign-in__secondary-cta__btn"
-        fill="clear"
-      >
-        <img class="sign-in__secondary-cta__btn__logo" src="/assets/svg/logo-google.svg" alt="fyle-logo" />
-        Sign in with Google
-      </button>
-    </div>
-  </div>
-  } @if (currentStep === signInPageState.ENTER_EMAIL) {
-  <div class="sign-in__enter-email">
-    <div>
-      <ion-icon
-        class="fy-icon sign-in__back-icon"
-        src="/assets/svg/arrow-tail-left.svg"
-        (click)="changeState(signInPageState.SELECT_SIGN_IN_METHOD)"
-      ></ion-icon>
-      <div class="sign-in__enter-email__form-container">
-        <div>
-          <div class="sign-in__page-header">Sign in</div>
-          <div class="sign-in__sub-header">Enter the credentials to access your account</div>
+      <div class="sign-in__cta-container">
+        <ion-button (click)="changeState(signInPageState.ENTER_EMAIL)" class="btn-primary" fill="clear">
+          Sign in with email address
+        </ion-button>
+        <div class="sign-in__divider-container">
+          <div class="sign-in__divider"></div>
+          Or
+          <div class="sign-in__divider"></div>
         </div>
-        <form [formGroup]="fg" class="sign-in__enter-email__input-container">
-          <div class="sign-in__enter-email__input-container__label">Registered email</div>
-          <input
-            #simpleEmailInput
-            matInput
-            type="email"
-            placeholder="Enter email address"
-            formControlName="email"
-            pattern="\S+@\S+\.\S{2,}"
-            class="sign-in__enter-email__input-container__input"
-          />
-          @if (fg.controls.email.touched && !fg.controls.email.valid) {
-          <div class="sign-in__enter-email__error-message">Please enter a valid email.</div>
-          }
-        </form>
+        <button
+          (click)="googleSignIn()"
+          appFormButtonValidation
+          [loading]="googleSignInLoading"
+          class="sign-in__secondary-cta__btn"
+          fill="clear"
+        >
+          <img class="sign-in__secondary-cta__btn__logo" src="/assets/svg/logo-google.svg" alt="fyle-logo" />
+          Sign in with Google
+        </button>
       </div>
     </div>
-    <div>
-      <ion-button
-        class="btn-primary"
-        id="sign-in__continue"
-        fill="clear"
-        [disabled]="!fg.controls.email.valid"
-        (click)="checkIfEmailExists()"
-        appFormButtonValidation
-        [loading]="emailLoading"
-        [loadingText]="'Continue'"
-      >
-        Continue
-      </ion-button>
-    </div>
-  </div>
-  } @if (currentStep === signInPageState.ENTER_PASSWORD) {
-  <div class="sign-in__enter-password">
-    <div>
-      <ion-icon
-        class="fy-icon sign-in__back-icon"
-        src="/assets/svg/arrow-tail-left.svg"
-        (click)="changeState(signInPageState.ENTER_EMAIL)"
-      ></ion-icon>
-      <div class="sign-in__enter-password__form-container">
-        <div>
-          <div class="sign-in__page-header">Sign in</div>
-          <div class="sign-in__sub-header">Enter the credentials to access your account</div>
-        </div>
-        <form [formGroup]="fg" class="sign-in__enter-password__input-container">
-          <div class="sign-in__enter-password__input-container__label">Registered email</div>
-          <div class="sign-in__enter-password__disabled-email">
-            {{fg.controls.email.value}}
-            <ion-icon
-              [src]="'/assets/svg/edit.svg'"
-              (click)="changeState(signInPageState.ENTER_EMAIL)"
-              class="sign-in__enter-password__email-edit"
-            ></ion-icon>
+  }
+  @if (currentStep === signInPageState.ENTER_EMAIL) {
+    <div class="sign-in__enter-email">
+      <div>
+        <ion-icon
+          class="fy-icon sign-in__back-icon"
+          src="/assets/svg/arrow-tail-left.svg"
+          (click)="changeState(signInPageState.SELECT_SIGN_IN_METHOD)"
+        ></ion-icon>
+        <div class="sign-in__enter-email__form-container">
+          <div>
+            <div class="sign-in__page-header">Sign in</div>
+            <div class="sign-in__sub-header">Enter the credentials to access your account</div>
           </div>
-          <div
-            class="sign-in__enter-password__text sign-in__enter-password__text-block"
-            [ngClass]="{'sign-in__enter-password__text__password-focus': focusOnPassword && !(fg.controls.password.touched && !fg.controls.password.valid),'sign-in__enter-password__text__invalid': fg.controls.password.touched && !fg.controls.password.valid}"
-          >
-            <div class="sign-in__enter-password__input-container__label">Password</div>
-            <div class="sign-in__enter-password__password-container">
-              <input
-                placeholder="Enter password"
-                [required]="true"
-                [type]="hidePassword ? 'password': 'text'"
-                class="sign-in__enter-password__text-input smartlook-show"
-                formControlName="password"
-                (focus)="focusOnPassword = true"
-                (blur)="focusOnPassword = false"
-              />
-              <div
-                class="sign-in__enter-password__password-icon-container"
-                matSuffix
-                (click)="hidePassword = !hidePassword"
-              >
-                <ion-icon
-                  class="fy-icon sign-in__enter-password__password-icon"
-                  src="{{hidePassword ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg'}}"
-                ></ion-icon>
+          <form [formGroup]="fg" class="sign-in__enter-email__input-container">
+            <div class="sign-in__enter-email__input-container__label">Registered email</div>
+            <input
+              #simpleEmailInput
+              matInput
+              type="email"
+              placeholder="Enter email address"
+              formControlName="email"
+              pattern="\S+@\S+\.\S{2,}"
+              class="sign-in__enter-email__input-container__input"
+            />
+            @if (fg.controls.email.touched && !fg.controls.email.valid) {
+              <div class="sign-in__enter-email__error-message">Please enter a valid email.</div>
+            }
+          </form>
+        </div>
+      </div>
+      <div>
+        <ion-button
+          class="btn-primary"
+          id="sign-in__continue"
+          fill="clear"
+          [disabled]="!fg.controls.email.valid"
+          (click)="checkIfEmailExists()"
+          appFormButtonValidation
+          [loading]="emailLoading"
+          [loadingText]="'Continue'"
+        >
+          Continue
+        </ion-button>
+      </div>
+    </div>
+  }
+  @if (currentStep === signInPageState.ENTER_PASSWORD) {
+    <div class="sign-in__enter-password">
+      <div>
+        <ion-icon
+          class="fy-icon sign-in__back-icon"
+          src="/assets/svg/arrow-tail-left.svg"
+          (click)="changeState(signInPageState.ENTER_EMAIL)"
+        ></ion-icon>
+        <div class="sign-in__enter-password__form-container">
+          <div>
+            <div class="sign-in__page-header">Sign in</div>
+            <div class="sign-in__sub-header">Enter the credentials to access your account</div>
+          </div>
+          <form [formGroup]="fg" class="sign-in__enter-password__input-container">
+            <div class="sign-in__enter-password__input-container__label">Registered email</div>
+            <div class="sign-in__enter-password__disabled-email">
+              {{ fg.controls.email.value }}
+              <ion-icon
+                [src]="'/assets/svg/edit.svg'"
+                (click)="changeState(signInPageState.ENTER_EMAIL)"
+                class="sign-in__enter-password__email-edit"
+              ></ion-icon>
+            </div>
+            <div
+              class="sign-in__enter-password__text sign-in__enter-password__text-block"
+              [ngClass]="{
+                'sign-in__enter-password__text__password-focus':
+                  focusOnPassword && !(fg.controls.password.touched && !fg.controls.password.valid),
+                'sign-in__enter-password__text__invalid': fg.controls.password.touched && !fg.controls.password.valid,
+              }"
+            >
+              <div class="sign-in__enter-password__input-container__label">Password</div>
+              <div class="sign-in__enter-password__password-container">
+                <input
+                  placeholder="Enter password"
+                  [required]="true"
+                  [type]="hidePassword ? 'password' : 'text'"
+                  class="sign-in__enter-password__text-input smartlook-show"
+                  formControlName="password"
+                  (focus)="focusOnPassword = true"
+                  (blur)="focusOnPassword = false"
+                />
+                <div
+                  class="sign-in__enter-password__password-icon-container"
+                  matSuffix
+                  (click)="hidePassword = !hidePassword"
+                >
+                  <ion-icon
+                    class="fy-icon sign-in__enter-password__password-icon"
+                    src="{{ hidePassword ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg' }}"
+                  ></ion-icon>
+                </div>
               </div>
             </div>
+            @if (fg.controls.password.touched && !fg.controls.password.valid) {
+              <div class="sign-in__enter-password__error-message">Please enter password</div>
+            }
+          </form>
+          <div class="sign-in__enter-password__forgot-password">
+            <button class="sign-in__enter-password__forgot-password_button" (click)="goToForgotPasswordPage()">
+              Forgot password?
+            </button>
           </div>
-          @if (fg.controls.password.touched && !fg.controls.password.valid) {
-          <div class="sign-in__enter-password__error-message">Please enter password</div>
-          }
-        </form>
-        <div class="sign-in__enter-password__forgot-password">
-          <button class="sign-in__enter-password__forgot-password_button" (click)="goToForgotPasswordPage()">
-            Forgot password?
-          </button>
         </div>
       </div>
+      <div>
+        <ion-button
+          class="btn-primary"
+          fill="clear"
+          [disabled]="!fg.controls.password.valid"
+          (click)="signInUser()"
+          appFormButtonValidation
+          [loading]="passwordLoading"
+          [loadingText]="'Signing in'"
+        >
+          Sign in
+        </ion-button>
+      </div>
     </div>
-    <div>
-      <ion-button
-        class="btn-primary"
-        fill="clear"
-        [disabled]="!fg.controls.password.valid"
-        (click)="signInUser()"
-        appFormButtonValidation
-        [loading]="passwordLoading"
-        [loadingText]="'Signing in'"
-      >
-        Sign in
-      </ion-button>
-    </div>
-  </div>
   }
 </ion-content>

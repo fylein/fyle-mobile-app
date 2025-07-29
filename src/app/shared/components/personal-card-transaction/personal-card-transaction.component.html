@@ -8,7 +8,6 @@
   <div class="personal-card-transaction--divider"></div>
 }
 
-
 <div class="personal-card-transaction--body d-flex" (tap)="onTapTransaction()" (press)="onSetMultiselectMode()">
   @if (isSelectionModeEnabled) {
     <div class="expenses-card--checkbox-container">
@@ -36,22 +35,18 @@
         <span
           class="personal-card-transaction--amount"
           [ngClass]="{ 'personal-card-transaction--green': transaction.transactionType === 'credit' }"
-          >
+        >
           {{ { value: transaction.amount, currencyCode: currency, skipSymbol: true } | exactCurrency }}
         </span>
         <span
           class="personal-card-transaction--type"
           [ngClass]="{ ' personal-card-transaction--green': transaction.transactionType === 'credit' }"
-          >
+        >
           @if (transaction.transactionType === 'debit') {
-            {{
-            'personalCardTransaction.debit' | transloco
-            }}
+            {{ 'personalCardTransaction.debit' | transloco }}
           }
           @if (transaction.transactionType === 'credit') {
-            {{
-            'personalCardTransaction.credit' | transloco
-            }}
+            {{ 'personalCardTransaction.credit' | transloco }}
           }
         </span>
       </div>
@@ -65,18 +60,11 @@
           {{ 'personalCardTransaction.viewExpense' | transloco }}
         }
         @if (!isMatchedCountLoading) {
-          <ion-icon
-            [src]="'assets/svg/arrow-right.svg'"
-            class="personal-card-transaction--icon"
-            slot="icon-only"
-            >
+          <ion-icon [src]="'assets/svg/arrow-right.svg'" class="personal-card-transaction--icon" slot="icon-only">
           </ion-icon>
         }
         @if (isMatchedCountLoading) {
-          <ion-spinner
-            name="crescent"
-            class="personal-card-transaction--icon"
-          ></ion-spinner>
+          <ion-spinner name="crescent" class="personal-card-transaction--icon"></ion-spinner>
         }
       </div>
     </div>

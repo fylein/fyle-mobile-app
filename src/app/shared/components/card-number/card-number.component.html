@@ -6,22 +6,19 @@
         <div
           class="card-number__masked-digits__asterisk"
           [ngClass]="{ 'card-number__masked-digits__fourth-asterisk': index % 4 === 3 }"
-          >
+        >
           *
         </div>
       }
     </div>
     @if (cardNickname) {
       <div class="card-number__unmasked-digits__with-nickname" data-testid="unmasked-digits">
-        {{ cardNumber | slice : -4 }}
+        {{ cardNumber | slice: -4 }}
       </div>
     }
     @if (!cardNickname) {
-      <div
-        class="card-number__unmasked-digits__without-nickname smartlook-hide"
-        data-testid="unmasked-digits"
-        >
-        {{ cardNumber | slice : -4 }}
+      <div class="card-number__unmasked-digits__without-nickname smartlook-hide" data-testid="unmasked-digits">
+        {{ cardNumber | slice: -4 }}
       </div>
     }
   </div>

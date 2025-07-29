@@ -19,38 +19,31 @@
           <div class="show-all-approvers-popover__approver-step">
             <div class="show-all-approvers-popover__approver-step-number">{{ i + 1 }}</div>
             @if (i !== approvals.length - 1) {
-              <ion-icon
-                [src]="'/assets/svg/line-default.svg'"
-                slot="icon-only"
-              ></ion-icon>
+              <ion-icon [src]="'/assets/svg/line-default.svg'" slot="icon-only"></ion-icon>
             }
           </div>
           <div class="show-all-approvers-popover__approver-details">
             <div>
               <div class="show-all-approvers-popover__approver-name">
-                {{ approval.approver_user.full_name | ellipsis : 15 }}
+                {{ approval.approver_user.full_name | ellipsis: 15 }}
               </div>
               <div class="show-all-approvers-popover__approver-email">{{ approval.approver_user.email }}</div>
             </div>
             <div class="show-all-approvers-popover__approver-details__status">
               <div
                 class="show-all-approvers-popover__dot"
-              [ngClass]="{
-                'show-all-approvers-popover__dot__done': approval.state === approvalState.APPROVAL_DONE,
-                'show-all-approvers-popover__dot__pending': approval.state === approvalState.APPROVAL_PENDING
-              }"
+                [ngClass]="{
+                  'show-all-approvers-popover__dot__done': approval.state === approvalState.APPROVAL_DONE,
+                  'show-all-approvers-popover__dot__pending': approval.state === approvalState.APPROVAL_PENDING,
+                }"
               ></div>
               @if (approval.state === approvalState.APPROVAL_PENDING) {
-                <div
-                  class="show-all-approvers-popover__approver-state-pending"
-                  >
+                <div class="show-all-approvers-popover__approver-state-pending">
                   {{ 'showAllApproversPopover.approvalPending' | transloco }}
                 </div>
               }
               @if (approval.state === approvalState.APPROVAL_DONE) {
-                <div
-                  class="show-all-approvers-popover__approver-state-done"
-                  >
+                <div class="show-all-approvers-popover__approver-state-done">
                   {{ 'showAllApproversPopover.approved' | transloco }}
                 </div>
               }

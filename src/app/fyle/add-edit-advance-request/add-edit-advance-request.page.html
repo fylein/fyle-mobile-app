@@ -1,21 +1,17 @@
-<ion-header mode="md" [ngClass]="{'d-none': isCameraPreviewStarted}">
+<ion-header mode="md" [ngClass]="{ 'd-none': isCameraPreviewStarted }">
   <ion-toolbar mode="md" class="add-edit-advance-request--toolbar">
     <ion-buttons
       mode="md"
       slot="start"
-      [ngClass]="{'add-edit-advance-request--header-btn-container-sm': isDeviceWidthSmall}"
-      >
+      [ngClass]="{ 'add-edit-advance-request--header-btn-container-sm': isDeviceWidthSmall }"
+    >
       <ion-button (click)="goBack()">
         <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/cross.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
 
     @if (mode) {
-      <ion-title
-        mode="md"
-        class="page-title"
-        [ngClass]="{'add-edit-advance-request--title-sm': isDeviceWidthSmall}"
-        >
+      <ion-title mode="md" class="page-title" [ngClass]="{ 'add-edit-advance-request--title-sm': isDeviceWidthSmall }">
         @if (mode === 'add') {
           <div class="text-center add-edit-advance-request--toolbar__title">Request advance</div>
         }
@@ -28,18 +24,15 @@
     @if (mode === 'edit') {
       <ion-buttons
         class="add-edit-advance-request--header-btn-container"
-        [ngClass]="{'add-edit-advance-request--header-btn-container-sm': isDeviceWidthSmall}"
+        [ngClass]="{ 'add-edit-advance-request--header-btn-container-sm': isDeviceWidthSmall }"
         slot="end"
-        >
+      >
         <ion-button class="add-edit-advance-request--header-btn-container__btn" (click)="openCommentsModal()">
           <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
         </ion-button>
-        @if (actions$|async; as actions) {
+        @if (actions$ | async; as actions) {
           @if (actions?.can_delete) {
-            <ion-button
-              class="add-edit-advance-request--header-btn-container__btn"
-              (click)="delete()"
-              >
+            <ion-button class="add-edit-advance-request--header-btn-container__btn" (click)="delete()">
               <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
             </ion-button>
           }
@@ -49,7 +42,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}">
+<ion-content [ngClass]="{ 'd-none': isCameraPreviewStarted }">
   <form [formGroup]="fg" class="add-edit-advance-request--form" #formContainer>
     <div class="add-edit-advance-request--receipt-currency-container">
       @if (dataUrls && dataUrls.length === 0) {
@@ -60,21 +53,17 @@
         </div>
       }
 
-      @if (extendedAdvanceRequest$|async; as extendedAdvanceRequest) {
+      @if (extendedAdvanceRequest$ | async; as extendedAdvanceRequest) {
         <div class="add-edit-advance-request--currency">
-          @if (homeCurrency$|async; as homeCurrency) {
+          @if (homeCurrency$ | async; as homeCurrency) {
             <app-fy-currency
               formControlName="currencyObj"
               [homeCurrency]="extendedAdvanceRequest.currency"
               [txnDt]="extendedAdvanceRequest?.created_at"
-              >
+            >
             </app-fy-currency>
             @if (fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid) {
-              <div
-                class="add-edit-advance-request--amount-error"
-                >
-                Please enter the amount.
-              </div>
+              <div class="add-edit-advance-request--amount-error">Please enter the amount.</div>
             }
           }
         </div>
@@ -87,7 +76,7 @@
         (addMoreAttachments)="addAttachments($event)"
         (viewAttachments)="viewAttachments()"
         [canEdit]="true"
-        >
+      >
       </app-receipt-preview-thumbnail>
     }
 
@@ -104,18 +93,14 @@
           [placeholder]="'Enter purpose'"
           [touchedInParent]="fg.controls.purpose.touched"
           [validInParent]="fg.controls.purpose.valid"
-          >
+        >
         </app-fy-select>
       </div>
       @if (fg.controls.purpose.touched && !fg.controls.purpose.valid) {
-        <div
-          class="add-edit-advance-request--mandatory-text"
-          >
-          Please enter the purpose.
-        </div>
+        <div class="add-edit-advance-request--mandatory-text">Please enter the purpose.</div>
       }
 
-      @if (isProjectsVisible$|async) {
+      @if (isProjectsVisible$ | async) {
         @if (expenseFields$ | async; as expenseFields) {
           <div class="add-edit-advance-request--internal-block">
             <app-fy-select-project
@@ -138,11 +123,11 @@
           class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input smartlook-show"
           formControlName="notes"
           placeholder="Enter additional notes"
-          />
+        />
       </div>
     </div>
 
-    @if (extendedAdvanceRequest$|async) {
+    @if (extendedAdvanceRequest$ | async) {
       <div>
         @if (customFields$ | async; as customFields) {
           @if (customFields.length > 0) {
@@ -150,13 +135,23 @@
               @for (customInput of customFields; track customInput.id; let i = $index) {
                 <div class="add-edit-advance-request--custom-field-internal-block">
                   <form [formGroup]="customInput.control">
-                    @if (customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION') {
+                    @if (
+                      customInput.type !== 'BOOLEAN' &&
+                      customInput.type !== 'SELECT' &&
+                      customInput.type !== 'MULTI_SELECT' &&
+                      customInput.type !== 'USER_LIST' &&
+                      customInput.type !== 'LOCATION'
+                    ) {
                       <div
                         class="add-edit-advance-request--text"
-                        [ngClass]="{'add-edit-advance-request--text__invalid': fg.controls.customFieldValues['controls'][i].touched && !fg.controls.customFieldValues['controls'][i].valid}"
-                        >
+                        [ngClass]="{
+                          'add-edit-advance-request--text__invalid':
+                            fg.controls.customFieldValues['controls'][i].touched &&
+                            !fg.controls.customFieldValues['controls'][i].valid,
+                        }"
+                      >
                         <div class="add-edit-advance-request--text-label">
-                          {{customInput.name | ellipsis: 30}}
+                          {{ customInput.name | ellipsis: 30 }}
                           @if (customInput.mandatory) {
                             <span class="add-edit-advance-request--mandatory">*</span>
                           }
@@ -167,13 +162,13 @@
                             type="text"
                             formControlName="value"
                             [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
-                            />
+                          />
                         }
                         @if (customInput.type === 'NUMBER') {
                           <app-fy-number
                             [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                             formControlName="value"
-                            >
+                          >
                           </app-fy-number>
                         }
                         @if (customInput.type === 'DATE') {
@@ -183,14 +178,14 @@
                             type="date"
                             formControlName="value"
                             [name]="customInput.placeholder || 'Select ' + customInput.name"
-                            />
+                          />
                         }
                       </div>
                     }
                     @if (customInput.type === 'BOOLEAN') {
                       <div class="add-edit-advance-request--checkbox">
                         <label>
-                          <mat-checkbox formControlName="value"> {{customInput.name | ellipsis: 35 }} </mat-checkbox>
+                          <mat-checkbox formControlName="value"> {{ customInput.name | ellipsis: 35 }} </mat-checkbox>
                         </label>
                       </div>
                     }
@@ -203,7 +198,7 @@
                           [placeholder]="customInput.placeholder | ellipsis: 30"
                           [touchedInParent]="fg.controls.customFieldValues['controls'][i].touched"
                           [validInParent]="fg.controls.customFieldValues['controls'][i].valid"
-                          >
+                        >
                         </app-fy-location>
                       </div>
                     }
@@ -217,7 +212,7 @@
                           [placeholder]="customInput.placeholder | ellipsis: 30"
                           [touchedInParent]="fg.controls.customFieldValues['controls'][i].touched"
                           [validInParent]="fg.controls.customFieldValues['controls'][i].valid"
-                          >
+                        >
                         </app-fy-select>
                       </div>
                     }
@@ -231,7 +226,7 @@
                           [placeholder]="customInput.placeholder | ellipsis: 30"
                           [touchedInParent]="fg.controls.customFieldValues['controls'][i].touched"
                           [validInParent]="fg.controls.customFieldValues['controls'][i].valid"
-                          >
+                        >
                         </app-fy-multiselect>
                       </div>
                     }
@@ -244,18 +239,17 @@
                           [placeholder]="customInput.placeholder | ellipsis: 30"
                           [touchedInParent]="fg.controls.customFieldValues['controls'][i].touched"
                           [validInParent]="fg.controls.customFieldValues['controls'][i].valid"
-                          >
+                        >
                         </app-fy-userlist>
                       </div>
                     }
                   </form>
                 </div>
-                @if (fg.controls.customFieldValues['controls'][i].touched && !fg.controls.customFieldValues['controls'][i].valid) {
-                  <div
-                    class="add-edit-advance-request--mandatory-text"
-                    >
-                    Please add {{customInput.name}}.
-                  </div>
+                @if (
+                  fg.controls.customFieldValues['controls'][i].touched &&
+                  !fg.controls.customFieldValues['controls'][i].valid
+                ) {
+                  <div class="add-edit-advance-request--mandatory-text">Please add {{ customInput.name }}.</div>
                 }
               }
             </div>
@@ -266,7 +260,7 @@
   </form>
 </ion-content>
 
-<ion-footer class="cta-footer" [ngClass]="{'d-none': isCameraPreviewStarted}">
+<ion-footer class="cta-footer" [ngClass]="{ 'd-none': isCameraPreviewStarted }">
   <ion-toolbar mode="md">
     <div class="add-edit-advance-request--cta-container">
       <ion-buttons>
@@ -278,7 +272,7 @@
             [loading]="saveDraftAdvanceLoading"
             [loadingText]="'Saving'"
             [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading"
-            >
+          >
             Save draft
           </ion-button>
         }
@@ -289,7 +283,7 @@
             appFormButtonValidation
             [loading]="saveAdvanceLoading"
             [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading"
-            >
+          >
             Submit request
           </ion-button>
         }

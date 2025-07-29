@@ -11,7 +11,7 @@
         class="add-approvers-popover--toolbar__btn-save"
         [disabled]="!(selectedApproversList.length && confirmationMessage.trim().length)"
         (click)="saveUpdatedApproversList()"
-        >
+      >
         {{ 'addApproversPopover.save' | transloco }}
       </ion-button>
     </ion-buttons>
@@ -33,12 +33,10 @@
           [ngModel]="displayValue"
           (click)="openModal()"
           readonly
-          />
+        />
         @if (selectedApproversList && selectedApproversList.length > 3) {
-          <mat-chip
-            class="add-approvers-popover--input-container__chip"
-            >
-            {{ 'addApproversPopover.moreApprovers' | transloco : { count: selectedApproversList.length - 3 } }}
+          <mat-chip class="add-approvers-popover--input-container__chip">
+            {{ 'addApproversPopover.moreApprovers' | transloco: { count: selectedApproversList.length - 3 } }}
           </mat-chip>
         }
         <mat-icon class="add-approvers-popover--input-container__icon" svgIcon="arrow-down"></mat-icon>
