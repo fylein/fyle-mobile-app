@@ -21,6 +21,7 @@ import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/re
   selector: 'app-stats',
   templateUrl: './stats.component.html',
   styleUrls: ['./stats.component.scss'],
+  standalone: false,
 })
 export class StatsComponent implements OnInit {
   draftStats$: Observable<PlatformReportsStatsResponse>;
@@ -65,7 +66,7 @@ export class StatsComponent implements OnInit {
     private trackingService: TrackingService,
     private orgSettingsService: OrgSettingsService,
     private orgService: OrgService,
-    private paymentModeService: PaymentModesService
+    private paymentModeService: PaymentModesService,
   ) {}
 
   get ReportStates(): typeof ReportStates {
@@ -76,7 +77,7 @@ export class StatsComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -86,17 +87,17 @@ export class StatsComponent implements OnInit {
       tap(() => {
         this.reportStatsLoading = false;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
     const simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings.simplified_report_closure_settings?.enabled }))
+      map((orgSettings) => ({ enabled: orgSettings.simplified_report_closure_settings?.enabled })),
     );
 
     const isNonReimbursableOrg$ = orgSettings$.pipe(
-      map((orgSettings) => this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings))
+      map((orgSettings) => this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings)),
     );
 
     this.reportStatsData$ = forkJoin({
@@ -116,7 +117,7 @@ export class StatsComponent implements OnInit {
     this.processingStats$ = reportStats$.pipe(map((stats) => stats.processing));
 
     this.redirectToNewPage$ = orgSettings$.pipe(
-      map((orgSettings) => (orgSettings.mobile_app_my_expenses_beta_enabled ? true : false))
+      map((orgSettings) => (orgSettings.mobile_app_my_expenses_beta_enabled ? true : false)),
     );
   }
 
@@ -125,14 +126,14 @@ export class StatsComponent implements OnInit {
       shareReplay(1),
       tap(() => {
         this.isUnreportedExpensesStatsLoading = false;
-      })
+      }),
     );
 
     this.incompleteExpensesStats$ = this.dashboardService.getIncompleteExpensesStats().pipe(
       shareReplay(1),
       tap(() => {
         this.isIncompleteExpensesStatsLoading = false;
-      })
+      }),
     );
   }
 
@@ -148,7 +149,7 @@ export class StatsComponent implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
   }
 
@@ -186,7 +187,7 @@ export class StatsComponent implements OnInit {
 
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
-      map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
+      map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide')),
     );
 
     that.initializeReportStats();

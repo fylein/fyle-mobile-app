@@ -5,12 +5,13 @@ import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar'
   selector: 'app-toast-message',
   templateUrl: './toast-message.component.html',
   styleUrls: ['./toast-message.component.scss'],
+  standalone: false,
 })
 export class ToastMessageComponent {
   constructor(
     @Inject(MAT_SNACK_BAR_DATA)
     public data: { icon: string; message: string; redirectionText: string; showCloseButton: boolean },
-    private snackBarRef: MatSnackBarRef<ToastMessageComponent>
+    private snackBarRef: MatSnackBarRef<ToastMessageComponent>,
   ) {}
 
   closeEvent(): void {

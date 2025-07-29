@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
   selector: 'app-share-report',
   templateUrl: './share-report.component.html',
   styleUrls: ['./share-report.component.scss'],
+  standalone: false,
 })
 export class ShareReportComponent implements OnInit, AfterViewInit {
   @ViewChild('simpleEmailInput') simpleEmailInput: ElementRef;

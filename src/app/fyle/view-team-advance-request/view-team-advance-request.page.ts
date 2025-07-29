@@ -33,6 +33,7 @@ import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-request
   selector: 'app-view-team-advance',
   templateUrl: './view-team-advance-request.page.html',
   styleUrls: ['./view-team-advance-request.page.scss'],
+  standalone: false,
 })
 export class ViewTeamAdvanceRequestPage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
@@ -77,7 +78,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
+    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number,
   ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
@@ -100,10 +101,10 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
-          })
-        )
+          }),
+        ),
       ),
-      reduce((acc, curr) => acc.concat(curr), [] as FileObject[])
+      reduce((acc, curr) => acc.concat(curr), [] as FileObject[]),
     );
   }
 
@@ -112,13 +113,13 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() => this.advanceRequestService.getApproverAdvanceRequest(id)),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.actions$ = this.advanceRequestService.getApproverPermissions(id).pipe(shareReplay(1));
 
     this.showAdvanceActions$ = this.actions$.pipe(
-      map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject)
+      map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject),
     );
 
     this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestIdPlatformForApprover(id);
@@ -126,7 +127,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     this.activeApprovals$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() => this.approvals$),
-      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED'))
+      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED')),
     );
 
     this.attachedFiles$ = this.getAttachedReceipts(id);
@@ -146,7 +147,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             res.advanceRequest.areq_custom_field_values.length > 0
           ) {
             customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-              res.advanceRequest.areq_custom_field_values
+              res.advanceRequest.areq_custom_field_values,
             );
           }
 
@@ -160,10 +161,10 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           return res.customFields;
         } else {
           return this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            res.advanceRequest.areq_custom_field_values
+            res.advanceRequest.areq_custom_field_values,
           );
         }
-      })
+      }),
     );
 
     this.setupActionSheet();
@@ -287,7 +288,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           catchError(() => {
             this.trackingService.eventTrack('Team Advances Approval Failed', { id: areq.areq_id });
             return EMPTY;
-          })
+          }),
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);
@@ -330,7 +331,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           finalize(() => {
             this.sendBackLoading = false;
             this.trackingService.sendBackAdvance({ Asset: 'Mobile' });
-          })
+          }),
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);
@@ -372,7 +373,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           finalize(() => {
             this.rejectLoading = false;
             this.trackingService.rejectAdvance({ Asset: 'Mobile' });
-          })
+          }),
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);

@@ -46,6 +46,7 @@ SwiperCore.use([Pagination, Autoplay]);
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
+  standalone: false,
 })
 export class DashboardPage {
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
@@ -138,7 +139,7 @@ export class DashboardPage {
     private snackbarProperties: SnackbarPropertiesService,
     private walkthroughService: WalkthroughService,
     private footerService: FooterService,
-    private timezoneService: TimezoneService
+    private timezoneService: TimezoneService,
   ) {}
 
   get displayedTaskCount(): number {
@@ -377,7 +378,7 @@ export class DashboardPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit$),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -389,7 +390,7 @@ export class DashboardPage {
 
     const isBannerShown$ = this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
       map((config) => config?.value),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     return forkJoin({
@@ -406,7 +407,7 @@ export class DashboardPage {
 
         return true;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -419,7 +420,7 @@ export class DashboardPage {
     return this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
       map((config) => config?.value),
       map((isBannerShown) => !isBannerShown),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -539,7 +540,7 @@ export class DashboardPage {
             }
 
             this.userName = eou.us.full_name;
-          })
+          }),
         )
         .subscribe(noop);
     }
@@ -574,7 +575,7 @@ export class DashboardPage {
             } else {
               this.openSMSOptInDialog(eou);
             }
-          })
+          }),
         )
         .subscribe();
     }
@@ -636,7 +637,7 @@ export class DashboardPage {
   registerBackButtonAction(): void {
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.LOW,
-      this.backButtonActionHandler
+      this.backButtonActionHandler,
     );
   }
 

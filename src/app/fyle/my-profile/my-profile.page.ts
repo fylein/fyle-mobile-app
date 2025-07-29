@@ -54,6 +54,7 @@ import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/
   selector: 'app-my-profile',
   templateUrl: './my-profile.page.html',
   styleUrls: ['./my-profile.page.scss'],
+  standalone: false,
 })
 export class MyProfilePage {
   employeeSettings: EmployeeSettings;
@@ -136,7 +137,7 @@ export class MyProfilePage {
     private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private router: Router,
     private walkthroughService: WalkthroughService,
-    private featureConfigService: FeatureConfigService
+    private featureConfigService: FeatureConfigService,
   ) {}
 
   emailOptInWalkthrough(): void {
@@ -245,7 +246,7 @@ export class MyProfilePage {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -260,14 +261,14 @@ export class MyProfilePage {
             this.authService.logout({
               device_id: device.identifier,
               user_id: eou.us.id,
-            })
+            }),
           ),
           finalize(() => {
             this.secureStorageService.clearAll();
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
-          })
+          }),
         )
         .subscribe(noop);
     } catch (e) {
@@ -297,7 +298,7 @@ export class MyProfilePage {
     this.onboardingPending$ = this.spenderOnboardingService.checkForRedirectionToOnboarding().pipe(
       map((redirectionAllowed) => ({
         hideOtherOptions: redirectionAllowed,
-      }))
+      })),
     );
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
@@ -329,9 +330,9 @@ export class MyProfilePage {
           forkJoin({
             employeeSettings: employeeSettings$,
             orgSettings: orgSettings$,
-          })
+          }),
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(async (res) => {
         this.employeeSettings = res.employeeSettings;
@@ -558,7 +559,7 @@ export class MyProfilePage {
 
           return this.orgUserService.postOrgUser(updatedOrgUserDetails);
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(() => {
         this.trackingService.optedOut();
@@ -608,7 +609,7 @@ export class MyProfilePage {
 
           return this.orgUserService.postOrgUser(updatedOrgUserDetails);
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(() => {
         this.trackingService.deleteMobileNumber();

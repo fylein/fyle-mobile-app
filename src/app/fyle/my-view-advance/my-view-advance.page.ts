@@ -14,6 +14,7 @@ import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advan
   selector: 'app-my-view-advance',
   templateUrl: './my-view-advance.page.html',
   styleUrls: ['./my-view-advance.page.scss'],
+  standalone: false,
 })
 export class MyViewAdvancePage {
   advance$: Observable<ExtendedAdvance>;
@@ -28,7 +29,7 @@ export class MyViewAdvancePage {
     private advanceService: AdvanceService,
     private activatedRoute: ActivatedRoute,
     private expenseFieldsService: ExpenseFieldsService,
-    private advanceRequestService: AdvanceRequestService
+    private advanceRequestService: AdvanceRequestService,
   ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
@@ -55,13 +56,13 @@ export class MyViewAdvancePage {
         this.currencySymbol = getCurrencySymbol(advance?.adv_currency, 'wide');
         return advance;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     // Setup dependent streams
     this.advanceRequest$ = this.advance$.pipe(
       switchMap((advance) => this.advanceRequestService.getAdvanceRequestPlatform(advance.areq_id)),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.getAndUpdateProjectName();

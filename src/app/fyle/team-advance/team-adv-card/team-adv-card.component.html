@@ -1,9 +1,8 @@
 @if (!showDate) {
   <div class="advance-card--date">
-    {{ advanceRequest.areq_created_at | date : 'MMM dd, YYYY' }}
+    {{ advanceRequest.areq_created_at | date: 'MMM dd, yyyy' }}
   </div>
 }
-
 @if (!actionOpened) {
   <div class="advance-card" (click)="onGoToAdvances()" matRipple>
     @if (showDate) {
@@ -18,7 +17,7 @@
         <!-- Purpose -->
         <div class="advance-card--purpose-amount-date-container">
           <div class="advance-card--purpose">
-            <span>{{ advanceRequest.areq_purpose | ellipsis : 30 }}</span>
+            <span>{{ advanceRequest.areq_purpose | ellipsis: 30 }}</span>
           </div>
           <!-- Amount -->
           <div class="advance-card--amount-block">
@@ -26,8 +25,11 @@
             @if (advanceRequest.areq_amount && advanceRequest.areq_currency) {
               <span class="advance-card--amount">
                 {{
-                { value: advanceRequest.areq_amount || 0, currencyCode: advanceRequest.areq_currency, skipSymbol: true }
-                | exactCurrency
+                  {
+                    value: advanceRequest.areq_amount || 0,
+                    currencyCode: advanceRequest.areq_currency,
+                    skipSymbol: true,
+                  } | exactCurrency
                 }}
               </span>
             }
@@ -39,18 +41,18 @@
                 <div>
                   <span
                     >{{ 'teamAdvCard.approvedDate' | transloco
-                    }}{{ advanceRequest.areq_approved_at | date : 'MMM dd, YYYY' }}</span
-                    >
-                  </div>
-                }
-              </div>
+                    }}{{ advanceRequest.areq_approved_at | date: 'MMM dd, yyyy' }}</span
+                  >
+                </div>
+              }
             </div>
           </div>
         </div>
-        <!-- State -->
-        <div class="state-pill" [class]="'state-' + internalState.state">
-          {{ internalState.name }}
-        </div>
+      </div>
+      <!-- State -->
+      <div class="state-pill" [class]="'state-' + internalState.state">
+        {{ internalState.name }}
       </div>
     </div>
-  }
+  </div>
+}

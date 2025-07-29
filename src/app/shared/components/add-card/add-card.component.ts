@@ -4,6 +4,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   selector: 'app-add-card',
   templateUrl: './add-card.component.html',
   styleUrls: ['./add-card.component.scss'],
+  standalone: false,
 })
 export class AddCardComponent {
   @Input() showZeroStateMessage: boolean;

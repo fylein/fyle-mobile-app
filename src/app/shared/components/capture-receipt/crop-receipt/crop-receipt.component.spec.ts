@@ -23,6 +23,7 @@ describe('CropReceiptComponent', () => {
     selector: 'image-cropper',
     template: '',
     providers: [{ provide: ImageCropperComponent, useClass: ImageCropperStubComponent }],
+    standalone: false,
   })
   class ImageCropperStubComponent {
     @Input() imageBase64;

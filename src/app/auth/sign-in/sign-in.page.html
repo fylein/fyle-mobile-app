@@ -6,13 +6,13 @@
           class="sign-in__video-container__video"
           width="100%"
           height="auto"
-          onloadedmetadata="this.muted = true"
-          oncanplay="this.play()"
+          onloadedmetadata="muted = true"
+          oncanplay="play()"
           poster="../../../assets/images/video-default-background.png"
           loop
           playsinline
           autoplay
-          >
+        >
           <source src="/assets/videos/mobile-onboarding.mp4" type="video/mp4" />
         </video>
       </div>
@@ -31,7 +31,7 @@
           [loading]="googleSignInLoading"
           class="sign-in__secondary-cta__btn"
           fill="clear"
-          >
+        >
           <img class="sign-in__secondary-cta__btn__logo" src="/assets/svg/logo-google.svg" alt="fyle-logo" />
           Sign in with Google
         </button>
@@ -61,13 +61,9 @@
               formControlName="email"
               pattern="\S+@\S+\.\S{2,}"
               class="sign-in__enter-email__input-container__input"
-              />
+            />
             @if (fg.controls.email.touched && !fg.controls.email.valid) {
-              <div
-                class="sign-in__enter-email__error-message"
-                >
-                Please enter a valid email.
-              </div>
+              <div class="sign-in__enter-email__error-message">Please enter a valid email.</div>
             }
           </form>
         </div>
@@ -82,7 +78,7 @@
           appFormButtonValidation
           [loading]="emailLoading"
           [loadingText]="'Continue'"
-          >
+        >
           Continue
         </ion-button>
       </div>
@@ -104,7 +100,7 @@
           <form [formGroup]="fg" class="sign-in__enter-password__input-container">
             <div class="sign-in__enter-password__input-container__label">Registered email</div>
             <div class="sign-in__enter-password__disabled-email">
-              {{fg.controls.email.value}}
+              {{ fg.controls.email.value }}
               <ion-icon
                 [src]="'/assets/svg/edit.svg'"
                 (click)="changeState(signInPageState.ENTER_EMAIL)"
@@ -113,37 +109,37 @@
             </div>
             <div
               class="sign-in__enter-password__text sign-in__enter-password__text-block"
-              [ngClass]="{'sign-in__enter-password__text__password-focus': focusOnPassword && !(fg.controls.password.touched && !fg.controls.password.valid),'sign-in__enter-password__text__invalid': fg.controls.password.touched && !fg.controls.password.valid}"
-              >
+              [ngClass]="{
+                'sign-in__enter-password__text__password-focus':
+                  focusOnPassword && !(fg.controls.password.touched && !fg.controls.password.valid),
+                'sign-in__enter-password__text__invalid': fg.controls.password.touched && !fg.controls.password.valid,
+              }"
+            >
               <div class="sign-in__enter-password__input-container__label">Password</div>
               <div class="sign-in__enter-password__password-container">
                 <input
                   placeholder="Enter password"
                   [required]="true"
-                  [type]="hidePassword ? 'password': 'text'"
+                  [type]="hidePassword ? 'password' : 'text'"
                   class="sign-in__enter-password__text-input smartlook-show"
                   formControlName="password"
                   (focus)="focusOnPassword = true"
                   (blur)="focusOnPassword = false"
-                  />
+                />
                 <div
                   class="sign-in__enter-password__password-icon-container"
                   matSuffix
                   (click)="hidePassword = !hidePassword"
-                  >
+                >
                   <ion-icon
                     class="fy-icon sign-in__enter-password__password-icon"
-                    src="{{hidePassword ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg'}}"
+                    src="{{ hidePassword ? '/assets/svg/eye-slash.svg' : '/assets/svg/eye.svg' }}"
                   ></ion-icon>
                 </div>
               </div>
             </div>
             @if (fg.controls.password.touched && !fg.controls.password.valid) {
-              <div
-                class="sign-in__enter-password__error-message"
-                >
-                Please enter password
-              </div>
+              <div class="sign-in__enter-password__error-message">Please enter password</div>
             }
           </form>
           <div class="sign-in__enter-password__forgot-password">
@@ -162,7 +158,7 @@
           appFormButtonValidation
           [loading]="passwordLoading"
           [loadingText]="'Signing in'"
-          >
+        >
           Sign in
         </ion-button>
       </div>

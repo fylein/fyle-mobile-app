@@ -19,6 +19,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
   styleUrls: ['./my-create-report.page.scss'],
+  standalone: false,
 })
 export class MyCreateReportPage implements OnInit {
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
@@ -61,7 +62,7 @@ export class MyCreateReportPage implements OnInit {
     private storageService: StorageService,
     private expensesService: ExpensesService,
     private orgSettingsService: OrgSettingsService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
   ) {}
 
   detectTitleChange(): void {
@@ -129,7 +130,7 @@ export class MyCreateReportPage implements OnInit {
               this.trackingService.createReport({
                 Expense_Count: expenseIDs.length,
                 Report_Value: this.selectedTotalAmount,
-              })
+              }),
             ),
             switchMap((report: Report) => {
               if (expenseIDs.length) {
@@ -141,7 +142,7 @@ export class MyCreateReportPage implements OnInit {
             finalize(() => {
               this.saveDraftReportLoading = false;
               this.router.navigate(['/', 'enterprise', 'my_reports']);
-            })
+            }),
           )
           .subscribe(noop);
       } else {
@@ -153,12 +154,12 @@ export class MyCreateReportPage implements OnInit {
               this.trackingService.createReport({
                 Expense_Count: expenseIDs.length,
                 Report_Value: this.selectedTotalAmount,
-              })
+              }),
             ),
             finalize(() => {
               this.saveReportLoading = false;
               this.router.navigate(['/', 'enterprise', 'my_reports']);
-            })
+            }),
           )
           .subscribe(noop);
       }
@@ -225,7 +226,7 @@ export class MyCreateReportPage implements OnInit {
       .pipe(
         map(
           (orgSetting) =>
-            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled,
         ),
         switchMap((filterPendingTxn: boolean) =>
           this.expensesService.getAllExpenses({ queryParams }).pipe(
@@ -251,11 +252,11 @@ export class MyCreateReportPage implements OnInit {
                 }
               });
               return expenses;
-            })
-          )
+            }),
+          ),
         ),
         finalize(() => (this.isLoading = false)),
-        shareReplay(1)
+        shareReplay(1),
       )
       .subscribe((res) => {
         this.readyToReportExpenses = res;

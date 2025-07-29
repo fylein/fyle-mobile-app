@@ -29,6 +29,7 @@ import { AdvanceRequestPopoverData } from 'src/app/core/models/popover-data.mode
   selector: 'app-my-view-advance-request',
   templateUrl: './my-view-advance-request.page.html',
   styleUrls: ['./my-view-advance-request.page.scss'],
+  standalone: false,
 })
 export class MyViewAdvanceRequestPage {
   advanceRequest$: Observable<ExtendedAdvanceRequestPublic>;
@@ -62,7 +63,7 @@ export class MyViewAdvanceRequestPage {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
-    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
+    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number,
   ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
@@ -122,7 +123,7 @@ export class MyViewAdvanceRequestPage {
         this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
         return advanceRequest;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.actions$ = this.advanceRequestService.getSpenderPermissions(id).pipe(shareReplay(1));
@@ -138,10 +139,10 @@ export class MyViewAdvanceRequestPage {
             updatedFileObj.type = details.type;
             updatedFileObj.thumbnail = details.thumbnail;
             return updatedFileObj;
-          })
-        )
+          }),
+        ),
       ),
-      reduce((acc: FileObject[], curr: FileObject) => acc.concat(curr), [] as FileObject[])
+      reduce((acc: FileObject[], curr: FileObject) => acc.concat(curr), [] as FileObject[]),
     );
 
     this.customFields$ = this.advanceRequestService.getCustomFieldsForSpender();
@@ -157,20 +158,20 @@ export class MyViewAdvanceRequestPage {
           res.advanceRequest.areq_custom_field_values.length > 0
         ) {
           customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            res.advanceRequest.areq_custom_field_values
+            res.advanceRequest.areq_custom_field_values,
           );
         }
 
         return res.customFields.map((customField) => {
           const matchingCustomFieldValue = customFieldValues.find(
-            (customFieldValue) => customField.name === customFieldValue.name
+            (customFieldValue) => customField.name === customFieldValue.name,
           );
           return {
             ...customField,
             value: matchingCustomFieldValue ? matchingCustomFieldValue.value : null,
           } as CustomField;
         });
-      })
+      }),
     );
 
     this.getAndUpdateProjectName();
@@ -202,7 +203,7 @@ export class MyViewAdvanceRequestPage {
       from(this.loaderService.showLoader())
         .pipe(
           switchMap(() => this.advanceRequestService.pullBackAdvanceRequest(id, statusPayload)),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => from(this.loaderService.hideLoader())),
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'my_advances']);

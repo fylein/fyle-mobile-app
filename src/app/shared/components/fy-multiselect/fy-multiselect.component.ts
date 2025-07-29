@@ -18,6 +18,7 @@ import { TranslocoService } from '@jsverse/transloco';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   @Input() options: { label: string; value: unknown }[] = [];
@@ -49,7 +50,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   constructor(
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get valid(): boolean {

@@ -1,3 +1,4 @@
+@use '../../../../theme/colors.scss';
 $gray: #ccc;
 $note-container-color: #f1f1f1;
 
@@ -48,5 +49,4 @@ $note-container-color: #f1f1f1;
       padding: 16px 10px;
     }
   }
-
 }

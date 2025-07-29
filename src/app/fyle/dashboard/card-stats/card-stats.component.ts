@@ -18,6 +18,7 @@ import { CardStatus } from 'src/app/core/enums/card-status.enum';
   selector: 'app-card-stats',
   templateUrl: './card-stats.component.html',
   styleUrls: ['./card-stats.component.scss'],
+  standalone: false,
 })
 export class CardStatsComponent implements OnInit {
   @Output() cardAdded = new EventEmitter<void>();
@@ -55,7 +56,7 @@ export class CardStatsComponent implements OnInit {
     private networkService: NetworkService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private popoverController: PopoverController,
-    private virtualCardsService: VirtualCardsService
+    private virtualCardsService: VirtualCardsService,
   ) {}
 
   ngOnInit(): void {
@@ -66,7 +67,7 @@ export class CardStatsComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -102,7 +103,7 @@ export class CardStatsComponent implements OnInit {
         });
         cardDetails = this.filterVirtualCardsByStateAndAmount(cardDetails);
         return cardDetails;
-      })
+      }),
     );
   }
 
@@ -116,30 +117,32 @@ export class CardStatsComponent implements OnInit {
     this.isCCCEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled
-      )
+          orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled,
+      ),
     );
 
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+      map(
+        (orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled,
+      ),
     );
 
     this.isMastercardRTFEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
-      )
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled,
+      ),
     );
 
     this.isYodleeEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled
-      )
+          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled,
+      ),
     );
 
     this.canAddCorporateCards$ = forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$]).pipe(
-      map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled)
+      map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled),
     );
     this.isVirtualCardsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => ({
@@ -147,16 +150,16 @@ export class CardStatsComponent implements OnInit {
           orgSettings.amex_feed_enrollment_settings.allowed &&
           orgSettings.amex_feed_enrollment_settings.enabled &&
           orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled,
-      }))
+      })),
     );
 
     this.cardDetails$ = this.loadCardDetails$.pipe(
       switchMap(() =>
-        forkJoin([this.corporateCreditCardExpenseService.getCorporateCards(), this.dashboardService.getCCCDetails()])
+        forkJoin([this.corporateCreditCardExpenseService.getCorporateCards(), this.dashboardService.getCCCDetails()]),
       ),
       map(([corporateCards, corporateCardStats]) =>
-        this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats)
-      )
+        this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats),
+      ),
     );
 
     this.virtualCardDetails$ = this.getVirtualCardDetails();
@@ -181,7 +184,7 @@ export class CardStatsComponent implements OnInit {
         if (popoverResponse.data?.success) {
           this.handleEnrollmentSuccess();
         }
-      }
+      },
     );
   }
 

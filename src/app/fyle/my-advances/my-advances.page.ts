@@ -29,6 +29,7 @@ import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advan
   selector: 'app-my-advances',
   templateUrl: './my-advances.page.html',
   styleUrls: ['./my-advances.page.scss'],
+  standalone: false,
 })
 export class MyAdvancesPage implements AfterViewChecked {
   myAdvanceRequests$: Observable<ExtendedAdvanceRequestPublic[]>;
@@ -72,7 +73,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     private tasksService: TasksService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ionViewWillLeave(): void {
@@ -92,7 +93,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.redirectToDashboardPage();
@@ -140,10 +141,10 @@ export class MyAdvancesPage implements AfterViewChecked {
               advance_id: 'eq.null',
               order: 'created_at.desc,id.desc',
             },
-          })
+          }),
         ),
         map((res) => res.data),
-        reduce((acc, curr) => acc.concat(curr))
+        reduce((acc, curr) => acc.concat(curr)),
       );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
@@ -156,14 +157,14 @@ export class MyAdvancesPage implements AfterViewChecked {
           offset: 200 * count,
           limit: 200,
           queryParams: { order: 'created_at.desc,id.desc' },
-        })
+        }),
       ),
       map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr))
+      reduce((acc, curr) => acc.concat(curr)),
     );
 
     const sortResults = map((res: (ExtendedAdvanceRequestPublic | ExtendedAdvance)[]) =>
-      res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+      res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)),
     );
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
@@ -181,8 +182,8 @@ export class MyAdvancesPage implements AfterViewChecked {
             myAdvances = this.updateMyAdvances(myAdvances);
             return [...myAdvances, ...myAdvanceRequests];
           }),
-          sortResults
-        )
+          sortResults,
+        ),
       ),
       switchMap((advArray: ExtendedAdvanceRequestPublic[]) =>
         //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
@@ -207,14 +208,14 @@ export class MyAdvancesPage implements AfterViewChecked {
             }
             newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
             return newArr;
-          })
-        )
+          }),
+        ),
       ),
       tap((res) => {
         if (res && res.length >= 0) {
           this.isLoading = false;
         }
-      })
+      }),
     );
 
     this.getAndUpdateProjectName();
@@ -262,7 +263,7 @@ export class MyAdvancesPage implements AfterViewChecked {
           if (event) {
             event.target?.complete?.();
           }
-        })
+        }),
       )
       .subscribe(noop);
   }
@@ -391,7 +392,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     const filters = await this.filtersHelperService.openFilterModal(
       this.filterParams$.value,
       filterOptions,
-      activeFilterInitialName
+      activeFilterInitialName,
     );
     if (filters) {
       this.filterParams$.next(filters);

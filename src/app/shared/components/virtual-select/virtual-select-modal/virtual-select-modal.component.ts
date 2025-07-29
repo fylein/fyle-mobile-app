@@ -11,6 +11,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-virtual-select-modal',
   templateUrl: './virtual-select-modal.component.html',
   styleUrls: ['./virtual-select-modal.component.scss'],
+  standalone: false,
 })
 export class VirtualSelectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
@@ -52,7 +53,7 @@ export class VirtualSelectModalComponent implements AfterViewInit {
     private cdr: ChangeDetectorRef,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private utilityService: UtilityService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   clearValue(): void {
@@ -74,8 +75,8 @@ export class VirtualSelectModalComponent implements AfterViewInit {
             .map((option: { label: string; value: object; selected?: boolean }) => {
               option.selected = isEqual(option.value, this.currentSelection);
               return option;
-            })
-        )
+            }),
+        ),
       );
     }
   }
@@ -105,7 +106,7 @@ export class VirtualSelectModalComponent implements AfterViewInit {
     let extraOption: VirtualSelectOption[] = [];
     if (this.currentSelection && this.defaultLabelProp) {
       const selectedOption: VirtualSelectOption = this.options.find((option) =>
-        isEqual(option.value, this.currentSelection)
+        isEqual(option.value, this.currentSelection),
       );
       if (!selectedOption) {
         extraOption = extraOption.concat({
@@ -124,7 +125,7 @@ export class VirtualSelectModalComponent implements AfterViewInit {
         .map((option) => {
           option.selected = isEqual(option.value, this.currentSelection);
           return option;
-        })
+        }),
     );
   }
 
@@ -135,7 +136,7 @@ export class VirtualSelectModalComponent implements AfterViewInit {
         startWith(''),
         distinctUntilChanged(),
         map((searchText: string) => this.setFilteredOptions(searchText)),
-        shareReplay(1)
+        shareReplay(1),
       );
       this.recentlyUsedItems$ = fromEvent<{ target: HTMLInputElement }>(this.searchBarRef.nativeElement, 'keyup').pipe(
         map((event) => event.target.value),
@@ -144,10 +145,10 @@ export class VirtualSelectModalComponent implements AfterViewInit {
         switchMap((searchText) =>
           this.getRecentlyUsedItems().pipe(
             // filtering of recently used items wrt searchText is taken care in service method
-            this.utilityService.searchArrayStream(searchText)
-          )
+            this.utilityService.searchArrayStream(searchText),
+          ),
         ),
-        shareReplay(1)
+        shareReplay(1),
       );
     } else {
       const initial: VirtualSelectOption[] = [];
@@ -163,8 +164,8 @@ export class VirtualSelectModalComponent implements AfterViewInit {
           this.options.map((option) => {
             option.selected = isEqual(option.value, this.currentSelection);
             return option;
-          })
-        )
+          }),
+        ),
       );
     }
 

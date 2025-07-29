@@ -6,12 +6,13 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Directive({
   selector: '[appFormatDate]',
+  standalone: false,
 })
 export class FormatDateDirective implements OnInit {
   constructor(
     private elementRef: ElementRef,
     private renderer: Renderer2,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get selectedElement(): HTMLElement & { name?: string } {
@@ -34,12 +35,12 @@ export class FormatDateDirective implements OnInit {
             'data-date',
             this.translocoService.translate('directives.formatDate.selectNamePlaceholder', {
               name: this.selectedElement.name,
-            })
+            }),
           );
         } else {
           this.selectedElement.setAttribute(
             'data-date',
-            this.translocoService.translate('directives.formatDate.selectDatePlaceholder')
+            this.translocoService.translate('directives.formatDate.selectDatePlaceholder'),
           );
         }
       }

@@ -1,6 +1,6 @@
 <ion-header mode="md">
   <ion-toolbar class="view-expense--toolbar">
-    @if (this.reportId) {
+    @if (reportId) {
       <ion-buttons mode="md" slot="start">
         <ion-button (click)="goBack()">
           <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
@@ -10,12 +10,10 @@
     <ion-title
       mode="md"
       class="page-title"
-      [ngClass]="{'view-expense--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
+      [ngClass]="{ 'view-expense--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall }"
       >View expense
       @if (reportExpenseCount > 1) {
-        <p class="view-expense--subtitle">
-          Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
-        </p>
+        <p class="view-expense--subtitle">Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses</p>
       }
     </ion-title>
     <ion-buttons class="view-expense--header-btn-container" slot="end">
@@ -23,7 +21,7 @@
         <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
-      @if (view === ExpenseView.team && canDelete$|async) {
+      @if (view === ExpenseView.team && canDelete$ | async) {
         <ion-button class="view-expense--header-btn-container__btn" (click)="removeExpenseFromReport()">
           <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
         </ion-button>
@@ -34,21 +32,21 @@
 
 <ion-content>
   @if (!isLoading) {
-    @if (expense$|async; as expense) {
+    @if (expense$ | async; as expense) {
       <div class="view-expense--container">
         @if (expense.is_policy_flagged) {
           @if (policyDetails) {
             <app-fy-policy-violation-info
               [policyDetails]="policyDetails"
-              [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+              [criticalPolicyViolated]="isCriticalPolicyViolated$ | async"
             ></app-fy-policy-violation-info>
           }
         }
-        @if ((isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)) {
+        @if ((isAmountCapped$ | async) && !(isCriticalPolicyViolated$ | async)) {
           <div class="view-expense--policy-container">
             <span class="info-text m-0">
-              Claimed amount {{ expense.claim_amount | currency:expense.currency: 'symbol-narrow' }} was capped to {{
-              expense.amount | currency:expense.currency: 'symbol-narrow'}} due to policy.
+              Claimed amount {{ expense.claim_amount | currency: expense.currency : 'symbol-narrow' }} was capped to
+              {{ expense.amount | currency: expense.currency : 'symbol-narrow' }} due to policy.
             </span>
           </div>
         }
@@ -62,9 +60,7 @@
             <div class="view-expense--card-container__block">
               <div class="view-expense--card-container__category">{{ expense.category.display_name }}</div>
               @if (!expense.matched_corporate_card_transactions[0]) {
-                <div class="view-expense--card-container__merchant">
-                  {{ expense.merchant || '-' }}
-                </div>
+                <div class="view-expense--card-container__merchant">{{ expense.merchant || '-' }}</div>
               }
               @if (isProjectShown) {
                 <div class="view-expense--card-container__project">
@@ -75,7 +71,7 @@
                 <div>
                   Card ending in... {{ cardNumber | maskNumber }}
                   @if (cardNickname) {
-                    <span>{{'(' + cardNickname + ')'}}</span>
+                    <span>{{ '(' + cardNickname + ')' }}</span>
                   }
                 </div>
               }
@@ -84,14 +80,14 @@
               <div class="view-expense--card-container__amount-section">
                 <span class="view-expense--card-container__currency">{{ expenseCurrencySymbol }}</span>
                 <span class="view-expense--card-container__amount">
-                  {{ { value: expense.amount, currencyCode: expense.currency , skipSymbol: true } | exactCurrency }}
+                  {{ { value: expense.amount, currencyCode: expense.currency, skipSymbol: true } | exactCurrency }}
                 </span>
                 @if (isCCCTransaction) {
                   <div>
                     <div
                       class="view-expense--card-container__txn-type"
-                      [ngClass]="{'view-expense--card-container__credit': expense.amount < 0}"
-                      >
+                      [ngClass]="{ 'view-expense--card-container__credit': expense.amount < 0 }"
+                    >
                       {{ expense.amount > 0 ? 'DR' : 'CR' }}
                     </div>
                   </div>
@@ -103,17 +99,17 @@
               </div>
               @if (foreignCurrencySymbol) {
                 <div class="view-expense--card-container__exchange-rate">
-                  {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
-                  expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
+                  {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at
+                  {{ expense.amount / expense.foreign_amount | currency: expense.currency : 'symbol-narrow' }}
                 </div>
               }
             </div>
             <div class="ion-text-right view-expense--card-container__block">
               <div
                 class="view-expense--card-container__state-pill ion-text-right"
-                [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
-                >
-                <div class="state-pill state-{{expense.state | expenseState}}">
+                [ngClass]="{ 'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown }"
+              >
+                <div class="state-pill state-{{ expense.state | expenseState }}">
                   {{ expense.state | expenseState | snakeCaseToSpaceCase | titlecase }}
                 </div>
               </div>
@@ -135,9 +131,7 @@
           }
           @if (isCCCTransaction && isRTFEnabled) {
             @if (expense.matched_corporate_card_transactions[0]?.status; as transactionStatus) {
-              <div
-                class="view-expense--card-container__transaction-status"
-                >
+              <div class="view-expense--card-container__transaction-status">
                 <app-transaction-status
                   [transactionStatus]="transactionStatus"
                   (statusClick)="openTransactionStatusInfoModal($event)"
@@ -146,13 +140,13 @@
             }
           }
         </div>
-        @if (attachments$|async; as attachments) {
+        @if (attachments$ | async; as attachments) {
           @if (attachments.length > 0) {
             <app-receipt-preview-thumbnail
               [attachments]="attachments"
               (viewAttachments)="viewAttachments()"
               [canEdit]="false"
-              >
+            >
             </app-receipt-preview-thumbnail>
           } @else {
             <ion-grid class="view-expense--grid">
@@ -191,7 +185,10 @@
             <ion-row>
               <ion-col class="view-expense--icon-container">
                 <div class="view-expense--icon-container__background">
-                  <ion-icon class="view-expense--icon-container__icon" src="../../../assets/svg/user-one.svg"></ion-icon>
+                  <ion-icon
+                    class="view-expense--icon-container__icon"
+                    src="../../../assets/svg/user-one.svg"
+                  ></ion-icon>
                 </div>
               </ion-col>
               <ion-col class="view-expense--content-container">
@@ -230,7 +227,7 @@
                   </ion-col>
                   <ion-col class="view-expense--content-container">
                     <div class="view-expense--label">Created date</div>
-                    <div class="view-expense--value">{{ expense.created_at | date: 'MMM dd, YYYY' }}</div>
+                    <div class="view-expense--value">{{ expense.created_at | date: 'MMM dd, yyyy' }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -250,14 +247,15 @@
                     <ion-col class="view-expense--content-container">
                       <div class="d-flex">
                         <div class="view-expense--label">Spend date</div>
-                        @if (expense.extracted_data && (expense.spent_at | date:'MMM dd, YYYY') === (expense.extracted_data.date | date:'MMM dd, YYYY')) {
-                          <ion-icon
-                            class="view-expense--sparkle-icon"
-                            src="../../../assets/svg/sparkle.svg"
-                          ></ion-icon>
+                        @if (
+                          expense.extracted_data &&
+                          (expense.spent_at | date: 'MMM dd, yyyy') ===
+                            (expense.extracted_data.date | date: 'MMM dd, yyyy')
+                        ) {
+                          <ion-icon class="view-expense--sparkle-icon" src="../../../assets/svg/sparkle.svg"></ion-icon>
                         }
                       </div>
-                      <div class="view-expense--value">{{ expense.spent_at | date: 'MMM dd, YYYY' }}</div>
+                      <div class="view-expense--value">{{ expense.spent_at | date: 'MMM dd, yyyy' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -293,7 +291,7 @@
                 <div class="view-expense--label">Card transaction</div>
                 <div class="view-expense--value">
                   @if (expense.matched_corporate_card_transactions[0]; as matchedTransaction) {
-                    {{ (matchedTransaction.description || matchedTransaction.merchant) | ellipsis:20}}
+                    {{ matchedTransaction.description || matchedTransaction.merchant | ellipsis: 20 }}
                   } @else {
                     No matching card transaction
                   }
@@ -333,9 +331,7 @@
           </ion-grid>
         }
         @if (orgSettings?.tax_settings?.enabled && orgSettings?.tax_settings?.name) {
-          <ion-grid
-            class="view-expense--grid"
-            >
+          <ion-grid class="view-expense--grid">
             <ion-row>
               <ion-col class="view-expense--icon-container">
                 <div class="view-expense--icon-container__background">
@@ -345,13 +341,13 @@
               <ion-col class="view-expense--content-container">
                 <div class="view-expense--label">{{ orgSettings?.tax_settings?.name }}</div>
                 <div class="view-expense--value">
-                  {{ (expense.tax_amount | currency:expense.currency: 'symbol-narrow') || 'Not Added' }}
+                  {{ (expense.tax_amount | currency: expense.currency : 'symbol-narrow') || 'Not Added' }}
                 </div>
               </ion-col>
             </ion-row>
           </ion-grid>
         }
-        @if ({ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async}; as data) {
+        @if ({ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async }; as data) {
           @if (!data.costCenterDependentCustomProperties?.length) {
             @if (orgSettings?.cost_centers?.enabled && expense.cost_center_id) {
               <ion-grid class="view-expense--grid">
@@ -407,7 +403,10 @@
                 <ion-row>
                   <ion-col class="view-expense--icon-container">
                     <div class="view-expense--icon-container__background">
-                      <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/car.svg"></ion-icon>
+                      <ion-icon
+                        class="view-expense--icon-container__icon-lg"
+                        src="../../../assets/svg/car.svg"
+                      ></ion-icon>
                     </div>
                   </ion-col>
                   <ion-col class="view-expense--content-container">
@@ -422,7 +421,10 @@
                 <ion-row>
                   <ion-col class="view-expense--icon-container">
                     <div class="view-expense--icon-container__background">
-                      <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/car.svg"></ion-icon>
+                      <ion-icon
+                        class="view-expense--icon-container__icon-lg"
+                        src="../../../assets/svg/car.svg"
+                      ></ion-icon>
                     </div>
                   </ion-col>
                   <ion-col class="view-expense--content-container">
@@ -494,7 +496,7 @@
                         </ion-col>
                         <ion-col class="view-expense--content-container">
                           <div class="view-expense--label">Onward date</div>
-                          <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, YYYY' }}</div>
+                          <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, yyyy' }}</div>
                         </ion-col>
                       </ion-row>
                     </ion-grid>
@@ -513,7 +515,7 @@
                           </ion-col>
                           <ion-col class="view-expense--content-container">
                             <div class="view-expense--label">Return date</div>
-                            <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, YYYY' }}</div>
+                            <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, yyyy' }}</div>
                           </ion-col>
                         </ion-row>
                       </ion-grid>
@@ -587,7 +589,10 @@
               </ion-row>
             </ion-grid>
           }
-          @if (breakfastSystemCategories?.includes(expense.category?.system_category) && (expense.locations[0]?.city || expense.started_at || expense.ended_at)) {
+          @if (
+            breakfastSystemCategories?.includes(expense.category?.system_category) &&
+            (expense.locations[0]?.city || expense.started_at || expense.ended_at)
+          ) {
             @if (expense.locations[0]?.city) {
               <ion-grid class="view-expense--grid">
                 <ion-row>
@@ -622,7 +627,7 @@
                         </ion-col>
                         <ion-col class="view-expense--content-container">
                           <div class="view-expense--label">Check in</div>
-                          <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, YYYY' }}</div>
+                          <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, yyyy' }}</div>
                         </ion-col>
                       </ion-row>
                     </ion-grid>
@@ -641,7 +646,7 @@
                           </ion-col>
                           <ion-col class="view-expense--content-container">
                             <div class="view-expense--label">Check out</div>
-                            <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, YYYY' }}</div>
+                            <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, yyyy' }}</div>
                           </ion-col>
                         </ion-row>
                       </ion-grid>
@@ -655,7 +660,10 @@
                 <ion-row>
                   <ion-col class="view-expense--icon-container">
                     <div class="view-expense--icon-container__background">
-                      <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+                      <ion-icon
+                        class="view-expense--icon-container__icon-lg"
+                        src="../../../assets/svg/list.svg"
+                      ></ion-icon>
                     </div>
                   </ion-col>
                   <ion-col class="view-expense--content-container">
@@ -694,7 +702,7 @@
             }
           }
         }
-        @if (customProperties$|async; as customProperties) {
+        @if (customProperties$ | async; as customProperties) {
           @if (customProperties?.length > 0) {
             <div class="view-expense--divider"></div>
             @for (customProperty of customProperties; track customProperty) {
@@ -702,12 +710,15 @@
                 <ion-row>
                   <ion-col class="view-expense--icon-container">
                     <div class="view-expense--icon-container__background">
-                      <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+                      <ion-icon
+                        class="view-expense--icon-container__icon-lg"
+                        src="../../../assets/svg/list.svg"
+                      ></ion-icon>
                     </div>
                   </ion-col>
                   <ion-col class="view-expense--content-container">
-                    <div class="view-expense--label">{{customProperty.name}}</div>
-                    <div class="view-expense--value">{{customProperty.displayValue}}</div>
+                    <div class="view-expense--label">{{ customProperty.name }}</div>
+                    <div class="view-expense--value">{{ customProperty.displayValue }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>

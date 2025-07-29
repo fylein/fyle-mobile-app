@@ -48,6 +48,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
   selector: 'app-add-edit-advance-request',
   templateUrl: './add-edit-advance-request.page.html',
   styleUrls: ['./add-edit-advance-request.page.scss'],
+  standalone: false,
 })
 export class AddEditAdvanceRequestPage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -110,7 +111,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private currencyService: CurrencyService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService
+    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
   ) {}
 
   @HostListener('keydown')
@@ -259,9 +260,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
                 } else {
                   return this.router.navigate(['/', 'enterprise', 'my_advances']);
                 }
-              })
-            )
-          )
+              }),
+            ),
+          ),
         )
         .subscribe(noop);
     } else {
@@ -270,7 +271,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   generateAdvanceRequestFromFg(
-    extendedAdvanceRequest$: Observable<Partial<AdvanceRequests>>
+    extendedAdvanceRequest$: Observable<Partial<AdvanceRequests>>,
   ): Observable<Partial<AdvanceRequests>> {
     return forkJoin({
       extendedAdvanceRequest: extendedAdvanceRequest$,
@@ -291,7 +292,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
           source: 'MOBILE',
           custom_field_values: formValue.customFieldValues,
         };
-      })
+      }),
     );
   }
 
@@ -437,10 +438,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
-          })
-        )
+          }),
+        ),
       ),
-      reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+      reduce((acc: FileObject[], curr) => acc.concat(curr), []),
     );
   }
 
@@ -512,7 +513,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
 
     const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = of(
-      this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE'
+      this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE',
     ).pipe(
       switchMap((isEditFromTeamView) => {
         const requestId = this.activatedRoute.snapshot.params.id as string;
@@ -551,7 +552,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         });
         return res.areq;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     const newAdvanceRequestPipe$ = forkJoin({
@@ -567,17 +568,17 @@ export class AddEditAdvanceRequestPage implements OnInit {
           created_at: new Date(),
         };
         return advanceRequest;
-      })
+      }),
     );
 
     this.extendedAdvanceRequest$ = iif(
       () => !!this.activatedRoute.snapshot.params.id,
       editAdvanceRequestPipe$,
-      newAdvanceRequestPipe$
+      newAdvanceRequestPipe$,
     );
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
+      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled),
     );
     this.projects$ = this.projectsService.getAllActive();
 
@@ -588,10 +589,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
           this.platformEmployeeSettingsService
             .get()
             .pipe(map((employeeSettings) => employeeSettings.project_ids || [])),
-          this.projects$
-        )
+          this.projects$,
+        ),
       ),
-      map((projects) => projects.length > 0)
+      map((projects) => projects.length > 0),
     );
 
     this.customFields$ = (
@@ -618,7 +619,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
               id: customField.id,
               name: customField.name,
               value: [value, customField.is_mandatory && Validators.required],
-            })
+            }),
           );
         }
 
@@ -634,7 +635,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
           }
           return customField;
         });
-      })
+      }),
     );
     this.setupNetworkWatcher();
   }

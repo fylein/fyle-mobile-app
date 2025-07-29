@@ -10,6 +10,7 @@ import { UserEventService } from 'src/app/core/services/user-event.service';
   selector: 'app-verify',
   templateUrl: './verify.page.html',
   styleUrls: ['./verify.page.scss'],
+  standalone: false,
 })
 export class VerifyPage implements OnInit {
   constructor(
@@ -18,7 +19,7 @@ export class VerifyPage implements OnInit {
     private authService: AuthService,
     private router: Router,
     private trackingService: TrackingService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
   ) {}
 
   ngOnInit(): void {
@@ -30,7 +31,7 @@ export class VerifyPage implements OnInit {
         tap((eou) => {
           this.trackingService.emailVerified();
           this.trackingService.onSignin(eou.us.id);
-        })
+        }),
       )
       .subscribe({
         next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),

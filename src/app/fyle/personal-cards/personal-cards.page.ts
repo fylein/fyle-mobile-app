@@ -67,6 +67,7 @@ type Filters = Partial<PersonalCardFilter>;
   selector: 'app-personal-cards',
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
+  standalone: false,
 })
 export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
@@ -157,7 +158,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
     private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -192,10 +193,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
           }),
           finalize(() => {
             this.isLoading = false;
-          })
-        )
+          }),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -206,13 +207,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
           this.extendQueryParamsService.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
         return this.personalCardsService.getBankTransactionsCount(queryParams);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
   loadInfiniteScroll(): void {
     const paginatedScroll$ = this.transactions$.pipe(
-      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length)))
+      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length))),
     );
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
   }
@@ -220,7 +221,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   loadAccountCount(): void {
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
       switchMap(() => this.personalCardsService.getPersonalCardsCount()),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -241,7 +242,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         }
         queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(
           queryParams as {},
-          params.searchString
+          params.searchString,
         );
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
@@ -256,7 +257,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
                   finalize(() => {
                     this.isTransactionsLoading = false;
                     this.isLoadingDataInfiniteScroll = false;
-                  })
+                  }),
                 );
             } else {
               this.isTransactionsLoading = false;
@@ -264,7 +265,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
                 data: [] as PlatformPersonalCardTxn[],
               });
             }
-          })
+          }),
         );
       }),
       map((res) => {
@@ -275,7 +276,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
+      }),
     );
   }
 
@@ -299,7 +300,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
         debounceTime(400),
-        takeUntil(this.onComponentDestroy$)
+        takeUntil(this.onComponentDestroy$),
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -321,7 +322,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onComponentDestroy$),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -337,7 +338,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        })
+        }),
       )
       .subscribe((yodleeConfig) => {
         this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token, false);
@@ -349,7 +350,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
       url,
       access_token,
       isMfaFlow,
-      this.selectedAccount?.yodlee_provider_account_id
+      this.selectedAccount?.yodlee_provider_account_id,
     );
     const browser = this.inAppBrowserService.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();
@@ -392,7 +393,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         switchMap(() => this.personalCardsService.postBankAccounts()),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        })
+        }),
       )
       .subscribe((data) => {
         const message =
@@ -491,7 +492,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        })
+        }),
       )
       .subscribe((yodleeConfig) => {
         this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token, true);
@@ -549,7 +550,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
           }
           this.loadData$.next(params);
           this.trackingService.transactionsHiddenOnPersonalCards();
-        })
+        }),
       )
       .subscribe(noop);
   }

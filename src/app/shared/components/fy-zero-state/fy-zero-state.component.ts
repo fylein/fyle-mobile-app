@@ -5,6 +5,7 @@ import { EventEmitter } from 'events';
   selector: 'app-fy-zero-state',
   templateUrl: './fy-zero-state.component.html',
   styleUrls: ['./fy-zero-state.component.scss'],
+  standalone: false,
 })
 export class FyZeroStateComponent implements OnInit, AfterViewInit {
   @ViewChild('messageRef') messageRef: ElementRef;

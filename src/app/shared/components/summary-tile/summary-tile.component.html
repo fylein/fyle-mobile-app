@@ -6,19 +6,16 @@
           {{ category }}
         </div>
       }
-
       @if (purpose) {
         <div class="summary-tile--card-container__purpose">
-          {{ purpose | ellipsis : 25 }}
+          {{ purpose | ellipsis: 25 }}
         </div>
       }
-
       @if (merchant) {
         <div class="summary-tile--card-container__merchant">
           {{ merchant }}
         </div>
       }
-
       @if (project) {
         <div class="summary-tile--card-container__project">
           {{ 'summaryTile.projectLabel' | transloco }} {{ project }}
@@ -35,7 +32,7 @@
       <div
         class="ion-text-right"
         [ngClass]="{ 'summary-tile--card-container__no-exchange': !orig_currency && project }"
-        >
+      >
         <div class="summary-tile--card-container__state-pill state-pill state-{{ status | lowercase }}">
           {{ status | snakeCaseToSpaceCase | titlecase }}
         </div>
@@ -67,7 +64,7 @@
             <div class="summary-tile--approver-state-section">
               @if (ap.state === 'APPROVAL_DONE') {
                 <div class="summary-tile--approver-state-section__date">
-                  <span>{{ ap.updated_at | date : 'MMM dd, YYYY' }}</span>
+                  <span>{{ ap.updated_at | date: 'MMM dd, yyyy' }}</span>
                 </div>
               }
               <div
@@ -75,8 +72,8 @@
               ></div>
               <span>{{
                 ap.state === 'APPROVAL_DONE'
-                ? ('summaryTile.approved' | transloco)
-                : (ap.state | titlecase | snakeCaseToSpaceCase)
+                  ? ('summaryTile.approved' | transloco)
+                  : (ap.state | titlecase | snakeCaseToSpaceCase)
               }}</span>
             </div>
           </div>

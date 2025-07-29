@@ -19,6 +19,7 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
   selector: 'app-invited-user',
   templateUrl: './invited-user.page.html',
   styleUrls: ['./invited-user.page.scss'],
+  standalone: false,
 })
 export class InvitedUserPage implements OnInit {
   isConnected$: Observable<boolean>;
@@ -66,7 +67,7 @@ export class InvitedUserPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private orgSettingsService: OrgSettingsService,
-    private spenderOnboardingService: SpenderOnboardingService
+    private spenderOnboardingService: SpenderOnboardingService,
   ) {}
 
   ngOnInit(): void {
@@ -111,7 +112,7 @@ export class InvitedUserPage implements OnInit {
           } else {
             this.router.navigate(['/', 'enterprise', 'my_dashboard']);
           }
-        })
+        }),
       )
       .subscribe();
   }
@@ -136,7 +137,7 @@ export class InvitedUserPage implements OnInit {
           finalize(async () => {
             this.isLoading = false;
             return await this.loaderService.hideLoader();
-          })
+          }),
         )
         .subscribe(() => {
           this.navigateToDashboard();

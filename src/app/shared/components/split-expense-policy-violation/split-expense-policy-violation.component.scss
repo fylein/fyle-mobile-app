@@ -1,10 +1,10 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .split-expense-policy-violation {
   &--accordion {
     padding: 14px 4px 4px 4px;
     margin: 12px;
-    border: 1px solid $border-tertiary;
+    border: 1px solid colors.$border-tertiary;
     border-radius: 8px;
   }
 
@@ -33,13 +33,13 @@
   &--placeholder {
     font-size: 12px;
     line-height: 14px;
-    color: $grey-light;
+    color: colors.$grey-light;
     margin-bottom: 6px;
   }
 
   &--value {
     font-weight: 500;
-    color: $grey-light-2;
+    color: colors.$grey-light-2;
   }
 
   &--content-container {
@@ -50,9 +50,9 @@
     padding: 6px 10px;
     gap: 4px;
     height: 32px;
-    background: $light-pink;
+    background: colors.$light-pink;
     border-radius: 36px;
-    color: $red;
+    color: colors.$red;
   }
 
   &--fields-violations-count {
@@ -60,7 +60,7 @@
     gap: 4px;
     height: 32px;
     background: transparent;
-    color: $red;
+    color: colors.$red;
   }
 
   &--textarea {
@@ -73,13 +73,13 @@
   }
 
   &--additional-details-header {
-    color: $black-light;
+    color: colors.$black-light;
     margin: 24px 16px 10px 16px;
   }
 
   &--additional-details-comment-length {
     text-align: right;
-    color: $text-button-grey;
+    color: colors.$text-button-grey;
     font-size: 12px;
     margin-right: 14px;
   }
@@ -89,8 +89,8 @@
   }
 
   &--active {
-    border-left: 3px solid $brand-primary;
-    --background: #{$blue-3};
+    border-left: 3px solid colors.$brand-primary;
+    --background: #{colors.$blue-3};
   }
 
   &--dropdown-container {
@@ -99,7 +99,7 @@
     &__icon {
       height: 22px;
       width: 22px;
-      color: $grey-light;
+      color: colors.$grey-light;
       vertical-align: text-bottom;
       transform: rotate(180deg);
       transition: 0.3s all ease;

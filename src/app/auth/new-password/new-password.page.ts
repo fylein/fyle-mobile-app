@@ -17,6 +17,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   selector: 'app-new-password',
   templateUrl: './new-password.page.html',
   styleUrls: ['./new-password.page.scss'],
+  standalone: false,
 })
 export class NewPasswordPage implements OnInit {
   fg: UntypedFormGroup;
@@ -56,7 +57,7 @@ export class NewPasswordPage implements OnInit {
     private loginInfoService: LoginInfoService,
     private router: Router,
     private matSnackBar: MatSnackBar,
-    private snackbarPropertiesService: SnackbarPropertiesService
+    private snackbarPropertiesService: SnackbarPropertiesService,
   ) {}
 
   ngOnInit(): void {
@@ -82,7 +83,7 @@ export class NewPasswordPage implements OnInit {
         finalize(() => {
           this.isLoading = false;
           return from(this.loaderService.hideLoader());
-        })
+        }),
       )
       .subscribe(
         () => {
@@ -106,7 +107,7 @@ export class NewPasswordPage implements OnInit {
             panelClass: ['msb-failure'],
           });
           this.router.navigate(['/', 'auth', 'sign_in']);
-        }
+        },
       );
   }
 

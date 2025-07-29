@@ -15,6 +15,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterViewInit {
   @Input() placeholder: string;
@@ -62,7 +63,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
   constructor(
     private platform: Platform,
     private launchDarklyService: LaunchDarklyService,
-    private injector: Injector
+    private injector: Injector,
   ) {}
 
   get value(): number {
@@ -112,7 +113,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
     this.launchDarklyService
       .checkIfNegativeExpensePluginIsEnabled()
       .subscribe(
-        (isNegativeExpensePluginEnabled) => (this.isNegativeExpensePluginEnabled = isNegativeExpensePluginEnabled)
+        (isNegativeExpensePluginEnabled) => (this.isNegativeExpensePluginEnabled = isNegativeExpensePluginEnabled),
       );
 
     this.launchDarklyService

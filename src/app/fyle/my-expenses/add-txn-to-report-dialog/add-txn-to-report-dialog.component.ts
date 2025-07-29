@@ -8,6 +8,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
   selector: 'app-add-txn-to-report-dialog',
   templateUrl: './add-txn-to-report-dialog.component.html',
   styleUrls: ['./add-txn-to-report-dialog.component.scss'],
+  standalone: false,
 })
 export class AddTxnToReportDialogComponent implements OnInit {
   @Input() openReports;
@@ -18,7 +19,7 @@ export class AddTxnToReportDialogComponent implements OnInit {
     private currencyService: CurrencyService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: { openReports: Report[]; isNewReportsFlowEnabled: boolean },
     private matBottomsheet: MatBottomSheet,
-    private router: Router
+    private router: Router,
   ) {}
 
   closeAddToReportModal(): void {
