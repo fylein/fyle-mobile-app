@@ -28,7 +28,7 @@ export class SuggestedDuplicatesComponent {
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar,
     private orgSettingsService: OrgSettingsService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ionViewWillEnter(): void {

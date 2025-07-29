@@ -221,7 +221,7 @@ describe('RouteSelectorComponent', () => {
               distance: 20,
             },
           });
-        })
+        }),
       );
       modalController.create.and.resolveTo(selectionModalSpy);
     });
@@ -253,7 +253,7 @@ describe('RouteSelectorComponent', () => {
               distance: 20,
             },
           });
-        })
+        }),
       );
       modalController.create.and.resolveTo(selectionModalSpy);
 

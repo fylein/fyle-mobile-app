@@ -28,12 +28,15 @@ export class TasksCardComponent implements OnInit {
 
   showReportAutoSubmissionInfo = false;
 
-  constructor(private currencyService: CurrencyService, private translocoService: TranslocoService) {}
+  constructor(
+    private currencyService: CurrencyService,
+    private translocoService: TranslocoService,
+  ) {}
 
   ngOnInit(): void {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.currencySymbol$ = this.homeCurrency$.pipe(
-      map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
+      map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide')),
     );
     this.showReportAutoSubmissionInfo =
       this.task.header.includes(this.translocoService.translate('tasksCard.incompleteExpense')) &&

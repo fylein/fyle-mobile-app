@@ -52,7 +52,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
-    private employeesService: EmployeesService
+    private employeesService: EmployeesService,
   ) {}
 
   getSelectedItemDict(): Record<string, boolean> {
@@ -112,8 +112,8 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
         eouc.map((eou) => {
           eou.is_selected = this.currentSelections.indexOf(eou.email) > -1;
           return eou;
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -134,8 +134,8 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
             eou.is_selected = this.currentSelections.indexOf(eou.email) > -1;
           }
           return eou;
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -164,16 +164,16 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
               // set focus on input once data is loaded
               const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
               searchInput.focus();
-            })
-          )
-        )
+            }),
+          ),
+        ),
       );
     }
   }
 
   filterSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]): Partial<Employee>[] {
     searchedEmployees = searchedEmployees.filter(
-      (searchedEmployee) => !employees.find((employee) => employee.email === searchedEmployee.email)
+      (searchedEmployee) => !employees.find((employee) => employee.email === searchedEmployee.email),
     );
     return searchedEmployees;
   }
@@ -217,13 +217,13 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
               newArr.push(newItem);
               newlyAddedItems = newArr.concat(newlyAddedItems);
               return newlyAddedItems.filter(
-                (item) => item?.email?.length > 0 && item.email.toLowerCase().includes(searchTextLowerCase)
+                (item) => item?.email?.length > 0 && item.email.toLowerCase().includes(searchTextLowerCase),
               );
             }
             return newlyAddedItems;
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
   }
 
@@ -235,7 +235,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
       startWith(''),
       distinctUntilChanged(),
       debounceTime(400),
-      switchMap((searchText: string) => this.getUsersList(searchText))
+      switchMap((searchText: string) => this.getUsersList(searchText)),
     );
 
     if (this.allowCustomValues) {
@@ -244,7 +244,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
         startWith(''),
         distinctUntilChanged(),
         debounceTime(400),
-        switchMap((searchText: string) => this.processNewlyAddedItems(searchText))
+        switchMap((searchText: string) => this.processNewlyAddedItems(searchText)),
       );
     }
     this.cdr.detectChanges();

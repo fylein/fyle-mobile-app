@@ -63,7 +63,7 @@ export class TransactionService {
     private accountsService: AccountsService,
     private expensesService: ExpensesService,
     private trackingService: TrackingService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {
     expensesCacheBuster$.subscribe(() => {
       if (this.clearTaskCache) {
@@ -85,7 +85,7 @@ export class TransactionService {
     return of(null).pipe(
       tap(() => {
         this.clearTaskCache = clearTaskCache;
-      })
+      }),
     );
   }
 
@@ -160,7 +160,7 @@ export class TransactionService {
 
         const expensePayload = this.expensesService.transformTo(transactionCopy);
         return this.expensesService.post(expensePayload).pipe(map((result) => this.transformExpense(result.data).tx));
-      })
+      }),
     );
   }
 
@@ -169,7 +169,7 @@ export class TransactionService {
   })
   createTxnWithFiles(
     txn: Partial<Transaction>,
-    fileUploads$: Observable<FileObject[]>
+    fileUploads$: Observable<FileObject[]>,
   ): Observable<Partial<Transaction>> {
     return fileUploads$.pipe(
       switchMap((fileObjs) => {
@@ -194,18 +194,18 @@ export class TransactionService {
                   catchError((err: Error) => {
                     this.trackingService.patchExpensesError({ label: err });
                     return of(this.transformExpense(result.data[0]).tx);
-                  })
+                  }),
                 );
               } else {
                 return of(this.transformExpense(result.data[0]).tx);
               }
-            })
+            }),
           );
         } else {
           txn.file_ids = fileIds;
           return this.upsert(txn);
         }
-      })
+      }),
     );
   }
 
@@ -230,7 +230,7 @@ export class TransactionService {
           platformPolicyExpense.spent_at.setMilliseconds(0);
           platformPolicyExpense.spent_at = this.timezoneService.convertToUtc(
             platformPolicyExpense.spent_at,
-            employeeSettings.locale.offset
+            employeeSettings.locale.offset,
           );
         }
 
@@ -241,7 +241,7 @@ export class TransactionService {
           platformPolicyExpense.started_at.setMilliseconds(0);
           platformPolicyExpense.started_at = this.timezoneService.convertToUtc(
             platformPolicyExpense.started_at,
-            employeeSettings.locale.offset
+            employeeSettings.locale.offset,
           );
         }
 
@@ -252,14 +252,14 @@ export class TransactionService {
           platformPolicyExpense.ended_at.setMilliseconds(0);
           platformPolicyExpense.ended_at = this.timezoneService.convertToUtc(
             platformPolicyExpense.ended_at,
-            employeeSettings.locale.offset
+            employeeSettings.locale.offset,
           );
         }
         const payload = {
           data: platformPolicyExpense,
         };
         return this.spenderPlatformV1ApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
-      })
+      }),
     );
   }
 
@@ -306,7 +306,11 @@ export class TransactionService {
 
   getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses?.filter(
-      (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
+      (expense) =>
+        !this.getIsCriticalPolicyViolated(expense) &&
+        !this.getIsDraft(expense) &&
+        !this.getIsUnreportable(expense) &&
+        expense.tx_id,
     );
   }
 
@@ -316,6 +320,10 @@ export class TransactionService {
 
   getIsDraft(expense: Partial<Expense>): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
+  }
+
+  getIsUnreportable(expense: Partial<Expense>): boolean {
+    return expense.tx_state && expense.tx_state === 'UNREPORTABLE';
   }
 
   excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
@@ -344,7 +352,7 @@ export class TransactionService {
     expensesToBeDeleted: Partial<Expense>[],
     cccExpenses: number,
     expenseDeletionMessage: string,
-    cccExpensesMessage: string
+    cccExpensesMessage: string,
   ): string {
     let dialogBody: string;
 
@@ -354,7 +362,7 @@ export class TransactionService {
         <li>${this.translocoService.translate('services.transaction.actionCantBeReversed')}</li>
         </ul>
         <p class="confirmation-message text-left">${this.translocoService.translate(
-          'services.transaction.confirmPermanentDelete'
+          'services.transaction.confirmPermanentDelete',
         )}</p>`;
     } else if (expensesToBeDeleted.length > 0 && cccExpenses === 0) {
       dialogBody = `<ul class="text-left">
@@ -362,7 +370,7 @@ export class TransactionService {
       <li>${this.translocoService.translate('services.transaction.actionCantBeReversed')}</li>
       </ul>
       <p class="confirmation-message text-left">${this.translocoService.translate(
-        'services.transaction.confirmPermanentDelete'
+        'services.transaction.confirmPermanentDelete',
       )}</p>`;
     } else if (expensesToBeDeleted.length === 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
@@ -400,10 +408,10 @@ export class TransactionService {
   isMergeAllowed(expenses: Partial<Expense>[]): boolean {
     if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
-        (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
+        (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem',
       );
       const areAllExpensesSubmitted = expenses.every((expense) =>
-        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
+        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state),
       );
       const areAllCCCMatchedExpenses = expenses.every((expense) => expense.tx_corporate_credit_card_expense_group_id);
       return !areSomeMileageOrPerDiemExpenses && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
@@ -441,7 +449,7 @@ export class TransactionService {
 
   generateReceiptAttachedParams(
     newQueryParams: FilterQueryParams,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.receiptsAttached) {
@@ -512,7 +520,7 @@ export class TransactionService {
 
   setSortParams(
     currentParams: Partial<SortFiltersParams>,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): Partial<SortFiltersParams> {
     const currentParamsCopy = cloneDeep(currentParams);
     if (filters.sortParam && filters.sortDir) {
@@ -608,7 +616,7 @@ export class TransactionService {
     const txnSkipReimbursement = etxn.tx_skip_reimbursement;
     const txnSourceAccountType = etxn.source_account_type;
     return paymentModes.find((paymentMode) =>
-      this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key)
+      this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key),
     );
   }
 
@@ -616,7 +624,7 @@ export class TransactionService {
     currencyMap: Record<string, CurrencySummary>,
     txCurrency: string,
     txAmount: number,
-    txOrigAmount: number = null
+    txOrigAmount: number = null,
   ): void {
     if (currencyMap.hasOwnProperty(txCurrency)) {
       currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
@@ -842,7 +850,7 @@ export class TransactionService {
         return {
           source_account_id: account?.id,
         };
-      })
+      }),
     );
   }
 
@@ -853,7 +861,7 @@ export class TransactionService {
       employeeSettings: this.platformEmployeeSettingsService.get(),
     }).pipe(
       switchMap(({ orgSettings, accounts, employeeSettings }) =>
-        this.paymentModesService.getDefaultAccount(orgSettings, accounts, employeeSettings)
+        this.paymentModesService.getDefaultAccount(orgSettings, accounts, employeeSettings),
       ),
       map((account) => {
         const accountDetails = {
@@ -861,7 +869,7 @@ export class TransactionService {
           skip_reimbursement: !account.isReimbursable || false,
         };
         return accountDetails;
-      })
+      }),
     );
   }
 
@@ -875,6 +883,10 @@ export class TransactionService {
 
       if (filters.state.includes(FilterState.POLICY_VIOLATED)) {
         stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (filters.state.includes(FilterState.BLOCKED)) {
+        stateOrFilter.push('tx_state.in.(UNREPORTABLE)');
       }
 
       if (filters.state.includes(FilterState.CANNOT_REPORT)) {
@@ -891,7 +903,7 @@ export class TransactionService {
 
   private generateCustomDateParams(
     newQueryParams: FilterQueryParams,
-    filters: Partial<ExpenseFilters>
+    filters: Partial<ExpenseFilters>,
   ): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date === DateFilters.custom) {

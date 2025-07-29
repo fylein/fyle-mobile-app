@@ -61,7 +61,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
     private orgSettingsService: OrgSettingsService,
     private categoriesService: CategoriesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   getProjects(searchNameText: string): Observable<ProjectOption[]> {
@@ -81,7 +81,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
     return this.orgSettingsService.get().pipe(
       switchMap((orgSettings) => {
@@ -90,9 +90,9 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           this.platformEmployeeSettingsService
             .get()
             .pipe(
-              map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || [])
+              map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || []),
             ),
-          of(null)
+          of(null),
         );
 
         return forkJoin({
@@ -115,8 +115,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
             limit: 20,
           },
           this.isProjectCategoryRestrictionsEnabled,
-          activeCategories
-        )
+          activeCategories,
+        ),
       ),
       switchMap((projects) => {
         if (this.defaultValue) {
@@ -126,7 +126,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
                 projects.push(defaultProject);
               }
               return projects;
-            })
+            }),
           );
         } else {
           return of(projects);
@@ -151,7 +151,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
-      })
+      }),
     );
   }
 
@@ -171,8 +171,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           options.map((option: ProjectOption) => {
             option.selected = isEqual(option.value, this.currentSelection);
             return option;
-          })
-        )
+          }),
+        ),
       );
     }
   }
@@ -186,7 +186,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     if (this.categoryIds?.length > 0) {
       this.activeCategories$ = forkJoin(
-        this.categoryIds.map((id) => this.categoriesService.getCategoryById(parseInt(id, 10)))
+        this.categoryIds.map((id) => this.categoriesService.getCategoryById(parseInt(id, 10))),
       ).pipe(shareReplay(1));
     } else {
       // Fallback if this.categoryIds is empty
@@ -205,13 +205,13 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
             project.selected = true;
           }
           return project as ProjectOption;
-        })
-      )
+        }),
+      ),
     );
 
     this.recentrecentlyUsedItems$ = fromEvent<{ target: HTMLInputElement }>(
       this.searchBarRef.nativeElement,
-      'keyup'
+      'keyup',
     ).pipe(
       map((event) => event.target.value),
       startWith(''),
@@ -220,9 +220,9 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       switchMap((searchText: string) =>
         this.getRecentlyUsedItems().pipe(
           // filtering of recently used items wrt searchText is taken care in service method
-          this.utilityService.searchArrayStream(searchText)
-        )
-      )
+          this.utilityService.searchArrayStream(searchText),
+        ),
+      ),
     );
 
     this.cdr.detectChanges();

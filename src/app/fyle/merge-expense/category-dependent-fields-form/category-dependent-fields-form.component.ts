@@ -59,7 +59,10 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
 
   onTouched: () => void = noop;
 
-  constructor(private formBuilder: UntypedFormBuilder, private injector: Injector) {}
+  constructor(
+    private formBuilder: UntypedFormBuilder,
+    private injector: Injector,
+  ) {}
 
   isFieldTouched = (fieldName: string): boolean => this.categoryDependentFormGroup.get(fieldName).touched;
 

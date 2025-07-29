@@ -67,7 +67,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     private popoverController: PopoverController,
     private platformReportService: SpenderReportsService,
     private trackingService: TrackingService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get valid(): boolean {
@@ -172,14 +172,14 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
                   map((reports) =>
                     reports
                       .filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
-                      .map((report) => ({ label: report.purpose, value: report }))
+                      .map((report) => ({ label: report.purpose, value: report })),
                   ),
                   tap((options) => {
                     this.options = options;
                     this.value = this.options.find((option) => newReport.id === option.value.id)?.value;
-                  })
-                )
-            )
+                  }),
+                ),
+            ),
           )
           .subscribe(noop);
         this.trackingService.createDraftReportFromExpense();

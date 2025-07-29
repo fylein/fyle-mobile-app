@@ -34,7 +34,7 @@ export class DelegatedAccountsPage {
     private activatedRoute: ActivatedRoute,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private authService: AuthService,
-    private navController: NavController
+    private navController: NavController,
   ) {}
 
   goBack(): void {
@@ -52,7 +52,7 @@ export class DelegatedAccountsPage {
         }),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        })
+        }),
       )
       .subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
@@ -69,7 +69,7 @@ export class DelegatedAccountsPage {
           concatMap(() => this.orgUserService.switchToDelegatee()),
           finalize(async () => {
             await this.loaderService.hideLoader();
-          })
+          }),
         )
         .subscribe(() => {
           globalCacheBusterNotifier.next();
@@ -96,12 +96,12 @@ export class DelegatedAccountsPage {
               map(({ delegatedAcc }) =>
                 delegatedAcc.filter((delegator: Delegator) =>
                   Object.values(delegator).some((delegatorProp: string) =>
-                    delegatorProp?.toString().toLowerCase().includes(searchText.toLowerCase())
-                  )
-                )
-              )
-            )
-          )
+                    delegatorProp?.toString().toLowerCase().includes(searchText.toLowerCase()),
+                  ),
+                ),
+              ),
+            ),
+          ),
         )
         .subscribe((delegatees) => {
           this.delegatedAccList = delegatees || [];

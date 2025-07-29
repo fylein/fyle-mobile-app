@@ -1,7 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar class="view-advance--toolbar">
     <ion-buttons mode="md" slot="start">
-      <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
+      <ion-button [routerLink]="['/', 'enterprise', 'my_advances']" routerLinkActive="router-link-active">
         <img [src]="'../../../../assets/svg/arrow-left.svg'" />
       </ion-button>
     </ion-buttons>
@@ -10,8 +10,7 @@
 </ion-header>
 
 <ion-content>
-  @if (advance$|async; as advance) {
-  <div>
+  @if (advance$ | async; as advance) {
     <div class="view-advance--container">
       <app-summary-tile
         [purpose]="advance.adv_purpose || '-'"
@@ -41,23 +40,23 @@
           <ion-row>
             <ng-container>
               @if (advance.areq_approved_at) {
-              <ion-col class="p-0" size="6">
-                <div class="view-advance--element">
-                  <app-fy-statistic
-                    [icon]="'../../../../assets/svg/calendar.svg'"
-                    [type]="StatisticTypes.DATE"
-                    [label]="'Approved date'"
-                    [value]="advance.areq_approved_at | date: 'MMM dd, yyyy'"
-                  ></app-fy-statistic>
-                </div>
-              </ion-col>
+                <ion-col class="p-0" size="6">
+                  <div class="view-advance--element">
+                    <app-fy-statistic
+                      [icon]="'../../../../assets/svg/calendar.svg'"
+                      [type]="StatisticTypes.DATE"
+                      [label]="'Approved date'"
+                      [value]="advance.areq_approved_at | date: 'MMM dd, YYYY'"
+                    ></app-fy-statistic>
+                  </div>
+                </ion-col>
               }
               <ion-col class="p-0" size="6">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
                   [type]="StatisticTypes.DATE"
                   [label]="'Issued date'"
-                  [value]="advance.adv_issued_at | date: 'MMM dd, yyyy'"
+                  [value]="advance.adv_issued_at | date: 'MMM dd, YYYY'"
                 ></app-fy-statistic>
               </ion-col>
             </ng-container>
@@ -82,43 +81,64 @@
         <div class="view-advance--divider"></div>
         <!-- In case there is no advance request associated with the advance, there will be no notes -->
         @if (!advance.areq_id) {
-        <div class="view-advance--element">
-          <app-fy-statistic
-            [icon]="'../../../../assets/svg/list.svg'"
-            [type]="StatisticTypes.STRING"
-            [label]="'Additional notes'"
-            [value]="'-'"
-          ></app-fy-statistic>
-        </div>
-        } @if (advance.areq_id && advanceRequest$|async; as advanceRequest) {
-        <div class="view-advance--element">
-          <app-fy-statistic
-            [icon]="'../../../../assets/svg/list.svg'"
-            [type]="StatisticTypes.STRING"
-            [label]="'Additional notes'"
-            [value]="advanceRequest?.areq_notes || '-'"
-          ></app-fy-statistic>
-        </div>
+          <div class="view-advance--element">
+            <app-fy-statistic
+              [icon]="'../../../../assets/svg/list.svg'"
+              [type]="StatisticTypes.STRING"
+              [label]="'Additional notes'"
+              [value]="'-'"
+            ></app-fy-statistic>
+          </div>
+        }
+        @if (advance.areq_id && advanceRequest$ | async; as advanceRequest) {
+          <div class="view-advance--element">
+            <app-fy-statistic
+              [icon]="'../../../../assets/svg/list.svg'"
+              [type]="StatisticTypes.STRING"
+              [label]="'Additional notes'"
+              [value]="advanceRequest?.areq_notes || '-'"
+            ></app-fy-statistic>
+          </div>
         }
       </div>
       @if (advance.areq_id) {
-      <div class="view-advance--divider"></div>
-      } @if (advance.areq_id) {
-      <div class="view-advance--advance-request-block">
-        <div class="view-advance--icon-container">
-          <img class="view-advance--icon" [src]="'../../../../assets/svg/open-in-new-tab.svg'" />
+        <div class="view-advance--divider"></div>
+        <div class="view-advance--advance-request-block">
+          <div class="view-advance--icon-container">
+            <img class="view-advance--icon" [src]="'../../../../assets/svg/open-in-new-tab.svg'" />
+          </div>
+          <div>
+            <a
+              class="view-advance--anchor"
+              [routerLink]="['/', 'enterprise', 'my_view_advance_request', { id: advance.areq_id }]"
+            >
+              View advance request</a
+            >
+          </div>
         </div>
-        <div>
-          <a
-            class="view-advance--anchor"
-            [routerLink]="['/', 'enterprise', 'my_view_advance_request', {id: advance.areq_id}]"
-          >
-            View advance request</a
-          >
-        </div>
-      </div>
       }
     </div>
-  </div>
+  } @else {
+    <div class="view-advance--skeleton-wrapper">
+      <!-- Summary Tile Skeleton -->
+      <div class="view-advance--skeleton-card">
+        <ion-skeleton-text animated class="view-advance--skeleton-purpose"></ion-skeleton-text>
+        <ion-skeleton-text animated class="view-advance--skeleton-amount"></ion-skeleton-text>
+        <ion-skeleton-text animated class="view-advance--skeleton-status"></ion-skeleton-text>
+      </div>
+      <!-- Statistic Rows Skeleton -->
+      @for (item of [1, 2, 3, 4, 5]; track $index) {
+        <div class="view-advance--skeleton-row">
+          <ion-skeleton-text animated class="view-advance--skeleton-label"></ion-skeleton-text>
+          <ion-skeleton-text animated class="view-advance--skeleton-value"></ion-skeleton-text>
+        </div>
+      }
+      @for (item of [1, 2, 3, 4, 5]; track $index) {
+        <div class="view-advance--skeleton-row">
+          <ion-skeleton-text animated class="view-advance--skeleton-label"></ion-skeleton-text>
+          <ion-skeleton-text animated class="view-advance--skeleton-value"></ion-skeleton-text>
+        </div>
+      }
+    </div>
   }
 </ion-content>

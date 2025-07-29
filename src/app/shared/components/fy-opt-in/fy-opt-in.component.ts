@@ -78,7 +78,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     private browserHandlerService: BrowserHandlerService,
     private platformHandlerService: PlatformHandlerService,
     private userEventService: UserEventService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get OptInFlowState(): typeof OptInFlowState {
@@ -177,7 +177,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
             this.toastWithoutCTA(
               this.translocoService.translate('fyOptIn.codeSent'),
               ToastType.SUCCESS,
-              'msb-success-with-camera-icon'
+              'msb-success-with-camera-icon',
             );
             this.ngOtpInput.setValue('');
           }
@@ -186,7 +186,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
           this.toastWithoutCTA(
             this.translocoService.translate('fyOptIn.otpLimitReached'),
             ToastType.FAILURE,
-            'msb-failure-with-camera-icon'
+            'msb-failure-with-camera-icon',
           );
           this.disableResendOtp = true;
         }
@@ -204,7 +204,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
             this.toastWithoutCTA(
               this.translocoService.translate('fyOptIn.otpLimitReached'),
               ToastType.FAILURE,
-              'msb-failure-with-camera-icon'
+              'msb-failure-with-camera-icon',
             );
             this.ngOtpInput?.setValue('');
             this.disableResendOtp = true;
@@ -212,20 +212,20 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
             this.toastWithoutCTA(
               this.translocoService.translate('fyOptIn.invalidMobileTryAgain'),
               ToastType.FAILURE,
-              'msb-failure-with-camera-icon'
+              'msb-failure-with-camera-icon',
             );
           } else if (errorMessage.includes('expired')) {
             this.toastWithoutCTA(
               this.translocoService.translate('fyOptIn.codeExpired'),
               ToastType.FAILURE,
-              'msb-failure-with-camera-icon'
+              'msb-failure-with-camera-icon',
             );
             this.ngOtpInput?.setValue('');
           } else {
             this.toastWithoutCTA(
               this.translocoService.translate('fyOptIn.invalidCode'),
               ToastType.FAILURE,
-              'msb-failure-with-camera-icon'
+              'msb-failure-with-camera-icon',
             );
             this.ngOtpInput?.setValue('');
           }
@@ -242,7 +242,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
       .pipe(
         switchMap(() => this.mobileNumberVerificationService.verifyOtp(otp)),
         switchMap(() => this.authService.refreshEou()),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe({
         complete: () => {
@@ -254,7 +254,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
           this.toastWithoutCTA(
             this.translocoService.translate('fyOptIn.invalidCode'),
             ToastType.FAILURE,
-            'msb-failure-with-camera-icon'
+            'msb-failure-with-camera-icon',
           );
           this.ngOtpInput.setValue('');
           this.verifyingOtp = false;
@@ -294,7 +294,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     this.trackingService.clickedOnHelpArticle();
     await this.browserHandlerService.openLinkWithToolbarColor(
       '#280a31',
-      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message'
+      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message',
     );
   }
 

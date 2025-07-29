@@ -46,7 +46,7 @@ export class FyPolicyViolationComponent implements OnInit {
     private modalController: ModalController,
     private policyService: PolicyService,
     private utilityService: UtilityService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   constructAdditionalApproverAction(): void {

@@ -42,7 +42,7 @@ export class ExpensePreviewComponent implements OnInit {
     private platform: Platform,
     private trackingService: TrackingService,
     private expensesService: ExpensesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {

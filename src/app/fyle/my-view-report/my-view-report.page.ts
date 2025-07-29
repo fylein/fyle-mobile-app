@@ -121,6 +121,8 @@ export class MyViewReportPage {
 
   submitReportLoader = false;
 
+  isLoading = true;
+
   showViewApproverModal = false;
 
   approvals: ReportApprovals[];
@@ -146,7 +148,7 @@ export class MyViewReportPage {
     private platformHandlerService: PlatformHandlerService,
     private spenderReportsService: SpenderReportsService,
     private launchDarklyService: LaunchDarklyService,
-    private dateWithTimezonePipe: DateWithTimezonePipe
+    private dateWithTimezonePipe: DateWithTimezonePipe,
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -158,7 +160,7 @@ export class MyViewReportPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -209,7 +211,7 @@ export class MyViewReportPage {
       this.totalCommentsCount = this.estatuses.filter((estatus) => estatus.creator_user_id !== 'SYSTEM').length;
 
       this.systemComments = this.estatuses.filter(
-        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id
+        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id,
       );
 
       this.type =
@@ -220,7 +222,7 @@ export class MyViewReportPage {
       this.systemEstatuses = this.statusService.createStatusMap(this.convertToEstatus(this.systemComments), this.type);
 
       this.userComments = this.estatuses.filter(
-        (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id)
+        (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id),
       );
 
       this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
@@ -239,11 +241,11 @@ export class MyViewReportPage {
 
   setupApproverToShow(report: Report): void {
     const filteredApprover = this.approvals.filter(
-      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
+      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id,
     );
     const highestRankApprover = this.approvals.reduce(
       (max, approver) => (approver.approver_order > max.approver_order ? approver : max),
-      this.approvals[0]
+      this.approvals[0],
     );
     this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
   }
@@ -254,18 +256,22 @@ export class MyViewReportPage {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.segmentValue = ReportPageSegment.EXPENSES;
+    this.isLoading = true;
 
     this.report$ = this.loadReportDetails$.pipe(
-      map(() => from(this.loaderService.showLoader())),
       switchMap(() =>
-        this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
+        this.spenderReportsService.getReportById(this.reportId).pipe(
+          finalize(() => {
+            this.isLoading = false;
+          }),
+        ),
       ),
       map((report) => {
         this.setupComments(report);
         this.approvals = report?.approvals;
         // filtering out disabled approvals from my view report page
         this.approvals = report?.approvals?.filter((approval) =>
-          [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
+          [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state),
         );
         if (this.showViewApproverModal) {
           this.approvals.sort((a, b) => a.approver_order - b.approver_order);
@@ -273,7 +279,7 @@ export class MyViewReportPage {
         }
         return report;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
     this.eou$ = from(this.authService.getEou());
 
@@ -291,9 +297,9 @@ export class MyViewReportPage {
     this.expenses$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),
       switchMap(() =>
-        this.expensesService.getReportExpenses(this.reportId).pipe(finalize(() => (this.isExpensesLoading = false)))
+        this.expensesService.getReportExpenses(this.reportId).pipe(finalize(() => (this.isExpensesLoading = false))),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     const permissions$: Observable<ReportPermissions> = this.spenderReportsService
@@ -321,7 +327,7 @@ export class MyViewReportPage {
           (orgSetting) =>
             orgSetting &&
             orgSetting.corporate_credit_card_settings?.enabled &&
-            orgSetting.pending_cct_expense_restriction?.enabled
+            orgSetting.pending_cct_expense_restriction?.enabled,
         ),
         switchMap((filterPendingTxn: boolean) =>
           this.expensesService.getAllExpenses({ queryParams }).pipe(
@@ -336,19 +342,19 @@ export class MyViewReportPage {
                 });
               }
               return expenses;
-            })
-          )
+            }),
+          ),
         ),
         map((expenses) => cloneDeep(expenses)),
         map((expenses: Expense[]) => {
           this.unreportedExpenses = expenses;
-        })
+        }),
       )
       .subscribe(noop);
 
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
+      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) })),
     );
 
     orgSettings$.subscribe((orgSettings) => {
@@ -361,7 +367,7 @@ export class MyViewReportPage {
       BackButtonActionPriority.MEDIUM,
       () => {
         this.router.navigate(['/', 'enterprise', 'my_reports']);
-      }
+      },
     );
   }
 
@@ -406,7 +412,7 @@ export class MyViewReportPage {
         switchMap((report) => {
           report.purpose = reportName;
           return this.reportService.updateReportPurpose(report);
-        })
+        }),
       )
       .subscribe(() => {
         this.loadReportDetails$.next();
@@ -432,8 +438,8 @@ export class MyViewReportPage {
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
         switchMap(
-          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>
-        )
+          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>,
+        ),
       )
       .subscribe((editReportNamePopoverDetails) => {
         const newReportName =
@@ -575,7 +581,7 @@ export class MyViewReportPage {
               navigate_back: true,
               remove_from_report: report.num_expenses > 1,
             },
-          ])
+          ]),
         );
       } else {
         this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
@@ -681,8 +687,8 @@ export class MyViewReportPage {
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
         switchMap(
           (addExpensesToReportModal) =>
-            addExpensesToReportModal.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
-        )
+            addExpensesToReportModal.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>,
+        ),
       )
       .subscribe((addExpensesToReportModalDetails) => {
         const selectedExpenseIds = addExpensesToReportModalDetails?.data?.selectedExpenseIds;
@@ -699,7 +705,7 @@ export class MyViewReportPage {
       this.loadReportTxns$.next();
       this.trackingService.addToExistingReport();
       this.unreportedExpenses = this.unreportedExpenses.filter(
-        (unreportedExpense) => !selectedExpenseIds.includes(unreportedExpense.id)
+        (unreportedExpense) => !selectedExpenseIds.includes(unreportedExpense.id),
       );
     });
   }

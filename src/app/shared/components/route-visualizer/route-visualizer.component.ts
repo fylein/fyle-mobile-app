@@ -35,14 +35,14 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
   constructor(
     private locationService: LocationService,
     private gmapsService: GmapsService,
-    private staticMapPropertiesService: StaticMapPropertiesService
+    private staticMapPropertiesService: StaticMapPropertiesService,
   ) {}
 
   ngOnChanges() {
     this.showCurrentLocation = false;
 
     const validLocations = this.mileageLocations.filter(
-      (location) => location && location.latitude && location.longitude
+      (location) => location && location.latitude && location.longitude,
     );
 
     if (validLocations.length === this.mileageLocations.length && this.mileageLocations.length >= 2) {
@@ -91,7 +91,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
     this.directionsPolyline$ = this.locationService.getDirections(
       mileageRoute.origin,
       mileageRoute.destination,
-      mileageRoute.waypoints
+      mileageRoute.waypoints,
     );
 
     this.directionsMapUrl$ = this.directionsPolyline$.pipe(
@@ -99,7 +99,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
         ...mileageRoute,
         directionsPolyline,
       })),
-      map((mileageRoute) => this.gmapsService.generateDirectionsMapUrl(mileageRoute))
+      map((mileageRoute) => this.gmapsService.generateDirectionsMapUrl(mileageRoute)),
     );
   }
 }

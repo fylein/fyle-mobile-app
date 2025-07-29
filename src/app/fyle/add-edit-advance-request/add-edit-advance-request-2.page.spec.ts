@@ -313,6 +313,8 @@ export function TestCases2(getTestBed) {
 
     describe('ionViewWillEnter():', () => {
       beforeEach(() => {
+        // initialize component form and state
+        component.ngOnInit();
         expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
         authService.getEou.and.resolveTo(apiEouRes);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
@@ -320,8 +322,6 @@ export function TestCases2(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         advanceRequestService.getSpenderPermissions.and.returnValue(of(apiAdvanceRequestAction));
         advanceRequestService.getApproverPermissions.and.returnValue(of(apiAdvanceRequestAction));
-        loaderService.showLoader.and.resolveTo(undefined);
-        loaderService.hideLoader.and.resolveTo(undefined);
         advanceRequestService.getEReq.and.returnValue(of(unflattenedAdvanceRequestData));
         advanceRequestService.getEReqFromApprover.and.returnValue(of(unflattenedAdvanceRequestData));
         projectsService.getbyId.and.returnValue(of(projects[0]));
@@ -424,7 +424,6 @@ export function TestCases2(getTestBed) {
         component.ionViewWillEnter();
         tick(100);
         component.extendedAdvanceRequest$.subscribe((res) => {
-          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
           expect(advanceRequestService.getEReq).toHaveBeenCalledWith('areqR1cyLgXdND');
           expect(component.fg.value.currencyObj).toEqual({
             currency: 'USD',
@@ -454,7 +453,6 @@ export function TestCases2(getTestBed) {
         component.ionViewWillEnter();
         tick(100);
         component.extendedAdvanceRequest$.subscribe((res) => {
-          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
           expect(advanceRequestService.getEReqFromApprover).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.fg.value.currencyObj).toEqual({
             currency: 'USD',

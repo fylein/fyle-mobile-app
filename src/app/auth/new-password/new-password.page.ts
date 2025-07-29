@@ -57,7 +57,7 @@ export class NewPasswordPage implements OnInit {
     private loginInfoService: LoginInfoService,
     private router: Router,
     private matSnackBar: MatSnackBar,
-    private snackbarPropertiesService: SnackbarPropertiesService
+    private snackbarPropertiesService: SnackbarPropertiesService,
   ) {}
 
   ngOnInit(): void {
@@ -83,7 +83,7 @@ export class NewPasswordPage implements OnInit {
         finalize(() => {
           this.isLoading = false;
           return from(this.loaderService.hideLoader());
-        })
+        }),
       )
       .subscribe(
         () => {
@@ -107,7 +107,7 @@ export class NewPasswordPage implements OnInit {
             panelClass: ['msb-failure'],
           });
           this.router.navigate(['/', 'auth', 'sign_in']);
-        }
+        },
       );
   }
 

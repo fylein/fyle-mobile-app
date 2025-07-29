@@ -38,7 +38,7 @@ export class DependentFieldModalComponent implements AfterViewInit {
     private modalController: ModalController,
     private dependentFieldsService: DependentFieldsService,
     private cdr: ChangeDetectorRef,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   getDependentFieldOptions(searchQuery: string): Observable<DependentFieldOption[]> {
@@ -57,13 +57,13 @@ export class DependentFieldModalComponent implements AfterViewInit {
             label: dependentFieldOption.expense_field_value,
             value: dependentFieldOption.expense_field_value,
             selected: false,
-          }))
+          })),
         ),
         map((dependentFieldOptions) => this.getFinalDependentFieldValues(dependentFieldOptions, this.currentSelection)),
         finalize(() => {
           this.isLoading = false;
           this.cdr.detectChanges();
-        })
+        }),
       );
   }
 
@@ -82,7 +82,7 @@ export class DependentFieldModalComponent implements AfterViewInit {
       switchMap((searchString: string) => {
         this.cdr.detectChanges();
         return this.getDependentFieldOptions(searchString);
-      })
+      }),
     );
     this.cdr.detectChanges();
   }
@@ -97,7 +97,7 @@ export class DependentFieldModalComponent implements AfterViewInit {
 
   getFinalDependentFieldValues(
     dependentFieldOptions: DependentFieldOption[],
-    currentSelection: string
+    currentSelection: string,
   ): DependentFieldOption[] {
     const nullOption = {
       label: this.translocoService.translate('dependentFieldModal.none'),
@@ -111,7 +111,7 @@ export class DependentFieldModalComponent implements AfterViewInit {
 
     const dependentFieldOptionsCopy = cloneDeep(dependentFieldOptions);
     let selectedOption = dependentFieldOptionsCopy.find(
-      (dependentFieldOption) => dependentFieldOption.value === currentSelection
+      (dependentFieldOption) => dependentFieldOption.value === currentSelection,
     );
 
     if (selectedOption) {

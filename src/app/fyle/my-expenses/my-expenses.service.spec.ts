@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MyExpensesService } from './my-expenses.service';
 import {
   expenseFiltersData1,
@@ -80,6 +81,7 @@ describe('MyExpensesService', () => {
         'services.myExpenses.no': 'No',
         'services.myExpenses.policyViolated': 'Policy Violated',
         'services.myExpenses.cannotReport': 'Cannot Report',
+        'services.myExpenses.blocked': 'Blocked',
         'services.myExpenses.dateNewToOldSort': 'Date - New to Old',
         'services.myExpenses.dateOldToNewSort': 'Date - Old to New',
         'services.myExpenses.amountHighToLowSort': 'Amount - High to Low',
@@ -95,6 +97,7 @@ describe('MyExpensesService', () => {
     });
 
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       providers: [MyExpensesService, { provide: TranslocoService, useValue: translocoServiceSpy }],
     });
 
@@ -129,7 +132,7 @@ describe('MyExpensesService', () => {
 
       expect(myExpensesService.convertSelectedSortFitlersToFilters).toHaveBeenCalledOnceWith(
         sortBy,
-        expenseFiltersData3
+        expenseFiltersData3,
       );
 
       expect(convertedFilters).toEqual(expenseFiltersData3);
@@ -143,7 +146,7 @@ describe('MyExpensesService', () => {
 
       expect(myExpensesService.convertSelectedSortFitlersToFilters).toHaveBeenCalledOnceWith(
         sortBy,
-        expenseFiltersData4
+        expenseFiltersData4,
       );
 
       expect(convertedFilters).toEqual(expenseFiltersData4);
@@ -182,7 +185,7 @@ describe('MyExpensesService', () => {
     const filterPill = [];
     myExpensesService.generateTypeFilterPills(
       { ...expenseFiltersData1, type: [ExpenseType.EXPENSE, ExpenseType.PER_DIEM, ExpenseType.MILEAGE, 'custom'] },
-      filterPill
+      filterPill,
     );
     expect(filterPill).toEqual([
       { label: 'Expense Type', type: 'type', value: 'Regular Expenses, Per Diem, Mileage, custom' },
@@ -412,7 +415,8 @@ describe('MyExpensesService', () => {
   });
 
   it('getFilters(): should return all the filters', () => {
-    const filters = myExpensesService.getFilters();
+    const orgSettings = { is_new_critical_policy_violation_flow_enabled: true };
+    const filters = myExpensesService.getFilters(orgSettings);
 
     expect(filters).toEqual(filterOptions2);
   });
@@ -436,15 +440,15 @@ describe('MyExpensesService', () => {
 
     expect(myExpensesService.convertTxnDtSortToSelectedFilters).toHaveBeenCalledOnceWith(
       expenseFiltersData1,
-      selectedFilters9
+      selectedFilters9,
     );
     expect(myExpensesService.convertAmountSortToSelectedFilters).toHaveBeenCalledOnceWith(
       expenseFiltersData1,
-      selectedFilters9
+      selectedFilters9,
     );
     expect(myExpensesService.convertCategorySortToSelectedFilters).toHaveBeenCalledOnceWith(
       expenseFiltersData1,
-      selectedFilters9
+      selectedFilters9,
     );
   });
 
@@ -467,7 +471,7 @@ describe('MyExpensesService', () => {
 
       myExpensesService.convertCategorySortToSelectedFilters(
         { ...expenseFiltersData1, sortDir: 'desc' },
-        generatedFilters
+        generatedFilters,
       );
 
       expect(generatedFilters).toEqual([

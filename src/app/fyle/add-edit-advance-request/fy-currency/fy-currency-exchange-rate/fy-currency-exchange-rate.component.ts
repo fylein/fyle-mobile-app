@@ -22,13 +22,13 @@ import { from } from 'rxjs';
   standalone: false,
 })
 export class FyCurrencyExchangeRateComponent implements OnInit {
-  @Input() amount;
+  @Input() amount!: number;
 
-  @Input() currentCurrency;
+  @Input() currentCurrency!: string;
 
-  @Input() newCurrency;
+  @Input() newCurrency!: string;
 
-  @Input() txnDt;
+  @Input() txnDt!: Date;
 
   fg: UntypedFormGroup;
 
@@ -36,12 +36,12 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
     private modalController: ModalController,
     private currencyService: CurrencyService,
     private formBuilder: UntypedFormBuilder,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
   ) {}
 
-  toFixed(num, fixed) {
+  toFixed(num: number, fixed: number): string {
     const re = new RegExp('^-?\\d+(?:.\\d{0,' + (fixed || -1) + '})?');
-    return num.toString().match(re)[0];
+    return num.toString().match(re)?.[0] || '0';
   }
 
   ngOnInit() {
@@ -54,9 +54,9 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() =>
-          this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date())
+          this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date()),
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe((exchangeRate) => {
         this.fg.setValue({
@@ -64,7 +64,7 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
           exchangeRate,
           homeCurrencyAmount: this.currencyService.getAmountWithCurrencyFraction(
             exchangeRate * this.amount,
-            this.currentCurrency
+            this.currentCurrency,
           ),
         });
       });
@@ -103,7 +103,7 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
           this.toFixed(+this.fg.controls.homeCurrencyAmount.value / +this.fg.controls.newCurrencyAmount.value, 7),
           {
             emitEvent: false,
-          }
+          },
         );
       }
     });
