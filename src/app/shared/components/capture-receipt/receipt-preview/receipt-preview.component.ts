@@ -53,7 +53,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     private imagePicker: ImagePicker,
     private trackingService: TrackingService,
     private router: Router,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   async openCropReceiptModal(): Promise<void> {
@@ -131,7 +131,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
       BackButtonActionPriority.HIGH,
       () => {
         this.closeModal();
-      }
+      },
     );
     this.swiper?.swiperRef.update();
   }

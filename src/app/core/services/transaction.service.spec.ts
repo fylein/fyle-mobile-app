@@ -225,12 +225,12 @@ describe('TransactionService', () => {
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
@@ -398,7 +398,7 @@ describe('TransactionService', () => {
   });
 
   it('generateStateOrFilter(): should generate state Or filters', () => {
-    const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'CANNOT_REPORT', 'DRAFT'] };
+    const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'BLOCKED', 'CANNOT_REPORT', 'DRAFT'] };
     const params = {
       or: [
         '(and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT))',
@@ -409,6 +409,7 @@ describe('TransactionService', () => {
     const stateOrFilter = [
       'and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))',
       'and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))',
+      'tx_state.in.(UNREPORTABLE)',
       'tx_policy_amount.lt.0.0001',
       'tx_state.in.(DRAFT)',
     ];
@@ -454,7 +455,7 @@ describe('TransactionService', () => {
     expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledOnceWith(
       expenseData1.tx_skip_reimbursement,
       expenseData1.source_account_type,
-      etxnPaymentMode.key
+      etxnPaymentMode.key,
     );
   });
 
@@ -464,7 +465,7 @@ describe('TransactionService', () => {
       const txnPaymentMode = 'reimbursable';
       const txnSourceAccountType = AccountType.PERSONAL;
       expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
       ).toBeTrue();
     });
 
@@ -473,7 +474,7 @@ describe('TransactionService', () => {
       const txnPaymentMode = 'nonReimbursable';
       const txnSourceAccountType = AccountType.PERSONAL;
       expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
       ).toBeTrue();
     });
 
@@ -482,7 +483,7 @@ describe('TransactionService', () => {
       const txnPaymentMode = 'advance';
       const txnSourceAccountType = AccountType.ADVANCE;
       expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
       ).toBeTrue();
     });
 
@@ -491,7 +492,7 @@ describe('TransactionService', () => {
       const txnPaymentMode = 'ccc';
       const txnSourceAccountType = AccountType.CCC;
       expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
       ).toBeTrue();
     });
   });
@@ -743,14 +744,14 @@ describe('TransactionService', () => {
     it('should return custom date params with start date only', () => {
       // @ts-ignore
       expect(transactionService.generateCustomDateParams(newQueryParams, filtersWithStartDateOnly)).toEqual(
-        customDateParamsWithStartDateOnly
+        customDateParamsWithStartDateOnly,
       );
     });
 
     it('should return custom date params with end date only', () => {
       // @ts-ignore
       expect(transactionService.generateCustomDateParams(newQueryParams, filtersWithEndDateOnly)).toEqual(
-        customDateParamsWithEndDateOnly
+        customDateParamsWithEndDateOnly,
       );
     });
 
@@ -914,13 +915,13 @@ describe('TransactionService', () => {
   describe('getExpenseDeletionMessage():', () => {
     it('should return expense deletion message for single', () => {
       expect(transactionService.getExpenseDeletionMessage(apiExpenseRes)).toEqual(
-        'You are about to permanently delete 1 selected expense.'
+        'You are about to permanently delete 1 selected expense.',
       );
     });
 
     it('getExpenseDeletionMessage(): should return expense deletion message for multiple expenses', () => {
       expect(transactionService.getExpenseDeletionMessage(expenseList2)).toEqual(
-        'You are about to permanently delete 2 selected expenses.'
+        'You are about to permanently delete 2 selected expenses.',
       );
     });
   });
@@ -928,19 +929,19 @@ describe('TransactionService', () => {
   describe('getCCCExpenseMessage():', () => {
     it('should return ccc expense message for single ccc expense', () => {
       expect(transactionService.getCCCExpenseMessage(apiExpenseRes, 1)).toEqual(
-        "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection."
+        "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.",
       );
     });
 
     it('should return ccc expense message for multiple ccc expenses', () => {
       expect(transactionService.getCCCExpenseMessage(expenseList2, 2)).toEqual(
-        "There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection."
+        "There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection.",
       );
     });
 
     it('should return ccc expense message for with only ccc expenses selected', () => {
       expect(transactionService.getCCCExpenseMessage(null, 3)).toEqual(
-        "There are 3 corporate card expenses from the selection which can't be deleted."
+        "There are 3 corporate card expenses from the selection which can't be deleted.",
       );
     });
   });
@@ -951,13 +952,13 @@ describe('TransactionService', () => {
         "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.";
       const deletableExpensesMessage = 'You are about to permanently delete 1 selected expense.';
       expect(
-        transactionService.getDeleteDialogBody(apiExpenseRes, 1, deletableExpensesMessage, cccExpensesMessage)
+        transactionService.getDeleteDialogBody(apiExpenseRes, 1, deletableExpensesMessage, cccExpensesMessage),
       ).toEqual(
         `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
         <li>Once deleted, the action can't be reversed.</li>
         </ul>
-        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`
+        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`,
       );
     });
 
@@ -968,7 +969,7 @@ describe('TransactionService', () => {
       <li>${deletableExpensesMessage}</li>
       <li>Once deleted, the action can't be reversed.</li>
       </ul>
-      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`
+      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`,
       );
     });
 
@@ -978,7 +979,7 @@ describe('TransactionService', () => {
       expect(transactionService.getDeleteDialogBody([], 1, null, cccExpensesMessage)).toEqual(
         `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
-      </ul>`
+      </ul>`,
       );
     });
   });
@@ -1022,7 +1023,7 @@ describe('TransactionService', () => {
       expect(paymentModesService.getDefaultAccount).toHaveBeenCalledOnceWith(
         orgSettingsData,
         accountsData,
-        employeeSettingsData
+        employeeSettingsData,
       );
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);

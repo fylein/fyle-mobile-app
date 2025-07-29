@@ -27,7 +27,7 @@ export class NavigationFooterComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private trackingService: TrackingService,
     private approverExpensesService: ApproverExpensesService,
-    private spenderExpensesService: SpenderExpensesService
+    private spenderExpensesService: SpenderExpensesService,
   ) {}
 
   ngOnInit(): void {

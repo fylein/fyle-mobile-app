@@ -87,7 +87,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--purpose'))).toEqual(
-      component.txnDetails.description
+      component.txnDetails.description,
     );
     expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--currency'))).toEqual('$');
     expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--amount'))).toEqual('200.00');
@@ -117,7 +117,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
         const expenseDetailsModalSpy = jasmine.createSpyObj('expenseDetailsModal', ['present']) as any;
         expenseDetailsModalSpy.present.and.callThrough();
         resolve(expenseDetailsModalSpy);
-      })
+      }),
     );
     const cssClass = 'expense-preview-modal';
 

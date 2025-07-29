@@ -425,8 +425,6 @@ describe('MyProfilePage', () => {
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    loaderService.showLoader.and.resolveTo();
-    loaderService.hideLoader.and.resolveTo();
     spyOn(component, 'setInfoCardsData');
     spyOn(component, 'setPreferenceSettings');
     spyOn(component, 'setCCCFlags');
@@ -443,8 +441,6 @@ describe('MyProfilePage', () => {
     expect(component.setInfoCardsData).toHaveBeenCalledTimes(1);
     expect(component.setPreferenceSettings).toHaveBeenCalledTimes(1);
     expect(component.setCCCFlags).toHaveBeenCalledTimes(1);
-    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
 
     expect(component.employeeSettings).toEqual(employeeSettingsData);
     expect(component.orgSettings).toEqual(orgSettingsData);

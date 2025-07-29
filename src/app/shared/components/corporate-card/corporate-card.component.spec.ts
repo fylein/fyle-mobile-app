@@ -63,7 +63,7 @@ describe('CorporateCardComponent', () => {
     component = fixture.componentInstance;
 
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {

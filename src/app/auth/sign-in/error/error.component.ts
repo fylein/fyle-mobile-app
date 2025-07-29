@@ -17,7 +17,7 @@ export class ErrorComponent implements OnInit {
   constructor(
     private popoverController: PopoverController,
     private router: Router,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {

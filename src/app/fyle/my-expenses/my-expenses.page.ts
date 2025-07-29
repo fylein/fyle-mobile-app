@@ -243,7 +243,7 @@ export class MyExpensesPage implements OnInit {
     private featureConfigService: FeatureConfigService,
     private extendQueryParamsService: ExtendQueryParamsService,
     private footerService: FooterService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -359,7 +359,7 @@ export class MyExpensesPage implements OnInit {
         const queryParams = cloneDeep(params.queryParams) || {};
 
         queryParams.report_id = (queryParams.report_id || 'is.null') as string;
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
 
         if (queryParams.or) {
           const hasExpenseState =
@@ -373,9 +373,9 @@ export class MyExpensesPage implements OnInit {
           map((stats) => ({
             count: stats.data.count,
             amount: stats.data.total_amount,
-          }))
+          })),
         );
-      })
+      }),
     );
   }
 
@@ -442,7 +442,7 @@ export class MyExpensesPage implements OnInit {
           cardNickname: card.nickname,
         }));
         return simplifiedCards;
-      })
+      }),
     );
   }
 
@@ -487,8 +487,8 @@ export class MyExpensesPage implements OnInit {
     this.isInstaFyleEnabled$ = getEmployeeSettings$.pipe(
       map(
         (employeeSettings) =>
-          employeeSettings?.insta_fyle_settings?.allowed && employeeSettings?.insta_fyle_settings?.enabled
-      )
+          employeeSettings?.insta_fyle_settings?.allowed && employeeSettings?.insta_fyle_settings?.enabled,
+      ),
     );
 
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
@@ -521,7 +521,7 @@ export class MyExpensesPage implements OnInit {
     })
       .pipe(
         filter(({ isConnected }) => isConnected),
-        switchMap(() => this.getCardDetail())
+        switchMap(() => this.getCardDetail()),
       )
       .subscribe((cards) => {
         const cardNumbers: Array<{ label: string; value: string }> = [];
@@ -582,7 +582,7 @@ export class MyExpensesPage implements OnInit {
       .pipe(
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
-        debounceTime(400)
+        debounceTime(400),
       )
       .subscribe((searchString) => {
         const currentParams = this.loadExpenses$.getValue();
@@ -598,7 +598,7 @@ export class MyExpensesPage implements OnInit {
         let queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
 
         if (params.searchString) {
           queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
@@ -631,9 +631,9 @@ export class MyExpensesPage implements OnInit {
             }
             this.acc = this.acc.concat(res as PlatformExpense[]);
             return this.acc;
-          })
+          }),
         );
-      })
+      }),
     );
 
     /**
@@ -648,11 +648,11 @@ export class MyExpensesPage implements OnInit {
         } else {
           return this.pollDEIncompleteExpenses(dEincompleteExpenseIds, expenses).pipe(
             startWith(expenses),
-            timeout(30000)
+            timeout(30000),
           );
         }
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.count$ = this.loadExpenses$.pipe(
@@ -660,16 +660,16 @@ export class MyExpensesPage implements OnInit {
         const queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
         return this.expenseService.getExpensesCount(queryParams);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isNewUser$ = this.expenseService.getExpensesCount({ offset: 0, limit: 200 }).pipe(map((res) => res === 0));
 
     const paginatedScroll$ = this.myExpenses$.pipe(
-      switchMap((etxns) => this.count$.pipe(map((count) => count > etxns.length)))
+      switchMap((etxns) => this.count$.pipe(map((count) => count > etxns.length))),
     );
 
     this.isInfiniteScrollRequired$ = this.loadExpenses$.pipe(switchMap(() => paginatedScroll$));
@@ -679,11 +679,11 @@ export class MyExpensesPage implements OnInit {
     this.allExpenseCountHeader$ = this.loadExpenses$.pipe(
       switchMap(() =>
         this.expenseService.getExpenseStats({
-          state: 'in.(COMPLETE,DRAFT)',
+          state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
           report_id: 'is.null',
-        })
+        }),
       ),
-      map((stats) => stats.data.count)
+      map((stats) => stats.data.count),
     );
 
     this.draftExpensesCount$ = this.loadExpenses$.pipe(
@@ -691,9 +691,9 @@ export class MyExpensesPage implements OnInit {
         this.expenseService.getExpenseStats({
           state: 'in.(DRAFT)',
           report_id: 'is.null',
-        })
+        }),
       ),
-      map((stats) => stats.data.count)
+      map((stats) => stats.data.count),
     );
 
     this.loadExpenses$.subscribe(() => {
@@ -712,7 +712,7 @@ export class MyExpensesPage implements OnInit {
       this.filters = Object.assign(
         {},
         this.filters,
-        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<ExpenseFilters>
+        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<ExpenseFilters>,
       );
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -756,9 +756,11 @@ export class MyExpensesPage implements OnInit {
             (openReport) =>
               !openReport.approvals ||
               (openReport.approvals &&
-                !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
-          )
-        )
+                !(
+                  JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1
+                )),
+          ),
+        ),
       );
     this.doRefresh();
 
@@ -883,7 +885,7 @@ export class MyExpensesPage implements OnInit {
               this.doRefresh();
               this.pendingTransactions = [];
             }
-          })
+          }),
         )
         .subscribe(noop);
     }
@@ -988,7 +990,8 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string): Promise<void> {
-    const filterMain = this.myExpensesService.getFilters();
+    const orgSettings = await this.orgSettings$.pipe(take(1)).toPromise();
+    const filterMain = await this.myExpensesService.getFilters(orgSettings);
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
         name: this.translocoService.translate('myExpensesPage.filters.cardsEndingIn'),
@@ -1188,7 +1191,7 @@ export class MyExpensesPage implements OnInit {
   isSelectionContainsException(
     policyViolationsCount: number,
     draftCount: number,
-    pendingTransactionsCount: number
+    pendingTransactionsCount: number,
   ): boolean {
     return (
       policyViolationsCount > 0 ||
@@ -1200,7 +1203,7 @@ export class MyExpensesPage implements OnInit {
   unreportableExpenseExceptionHandler(
     draftCount: number,
     policyViolationsCount: number,
-    pendingTransactionsCount: number
+    pendingTransactionsCount: number,
   ): void {
     // This Map contains different messages based on different conditions , the first character in map key is draft, second is policy violation, third is pending transactions
     // draft, policy, pending
@@ -1229,10 +1232,10 @@ export class MyExpensesPage implements OnInit {
     draftCount: number,
     policyViolationsCount: number,
     pendingTransactionsCount: number,
-    reportType: 'oldReport' | 'newReport'
+    reportType: 'oldReport' | 'newReport',
   ): void {
     const title = this.translocoService.translate(
-      'myExpensesPage.reportableExpenseDialogHandler.cantAddTheseExpensesTitle'
+      'myExpensesPage.reportableExpenseDialogHandler.cantAddTheseExpensesTitle',
     );
     let message = '';
 
@@ -1251,13 +1254,35 @@ export class MyExpensesPage implements OnInit {
       } ${this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.withPendingTransactions')}.`;
     }
     if (policyViolationsCount > 0) {
-      message += `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
-        policyViolationsCount > 1
-          ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
-          : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
-      } ${this.translocoService.translate(
-        'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations'
-      )}.`;
+      // Get org settings and handle the policy violation text based on the setting
+      this.orgSettings$.pipe(take(1)).subscribe((orgSettings) => {
+        const isNewFlowEnabled = orgSettings?.is_new_critical_policy_violation_flow_enabled;
+
+        let policyViolationText: string;
+        if (isNewFlowEnabled) {
+          // Use new blocked state translation keys
+          policyViolationText =
+            policyViolationsCount > 1
+              ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.areBlockedState')
+              : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.isBlockedState');
+        } else {
+          // Use existing critical policy violations translation key
+          policyViolationText = this.translocoService.translate(
+            'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations',
+          );
+        }
+
+        const finalMessage =
+          message +
+          `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
+            policyViolationsCount > 1
+              ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
+              : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
+          } ${policyViolationText}.`;
+
+        this.openCriticalPolicyViolationPopOver({ title, message: finalMessage, reportType });
+      });
+      return;
     }
 
     this.openCriticalPolicyViolationPopOver({ title, message, reportType });
@@ -1270,22 +1295,24 @@ export class MyExpensesPage implements OnInit {
     if (!selectedElements.length) {
       this.showNonReportableExpenseSelectedToast(
         this.translocoService.translate(
-          'myExpensesPage.openCreateReportWithSelectedIds.pleaseSelectExpensesToBeReported'
-        )
+          'myExpensesPage.openCreateReportWithSelectedIds.pleaseSelectExpensesToBeReported',
+        ),
       );
       return;
     }
-    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
-      this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense)
+    const expensesWithCriticalPolicyViolations = selectedElements.filter(
+      (expense) =>
+        this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense) ||
+        this.sharedExpenseService.isExpenseUnreportable(expense),
     );
     const expensesInDraftState = selectedElements.filter((expense) =>
-      this.sharedExpenseService.isExpenseInDraft(expense)
+      this.sharedExpenseService.isExpenseInDraft(expense),
     );
     let expensesWithPendingTransactions = [];
     //only handle pending txns if it is enabled from settings
     if (this.restrictPendingTransactionsEnabled) {
       expensesWithPendingTransactions = selectedElements.filter((expense) =>
-        this.sharedExpenseService.doesExpenseHavePendingCardTransaction(expense)
+        this.sharedExpenseService.doesExpenseHavePendingCardTransaction(expense),
       );
     }
 
@@ -1297,7 +1324,7 @@ export class MyExpensesPage implements OnInit {
       this.unreportableExpenseExceptionHandler(
         noOfExpensesInDraftState,
         noOfExpensesWithCriticalPolicyViolations,
-        noOfExpensesWithPendingTransactions
+        noOfExpensesWithPendingTransactions,
       );
     } else {
       this.trackingService.addToReport();
@@ -1309,7 +1336,7 @@ export class MyExpensesPage implements OnInit {
           noOfExpensesInDraftState,
           noOfExpensesWithCriticalPolicyViolations,
           noOfExpensesWithPendingTransactions,
-          reportType
+          reportType,
         );
       } else {
         if (reportType === 'oldReport') {
@@ -1324,7 +1351,7 @@ export class MyExpensesPage implements OnInit {
   async showNewReportModal(): Promise<void> {
     const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(
       this.selectedElements,
-      this.restrictPendingTransactionsEnabled
+      this.restrictPendingTransactionsEnabled,
     );
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
@@ -1358,7 +1385,7 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.report_id = queryParams.report_id || 'is.null';
 
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
 
         const orderByParams =
           params.sortParam && params.sortDir
@@ -1378,11 +1405,11 @@ export class MyExpensesPage implements OnInit {
                 } else {
                   return true;
                 }
-              })
-            )
+              }),
+            ),
           );
       }),
-      map((etxns) => etxns.map((etxn) => etxn.id))
+      map((etxns) => etxns.map((etxn) => etxn.id)),
     );
     from(this.loaderService.showLoader())
       .pipe(
@@ -1398,10 +1425,10 @@ export class MyExpensesPage implements OnInit {
             map((expense) => ({
               inital: expense,
               allIds,
-            }))
+            })),
           );
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(({ inital, allIds }) => {
         let category: string;
@@ -1497,17 +1524,17 @@ export class MyExpensesPage implements OnInit {
 
   addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
     return from(
-      this.loaderService.showLoader(this.translocoService.translate('myExpensesPage.loader.addingExpenseToReport'))
+      this.loaderService.showLoader(this.translocoService.translate('myExpensesPage.loader.addingExpenseToReport')),
     ).pipe(
       switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
-      finalize(() => this.loaderService.hideLoader())
+      finalize(() => this.loaderService.hideLoader()),
     );
   }
 
   showOldReportsMatBottomSheet(): void {
     const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(
       this.selectedElements,
-      this.restrictPendingTransactionsEnabled
+      this.restrictPendingTransactionsEnabled,
     );
     const selectedExpensesId = reportAbleExpenses.map((expenses) => expenses.id);
 
@@ -1526,18 +1553,18 @@ export class MyExpensesPage implements OnInit {
           } else {
             return of(null);
           }
-        })
+        }),
       )
       .subscribe((report: Report) => {
         if (report) {
           let message = '';
           if (report.state.toLowerCase() === 'draft') {
             message = this.translocoService.translate(
-              'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToExistingDraftReport'
+              'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToExistingDraftReport',
             );
           } else {
             message = this.translocoService.translate(
-              'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToReportSuccess'
+              'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToReportSuccess',
             );
           }
           this.showAddToReportSuccessToast({ message, report });
@@ -1608,7 +1635,7 @@ export class MyExpensesPage implements OnInit {
           totalDeleteLength,
           this.cccExpenses,
           expenseDeletionMessage,
-          cccExpensesMessage
+          cccExpensesMessage,
         ),
         ctaText,
         disableDelete: totalDeleteLength === 0 ? true : false,
@@ -1646,7 +1673,7 @@ export class MyExpensesPage implements OnInit {
         this.trackingService.showToastMessage({ ToastContent: message });
       } else {
         const message = this.translocoService.translate(
-          'myExpensesPage.openDeleteExpensesPopover.couldNotDeleteExpenses'
+          'myExpensesPage.openDeleteExpensesPopover.couldNotDeleteExpenses',
         );
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
@@ -1683,13 +1710,13 @@ export class MyExpensesPage implements OnInit {
               const queryParams = params.queryParams || {};
 
               queryParams.report_id = queryParams.report_id || 'is.null';
-              queryParams.state = 'in.(COMPLETE,DRAFT)';
+              queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
               if (params.searchString) {
                 queryParams.q = params?.searchString + ':*';
               }
               return queryParams;
             }),
-            switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))
+            switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams })),
           )
           .subscribe((allExpenses) => {
             this.selectedElements = this.selectedElements.concat(allExpenses);
@@ -1702,7 +1729,7 @@ export class MyExpensesPage implements OnInit {
             this.isReportableExpensesSelected =
               this.sharedExpenseService.getReportableExpenses(
                 this.selectedElements,
-                this.restrictPendingTransactionsEnabled
+                this.restrictPendingTransactionsEnabled,
               ).length > 0;
             this.setExpenseStatsOnSelect();
             this.checkDeleteDisabled().pipe(take(1)).subscribe();
@@ -1830,7 +1857,7 @@ export class MyExpensesPage implements OnInit {
         } else if (!isConnected) {
           this.isDeleteDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
         }
-      })
+      }),
     );
   }
 
@@ -1878,7 +1905,7 @@ export class MyExpensesPage implements OnInit {
   private updateExpensesList(
     initialExpenses: PlatformExpense[],
     updatedExpenses: PlatformExpense[],
-    dEincompleteExpenseIds: string[]
+    dEincompleteExpenseIds: string[],
   ): PlatformExpense[] {
     const updatedExpensesMap = new Map(updatedExpenses.map((expense) => [expense.id, expense]));
 
@@ -1903,7 +1930,7 @@ export class MyExpensesPage implements OnInit {
    */
   private pollDEIncompleteExpenses(
     dEincompleteExpenseIds: string[],
-    expenses: PlatformExpense[]
+    expenses: PlatformExpense[],
   ): Observable<PlatformExpense[]> {
     let updatedExpensesList = expenses;
     // Create a stop signal that emits after 30 seconds
@@ -1916,12 +1943,12 @@ export class MyExpensesPage implements OnInit {
             updatedExpensesList = this.updateExpensesList(updatedExpensesList, updatedExpenses, dEincompleteExpenseIds);
             dEincompleteExpenseIds = this.filterDEIncompleteExpenses(updatedExpenses);
             return updatedExpensesList;
-          })
+          }),
         );
       }),
       takeWhile(() => dEincompleteExpenseIds.length > 0, true),
       takeUntil(stopPolling$),
-      takeUntil(this.onPageExit$)
+      takeUntil(this.onPageExit$),
     );
   }
 }

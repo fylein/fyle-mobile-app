@@ -39,7 +39,7 @@ export class AddApproversPopoverComponent {
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
     private approverReportsService: ApproverReportsService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   async openModal(): Promise<void> {
@@ -90,7 +90,7 @@ export class AddApproversPopoverComponent {
             return (acc as Report[]).concat(curr as Report);
           }
         }, []),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(() => {
         this.popoverController.dismiss({ reload: true });

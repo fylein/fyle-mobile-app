@@ -160,7 +160,7 @@ describe('ExpensesService', () => {
 
     it('should return vendor details per diem expense for 0 days', () => {
       expect(service.getVendorDetails({ ...perDiemExpenseWithMultipleNumDays, per_diem_num_days: null })).toContain(
-        '0'
+        '0',
       );
     });
   });
@@ -260,7 +260,7 @@ describe('ExpensesService', () => {
     expect(service.isExpenseInPaymentMode).toHaveBeenCalledOnceWith(
       expenseData.is_reimbursable,
       expenseData.source_account.type,
-      expensePaymentMode.key
+      expensePaymentMode.key,
     );
   });
 
@@ -376,7 +376,7 @@ describe('ExpensesService', () => {
       const expensePaymentMode = 'reimbursable';
       const expenseSourceAccountType = AccountType.PERSONAL_CASH_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode),
       ).toBeTrue();
     });
 
@@ -385,7 +385,7 @@ describe('ExpensesService', () => {
       const expensePaymentMode = 'nonReimbursable';
       const expenseSourceAccountType = AccountType.PERSONAL_CASH_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode),
       ).toBeTrue();
     });
 
@@ -394,7 +394,7 @@ describe('ExpensesService', () => {
       const expensePaymentMode = 'advance';
       const expenseSourceAccountType = AccountType.PERSONAL_ADVANCE_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode),
       ).toBeTrue();
     });
 
@@ -403,7 +403,7 @@ describe('ExpensesService', () => {
       const expensePaymentMode = 'ccc';
       const expenseSourceAccountType = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode),
       ).toBeTrue();
     });
   });
@@ -490,7 +490,7 @@ describe('ExpensesService', () => {
       const result = service.getCCCExpenseMessage([expenseData, mileageExpense], 1);
 
       expect(result).toEqual(
-        `There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.`
+        `There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.`,
       );
     });
 
@@ -498,7 +498,7 @@ describe('ExpensesService', () => {
       const result = service.getCCCExpenseMessage([expenseData, mileageExpense], 2);
 
       expect(result).toEqual(
-        `There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection.`
+        `There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection.`,
       );
     });
 
@@ -654,6 +654,7 @@ describe('ExpensesService', () => {
       expect(result).toEqual([
         'and(state.in.(COMPLETE),or(policy_amount.is.null,policy_amount.gt.0.0001))',
         'and(is_policy_flagged.eq.true,or(policy_amount.is.null,policy_amount.gt.0.0001))',
+        'state.in.(UNREPORTABLE)',
         'policy_amount.lt.0.0001',
         'state.in.(DRAFT)',
       ]);

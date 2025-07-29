@@ -159,7 +159,7 @@ export class ViewExpensePage {
     private approverFileService: ApproverFileService,
     private approverReportsService: ApproverReportsService,
     private spenderExpenseCommentService: SpenderExpenseCommentService,
-    private approverExpenseCommentService: ApproverExpenseCommentService
+    private approverExpenseCommentService: ApproverExpenseCommentService,
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -175,7 +175,7 @@ export class ViewExpensePage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -278,9 +278,9 @@ export class ViewExpensePage {
       switchMap(() =>
         this.view === ExpenseView.team
           ? this.approverExpensesService.getExpenseById(this.expenseId)
-          : this.spenderExpensesService.getExpenseById(this.expenseId)
+          : this.spenderExpensesService.getExpenseById(this.expenseId),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.expenseWithoutCustomProperties$.subscribe((res) => {
@@ -291,15 +291,15 @@ export class ViewExpensePage {
       concatMap((expense) =>
         this.customInputsService.fillCustomProperties(
           expense.category_id,
-          expense.custom_fields as Partial<CustomInput>[]
-        )
+          expense.custom_fields as Partial<CustomInput>[],
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.expense$ = this.expenseWithoutCustomProperties$.pipe(
       finalize(() => this.loaderService.hideLoader()),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
@@ -312,9 +312,9 @@ export class ViewExpensePage {
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           expense.custom_fields as Partial<CustomInput>[],
-          expenseFields.project_id[0]?.id
-        )
-      )
+          expenseFields.project_id[0]?.id,
+        ),
+      ),
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
@@ -325,10 +325,10 @@ export class ViewExpensePage {
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           expense.custom_fields as Partial<CustomInput>[],
-          expenseFields.cost_center_id[0]?.id
-        )
+          expenseFields.cost_center_id[0]?.id,
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.expense$.subscribe((expense) => {
@@ -357,7 +357,7 @@ export class ViewExpensePage {
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown = this.orgSettings.projects?.enabled && (!!expense.project?.name || isProjectMandatory);
-        })
+        }),
       )
       .subscribe(noop);
 
@@ -365,9 +365,9 @@ export class ViewExpensePage {
       concatMap((expense) =>
         this.view === ExpenseView.team
           ? this.approverExpenseCommentService.getTransformedComments(expense.id)
-          : this.spenderExpenseCommentService.getTransformedComments(expense.id)
+          : this.spenderExpenseCommentService.getTransformedComments(expense.id),
       ),
-      map((comments) => comments.filter(this.isPolicyComment))
+      map((comments) => comments.filter(this.isPolicyComment)),
     );
 
     this.comments$ =
@@ -378,17 +378,17 @@ export class ViewExpensePage {
     this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
       switchMap((expense) =>
-        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense })))
+        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense }))),
       ),
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
-      )
+          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state),
+      ),
     );
 
     this.isAmountCapped$ = this.expense$.pipe(
-      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
+      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount)),
     );
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
@@ -404,12 +404,12 @@ export class ViewExpensePage {
       .pipe(
         map((expenseFieldsMap) => {
           this.merchantFieldName = expenseFieldsMap.vendor_id[0]?.field_name;
-        })
+        }),
       )
       .subscribe(noop);
 
     this.isCriticalPolicyViolated$ = this.expense$.pipe(
-      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
+      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001),
     );
 
     this.getPolicyDetails(this.expenseId);
@@ -442,7 +442,7 @@ export class ViewExpensePage {
         });
 
         return fileObjs;
-      })
+      }),
     );
 
     this.attachments$ = editExpenseAttachments;
@@ -501,7 +501,7 @@ export class ViewExpensePage {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => this.attachments$),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(async (attachments) => {
         const attachmentsModal = await this.modalController.create({

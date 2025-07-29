@@ -27,7 +27,10 @@ export class FyInputPopoverComponent implements AfterViewInit {
 
   error: string;
 
-  constructor(private popoverController: PopoverController, private translocoService: TranslocoService) {}
+  constructor(
+    private popoverController: PopoverController,
+    private translocoService: TranslocoService,
+  ) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => this.inputEl.nativeElement.focus(), 400);

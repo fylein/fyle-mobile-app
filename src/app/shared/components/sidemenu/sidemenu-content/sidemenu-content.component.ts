@@ -25,7 +25,7 @@ export class SidemenuContentComponent implements OnInit {
     private menuController: MenuController,
     private freshChatService: FreshChatService,
     private loaderService: LoaderService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
   ) {}
 
   ngOnInit(): void {}
