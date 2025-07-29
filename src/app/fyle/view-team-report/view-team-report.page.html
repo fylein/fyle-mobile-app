@@ -353,6 +353,87 @@
         </div>
       </div>
     </div>
+  } @else {
+    <div class="view-reports--body full-height">
+      <div class="view-reports--wrapper">
+        <!-- Report Card Skeleton -->
+        <div class="view-reports--card">
+          <ion-grid>
+            <ion-row class="view-reports--purpose-state">
+              <ion-col size="8.5">
+                <div class="view-reports--purpose-amount-block">
+                  <ion-skeleton-text animated class="view-reports--skeleton-purpose"></ion-skeleton-text>
+                </div>
+              </ion-col>
+              <ion-col size="3.5">
+                <ion-skeleton-text animated class="view-reports--skeleton-state"></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="8">
+                <ion-skeleton-text animated class="view-reports--skeleton-amount"></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12" class="view-reports--employee-name-block">
+                <ion-skeleton-text animated class="view-reports--skeleton-employee"></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+
+            <ion-row class="view-reports--date-info-block">
+              <ion-col size="8">
+                <ion-skeleton-text animated class="view-reports--skeleton-date"></ion-skeleton-text>
+              </ion-col>
+              <ion-col size="4">
+                <ion-skeleton-text animated class="view-reports--skeleton-info"></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+
+        <!-- Approvers Section Skeleton -->
+        <div class="view-reports--approvers-wrapper">
+          <div class="view-reports--approvers-section">
+            <ion-skeleton-text animated class="view-reports--skeleton-approvers-header"></ion-skeleton-text>
+            <div class="view-reports--approvers-list">
+              <ion-skeleton-text animated class="view-reports--skeleton-approver-name"></ion-skeleton-text>
+              <ion-skeleton-text animated class="view-reports--skeleton-approver-state"></ion-skeleton-text>
+            </div>
+          </div>
+        </div>
+
+        <!-- Segment and Content Skeleton -->
+        <div class="view-reports--segment-block-container">
+          <div class="view-reports--segment-block-container__btn-wrapper">
+            <ion-skeleton-text animated class="view-reports--skeleton-segment"></ion-skeleton-text>
+          </div>
+
+          <!-- Expenses List Skeleton -->
+          <div class="view-reports--skeleton-expenses">
+            @for (item of [1, 2, 3, 4]; track $index) {
+              <div class="view-reports--skeleton-expense-item">
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="2">
+                      <ion-skeleton-text animated class="view-reports--skeleton-expense-icon"></ion-skeleton-text>
+                    </ion-col>
+                    <ion-col size="7">
+                      <ion-skeleton-text animated class="view-reports--skeleton-expense-title"></ion-skeleton-text>
+                      <ion-skeleton-text animated class="view-reports--skeleton-expense-subtitle"></ion-skeleton-text>
+                    </ion-col>
+                    <ion-col size="3">
+                      <ion-skeleton-text animated class="view-reports--skeleton-expense-amount"></ion-skeleton-text>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
   }
 </ion-content>
 

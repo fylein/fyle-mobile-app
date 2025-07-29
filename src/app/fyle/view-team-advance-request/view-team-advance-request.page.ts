@@ -17,7 +17,6 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
@@ -59,8 +58,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
   actionSheetButtons = [];
 
-  isLoading = false;
-
   sendBackLoading = false;
 
   rejectLoading = false;
@@ -75,7 +72,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     private popupService: PopupService,
     private popoverController: PopoverController,
     private actionSheetController: ActionSheetController,
-    private loaderService: LoaderService,
     private authService: AuthService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
@@ -116,12 +112,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id as string;
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
-      switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.advanceRequestService.getApproverAdvanceRequest(id)),
-        ),
-      ),
-      finalize(() => from(this.loaderService.hideLoader())),
+      switchMap(() => this.advanceRequestService.getApproverAdvanceRequest(id)),
       shareReplay(1),
     );
 
@@ -143,7 +134,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     this.customFields$ = this.advanceRequestService.getCustomFieldsForApprover();
 
-    const customFields$ = forkJoin({
+    this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$.pipe(take(1)),
       customFields: this.customFields$,
       eou: from(this.authService.getEou()),
@@ -175,7 +166,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
         }
       }),
     );
-    this.advanceRequestCustomFields$ = customFields$;
 
     this.setupActionSheet();
     this.getAndUpdateProjectName().then((projectField) => (this.projectFieldName = projectField.field_name));
@@ -292,7 +282,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     };
 
     if (data && data.action === 'approve') {
-      this.isLoading = true;
       this.advanceRequestService
         .approve(areq.areq_id)
         .pipe(
@@ -300,7 +289,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             this.trackingService.eventTrack('Team Advances Approval Failed', { id: areq.areq_id });
             return EMPTY;
           }),
-          finalize(() => (this.isLoading = false)),
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);

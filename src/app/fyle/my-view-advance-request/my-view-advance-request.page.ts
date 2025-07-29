@@ -116,16 +116,15 @@ export class MyViewAdvanceRequestPage {
 
   ionViewWillEnter(): void {
     const id: string = this.activatedRoute.snapshot.params.id as string;
-    this.advanceRequest$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.advanceRequestService.getAdvanceRequestPlatform(id)),
-      finalize(() => from(this.loaderService.hideLoader())),
+
+    this.advanceRequest$ = this.advanceRequestService.getAdvanceRequestPlatform(id).pipe(
+      map((advanceRequest) => {
+        this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(advanceRequest);
+        this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
+        return advanceRequest;
+      }),
       shareReplay(1),
     );
-
-    this.advanceRequest$.subscribe((advanceRequest) => {
-      this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(advanceRequest);
-      this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
-    });
 
     this.actions$ = this.advanceRequestService.getSpenderPermissions(id).pipe(shareReplay(1));
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(id);

@@ -33,154 +33,168 @@
 
 <ion-content>
   @if (advanceRequest$ | async; as advanceRequest) {
-    <div>
-      <div class="view-team-advance-request--card">
-        <app-summary-tile
-          [purpose]="advanceRequest?.areq_purpose || '-'"
-          [currency]="advanceRequest?.areq_currency"
-          [amount]="advanceRequest?.areq_amount || '0'"
-          [status]="advanceRequest?.areq_state | snakeCaseToSpaceCase"
-          [approvals]="activeApprovals$ | async"
-          [actions]="actions$ | async"
-          [id]="advanceRequest?.areq_id"
-          [ownerEmail]="advanceRequest?.us_email"
-          [approverEmails]="getApproverEmails(activeApprovals$ | async)"
-        ></app-summary-tile>
-        @if (attachedFiles$ | async; as attachedFiles) {
-          <div>
-            @if (attachedFiles?.length > 0) {
-              <div>
-                <app-receipt-preview-thumbnail
-                  [attachments]="attachedFiles"
-                  (viewAttachments)="viewAttachments(attachedFiles)"
-                  [canEdit]="false"
-                >
-                </app-receipt-preview-thumbnail>
+    <div class="view-team-advance-request--card">
+      <app-summary-tile
+        [purpose]="advanceRequest?.areq_purpose || '-'"
+        [currency]="advanceRequest?.areq_currency"
+        [amount]="advanceRequest?.areq_amount || '0'"
+        [status]="advanceRequest?.areq_state | snakeCaseToSpaceCase"
+        [approvals]="activeApprovals$ | async"
+        [actions]="actions$ | async"
+        [id]="advanceRequest?.areq_id"
+        [ownerEmail]="advanceRequest?.us_email"
+        [approverEmails]="getApproverEmails(activeApprovals$ | async)"
+      ></app-summary-tile>
+      @if (attachedFiles$ | async; as attachedFiles) {
+        <div>
+          @if (attachedFiles?.length > 0) {
+            <div>
+              <app-receipt-preview-thumbnail
+                [attachments]="attachedFiles"
+                (viewAttachments)="viewAttachments(attachedFiles)"
+                [canEdit]="false"
+              >
+              </app-receipt-preview-thumbnail>
+            </div>
+          }
+          @if (attachedFiles?.length === 0) {
+            <div class="view-team-advance-request--content-container">
+              <div class="view-team-advance-request__element">
+                <app-fy-statistic
+                  icon="../../../../assets/svg/attachment-none.svg"
+                  [type]="StatisticTypes.STRING"
+                  [label]="'Receipt'"
+                  [value]="'Not Attached'"
+                ></app-fy-statistic>
               </div>
-            }
-            @if (attachedFiles?.length === 0) {
-              <div class="view-team-advance-request--content-container">
-                <div class="view-team-advance-request__element">
-                  <app-fy-statistic
-                    icon="../../../../assets/svg/attachment-none.svg"
-                    [type]="StatisticTypes.STRING"
-                    [label]="'Receipt'"
-                    [value]="'Not Attached'"
-                  ></app-fy-statistic>
-                </div>
-              </div>
-            }
-          </div>
-        }
-        <ion-grid class="view-team-advance-request--grid">
-          <ion-row>
+            </div>
+          }
+        </div>
+      }
+      <ion-grid class="view-team-advance-request--grid">
+        <ion-row>
+          <ion-col class="p-0" size="6">
+            <div class="view-team-advance-request__element">
+              <app-fy-statistic
+                icon="../../../../assets/svg/calendar.svg"
+                [type]="StatisticTypes.DATE"
+                [label]="'Created date'"
+                [value]="advanceRequest?.areq_created_at | date: 'MMM dd, YYYY'"
+              ></app-fy-statistic>
+            </div>
+          </ion-col>
+          @if (advanceRequest?.areq_approved_at) {
             <ion-col class="p-0" size="6">
               <div class="view-team-advance-request__element">
                 <app-fy-statistic
                   icon="../../../../assets/svg/calendar.svg"
                   [type]="StatisticTypes.DATE"
-                  [label]="'Created date'"
-                  [value]="advanceRequest?.areq_created_at | date: 'MMM dd, yyyy'"
+                  [label]="'Approved date'"
+                  [value]="advanceRequest?.areq_approved_at | date: 'MMM dd, YYYY'"
                 ></app-fy-statistic>
               </div>
             </ion-col>
-            @if (advanceRequest?.areq_approved_at) {
-              <ion-col class="p-0" size="6">
-                <div class="view-team-advance-request__element">
-                  <app-fy-statistic
-                    icon="../../../../assets/svg/calendar.svg"
-                    [type]="StatisticTypes.DATE"
-                    [label]="'Approved date'"
-                    [value]="advanceRequest?.areq_approved_at | date: 'MMM dd, yyyy'"
-                  ></app-fy-statistic>
-                </div>
-              </ion-col>
-            }
-          </ion-row>
-        </ion-grid>
-        <div class="view-team-advance-request--divider"></div>
-        <div class="view-team-advance-request__element">
-          <app-fy-statistic
-            icon="../../../../assets/svg/user-one.svg"
-            [type]="StatisticTypes.STRING"
-            [label]="'Employee'"
-            [value]="advanceRequest?.us_full_name || '-'"
-          ></app-fy-statistic>
-        </div>
-        <div class="view-team-advance-request__element">
-          <app-fy-statistic
-            icon="../../../../assets/svg/list.svg"
-            [type]="StatisticTypes.STRING"
-            [label]="'Additional notes'"
-            [value]="advanceRequest?.areq_notes || '-'"
-          ></app-fy-statistic>
-        </div>
-        <div class="view-team-advance-request--divider"></div>
-        <!-- Custom Fields block -->
-        @if (advanceRequestCustomFields$ | async; as advanceRequestCustomFields) {
-          @if (advanceRequestCustomFields?.length > 0) {
-            <div>
-              @for (
-                advanceRequestCustomField of advanceRequestCustomFields;
-                track advanceRequestCustomField;
-                let i = $index
-              ) {
-                <div class="view-team-advance-request__element">
-                  @if (
-                    advanceRequestCustomField?.type === StatisticTypes.DATE?.toUpperCase() &&
-                    advanceRequestCustomField.value
-                  ) {
-                    <div>
-                      <app-fy-statistic
-                        icon="../../../../assets/svg/calendar.svg"
-                        [type]="StatisticTypes.DATE"
-                        [label]="advanceRequestCustomField?.name"
-                        [value]="advanceRequestCustomField?.value | date: 'MMM dd, yyyy'"
-                      ></app-fy-statistic>
-                    </div>
-                  }
-                  @if (
-                    advanceRequestCustomField?.type === StatisticTypes.DATE?.toUpperCase() &&
-                    !advanceRequestCustomField.value
-                  ) {
-                    <div>
-                      <app-fy-statistic
-                        icon="../../../../assets/svg/calendar.svg"
-                        [type]="StatisticTypes.DATE"
-                        [label]="advanceRequestCustomField?.name"
-                        [value]="'-'"
-                      ></app-fy-statistic>
-                    </div>
-                  }
-                  @if (advanceRequestCustomField?.type === StatisticTypes.BOOLEAN?.toUpperCase()) {
-                    <div>
-                      <app-fy-statistic
-                        icon="../../../../assets/svg/list.svg"
-                        [type]="StatisticTypes.BOOLEAN"
-                        [label]="advanceRequestCustomField?.name"
-                        [value]="advanceRequestCustomField?.value ? 'Yes' : 'No'"
-                      ></app-fy-statistic>
-                    </div>
-                  }
-                  @if (
-                    advanceRequestCustomField?.type !== StatisticTypes.BOOLEAN?.toUpperCase() &&
-                    advanceRequestCustomField?.type !== 'DATE'
-                  ) {
-                    <div>
-                      <app-fy-statistic
-                        icon="../../../../assets/svg/list.svg"
-                        [type]="StatisticTypes.BOOLEAN"
-                        [label]="advanceRequestCustomField?.name"
-                        [value]="advanceRequestCustomField?.value || '-'"
-                      ></app-fy-statistic>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
           }
-        }
+        </ion-row>
+      </ion-grid>
+      <div class="view-team-advance-request--divider"></div>
+      <div class="view-team-advance-request__element">
+        <app-fy-statistic
+          icon="../../../../assets/svg/user-one.svg"
+          [type]="StatisticTypes.STRING"
+          [label]="'Employee'"
+          [value]="advanceRequest?.us_full_name || '-'"
+        ></app-fy-statistic>
       </div>
+      <div class="view-team-advance-request__element">
+        <app-fy-statistic
+          icon="../../../../assets/svg/list.svg"
+          [type]="StatisticTypes.STRING"
+          [label]="'Additional notes'"
+          [value]="advanceRequest?.areq_notes || '-'"
+        ></app-fy-statistic>
+      </div>
+      <div class="view-team-advance-request--divider"></div>
+      <!-- Custom Fields block -->
+      @if (advanceRequestCustomFields$ | async; as advanceRequestCustomFields) {
+        @if (advanceRequestCustomFields?.length > 0) {
+          <div>
+            @for (
+              advanceRequestCustomField of advanceRequestCustomFields;
+              track advanceRequestCustomField;
+              let i = $index
+            ) {
+              <div class="view-team-advance-request__element">
+                @if (
+                  advanceRequestCustomField?.type === StatisticTypes.DATE?.toUpperCase() &&
+                  advanceRequestCustomField.value
+                ) {
+                  <div>
+                    <app-fy-statistic
+                      icon="../../../../assets/svg/calendar.svg"
+                      [type]="StatisticTypes.DATE"
+                      [label]="advanceRequestCustomField?.name"
+                      [value]="advanceRequestCustomField?.value | date: 'MMM dd, YYYY'"
+                    ></app-fy-statistic>
+                  </div>
+                }
+                @if (
+                  advanceRequestCustomField?.type === StatisticTypes.DATE?.toUpperCase() &&
+                  !advanceRequestCustomField.value
+                ) {
+                  <div>
+                    <app-fy-statistic
+                      icon="../../../../assets/svg/calendar.svg"
+                      [type]="StatisticTypes.DATE"
+                      [label]="advanceRequestCustomField?.name"
+                      [value]="'-'"
+                    ></app-fy-statistic>
+                  </div>
+                }
+                @if (advanceRequestCustomField?.type === StatisticTypes.BOOLEAN?.toUpperCase()) {
+                  <div>
+                    <app-fy-statistic
+                      icon="../../../../assets/svg/list.svg"
+                      [type]="StatisticTypes.BOOLEAN"
+                      [label]="advanceRequestCustomField?.name"
+                      [value]="advanceRequestCustomField?.value ? 'Yes' : 'No'"
+                    ></app-fy-statistic>
+                  </div>
+                }
+                @if (
+                  advanceRequestCustomField?.type !== StatisticTypes.BOOLEAN?.toUpperCase() &&
+                  advanceRequestCustomField?.type !== 'DATE'
+                ) {
+                  <div>
+                    <app-fy-statistic
+                      icon="../../../../assets/svg/list.svg"
+                      [type]="StatisticTypes.BOOLEAN"
+                      [label]="advanceRequestCustomField?.name"
+                      [value]="advanceRequestCustomField?.value || '-'"
+                    ></app-fy-statistic>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  } @else {
+    <div class="view-team-advance-request--skeleton-wrapper">
+      <!-- Card Skeleton -->
+      <div class="view-team-advance-request--skeleton-card">
+        <ion-skeleton-text animated class="view-team-advance-request--skeleton-purpose"></ion-skeleton-text>
+        <ion-skeleton-text animated class="view-team-advance-request--skeleton-amount"></ion-skeleton-text>
+        <ion-skeleton-text animated class="view-team-advance-request--skeleton-status"></ion-skeleton-text>
+      </div>
+      <!-- Rows Skeleton -->
+      @for (item of [1, 2, 3, 4, 5, 6]; track $index) {
+        <div class="view-team-advance-request--skeleton-row">
+          <ion-skeleton-text animated class="view-team-advance-request--skeleton-label"></ion-skeleton-text>
+          <ion-skeleton-text animated class="view-team-advance-request--skeleton-value"></ion-skeleton-text>
+        </div>
+      }
     </div>
   }
 </ion-content>

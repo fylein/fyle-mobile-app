@@ -16,7 +16,6 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
   selector: 'app-notifications-beta',
@@ -53,6 +52,8 @@ export class NotificationsBetaPage implements OnInit {
 
   isNotificationsDisabled = false;
 
+  isInitialLoading: boolean;
+
   private router = inject(Router);
 
   private notificationsBetaPageService = inject(NotificationsBetaPageService);
@@ -73,9 +74,8 @@ export class NotificationsBetaPage implements OnInit {
 
   private launchDarklyService = inject(LaunchDarklyService);
 
-  private loaderService = inject(LoaderService);
-
   ngOnInit(): void {
+    this.isInitialLoading = true;
     this.getOrgSettings().subscribe(({ orgSettings, employeeSettings, currentEou }) => {
       this.orgSettings = orgSettings;
       this.employeeSettings = employeeSettings;
@@ -109,16 +109,11 @@ export class NotificationsBetaPage implements OnInit {
     employeeSettings: EmployeeSettings;
     currentEou: ExtendedOrgUser;
   }> {
-    return from(this.loaderService.showLoader()).pipe(
-      switchMap(() =>
-        forkJoin({
-          orgSettings: this.orgSettingsService.get(),
-          employeeSettings: this.platformEmployeeSettingsService.get(),
-          currentEou: from(this.authService.getEou()),
-        }),
-      ),
-      finalize(() => from(this.loaderService.hideLoader())),
-    );
+    return forkJoin({
+      orgSettings: this.orgSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
+      currentEou: from(this.authService.getEou()),
+    }).pipe(finalize(() => (this.isInitialLoading = false)));
   }
 
   initializeDelegateNotification(): void {

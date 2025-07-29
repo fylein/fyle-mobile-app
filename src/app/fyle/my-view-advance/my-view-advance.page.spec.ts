@@ -88,8 +88,6 @@ describe('MyViewAdvancePage', () => {
   describe('ionViewWillEnter()', () => {
     beforeEach(() => {
       spyOn(component, 'getAndUpdateProjectName');
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       advanceService.getAdvance.and.returnValue(of(singleExtendedAdvancesData3));
       advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(publicAdvanceRequestRes.data[0]));
     });
@@ -101,14 +99,16 @@ describe('MyViewAdvancePage', () => {
       });
       tick(100);
 
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(advanceService.getAdvance).toHaveBeenCalledOnceWith('advETmi3eePvQ');
       expect(advanceRequestService.getAdvanceRequestPlatform).toHaveBeenCalledOnceWith('areqrttywiidF8');
     }));
 
     it('should set currencySymbol to ₹ if advance currency is defined', fakeAsync(() => {
       component.ionViewWillEnter();
+
+      // Subscribe to advance$ to ensure the map operator runs
+      component.advance$.subscribe();
+
       tick(100);
 
       expect(component.currencySymbol).toEqual('₹');
@@ -117,6 +117,10 @@ describe('MyViewAdvancePage', () => {
     it('should set currencySymbol to undefined if advance is undefined', fakeAsync(() => {
       advanceService.getAdvance.and.returnValue(of(undefined));
       component.ionViewWillEnter();
+
+      // Subscribe to advance$ to ensure the map operator runs
+      component.advance$.subscribe();
+
       tick(100);
 
       expect(component.currencySymbol).toBeUndefined();

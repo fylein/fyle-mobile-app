@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
@@ -48,6 +47,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   onTouchedCallback: () => void = noop;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChangeCallback: (_: any) => void = noop;
 
   constructor(
@@ -63,10 +63,12 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get value(): any {
     return this.innerValue;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
@@ -81,7 +83,6 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method, @typescript-eslint/no-empty-function
   ngOnInit() {}
 
   async openModal() {
@@ -111,6 +112,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     this.onTouchedCallback();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   writeValue(value: any): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
@@ -123,12 +125,10 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerOnTouched(fn: any) {
     this.onTouchedCallback = fn;
   }
