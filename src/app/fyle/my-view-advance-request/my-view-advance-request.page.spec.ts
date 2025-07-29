@@ -203,7 +203,7 @@ describe('MyViewAdvanceRequestPage', () => {
         expect(res).toEqual(publicAdvanceRequestRes.data[0]);
       });
       expect(advanceRequestService.getInternalStateAndDisplayName).toHaveBeenCalledOnceWith(
-        publicAdvanceRequestRes.data[0]
+        publicAdvanceRequestRes.data[0],
       );
       expect(component.internalState).toEqual({
         state: 'DRAFT',
@@ -215,6 +215,10 @@ describe('MyViewAdvanceRequestPage', () => {
     it('should set currency symbol to undefined if advance request is undefined', fakeAsync(() => {
       advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(undefined));
       component.ionViewWillEnter();
+
+      // Subscribe to trigger the map operator
+      component.advanceRequest$.subscribe();
+
       tick(100);
 
       expect(component.internalState).toEqual({
@@ -242,7 +246,7 @@ describe('MyViewAdvanceRequestPage', () => {
         expect(res).toEqual(advanceReqApprovalsPublic);
       });
       expect(advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform).toHaveBeenCalledOnceWith(
-        'areqR1cyLgXdND'
+        'areqR1cyLgXdND',
       );
     }));
 
@@ -272,7 +276,7 @@ describe('MyViewAdvanceRequestPage', () => {
 
       component.advanceRequestCustomFields$.subscribe(() => {
         expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-          publicAdvanceRequestRes.data[0].areq_custom_field_values
+          publicAdvanceRequestRes.data[0].areq_custom_field_values,
         );
         expect(advanceRequestService.getCustomFieldsForSpender).toHaveBeenCalledTimes(1);
       });
