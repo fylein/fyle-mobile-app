@@ -1,21 +1,20 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .fy-filters {
   &--header {
-    border-bottom: var(--header-border-bottom, 1px solid var(--border-color));
-    --background: var(--background-primary);
+    border-bottom: 1px solid colors.$grey-2;
   }
 
   &--title {
     line-height: 26px;
-    color: var(--primary-text);
+    color: colors.$black;
     font-weight: 400;
     padding: 18px 12px 14px;
   }
 
   &--clear-all {
     text-transform: capitalize;
-    color: $brand-primary;
+    color: colors.$brand-primary;
     font-size: 16px;
     line-height: 20px;
   }
@@ -36,13 +35,13 @@
     --inner-padding-start: 16px;
     --inner-padding-top: 13px;
     --inner-padding-bottom: 14px;
-    --background: var(--background-card);
-    --ion-item-border-color: var(--border-color);
-    color: var(--secondary-text);
+    --background: #{colors.$white};
+    --ion-item-border-color: #{colors.$grey};
+    color: colors.$black-light;
 
     &__active {
-      --background: var(--background-primary);
-      color: var(--primary-text);
+      --background: #{colors.$pure-white};
+      color: colors.$black;
       font-weight: 500;
     }
   }
@@ -51,18 +50,18 @@
   &--radio {
     font-size: 20px;
     margin-right: 16px;
-    color: var(--primary-text);
+    color: colors.$black;
     min-width: 20px;
   }
 
   &--filter-option {
     --inner-padding-top: 25px;
     --inner-padding-bottom: 24px;
-    --background: var(--background-primary);
+    --background: #{colors.$pure-white};
     font-size: 14px;
     --border-style: none;
     line-height: 18px;
-    color: var(--primary-text);
+    color: colors.$blue-black;
   }
 
   &--filter-item-label {
@@ -73,7 +72,7 @@
   }
 
   &--filter-col {
-    background-color: var(--background-card);
+    background-color: colors.$white;
   }
 
   &--custom-date-filters {

@@ -1,8 +1,8 @@
-@import '../../../theme/colors';
+@use '../../../theme/colors';
 
 .personal-cards {
   &--toolbar-header {
-    border-bottom: var(--header-border-bottom, 1px solid var(--border-color));
+    border-bottom: 1px solid colors.$grey-lightest;
   }
 
   &--header-btn {
@@ -13,7 +13,7 @@
   &--filter-pills-container {
     display: block;
     min-height: 52px;
-    background-color: var(--background-card);
+    background-color: colors.$pure-white;
   }
 
   &--toolbar {
@@ -24,7 +24,7 @@
   }
 
   &--content {
-    --background: var(--background-primary);
+    --background: #{colors.$pure-white};
     --padding-bottom: 82px;
   }
 
@@ -49,7 +49,7 @@
 
   &--icon {
     font-size: 16px;
-    color: var(--secondary-text);
+    color: colors.$black-light;
     vertical-align: text-bottom;
     margin-left: 2px;
     margin-right: 5px;
@@ -57,10 +57,10 @@
 
   &--state-pill {
     width: 47%;
-    border: 1px solid $blue;
+    border: 1px solid colors.$blue;
     padding: 8px;
     text-align: center;
-    color: $blue;
+    color: colors.$blue;
     white-space: nowrap;
 
     &__left {
@@ -72,13 +72,13 @@
     }
 
     &__selected {
-      background-color: $blue;
-      color: $pure-white;
+      background-color: colors.$blue;
+      color: colors.$pure-white;
     }
   }
 
   &--footer-container {
-    background: var(--background-card);
+    background: colors.$pure-white;
     padding: 16px;
   }
 
@@ -91,7 +91,7 @@
   }
 
   &--offline-sub-header {
-    color: var(--secondary-text);
+    color: colors.$grey-light-2;
     line-height: 1.5;
     font-size: 12px;
     padding: 0 12px;
@@ -117,19 +117,19 @@
       font-size: 18px;
       display: block;
       margin-bottom: 16px;
-      color: var(--primary-text);
+      color: colors.$dark-blue;
       line-height: 1.5;
       font-weight: normal;
     }
 
     &-content {
-      color: var(--primary-text);
+      color: colors.$blue-black;
       font-size: 14px;
       font-weight: normal;
     }
 
     &-subheader {
-      color: var(--secondary-text);
+      color: colors.$gray-3;
       display: block;
       font-size: 16px;
       font-weight: 300;
@@ -137,7 +137,7 @@
       padding: 0 8px;
 
       &__title {
-        color: var(--secondary-text);
+        color: colors.$grey-light-2;
         font-weight: 500;
       }
     }
@@ -149,7 +149,7 @@
 
   &--body {
     padding-bottom: 20px;
-    background-color: var(--background-primary);
+    background-color: colors.$white;
   }
 
   &--zero-states-body {
@@ -167,8 +167,8 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    background-color: var(--background-card);
-    box-shadow: 0 -2px 12px $pink-shadow;
+    background-color: colors.$pure-white;
+    box-shadow: 0 -2px 12px colors.$pink-shadow;
     z-index: 999;
   }
 
@@ -180,7 +180,7 @@
   &--secondary-cta {
     height: auto;
     background-color: transparent;
-    color: var(--primary-text);
+    color: colors.$black;
     font-size: 16px;
     line-height: 1.25;
 
@@ -191,8 +191,8 @@
 
   &--primary-cta {
     min-height: 52px;
-    background: $pink-gradient;
-    color: $pure-white;
+    background: colors.$pink-gradient;
+    color: colors.$pure-white;
     font-size: 14px;
     line-height: 1.3;
     border-radius: 4px;
@@ -201,8 +201,8 @@
 
   &--link-card-button {
     padding: 11px 16px;
-    background: $pink-gradient;
-    color: $pure-white;
+    background: colors.$pink-gradient;
+    color: colors.$pure-white;
     font-size: 14px;
     line-height: 1.3;
     border-radius: 4px;
@@ -214,8 +214,8 @@
 
   &--fetch-button {
     padding: 8px 16px;
-    background: $pink-gradient;
-    color: $pure-white;
+    background: colors.$pink-gradient;
+    color: colors.$pure-white;
     font-size: 12px;
     line-height: 1.3;
     border-radius: 8px;
@@ -224,9 +224,9 @@
 
   &--range-button {
     padding: 8px 8px;
-    background: var(--background-card);
-    color: var(--secondary-text);
-    border: solid 1px var(--border-color);
+    background: colors.$pure-white;
+    color: colors.$black-light;
+    border: solid 1px colors.$grey;
     font-size: 12px;
     line-height: 1.3;
     border-radius: 8px;
@@ -236,7 +236,7 @@
   &--fetching-spinner {
     height: 14px;
     vertical-align: middle;
-    color: $white;
+    color: colors.$white;
   }
 
   &--bank-account-shimmer {
@@ -246,13 +246,13 @@
   }
 
   &--segment-container {
-    border-bottom: 1px solid var(--border-color);
-    --background: var(--background-card);
+    border-bottom: 1px solid colors.$grey;
+    --background: #{colors.$pure-white};
   }
 
   &--segment-block {
     &__btn {
-      color: var(--primary-text);
+      color: colors.$blue-black;
       font-size: 3.2vw;
       font-weight: 500;
       text-transform: none;
@@ -272,7 +272,7 @@
     padding: 5px 14px;
     justify-content: flex-end;
     z-index: 1000;
-    background-color: var(--background-card);
+    background-color: colors.$pure-white;
 
     &__left {
       margin-right: auto;
@@ -294,7 +294,7 @@
     padding-left: 12px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: var(--secondary-text) !important;
+        color: colors.$black-light !important;
       }
     }
   }
@@ -306,7 +306,7 @@
     &-icon {
       font-size: 18px;
       margin: auto 8px auto 0;
-      color: var(--secondary-text);
+      color: colors.$black-light;
       height: auto;
     }
 
@@ -314,7 +314,7 @@
       margin: -10px;
       font-size: 18px;
       background-color: transparent;
-      color: var(--secondary-text);
+      color: colors.$black-light;
     }
   }
 

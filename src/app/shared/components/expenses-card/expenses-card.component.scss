@@ -1,20 +1,20 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .expenses-card {
   &--date {
-    color: var(--secondary-text);
+    color: colors.$grey-light;
     font-size: 14px;
     padding: 12px 0 12px 12px;
-    background-color: var(--background-primary);
+    background-color: colors.$white;
     font-weight: 500;
 
     &__from-reports {
-      background-color: var(--background-primary);
+      background-color: colors.$white;
     }
   }
 
   &--body {
-    background-color: var(--background-card);
+    background-color: colors.$pure-white;
     min-height: 106px;
     padding: 12px;
 
@@ -43,18 +43,18 @@
   }
 
   &--divider {
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid colors.$grey-lighter;
     margin-bottom: 16px;
   }
 
   &--edit-icon {
-    stroke: $brand-primary;
+    stroke: colors.$brand-primary;
     font-size: 16px;
   }
 
   &--scanning-icon {
     font-size: 24px;
-    color: $green;
+    color: colors.$green;
   }
 
   &--scaning-receipt {
@@ -70,17 +70,17 @@
     }
 
     &__header {
-      color: var(--primary-text);
+      color: colors.$black;
       font-weight: 500;
       font-size: 16px;
       line-height: 1.3;
       white-space: nowrap;
       &-scanning {
-        color: $green;
+        color: colors.$green;
       }
 
       &-failed {
-        color: $red;
+        color: colors.$red;
       }
 
       &-scanning {
@@ -90,7 +90,7 @@
     }
 
     &__content {
-      color: var(--secondary-text);
+      color: colors.$blue-black;
       font-size: 14px;
       line-height: 1.3;
       margin-top: 5px;
@@ -104,7 +104,7 @@
   }
 
   &--receipt-container {
-    background-color: var(--background-secondary);
+    background-color: colors.$light-grey;
     border-radius: 8px;
     height: 74px;
     padding: 20px;
@@ -112,7 +112,7 @@
   }
 
   &--receipt-image-container {
-    background-color: var(--background-secondary);
+    background-color: colors.$light-grey;
     border-radius: 8px;
     height: 74px;
     min-width: 75px;
@@ -135,11 +135,11 @@
   &--receipt-icon {
     height: 35px;
     width: 35px;
-    color: var(--icon-color);
+    color: colors.$black-light;
 
     &__pdf {
       stroke: none;
-      color: var(--icon-color);
+      color: colors.$black-light;
     }
 
     &__image {
@@ -165,7 +165,7 @@
     }
 
     &__error {
-      color: $red;
+      color: colors.$red;
       font-weight: 500;
       font-size: 14px;
       line-height: 1.3;
@@ -177,7 +177,7 @@
   }
 
   &--category {
-    color: var(--primary-text);
+    color: colors.$black;
     font-size: 16px;
     font-weight: 500;
     line-height: 1.3;
@@ -194,7 +194,7 @@
       margin-left: 4px;
       width: 16px;
       height: 16px;
-      color: $red;
+      color: colors.$red;
       font-size: 16px;
     }
 
@@ -202,12 +202,12 @@
       margin-left: 4px;
       width: 16px;
       height: 16px;
-      color: $brand-primary-light;
+      color: colors.$brand-primary-light;
     }
   }
 
   &--edit-text {
-    color: var(--secondary-text);
+    color: colors.$blue-black;
     font-size: 14px;
     line-height: 1.3;
     white-space: nowrap;
@@ -215,7 +215,7 @@
   }
 
   &--vendor {
-    color: var(--secondary-text);
+    color: colors.$blue-black;
     font-size: 14px;
     line-height: 1.2;
     margin-top: 2px;
@@ -224,12 +224,12 @@
     overflow-x: hidden;
 
     &__not-filled {
-      color: var(--disabled-text);
+      color: colors.$black-light;
     }
   }
 
   &--project {
-    color: var(--secondary-text);
+    color: colors.$blue-black;
     font-size: 14px;
     margin-top: 2px;
     white-space: nowrap;
@@ -238,7 +238,7 @@
     line-height: 1.2;
 
     &__not-filled {
-      color: var(--disabled-text);
+      color: colors.$black-light;
     }
   }
 
@@ -253,7 +253,7 @@
   }
 
   &--currency {
-    color: var(--secondary-text);
+    color: colors.$black-light;
     font-weight: 500;
     font-size: 16px;
     line-height: 1.3;
@@ -261,7 +261,7 @@
   }
 
   &--amount {
-    color: var(--primary-text);
+    color: colors.$black;
     font-size: 16px;
     line-height: 1.3;
     margin-right: 6px;
@@ -273,11 +273,11 @@
     height: 20px;
     width: 20px;
     font-size: 20px;
-    color: var(--primary-text);
+    color: colors.$black;
   }
 
   &--exchange-rate {
-    color: var(--secondary-text);
+    color: colors.$black-light;
     font-size: 14px;
     line-height: 1.25;
     margin-top: 2px;
@@ -285,11 +285,11 @@
   }
 
   &--critical-policy-violatios {
-    color: $red;
+    color: colors.$red;
     font-weight: 500;
     font-size: 10px;
     line-height: 1.3;
-    background-color: $red-1;
+    background-color: colors.$red-1;
     padding: 2px 3px;
     border-radius: 3px;
     margin-top: 6px;
@@ -308,7 +308,7 @@
   }
 
   &--spinner-icon {
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 
   &--spinner-subheader {

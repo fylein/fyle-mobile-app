@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .alert-info-container {
   border: 1px solid var(--border-color);
@@ -12,14 +12,14 @@
     width: 20px;
     margin-right: 8px;
     min-width: 20px;
-    color: var(--info-color);
+    color: colors.$highlight-blue;
 
     &--danger {
       height: 20px;
       width: 20px;
       margin-right: 8px;
       min-width: 20px;
-      color: var(--error-color);
+      color: colors.$red;
     }
   }
 
@@ -33,7 +33,7 @@
   &--button {
     font-size: 12px;
     line-height: 15px;
-    color: var(--info-color);
+    color: colors.$brand-primary;
     --padding-top: 0;
     height: 12px;
   }

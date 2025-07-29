@@ -1,8 +1,8 @@
-@import '../../../theme/colors';
+@use '../../../theme/colors';
 
 .reports {
   &--toolbar-header {
-    border-bottom: var(--header-border-bottom, 1px solid var(--border-color));
+    border-bottom: 1px solid colors.$grey-lightest;
   }
 
   &--header-btn {
@@ -19,7 +19,7 @@
 
   &--body {
     padding-bottom: 20px;
-    background-color: var(--background-primary);
+    background-color: colors.$white;
   }
 
   &--zero-state-body {
@@ -37,7 +37,7 @@
     padding-left: 12px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: var(--secondary-text) !important;
+        color: colors.$black-light !important;
       }
     }
   }
@@ -63,7 +63,7 @@
   }
 
   &--content {
-    --background: var(--background-primary);
+    --background: #{colors.$white};
     --padding-bottom: 82px;
   }
 

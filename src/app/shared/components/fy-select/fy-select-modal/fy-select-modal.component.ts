@@ -12,6 +12,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-select-modal',
   templateUrl: './fy-select-modal.component.html',
   styleUrls: ['./fy-select-modal.component.scss'],
+  standalone: false,
 })
 export class FySelectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;

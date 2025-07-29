@@ -1,10 +1,10 @@
-@import '../../../../../theme/colors';
+@use '../../../../../theme/colors';
 
 .stats {
   &--expenses-amount-currency {
     font-size: 16px;
     line-height: 15px;
-    color: var(--primary-text);
+    color: colors.$black;
   }
 
   &--ccc-card-details {
@@ -14,7 +14,7 @@
     height: 145px;
     width: calc(100% - 24px);
     border-radius: 16px;
-    box-shadow: 0px 12px 20px -10px rgba($dark-grey, 0.24);
+    box-shadow: 0px 12px 20px -10px rgba(colors.$dark-grey, 0.24);
     z-index: 999;
   }
 
@@ -27,14 +27,14 @@
 
   &--ccc-stats {
     padding: 64px 32px 32px 32px;
-    background: var(--background-card);
+    background: colors.$pure-white;
     border-radius: 16px;
     width: 100%;
     position: relative;
     left: 50%;
     transform: translate(-50%, 0px);
     bottom: 54px;
-    box-shadow: 0px -2px 40px 0px $transparent-pearl-grey;
+    box-shadow: 0px -2px 40px 0px colors.$transparent-pearl-grey;
   }
 
   &--ccc-classified-stats {
@@ -52,24 +52,24 @@
     font-weight: 500;
     font-size: 16px;
     line-height: 28px;
-    color: var(--primary-text);
+    color: colors.$black;
   }
 
   &--ccc-classified-amount {
     font-weight: 500;
     font-size: 16px;
     line-height: 28px;
-    color: var(--primary-text);
+    color: colors.$black;
   }
 
   &--ccc-stats-title {
     font-size: 14px;
     line-height: 20px;
-    color: var(--secondary-text);
+    color: colors.$black-2;
   }
 
   &--ccc-stats-divider {
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid colors.$grey-lighter;
     margin-top: 24px;
   }
 }

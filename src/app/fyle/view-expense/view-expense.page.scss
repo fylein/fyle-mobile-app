@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .view-expense {
   &--toolbar {
@@ -22,7 +22,7 @@
   &--subtitle {
     font-size: 12px;
     line-height: 1.2;
-    color: var(--secondary-text);
+    color: colors.$black-light;
     margin-bottom: 10px;
   }
 
@@ -37,23 +37,22 @@
 
   &--policy-container {
     border-radius: 6px;
-    background: var(--background-secondary);
+    background: colors.$light-grey;
     padding: 8px 16px;
     margin: 8px 0;
     font-size: 14px;
-    color: var(--secondary-text);
+    color: colors.$grey-light-2;
   }
 
   &--card-container {
     padding: 14px 16px;
     margin-top: 16px;
-    background: var(--background-card);
+    background: colors.$purple-gradient;
     border-radius: 16px;
     font-size: 14px;
     font-weight: 400;
     width: 100%;
-    color: var(--primary-text-soft);
-    border: 1px solid var(--border-color);
+    color: colors.$black-light;
 
     &__block {
       width: 100%;
@@ -62,14 +61,14 @@
     &__merchant_block {
       display: flex;
       gap: 6px;
-      border-top: 1px solid var(--border-color);
+      border-top: 1px solid colors.$grey;
       padding-top: 12px;
       margin-top: 12px;
       align-items: center;
     }
 
     &__merchant_label {
-      color: var(--secondary-text);
+      color: colors.$black-light;
       font-size: 12px;
     }
 
@@ -77,13 +76,13 @@
       display: flex;
       align-items: center;
       gap: 2px;
-      color: var(--primary-text);
+      color: colors.$blue-black;
       font-weight: 500;
       font-size: 12px;
     }
 
     &__merchant_info_icon {
-      color: var(--primary-text);
+      color: colors.$blue-black;
       width: 16px;
       height: 16px;
     }
@@ -96,23 +95,23 @@
     }
 
     &__category {
-      color: var(--primary-text);
+      color: colors.$black;
       font-weight: 500;
     }
 
     &__merchant {
       font-size: 14px;
-      color: var(--secondary-text);
+      color: colors.$dark-grey;
     }
 
     &__project {
       padding-top: 8px;
-      color: var(--secondary-text);
+      color: colors.$black-light;
     }
 
     &__icon {
       vertical-align: text-bottom;
-      color: var(--icon-color);
+      color: colors.$grey-light;
       height: 18px;
       width: 18px;
     }
@@ -125,7 +124,7 @@
     &__amount {
       font-size: 14px;
       font-weight: 500;
-      color: var(--primary-text);
+      color: colors.$black;
       margin-right: 4px;
     }
 
@@ -134,7 +133,7 @@
     }
 
     &__exchange-rate {
-      color: var(--secondary-text);
+      color: colors.$black-light;
     }
 
     &__state-pill {
@@ -143,25 +142,25 @@
     }
 
     &__credit {
-      color: var(--success-color);
+      color: colors.$green;
       font-weight: 500;
     }
 
     &__transaction-status {
-      border-top: 1px solid var(--border-color);
+      border-top: 1px solid colors.$grey;
       padding-top: 12px;
       margin-top: 12px;
     }
   }
 
   &--label {
-    color: var(--secondary-text);
+    color: colors.$black-light;
     font-size: 12px;
     line-height: 1.4;
   }
 
   &--value {
-    color: var(--primary-text);
+    color: colors.$blue-black;
     font-size: 14px;
     font-weight: 500;
     line-height: 1.3;
@@ -176,28 +175,28 @@
     max-height: 38px;
 
     &__background {
-      background-color: var(--background-secondary);
+      background-color: colors.$off-white;
       border-radius: 50%;
       height: 100%;
       display: flex;
     }
 
     &__icon {
-      color: var(--icon-color);
+      color: colors.$grey-light;
       height: 18px;
       width: 18px;
       margin: auto;
     }
 
     &__icon-lg {
-      color: var(--icon-color);
+      color: colors.$grey-light;
       height: 22px;
       width: 22px;
       margin: auto;
     }
 
     &__icon-stroke-lg {
-      stroke: var(--icon-color);
+      stroke: colors.$grey-light;
       height: 22px;
       width: 22px;
       margin: auto;
@@ -217,13 +216,13 @@
 
   &--divider {
     margin-top: 16px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid colors.$grey;
   }
 
   &--sparkle-icon {
     width: 12px;
     height: 12px;
     margin: 2px 0px 2px 2px;
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 }

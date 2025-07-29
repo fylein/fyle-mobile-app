@@ -1,4 +1,4 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .receipt-preview-thumbnail {
   &--actions {
@@ -6,7 +6,7 @@
     margin-top: 6px;
     display: flex;
     justify-content: space-between;
-    color: var(--secondary-text);
+    color: colors.$black-light;
   }
 
   &--add-more {
@@ -18,7 +18,7 @@
     margin: 5px;
     font-size: 16px;
     display: block;
-    color: var(--info-color);
+    color: colors.$brand-primary;
     font-weight: normal;
   }
 
@@ -31,7 +31,7 @@
 
   &--receipt-index {
     font-size: 12px;
-    color: var(--secondary-text);
+    color: colors.$black-light;
     margin-top: 10px;
   }
 
@@ -58,7 +58,7 @@
 
   &--slider-container {
     position: relative;
-    border: 1px solid var(--border-color);
+    border: 1px solid colors.$translucent-black;
     height: 100%;
     width: 100%;
   }
@@ -79,7 +79,7 @@
     pointer-events: auto;
 
     &__btn {
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: colors.$translucent-black;
       text-align: center;
       border-radius: 50%;
       font-size: 18px;
@@ -98,7 +98,7 @@
     pointer-events: auto;
 
     &__btn {
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: colors.$translucent-black;
       text-align: center;
       border-radius: 50%;
       font-size: 18px;
@@ -110,7 +110,7 @@
   }
 
   &--spinner-overlay {
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: colors.$translucent-white-2;
     position: absolute;
     height: 240px;
     width: 100%;
@@ -129,14 +129,14 @@
 
   &--spinner {
     zoom: 2;
-    color: var(--info-color);
+    color: colors.$brand-primary-light;
     width: 100%;
   }
 
   &--spinner-text {
     margin: 3px;
     font-size: 14px;
-    color: var(--primary-text);
+    color: colors.$blue-black;
     font-weight: 500;
   }
 }

@@ -9,6 +9,7 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
   selector: 'app-dependent-fields',
   templateUrl: './dependent-fields.component.html',
   styleUrls: ['./dependent-fields.component.scss'],
+  standalone: false,
 })
 export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   @Input() dependentFieldsFormArray: UntypedFormArray;

@@ -1,4 +1,4 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 $ccc-bank-name: #c4cae8;
 
@@ -20,14 +20,14 @@ $ccc-bank-name: #c4cae8;
   &--header {
     font-size: 14px;
     line-height: 18px;
-    color: var(--secondary-text);
+    color: colors.$black-light;
     font-weight: 500;
   }
 
   &--expenses-card {
     position: relative;
     top: -64px;
-    background: var(--background-card);
+    background: colors.$pure-white;
     box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
     border-radius: 16px;
     width: calc(100% - 32px);
@@ -46,13 +46,13 @@ $ccc-bank-name: #c4cae8;
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
-    color: var(--primary-text);
+    color: colors.$black;
   }
 
   &--expenses-amount-currency {
     font-size: 12px;
     line-height: 15px;
-    color: var(--secondary-text);
+    color: colors.$black-light;
   }
 
   &--expenses-amount {
@@ -62,7 +62,7 @@ $ccc-bank-name: #c4cae8;
   &--expenses-title {
     font-size: 16px;
     line-height: 20px;
-    color: var(--primary-text);
+    color: colors.$blue-black;
   }
 
   &--report-badge-col {

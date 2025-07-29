@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .fy-select {
   &--label {
@@ -12,13 +12,13 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: var(--secondary-text);
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
   }
 
   &--disabled {
-    background: var(--background-secondary);
+    background: colors.$grey-7;
   }
 
   &--input-container {
@@ -26,30 +26,30 @@
     align-items: center;
     justify-content: space-between;
     padding: 6px 0;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &--input {
     font-size: 14px;
     line-height: 18px;
-    color: var(--primary-text);
+    color: colors.$blue-black;
     border: none;
     width: 100%;
     padding: 0;
   }
 
   &--input-invalid {
-    border-bottom: 1px solid var(--error-color);
+    border-bottom: 1px solid colors.$red;
   }
 
   &--mandatory {
-    color: var(--info-color);
+    color: colors.$brand-primary;
     font-size: 14px;
     font-weight: 400;
   }
 
   &--icon {
-    color: var(--icon-color);
+    color: colors.$grey-light;
   }
 
   &--input-disabled {

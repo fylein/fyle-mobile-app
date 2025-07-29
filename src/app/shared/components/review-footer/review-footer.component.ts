@@ -6,6 +6,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   selector: 'app-review-footer',
   templateUrl: './review-footer.component.html',
   styleUrls: ['./review-footer.component.scss'],
+  standalone: false,
 })
 export class ReviewFooterComponent implements OnInit {
   @Input() activeIndex: number;

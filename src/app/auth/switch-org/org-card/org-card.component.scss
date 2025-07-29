@@ -1,11 +1,11 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .org-card {
   &__container {
     padding: 14px 0 14px 16px;
     margin-bottom: 16px;
-    border: 0.5px solid var(--border-color);
-    box-shadow: var(--card-shadow, 0px -2px 40px rgba(215, 215, 215, 0.4));
+    border: 0.5px solid colors.$outline-grey;
+    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
     border-radius: 8px;
     background-color: var(--background-card);
   }
@@ -15,10 +15,10 @@
     margin-right: 12px;
 
     &__icon {
-      border: 1px solid var(--border-color);
+      border: 1px solid colors.$outline-grey;
       border-radius: 8px;
       height: 46px;
-      color: var(--secondary-text);
+      color: colors.$black-light;
       font-weight: 500;
       background-color: var(--background-secondary);
     }
@@ -31,13 +31,13 @@
     &__title {
       font-size: 16px;
       font-weight: 500;
-      color: var(--primary-text);
+      color: colors.$black;
       padding-top: 2px;
     }
 
     &__sub-title {
       font-size: 12px;
-      color: var(--secondary-text);
+      color: colors.$black-light;
       padding-top: 4px;
     }
   }
@@ -46,9 +46,9 @@
     max-width: 66px;
 
     &__pill {
-      background: $blue-black;
+      background: colors.$blue-black;
       border-radius: 16px 0 0 16px;
-      color: $pure-white;
+      color: colors.$pure-white;
       padding: 4px 0 4px 12px;
       font-size: 12px;
     }

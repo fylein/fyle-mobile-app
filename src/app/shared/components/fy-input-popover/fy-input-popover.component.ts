@@ -6,6 +6,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-input-popover',
   templateUrl: './fy-input-popover.component.html',
   styleUrls: ['./fy-input-popover.component.scss'],
+  standalone: false,
 })
 export class FyInputPopoverComponent implements AfterViewInit {
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;

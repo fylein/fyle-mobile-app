@@ -1,15 +1,15 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .expenses-card {
   &--date {
-    color: var(--secondary-text);
+    color: colors.$dark-grey;
     font-size: 12px;
   }
 
   &--body {
     min-height: 92px;
     padding: 12px;
-    background: var(--background-card);
+    background: colors.$pure-white;
     position: relative;
   }
 
@@ -20,7 +20,7 @@
   }
 
   &--receipt-container {
-    background-color: var(--background-secondary);
+    background-color: colors.$light-grey;
     border-radius: 8px;
     height: 72px;
     max-width: 56px;
@@ -32,7 +32,7 @@
   }
 
   &--receipt-image-container {
-    background-color: var(--background-secondary);
+    background-color: colors.$light-grey;
     border-radius: 8px;
     height: 72px;
     max-width: 56px;
@@ -55,11 +55,11 @@
   &--receipt-icon {
     height: 28px;
     width: 28px;
-    stroke: var(--icon-color);
+    stroke: colors.$black-light;
 
     &__pdf {
       stroke: none;
-      color: var(--icon-color);
+      color: colors.$black-light;
     }
   }
 
@@ -70,7 +70,7 @@
   }
 
   &--vertical-dotted-border {
-    border-left: 2px dashed var(--border-color);
+    border-left: 2px dashed colors.$border-tertiary;
     height: 90%;
     margin: 0 8px;
     position: absolute;
@@ -93,7 +93,7 @@
     }
 
     &__error {
-      color: $red;
+      color: colors.$red;
       font-weight: 500;
       font-size: 14px;
       line-height: 1.3;
@@ -105,8 +105,8 @@
   }
 
   &--category {
-    color: var(--primary-text);
-    font-size: 16px;
+    color: colors.$black;
+    font-size: 14px;
     font-weight: 500;
     line-height: 1.3;
     white-space: nowrap;
@@ -115,13 +115,17 @@
   }
 
   &--vendor {
-    color: var(--secondary-text);
+    color: colors.$blue-black;
     font-size: 14px;
     line-height: 1.2;
     margin-top: 2px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;
+
+    &__not-filled {
+      color: colors.$black-light;
+    }
   }
 
   &--currency-amount-container {
@@ -131,15 +135,15 @@
   }
 
   &--currency {
-    color: var(--secondary-text);
-    font-weight: 500;
+    color: colors.$black;
+    font-weight: 400;
     font-size: 16px;
     line-height: 1.3;
     margin-right: 1px;
   }
 
   &--amount {
-    color: var(--primary-text);
+    color: colors.$black;
     font-size: 16px;
     line-height: 1.3;
     margin-right: 6px;
@@ -147,10 +151,9 @@
   }
 
   &--icon {
-    vertical-align: text-bottom;
-    height: 20px;
-    width: 20px;
-    font-size: 20px;
-    color: var(--icon-color);
+    vertical-align: baseline;
+    height: 13px;
+    width: 13px;
+    color: colors.$brand-primary;
   }
 }

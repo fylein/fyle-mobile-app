@@ -19,6 +19,7 @@ import { Option } from 'src/app/core/models/option.model';
   selector: 'app-add-to-report-modal',
   templateUrl: './fy-add-to-report-modal.component.html',
   styleUrls: ['./fy-add-to-report-modal.component.scss'],
+  standalone: false,
 })
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;

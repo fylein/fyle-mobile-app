@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .preference-setting {
   &__card {
@@ -8,12 +8,12 @@
     &__title {
       font-size: 16px;
       font-weight: 500;
-      color: var(--primary-text);
+      color: colors.$pure-black;
     }
 
     &__content {
       font-size: 12px;
-      color: var(--secondary-text);
+      color: colors.$black-light;
       width: calc(100% - 76px);
     }
   }
@@ -28,12 +28,12 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px 0 6px;
-    color: var(--secondary-text);
-    border-bottom: 1px solid var(--border-color);
+    color: colors.$grey-light;
+    border-bottom: 1px solid colors.$grey-lighter;
 
     &__input {
       line-height: 18px;
-      color: var(--primary-text);
+      color: colors.$blue-black;
       border: none;
       width: 100%;
       padding: 0;

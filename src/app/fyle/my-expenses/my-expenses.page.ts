@@ -94,6 +94,7 @@ import { ThemeService } from 'src/app/core/services/theme.service';
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
+  standalone: false,
 })
 export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;

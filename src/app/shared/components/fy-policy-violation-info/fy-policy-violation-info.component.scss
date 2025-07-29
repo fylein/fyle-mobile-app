@@ -1,10 +1,10 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .policy-violation-info {
   &--container {
     border-radius: 8px;
-    background: var(--background-card);
-    border: 1px solid var(--border-color);
+    background: colors.$pure-white;
+    border: 1px solid colors.$grey-lighter;
     padding: 12px 10px;
     margin: 8px 0;
   }
@@ -30,11 +30,11 @@
 
   &--content {
     font-size: 12px;
-    color: var(--primary-text);
+    color: colors.$blue-black;
   }
 
   &--view-more {
-    color: var(--info-color);
+    color: colors.$brand-primary;
     margin-left: 4px;
     font-size: 12px;
   }

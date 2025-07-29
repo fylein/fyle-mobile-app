@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .fy-currency {
   &--label {
@@ -8,13 +8,13 @@
     line-height: 16px;
     font-weight: 400;
     line-height: 1.5;
-    color: var(--secondary-text);
+    color: colors.$black-light;
   }
 
   &--input {
     font-size: 14px;
     line-height: 18px;
-    color: var(--primary-text);
+    color: colors.$blue-black;
     border: none;
     width: 100%;
     margin: 6px 0;
@@ -22,18 +22,18 @@
   }
 
   &--input-invalid {
-    border-bottom: 1px solid var(--error-color);
+    border-bottom: 1px solid colors.$red;
   }
 
   &--mandatory {
-    color: var(--info-color);
+    color: colors.$brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
   }
 
   &--input-container {
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &--form {
@@ -66,7 +66,7 @@
     height: 12px;
     font-size: 12px;
     margin-top: 5px;
-    color: var(--secondary-text);
+    color: colors.$black-light;
   }
 
   &__sparkle-icon {
@@ -75,14 +75,14 @@
   }
 
   &__invalid {
-    border-bottom: 1px solid var(--error-color);
+    border-bottom: 1px solid colors.$red;
   }
 
   &--exchange-rate-container {
     display: flex;
     align-items: center;
     height: 42px;
-    border: 1px solid var(--border-color);
+    border: 1px solid colors.$grey-lighter;
     border-radius: 8px;
     padding: 8px;
     margin-top: 16px;
@@ -93,21 +93,21 @@
   }
 
   &--exchange-rate-icon {
-    color: var(--info-color);
+    color: colors.$highlight-blue;
     margin-right: 10px;
   }
 
   &--exchange-rate-message {
     width: 100%;
-    color: var(--primary-text);
+    color: colors.$blue-black;
     font-size: 12px;
     line-height: 16px;
   }
 
   &--exchange-rate-modify {
-    color: var(--info-color);
+    color: colors.$brand-primary;
     font-size: 12px;
-    background-color: var(--background-card);
+    background-color: colors.$pure-white;
     font-weight: 500;
   }
 }

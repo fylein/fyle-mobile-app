@@ -30,6 +30,7 @@ import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advan
   selector: 'app-my-advances',
   templateUrl: './my-advances.page.html',
   styleUrls: ['./my-advances.page.scss'],
+  standalone: false,
 })
 export class MyAdvancesPage implements AfterViewChecked {
   myAdvanceRequests$: Observable<ExtendedAdvanceRequestPublic[]>;

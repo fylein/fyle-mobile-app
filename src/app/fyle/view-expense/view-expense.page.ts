@@ -46,6 +46,7 @@ import { ThemeService } from 'src/app/core/services/theme.service';
   selector: 'app-view-expense',
   templateUrl: './view-expense.page.html',
   styleUrls: ['./view-expense.page.scss'],
+  standalone: false,
 })
 export class ViewExpensePage {
   @ViewChild('comments') commentsContainer: ElementRef;

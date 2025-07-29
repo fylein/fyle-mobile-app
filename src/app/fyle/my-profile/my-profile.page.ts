@@ -55,6 +55,7 @@ import { ThemeService, ThemeMode } from 'src/app/core/services/theme.service';
   selector: 'app-my-profile',
   templateUrl: './my-profile.page.html',
   styleUrls: ['./my-profile.page.scss'],
+  standalone: false,
 })
 export class MyProfilePage {
   employeeSettings: EmployeeSettings;

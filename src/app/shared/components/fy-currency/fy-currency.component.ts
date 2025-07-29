@@ -25,6 +25,7 @@ import { TranslocoService } from '@jsverse/transloco';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChanges {
   @Input() txnDt: Date;
