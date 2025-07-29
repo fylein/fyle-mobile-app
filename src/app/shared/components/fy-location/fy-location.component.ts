@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
@@ -54,7 +55,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     private modalProperties: ModalPropertiesService,
   ) {}
 
-  get valid(): boolean {
+  get valid() {
     if (this.touchedInParent) {
       return this.validInParent;
     } else {
@@ -80,10 +81,10 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function, @angular-eslint/no-empty-lifecycle-method
-  ngOnInit(): void {}
+  // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method, @typescript-eslint/no-empty-function
+  ngOnInit() {}
 
-  async openModal(): Promise<void> {
+  async openModal() {
     if (!this.disabled) {
       const selectionModal = await this.modalController.create({
         component: FyLocationModalComponent,
@@ -106,7 +107,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  onBlur(): void {
+  onBlur() {
     this.onTouchedCallback();
   }
 
@@ -123,11 +124,12 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: any) {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  registerOnTouched(fn: any) {
     this.onTouchedCallback = fn;
   }
 }
