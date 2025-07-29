@@ -55,7 +55,6 @@ export class AuditHistoryComponent implements OnInit {
   hasDetails(): void {
     this.estatuses = this.estatuses.map(function (estatus) {
       if (estatus) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         estatus.has_details =
           estatus.st_diff &&
           typeof estatus.st_diff === 'object' &&
