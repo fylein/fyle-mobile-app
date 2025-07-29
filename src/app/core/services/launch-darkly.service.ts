@@ -74,10 +74,6 @@ export class LaunchDarklyService {
     return this.getVariation('android-numeric-keypad', false);
   }
 
-  checkIfExpenseMarkedPersonalEventIsEnabled(): Observable<boolean> {
-    return this.getVariation('update_admin_notifs_design', false);
-  }
-
   getImmediate(key: string, defaultValue: boolean): boolean {
     if (this.ldClient) {
       return this.ldClient.variation(key, defaultValue) as boolean;
