@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .promote-opt-in-modal {
   --background: linear-gradient(81.87deg, rgba(225, 238, 255, 0.21) 54.75%, rgba(255, 228, 251, 0.3) 86.07%);
@@ -6,7 +6,7 @@
   &__skip {
     margin: 32px 0px 24px 32px;
     text-decoration: underline;
-    color: $dark-grey;
+    color: colors.$dark-grey;
     text-align: end;
 
     &--text {
@@ -45,7 +45,7 @@
     position: relative;
 
     &:after {
-      background-color: $bright-yellow;
+      background-color: colors.$bright-yellow;
       content: ' ';
       height: 14px;
       width: 68px;

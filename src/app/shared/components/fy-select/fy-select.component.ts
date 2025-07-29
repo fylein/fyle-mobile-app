@@ -19,6 +19,7 @@ import { TranslocoService } from '@jsverse/transloco';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FySelectComponent implements ControlValueAccessor {
   @Input() options: { label: string; value: any }[] = [];

@@ -11,6 +11,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-policy-violation',
   templateUrl: './fy-policy-violation.component.html',
   styleUrls: ['./fy-policy-violation.component.scss'],
+  standalone: false,
 })
 export class FyPolicyViolationComponent implements OnInit {
   @Input() policyViolationMessages: string[];

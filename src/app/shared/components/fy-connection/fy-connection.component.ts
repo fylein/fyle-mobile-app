@@ -9,6 +9,7 @@ import { ConnectionMessageStatus } from './connection-status.enum';
   selector: 'app-fy-connection',
   templateUrl: './fy-connection.component.html',
   styleUrls: ['./fy-connection.component.scss'],
+  standalone: false,
 })
 export class FyConnectionComponent implements OnInit {
   isConnected$: Observable<boolean>;

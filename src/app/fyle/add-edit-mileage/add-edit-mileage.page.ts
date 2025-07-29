@@ -118,6 +118,7 @@ import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expe
   selector: 'app-add-edit-mileage',
   templateUrl: './add-edit-mileage.page.html',
   styleUrls: ['./add-edit-mileage.page.scss'],
+  standalone: false,
 })
 export class AddEditMileagePage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;

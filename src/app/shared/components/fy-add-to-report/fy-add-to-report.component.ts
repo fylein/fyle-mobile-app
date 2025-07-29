@@ -23,6 +23,7 @@ import { TranslocoService } from '@jsverse/transloco';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAccessor {
   @Input() options: { label: string; value: Report }[] = [];

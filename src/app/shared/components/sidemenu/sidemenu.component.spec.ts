@@ -56,6 +56,7 @@ describe('SidemenuComponent', () => {
   @Component({
     selector: 'app-sidemenu',
     template: '<ion-menu></ion-menu>',
+    standalone: false,
   })
   class MockIonMenuComponent {
     @Input() side: string;

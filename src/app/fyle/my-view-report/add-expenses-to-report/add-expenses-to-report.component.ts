@@ -9,6 +9,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
   selector: 'app-add-expenses-to-report',
   templateUrl: './add-expenses-to-report.component.html',
   styleUrls: ['./add-expenses-to-report.component.scss'],
+  standalone: false,
 })
 export class AddExpensesToReportComponent implements OnInit {
   @Input() unreportedExpenses: Expense[];

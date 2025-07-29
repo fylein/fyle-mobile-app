@@ -15,6 +15,7 @@ import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advan
   selector: 'app-my-view-advance',
   templateUrl: './my-view-advance.page.html',
   styleUrls: ['./my-view-advance.page.scss'],
+  standalone: false,
 })
 export class MyViewAdvancePage {
   advance$: Observable<ExtendedAdvance>;

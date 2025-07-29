@@ -54,6 +54,7 @@ import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/
   selector: 'app-my-profile',
   templateUrl: './my-profile.page.html',
   styleUrls: ['./my-profile.page.scss'],
+  standalone: false,
 })
 export class MyProfilePage {
   employeeSettings: EmployeeSettings;

@@ -11,6 +11,7 @@ import { PolicyDetail } from 'src/app/core/models/policy-detail.model';
   selector: 'app-fy-policy-violation-info',
   templateUrl: './fy-policy-violation-info.component.html',
   styleUrls: ['./fy-policy-violation-info.component.scss'],
+  standalone: false,
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
   @Input() policyDetails: PolicyDetail[] | undefined;

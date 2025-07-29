@@ -4,6 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
   selector: 'app-policy-violation-action',
   templateUrl: './policy-violation-action.component.html',
   styleUrls: ['./policy-violation-action.component.scss'],
+  standalone: false,
 })
 export class PolicyViolationActionComponent implements OnInit {
   @Input() message: string;

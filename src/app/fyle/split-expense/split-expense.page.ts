@@ -70,6 +70,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
   selector: 'app-split-expense',
   templateUrl: './split-expense.page.html',
   styleUrls: ['./split-expense.page.scss'],
+  standalone: false,
 })
 export class SplitExpensePage implements OnDestroy {
   @ViewChildren('splitElement') splitElements!: QueryList<ElementRef>;

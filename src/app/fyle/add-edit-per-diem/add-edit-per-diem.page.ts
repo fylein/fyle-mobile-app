@@ -116,6 +116,7 @@ import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expe
   selector: 'app-add-edit-per-diem',
   templateUrl: './add-edit-per-diem.page.html',
   styleUrls: ['./add-edit-per-diem.page.scss'],
+  standalone: false,
 })
 export class AddEditPerDiemPage implements OnInit {
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;

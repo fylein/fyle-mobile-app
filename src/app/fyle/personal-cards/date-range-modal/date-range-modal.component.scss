@@ -1,17 +1,17 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .date-range-modal {
   padding: 20px 0;
-  background-color: $pure-white;
+  background-color: colors.$pure-white;
 
   &--title {
-    color: $grey;
+    color: colors.$grey;
     font-weight: 500;
     margin-left: 18px;
   }
 
   &--label {
-    color: $black;
+    color: colors.$black;
     font-size: 18px;
     line-height: 23px;
     margin: 8px 0;
