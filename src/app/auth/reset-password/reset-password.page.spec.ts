@@ -110,7 +110,7 @@ describe('ResetPasswordPage', () => {
       fixture.detectChanges();
 
       const errorElement = getElementRef(fixture, '.forgot-password__error-message');
-      expect(errorElement.nativeElement.textContent).toContain(' Enter an email address. ');
+      expect(errorElement.nativeElement.textContent).toContain('Enter an email address.');
     });
 
     it('should call sendResetLink with correct email when button is clicked', () => {
