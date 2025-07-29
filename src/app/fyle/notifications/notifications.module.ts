@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { NotificationsPageRoutingModule } from './notifications-routing.module';
-import { NotificationsBetaPage } from './notifications-beta/notifications-beta.page';
+import { NotificationsPage } from './notifications-beta/notifications.page';
 import { SharedModule } from '../../shared/shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -19,6 +19,6 @@ import { EmailNotificationsComponent } from './email-notifications/email-notific
     SharedModule,
     MatCheckboxModule,
   ],
-  declarations: [NotificationsBetaPage, EmailNotificationsComponent],
+  declarations: [NotificationsPage, EmailNotificationsComponent],
 })
 export class NotificationsPageModule {}

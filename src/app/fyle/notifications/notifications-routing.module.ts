@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { NotificationsBetaPage } from './notifications-beta/notifications-beta.page';
+import { NotificationsPage } from './notifications-beta/notifications.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: NotificationsBetaPage,
+    component: NotificationsPage,
   },
 ];
 
