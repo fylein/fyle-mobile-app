@@ -12,7 +12,7 @@ import {
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
-fdescribe('NotificationsPageService', () => {
+describe('NotificationsPageService', () => {
   let service: NotificationsPageService;
   let mockCurrentEou: ExtendedOrgUser;
   let mockIsExpenseMarkedPersonalEventEnabled: boolean;

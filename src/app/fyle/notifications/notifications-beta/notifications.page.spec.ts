@@ -30,7 +30,7 @@ import { EmailNotificationsComponent } from '../email-notifications/email-notifi
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
-fdescribe('NotificationsPage', () => {
+describe('NotificationsPage', () => {
   let component: NotificationsPage;
   let fixture: ComponentFixture<NotificationsPage>;
   let router: jasmine.SpyObj<Router>;
