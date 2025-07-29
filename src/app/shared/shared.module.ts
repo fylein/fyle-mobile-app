@@ -157,6 +157,7 @@ import { FyMsgPopoverComponent } from './components/fy-msg-popover/fy-msg-popove
 import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
 import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/fy-expansion-info-msg.component';
+import { CustomGalleryPickerComponent } from './components/custom-gallery-picker/custom-gallery-picker.component';
 
 @NgModule({
   declarations: [
@@ -196,6 +197,7 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     FyViewAttachmentComponent,
     FyHighlightTextComponent,
     FormatDateDirective,
+    CustomGalleryPickerComponent,
     ExpenseState,
     FooterComponent,
     FyLoadingScreenComponent,
@@ -348,6 +350,7 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     FyViewAttachmentComponent,
     FyHighlightTextComponent,
     FormatDateDirective,
+    CustomGalleryPickerComponent,
     ExpenseState,
     FooterComponent,
     FyLoadingScreenComponent,
