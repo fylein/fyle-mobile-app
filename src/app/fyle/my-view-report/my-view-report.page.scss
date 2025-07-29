@@ -662,11 +662,11 @@
   }
 
   &--skeleton-expense-item {
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 12px;
-    border: 1px solid $grey-lightest;
+    border: 1px solid colors.$grey-lightest;
   }
 
   &--skeleton-expense-icon {
