@@ -97,7 +97,6 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -159,7 +158,6 @@ describe('MyExpensesPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let popupService: jasmine.SpyObj<PopupService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let inputElement: HTMLInputElement;
@@ -259,7 +257,6 @@ describe('MyExpensesPage', () => {
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
@@ -491,10 +488,6 @@ describe('MyExpensesPage', () => {
           useValue: loaderServiceSpy,
         },
         {
-          provide: PopupService,
-          useValue: popupServiceSpy,
-        },
-        {
           provide: PopoverController,
           useValue: popoverControllerSpy,
         },
@@ -573,7 +566,6 @@ describe('MyExpensesPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;

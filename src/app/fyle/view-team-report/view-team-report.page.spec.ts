@@ -15,7 +15,6 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -74,7 +73,6 @@ describe('ViewTeamReportPageV2', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let router: jasmine.SpyObj<Router>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let popupService: jasmine.SpyObj<PopupService>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
@@ -101,7 +99,6 @@ describe('ViewTeamReportPageV2', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
@@ -169,10 +166,6 @@ describe('ViewTeamReportPageV2', () => {
         {
           provide: PopoverController,
           useValue: popoverControllerSpy,
-        },
-        {
-          provide: PopupService,
-          useValue: popupServiceSpy,
         },
         {
           provide: NetworkService,
@@ -247,7 +240,6 @@ describe('ViewTeamReportPageV2', () => {
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;

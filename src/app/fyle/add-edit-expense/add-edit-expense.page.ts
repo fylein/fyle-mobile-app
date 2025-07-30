@@ -109,7 +109,6 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -491,7 +490,6 @@ export class AddEditExpensePage implements OnInit {
     private popoverController: PopoverController,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
-    private popupService: PopupService,
     private navController: NavController,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private trackingService: TrackingService,
@@ -710,38 +708,6 @@ export class AddEditExpensePage implements OnInit {
         return isPaymentModeInvalid;
       }),
     );
-  }
-
-  async unmatchExpense(etxn: UnflattenedTransaction): Promise<void> {
-    const message = this.isSplitExpensesPresent
-      ? 'Unmatching the card transaction from this split expense will also unmatch it from the other splits associated with the expense.'
-      : 'This will remove the mapping between corporate card expense and this expense.';
-    const confirmPopup = await this.popupService.showPopup({
-      header: 'Unmatch?',
-      message,
-      primaryCta: {
-        text: 'UNMATCH',
-      },
-    });
-
-    if (confirmPopup === 'primary') {
-      this.showSelectedTransaction = false;
-      if (this.isDraftExpenseEnabled) {
-        this.isDraftExpense = false;
-      } else {
-        this.isDraftExpense = true;
-      }
-
-      if (['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx.state) > -1) {
-        this.canChangeMatchingCCCTransaction = false;
-      }
-
-      if (this.isSplitExpensesPresent) {
-        this.canChangeMatchingCCCTransaction = this.alreadyApprovedExpenses.length < 1;
-      }
-
-      this.selectedCCCTransaction = null;
-    }
   }
 
   setupNetworkWatcher(): void {

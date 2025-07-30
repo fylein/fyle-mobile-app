@@ -5,7 +5,6 @@ import { ViewTeamAdvanceRequestPage } from './view-team-advance-request.page';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -26,8 +25,6 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { customFields } from 'src/app/core/mock-data/custom-field.data';
 import { cloneDeep } from 'lodash';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { popupConfigData3 } from 'src/app/core/mock-data/popup.data';
-import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { advanceRequestPlatform } from 'src/app/core/mock-data/platform/v1/advance-request-platform.data';
 import {
   modalControllerParams6,
@@ -44,7 +41,6 @@ describe('ViewTeamAdvanceRequestPage', () => {
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
   let fileService: jasmine.SpyObj<FileService>;
   let router: jasmine.SpyObj<Router>;
-  let popupService: jasmine.SpyObj<PopupService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let actionSheetController: jasmine.SpyObj<ActionSheetController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -77,7 +73,6 @@ describe('ViewTeamAdvanceRequestPage', () => {
       '',
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -101,7 +96,6 @@ describe('ViewTeamAdvanceRequestPage', () => {
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: PopupService, useValue: popupServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: ActionSheetController, useValue: actionSheetControllerSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
@@ -136,7 +130,6 @@ describe('ViewTeamAdvanceRequestPage', () => {
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
@@ -314,18 +307,6 @@ describe('ViewTeamAdvanceRequestPage', () => {
     component.onUpdateApprover(true);
     expect(component.refreshApprovers$.next).toHaveBeenCalledOnceWith(null);
   });
-
-  it('delete(): should show delete popup and navigate to team_advance page', fakeAsync(() => {
-    popupService.showPopup.and.resolveTo('primary');
-    advanceRequestService.delete.and.returnValue(of(void 0));
-
-    component.delete();
-    tick(100);
-
-    expect(popupService.showPopup).toHaveBeenCalledOnceWith(popupConfigData3);
-    expect(advanceRequestService.delete).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_advance']);
-  }));
 
   it('setupActionSheet(): should populate actionSheetButtons', fakeAsync(() => {
     spyOn(component, 'showApproveAdvanceSummaryPopover');

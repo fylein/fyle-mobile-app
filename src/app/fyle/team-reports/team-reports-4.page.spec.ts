@@ -7,7 +7,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -48,7 +47,6 @@ export function TestCases4(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
     let tasksService: jasmine.SpyObj<TasksService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
@@ -93,7 +91,6 @@ export function TestCases4(getTestBed) {
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;

@@ -7,7 +7,6 @@ import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { map, distinctUntilChanged, debounceTime, switchMap, shareReplay } from 'rxjs/operators';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
@@ -98,7 +97,6 @@ export class TeamReportsPage implements OnInit {
     private dateService: DateService,
     private router: Router,
     private currencyService: CurrencyService,
-    private popupService: PopupService,
     private trackingService: TrackingService,
     private activatedRoute: ActivatedRoute,
     private extendQueryParamsService: ExtendQueryParamsService,

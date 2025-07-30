@@ -7,7 +7,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -33,7 +32,6 @@ describe('TeamReportsPage', () => {
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'footerHomeTabClicked',
       'TeamReportsFilterApplied',
@@ -68,7 +66,6 @@ describe('TeamReportsPage', () => {
         { provide: DateService, useValue: dateServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
-        { provide: PopupService, useValue: popupServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: ExtendQueryParamsService, useValue: extendQueryParamsServiceSpy },

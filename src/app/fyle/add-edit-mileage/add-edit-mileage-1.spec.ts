@@ -50,7 +50,6 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -105,7 +104,6 @@ export function TestCases1(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -160,14 +158,13 @@ export function TestCases1(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -184,7 +181,7 @@ export function TestCases1(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -254,7 +251,7 @@ export function TestCases1(getTestBed) {
 
       expect(component.policyDetails).toEqual(individualExpPolicyStateData2);
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
-        activatedRoute.snapshot.params.id
+        activatedRoute.snapshot.params.id,
       );
     });
 
@@ -551,7 +548,7 @@ export function TestCases1(getTestBed) {
 
       const result = await component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state
+        splitPolicyExp4.data.final_desired_state,
       );
 
       expect(result).toEqual({ comment: 'primary' });
@@ -691,7 +688,7 @@ export function TestCases1(getTestBed) {
             removeMileageFromReport: true,
             id: 'txyeiYbLDSOy',
             reportId: 'rpFE5X1Pqi9P',
-          })
+          }),
         );
       }));
 
@@ -732,14 +729,14 @@ export function TestCases1(getTestBed) {
           removeMileageFromReport: undefined,
         });
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText })
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }),
         );
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.reviewList[+component.activeIndex]);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           transformedExpenseData,
           component.reviewList,
-          +component.activeIndex
+          +component.activeIndex,
         );
       }));
 
@@ -781,7 +778,7 @@ export function TestCases1(getTestBed) {
             ctaLoadingText,
             reportId: undefined,
             removeMileageFromReport: false,
-          })
+          }),
         );
       }));
 
@@ -823,7 +820,7 @@ export function TestCases1(getTestBed) {
             ctaLoadingText,
             reportId: undefined,
             removeMileageFromReport: false,
-          })
+          }),
         );
       }));
     });
@@ -970,7 +967,7 @@ export function TestCases1(getTestBed) {
       accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
       orgSettingsService.get.and.returnValue(of(null));
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes)
+        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(accountOptionData1);
@@ -990,7 +987,7 @@ export function TestCases1(getTestBed) {
       accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes)
+        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(accountOptionData1);
@@ -1013,7 +1010,7 @@ export function TestCases1(getTestBed) {
         expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
           multiplePaymentModesData,
           employeeSettingsData.payment_mode_settings.allowed_payment_modes,
-          config
+          config,
         );
         done();
       });
