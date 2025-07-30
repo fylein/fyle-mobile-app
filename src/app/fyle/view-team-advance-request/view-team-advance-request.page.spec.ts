@@ -25,8 +25,6 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { customFields } from 'src/app/core/mock-data/custom-field.data';
 import { cloneDeep } from 'lodash';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { popupConfigData3 } from 'src/app/core/mock-data/popup.data';
-import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { advanceRequestPlatform } from 'src/app/core/mock-data/platform/v1/advance-request-platform.data';
 import {
   modalControllerParams6,

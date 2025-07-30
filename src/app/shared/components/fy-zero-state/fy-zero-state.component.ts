@@ -39,8 +39,4 @@ export class FyZeroStateComponent implements OnInit, AfterViewInit {
       this.messageRef.nativeElement.getElementsByTagName('ion-icon')[0]?.classList.add('zero-state--icon');
     }
   }
-
-  onLinkClick(event) {
-    this.linkClicked.emit(event);
-  }
 }

@@ -612,54 +612,6 @@ export function TestCases1(getTestBed) {
       }));
     });
 
-    describe('unmatchExpense():', () => {
-      it('should show popup and selected txns if primary action is selected', fakeAsync(() => {
-        popupService.showPopup.and.resolveTo('primary');
-
-        component.unmatchExpense(unflattenedExpData);
-        tick(500);
-
-        expect(popupService.showPopup).toHaveBeenCalledOnceWith({
-          header: 'Unmatch?',
-          message: 'This will remove the mapping between corporate card expense and this expense.',
-          primaryCta: {
-            text: 'UNMATCH',
-          },
-        });
-        expect(component.showSelectedTransaction).toBeFalse();
-        expect(component.isDraftExpense).toBeTrue();
-        expect(component.selectedCCCTransaction).toBeNull();
-        expect(component.canChangeMatchingCCCTransaction).toBeTrue();
-      }));
-
-      it('should show popup and other settings if it is a CCC txn and draft is enabled', fakeAsync(() => {
-        popupService.showPopup.and.resolveTo('primary');
-        component.isSplitExpensesPresent = true;
-        component.isDraftExpenseEnabled = true;
-        component.isSplitExpensesPresent = true;
-        component.alreadyApprovedExpenses = expenseResponseData;
-        fixture.detectChanges();
-
-        component.unmatchExpense({
-          ...unflattenedTxnData,
-          tx: { ...unflattenedTxnData.tx, state: 'APPROVER_PENDING' },
-        });
-        tick(500);
-
-        expect(popupService.showPopup).toHaveBeenCalledOnceWith({
-          header: 'Unmatch?',
-          message:
-            'Unmatching the card transaction from this split expense will also unmatch it from the other splits associated with the expense.',
-          primaryCta: {
-            text: 'UNMATCH',
-          },
-        });
-        expect(component.isDraftExpense).toBeFalse();
-        expect(component.canChangeMatchingCCCTransaction).toBeFalse();
-        expect(component.selectedCCCTransaction).toBeNull();
-      }));
-    });
-
     it('setupNetworkWatcher(): should setup network watching', (done) => {
       networkService.connectivityWatcher.and.returnValue(null);
       networkService.isOnline.and.returnValue(of(true));
