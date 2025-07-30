@@ -49,7 +49,6 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -104,7 +103,6 @@ export function TestCases1(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -167,14 +165,13 @@ export function TestCases1(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -192,7 +189,7 @@ export function TestCases1(getTestBed) {
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -460,7 +457,7 @@ export function TestCases1(getTestBed) {
           of({
             ...orgSettingsRes,
             advances: { ...orgSettingsRes.advances, advance_wallets_enabled: true },
-          })
+          }),
         );
 
         component.fg.controls.paymentMode.setValue({
@@ -543,7 +540,7 @@ export function TestCases1(getTestBed) {
           of({
             ...orgSettingsRes,
             advances: { ...orgSettingsRes.advances, advance_wallets_enabled: true },
-          })
+          }),
         );
 
         component.fg.controls.paymentMode.setValue({
@@ -798,7 +795,7 @@ export function TestCases1(getTestBed) {
         customInputsService.getAll.and.returnValue(of(null));
         component.txnFields$ = of(expenseFieldObjData);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(
-          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } })
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } }),
         );
         component.fg.controls.report.setValue(null);
         spyOn(component, 'showSplitBlockedPopover');
@@ -808,7 +805,7 @@ export function TestCases1(getTestBed) {
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
         expect(router.navigate).not.toHaveBeenCalled();
         expect(component.showSplitBlockedPopover).toHaveBeenCalledOnceWith(
-          'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.'
+          'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.',
         );
       });
 
@@ -817,7 +814,7 @@ export function TestCases1(getTestBed) {
         customInputsService.getAll.and.returnValue(of(null));
         component.txnFields$ = of(expenseFieldObjData);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(
-          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } })
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } }),
         );
         component.fg.controls.report.setValue(null);
         spyOn(component, 'showSplitBlockedPopover');
@@ -827,7 +824,7 @@ export function TestCases1(getTestBed) {
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
         expect(router.navigate).not.toHaveBeenCalled();
         expect(component.showSplitBlockedPopover).toHaveBeenCalledOnceWith(
-          'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.'
+          'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.',
         );
       });
 
@@ -836,7 +833,7 @@ export function TestCases1(getTestBed) {
         customInputsService.getAll.and.returnValue(of(null));
         component.txnFields$ = of(expenseFieldObjData);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(
-          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } })
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } }),
         );
         component.fg.controls.report.setValue({ ...expectedReportsPaginated[0], id: null });
         spyOn(component, 'showSplitBlockedPopover');
@@ -846,7 +843,7 @@ export function TestCases1(getTestBed) {
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
         expect(router.navigate).not.toHaveBeenCalled();
         expect(component.showSplitBlockedPopover).toHaveBeenCalledOnceWith(
-          'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.'
+          'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.',
         );
       });
 
@@ -855,7 +852,7 @@ export function TestCases1(getTestBed) {
         customInputsService.getAll.and.returnValue(of(null));
         component.txnFields$ = of(expenseFieldObjData);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(
-          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, amount: 10, tax_amount: 12 } })
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, amount: 10, tax_amount: 12 } }),
         );
         component.fg.controls.report.setValue(null);
         spyOn(component, 'showSplitBlockedPopover');
@@ -865,7 +862,7 @@ export function TestCases1(getTestBed) {
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
         expect(router.navigate).not.toHaveBeenCalled();
         expect(component.showSplitBlockedPopover).toHaveBeenCalledOnceWith(
-          'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.'
+          'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.',
         );
       });
 
@@ -874,7 +871,7 @@ export function TestCases1(getTestBed) {
         customInputsService.getAll.and.returnValue(of(null));
         component.txnFields$ = of(expenseFieldObjData);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(
-          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, amount: -100, tax_amount: -12 } })
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, amount: -100, tax_amount: -12 } }),
         );
         component.fg.controls.report.setValue(null);
         spyOn(component, 'showSplitBlockedPopover');
@@ -894,7 +891,7 @@ export function TestCases1(getTestBed) {
         component.markCCCAsPersonal().subscribe(() => {
           expect(trackingService.deleteExpense).toHaveBeenCalledOnceWith({ Type: 'Marked Personal' });
           expect(corporateCreditCardExpenseService.markPersonal).toHaveBeenCalledOnceWith(
-            component.corporateCreditCardExpenseGroupId
+            component.corporateCreditCardExpenseGroupId,
           );
           done();
         });
@@ -909,7 +906,7 @@ export function TestCases1(getTestBed) {
         component.dismissCCC(expenseData1.tx_corporate_credit_card_expense_group_id).subscribe(() => {
           expect(trackingService.deleteExpense).toHaveBeenCalledOnceWith({ Type: 'Dismiss as Card Payment' });
           expect(corporateCreditCardExpenseService.dismissCreditTransaction).toHaveBeenCalledOnceWith(
-            expenseData1.tx_corporate_credit_card_expense_group_id
+            expenseData1.tx_corporate_credit_card_expense_group_id,
           );
           done();
         });
@@ -933,7 +930,7 @@ export function TestCases1(getTestBed) {
       result.componentProps.deleteMethod().subscribe((res) => {
         expect(res).toEqual(mockUnlinkResponse);
         expect(transactionService.removeCorporateCardExpense).toHaveBeenCalledOnceWith(
-          activatedRoute.snapshot.params.id
+          activatedRoute.snapshot.params.id,
         );
         done();
       });
@@ -963,14 +960,14 @@ export function TestCases1(getTestBed) {
         expect(transactionService.getRemoveCardExpenseDialogBody).toHaveBeenCalledTimes(1);
         expect(component.getRemoveCCCExpModalParams).toHaveBeenCalledOnceWith(header, body, ctaText, ctaLoadingText);
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
+          component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText),
         );
         expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1);
         expect(component.goBack).toHaveBeenCalledOnceWith();
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },
           'information',
-          ['msb-info']
+          ['msb-info'],
         );
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
           ToastContent: 'Successfully removed the card details from the expense.',
@@ -1018,7 +1015,7 @@ export function TestCases1(getTestBed) {
         expect(transactionService.getRemoveCardExpenseDialogBody).toHaveBeenCalledTimes(1);
         expect(component.getRemoveCCCExpModalParams).toHaveBeenCalledOnceWith(header, body, ctaText, ctaLoadingText);
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
+          component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText),
         );
         expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1);
 
@@ -1031,7 +1028,7 @@ export function TestCases1(getTestBed) {
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },
           'information',
-          ['msb-info']
+          ['msb-info'],
         );
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
           ToastContent: 'Successfully removed the card details from the expense.',
@@ -1061,7 +1058,7 @@ export function TestCases1(getTestBed) {
         expect(transactionService.getRemoveCardExpenseDialogBody).toHaveBeenCalledTimes(1);
         expect(component.getRemoveCCCExpModalParams).toHaveBeenCalledOnceWith(header, body, ctaText, ctaLoadingText);
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
+          component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText),
         );
         expect(trackingService.unlinkCorporateCardExpense).not.toHaveBeenCalled();
         expect(component.showSnackBarToast).not.toHaveBeenCalled();
@@ -1090,13 +1087,13 @@ export function TestCases1(getTestBed) {
         expect(transactionService.getRemoveCardExpenseDialogBody).toHaveBeenCalledTimes(1);
         expect(component.getRemoveCCCExpModalParams).toHaveBeenCalledOnceWith(header, body, ctaText, ctaLoadingText);
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
+          component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText),
         );
         expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1);
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },
           'information',
-          ['msb-info']
+          ['msb-info'],
         );
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
           ToastContent: 'Successfully removed the card details from the expense.',
@@ -1121,7 +1118,7 @@ export function TestCases1(getTestBed) {
         tick(500);
 
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getMarkDismissModalParams(getMarkDismissModalParamsData1, true)
+          component.getMarkDismissModalParams(getMarkDismissModalParamsData1, true),
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith({ message: 'Dismissed expense' }, 'information', [
@@ -1147,13 +1144,13 @@ export function TestCases1(getTestBed) {
         tick(500);
 
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getMarkDismissModalParams(getMarkDismissModalParamsData2, true)
+          component.getMarkDismissModalParams(getMarkDismissModalParamsData2, true),
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Marked expense as Personal' },
           'information',
-          ['msb-info']
+          ['msb-info'],
         );
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
           ToastContent: 'Marked expense as Personal',
@@ -1177,13 +1174,13 @@ export function TestCases1(getTestBed) {
         tick(500);
 
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getMarkDismissModalParams(getMarkDismissModalParamsData2, true)
+          component.getMarkDismissModalParams(getMarkDismissModalParamsData2, true),
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Marked expense as Personal' },
           'information',
-          ['msb-info']
+          ['msb-info'],
         );
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
           ToastContent: 'Marked expense as Personal',
@@ -1253,7 +1250,7 @@ export function TestCases1(getTestBed) {
           of({
             ...orgSettingsData,
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
-          })
+          }),
         );
         component.isCccExpense = 'tx3qHxFNgRcZ';
         component.canDismissCCCE = true;
@@ -1290,7 +1287,7 @@ export function TestCases1(getTestBed) {
           of({
             ...orgSettingsData,
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
-          })
+          }),
         );
         component.isCccExpense = 'tx3qHxFNgRcZ';
         component.canDismissCCCE = true;
@@ -1313,7 +1310,7 @@ export function TestCases1(getTestBed) {
           of({
             ...orgSettingsData,
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
-          })
+          }),
         );
         component.isCccExpense = 'tx3qHxFNgRcZ';
         component.canDismissCCCE = true;
@@ -1334,7 +1331,7 @@ export function TestCases1(getTestBed) {
           of({
             ...orgSettingsData,
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
-          })
+          }),
         );
         component.isCccExpense = 'tx3qHxFNgRcZ';
         component.canDismissCCCE = false;
@@ -1394,7 +1391,7 @@ export function TestCases1(getTestBed) {
       it('should return empty array if cost centers are not enabled', (done) => {
         component.employeeSettings$ = of(employeeSettingsData);
         orgSettingsService.get.and.returnValue(
-          of({ ...orgSettingsRes, cost_centers: { ...orgSettingsRes.cost_centers, enabled: false } })
+          of({ ...orgSettingsRes, cost_centers: { ...orgSettingsRes.cost_centers, enabled: false } }),
         );
         costCentersService.getAllActive.and.returnValue(of(costCenterApiRes1));
         fixture.detectChanges();

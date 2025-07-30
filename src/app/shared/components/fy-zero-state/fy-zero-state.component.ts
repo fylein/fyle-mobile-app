@@ -18,8 +18,6 @@ export class FyZeroStateComponent implements OnInit, AfterViewInit {
 
   @Input() submessage: string;
 
-  @Input() link: string;
-
   // TODO: Remove off when all old zero states are replaced with new ones
   // zero state has a max-width associated with the image.
   // This meant that I couldn't reuse it for the new places without the image appearing very small

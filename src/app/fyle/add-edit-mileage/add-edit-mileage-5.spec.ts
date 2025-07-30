@@ -60,7 +60,6 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -113,7 +112,6 @@ export function TestCases5(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -170,14 +168,13 @@ export function TestCases5(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -194,7 +191,7 @@ export function TestCases5(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -371,7 +368,7 @@ export function TestCases5(getTestBed) {
         });
 
         expect(expenseCommentService.getTransformedComments).toHaveBeenCalledOnceWith(
-          activatedRoute.snapshot.params.id
+          activatedRoute.snapshot.params.id,
         );
         expect(component.checkIndividualMileageEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
         expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(2);
@@ -849,7 +846,7 @@ export function TestCases5(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
         expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
       });
@@ -864,7 +861,7 @@ export function TestCases5(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
       });
     });
@@ -904,7 +901,7 @@ export function TestCases5(getTestBed) {
               <p>Your Commute Details have been successfully added to your Profile
               Settings.</p>
               <p>You can now easily deduct commute from your Mileage expenses.<p>  
-            </div>`
+            </div>`,
       );
     });
 
@@ -963,7 +960,7 @@ export function TestCases5(getTestBed) {
         expect(mileageService.getCommuteDeductionOptions).toHaveBeenCalledOnceWith(10);
         expect(component.showCommuteUpdatedPopover).toHaveBeenCalledTimes(1);
         expect(trackingService.commuteDeductionDetailsAddedFromMileageForm).toHaveBeenCalledOnceWith(
-          commuteDetailsResponseData.data[0]
+          commuteDetailsResponseData.data[0],
         );
       }));
 
@@ -1182,7 +1179,7 @@ export function TestCases5(getTestBed) {
         expect(component.initialDistance).toEqual(430);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
-          commuteDeductionOptionsData1[0]
+          commuteDeductionOptionsData1[0],
         );
       });
 
@@ -1199,7 +1196,7 @@ export function TestCases5(getTestBed) {
         expect(component.initialDistance).toEqual(450);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
-          commuteDeductionOptionsData1[0]
+          commuteDeductionOptionsData1[0],
         );
       });
 
@@ -1214,7 +1211,7 @@ export function TestCases5(getTestBed) {
         expect(component.initialDistance).toEqual(250);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
-          commuteDeductionOptionsData1[0]
+          commuteDeductionOptionsData1[0],
         );
       });
 
@@ -1230,7 +1227,7 @@ export function TestCases5(getTestBed) {
         expect(component.initialDistance).toEqual(200);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
-          commuteDeductionOptionsData1[0]
+          commuteDeductionOptionsData1[0],
         );
       });
 
@@ -1251,7 +1248,7 @@ export function TestCases5(getTestBed) {
         expect(component.initialDistance).toEqual(26.0946);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
-          commuteDeductionOptionsData1[0]
+          commuteDeductionOptionsData1[0],
         );
       });
     });
