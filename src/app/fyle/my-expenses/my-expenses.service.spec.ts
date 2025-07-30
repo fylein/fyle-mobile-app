@@ -129,7 +129,7 @@ describe('MyExpensesService', () => {
 
       expect(myExpensesService.convertSelectedSortFitlersToFilters).toHaveBeenCalledOnceWith(
         sortBy,
-        expenseFiltersData3
+        expenseFiltersData3,
       );
 
       expect(convertedFilters).toEqual(expenseFiltersData3);
@@ -143,7 +143,7 @@ describe('MyExpensesService', () => {
 
       expect(myExpensesService.convertSelectedSortFitlersToFilters).toHaveBeenCalledOnceWith(
         sortBy,
-        expenseFiltersData4
+        expenseFiltersData4,
       );
 
       expect(convertedFilters).toEqual(expenseFiltersData4);
@@ -182,7 +182,7 @@ describe('MyExpensesService', () => {
     const filterPill = [];
     myExpensesService.generateTypeFilterPills(
       { ...expenseFiltersData1, type: [ExpenseType.EXPENSE, ExpenseType.PER_DIEM, ExpenseType.MILEAGE, 'custom'] },
-      filterPill
+      filterPill,
     );
     expect(filterPill).toEqual([
       { label: 'Expense Type', type: 'type', value: 'Regular Expenses, Per Diem, Mileage, custom' },
@@ -436,15 +436,15 @@ describe('MyExpensesService', () => {
 
     expect(myExpensesService.convertTxnDtSortToSelectedFilters).toHaveBeenCalledOnceWith(
       expenseFiltersData1,
-      selectedFilters9
+      selectedFilters9,
     );
     expect(myExpensesService.convertAmountSortToSelectedFilters).toHaveBeenCalledOnceWith(
       expenseFiltersData1,
-      selectedFilters9
+      selectedFilters9,
     );
     expect(myExpensesService.convertCategorySortToSelectedFilters).toHaveBeenCalledOnceWith(
       expenseFiltersData1,
-      selectedFilters9
+      selectedFilters9,
     );
   });
 
@@ -467,7 +467,7 @@ describe('MyExpensesService', () => {
 
       myExpensesService.convertCategorySortToSelectedFilters(
         { ...expenseFiltersData1, sortDir: 'desc' },
-        generatedFilters
+        generatedFilters,
       );
 
       expect(generatedFilters).toEqual([

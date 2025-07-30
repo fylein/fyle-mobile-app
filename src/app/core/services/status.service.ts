@@ -12,7 +12,10 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class StatusService {
-  constructor(private apiService: ApiService, private translocoService: TranslocoService) {}
+  constructor(
+    private apiService: ApiService,
+    private translocoService: TranslocoService,
+  ) {}
 
   find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
@@ -20,8 +23,8 @@ export class StatusService {
         estatuses?.map((estatus) => {
           estatus.st_created_at = new Date(estatus.st_created_at);
           return estatus;
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -29,7 +32,7 @@ export class StatusService {
     objectType: string,
     objectId: string,
     status: { comment: string | ExtendedStatus },
-    notify: boolean = false
+    notify = false,
   ): Observable<TransactionStatus> {
     return this.apiService.post<TransactionStatus>('/' + objectType + '/' + objectId + '/statuses', {
       status,
@@ -263,7 +266,7 @@ export class StatusService {
         if (sortedStatus.length) {
           return sortedStatus[0].st_comment;
         }
-      })
+      }),
     );
   }
 

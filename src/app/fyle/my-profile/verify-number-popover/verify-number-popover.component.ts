@@ -36,7 +36,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   constructor(
     private popoverController: PopoverController,
     private mobileNumberVerificationService: MobileNumberVerificationService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {

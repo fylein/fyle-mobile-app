@@ -72,7 +72,7 @@ describe('TransactionsOutboxService', () => {
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     httpMock = TestBed.inject(HttpTestingController);
     httpTestingController = TestBed.inject(HttpTestingController);
@@ -183,12 +183,12 @@ describe('TransactionsOutboxService', () => {
       transactionsOutboxService.addEntryAndSync(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null
+        null,
       );
       expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null
+        null,
       );
       expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);
       expect(transactionsOutboxService.queue.length).toEqual(0);
@@ -198,12 +198,12 @@ describe('TransactionsOutboxService', () => {
       transactionsOutboxService.addEntryAndSync(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null
+        null,
       );
       expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null
+        null,
       );
       expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);
       expect(transactionsOutboxService.queue.length).toEqual(0);
@@ -216,7 +216,7 @@ describe('TransactionsOutboxService', () => {
     const res = transactionsOutboxService.getPendingTransactions();
     expect(res.length).toEqual(1);
     expect(res).toEqual(
-      transactionsOutboxService.queue.map((entry) => ({ ...entry.transaction, dataUrls: entry.dataUrls }))
+      transactionsOutboxService.queue.map((entry) => ({ ...entry.transaction, dataUrls: entry.dataUrls })),
     );
   });
 

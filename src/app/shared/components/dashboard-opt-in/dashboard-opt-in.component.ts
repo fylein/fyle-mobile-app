@@ -21,7 +21,7 @@ export class DashboardOptInComponent {
     private modalController: ModalController,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   async optInClick(): Promise<void> {

@@ -136,7 +136,7 @@ export class ExpensesCardComponent implements OnInit {
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
     private expensesService: ExpensesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get isSelected(): boolean {
@@ -226,7 +226,7 @@ export class ExpensesCardComponent implements OnInit {
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
     this.isSycing$ = this.isConnected$.pipe(
-      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
+      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense),
     );
 
     this.isMileageExpense = this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage';
@@ -246,13 +246,13 @@ export class ExpensesCardComponent implements OnInit {
       .pipe(
         map((homeCurrency) => {
           this.homeCurrency = homeCurrency;
-        })
+        }),
       )
       .subscribe(noop);
 
     this.isProjectEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     if (!this.expense.tx_id) {
@@ -260,7 +260,7 @@ export class ExpensesCardComponent implements OnInit {
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = this.expense && new Date(this.expense.tx_txn_dt || this.expense.tx_created_at).toDateString();
       const previousDate = new Date(
-        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
+        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string,
       ).toDateString();
       this.showDt = currentDate !== previousDate;
     }
@@ -417,7 +417,7 @@ export class ExpensesCardComponent implements OnInit {
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;
-        })
+        }),
       )
       .subscribe(() => {
         this.isReceiptPresent = true;
@@ -427,7 +427,7 @@ export class ExpensesCardComponent implements OnInit {
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      startWith(true)
+      startWith(true),
     );
   }
 

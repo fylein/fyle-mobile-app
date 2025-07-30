@@ -564,10 +564,10 @@ describe('MyExpensesPage', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     corporateCreditCardService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -732,7 +732,7 @@ describe('MyExpensesPage', () => {
       expect(component.hardwareBackButton).toEqual(backButtonSubscription);
       expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
         BackButtonActionPriority.MEDIUM,
-        jasmine.any(Function)
+        jasmine.any(Function),
       );
       expect(tasksService.getExpensesTaskCount).toHaveBeenCalledTimes(1);
       expect(component.expensesTaskCount).toBe(10);
@@ -1646,7 +1646,7 @@ describe('MyExpensesPage', () => {
 
   it('getCardDetail(): should call corporateCreditCardService.getCorporateCards() method', (done) => {
     corporateCreditCardService.getCorporateCards.and.returnValue(
-      of([corporateCardsResponseData[0], corporateCardsResponseData[1]])
+      of([corporateCardsResponseData[0], corporateCardsResponseData[1]]),
     );
     const getCardDetailRes$ = component.getCardDetail();
 
@@ -1917,7 +1917,7 @@ describe('MyExpensesPage', () => {
       expect(sharedExpenseService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(sharedExpenseService.generateDateParams).toHaveBeenCalledOnceWith(
         { 'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)', or: [] },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
         {
@@ -1925,7 +1925,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
@@ -1933,7 +1933,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
@@ -1941,7 +1941,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateTypeFilters).toHaveBeenCalledOnceWith(
         {
@@ -1949,7 +1949,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
       expect(sharedExpenseService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
@@ -1958,7 +1958,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
 
       expect(currentParams).toEqual(expectedCurrentParamsWoFilterState);
@@ -1975,7 +1975,7 @@ describe('MyExpensesPage', () => {
       expect(sharedExpenseService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(sharedExpenseService.generateDateParams).toHaveBeenCalledOnceWith(
         { 'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)', or: [] },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
         {
@@ -1983,7 +1983,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
@@ -1991,7 +1991,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
@@ -1999,7 +1999,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateTypeFilters).toHaveBeenCalledOnceWith(
         {
@@ -2007,7 +2007,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
       expect(sharedExpenseService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
@@ -2016,7 +2016,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
 
       expect(currentParams).toEqual(expectedCurrentParamsDraftState);
@@ -2033,7 +2033,7 @@ describe('MyExpensesPage', () => {
       expect(sharedExpenseService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(sharedExpenseService.generateDateParams).toHaveBeenCalledOnceWith(
         { 'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)', or: [] },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
         {
@@ -2041,7 +2041,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
@@ -2049,7 +2049,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
@@ -2057,7 +2057,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateTypeFilters).toHaveBeenCalledOnceWith(
         {
@@ -2065,7 +2065,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
       expect(sharedExpenseService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
@@ -2074,7 +2074,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
 
       expect(currentParams).toEqual(expectedCurrentParamsCannotReportState);
@@ -2091,7 +2091,7 @@ describe('MyExpensesPage', () => {
       expect(sharedExpenseService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(sharedExpenseService.generateDateParams).toHaveBeenCalledOnceWith(
         { 'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)', or: [] },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
         {
@@ -2099,7 +2099,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
@@ -2107,7 +2107,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
@@ -2115,7 +2115,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateTypeFilters).toHaveBeenCalledOnceWith(
         {
@@ -2123,7 +2123,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
       expect(sharedExpenseService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
@@ -2132,7 +2132,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
 
       expect(currentParams).toEqual(expectedCurrentParamsWithDraftCannotReportState);
@@ -2476,7 +2476,7 @@ describe('MyExpensesPage', () => {
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
         expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
-          'Please select one or more expenses to be reported'
+          'Please select one or more expenses to be reported',
         );
         expect(component.openCriticalPolicyViolationPopOver).not.toHaveBeenCalled();
         expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
@@ -2549,7 +2549,7 @@ describe('MyExpensesPage', () => {
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
         expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
-          'Please select one or more expenses to be reported'
+          'Please select one or more expenses to be reported',
         );
         expect(component.openCriticalPolicyViolationPopOver).not.toHaveBeenCalled();
         expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
@@ -2581,14 +2581,14 @@ describe('MyExpensesPage', () => {
     it('should call showNonReportableExpenseSelectedToast when mix of expense types are selected', () => {
       component.unreportableExpenseExceptionHandler(1, 1, 1);
       expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
-        "You can't add draft expenses and expenses with critical policy violation & pending transactions."
+        "You can't add draft expenses and expenses with critical policy violation & pending transactions.",
       );
     });
 
     it('should call showNonReportableExpenseSelectedToast when mix of draft and policy violation types are selected', () => {
       component.unreportableExpenseExceptionHandler(1, 1, 0);
       expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
-        "You can't add draft expenses & expenses with critical policy violations to a report."
+        "You can't add draft expenses & expenses with critical policy violations to a report.",
       );
     });
   });
@@ -2883,7 +2883,7 @@ describe('MyExpensesPage', () => {
         }),
         finalize(() => {
           expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        })
+        }),
       )
       .subscribe(noop);
     done();
@@ -3017,7 +3017,7 @@ describe('MyExpensesPage', () => {
 
       expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith(
         component.pendingTransactions,
-        expenseList4
+        expenseList4,
       );
     });
   });
@@ -3026,7 +3026,7 @@ describe('MyExpensesPage', () => {
     beforeEach(() => {
       sharedExpenseService.getExpenseDeletionMessage.and.returnValue('You are about to delete this expense');
       sharedExpenseService.getCCCExpenseMessage.and.returnValue(
-        'There are 2 corporate credit cards which can be deleted'
+        'There are 2 corporate credit cards which can be deleted',
       );
       sharedExpenseService.getDeleteDialogBody.and.returnValue('Once deleted, the action cannot be undone');
       component.expensesToBeDeleted = apiExpenses1;
@@ -3231,7 +3231,7 @@ describe('MyExpensesPage', () => {
       expect(sharedExpenseService.excludeCCCExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
       expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(
         component.selectedElements,
-        component.restrictPendingTransactionsEnabled
+        component.restrictPendingTransactionsEnabled,
       );
       expect(component.cccExpenses).toBe(0);
       expect(component.selectedElements).toEqual([...apiExpenses1]);

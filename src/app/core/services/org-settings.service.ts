@@ -20,7 +20,10 @@ const orgSettingsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class OrgSettingsService {
-  constructor(private apiService: ApiService, private translocoService: TranslocoService) {}
+  constructor(
+    private apiService: ApiService,
+    private translocoService: TranslocoService,
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: orgSettingsCacheBuster$,

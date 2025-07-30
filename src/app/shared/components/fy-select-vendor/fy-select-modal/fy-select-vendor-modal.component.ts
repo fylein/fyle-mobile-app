@@ -36,7 +36,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     private vendorService: VendorService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private utilityService: UtilityService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -56,8 +56,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
         options.map((option) => {
           option.selected = isEqual(option.value, this.currentSelection);
           return option;
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -78,7 +78,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
               vendors.map((vendor) => ({
                 label: vendor.display_name,
                 value: vendor,
-              }))
+              })),
             ),
             catchError(() => []), // api fails on empty searchText and if app is offline - failsafe here
             map((vendors: VendorListItem[]) => {
@@ -94,7 +94,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
               // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
               // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
               this.cdr.detectChanges();
-            })
+            }),
           );
         } else {
           return [];
@@ -121,7 +121,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
           }
           return vendor;
         });
-      })
+      }),
     );
 
     this.recentrecentlyUsedItems$ = fromEvent<KeyboardEvent>(this.searchBarRef.nativeElement, 'keyup').pipe(
@@ -131,9 +131,9 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       switchMap((searchText: string) =>
         this.getRecentlyUsedVendors().pipe(
           // filtering of recently used items wrt searchText is taken care in service method
-          this.utilityService.searchArrayStream(searchText)
-        )
-      )
+          this.utilityService.searchArrayStream(searchText),
+        ),
+      ),
     );
 
     combineLatest({

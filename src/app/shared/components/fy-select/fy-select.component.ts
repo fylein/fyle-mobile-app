@@ -71,7 +71,7 @@ export class FySelectComponent implements ControlValueAccessor {
   constructor(
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get valid(): boolean {

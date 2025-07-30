@@ -26,7 +26,7 @@ export class CropReceiptComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private loaderService: LoaderService,
-    private platform: Platform
+    private platform: Platform,
   ) {}
 
   ngOnInit() {

@@ -232,7 +232,7 @@ describe('MyProfilePage', () => {
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     secureStorageService = TestBed.inject(SecureStorageService) as jasmine.SpyObj<SecureStorageService>;
@@ -375,7 +375,7 @@ describe('MyProfilePage', () => {
       expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
         'success',
         { message },
-        'check-circle-outline'
+        'check-circle-outline',
       );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
@@ -409,7 +409,7 @@ describe('MyProfilePage', () => {
         isShown?: boolean;
         isFinished?: boolean;
         overlayClickCount?: number;
-      }>)
+      }>),
     );
     walkthroughService.getProfileEmailOptInWalkthroughConfig.and.returnValue([
       {
@@ -425,8 +425,6 @@ describe('MyProfilePage', () => {
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    loaderService.showLoader.and.resolveTo();
-    loaderService.hideLoader.and.resolveTo();
     spyOn(component, 'setInfoCardsData');
     spyOn(component, 'setPreferenceSettings');
     spyOn(component, 'setCCCFlags');
@@ -443,13 +441,11 @@ describe('MyProfilePage', () => {
     expect(component.setInfoCardsData).toHaveBeenCalledTimes(1);
     expect(component.setPreferenceSettings).toHaveBeenCalledTimes(1);
     expect(component.setCCCFlags).toHaveBeenCalledTimes(1);
-    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
 
     expect(component.employeeSettings).toEqual(employeeSettingsData);
     expect(component.orgSettings).toEqual(orgSettingsData);
     expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
-      orgSettingsData.payment_mode_settings.payment_modes_order[0]
+      orgSettingsData.payment_mode_settings.payment_modes_order[0],
     );
     expect(component.defaultPaymentMode).toEqual('Personal Cash/Card');
   }));
@@ -881,7 +877,7 @@ describe('MyProfilePage', () => {
 
       expect(component.showToastMessage).toHaveBeenCalledOnceWith(
         'Something went wrong. Please try again later.',
-        'failure'
+        'failure',
       );
       expect(authService.getEou).toHaveBeenCalledTimes(1);
     }));

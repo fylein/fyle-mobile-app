@@ -175,7 +175,7 @@ export class SplitExpensePage implements OnDestroy {
     private launchDarklyService: LaunchDarklyService,
     private projectsService: ProjectsService,
     private timezoneService: TimezoneService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
   ) {}
 
   ngOnDestroy(): void {
@@ -206,7 +206,7 @@ export class SplitExpensePage implements OnDestroy {
           amount,
           percentage,
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
 
@@ -243,7 +243,7 @@ export class SplitExpensePage implements OnDestroy {
           amount,
           percentage,
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
 
@@ -259,7 +259,7 @@ export class SplitExpensePage implements OnDestroy {
   getTotalSplitAmount(): void {
     if ((this.splitExpensesFormArray.value as SplitExpense[]).length > 1) {
       const amounts = (this.splitExpensesFormArray.value as SplitExpense[]).map(
-        (obj: { amount: number }) => obj.amount
+        (obj: { amount: number }) => obj.amount,
       );
 
       const totalSplitAmount = amounts.reduce((acc, curr) => acc + curr);
@@ -347,7 +347,7 @@ export class SplitExpensePage implements OnDestroy {
         //If selected project/cost center is not same as the original expense, then remove dependent fields from source expense.
         if (isDifferentProject || isDifferentCostCenter) {
           txnCustomProperties = this.transaction.custom_properties.filter(
-            (customProperty) => !dependentCustomProperties?.includes(customProperty)
+            (customProperty) => !dependentCustomProperties?.includes(customProperty),
           );
         }
 
@@ -366,10 +366,10 @@ export class SplitExpensePage implements OnDestroy {
           txn_dt: this.setTransactionDate(splitExpenseValue, offset),
           custom_properties: this.timezoneService.convertAllDatesToProperLocale(
             txnCustomProperties,
-            offset
+            offset,
           ) as TxnCustomProperties[],
         });
-      })
+      }),
     );
   }
 
@@ -399,7 +399,7 @@ export class SplitExpensePage implements OnDestroy {
         map((files) => {
           this.fileObjs = files;
           return this.fileObjs;
-        })
+        }),
       );
     } else {
       return this.getAttachedFiles(this.transaction.id);
@@ -415,7 +415,7 @@ export class SplitExpensePage implements OnDestroy {
   setSplitExpenseValuesBasedOnProject(
     splitTxn: Transaction,
     project: ProjectV2,
-    isProjectCategoryRestrictionsEnabled: boolean
+    isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     splitTxn.project_id = project.project_id;
     splitTxn.project_name = project.project_name;
@@ -436,7 +436,7 @@ export class SplitExpensePage implements OnDestroy {
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
     expenseDetails: Record<string, ExpenseField | ProjectV2>,
-    isProjectCategoryRestrictionsEnabled: boolean
+    isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     const project: ProjectV2 = expenseDetails.project as ProjectV2;
     const costCenter: ExpenseField = expenseDetails.costCenter as ExpenseField;
@@ -468,7 +468,7 @@ export class SplitExpensePage implements OnDestroy {
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
     expenseDetails: Record<string, ExpenseField | ProjectV2>,
-    isProjectCategoryRestrictionsEnabled: boolean
+    isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     splitTxn.cost_center_id = splitFormValue.cost_center?.id || this.transaction.cost_center_id;
     if (this.transaction.project_id || this.transaction.org_category_id) {
@@ -483,7 +483,7 @@ export class SplitExpensePage implements OnDestroy {
   setupCategoryAndProject(
     splitTxn: Transaction,
     splitFormValue: SplitExpense,
-    isProjectCategoryRestrictionsEnabled: boolean
+    isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     const expenseDetails: Record<string, ExpenseField | ProjectV2> = {
       costCenter: this.txnFields.cost_center_id,
@@ -501,7 +501,7 @@ export class SplitExpensePage implements OnDestroy {
           splitFormValue,
           splitTxn,
           expenseDetails,
-          isProjectCategoryRestrictionsEnabled
+          isProjectCategoryRestrictionsEnabled,
         );
       } else if (
         (splitFormValue.project?.project_id && !splitFormValue.project.project_org_category_ids) ||
@@ -517,7 +517,7 @@ export class SplitExpensePage implements OnDestroy {
           splitFormValue,
           splitTxn,
           expenseDetails,
-          isProjectCategoryRestrictionsEnabled
+          isProjectCategoryRestrictionsEnabled,
         );
       }
     }
@@ -530,7 +530,7 @@ export class SplitExpensePage implements OnDestroy {
         this.totalSplitAmount,
         splitExpenses,
         this.expenseFields,
-        this.homeCurrency
+        this.homeCurrency,
       ),
     };
 
@@ -542,7 +542,7 @@ export class SplitExpensePage implements OnDestroy {
         }
         this.splitExpenseTxn = txns;
         return of(this.splitExpenseTxn);
-      })
+      }),
     );
   }
 
@@ -592,7 +592,7 @@ export class SplitExpensePage implements OnDestroy {
 
   transformMandatoryFieldsData(
     etxns: Transaction[],
-    mandatoryFields: Partial<SplitExpenseMissingFields>
+    mandatoryFields: Partial<SplitExpenseMissingFields>,
   ): { [id: number]: Partial<TransformedSplitExpenseMissingFields> } {
     const mandatoryFieldsData: { [id: number]: Partial<TransformedSplitExpenseMissingFields> } = {};
     for (const [index, etxn] of etxns.entries()) {
@@ -621,14 +621,14 @@ export class SplitExpensePage implements OnDestroy {
       map((expense: PlatformExpense) => {
         this.fileObjs = expense.files;
         return this.fileObjs;
-      })
+      }),
     );
   }
 
   async showSplitExpensePolicyViolationsAndMissingFields(
     splitEtxns: Transaction[],
     policyViolations: { [id: number]: PolicyViolation },
-    missingFieldsViolations: { [id: number]: Partial<TransformedSplitExpenseMissingFields> }
+    missingFieldsViolations: { [id: number]: Partial<TransformedSplitExpenseMissingFields> },
   ): Promise<SplitExpenseViolationsPopup> {
     const filteredPolicyViolations = this.splitExpenseService.filteredPolicyViolations(policyViolations);
 
@@ -641,7 +641,7 @@ export class SplitExpensePage implements OnDestroy {
       filteredMissingFieldsViolations =
         this.splitExpenseService.filteredMissingFieldsViolations(missingFieldsViolations);
       hasMissingFields = Object.values(filteredMissingFieldsViolations).some(
-        (field: FilteredMissingFieldsViolations) => field?.isMissingFields
+        (field: FilteredMissingFieldsViolations) => field?.isMissingFields,
       );
     }
 
@@ -731,13 +731,13 @@ export class SplitExpensePage implements OnDestroy {
               this.showSplitExpensePolicyViolationsAndMissingFields(
                 splitEtxns,
                 formattedViolations,
-                formattedMandatoryFields
-              )
+                formattedMandatoryFields,
+              ),
             );
           }
 
           return of({ action: 'continue', comments: null });
-        })
+        }),
       );
   }
 
@@ -761,7 +761,7 @@ export class SplitExpensePage implements OnDestroy {
           this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
           return throwError(errResponse);
-        })
+        }),
       )
       .subscribe((txns) => {
         const splitTrackingProps = this.getSplitExpensePoperties();
@@ -778,7 +778,7 @@ export class SplitExpensePage implements OnDestroy {
                 this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
                 this.router.navigate(['/', 'enterprise', 'my_expenses']);
                 return throwError(err);
-              })
+              }),
             )
             .subscribe(() => {
               this.openReviewSplitExpenseModal(txns.data);
@@ -793,13 +793,13 @@ export class SplitExpensePage implements OnDestroy {
   correctTotalSplitAmount(): void {
     const totalSplitAmount = this.formattedSplitExpense.reduce(
       (prev, cur) => parseFloat((prev + cur.amount).toPrecision(15)),
-      0
+      0,
     );
 
     if (this.transaction.amount !== totalSplitAmount) {
       const difference = parseFloat((this.transaction.amount - totalSplitAmount).toFixed(15));
       this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount = parseFloat(
-        (this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount + difference).toPrecision(15)
+        (this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount + difference).toPrecision(15),
       );
     }
   }
@@ -848,7 +848,7 @@ export class SplitExpensePage implements OnDestroy {
             }
             return defaultValue;
           },
-          true
+          true,
         );
 
         if (!canCreateNegativeExpense) {
@@ -862,7 +862,7 @@ export class SplitExpensePage implements OnDestroy {
 
         this.normalizeSplitAmount();
         const generatedSplitEtxn$ = (this.splitExpensesFormArray.value as SplitExpense[]).map((splitExpenseValue) =>
-          this.generateSplitEtxnFromFg(splitExpenseValue)
+          this.generateSplitEtxnFromFg(splitExpenseValue),
         );
 
         forkJoin({
@@ -885,7 +885,7 @@ export class SplitExpensePage implements OnDestroy {
                 this.formattedSplitExpense,
                 this.transaction,
                 fileIds,
-                { reportId: this.reportId, unspecifiedCategory: this.unspecifiedCategory }
+                { reportId: this.reportId, unspecifiedCategory: this.unspecifiedCategory },
               );
 
               this.saveSplitExpenseLoading = false;
@@ -899,7 +899,7 @@ export class SplitExpensePage implements OnDestroy {
             finalize(() => {
               const splitTrackingProps = this.getSplitExpensePoperties();
               this.trackingService.splittingExpense(splitTrackingProps);
-            })
+            }),
           )
           .subscribe((response) => {
             if (response && response.action === 'continue') {
@@ -950,7 +950,7 @@ export class SplitExpensePage implements OnDestroy {
     this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields as string) as Partial<ExpenseFieldsObj>;
     this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs as string) as FileObject[];
     this.selectedCCCTransaction = JSON.parse(
-      this.activatedRoute.snapshot.params.selectedCCCTransaction as string
+      this.activatedRoute.snapshot.params.selectedCCCTransaction as string,
     ) as MatchedCCCTransaction;
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
@@ -963,8 +963,8 @@ export class SplitExpensePage implements OnDestroy {
     this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
-      )
+          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction,
+      ),
     );
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>
@@ -979,17 +979,17 @@ export class SplitExpensePage implements OnDestroy {
                   this.projectsService.getAllowedOrgCategoryIds(
                     project,
                     activeCategories,
-                    isProjectCategoryRestrictionsEnabled
-                  )
-                )
+                    isProjectCategoryRestrictionsEnabled,
+                  ),
+                ),
               );
             }
             return of(activeCategories);
           }),
           tap((categories) => this.updateCategoryMandatoryStatus(categories)),
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-        )
-      )
+          map((categories) => categories.map((category) => ({ label: category.displayName, value: category }))),
+        ),
+      ),
     );
     this.getCategoryList();
     let parentFieldId: number;
@@ -1002,9 +1002,9 @@ export class SplitExpensePage implements OnDestroy {
       () => !!parentFieldId,
       this.dependentFieldsService.getDependentFieldValuesForBaseField(
         this.transaction.custom_properties,
-        parentFieldId
+        parentFieldId,
       ),
-      of(null)
+      of(null),
     );
     if (this.splitConfig.costCenter.is_visible) {
       this.addCostCenterIdToTxnFields();
@@ -1020,22 +1020,22 @@ export class SplitExpensePage implements OnDestroy {
           costCenters.map((costCenter) => ({
             label: costCenter.name,
             value: costCenter,
-          }))
-        )
+          })),
+        ),
       );
     }
     this.isCorporateCardsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
-      )
+          orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled,
+      ),
     );
     this.getUnspecifiedCategory();
     forkJoin({
       homeCurrency: this.currencyService.getHomeCurrency(),
       isCorporateCardsEnabled: this.isCorporateCardsEnabled$,
     }).subscribe(({ homeCurrency, isCorporateCardsEnabled }) =>
-      this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled)
+      this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled),
     );
   }
 
@@ -1173,7 +1173,7 @@ export class SplitExpensePage implements OnDestroy {
         ([project, activeCategories, isProjectCategoryRestrictionsEnabled]: [
           Partial<ProjectV2> | null,
           OrgCategory[],
-          boolean
+          boolean,
         ]) => {
           if (!project?.project_id) {
             return this.formatCategories(activeCategories);
@@ -1188,14 +1188,14 @@ export class SplitExpensePage implements OnDestroy {
                   activeCategories,
                   isProjectCategoryRestrictionsEnabled,
                   showProjectMappedCategories,
-                  services
-                )
+                  services,
+                ),
               ),
-              switchMap((categories) => this.formatCategories(categories))
+              switchMap((categories) => this.formatCategories(categories)),
             );
-        }
+        },
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -1205,7 +1205,7 @@ export class SplitExpensePage implements OnDestroy {
     activeCategories: OrgCategory[],
     isProjectCategoryRestrictionsEnabled: boolean,
     showProjectMappedCategories: boolean,
-    services: { projectsService: ProjectsService }
+    services: { projectsService: ProjectsService },
   ): Observable<OrgCategory[]> {
     if (!showProjectMappedCategories && !isProjectCategoryRestrictionsEnabled) {
       return of(activeCategories);
@@ -1218,9 +1218,9 @@ export class SplitExpensePage implements OnDestroy {
           services.projectsService.getAllowedOrgCategoryIds(
             projectDetails,
             activeCategories,
-            isProjectCategoryRestrictionsEnabled
-          )
-        )
+            isProjectCategoryRestrictionsEnabled,
+          ),
+        ),
       );
   }
 
@@ -1302,8 +1302,8 @@ export class SplitExpensePage implements OnDestroy {
         'category',
         this.formBuilder.control(
           isFirstSplit ? this.splitConfig.category.value : '',
-          this.splitConfig.category.is_mandatory ? [Validators.required] : null
-        )
+          this.splitConfig.category.is_mandatory ? [Validators.required] : null,
+        ),
       );
     }
     if (this.splitConfig.project.is_visible) {
@@ -1311,8 +1311,8 @@ export class SplitExpensePage implements OnDestroy {
         'project',
         this.formBuilder.control(
           isFirstSplit ? this.splitConfig.project.value : '',
-          this.splitConfig.project.is_mandatory ? [Validators.required] : null
-        )
+          this.splitConfig.project.is_mandatory ? [Validators.required] : null,
+        ),
       );
     }
     if (this.splitConfig.costCenter.is_visible) {
@@ -1320,15 +1320,15 @@ export class SplitExpensePage implements OnDestroy {
         'cost_center',
         this.formBuilder.control(
           isFirstSplit ? this.splitConfig.costCenter.value : '',
-          this.splitConfig.costCenter.is_mandatory ? [Validators.required] : null
-        )
+          this.splitConfig.costCenter.is_mandatory ? [Validators.required] : null,
+        ),
       );
     }
 
     if (this.txnFields.purpose) {
       fg.addControl(
         'purpose',
-        this.formBuilder.control('', this.txnFields.purpose.is_mandatory ? [Validators.required] : null)
+        this.formBuilder.control('', this.txnFields.purpose.is_mandatory ? [Validators.required] : null),
       );
     }
 
@@ -1391,7 +1391,7 @@ export class SplitExpensePage implements OnDestroy {
 
       const percentage = Math.min(
         100,
-        Math.max(0, 100 - (firstSplitExpenseForm.value as { percentage: number }).percentage)
+        Math.max(0, 100 - (firstSplitExpenseForm.value as { percentage: number }).percentage),
       );
 
       const rawAmount = (this.amount * percentage) / 100;
@@ -1402,7 +1402,7 @@ export class SplitExpensePage implements OnDestroy {
           amount,
           percentage,
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
 
@@ -1543,7 +1543,7 @@ export class SplitExpensePage implements OnDestroy {
     evenAmount: number,
     evenPercentage: number,
     lastSplitAmount: number,
-    lastSplitPercentage: number
+    lastSplitPercentage: number,
   ): void {
     const lastSplitIndex = this.splitExpensesFormArray.length - 1;
 
@@ -1557,7 +1557,7 @@ export class SplitExpensePage implements OnDestroy {
         },
         {
           emitEvent: false,
-        }
+        },
       );
     });
   }

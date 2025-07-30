@@ -83,7 +83,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private popoverController: PopoverController,
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -99,8 +99,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         map((options: string[]) =>
           options.map((option) => ({
             display: option,
-          }))
-        )
+          })),
+        ),
       );
     } else {
       return of([]);
@@ -124,7 +124,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     from(this.setupEnableLocationPopover())
       .pipe(
         tap((enableLocationPopover) => enableLocationPopover.present()),
-        switchMap((enableLocationPopover) => enableLocationPopover.onWillDismiss<{ action: string }>())
+        switchMap((enableLocationPopover) => enableLocationPopover.onWillDismiss<{ action: string }>()),
       )
       .subscribe(({ data }) => {
         if (data?.action === 'OPEN_SETTINGS') {
@@ -168,13 +168,13 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
             if (searchText && searchText.length > 0) {
               const searchTextLowerCase = searchText.toLowerCase();
               return recentrecentlyUsedItems.filter((item) =>
-                item.display?.toLocaleLowerCase().includes(searchTextLowerCase)
+                item.display?.toLocaleLowerCase().includes(searchTextLowerCase),
               );
             }
             return recentrecentlyUsedItems;
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
 
     that.filteredList$ = fromEvent(that.searchBarRef.nativeElement, 'keyup').pipe(
@@ -194,7 +194,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
                 return that.locationService.getAutocompletePredictions(
                   searchText,
                   eou.us.id,
-                  `${currentLocation?.coords.latitude},${currentLocation?.coords.longitude}`
+                  `${currentLocation?.coords.latitude},${currentLocation?.coords.longitude}`,
                 );
               } else {
                 return that.locationService.getAutocompletePredictions(searchText, eou.us.id);
@@ -208,12 +208,12 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
               that.loader = false;
               that.lookupFailed = true;
               return of([]);
-            })
+            }),
           );
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     that.filteredList$.subscribe(noop);
@@ -251,14 +251,14 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
           forkJoin({
             eou: this.authService.getEou(),
             currentLocation: this.locationService.getCurrentLocation({ enableHighAccuracy: false }),
-          })
+          }),
         ),
         switchMap(({ eou, currentLocation }) => {
           if (currentLocation) {
             return this.locationService.getAutocompletePredictions(
               location,
               eou.us.id,
-              `${currentLocation?.coords.latitude},${currentLocation?.coords.longitude}`
+              `${currentLocation?.coords.latitude},${currentLocation?.coords.longitude}`,
             );
           } else {
             return this.locationService.getAutocompletePredictions(location, eou.us.id);
@@ -275,14 +275,14 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
                   } else {
                     return of({ display: location });
                   }
-                })
+                }),
               );
           } else {
             return of({ display: location });
           }
         }),
         catchError(() => of({ display: location })),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe((location) => {
         this.modalController.dismiss({
@@ -397,19 +397,19 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   async getCurrentLocation() {
     if (this.currentGeolocationPermissionGranted) {
       from(
-        this.loaderService.showLoader(this.translocoService.translate('fyLocationModal.loadingCurrentLocation'), 10000)
+        this.loaderService.showLoader(this.translocoService.translate('fyLocationModal.loadingCurrentLocation'), 10000),
       )
         .pipe(
           switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
           switchMap((coordinates) =>
-            this.gmapsService.getGeocode(coordinates?.coords.latitude, coordinates?.coords.longitude)
+            this.gmapsService.getGeocode(coordinates?.coords.latitude, coordinates?.coords.longitude),
           ),
           map(this.formatGeocodeResponse),
           catchError((err) => {
             this.lookupFailed = true;
             return throwError(err);
           }),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => from(this.loaderService.hideLoader())),
         )
         .subscribe((selection) => {
           this.modalController.dismiss({
@@ -424,7 +424,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         from(this.setupPermissionDeniedPopover())
           .pipe(
             tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
-            switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>())
+            switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>()),
           )
           .subscribe(({ data }) => {
             if (data?.action === 'OPEN_SETTINGS') {

@@ -53,7 +53,10 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   onChangeCallback: (value: ProjectV2) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {

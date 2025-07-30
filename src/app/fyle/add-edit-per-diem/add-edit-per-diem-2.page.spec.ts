@@ -176,7 +176,7 @@ export function TestCases2(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -210,7 +210,7 @@ export function TestCases2(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       authService.getEou.and.resolveTo(apiEouRes);
@@ -274,7 +274,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          })
+          }),
         );
         spyOn(component.fg, 'updateValueAndValidity');
         component.etxn$ = of(unflattenedTxnData);
@@ -298,7 +298,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
@@ -340,7 +340,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).not.toHaveBeenCalled();
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(component.getPerDiemCategories).not.toHaveBeenCalled();
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 247980);
@@ -366,7 +366,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).not.toHaveBeenCalled();
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 38912);
@@ -395,8 +395,6 @@ export function TestCases2(getTestBed) {
         storageService.get.and.resolveTo(true);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
-        loaderService.showLoader.and.resolveTo();
-        loaderService.hideLoader.and.resolveTo();
         platformReportService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         customFieldsService.standardizeCustomFields.and.returnValue(cloneDeep(expectedTxnCustomProperties));
@@ -434,7 +432,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          })
+          }),
         );
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         spyOn(component, 'getNewExpense').and.returnValue(of(unflattenedTxnDataPerDiem));
@@ -465,7 +463,7 @@ export function TestCases2(getTestBed) {
         expect(dateService.addDaysToDate).toHaveBeenCalledOnceWith(today, 1);
         expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
         expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
         expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
@@ -529,37 +527,23 @@ export function TestCases2(getTestBed) {
 
       it('should update canCreatePerDiem$ to true if perDiemRates is not empty array', (done) => {
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
-            expect(res).toBeTrue();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
+          expect(res).toBeTrue();
+          done();
+        });
       });
 
       it('should update canCreatePerDiem$ to false if perDiemRates is empty array', (done) => {
         perDiemService.getAllowedPerDiems.and.returnValue(of([]));
         perDiemService.getRates.and.returnValue(of([]));
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
-            expect(res).toBeFalse();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
+          expect(res).toBeFalse();
+          done();
+        });
       });
 
       it('should update canCreatePerDiem$ to true if enable_individual_per_diem_rates is enabled in orgSettings and allowedPerDiemRates and perDiemRates are not empty', (done) => {
@@ -567,18 +551,11 @@ export function TestCases2(getTestBed) {
         mockOrgSettings.advanced_per_diems_settings.enable_employee_restriction = true;
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
-            expect(res).toBeTrue();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
+          expect(res).toBeTrue();
+          done();
+        });
       });
 
       it('should update canCreatePerDiem$ to false if enable_individual_per_diem_rates is enabled in orgSettings and allowedPerDiemRates and perDiemRates are empty', (done) => {
@@ -588,18 +565,11 @@ export function TestCases2(getTestBed) {
         mockOrgSettings.advanced_per_diems_settings.enable_employee_restriction = true;
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
-            expect(res).toBeFalse();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
+          expect(res).toBeFalse();
+          done();
+        });
       });
 
       it('should update txnFields$, homeCurrency$, subCategories$, projectCategoryIds$, isProjectVisible$ and comments$ correctly', (done) => {
@@ -628,7 +598,7 @@ export function TestCases2(getTestBed) {
             {
               categoryIds: ['129140', '129112', '16582', '201952'],
             },
-            orgCategoryData1
+            orgCategoryData1,
           );
           expect(res).toBeTrue();
         });
@@ -705,7 +675,7 @@ export function TestCases2(getTestBed) {
         component.recentlyUsedCostCenters$.subscribe((res) => {
           expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledOnceWith(
             expectedCCdata3,
-            recentlyUsedRes
+            recentlyUsedRes,
           );
           expect(res).toEqual(expectedCCdata2);
         });

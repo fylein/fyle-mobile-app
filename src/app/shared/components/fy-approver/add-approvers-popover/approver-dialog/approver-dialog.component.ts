@@ -50,7 +50,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     private loaderService: LoaderService,
     private employeesService: EmployeesService,
     private modalController: ModalController,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -97,7 +97,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
       this.selectedApproversList.push({ name: approver.full_name, email: approver.email });
     } else {
       this.selectedApproversList = this.selectedApproversList.filter(
-        (selectedApprover) => selectedApprover.email !== approver.email
+        (selectedApprover) => selectedApprover.email !== approver.email,
       );
     }
     this.areApproversAdded = this.selectedApproversList.length === 0;
@@ -106,7 +106,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   removeApprover(approver: Approver): void {
     this.selectedApproversList = this.selectedApproversList.filter(
-      (selectedApprover) => selectedApprover.email !== approver.email
+      (selectedApprover) => selectedApprover.email !== approver.email,
     );
     this.areApproversAdded = this.selectedApproversList.length === 0;
     this.selectedApproversDict = this.getSelectedApproversDict();
@@ -130,9 +130,9 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
         approvers.map((approver) => {
           approver.is_selected = true;
           return approver;
-        })
+        }),
       ),
-      finalize(() => from(this.loaderService.hideLoader()))
+      finalize(() => from(this.loaderService.hideLoader())),
     );
   }
 
@@ -154,8 +154,8 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
             eou.is_selected = this.approverEmailsList.indexOf(eou.email) > -1;
             return eou;
           })
-          .filter((employee) => employee.email !== this.ownerEmail)
-      )
+          .filter((employee) => employee.email !== this.ownerEmail),
+      ),
     );
   }
 
@@ -170,16 +170,16 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
             map((searchedEmployees: Partial<Employee>[]) => {
               searchedEmployees = this.getSearchedEmployees(searchedEmployees, employees);
               return employees.concat(searchedEmployees);
-            })
+            }),
           );
-        })
+        }),
       );
     }
   }
 
   getSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]): Partial<Employee>[] {
     searchedEmployees = searchedEmployees.filter(
-      (searchedEmployee) => !employees.find((employee) => employee.email === searchedEmployee.email)
+      (searchedEmployee) => !employees.find((employee) => employee.email === searchedEmployee.email),
     );
     return searchedEmployees;
   }
@@ -187,12 +187,12 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
   ngAfterViewInit(): void {
     this.searchedApprovers$ = fromEvent<{ srcElement: { value: string } }>(
       this.searchBarRef.nativeElement,
-      'keyup'
+      'keyup',
     ).pipe(
       map((event) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText: string) => this.getUsersList(searchText))
+      switchMap((searchText: string) => this.getUsersList(searchText)),
     );
   }
 }

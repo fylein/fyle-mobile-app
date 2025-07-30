@@ -130,7 +130,7 @@ describe('SidemenuComponent', () => {
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
@@ -497,10 +497,10 @@ describe('SidemenuComponent', () => {
 
     it('should setup the side menu', fakeAsync(() => {
       const getPrimarySidemenuOptionsSpy = spyOn(component, 'getPrimarySidemenuOptions').and.returnValue(
-        getPrimarySidemenuOptionsRes1
+        getPrimarySidemenuOptionsRes1,
       );
       const getSecondarySidemenuOptionsSpy = spyOn(component, 'getSecondarySidemenuOptions').and.returnValue(
-        getSecondarySidemenuOptionsRes1
+        getSecondarySidemenuOptionsRes1,
       );
       const resData = setSideMenuRes;
       component.setupSideMenu(true, orgData1, true);
@@ -513,7 +513,7 @@ describe('SidemenuComponent', () => {
 
     it('should only get the primary options when there is no internet connection', fakeAsync(() => {
       const getPrimarySidemenuOptionsOfflineSpy = spyOn(component, 'getPrimarySidemenuOptionsOffline').and.returnValue(
-        sidemenuData1
+        sidemenuData1,
       );
       const resData = sidemenuData1;
       component.setupSideMenu(false, orgData1, false);

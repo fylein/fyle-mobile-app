@@ -27,7 +27,7 @@ export class PendingVerificationPage {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
   ) {}
 
   ionViewWillEnter(): void {

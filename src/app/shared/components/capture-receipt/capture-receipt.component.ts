@@ -83,7 +83,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private cameraService: CameraService,
     private cameraPreviewService: CameraPreviewService,
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   setupNetworkWatcher(): void {
@@ -91,7 +91,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isOffline$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       map((connected) => !connected),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -103,11 +103,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
+  addMultipleExpensesToQueue(base64ImagesWithSource: Image[]): Observable<void[]> {
     return from(base64ImagesWithSource).pipe(
       concatMap((res: Image) => this.addExpenseToQueue(res)),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      reduce((acc, curr) => acc.concat(curr), [])
+      reduce<void, void[]>((acc, curr) => acc.concat(curr), []),
     );
   }
 
@@ -133,7 +132,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           },
         ];
         return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null);
-      })
+      }),
     );
   }
 
@@ -187,8 +186,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(
         map(
           (employeeSettings) =>
-            employeeSettings.insta_fyle_settings.allowed && employeeSettings.insta_fyle_settings.enabled
-        )
+            employeeSettings.insta_fyle_settings.allowed && employeeSettings.insta_fyle_settings.enabled,
+        ),
       );
 
     isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
@@ -226,7 +225,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.isSaveReceiptForLater = receiptPreviewData?.data?.isSaveReceiptForLater;
         return receiptPreviewData?.data;
       }),
-      filter((receiptPreviewDetails) => !!receiptPreviewDetails)
+      filter((receiptPreviewDetails) => !!receiptPreviewDetails),
     );
 
     receiptPreviewDetails$
@@ -246,14 +245,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.loaderService.showLoader();
         return this.isModal;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     saveReceipt$
       .pipe(
         filter((isModal) => !!isModal),
         switchMap(() => from(receiptPreviewModal)),
-        switchMap((receiptPreviewModal) => receiptPreviewModal.onDidDismiss())
+        switchMap((receiptPreviewModal) => receiptPreviewModal.onDidDismiss()),
       )
       .subscribe(() => {
         setTimeout(() => {
@@ -306,8 +305,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(
         filter(
           (receiptPreviewDetails) =>
-            receiptPreviewDetails.continueCaptureReceipt || receiptPreviewDetails.base64ImagesWithSource.length === 0
-        )
+            receiptPreviewDetails.continueCaptureReceipt || receiptPreviewDetails.base64ImagesWithSource.length === 0,
+        ),
       )
       .subscribe((receiptPreviewDetails) => {
         this.isBulkMode = true;
@@ -323,13 +322,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(
         filter(
           (receiptPreviewDetails) =>
-            !receiptPreviewDetails.continueCaptureReceipt && !!receiptPreviewDetails.base64ImagesWithSource.length
+            !receiptPreviewDetails.continueCaptureReceipt && !!receiptPreviewDetails.base64ImagesWithSource.length,
         ),
         switchMap(() => {
           this.loaderService.showLoader(this.translocoService.translate('captureReceipt.pleaseWait'), 10000);
           return this.addMultipleExpensesToQueue(this.base64ImagesWithSource);
         }),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
@@ -350,7 +349,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     return from(this.createReceiptPreviewModal('bulk')).pipe(
       tap((receiptPreviewModal) => receiptPreviewModal.present()),
       switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss<ReceiptPreviewData>()),
-      map((receiptPreviewDetails) => receiptPreviewDetails?.data)
+      map((receiptPreviewDetails) => receiptPreviewDetails?.data),
     );
   }
 
@@ -447,7 +446,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     from(this.setupPermissionDeniedPopover(permissionType))
       .pipe(
         tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
-        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>())
+        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>()),
       )
       .subscribe(({ data }) => {
         if (data?.action === 'OPEN_SETTINGS') {
@@ -475,7 +474,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         };
         return from(this.imagePicker.getPictures(galleryUploadOptions));
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     checkPermission$.subscribe((hasPermission) => {

@@ -27,7 +27,7 @@ export class PersonalCardsMatchedExpensesPage {
   constructor(
     private router: Router,
     private modalController: ModalController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
   ) {
     this.personalCard = this.router.getCurrentNavigation().extras.state.personalCard as PlatformPersonalCard;
     this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails as PlatformPersonalCardTxn;

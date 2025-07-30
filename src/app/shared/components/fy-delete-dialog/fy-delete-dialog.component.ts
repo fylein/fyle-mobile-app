@@ -51,9 +51,9 @@ export class FyDeleteDialogComponent implements OnInit {
           catchError(() =>
             of({
               status: 'error',
-            })
+            }),
           ),
-          finalize(() => (this.deleteCallInProgress = false))
+          finalize(() => (this.deleteCallInProgress = false)),
         )
         .subscribe((res) => {
           this.popoverController.dismiss(res);

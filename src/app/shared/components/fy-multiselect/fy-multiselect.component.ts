@@ -50,7 +50,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   constructor(
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get valid(): boolean {

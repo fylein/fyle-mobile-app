@@ -47,7 +47,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     private fb: UntypedFormBuilder,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private injector: Injector
+    private injector: Injector,
   ) {}
 
   get valid() {

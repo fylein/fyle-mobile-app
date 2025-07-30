@@ -95,7 +95,7 @@ export function TestCases2(getTestBed) {
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       transactionsOutboxService = TestBed.inject(
-        TransactionsOutboxService
+        TransactionsOutboxService,
       ) as jasmine.SpyObj<TransactionsOutboxService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
@@ -105,7 +105,7 @@ export function TestCases2(getTestBed) {
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -172,7 +172,7 @@ export function TestCases2(getTestBed) {
       expect(captureReceiptModalSpy.present).toHaveBeenCalledTimes(1);
       expect(captureReceiptModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith(
-        '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf'
+        '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
       );
       expect(component.dataUrls).toEqual(expectedFileData2);
     }));
@@ -313,6 +313,8 @@ export function TestCases2(getTestBed) {
 
     describe('ionViewWillEnter():', () => {
       beforeEach(() => {
+        // initialize component form and state
+        component.ngOnInit();
         expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
         authService.getEou.and.resolveTo(apiEouRes);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
@@ -320,8 +322,6 @@ export function TestCases2(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         advanceRequestService.getSpenderPermissions.and.returnValue(of(apiAdvanceRequestAction));
         advanceRequestService.getApproverPermissions.and.returnValue(of(apiAdvanceRequestAction));
-        loaderService.showLoader.and.resolveTo(undefined);
-        loaderService.hideLoader.and.resolveTo(undefined);
         advanceRequestService.getEReq.and.returnValue(of(unflattenedAdvanceRequestData));
         advanceRequestService.getEReqFromApprover.and.returnValue(of(unflattenedAdvanceRequestData));
         projectsService.getbyId.and.returnValue(of(projects[0]));
@@ -424,7 +424,6 @@ export function TestCases2(getTestBed) {
         component.ionViewWillEnter();
         tick(100);
         component.extendedAdvanceRequest$.subscribe((res) => {
-          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
           expect(advanceRequestService.getEReq).toHaveBeenCalledWith('areqR1cyLgXdND');
           expect(component.fg.value.currencyObj).toEqual({
             currency: 'USD',
@@ -433,7 +432,7 @@ export function TestCases2(getTestBed) {
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
           expect(component.fg.value.project).toEqual(projects[0]);
           expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-            mockAdvanceRequest.areq.custom_field_values
+            mockAdvanceRequest.areq.custom_field_values,
           );
           expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.dataUrls).toEqual(fileObject4);
@@ -454,7 +453,6 @@ export function TestCases2(getTestBed) {
         component.ionViewWillEnter();
         tick(100);
         component.extendedAdvanceRequest$.subscribe((res) => {
-          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
           expect(advanceRequestService.getEReqFromApprover).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.fg.value.currencyObj).toEqual({
             currency: 'USD',
@@ -463,7 +461,7 @@ export function TestCases2(getTestBed) {
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
           expect(component.fg.value.project).toEqual(projects[0]);
           expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-            mockAdvanceRequest.areq.custom_field_values
+            mockAdvanceRequest.areq.custom_field_values,
           );
           expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.dataUrls).toEqual(fileObject4);

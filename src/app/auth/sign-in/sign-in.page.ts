@@ -62,7 +62,7 @@ export class SignInPage implements OnInit {
     private loginInfoService: LoginInfoService,
     private inAppBrowserService: InAppBrowserService,
     private platformHandlerService: PlatformHandlerService,
-    private backButtonService: BackButtonService
+    private backButtonService: BackButtonService,
   ) {}
 
   async checkSAMLResponseAndSignInUser(data: SamlResponse): Promise<void> {
@@ -85,7 +85,7 @@ export class SignInPage implements OnInit {
           tap(async (eou) => {
             await this.trackLoginInfo();
             this.trackingService.onSignin(eou.us.id);
-          })
+          }),
         )
         .subscribe(() => {
           this.fg.reset();
@@ -132,7 +132,7 @@ export class SignInPage implements OnInit {
         shareReplay(1),
         finalize(async () => {
           this.emailLoading = false;
-        })
+        }),
       );
 
       const saml$ = checkEmailExists$.pipe(filter((res) => (res.saml ? true : false)));
@@ -224,7 +224,7 @@ export class SignInPage implements OnInit {
             this.trackingService.onSignin(eou.us.id);
             await this.trackLoginInfo();
           }),
-          finalize(() => (this.passwordLoading = false))
+          finalize(() => (this.passwordLoading = false)),
         )
         .subscribe({
           next: () => {
@@ -263,13 +263,13 @@ export class SignInPage implements OnInit {
             tap(async (eou) => {
               this.trackingService.onSignin(eou.us.id);
               await this.trackLoginInfo();
-            })
-          )
+            }),
+          ),
         ),
         finalize(() => {
           this.loaderService.hideLoader();
           this.googleSignInLoading = false;
-        })
+        }),
       )
       .subscribe({
         next: () => {
@@ -329,7 +329,7 @@ export class SignInPage implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => from(this.routerAuthService.isLoggedIn())),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe((isLoggedIn) => {
         if (isLoggedIn) {

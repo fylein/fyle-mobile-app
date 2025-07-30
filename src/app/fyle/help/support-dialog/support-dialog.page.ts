@@ -22,7 +22,7 @@ export class SupportDialogPage {
     private modalController: ModalController,
     private navParams: NavParams,
     private trackingService: TrackingService,
-    private browserHandlerService: BrowserHandlerService
+    private browserHandlerService: BrowserHandlerService,
   ) {}
 
   async openHelpLink(): Promise<void> {
@@ -34,7 +34,7 @@ export class SupportDialogPage {
     this.trackingService.engageWithHelpCard();
     await this.browserHandlerService.openLinkWithToolbarColor(
       '#280a31',
-      'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk'
+      'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk',
     );
   }
 
@@ -42,7 +42,7 @@ export class SupportDialogPage {
     this.trackingService.engageWithHelpCard();
     await this.browserHandlerService.openLinkWithToolbarColor(
       '#280a31',
-      'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview'
+      'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview',
     );
   }
 

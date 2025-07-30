@@ -8,7 +8,10 @@ import { TrackingService } from './tracking.service';
   providedIn: 'root',
 })
 export class DeepLinkService {
-  constructor(private router: Router, private trackingService: TrackingService) {}
+  constructor(
+    private router: Router,
+    private trackingService: TrackingService,
+  ) {}
 
   getJsonFromUrl(url?: string): Redirect {
     const query = url?.split('?')[1];

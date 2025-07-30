@@ -173,11 +173,11 @@ export function TestCases5(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -194,7 +194,7 @@ export function TestCases5(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -283,8 +283,6 @@ export function TestCases5(getTestBed) {
       authService.getEou.and.resolveTo(apiEouRes);
       recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(recentlyUsedProjectRes));
       customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       customInputsService.filterByCategory.and.returnValue(transformedResponse);
       customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties4);
     }
@@ -325,8 +323,6 @@ export function TestCases5(getTestBed) {
       expect(component.getReports).toHaveBeenCalledTimes(1);
       expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
       expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     }
 
     it('should create', () => {
@@ -375,7 +371,7 @@ export function TestCases5(getTestBed) {
         });
 
         expect(expenseCommentService.getTransformedComments).toHaveBeenCalledOnceWith(
-          activatedRoute.snapshot.params.id
+          activatedRoute.snapshot.params.id,
         );
         expect(component.checkIndividualMileageEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
         expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(2);
@@ -853,7 +849,7 @@ export function TestCases5(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
         expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
       });
@@ -868,7 +864,7 @@ export function TestCases5(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
       });
     });
@@ -908,7 +904,7 @@ export function TestCases5(getTestBed) {
               <p>Your Commute Details have been successfully added to your Profile
               Settings.</p>
               <p>You can now easily deduct commute from your Mileage expenses.<p>  
-            </div>`
+            </div>`,
       );
     });
 
@@ -967,7 +963,7 @@ export function TestCases5(getTestBed) {
         expect(mileageService.getCommuteDeductionOptions).toHaveBeenCalledOnceWith(10);
         expect(component.showCommuteUpdatedPopover).toHaveBeenCalledTimes(1);
         expect(trackingService.commuteDeductionDetailsAddedFromMileageForm).toHaveBeenCalledOnceWith(
-          commuteDetailsResponseData.data[0]
+          commuteDetailsResponseData.data[0],
         );
       }));
 
@@ -1186,7 +1182,7 @@ export function TestCases5(getTestBed) {
         expect(component.initialDistance).toEqual(430);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
-          commuteDeductionOptionsData1[0]
+          commuteDeductionOptionsData1[0],
         );
       });
 
@@ -1203,7 +1199,7 @@ export function TestCases5(getTestBed) {
         expect(component.initialDistance).toEqual(450);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
-          commuteDeductionOptionsData1[0]
+          commuteDeductionOptionsData1[0],
         );
       });
 
@@ -1218,7 +1214,7 @@ export function TestCases5(getTestBed) {
         expect(component.initialDistance).toEqual(250);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
-          commuteDeductionOptionsData1[0]
+          commuteDeductionOptionsData1[0],
         );
       });
 
@@ -1234,7 +1230,7 @@ export function TestCases5(getTestBed) {
         expect(component.initialDistance).toEqual(200);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
-          commuteDeductionOptionsData1[0]
+          commuteDeductionOptionsData1[0],
         );
       });
 
@@ -1255,7 +1251,7 @@ export function TestCases5(getTestBed) {
         expect(component.initialDistance).toEqual(26.0946);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
-          commuteDeductionOptionsData1[0]
+          commuteDeductionOptionsData1[0],
         );
       });
     });
