@@ -1,3 +1,5 @@
+@use './colors.scss' as colors;
+
 // Dark mode theme variables
 :root.dark-mode {
   // Primary Text Colors
@@ -37,35 +39,35 @@
 // Light mode theme variables (default)
 :root.light-mode {
   // Primary Text Colors
-  --primary-text: #161528; // Dark text for light mode
-  --primary-text-soft: #2c304e; // Slightly softer dark text
+  --primary-text: #{colors.$black}; // Dark text for light mode
+  --primary-text-soft: #{colors.$blue-black}; // Slightly softer dark text
 
   // Secondary Text Colors
-  --secondary-text: #5a5d72; // Medium gray for secondary text
+  --secondary-text: #{colors.$black-light}; // Medium gray for secondary text
 
   // Disabled Text Colors
-  --disabled-text: #a9acbc; // Light gray for disabled text
+  --disabled-text: #{colors.$grey-light}; // Light gray for disabled text
 
   // Background Colors
-  --background-primary: #fafafa; // Light gray background - Original
-  --background-secondary: #f2f2f2; // Light gray background - Original
-  --background-card: #ffffff; // White card background - Original
-  --header-background: #ffffff; // White background for headers in light mode
+  --background-primary: #{colors.$white}; // Light gray background - Original
+  --background-secondary: #{colors.$light-grey}; // Light gray background - Original
+  --background-card: #{colors.$pure-white}; // White card background - Original
+  --header-background: #{colors.$pure-white}; // White background for headers in light mode
 
   // Border Colors
-  --border-color: #dfdfe2; // Light border color
+  --border-color: #{colors.$grey-lighter}; // Light border color
   --header-border-bottom: 1px solid var(--border-color); // Border in light mode
-  --card-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4); // Glow effect in light mode
+  --card-shadow: #{colors.$pink-shadow}; // Glow effect in light mode
 
   // Icon Colors
-  --icon-color: #5a5d72; // Medium gray for icons
+  --icon-color: #{colors.$black-light}; // Medium gray for icons
 
   // Page Title Color
-  --page-title-color: #161528; // Default dark color for light mode
+  --page-title-color: #{colors.$black}; // Default dark color for light mode
 
   // State Colors (keeping existing brand colors)
-  --success-color: #66bb6a;
-  --error-color: #da1e28;
-  --warning-color: #fbd84f;
-  --info-color: #5c98e5;
+  --success-color: #{colors.$highlight-green};
+  --error-color: #{colors.$red};
+  --warning-color: #{colors.$dark-yellow};
+  --info-color: #{colors.$highlight-blue};
 }
