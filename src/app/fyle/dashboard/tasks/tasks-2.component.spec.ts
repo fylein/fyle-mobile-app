@@ -353,7 +353,12 @@ export function TestCases2(getTestBed) {
           '/',
           'enterprise',
           'add_edit_mileage',
-          { id: mileageCategoryTransformedExpenseData.tx.id, txnIds: '["txvslh8aQMbu"]', activeIndex: 0 },
+          {
+            id: mileageCategoryTransformedExpenseData.tx.id,
+            txnIds: '["txvslh8aQMbu"]',
+            activeIndex: 0,
+            navigate_back: true,
+          },
         ]);
       }));
 
@@ -375,7 +380,12 @@ export function TestCases2(getTestBed) {
           '/',
           'enterprise',
           'add_edit_per_diem',
-          { id: perDiemCategoryTransformedExpenseData.tx.id, txnIds: '["txvslh8aQMbu"]', activeIndex: 0 },
+          {
+            id: perDiemCategoryTransformedExpenseData.tx.id,
+            txnIds: '["txvslh8aQMbu"]',
+            activeIndex: 0,
+            navigate_back: true,
+          },
         ]);
       }));
 
@@ -397,7 +407,12 @@ export function TestCases2(getTestBed) {
           '/',
           'enterprise',
           'add_edit_mileage',
-          { id: mileageCategoryTransformedExpenseData.tx.id, txnIds: '["txvslh8aQMbu"]', activeIndex: 0 },
+          {
+            id: mileageCategoryTransformedExpenseData.tx.id,
+            txnIds: '["txvslh8aQMbu"]',
+            activeIndex: 0,
+            navigate_back: true,
+          },
         ]);
       }));
     });

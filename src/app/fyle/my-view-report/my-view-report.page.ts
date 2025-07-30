@@ -580,6 +580,7 @@ export class MyViewReportPage {
               id: expense.id,
               navigate_back: true,
               remove_from_report: report.num_expenses > 1,
+              rp_id: this.reportId,
             },
           ]),
         );

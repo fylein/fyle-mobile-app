@@ -556,19 +556,32 @@ export class AddEditExpensePage implements OnInit {
     return this.fg.controls[name];
   }
 
-  goBack(): void {
-    if (
-      this.activatedRoute.snapshot.params.persist_filters ||
-      this.activatedRoute.snapshot.params.isRedirectedFromReport
-    ) {
-      this.navController.back();
+  goBack(isSameReport?: boolean): void {
+    if (isSameReport && this.getFormValues().report?.id && this.activatedRoute.snapshot.params.rp_id) {
+      this.router.navigate([
+        '/',
+        'enterprise',
+        'my_view_report',
+        {
+          id: String(this.activatedRoute.snapshot.params.rp_id),
+        },
+      ]);
+    } else if (!isSameReport && this.getFormValues().report?.id && this.activatedRoute.snapshot.params.rp_id) {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.getFormValues().report?.id }]);
     } else {
-      if (this.mode === 'add') {
-        this.router.navigate(['/', 'enterprise', 'my_expenses'], {
-          queryParams: { redirected_from_add_expense: true },
-        });
+      if (
+        this.activatedRoute.snapshot.params.persist_filters ||
+        this.activatedRoute.snapshot.params.isRedirectedFromReport
+      ) {
+        this.navController.back();
       } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        if (this.mode === 'add') {
+          this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+            queryParams: { redirected_from_add_expense: true },
+          });
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        }
       }
     }
   }
@@ -2815,6 +2828,7 @@ export class AddEditExpensePage implements OnInit {
           id: expense.tx.id,
           txnIds: JSON.stringify(reviewList),
           activeIndex,
+          navigate_back: true,
         },
       ]);
     } else if (category === 'per diem') {
@@ -2826,6 +2840,7 @@ export class AddEditExpensePage implements OnInit {
           id: expense.tx.id,
           txnIds: JSON.stringify(reviewList),
           activeIndex,
+          navigate_back: true,
         },
       ]);
     } else {
@@ -2837,6 +2852,7 @@ export class AddEditExpensePage implements OnInit {
           id: expense.tx.id,
           txnIds: JSON.stringify(reviewList),
           activeIndex,
+          navigate_back: true,
         },
       ]);
     }
@@ -3800,6 +3816,8 @@ export class AddEditExpensePage implements OnInit {
   saveExpense(): void {
     const that = this;
     const formValues = this.getFormValues();
+    const isSameReport = this.activatedRoute.snapshot.params.rp_id === formValues.report?.id;
+
     forkJoin({
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
       isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
@@ -3828,7 +3846,7 @@ export class AddEditExpensePage implements OnInit {
                   this.saveExpenseLoader = false;
                 }),
               )
-              .subscribe(() => this.goBack());
+              .subscribe(() => this.goBack(isSameReport));
           }
         } else {
           // to do edit

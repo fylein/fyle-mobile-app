@@ -634,6 +634,7 @@ export function TestCases2(getTestBed) {
             id: expense.tx.id,
             txnIds: JSON.stringify(txn_ids),
             activeIndex: 0,
+            navigate_back: true,
           },
         ]);
       });
@@ -650,6 +651,7 @@ export function TestCases2(getTestBed) {
             id: expense.tx.id,
             txnIds: JSON.stringify(txn_ids),
             activeIndex: 0,
+            navigate_back: true,
           },
         ]);
       });
@@ -666,6 +668,7 @@ export function TestCases2(getTestBed) {
             id: expense.tx.id,
             txnIds: JSON.stringify(txn_ids),
             activeIndex: 0,
+            navigate_back: true,
           },
         ]);
       });

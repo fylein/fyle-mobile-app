@@ -338,7 +338,7 @@ describe('MyViewReportPage', () => {
 
       expect(statusService.createStatusMap).toHaveBeenCalledWith(
         component.convertToEstatus(component.systemComments),
-        'report'
+        'report',
       );
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
@@ -612,7 +612,7 @@ describe('MyViewReportPage', () => {
     it('should return null info message if number of txns is 0', (done) => {
       spenderReportsService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(
-        cloneDeep({ ...expectedReportsSinglePage[0], num_expenses: 0, state: 'DRAFT' })
+        cloneDeep({ ...expectedReportsSinglePage[0], num_expenses: 0, state: 'DRAFT' }),
       );
       expect(props.componentProps.infoMessage).toBeNull();
       props.componentProps.deleteMethod().subscribe(() => {
@@ -753,6 +753,7 @@ describe('MyViewReportPage', () => {
           id: expenseData.id,
           navigate_back: true,
           remove_from_report: platformReportData.num_expenses > 1,
+          rp_id: component.reportId,
         },
       ]);
     });
@@ -798,6 +799,7 @@ describe('MyViewReportPage', () => {
           id: mileageExpense.id,
           navigate_back: true,
           remove_from_report: platformReportData.num_expenses > 1,
+          rp_id: component.reportId,
         },
       ]);
     });
@@ -843,6 +845,7 @@ describe('MyViewReportPage', () => {
           id: perDiemExpense.id,
           navigate_back: true,
           remove_from_report: platformReportData.num_expenses > 1,
+          rp_id: component.reportId,
         },
       ]);
     });
