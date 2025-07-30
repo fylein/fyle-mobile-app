@@ -94,122 +94,18 @@
   </ng-container>
 
   <div>
-    @if ((mileageRatesOptions$|async)?.length > 0) { @if (etxn$|async; as etxn) { @if (fg) { @if
-    ((isAmountCapped$|async) || (etxn.tx.policy_flag && mode === 'edit')) {
-    <div class="add-edit-mileage--violations">
-      @if (etxn.tx.policy_flag && mode === 'edit') { @if (policyDetails) {
-      <app-fy-policy-violation-info
-        [policyDetails]="policyDetails"
-        [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
-      >
-      </app-fy-policy-violation-info>
-      } } @if (isAmountCapped$|async) { @if (!(isCriticalPolicyViolated$|async)) {
-      <div class="capped-info">
-        <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
-        <div class="capped-message">
-          Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: 'symbol-narrow'}} was capped to
-          {{etxn.tx.amount | currency: etxn.tx.currency: 'symbol-narrow'}} due to policy @if (isAmountDisabled$|async) {
-          <span> and cannot be edited.</span>
-          }
-        </div>
-      </div>
-      } }
-    </div>
-    } @if (isConnected$ | async) {
-    <div class="add-edit-mileage--map">
-      <app-route-visualizer
-        [mileageLocations]="fg.controls.route.value?.mileageLocations || []"
-        (mapClick)="onRouteVisualizerClick()"
-      ></app-route-visualizer>
-    </div>
-    }
-    <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">
-      @if (homeCurrency$|async; as homeCurrency) {
-      <div class="add-edit-mileage--amount-box">
-        <div class="add-edit-mileage--distance">
-          <div>{{ fg.controls.route.value?.distance || 0 }}</div>
-          <span class="add-edit-mileage--distance-unit">
-            @if (etxn.tx.distance_unit) {
-            <span>{{ etxn.tx.distance_unit }}</span>
-            } @else { @if (mileageConfig$|async; as mileageConfig) {
-            <span>{{ mileageConfig.unit }}</span>
-            } }
-          </span>
-        </div>
-        <div>
-          <div class="add-edit-mileage--rate-value text-uppercase mb-0 text-right">
-            {{rate$|async | currency: homeCurrency: 'symbol-narrow'}} / @if (etxn.tx.distance_unit) {
-            <span>{{ etxn.tx.distance_unit | singular }}</span>
-            } @else { @if (mileageConfig$|async; as mileageConfig) {
-            <span>{{ mileageConfig.unit | singular }}</span>
-            } }
-          </div>
-        </div>
-        <div>
-          <div class="add-edit-mileage--amount-value text-uppercase mb-0">
-            {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
-          </div>
-        </div>
-      </div>
-      }
-      <div class="add-edit-mileage--primary-block">
-        @if (connectionStatus$|async; as connectionStatus) { @if (etxn$|async; as etxn) { @if (txnFields$|async; as
-        txnFields) { @if (mileageConfig$|async; as mileageConfig) { @if (recentlyUsedMileageLocations$|async; as
-        recentlyUsedMileageLocations) {
-        <app-route-selector
-          formControlName="route"
-          [isConnected]="connectionStatus.connected"
-          [recentlyUsedMileageLocations]="recentlyUsedMileageLocations"
-          [formInitialized]="formInitializedFlag"
-          [txnFields]="txnFields"
-          [isAmountDisabled]="(isAmountDisabled$|async)"
-          [isDistanceMandatory]="txnFields?.distance?.is_mandatory"
-          [mileageConfig]="mileageConfig"
-          [unit]="etxn.tx.distance_unit || mileageConfig.unit"
-          [touchedInParent]="fg.controls.route.touched"
-          [validInParent]="fg.controls.route.valid"
-          (distanceChange)="updateDistanceOnLocationChange($event)"
-        >
-          @if (showCommuteDeductionField) { @if (txnFields$|async; as txnFields) {
-          <div
-            class="add-edit-mileage--internal-block"
-            [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid}"
-          >
-            <app-fy-select
-              [enableSearch]="false"
-              [label]="'Commute Deduction'"
-              [mandatory]="txnFields.commute_deduction?.is_mandatory"
-              [nullOption]="false"
-              [options]="commuteDeductionOptions"
-              [selectModalHeader]="'Commute deduction'"
-              formControlName="commuteDeduction"
-              [selectionElement]="commuteDeduction"
-              [touchedInParent]="fg.controls.commuteDeduction.touched"
-              [validInParent]="fg.controls.commuteDeduction.valid"
-              [placeholder]="txnFields.commute_deduction?.placeholder || 'Select Commute Deduction'"
-            >
-            </app-fy-select>
-            <ng-template
-              #commuteDeduction
-              let-label="label"
-              let-value="value"
-              let-distance="distance"
-              let-selected="selected"
-            >
-              <div>
-                <div class="add-edit-mileage--commute-deduction">{{label}}</div>
-                @if (distance > 0) {
-                <div class="add-edit-mileage--payment-mode-section">{{distance.toFixed(2) + ' ' + distanceUnit}}</div>
-                } @if (distance === 0) {
-                <div class="add-edit-mileage--payment-mode-section">{{distance + ' ' + distanceUnit}}</div>
-                } @if (distance === null) {
-                <div class="add-edit-mileage--add-location">
-                  <ion-icon
-                    class="add-edit-mileage--add-location--icon"
-                    src="../../../assets/svg/plus-square.svg"
-                  ></ion-icon>
-                  Add location
-                </div>
+    @if ((mileageRatesOptions$ | async)?.length > 0 && !isLoading) {
+      @if (etxn$ | async; as etxn) {
+        @if (fg) {
+          @if ((isAmountCapped$ | async) || (etxn.tx.policy_flag && mode === 'edit')) {
+            <div class="add-edit-mileage--violations">
+              @if (etxn.tx.policy_flag && mode === 'edit') {
+                @if (policyDetails) {
+                  <app-fy-policy-violation-info
+                    [policyDetails]="policyDetails"
+                    [criticalPolicyViolated]="isCriticalPolicyViolated$ | async"
+                  >
+                  </app-fy-policy-violation-info>
                 }
               }
               @if (isAmountCapped$ | async) {

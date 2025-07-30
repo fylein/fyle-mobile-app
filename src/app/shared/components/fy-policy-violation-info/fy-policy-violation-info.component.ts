@@ -4,6 +4,13 @@ import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-vio
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
 
+interface PolicyDetail {
+  run_status: string;
+  expense_policy_rule?: {
+    description: string;
+  };
+}
+
 @Component({
   selector: 'app-fy-policy-violation-info',
   templateUrl: './fy-policy-violation-info.component.html',
@@ -11,28 +18,30 @@ import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violat
   standalone: false,
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
-  @Input() policyDetails;
+  @Input() policyDetails: PolicyDetail[] | undefined;
 
-  @Input() criticalPolicyViolated;
+  @Input() criticalPolicyViolated: boolean | undefined;
 
-  policyViolations;
+  policyViolations: string[] = [];
 
-  showPolicyInfo: boolean;
+  showPolicyInfo: boolean = false;
 
   constructor(
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.policyViolations = [];
-    this.policyViolations = this.policyDetails
-      ?.filter((ids) => ids.run_status === 'VIOLATED_ACTION_SUCCESS')
-      .map((ids) => ids.expense_policy_rule.description);
-    this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated;
+    if (this.policyDetails) {
+      this.policyViolations = this.policyDetails
+        .filter((ids: PolicyDetail) => ids.run_status === 'VIOLATED_ACTION_SUCCESS')
+        .map((ids: PolicyDetail) => ids.expense_policy_rule?.description || '');
+    }
+    this.showPolicyInfo = this.policyViolations.length > 0 || !!this.criticalPolicyViolated;
   }
 
-  async openPolicyViolationDetails() {
+  async openPolicyViolationDetails(): Promise<void> {
     const componentProperties = this.criticalPolicyViolated
       ? { criticalViolationMessages: this.policyViolations, showCTA: false, showDragBar: false, showCloseIcon: true }
       : {
