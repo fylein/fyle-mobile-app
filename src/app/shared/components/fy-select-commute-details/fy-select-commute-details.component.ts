@@ -37,7 +37,7 @@ export class FySelectCommuteDetailsComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private trackingService: TrackingService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -96,7 +96,7 @@ export class FySelectCommuteDetailsComponent implements OnInit {
         getMileageUnit: getMileageUnit$,
         distanceResponse: this.locationService.getDistance(
           commuteDetailsFormValue.homeLocation,
-          commuteDetailsFormValue.workLocation
+          commuteDetailsFormValue.workLocation,
         ),
       })
         .pipe(
@@ -117,7 +117,7 @@ export class FySelectCommuteDetailsComponent implements OnInit {
             const message = this.translocoService.translate('fySelectCommuteDetails.saveError');
             this.showToastMessage(message, ToastType.FAILURE, 'msb-failure');
             return throwError(err);
-          })
+          }),
         )
         .subscribe((commuteDetailsResponse) => {
           this.saveCommuteDetailsLoading = false;

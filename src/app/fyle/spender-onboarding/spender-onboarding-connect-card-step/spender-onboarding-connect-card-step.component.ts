@@ -66,7 +66,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
     private fb: UntypedFormBuilder,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   setupErrorMessages(error: HttpErrorResponse, cardNumber: string, cardId?: string): void {
@@ -94,12 +94,12 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
               });
               this.setupErrorMessages(error, `${card.card_number.slice(-4)}`, card.id);
               return of(error);
-            })
-          )
+            }),
+          ),
         ),
         finalize(() => {
           this.handleEnrollmentCompletion();
-        })
+        }),
       )
       .subscribe();
   }
@@ -121,7 +121,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
         }),
         finalize(() => {
           this.handleEnrollmentCompletion();
-        })
+        }),
       )
       .subscribe();
   }
@@ -240,7 +240,7 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
                   Validators.maxLength(12),
                   this.cardNumberValidator(card.id),
                   this.cardNetworkValidator(card.id),
-                ])
+                ]),
               );
             });
           } else {
@@ -252,11 +252,11 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
                 Validators.maxLength(16),
                 this.cardNumberValidator(),
                 this.cardNetworkValidator(),
-              ])
+              ]),
             );
           }
           this.cardsLoading = false;
-        })
+        }),
       )
       .subscribe();
   }
@@ -270,11 +270,11 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   onCardNumberUpdate(card?: PlatformCorporateCard): void {
     if (this.enrollableCards.length > 0) {
       this.cardValuesMap[card.id].card_type = this.realTimeFeedService.getCardTypeFromNumber(
-        this.fg.controls[`card_number_${card.id}`].value as string
+        this.fg.controls[`card_number_${card.id}`].value as string,
       );
     } else {
       this.singleEnrollableCardType = this.realTimeFeedService.getCardTypeFromNumber(
-        this.fg.controls.card_number.value as string
+        this.fg.controls.card_number.value as string,
       );
     }
   }

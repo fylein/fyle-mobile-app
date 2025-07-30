@@ -14,7 +14,10 @@ export class AuditHistoryComponent implements OnInit {
 
   projectFieldName: string;
 
-  constructor(private expenseFieldsService: ExpenseFieldsService, private translocoService: TranslocoService) {}
+  constructor(
+    private expenseFieldsService: ExpenseFieldsService,
+    private translocoService: TranslocoService,
+  ) {}
 
   // TODO - replace forEach with find
   getAndUpdateProjectName(): void {

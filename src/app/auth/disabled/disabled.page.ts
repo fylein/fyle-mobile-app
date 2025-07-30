@@ -9,7 +9,10 @@ import { Router } from '@angular/router';
   standalone: false,
 })
 export class DisabledPage implements OnInit {
-  constructor(private userEventService: UserEventService, private router: Router) {}
+  constructor(
+    private userEventService: UserEventService,
+    private router: Router,
+  ) {}
 
   ngOnInit() {}
 

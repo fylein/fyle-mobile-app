@@ -53,7 +53,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   constructor(
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
     private cameraService: CameraService,
-    private cameraPreviewService: CameraPreviewService
+    private cameraPreviewService: CameraPreviewService,
   ) {}
 
   get CameraState(): typeof CameraState {

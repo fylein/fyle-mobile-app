@@ -42,7 +42,7 @@ export class DependentFieldComponent implements ControlValueAccessor {
   constructor(
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   async openModal(): Promise<void> {

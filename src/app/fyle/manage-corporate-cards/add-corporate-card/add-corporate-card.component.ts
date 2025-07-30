@@ -43,7 +43,7 @@ export class AddCorporateCardComponent implements OnInit {
     private realTimeFeedService: RealTimeFeedService,
     private trackingService: TrackingService,
     private router: Router,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -91,7 +91,7 @@ export class AddCorporateCardComponent implements OnInit {
         }),
         finalize(() => {
           this.isEnrollingCard = false;
-        })
+        }),
       )
       .subscribe((res) => {
         if (res) {

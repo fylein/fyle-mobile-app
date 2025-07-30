@@ -27,7 +27,7 @@ export class MyExpensesService {
   }
 
   convertSelectedOptionsToExpenseFilters(
-    selectedFilters: SelectedFilters<string | string[]>[]
+    selectedFilters: SelectedFilters<string | string[]>[],
   ): Partial<ExpenseFilters> {
     const generatedFilters: Partial<ExpenseFilters> = {};
 
@@ -261,7 +261,7 @@ export class MyExpensesService {
 
   convertSelectedSortFitlersToFilters(
     sortBy: SelectedFilters<string | string[]>,
-    generatedFilters: Partial<ExpenseFilters>
+    generatedFilters: Partial<ExpenseFilters>,
   ): void {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
@@ -494,7 +494,7 @@ export class MyExpensesService {
 
   addSortToGeneratedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     this.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
 
@@ -505,7 +505,7 @@ export class MyExpensesService {
 
   convertCategorySortToSelectedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'category->name' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -522,7 +522,7 @@ export class MyExpensesService {
 
   convertAmountSortToSelectedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
@@ -539,7 +539,7 @@ export class MyExpensesService {
 
   convertTxnDtSortToSelectedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'spent_at' && filter.sortDir === 'asc') {
       generatedFilters.push({

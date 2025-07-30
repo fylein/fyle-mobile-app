@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription, from, noop, of } from 'rxjs';
+import { Observable, Subscription, noop, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -50,6 +50,8 @@ export class MyCreateReportPage implements OnInit {
 
   emptyInput = false;
 
+  isLoading = true;
+
   constructor(
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
@@ -60,7 +62,7 @@ export class MyCreateReportPage implements OnInit {
     private storageService: StorageService,
     private expensesService: ExpensesService,
     private orgSettingsService: OrgSettingsService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
   ) {}
 
   detectTitleChange(): void {
@@ -128,7 +130,7 @@ export class MyCreateReportPage implements OnInit {
               this.trackingService.createReport({
                 Expense_Count: expenseIDs.length,
                 Report_Value: this.selectedTotalAmount,
-              })
+              }),
             ),
             switchMap((report: Report) => {
               if (expenseIDs.length) {
@@ -140,7 +142,7 @@ export class MyCreateReportPage implements OnInit {
             finalize(() => {
               this.saveDraftReportLoading = false;
               this.router.navigate(['/', 'enterprise', 'my_reports']);
-            })
+            }),
           )
           .subscribe(noop);
       } else {
@@ -152,12 +154,12 @@ export class MyCreateReportPage implements OnInit {
               this.trackingService.createReport({
                 Expense_Count: expenseIDs.length,
                 Report_Value: this.selectedTotalAmount,
-              })
+              }),
             ),
             finalize(() => {
               this.saveReportLoading = false;
               this.router.navigate(['/', 'enterprise', 'my_reports']);
-            })
+            }),
           )
           .subscribe(noop);
       }
@@ -208,6 +210,7 @@ export class MyCreateReportPage implements OnInit {
   ionViewWillEnter(): void {
     this.isSelectedAll = true;
     this.selectedElements = [];
+    this.isLoading = true;
 
     this.checkTxnIds();
 
@@ -218,18 +221,12 @@ export class MyCreateReportPage implements OnInit {
       or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
     };
 
-    from(this.loaderService.showLoader())
+    this.orgSettingsService
+      .get()
       .pipe(
-        switchMap(() =>
-          this.orgSettingsService
-            .get()
-            .pipe(
-              map(
-                (orgSetting) =>
-                  orgSetting?.corporate_credit_card_settings?.enabled &&
-                  orgSetting?.pending_cct_expense_restriction?.enabled
-              )
-            )
+        map(
+          (orgSetting) =>
+            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled,
         ),
         switchMap((filterPendingTxn: boolean) =>
           this.expensesService.getAllExpenses({ queryParams }).pipe(
@@ -255,11 +252,11 @@ export class MyCreateReportPage implements OnInit {
                 }
               });
               return expenses;
-            })
-          )
+            }),
+          ),
         ),
-        finalize(() => from(this.loaderService.hideLoader())),
-        shareReplay(1)
+        finalize(() => (this.isLoading = false)),
+        shareReplay(1),
       )
       .subscribe((res) => {
         this.readyToReportExpenses = res;

@@ -33,7 +33,7 @@ export class AddExpensesToReportComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private currencyService: CurrencyService,
-    private router: Router
+    private router: Router,
   ) {}
 
   close() {

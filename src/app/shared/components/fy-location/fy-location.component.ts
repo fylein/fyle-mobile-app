@@ -47,9 +47,13 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   onTouchedCallback: () => void = noop;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChangeCallback: (_: any) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+  ) {}
 
   get valid() {
     if (this.touchedInParent) {
@@ -59,10 +63,12 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get value(): any {
     return this.innerValue;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
@@ -106,6 +112,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     this.onTouchedCallback();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   writeValue(value: any): void {
     if (value !== this.innerValue) {
       this.innerValue = value;

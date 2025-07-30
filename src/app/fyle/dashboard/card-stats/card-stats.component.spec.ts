@@ -141,11 +141,11 @@ describe('CardStatsComponent', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     virtualCardsService = TestBed.inject(VirtualCardsService) as jasmine.SpyObj<VirtualCardsService>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
@@ -228,7 +228,7 @@ describe('CardStatsComponent', () => {
       expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledTimes(1);
       expect(corporateCreditCardExpenseService.getPlatformCorporateCardDetails).toHaveBeenCalledOnceWith(
         cards,
-        cardStats
+        cardStats,
       );
     });
 
@@ -297,7 +297,7 @@ describe('CardStatsComponent', () => {
 
       popoverController.create.and.returnValues(
         Promise.resolve(addCardPopoverSpy),
-        Promise.resolve(cardAddedPopoverSpy)
+        Promise.resolve(cardAddedPopoverSpy),
       );
 
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
@@ -363,7 +363,7 @@ describe('CardStatsComponent', () => {
 
       popoverController.create.and.returnValues(
         Promise.resolve(addCardPopoverSpy),
-        Promise.resolve(cardAddedPopoverSpy)
+        Promise.resolve(cardAddedPopoverSpy),
       );
 
       component.ngOnInit();
@@ -455,27 +455,27 @@ describe('CardStatsComponent', () => {
       const executionOrder: string[] = [];
 
       corporateCreditCardExpenseService.clearCache.and.returnValue(
-        of(null).pipe(tap(() => executionOrder.push('cache_cleared')))
+        of(null).pipe(tap(() => executionOrder.push('cache_cleared'))),
       );
 
       popoverController.create.and.returnValue(
         Promise.resolve(cardAddedPopoverSpy).then(() => {
           executionOrder.push('popover_created');
           return cardAddedPopoverSpy;
-        })
+        }),
       );
 
       cardAddedPopoverSpy.present.and.returnValue(
         Promise.resolve().then(() => {
           executionOrder.push('popover_presented');
-        })
+        }),
       );
 
       cardAddedPopoverSpy.onDidDismiss.and.returnValue(
         Promise.resolve({}).then(() => {
           executionOrder.push('popover_dismissed');
           return {};
-        })
+        }),
       );
 
       // Call the private method directly using any type assertion

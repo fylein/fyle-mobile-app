@@ -11,7 +11,10 @@ import { FileService } from 'src/app/core/services/file.service';
 export class CameraOptionsPopupComponent implements OnInit {
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
-  constructor(private popoverController: PopoverController, private fileService: FileService) {}
+  constructor(
+    private popoverController: PopoverController,
+    private fileService: FileService,
+  ) {}
 
   ngOnInit() {}
 

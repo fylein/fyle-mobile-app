@@ -605,6 +605,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getCategoryOnAdd').and.returnValue(of(orgCategoryData));
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
         component.isConnected$ = of(true);
+        component.isLoading = false;
         component.setupCustomFields();
         tick(500);
 
@@ -981,8 +982,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedTxnData);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1013,8 +1012,6 @@ export function TestCases5(getTestBed) {
         expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
@@ -1042,8 +1039,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedTxnData);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1089,8 +1084,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of({
           ...unflattenedTxnData,
           tx: {
@@ -1163,8 +1156,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectCategoryRestrictions));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedExp2);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1197,8 +1188,6 @@ export function TestCases5(getTestBed) {
         expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
@@ -1220,8 +1209,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1252,8 +1239,6 @@ export function TestCases5(getTestBed) {
         expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, undefined);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
@@ -1280,8 +1265,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency2);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1312,8 +1295,6 @@ export function TestCases5(getTestBed) {
         expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
@@ -1340,8 +1321,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectAndAutofill));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency3);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1372,8 +1351,6 @@ export function TestCases5(getTestBed) {
         expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
@@ -1400,8 +1377,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectAndAutofill));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency3);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);

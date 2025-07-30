@@ -39,9 +39,12 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
 
   onChangeCallback: (_: any) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+  ) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.touchedInParent) {
       return this.validInParent;
     } else {

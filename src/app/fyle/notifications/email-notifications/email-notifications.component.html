@@ -27,15 +27,15 @@
     </div>
     <div>
       @for (notification of notifications; track notification) {
-      <div class="email-notifications--flex-row">
-        <div class="email-notifications--event-name" (click)="toggleNotification(notification)">
-          {{ notification.event }}
+        <div class="email-notifications--flex-row">
+          <div class="email-notifications--event-name" (click)="toggleNotification(notification)">
+            {{ notification.event }}
+          </div>
+          <div class="email-notifications--checkbox-col">
+            <mat-checkbox [ngModel]="notification.email" (ngModelChange)="toggleNotification(notification)">
+            </mat-checkbox>
+          </div>
         </div>
-        <div class="email-notifications--checkbox-col">
-          <mat-checkbox [ngModel]="notification.email" (ngModelChange)="toggleNotification(notification)">
-          </mat-checkbox>
-        </div>
-      </div>
       }
     </div>
   </div>

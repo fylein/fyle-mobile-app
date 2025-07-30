@@ -49,14 +49,14 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
   ) {}
 
   ngOnInit() {
     if (this.currentSelection) {
       this.options = this.options
         .map((option) =>
-          isEqual(option.value, this.currentSelection) ? { ...option, selected: true } : { ...option, selected: false }
+          isEqual(option.value, this.currentSelection) ? { ...option, selected: true } : { ...option, selected: false },
         )
         .sort((a, b) => (a.selected === b.selected ? 0 : a.selected ? -1 : 1));
     }

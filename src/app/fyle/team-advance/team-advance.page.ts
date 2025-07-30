@@ -103,7 +103,7 @@ export class TeamAdvancePage implements AfterViewChecked {
         return acc.concat(curr);
       }, [] as ExtendedAdvanceRequest[]),
       shareReplay(1),
-      finalize(() => (this.isLoading = false))
+      finalize(() => (this.isLoading = false)),
     );
 
     this.count$ = this.loadData$.pipe(
@@ -112,19 +112,19 @@ export class TeamAdvancePage implements AfterViewChecked {
           state,
           sortParam,
           sortDir,
-        })
+        }),
       ),
       shareReplay(1),
-      finalize(() => (this.isLoading = false))
+      finalize(() => (this.isLoading = false)),
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
       switchMap((teamAdvancerequests) =>
         this.count$.pipe(
           take(1),
-          map((count) => count > teamAdvancerequests.length)
-        )
-      )
+          map((count) => count > teamAdvancerequests.length),
+        ),
+      ),
     );
 
     this.loadData$.subscribe(noop);
@@ -220,7 +220,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     const filters = await this.filtersHelperService.openFilterModal(
       this.filters,
       filterOptions,
-      activeFilterInitialName
+      activeFilterInitialName,
     );
 
     if (filters) {

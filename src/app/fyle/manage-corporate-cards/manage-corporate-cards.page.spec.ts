@@ -176,13 +176,13 @@ describe('ManageCorporateCardsPage', () => {
 
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -370,7 +370,7 @@ describe('ManageCorporateCardsPage', () => {
 
       popoverController.create.and.returnValues(
         Promise.resolve(addCardPopoverSpy),
-        Promise.resolve(cardAddedPopoverSpy)
+        Promise.resolve(cardAddedPopoverSpy),
       );
       spyOn(component, 'onCardAdded');
 

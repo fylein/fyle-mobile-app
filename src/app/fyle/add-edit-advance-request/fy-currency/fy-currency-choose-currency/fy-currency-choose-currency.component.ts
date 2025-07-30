@@ -36,7 +36,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
     private currencyService: CurrencyService,
     private modalController: ModalController,
     private loaderService: LoaderService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   clearValue(): void {
@@ -52,12 +52,12 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
       startWith({ INR: this.translocoService.translate('fyCurrencyChooseCurrency.indianRupee') }),
       filter((currenciesObj) => !!currenciesObj),
       map((currenciesObj: { [key: string]: string }) =>
-        Object.keys(currenciesObj).map((shortCode) => ({ shortCode, longName: currenciesObj[shortCode] || shortCode }))
+        Object.keys(currenciesObj).map((shortCode) => ({ shortCode, longName: currenciesObj[shortCode] || shortCode })),
       ),
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.currencies$.subscribe(noop);
@@ -74,12 +74,12 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
             currencies.filter(
               (currency) =>
                 currency.shortCode.toLowerCase().includes(searchText.toLowerCase()) ||
-                currency.longName.toLowerCase().includes(searchText.toLowerCase())
-            )
-          )
-        )
+                currency.longName.toLowerCase().includes(searchText.toLowerCase()),
+            ),
+          ),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 

@@ -19,7 +19,7 @@ export class FyCurrencyPipe implements PipeTransform {
     currencyCode?: string,
     display?: string | boolean,
     digitsInfo?: string,
-    locale?: string
+    locale?: string,
   ): string | null {
     // When amount passed is 0 avoid adding decimal point
     if (value === 0) {

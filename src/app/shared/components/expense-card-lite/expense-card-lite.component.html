@@ -1,16 +1,17 @@
 <div class="expenses-card--body">
   <div class="d-flex">
     @if (!isReceiptPresent) {
-    <div class="expenses-card--receipt-container">
-      <ion-icon
-        class="expenses-card--receipt-icon expenses-card--receipt-icon__pdf"
-        [src]="'assets/svg/attachment-none.svg'"
-      ></ion-icon>
-    </div>
-    } @if (isReceiptPresent) {
-    <div class="expenses-card--receipt-image-container expenses-card--with-image">
-      <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
-    </div>
+      <div class="expenses-card--receipt-container">
+        <ion-icon
+          class="expenses-card--receipt-icon expenses-card--receipt-icon__pdf"
+          [src]="'assets/svg/attachment-none.svg'"
+        ></ion-icon>
+      </div>
+    }
+    @if (isReceiptPresent) {
+      <div class="expenses-card--receipt-image-container expenses-card--with-image">
+        <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
+      </div>
     }
 
     <!-- Dashed Divider -->
@@ -22,7 +23,7 @@
           <div class="expenses-card--category">
             {{ expense.purpose }}
             @if (!expense.purpose) {
-            {{ 'expenseCardLite.unspecified' | transloco }}
+              {{ 'expenseCardLite.unspecified' | transloco }}
             }
           </div>
         </div>
@@ -32,7 +33,7 @@
         </div>
 
         <div class="expenses-card--date">
-          {{ expense.spent_at | date : 'MMM dd, yyyy' }}
+          {{ expense.spent_at | date: 'MMM dd, yyyy' }}
         </div>
 
         <div class="d-flex">

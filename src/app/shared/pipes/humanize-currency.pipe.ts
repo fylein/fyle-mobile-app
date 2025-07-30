@@ -7,7 +7,10 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class HumanizeCurrencyPipe implements PipeTransform {
-  constructor(private fyCurrencyPipe: FyCurrencyPipe, private translocoService: TranslocoService) {}
+  constructor(
+    private fyCurrencyPipe: FyCurrencyPipe,
+    private translocoService: TranslocoService,
+  ) {}
 
   transform(value: number, currencyCode: string, skipSymbol = false, fraction?: number): string {
     const sign = value < 0 ? '-' : '';

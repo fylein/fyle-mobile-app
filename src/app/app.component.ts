@@ -150,7 +150,7 @@ export class AppComponent implements OnInit {
             this.appVersionService.load(deviceInfo);
             return this.appVersionService.getUserAppVersionDetails(deviceInfo);
           }),
-          filter((userAppVersionDetails) => !!userAppVersionDetails)
+          filter((userAppVersionDetails) => !!userAppVersionDetails),
         )
         .subscribe((userAppVersionDetails) => {
           const { appSupportDetails, lastLoggedInVersion, deviceInfo } = userAppVersionDetails;
@@ -167,7 +167,7 @@ export class AppComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -182,7 +182,7 @@ export class AppComponent implements OnInit {
           } else {
             this.sidemenuRef.showSideMenuOffline();
           }
-        })
+        }),
       )
       .subscribe();
   }
@@ -393,7 +393,7 @@ export class AppComponent implements OnInit {
           const queryParams: { [key: string]: string } = urlTree.queryParams;
 
           return { lastSegment, matrixParams, queryParams };
-        })
+        }),
       )
       .subscribe(({ lastSegment, queryParams }: { lastSegment: string; queryParams: { [key: string]: string } }) => {
         this.currentPath = lastSegment;
