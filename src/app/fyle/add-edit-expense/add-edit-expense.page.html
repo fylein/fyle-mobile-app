@@ -170,8 +170,7 @@
             @if (policyDetails) {
               <app-fy-policy-violation-info
                 [policyDetails]="policyDetails"
-                [criticalPolicyViolated]="isCriticalPolicyViolated$ | async"
-                [expense]="platformExpense$ | async"
+                [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
               ></app-fy-policy-violation-info>
             }
           }
@@ -1553,6 +1552,7 @@
                 >
                   Save and new
                 </ion-button>
+<<<<<<< HEAD
               }
               @if (mode === 'edit' && !navigateBack) {
                 <ion-button (click)="goBack()" [disabled]="saveExpenseLoader" class="btn-secondary">
@@ -1576,3 +1576,12 @@
     </ion-footer>
   }
 }
+=======
+              </ion-buttons>
+            }
+          </div>
+        </ion-toolbar>
+      </ion-footer>
+    }
+  }
+>>>>>>> parent of 95137bd94 (feat: Critical policy violation behavioural change (#3793))

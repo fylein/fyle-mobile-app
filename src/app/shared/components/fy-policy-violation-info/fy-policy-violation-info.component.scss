@@ -7,7 +7,6 @@
     border: 1px solid colors.$grey-lighter;
     padding: 12px 10px;
     margin: 8px 0;
-    position: relative;
   }
 
   &--block {
@@ -22,7 +21,7 @@
   &--list {
     padding-left: 6px;
     font-size: 12px;
-    margin: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 16px;
     &__no-bullet {
       list-style-type: none;
       margin: 0px;
@@ -35,25 +34,8 @@
   }
 
   &--view-more {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
     color: colors.$brand-primary;
+    margin-left: 4px;
     font-size: 12px;
-  }
-
-  &--icons {
-    display: flex;
-    align-items: center;
-    padding-right: 4px;
-    gap: 4px;
-
-    &__policy-violated-icon {
-      width: 16px;
-      height: 16px;
-      color: colors.$red;
-      font-size: 16px;
-    }
   }
 }

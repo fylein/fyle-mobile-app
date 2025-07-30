@@ -95,19 +95,83 @@
   </ng-container>
 
   <div>
-    @if (fg && !isLoading) {
-      <form #formContainer [formGroup]="fg" class="add-edit-per-diem--form">
-        @if (canCreatePerDiem$ | async) {
-          @if ((allowedPerDiemRateOptions$ | async)?.length > 0 && !isLoading) {
-            @if (etxn$ | async; as etxn) {
-              @if (mode === 'edit') {
-                @if (policyDetails) {
-                  <app-fy-policy-violation-info
-                    [policyDetails]="policyDetails"
-                    [criticalPolicyViolated]="isCriticalPolicyViolated$ | async"
-                    [expense]="platformExpense$ | async"
-                  >
-                  </app-fy-policy-violation-info>
+    @if (fg) {
+    <form #formContainer [formGroup]="fg" class="add-edit-per-diem--form">
+      @if ((canCreatePerDiem$|async)) { @if ((allowedPerDiemRateOptions$|async)?.length > 0) { @if (etxn$|async; as
+      etxn) { @if (mode === 'edit') { @if (policyDetails) {
+      <app-fy-policy-violation-info
+        [policyDetails]="policyDetails"
+        [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+      >
+      </app-fy-policy-violation-info>
+      } } @if (isAmountCapped$|async) { @if (!(isCriticalPolicyViolated$|async)) {
+      <div class="capped-info">
+        <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
+        <div class="capped-message">
+          Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: '' }} was capped to {{etxn.tx.amount |
+          currency: etxn.tx.currency: '' }} due to policy @if (isAmountDisabled$|async) {
+          <span> and cannot be edited.</span>
+          }
+        </div>
+      </div>
+      } } @if (etxn$|async; as etxn) {
+      <div class="add-edit-per-diem--currency">
+        @if (homeCurrency$|async; as homeCurrency) {
+        <div>
+          <div class="add-edit-per-diem--amount-box">
+            <div>{{ fg.controls?.num_days?.value ? fg.controls?.num_days?.value : 0 }} Days</div>
+            <div>
+              {{(fg.controls?.per_diem_rate?.value?.rate ? fg.controls?.per_diem_rate?.value?.rate : 0) | currency:
+              (fg.controls?.per_diem_rate?.value?.currency ? fg.controls?.per_diem_rate?.value?.currency :
+              homeCurrency): 'symbol-narrow'}} / Day
+            </div>
+            <div class="add-edit-per-diem--amount-value">
+              {{ (fg.controls.currencyObj?.value?.amount ? fg.controls.currencyObj?.value?.amount : 0.00 ) | currency:
+              homeCurrency: 'symbol-narrow'}}
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      } @if (fg.controls.currencyObj?.value?.orig_amount) {
+      <div class="add-edit-per-diem--conversion">
+        <mat-icon class="add-edit-per-diem--conversion-icon" svgIcon="info-circle-fill"></mat-icon>
+        <div class="add-edit-per-diem--conversion-amount">
+          {{ fg.controls.currencyObj?.value?.amount | currency: fg.controls.currencyObj?.value?.currency: 'code' }}
+        </div>
+        <div class="add-edit-per-diem--conversion-rate">
+          at {{ (fg.controls.currencyObj?.value?.amount / fg.controls.currencyObj?.value?.orig_amount) | number:'1.0-7'
+          }} {{fg.controls.currencyObj?.value?.currency}} / {{fg.controls.currencyObj?.value?.orig_currency}}
+        </div>
+      </div>
+      }
+      <div class="add-edit-per-diem--primary-block">
+        <div>
+          @if (allowedPerDiemRateOptions$|async; as allowedPerDiemRateOptions) {
+          <div
+            [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.per_diem_rate.touched && !fg.controls.per_diem_rate.valid}"
+            class="add-edit-per-diem--internal-block"
+          >
+            <app-fy-select
+              [disabled]="isAmountDisabled"
+              [label]="'Per diem type'"
+              [mandatory]="true"
+              [nullOption]="false"
+              [options]="allowedPerDiemRateOptions"
+              [selectModalHeader]="'Select per diem type'"
+              [selectionElement]="perDiemType"
+              formControlName="per_diem_rate"
+              [touchedInParent]="fg.controls.per_diem_rate.touched"
+              [validInParent]="fg.controls.per_diem_rate.valid"
+            >
+            </app-fy-select>
+            <ng-template #perDiemType let-label="label" let-perDiemType="value" let-selected="selected">
+              <div>
+                <div class="add-edit-per-diem--type-name">{{label}}</div>
+                @if (perDiemType) {
+                <ng-container>
+                  <div class="add-edit-per-diem--type-rate">{{perDiemType?.readableRate}}</div>
+                </ng-container>
                 }
               }
               @if (isAmountCapped$ | async) {

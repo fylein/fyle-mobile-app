@@ -359,7 +359,7 @@ export class MyExpensesPage implements OnInit {
         const queryParams = cloneDeep(params.queryParams) || {};
 
         queryParams.report_id = (queryParams.report_id || 'is.null') as string;
-        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
 
         if (queryParams.or) {
           const hasExpenseState =
@@ -598,7 +598,7 @@ export class MyExpensesPage implements OnInit {
         let queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
-        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
 
         if (params.searchString) {
           queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
@@ -660,7 +660,7 @@ export class MyExpensesPage implements OnInit {
         const queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
-        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
         return this.expenseService.getExpensesCount(queryParams);
       }),
       shareReplay(1),
@@ -679,7 +679,7 @@ export class MyExpensesPage implements OnInit {
     this.allExpenseCountHeader$ = this.loadExpenses$.pipe(
       switchMap(() =>
         this.expenseService.getExpenseStats({
-          state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
+          state: 'in.(COMPLETE,DRAFT)',
           report_id: 'is.null',
         }),
       ),
@@ -990,8 +990,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string): Promise<void> {
-    const orgSettings = await this.orgSettings$.pipe(take(1)).toPromise();
-    const filterMain = await this.myExpensesService.getFilters(orgSettings);
+    const filterMain = this.myExpensesService.getFilters();
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
         name: this.translocoService.translate('myExpensesPage.filters.cardsEndingIn'),
@@ -1254,35 +1253,13 @@ export class MyExpensesPage implements OnInit {
       } ${this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.withPendingTransactions')}.`;
     }
     if (policyViolationsCount > 0) {
-      // Get org settings and handle the policy violation text based on the setting
-      this.orgSettings$.pipe(take(1)).subscribe((orgSettings) => {
-        const isNewFlowEnabled = orgSettings?.is_new_critical_policy_violation_flow_enabled;
-
-        let policyViolationText: string;
-        if (isNewFlowEnabled) {
-          // Use new blocked state translation keys
-          policyViolationText =
-            policyViolationsCount > 1
-              ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.areBlockedState')
-              : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.isBlockedState');
-        } else {
-          // Use existing critical policy violations translation key
-          policyViolationText = this.translocoService.translate(
-            'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations',
-          );
-        }
-
-        const finalMessage =
-          message +
-          `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
-            policyViolationsCount > 1
-              ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
-              : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
-          } ${policyViolationText}.`;
-
-        this.openCriticalPolicyViolationPopOver({ title, message: finalMessage, reportType });
-      });
-      return;
+      message += `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
+        policyViolationsCount > 1
+          ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
+          : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
+      } ${this.translocoService.translate(
+        'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations'
+      )}.`;
     }
 
     this.openCriticalPolicyViolationPopOver({ title, message, reportType });
@@ -1300,10 +1277,8 @@ export class MyExpensesPage implements OnInit {
       );
       return;
     }
-    const expensesWithCriticalPolicyViolations = selectedElements.filter(
-      (expense) =>
-        this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense) ||
-        this.sharedExpenseService.isExpenseUnreportable(expense),
+    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
+      this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense)
     );
     const expensesInDraftState = selectedElements.filter((expense) =>
       this.sharedExpenseService.isExpenseInDraft(expense),
@@ -1385,7 +1360,7 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.report_id = queryParams.report_id || 'is.null';
 
-        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
 
         const orderByParams =
           params.sortParam && params.sortDir
@@ -1710,7 +1685,7 @@ export class MyExpensesPage implements OnInit {
               const queryParams = params.queryParams || {};
 
               queryParams.report_id = queryParams.report_id || 'is.null';
-              queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
+              queryParams.state = 'in.(COMPLETE,DRAFT)';
               if (params.searchString) {
                 queryParams.q = params?.searchString + ':*';
               }

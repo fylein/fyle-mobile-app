@@ -31,16 +31,41 @@
 </ion-header>
 
 <ion-content>
-  @if (!isLoading) {
-    @if (expense$ | async; as expense) {
-      <div class="view-expense--container">
-        @if (expense.is_policy_flagged) {
-          @if (policyDetails) {
-            <app-fy-policy-violation-info
-              [policyDetails]="policyDetails"
-              [criticalPolicyViolated]="isCriticalPolicyViolated$ | async"
-              [expense]="expense"
-            ></app-fy-policy-violation-info>
+  @if (!isLoading) { @if (expense$|async; as expense) {
+  <div class="view-expense--container">
+    @if (expense.is_policy_flagged) { @if (policyDetails) {
+    <app-fy-policy-violation-info
+      [policyDetails]="policyDetails"
+      [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+    ></app-fy-policy-violation-info>
+    } } @if ((isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)) {
+    <div class="view-expense--policy-container">
+      <span class="info-text m-0">
+        Claimed amount {{ expense.claim_amount | currency:expense.currency: 'symbol-narrow' }} was capped to {{
+        expense.amount | currency:expense.currency: 'symbol-narrow'}} due to policy.
+      </span>
+    </div>
+    } @if (isSplitExpense) {
+    <div class="view-expense--alert-split">
+      <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
+    </div>
+    }
+    <div class="view-expense--card-container">
+      <div class="d-flex">
+        <div class="view-expense--card-container__block">
+          <div class="view-expense--card-container__category">{{ expense.category.display_name }}</div>
+          @if (!expense.matched_corporate_card_transactions[0]) {
+          <div class="view-expense--card-container__merchant">{{ expense.merchant || '-' }}</div>
+          } @if (isProjectShown) {
+          <div class="view-expense--card-container__project">
+            {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
+          </div>
+          } @if (isCCCTransaction && cardNumber) {
+          <div>
+            Card ending in... {{ cardNumber | maskNumber }} @if (cardNickname) {
+            <span>{{'(' + cardNickname + ')'}}</span>
+            }
+          </div>
           }
         }
         @if ((isAmountCapped$ | async) && !(isCriticalPolicyViolated$ | async)) {

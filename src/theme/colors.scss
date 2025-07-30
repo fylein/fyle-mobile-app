@@ -135,12 +135,11 @@ $states: (
   'closed': #3375ad,
   'pulledBack': #34495e,
   'pulled': #34495e,
-  'blocked': #da1e28,
 );
 
 $fdl-state-bg-map: (
   'draft': #ececee,
-  'incomplete': #fcf7e6,
+  'incomplete': #fce9ea,
   'complete': #f4edff,
   'submitted': #eef1fe,
   'sent_back': #fce9ea,
@@ -158,12 +157,11 @@ $fdl-state-bg-map: (
   'pulledBack': #ebedef,
   'pulled': #ebedef,
   'disabled': #ebedef,
-  'blocked': #fce9ea,
 );
 
 $fdl-state-color-map: (
   'draft': #34495e,
-  'incomplete': #685103,
+  'incomplete': #da1e28,
   'complete': #8e46ff,
   'submitted': #556ef2,
   'sent_back': #da1e28,
@@ -181,12 +179,11 @@ $fdl-state-color-map: (
   'pulledBack': #34495e,
   'pulled': #34495e,
   'disabled': #34495e,
-  'blocked': #da1e28,
 );
 
 $fdl-state-border-color-map: (
   'draft': #c6ccd2,
-  'incomplete': #fae5a3,
+  'incomplete': #f5c0c3,
   'complete': #dbc5ff,
   'submitted': #d9def8,
   'sent_back': #f5c0c3,
@@ -204,5 +201,4 @@ $fdl-state-border-color-map: (
   'pulledBack': #c6ccd2,
   'pulled': #c6ccd2,
   'disabled': #c6ccd2,
-  'blocked': #f5c0c3,
 );

@@ -15,7 +15,6 @@ import {
   Subject,
   Subscription,
   throwError,
-  EMPTY,
 } from 'rxjs';
 import {
   catchError,
@@ -110,7 +109,6 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
-import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -158,8 +156,6 @@ export class AddEditPerDiemPage implements OnInit {
   isAmountDisabled = false;
 
   etxn$: Observable<Partial<UnflattenedTransaction>>;
-
-  platformExpense$: Observable<PlatformExpense>;
 
   isIndividualProjectsEnabled$: Observable<boolean>;
 
@@ -1022,10 +1018,6 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
-
-    this.platformExpense$ = this.etxn$.pipe(
-      switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : EMPTY)),
-    );
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled),

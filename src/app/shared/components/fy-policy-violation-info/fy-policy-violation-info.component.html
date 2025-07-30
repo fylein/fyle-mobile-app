@@ -1,29 +1,36 @@
 @if (showPolicyInfo) {
   <div class="policy-violation-info--container">
     <div class="policy-violation-info--block">
-      <mat-icon class="policy-violation-info--icons__policy-violated-icon">error</mat-icon>
+      <mat-icon class="icon--alert-warning" svgIcon="warning-fill"></mat-icon>
       <div class="policy-violation-info--list-container">
-        <div
+        <ul
           class="policy-violation-info--list"
           [ngClass]="{ 'policy-violation-info--list__no-bullet': !criticalPolicyViolated }"
-        >
+          >
           @if (policyViolations.length >= 1) {
-            <span class="policy-violation-info--content"
-              >{{ 'fyPolicyViolationInfo.critical' | transloco }}
-              @if (policyViolations.length === 1) {
-                <span>{{ 'fyPolicyViolationInfo.policy' | transloco }}</span>
-              }
-              @if (policyViolations.length > 1) {
-                <span>{{ 'fyPolicyViolationInfo.policies' | transloco }}</span>
-              }
-              {{ 'fyPolicyViolationInfo.violation' | transloco }}</span
-            >
-            <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">{{
-              'fyPolicyViolationInfo.viewDetails' | transloco
-            }}</span>
-          }
+            <li>
+              <span class="policy-violation-info--content"
+                >{{ 'fyPolicyViolationInfo.policy' | transloco }}
+                @if (policyViolations.length === 1) {
+                  <span>{{ 'fyPolicyViolationInfo.violation' | transloco }}</span>
+                }
+                @if (policyViolations.length > 1) {
+                  <span>{{ 'fyPolicyViolationInfo.violations' | transloco }}</span>
+                }
+                {{ 'fyPolicyViolationInfo.found' | transloco }}</span
+                >
+                <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">{{
+                  'fyPolicyViolationInfo.viewDetails' | transloco
+                }}</span>
+              </li>
+            }
+            @if (criticalPolicyViolated) {
+              <li class="policy-violation-info--content">
+                {{ 'fyPolicyViolationInfo.criticalViolationNotice' | transloco }}
+              </li>
+            }
+          </ul>
         </div>
       </div>
     </div>
-  </div>
-}
+  }

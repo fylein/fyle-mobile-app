@@ -452,7 +452,6 @@ export const orgSettingsGetData: OrgSettings = deepFreeze({
   },
   pending_cct_expense_restriction: { enabled: true, allowed: true },
   simplified_multi_stage_approvals: { enabled: true, allowed: true },
-  is_new_critical_policy_violation_flow_enabled: false,
 });
 
 export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
@@ -898,7 +897,6 @@ export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
     enabled: true,
     allowed: true,
   },
-  is_new_critical_policy_violation_flow_enabled: false,
 });
 
 export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = deepFreeze({
