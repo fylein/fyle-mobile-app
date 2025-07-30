@@ -31,8 +31,7 @@ describe('StatusService', () => {
         'services.status.expenseRuleApplied': 'Expense Rule Applied',
         'services.status.typeCreated': '{{type}} Created',
         'services.status.typeEdited': '{{type}} Edited',
-        'services.status.policyViolation': 'Policy violation',
-        'services.status.criticalPolicyViolation': 'Critical policy violation found',
+        'services.status.policyViolation': 'Policy Violation',
         'services.status.expenseAdded': 'Expense added',
         'services.status.receiptAttached': 'Receipt Attached',
         'services.status.reportSubmitted': 'Report Submitted',
@@ -156,21 +155,5 @@ describe('StatusService', () => {
       expect(res).toEqual(testComment);
       done();
     });
-  });
-
-  it('should return "Critical policy violation found" for blocked reports', () => {
-    const blockedComment =
-      'The policy violation will trigger the following action(s): expense will be flagged for verification and approval, expense could not be added to a report or submitted';
-    const result = statusService.getStatusCategory(blockedComment, 'transactions');
-    expect(result.category).toBe('Critical policy violation found');
-    expect(result.icon).toBe('warning-fill');
-  });
-
-  it('should return "Policy violation" for non-blocked policy violations', () => {
-    const nonBlockedComment =
-      'The policy violation will trigger the following action(s): expense will be flagged for verification and approval';
-    const result = statusService.getStatusCategory(nonBlockedComment, 'transactions');
-    expect(result.category).toBe('Policy violation');
-    expect(result.icon).toBe('warning-fill');
   });
 });

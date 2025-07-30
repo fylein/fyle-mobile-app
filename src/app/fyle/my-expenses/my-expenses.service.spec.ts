@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MyExpensesService } from './my-expenses.service';
 import {
   expenseFiltersData1,
@@ -81,7 +80,6 @@ describe('MyExpensesService', () => {
         'services.myExpenses.no': 'No',
         'services.myExpenses.policyViolated': 'Policy Violated',
         'services.myExpenses.cannotReport': 'Cannot Report',
-        'services.myExpenses.blocked': 'Blocked',
         'services.myExpenses.dateNewToOldSort': 'Date - New to Old',
         'services.myExpenses.dateOldToNewSort': 'Date - Old to New',
         'services.myExpenses.amountHighToLowSort': 'Amount - High to Low',
@@ -97,7 +95,6 @@ describe('MyExpensesService', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [MyExpensesService, { provide: TranslocoService, useValue: translocoServiceSpy }],
     });
 
@@ -415,8 +412,7 @@ describe('MyExpensesService', () => {
   });
 
   it('getFilters(): should return all the filters', () => {
-    const orgSettings = { is_new_critical_policy_violation_flow_enabled: true };
-    const filters = myExpensesService.getFilters(orgSettings);
+    const filters = myExpensesService.getFilters();
 
     expect(filters).toEqual(filterOptions2);
   });

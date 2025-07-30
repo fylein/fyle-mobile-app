@@ -181,7 +181,6 @@ export const platformPersonalCardTxnExpenseSuggestionsRes: PlatformApiResponse<E
       },
       tax_group_id: 'tg6RDX1flCnt',
       travel_classes: [],
-      unreportable: false,
       updated_at: new Date('2024-10-24T10:34:36.313431+00:00'),
       user: {
         email: 'kavya.hl@fyle.in',

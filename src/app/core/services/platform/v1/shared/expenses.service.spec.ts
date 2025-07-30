@@ -654,7 +654,6 @@ describe('ExpensesService', () => {
       expect(result).toEqual([
         'and(state.in.(COMPLETE),or(policy_amount.is.null,policy_amount.gt.0.0001))',
         'and(is_policy_flagged.eq.true,or(policy_amount.is.null,policy_amount.gt.0.0001))',
-        'state.in.(UNREPORTABLE)',
         'policy_amount.lt.0.0001',
         'state.in.(DRAFT)',
       ]);
