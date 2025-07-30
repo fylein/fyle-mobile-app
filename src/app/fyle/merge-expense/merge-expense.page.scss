@@ -29,7 +29,7 @@
       padding-inline-end: 0;
       position: relative;
       line-height: 26px;
-      color: colors.$black;
+      color: var(--primary-text);
       top: 12px;
       height: 64px;
     }
@@ -49,7 +49,7 @@
   &--footer-toolbar {
     padding: 14px 16px;
     &__shadow {
-      box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+      box-shadow: var(--card-shadow, 0px -2px 40px rgba(215, 215, 215, 0.4));
     }
     &__offline {
       padding-bottom: 36px;
@@ -79,7 +79,7 @@
     margin: 0;
     border-radius: 0;
     &__border {
-      border-right: 1px solid colors.$grey;
+      border-right: 1px solid var(--border-color);
     }
   }
 
@@ -110,7 +110,7 @@
   }
 
   &--date {
-    border-bottom: 1px solid colors.$grey-lighter;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--date-label {
@@ -118,7 +118,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     line-height: 16px;
     white-space: nowrap;
   }
@@ -131,11 +131,12 @@
     padding: 0;
     height: 18px;
     margin: 6px 0;
+    color: var(--primary-text);
   }
 
   &--text {
     &__invalid {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid var(--error-color);
     }
   }
 
@@ -144,7 +145,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     line-height: 16px;
     white-space: nowrap;
   }
@@ -153,7 +154,7 @@
     border: 0;
     height: 24px;
     line-height: 18px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     width: 100%;
     margin: 6px 0;
     padding: 0;
@@ -165,7 +166,7 @@
   }
 
   &--checkbox {
-    color: colors.$blue-black;
+    color: var(--primary-text);
   }
 
   &--project-container {
@@ -185,7 +186,7 @@
 
   &--internal-block {
     padding: 6px 0;
-    background: colors.$pure-white;
+    background: var(--background-primary);
     line-height: 1;
     margin-bottom: 12px;
     &__margin {
@@ -208,12 +209,12 @@
   }
 
   &--payment-mode-header {
-    color: colors.$blue-black;
+    color: var(--primary-text);
   }
 
   &--payment-mode-section {
     font-size: 12px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     margin-top: 4px;
   }
 
@@ -223,7 +224,7 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: var(--error-color);
   }
 
   &--icon-corporate-card {
@@ -238,11 +239,11 @@
   }
 
   &--matching-card {
-    border-bottom: 1px solid colors.$grey-lighter;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     padding: 4px 0;
     justify-content: space-between;
-    color: colors.$blue-black;
+    color: var(--primary-text);
   }
 
   &--icon-loading {
@@ -267,11 +268,11 @@
   }
 
   &--card-arrow {
-    color: colors.$grey-light;
+    color: var(--secondary-text);
   }
 
   &--error {
-    color: colors.$red;
+    color: var(--error-color);
     line-height: 16px;
     margin-top: -12px;
     font-size: 12px;
@@ -284,7 +285,7 @@
 
   &--ccc-expense {
     pointer-events: none;
-    color: colors.$grey-light;
+    color: var(--secondary-text);
   }
 
   &--text-block {
@@ -292,23 +293,81 @@
   }
 
   &--disabled {
-    background: colors.$grey-7;
+    background: var(--background-secondary);
   }
 }
 
 .fy-header {
-  background-color: colors.$pure-white;
+  background-color: var(--background-card);
   &--title {
     line-height: 1.3;
-    color: colors.$black;
+    color: var(--primary-text);
     font-weight: 500;
     padding: 18px 0 18px 12px;
   }
 
   &--toolbar {
-    border-bottom: 1px solid colors.$grey-2;
+    border-bottom: 1px solid var(--border-color);
     &__hide {
       border-bottom: none;
     }
+  }
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
+}
+
+// Add background color to the content
+ion-content {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// General text color for the merge-expenses page
+.merge-expenses {
+  color: var(--primary-text);
+}
+
+// Ensure all text elements inherit the proper color
+.merge-expenses * {
+  color: inherit;
+}
+
+// Override specific elements that need different colors
+.merge-expenses {
+  &--text-label,
+  &--date-label,
+  &--payment-mode-section,
+  &--card-arrow,
+  &--ccc-expense {
+    color: var(--secondary-text);
+  }
+
+  &--text-input,
+  &--date-input,
+  &--payment-mode-header,
+  &--matching-card {
+    color: var(--primary-text);
   }
 }

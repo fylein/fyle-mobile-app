@@ -2,14 +2,14 @@
 
 .nav-footer {
   padding-top: 8px;
-  background-color: colors.$pure-white;
+  background-color: var(--background-card);
 
   &__footer {
     height: 60px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow, 0 0 8px rgba(0, 0, 0, 0.1));
 
     &__btn {
-      border-right: 1px solid colors.$grey;
+      border-right: 1px solid var(--border-color);
     }
 
     &__icon {

@@ -11,6 +11,7 @@
     &__title {
       padding-right: 60px;
       text-align: center;
+      color: var(--primary-text);
     }
   }
 
@@ -20,12 +21,12 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
-      color: colors.$black-light;
+      color: var(--secondary-text);
     }
   }
 
   &--sub-header {
-    color: #ababab;
+    color: var(--secondary-text);
     font-size: 14px;
     font-weight: 400;
   }
@@ -36,7 +37,7 @@
       padding-inline-end: 0;
       position: relative;
       line-height: 26px;
-      color: colors.$black;
+      color: var(--primary-text);
       font-weight: 400;
       top: 12px;
       height: 64px;
@@ -70,10 +71,10 @@
     display: flex;
     justify-content: center;
     flex-direction: column;
-    background-color: #d8d8d8;
+    background-color: var(--background-secondary);
     padding: 20px 8px;
     border-radius: 4px;
-    color: #ababab;
+    color: var(--secondary-text);
     margin: 12px 4px 12px 0;
   }
 
@@ -91,7 +92,7 @@
   }
 
   &--date {
-    border-bottom: 1px solid colors.$grey-lighter;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--date-label {
@@ -99,7 +100,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -114,13 +115,14 @@
     padding: 0;
     height: 18px;
     margin: 6px 0;
+    color: var(--primary-text);
   }
 
   &--text {
-    border-bottom: 1px solid colors.$grey-lighter;
+    border-bottom: 1px solid var(--border-color);
 
     &__invalid {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid var(--error-color);
     }
   }
 
@@ -129,7 +131,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -146,7 +148,7 @@
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     width: 100%;
     padding: 0;
     margin: 6px 0;
@@ -154,7 +156,7 @@
 
   &--checkbox {
     font-size: 14px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     font-weight: 400;
   }
 
@@ -183,7 +185,7 @@
 
   &--internal-block {
     padding: 6px 0;
-    background: #fff;
+    background: var(--background-primary);
     line-height: 1;
     margin-bottom: 12px;
 
@@ -192,13 +194,13 @@
     }
 
     &__invalid {
-      border-color: colors.$red;
+      border-color: var(--error-color);
     }
   }
 
   &--conversion {
-    border: 1px solid colors.$grey-lighter;
-    background-color: #f2f2f2;
+    border: 1px solid var(--border-color);
+    background-color: var(--background-secondary);
     border-radius: 4px;
   }
 
@@ -207,25 +209,25 @@
     align-items: center;
     padding: 12px;
     border-radius: 4px;
-    border: 1px solid colors.$grey-lighter;
+    border: 1px solid var(--border-color);
   }
 
   &--delete-icon {
     font-size: 24px;
-    color: #ababab;
+    color: var(--secondary-text);
   }
 
   &--delete-msg {
     font-size: 16px;
     margin: 4px 0 0 16px;
-    color: #f00;
+    color: var(--error-color);
   }
 
   &--conversion-amount {
     line-height: 1.5;
     font-size: 16px;
     font-weight: 500;
-    color: #4a4a4a;
+    color: var(--primary-text);
     width: calc(100% - 60px);
     display: inline-block;
     vertical-align: middle;
@@ -234,7 +236,7 @@
   }
 
   &--conversion-rate {
-    color: #ababab;
+    color: var(--secondary-text);
     line-height: 1.5;
     font-size: 16px;
     font-weight: 500;
@@ -246,7 +248,7 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: var(--error-color);
     line-height: 16px;
     margin-top: -16px;
     font-size: 12px;
@@ -258,6 +260,7 @@
     font-size: 16px;
     line-height: 20px;
     margin-left: 12px;
+    color: var(--primary-text);
   }
 
   &--distance-unit {
@@ -265,17 +268,17 @@
   }
 
   &--amount-box {
-    background: colors.$pure-white;
+    background: var(--background-card);
     border-radius: 16px;
     margin: 8px 0;
     display: flex;
     height: 52px;
-    border: 1px solid colors.$grey-lighter;
+    border: 1px solid var(--border-color);
     align-items: center;
     justify-content: space-between;
     font-weight: 500;
     text-transform: lowercase;
-    color: colors.$black-2;
+    color: var(--primary-text);
     padding: 0 16px;
   }
 
@@ -301,7 +304,7 @@
   }
 
   &--comment {
-    border: 1px solid colors.$grey-lighter;
+    border: 1px solid var(--border-color);
     padding: 12px;
     margin-bottom: 10px;
   }
@@ -320,7 +323,7 @@
     border-top-right-radius: 100px;
     padding-right: 18px;
 
-    background-color: #999;
+    background-color: var(--secondary-text);
     opacity: 0.8;
     &__disabled {
       opacity: 0.2;
@@ -342,7 +345,7 @@
 
     padding-left: 18px;
 
-    background-color: #999;
+    background-color: var(--secondary-text);
     opacity: 0.8;
     &__disabled {
       opacity: 0.2;
@@ -358,7 +361,7 @@
     width: 100%;
     bottom: 0;
     background: rgba(221, 0, 0, 0.7);
-    color: #fff;
+    color: var(--primary-text);
     padding: 16px;
   }
 
@@ -370,9 +373,9 @@
     &-img-container {
       height: 260px;
       width: 260px;
-      border: 1px solid #f6f6f6;
+      border: 1px solid var(--border-color);
       border-radius: 50%;
-      background-color: #f6f6f6;
+      background-color: var(--background-secondary);
     }
 
     &-img {
@@ -383,7 +386,7 @@
 
     &-text {
       margin-top: 10px;
-      color: #464d57;
+      color: var(--primary-text);
     }
   }
 
@@ -404,9 +407,9 @@
 
   &--duplicate-pointer-text {
     border-radius: 6px;
-    background: #f2f2f2;
+    background: var(--background-secondary);
     width: 96%;
-    color: #4a4a4a;
+    color: var(--primary-text);
     font-weight: 700;
     font-size: 16px;
     box-shadow: 0 2px 4px 0 rgba(#838383, 0.75);
@@ -415,8 +418,8 @@
 
   &--duplicate-pointer-icon {
     border-radius: 50%;
-    background: #f2f2f2;
-    color: #4a4a4a;
+    background: var(--background-secondary);
+    color: var(--primary-text);
     font-size: 16px;
     top: -10px;
     box-shadow: 0 2px 4px 0 rgba(131, 131, 131, 0.75);
@@ -437,12 +440,12 @@
 
   &--payment-mode-header {
     font-size: 14px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
   }
 
   &--payment-mode-section {
     font-size: 12px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     margin-top: 4px;
   }
 
@@ -534,7 +537,7 @@
   }
 
   &__skeleton-loader {
-    background: colors.$off-white;
+    background: var(--background-secondary);
     border-radius: 4px;
     height: 16px;
 
@@ -543,5 +546,66 @@
       width: 30%;
       margin-bottom: 8px;
     }
+  }
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
+}
+
+// Add background color to the content
+ion-content {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// General text color for the add-edit-mileage page
+.add-edit-mileage {
+  color: var(--primary-text);
+}
+
+// Ensure all text elements inherit the proper color
+.add-edit-mileage * {
+  color: inherit;
+}
+
+// Override specific elements that need different colors
+.add-edit-mileage {
+  &--text-label,
+  &--date-label,
+  &--receipt,
+  &--conversion-rate,
+  &--payment-mode-section {
+    color: var(--secondary-text);
+  }
+
+  &--text-input,
+  &--date-input,
+  &--conversion-amount,
+  &--distance,
+  &--amount-box,
+  &--payment-mode-header,
+  &--zero-state-text {
+    color: var(--primary-text);
   }
 }

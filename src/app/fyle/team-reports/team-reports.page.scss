@@ -2,7 +2,7 @@
 
 .reports {
   &--toolbar-header {
-    border-bottom: 1px solid colors.$grey-lightest;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--header-btn {
@@ -19,7 +19,7 @@
 
   &--body {
     padding-bottom: 20px;
-    background-color: colors.$white;
+    background-color: var(--background-primary);
   }
 
   &--zero-state-body {
@@ -37,7 +37,7 @@
     padding-left: 12px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: colors.$black-light !important;
+        color: var(--secondary-text) !important;
       }
     }
   }
@@ -63,7 +63,7 @@
   }
 
   &--content {
-    --background: #{colors.$white};
+    --background: var(--background-primary);
     --padding-bottom: 82px;
   }
 

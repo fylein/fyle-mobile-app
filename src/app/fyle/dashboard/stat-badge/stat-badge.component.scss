@@ -2,9 +2,9 @@
 @use 'sass:map';
 
 .stat-badge {
-  background-color: colors.$pure-white;
+  background-color: var(--background-card);
   border-radius: 8px;
-  border: 1px solid colors.$lighter-grey;
+  border: 1px solid var(--border-color);
 
   &--container {
     padding: 10px 16px;
@@ -21,7 +21,7 @@
   &--currency {
     font-size: 12px;
     line-height: 15px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
   }
 
   &--grid-outer-col {
@@ -100,13 +100,13 @@
   &--amount {
     font-weight: 500;
     font-size: 16px;
-    color: colors.$black;
+    color: var(--primary-text);
   }
 
   &--name {
     font-size: 14px;
     line-height: 18px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;

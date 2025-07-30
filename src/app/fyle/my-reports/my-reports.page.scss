@@ -33,7 +33,7 @@
 
   &--body {
     padding-bottom: 20px;
-    background-color: colors.$white;
+    background-color: var(--background-primary);
   }
 
   &--zero-state-body {
@@ -51,7 +51,7 @@
     padding-left: 12px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: colors.$black-light !important;
+        color: var(--secondary-text) !important;
       }
     }
   }
@@ -63,7 +63,7 @@
     &-icon {
       font-size: 18px;
       margin: auto 8px auto 0;
-      color: colors.$black-light;
+      color: var(--secondary-text);
       height: auto;
     }
 
@@ -74,7 +74,7 @@
   }
 
   &--content {
-    --background: #{colors.$white};
+    --background: var(--background-primary);
     --padding-bottom: 82px;
   }
 

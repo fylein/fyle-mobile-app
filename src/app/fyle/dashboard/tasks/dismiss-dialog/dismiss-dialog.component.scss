@@ -4,14 +4,14 @@
   &--header {
     font-size: 16px;
     line-height: 20px;
-    color: colors.$black;
+    color: var(--primary-text);
     font-weight: 500;
   }
 
   &--body {
     font-size: 14px;
     line-height: 18px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     font-weight: 400;
     margin-top: 16px;
   }
@@ -35,7 +35,7 @@
     padding: 12px 16px;
     justify-content: center;
     align-items: center;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     &__disabled {
       opacity: 0.2;
     }

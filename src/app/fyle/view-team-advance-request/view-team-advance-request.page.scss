@@ -3,6 +3,7 @@
 .view-team-advance-request {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    border-bottom: var(--header-border-bottom, 1px solid var(--border-color));
   }
 
   &--body {
@@ -29,12 +30,13 @@
 
   &--divider {
     margin: 24px 0px;
-    border-bottom: 1px solid colors.$grey-lighter;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--title-sm {
     padding-left: 0;
     font-size: 17px;
+    color: var(--primary-text);
   }
 
   &--header-btn-container {
@@ -43,7 +45,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
-      color: colors.$black-light;
+      color: var(--primary-text);
     }
   }
 
@@ -54,6 +56,7 @@
   &--content-header {
     font-size: 14px;
     margin: 5px 0 -2px 0;
+    color: var(--primary-text);
   }
 
   &--attachment-currency-container {
@@ -65,8 +68,8 @@
     width: 72px;
     height: 88px;
     border-radius: 6px;
-    background: #d8d8d8;
-    color: #ababab;
+    background: var(--background-secondary);
+    color: var(--secondary-text);
     font-size: 14px;
     font-weight: 500;
     float: left;
@@ -89,7 +92,7 @@
     width: 100%;
     background-size: cover;
     border-radius: 6px;
-    border: 1px solid #d8d8d8;
+    border: 1px solid var(--border-color);
   }
 
   &--pdf-thumbnails {
@@ -97,7 +100,7 @@
     width: 100%;
     background-size: cover;
     border-radius: 6px;
-    border: 1px solid #d8d8d8;
+    border: 1px solid var(--border-color);
   }
 
   &--receipt-count {
@@ -131,9 +134,9 @@
 
   &--currency-card {
     width: calc(100% - 88px);
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1) !important;
+    box-shadow: var(--card-shadow, 0 4px 8px 0 rgba(0, 0, 0, 0.1)) !important;
     border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     padding: 20px 0;
     height: 88px;
     display: flex;
@@ -142,14 +145,14 @@
   &--currency {
     font-size: 16px;
     font-weight: 500;
-    color: #4a4a4a;
+    color: var(--primary-text);
     width: 40%;
     padding: 12px 16px;
     line-height: 1.3;
     height: auto;
     text-align: center;
     letter-spacing: 1px;
-    border-right: 1px solid #e0e0e0;
+    border-right: 1px solid var(--border-color);
   }
 
   &--amount {
@@ -160,6 +163,7 @@
     font-size: 24px;
     font-weight: 500;
     border: 0;
+    color: var(--primary-text);
   }
 
   &__element {
@@ -178,7 +182,7 @@
     max-width: 30%;
     margin: 0 8px 0 0;
     font-size: 16px;
-    color: #ababab;
+    color: var(--secondary-text);
     font-weight: 500;
     line-height: 1.5;
   }
@@ -187,7 +191,7 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 1.5;
-    color: #444444;
+    color: var(--primary-text);
   }
 
   &--common-action-block {
@@ -204,7 +208,7 @@
 
     mat-icon {
       font-size: 24px;
-      color: #ababab;
+      color: var(--secondary-text);
       display: inline-block;
       vertical-align: middle;
     }
@@ -215,7 +219,7 @@
   }
 
   &--element-value-subheader {
-    color: #666;
+    color: var(--secondary-text);
     font-size: 14px;
     margin: 0 0 10px;
   }
@@ -228,7 +232,7 @@
   }
 
   &--skeleton-card {
-    border: 1px solid colors.$grey-5;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 16px;
     margin-bottom: 24px;
@@ -266,4 +270,34 @@
     width: 30%;
     height: 18px;
   }
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
+}
+
+// Add background color to the content
+ion-content {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
 }

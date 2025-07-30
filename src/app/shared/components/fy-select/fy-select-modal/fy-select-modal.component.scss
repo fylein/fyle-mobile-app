@@ -1,9 +1,9 @@
 @use '../../../../../assets/styles/fy_select';
 
-$list-element-color: #333;
+$list-element-color: var(--primary-text);
 
 .selection-modal {
-  color: black;
+  color: var(--primary-text);
   &--list-element {
     padding: 18px 0;
     margin: 0 16px;

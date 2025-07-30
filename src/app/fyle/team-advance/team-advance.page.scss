@@ -1,8 +1,4 @@
 @use '../../../theme/colors';
-$item-border-color: #e0e0e0;
-$background-color: #fff;
-$menu-botton-color: #000;
-$toolbar-border: #ababab6b;
 
 .advance-request {
   &--toolbar {
@@ -24,7 +20,7 @@ $toolbar-border: #ababab6b;
   }
 
   &--content {
-    --background: #{colors.$white};
+    --background: var(--background-primary);
     --padding-bottom: 100px;
   }
 
@@ -37,7 +33,7 @@ $toolbar-border: #ababab6b;
 
   &--option {
     font-weight: normal;
-    color: #0077ee;
+    color: colors.$brand-primary;
     font-size: 16px;
   }
 

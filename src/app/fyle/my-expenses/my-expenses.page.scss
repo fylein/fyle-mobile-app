@@ -20,7 +20,7 @@
   &--filter-pills {
     position: fixed;
     width: 100%;
-    background-color: colors.$white;
+    background-color: var(--background-card);
     z-index: 99;
   }
 
@@ -40,7 +40,7 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     padding: 20px 0px 20px 12px;
     font-size: 18px;
     gap: 4px;
@@ -53,7 +53,7 @@
   }
 
   &--content {
-    --background: #{colors.$white};
+    --background: var(--background-secondary);
     --padding-bottom: 82px;
   }
 
@@ -139,7 +139,7 @@
     padding-left: 12px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: colors.$black-light !important;
+        color: var(--secondary-text) !important;
       }
     }
   }
@@ -152,7 +152,7 @@
     &-icon {
       font-size: 18px;
       margin: auto 8px auto 0;
-      color: colors.$black-light;
+      color: var(--secondary-text);
       height: auto;
     }
 
@@ -248,20 +248,20 @@
       font-size: 18px;
       display: block;
       margin-bottom: 8px;
-      color: colors.$dark-blue;
+      color: var(--primary-text);
       line-height: 1.5;
       font-weight: normal;
     }
 
     &-content {
-      color: colors.$blue-black;
+      color: var(--primary-text);
       font-size: 14px;
       font-weight: normal;
       margin: 0 auto;
     }
 
     &-subheader {
-      color: colors.$gray-3;
+      color: var(--secondary-text);
       display: block;
       font-size: 16px;
       font-weight: 300;
@@ -294,7 +294,7 @@
 
   &--body {
     padding-bottom: 20px;
-    background-color: colors.$white;
+    background-color: var(--background-secondary);
   }
 
   &--zero-states-body {
@@ -314,8 +314,8 @@
     gap: 16px;
     bottom: 0;
     width: 100%;
-    background-color: colors.$pure-white;
-    box-shadow: 0 -2px 12px colors.$pink-shadow;
+    background-color: var(--background-card);
+    box-shadow: var(--card-shadow);
     z-index: 999;
   }
 
@@ -335,10 +335,10 @@
   &--secondary-cta {
     height: auto;
     background-color: transparent;
-    color: colors.$black;
+    color: var(--primary-text);
     font-size: 14px;
     line-height: 1.25;
-    border: 1px solid colors.$grey;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
 
     &__disabled {

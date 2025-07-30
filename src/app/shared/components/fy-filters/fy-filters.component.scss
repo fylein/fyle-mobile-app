@@ -2,12 +2,12 @@
 
 .fy-filters {
   &--header {
-    border-bottom: 1px solid colors.$grey-2;
+    border-bottom: var(--header-border-bottom, 1px solid var(--border-color));
   }
 
   &--title {
     line-height: 26px;
-    color: colors.$black;
+    color: var(--primary-text);
     font-weight: 400;
     padding: 18px 12px 14px;
   }
@@ -35,13 +35,13 @@
     --inner-padding-start: 16px;
     --inner-padding-top: 13px;
     --inner-padding-bottom: 14px;
-    --background: #{colors.$white};
-    --ion-item-border-color: #{colors.$grey};
-    color: colors.$black-light;
+    --background: var(--background-card);
+    --ion-item-border-color: var(--border-color);
+    color: var(--secondary-text);
 
     &__active {
-      --background: #{colors.$pure-white};
-      color: colors.$black;
+      --background: var(--background-card);
+      color: var(--primary-text);
       font-weight: 500;
     }
   }
@@ -50,18 +50,18 @@
   &--radio {
     font-size: 20px;
     margin-right: 16px;
-    color: colors.$black;
+    color: var(--primary-text);
     min-width: 20px;
   }
 
   &--filter-option {
     --inner-padding-top: 25px;
     --inner-padding-bottom: 24px;
-    --background: #{colors.$pure-white};
+    --background: var(--background-card);
     font-size: 14px;
     --border-style: none;
     line-height: 18px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
   }
 
   &--filter-item-label {
@@ -72,7 +72,7 @@
   }
 
   &--filter-col {
-    background-color: colors.$white;
+    background-color: var(--background-card);
   }
 
   &--custom-date-filters {
@@ -108,12 +108,12 @@
 
 // Add background color to the header
 ion-header {
-  --background: var(--background-primary);
+  --background: var(--header-background);
 }
 
 ion-toolbar {
-  --background: var(--background-primary);
-  background-color: var(--background-primary);
+  --background: var(--header-background);
+  background-color: var(--header-background);
 }
 
 // Fix header text color in dark mode

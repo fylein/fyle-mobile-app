@@ -7,7 +7,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     line-height: 16px;
     white-space: nowrap;
   }
@@ -16,7 +16,7 @@
     border: 0;
     height: 24px;
     line-height: 18px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     width: 100%;
     margin: 6px 0;
     padding: 0;
@@ -29,7 +29,7 @@
 
   &--internal-block {
     padding: 6px 0;
-    background: colors.$pure-white;
+    background: var(--background-primary);
     line-height: 1;
     margin-bottom: 12px;
     &__margin {
@@ -38,7 +38,7 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: var(--error-color);
     line-height: 16px;
     margin-top: -12px;
     font-size: 12px;
@@ -50,6 +50,6 @@
   }
 
   &--disabled {
-    background: colors.$grey-7;
+    background: var(--background-secondary);
   }
 }

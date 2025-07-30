@@ -3,7 +3,7 @@
 .suggested-duplicates {
   &--toolbar {
     &__title {
-      color: colors.$black;
+      color: var(--primary-text);
       padding-left: 15px;
     }
   }
@@ -11,20 +11,21 @@
   &--header {
     font-size: 18px;
     line-height: 23px;
-    color: colors.$pure-black;
+    color: var(--primary-text);
     padding: 10px;
   }
 
   &--divider {
     height: 1px;
-    background-color: colors.$grey;
+    background-color: var(--border-color);
   }
+
   &--container {
     height: 88%;
     width: 93%;
     margin: 10px auto 20px auto;
-    background: colors.$off-white;
-    border: 1px solid colors.$grey;
+    background: var(--background-card);
+    border: 1px solid var(--border-color);
     box-sizing: border-box;
     border-radius: 16px;
     align-content: center;

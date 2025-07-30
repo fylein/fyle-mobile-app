@@ -10,21 +10,21 @@ $advance_rejected_color: #d50000;
 
 .advance-card {
   padding: 12px 12px 0 12px;
-  background-color: colors.$pure-white;
+  background-color: var(--background-card);
 
   &__with-border {
     padding-top: 0;
   }
 
   &--divider {
-    border-bottom: 1px solid colors.$grey-lighter;
+    border-bottom: 1px solid var(--border-color);
     margin-bottom: 16px;
   }
 
   &--date {
-    color: colors.$black-light;
+    color: var(--primary-text);
     padding: 16px 0 12px 16px;
-    background-color: colors.$white;
+    background-color: var(--background-primary);
     font-weight: 500;
   }
 
@@ -38,12 +38,12 @@ $advance_rejected_color: #d50000;
     width: 16px;
     height: 16px;
     padding-top: 2px;
-    color: colors.$black-light;
+    color: var(--primary-text);
   }
 
   &--purpose {
     line-height: 23px;
-    color: colors.$black-2;
+    color: var(--primary-text);
     font-size: 14px;
     font-weight: 500;
     max-width: 70%;
@@ -67,14 +67,14 @@ $advance_rejected_color: #d50000;
   }
 
   &--currency {
-    color: colors.$black-light;
+    color: var(--primary-text);
     font-weight: 500;
     font-size: 16px;
     line-height: 1.3;
   }
 
   &--amount {
-    color: colors.$black;
+    color: var(--primary-text);
     font-size: 16px;
     font-weight: 500;
     line-height: 1.3;

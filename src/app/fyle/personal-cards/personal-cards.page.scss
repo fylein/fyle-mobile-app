@@ -2,7 +2,7 @@
 
 .personal-cards {
   &--toolbar-header {
-    border-bottom: 1px solid colors.$grey-lightest;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--header-btn {
@@ -13,7 +13,7 @@
   &--filter-pills-container {
     display: block;
     min-height: 52px;
-    background-color: colors.$pure-white;
+    background-color: var(--background-card);
   }
 
   &--toolbar {
@@ -24,7 +24,7 @@
   }
 
   &--content {
-    --background: #{colors.$pure-white};
+    --background: var(--background-primary);
     --padding-bottom: 82px;
   }
 
@@ -49,7 +49,7 @@
 
   &--icon {
     font-size: 16px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     vertical-align: text-bottom;
     margin-left: 2px;
     margin-right: 5px;
@@ -78,7 +78,7 @@
   }
 
   &--footer-container {
-    background: colors.$pure-white;
+    background: var(--background-card);
     padding: 16px;
   }
 
@@ -88,10 +88,11 @@
     line-height: 1;
     font-weight: 500;
     padding: 0 12px;
+    color: var(--primary-text);
   }
 
   &--offline-sub-header {
-    color: colors.$grey-light-2;
+    color: var(--secondary-text);
     line-height: 1.5;
     font-size: 12px;
     padding: 0 12px;
@@ -117,19 +118,19 @@
       font-size: 18px;
       display: block;
       margin-bottom: 16px;
-      color: colors.$dark-blue;
+      color: var(--primary-text);
       line-height: 1.5;
       font-weight: normal;
     }
 
     &-content {
-      color: colors.$blue-black;
+      color: var(--primary-text);
       font-size: 14px;
       font-weight: normal;
     }
 
     &-subheader {
-      color: colors.$gray-3;
+      color: var(--secondary-text);
       display: block;
       font-size: 16px;
       font-weight: 300;
@@ -137,7 +138,7 @@
       padding: 0 8px;
 
       &__title {
-        color: colors.$grey-light-2;
+        color: var(--secondary-text);
         font-weight: 500;
       }
     }
@@ -149,7 +150,7 @@
 
   &--body {
     padding-bottom: 20px;
-    background-color: colors.$white;
+    background-color: var(--background-primary);
   }
 
   &--zero-states-body {
@@ -167,8 +168,8 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    background-color: colors.$pure-white;
-    box-shadow: 0 -2px 12px colors.$pink-shadow;
+    background-color: var(--background-card);
+    box-shadow: var(--card-shadow, 0 -2px 12px colors.$pink-shadow);
     z-index: 999;
   }
 
@@ -180,7 +181,7 @@
   &--secondary-cta {
     height: auto;
     background-color: transparent;
-    color: colors.$black;
+    color: var(--primary-text);
     font-size: 16px;
     line-height: 1.25;
 
@@ -224,9 +225,9 @@
 
   &--range-button {
     padding: 8px 8px;
-    background: colors.$pure-white;
-    color: colors.$black-light;
-    border: solid 1px colors.$grey;
+    background: var(--background-card);
+    color: var(--secondary-text);
+    border: solid 1px var(--border-color);
     font-size: 12px;
     line-height: 1.3;
     border-radius: 8px;
@@ -246,13 +247,13 @@
   }
 
   &--segment-container {
-    border-bottom: 1px solid colors.$grey;
-    --background: #{colors.$pure-white};
+    border-bottom: 1px solid var(--border-color);
+    --background: var(--background-card);
   }
 
   &--segment-block {
     &__btn {
-      color: colors.$blue-black;
+      color: var(--primary-text);
       font-size: 3.2vw;
       font-weight: 500;
       text-transform: none;
@@ -272,7 +273,7 @@
     padding: 5px 14px;
     justify-content: flex-end;
     z-index: 1000;
-    background-color: colors.$pure-white;
+    background-color: var(--background-card);
 
     &__left {
       margin-right: auto;
@@ -294,7 +295,7 @@
     padding-left: 12px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: colors.$black-light !important;
+        color: var(--secondary-text) !important;
       }
     }
   }
@@ -306,7 +307,7 @@
     &-icon {
       font-size: 18px;
       margin: auto 8px auto 0;
-      color: colors.$black-light;
+      color: var(--secondary-text);
       height: auto;
     }
 
@@ -314,7 +315,7 @@
       margin: -10px;
       font-size: 18px;
       background-color: transparent;
-      color: colors.$black-light;
+      color: var(--secondary-text);
     }
   }
 

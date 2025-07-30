@@ -19,19 +19,19 @@
     font-size: 16px;
     display: block;
     margin-bottom: 8px;
-    color: #4a4a4a;
+    color: var(--primary-text);
     line-height: 1.5;
     font-weight: 500;
     text-align: center;
     &__new {
       font-size: 18px;
       line-height: 28px;
-      color: colors.$dark-blue;
+      color: var(--primary-text);
     }
   }
 
   &--description {
-    color: #ababab;
+    color: var(--secondary-text);
     display: flex;
     font-size: 16px;
     font-weight: 300;
@@ -43,7 +43,7 @@
     &__new {
       font-size: 14px;
       line-height: 20px;
-      color: colors.$blue-black;
+      color: var(--primary-text);
       font-weight: 400;
       padding: 0 24px;
     }

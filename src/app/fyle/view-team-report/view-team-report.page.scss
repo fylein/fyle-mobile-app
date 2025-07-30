@@ -8,6 +8,7 @@ $sent-back-color: #da1e28;
 .view-reports {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    border-bottom: var(--header-border-bottom, 1px solid var(--border-color));
   }
 
   &--body {
@@ -16,12 +17,12 @@ $sent-back-color: #da1e28;
 
   &--btn-container {
     &__btn {
-      color: colors.$black-light;
+      color: var(--primary-text);
     }
   }
 
   &--container {
-    --background: #{colors.$white};
+    --background: var(--background-primary);
   }
 
   &--send-back {
@@ -41,8 +42,8 @@ $sent-back-color: #da1e28;
 
   &--disabled-info {
     position: absolute;
-    background-color: colors.$blue-black;
-    color: colors.$pure-white;
+    background-color: var(--background-card);
+    color: var(--primary-text);
     padding: 20px;
     bottom: 72px;
     z-index: 999;
@@ -56,7 +57,7 @@ $sent-back-color: #da1e28;
     border: solid transparent;
     content: ' ';
     position: absolute;
-    border-bottom-color: colors.$blue-black;
+    border-bottom-color: var(--background-card);
     border-width: 8px;
     transform: rotate(180deg);
   }
@@ -70,7 +71,7 @@ $sent-back-color: #da1e28;
   &--icon-close {
     height: 12px !important;
     width: 22px !important;
-    color: colors.$pure-white;
+    color: var(--primary-text);
   }
 
   &--view-info-container {
@@ -83,7 +84,7 @@ $sent-back-color: #da1e28;
     padding: 1px 4px;
     font-size: 12px;
     font-weight: 500;
-    color: colors.$light-grey;
+    color: var(--secondary-text);
 
     &__icon {
       height: 18px;
@@ -99,16 +100,16 @@ $sent-back-color: #da1e28;
   }
 
   &--approvers-section {
-    background-color: colors.$pure-white;
+    background-color: var(--background-card);
     border-radius: 16px;
-    box-shadow: 0px 4px 4px rgba(22, 21, 40, 0.08);
+    box-shadow: var(--card-shadow, 0px 4px 4px rgba(22, 21, 40, 0.08));
     margin-top: -10%;
     font-size: 12px;
     font-weight: 500;
   }
 
   &--approvers {
-    color: colors.$black-light;
+    color: var(--primary-text);
     padding: 18px 10px 0;
   }
 
@@ -154,7 +155,7 @@ $sent-back-color: #da1e28;
     }
 
     &__text {
-      color: colors.$black-light;
+      color: var(--primary-text);
       font-size: 12px;
       font-weight: 500;
       line-height: 1.5;
@@ -162,13 +163,13 @@ $sent-back-color: #da1e28;
   }
 
   &--history-container {
-    background: colors.$pure-white;
+    background: var(--background-card);
     border-radius: 16px;
     padding: 24px 0;
   }
 
   &--comments {
-    background-color: colors.$pure-white;
+    background-color: var(--background-card);
     height: 100%;
     position: absolute;
   }
@@ -184,8 +185,8 @@ $sent-back-color: #da1e28;
 
   &--card-header {
     font-size: 16px;
-    color: #4a4a4a;
-    border-bottom: 1px solid #e0e0e0;
+    color: var(--primary-text);
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 8px;
     margin-bottom: 8px;
 
@@ -197,7 +198,7 @@ $sent-back-color: #da1e28;
 
   &--card-body {
     font-size: 16px;
-    color: #ababab;
+    color: var(--secondary-text);
     font-weight: 300;
     margin-bottom: 8px;
     line-height: 1;
@@ -214,7 +215,7 @@ $sent-back-color: #da1e28;
     align-items: center;
     gap: 2px;
     border-radius: 4px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     text-align: center;
     font-size: 12px;
     font-style: normal;
@@ -262,7 +263,7 @@ $sent-back-color: #da1e28;
 
   &--count {
     font-size: 16px;
-    color: #ababab;
+    color: var(--secondary-text);
     font-weight: 300;
     line-height: 1;
     margin-top: 8px;
@@ -320,7 +321,7 @@ $sent-back-color: #da1e28;
     font-size: 12px;
 
     &__text {
-      color: colors.$light-grey;
+      color: var(--secondary-text);
       opacity: 0.8;
     }
 
@@ -338,7 +339,7 @@ $sent-back-color: #da1e28;
     font-size: 12px;
 
     &__text {
-      color: colors.$light-grey;
+      color: var(--secondary-text);
       opacity: 0.8;
     }
 
@@ -356,11 +357,11 @@ $sent-back-color: #da1e28;
 
     &__segment.md {
       padding: 0 16px;
-      border-bottom: 1px solid colors.$grey-lighter;
+      border-bottom: 1px solid var(--border-color);
     }
 
     &__btn {
-      color: colors.$blue-black;
+      color: var(--primary-text);
       font-size: 14px;
       font-weight: 500;
       width: 100%;
@@ -390,10 +391,10 @@ $sent-back-color: #da1e28;
 
 .view-comment {
   &--container {
-    background: colors.$pure-white;
+    background: var(--background-card);
     padding: 16px;
     border-radius: 16px;
-    box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
+    box-shadow: var(--card-shadow, 0px -2px 40px rgb(215 215 215 / 40%));
   }
 
   &--card {
@@ -405,6 +406,7 @@ $sent-back-color: #da1e28;
     letter-spacing: 0 !important;
     font-size: 16px;
     font-weight: bold;
+    color: var(--primary-text);
   }
 
   &--self-comment {
@@ -423,27 +425,27 @@ $sent-back-color: #da1e28;
     left: 5px;
     font-size: 14px;
     line-height: 18px;
-    color: colors.$black-light;
+    color: var(--primary-text);
     margin-top: 8px;
   }
 
   &--comment-timestamp {
     font-size: 12px;
     line-height: 20px;
-    color: colors.$grey-light;
+    color: var(--secondary-text);
   }
 
   &--type-comment-block {
     height: 40px;
     display: flex;
-    background-color: colors.$pure-white;
-    border: 1px solid colors.$outline-grey;
+    background-color: var(--background-card);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 6px;
-    color: colors.$black-2;
+    color: var(--primary-text);
 
     &:focus {
-      border: 1px solid colors.$black-light;
+      border: 1px solid var(--primary-text);
     }
   }
 
@@ -452,6 +454,7 @@ $sent-back-color: #da1e28;
     height: 30px;
     border: none;
     padding-top: 5px;
+    color: var(--primary-text);
   }
 
   &--send-icon {
@@ -461,7 +464,7 @@ $sent-back-color: #da1e28;
 
   &--add-comment-container {
     padding: 20px;
-    background-color: colors.$pure-white;
+    background-color: var(--background-card);
   }
 
   &--close {
@@ -511,14 +514,14 @@ $sent-back-color: #da1e28;
   &--date {
     font-size: 12px;
     line-height: 20px;
-    color: colors.$grey-light;
+    color: var(--secondary-text);
     margin-top: 16px;
   }
 
   &--comment-detail {
     font-size: 16px;
     line-height: 20px;
-    color: colors.$dark-blue;
+    color: var(--primary-text);
   }
 
   &--zero-state-block {
@@ -631,4 +634,34 @@ $sent-back-color: #da1e28;
 
 .full-height {
   height: 100%;
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
+}
+
+// Add background color to the content
+ion-content {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
 }

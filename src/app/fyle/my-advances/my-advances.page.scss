@@ -15,13 +15,13 @@
   }
 
   &--content {
-    --background: #{colors.$white};
+    --background: var(--background-primary);
     --padding-bottom: 82px;
   }
 
   &--body {
     padding-bottom: 20px;
-    background-color: colors.$white;
+    background-color: var(--background-primary);
   }
 
   &--zero-state-body {
@@ -64,4 +64,10 @@ ion-button {
 
 ion-icon {
   color: var(--primary-text);
+}
+
+// Add background color to the content
+ion-content {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
 }

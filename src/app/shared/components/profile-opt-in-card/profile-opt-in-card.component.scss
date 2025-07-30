@@ -2,7 +2,7 @@
 
 .profile-opt-in-card {
   &__container {
-    background-color: colors.$pure-white;
+    background-color: var(--background-card);
     border-radius: 8px;
     margin-bottom: 24px;
     padding: 16px;
@@ -17,7 +17,7 @@
   &__title {
     font-size: 16px;
     font-weight: 500;
-    color: colors.$pure-black;
+    color: var(--primary-text);
   }
 
   &__opt-in-btn {
@@ -30,7 +30,7 @@
   &__description {
     margin-top: 6px;
     font-size: 14px;
-    color: colors.$dark-grey;
+    color: var(--secondary-text);
     line-height: 1.3;
     font-weight: 400;
   }
@@ -42,7 +42,7 @@
       margin-top: 20px;
       font-size: 14px;
       font-weight: 400;
-      color: colors.$black-light;
+      color: var(--secondary-text);
     }
 
     &__icon-container {
@@ -76,7 +76,7 @@
   }
 
   &__divider {
-    border-bottom: 1px solid colors.$border-tertiary;
+    border-bottom: 1px solid var(--border-color);
     margin-top: 16px;
   }
 
@@ -84,7 +84,7 @@
     margin-top: 16px;
     font-size: 14px;
     font-weight: 400;
-    color: colors.$black-light;
+    color: var(--secondary-text);
 
     &__number-container {
       margin-top: 4px;
@@ -93,7 +93,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      color: colors.$black;
+      color: var(--primary-text);
     }
 
     &__edit-icon {
@@ -115,7 +115,7 @@
     justify-content: space-between;
     font-size: 14px;
     font-weight: 400;
-    color: colors.$black-light;
+    color: var(--secondary-text);
 
     &__text {
       width: 80%;
@@ -133,7 +133,7 @@
     display: flex;
     padding: 12px;
     border-radius: 6px;
-    background-color: colors.$alice-blue;
+    background-color: var(--background-secondary);
     font-size: 12px;
     gap: 8px;
 

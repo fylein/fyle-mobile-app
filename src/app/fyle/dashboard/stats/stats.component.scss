@@ -20,15 +20,15 @@ $ccc-bank-name: #c4cae8;
   &--header {
     font-size: 14px;
     line-height: 18px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     font-weight: 500;
   }
 
   &--expenses-card {
     position: relative;
     top: -64px;
-    background: colors.$pure-white;
-    box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
+    background: var(--background-card);
+    box-shadow: var(--card-shadow, 0px -2px 40px rgb(215 215 215 / 40%));
     border-radius: 16px;
     width: calc(100% - 32px);
     margin: 0px;
@@ -46,13 +46,13 @@ $ccc-bank-name: #c4cae8;
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
-    color: colors.$black;
+    color: var(--primary-text);
   }
 
   &--expenses-amount-currency {
     font-size: 12px;
     line-height: 15px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
   }
 
   &--expenses-amount {
@@ -62,7 +62,7 @@ $ccc-bank-name: #c4cae8;
   &--expenses-title {
     font-size: 16px;
     line-height: 20px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
   }
 
   &--report-badge-col {
