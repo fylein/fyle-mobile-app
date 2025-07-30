@@ -3,13 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
-
-interface PolicyDetail {
-  run_status: string;
-  expense_policy_rule?: {
-    description: string;
-  };
-}
+import { PolicyViolationDetail } from 'src/app/core/models/policy-violation-detail.model';
 
 @Component({
   selector: 'app-fy-policy-violation-info',
@@ -18,13 +12,13 @@ interface PolicyDetail {
   standalone: false,
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
-  @Input() policyDetails: PolicyDetail[] | undefined;
+  @Input() policyDetails: PolicyViolationDetail[] | undefined;
 
   @Input() criticalPolicyViolated: boolean | undefined;
 
   policyViolations: string[] = [];
 
-  showPolicyInfo: boolean = false;
+  showPolicyInfo = false;
 
   constructor(
     private modalController: ModalController,
@@ -35,8 +29,8 @@ export class FyPolicyViolationInfoComponent implements OnInit {
     this.policyViolations = [];
     if (this.policyDetails) {
       this.policyViolations = this.policyDetails
-        .filter((ids: PolicyDetail) => ids.run_status === 'VIOLATED_ACTION_SUCCESS')
-        .map((ids: PolicyDetail) => ids.expense_policy_rule?.description || '');
+        .filter((ids: PolicyViolationDetail) => ids.run_status === 'VIOLATED_ACTION_SUCCESS')
+        .map((ids: PolicyViolationDetail) => ids.expense_policy_rule?.description || '');
     }
     this.showPolicyInfo = this.policyViolations.length > 0 || !!this.criticalPolicyViolated;
   }
