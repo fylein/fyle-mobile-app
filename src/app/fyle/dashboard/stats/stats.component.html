@@ -79,7 +79,7 @@
             <ion-col
               class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__bottom"
               size="6"
-              >
+            >
               <app-stat-badge
                 [currency]="reportStatsData.homeCurrency"
                 [currencySymbol]="reportStatsData.currencySymbol"
@@ -93,7 +93,7 @@
             <ion-col
               class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__bottom"
               size="6"
-              >
+            >
               @if (reportStatsData.simplifyReportsSettings.enabled) {
                 <app-stat-badge
                   [currency]="reportStatsData.homeCurrency"
@@ -131,14 +131,14 @@
           <ion-col
             class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__bottom"
             size="6"
-            >
+          >
             <app-stat-badge [loading]="true"></app-stat-badge>
           </ion-col>
           <ion-col
             class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__bottom"
             size="6"
             d
-            >
+          >
             <app-stat-badge [loading]="true"></app-stat-badge>
           </ion-col>
         </ion-row>
@@ -171,6 +171,19 @@
             </ion-row>
           }
         </div>
+      } @else {
+        <ion-row class="stats--report-stats-row-team">
+          <ion-col class="stats--report-stats-col">
+            <div class="stats--header">
+              <span>{{ 'stats.teamExpenseReports' | transloco }}</span>
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top">
+            <app-stat-badge [loading]="true"></app-stat-badge>
+          </ion-col>
+        </ion-row>
       }
     }
   </ion-grid>

@@ -1,4 +1,9 @@
 <ion-app>
+  @if (isLoading) {
+    <div class="splash-screen">
+      <img src="../assets/images/splash.png" alt="Fyle" />
+    </div>
+  }
   @if (isSwitchedToDelegator) {
     <app-delegated-acc-message></app-delegated-acc-message>
   }

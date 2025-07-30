@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
@@ -33,7 +33,7 @@ import { TasksService } from './core/services/tasks.service';
   styleUrls: ['app.component.scss'],
   standalone: false,
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild('sidemenuRef') sidemenuRef: SidemenuComponent;
 
   eou$: Observable<ExtendedOrgUser>;
@@ -72,6 +72,8 @@ export class AppComponent implements OnInit {
     'team_reports',
   ];
 
+  isLoading = true;
+
   constructor(
     private platform: Platform,
     private router: Router,
@@ -95,6 +97,26 @@ export class AppComponent implements OnInit {
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
+  }
+
+  ngAfterViewInit(): void {
+    // Move platform ready check here after view is initialized
+    this.platform.ready().then(() => {
+      setTimeout(() => {
+        this.isLoading = false;
+        this.initializeSidemenu();
+      }, 3000);
+    });
+  }
+
+  private initializeSidemenu(): void {
+    if (this.isUserLoggedIn && this.sidemenuRef) {
+      if (this.isOnline) {
+        this.sidemenuRef.showSideMenuOnline();
+      } else {
+        this.sidemenuRef.showSideMenuOffline();
+      }
+    }
   }
 
   registerBackButtonAction(): void {
@@ -210,13 +232,6 @@ export class AppComponent implements OnInit {
       isOnline: this.isConnected$.pipe(take(1)),
     }).subscribe(({ loggedInStatus, isOnline }) => {
       this.isUserLoggedIn = loggedInStatus;
-      if (loggedInStatus) {
-        if (isOnline) {
-          this.sidemenuRef.showSideMenuOnline();
-        } else {
-          this.sidemenuRef.showSideMenuOffline();
-        }
-      }
 
       const markOptions: PerformanceMarkOptions = {
         detail: this.isUserLoggedIn,
@@ -226,11 +241,7 @@ export class AppComponent implements OnInit {
 
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
-        if (this.isOnline) {
-          this.sidemenuRef.showSideMenuOnline();
-        } else {
-          this.sidemenuRef.showSideMenuOffline();
-        }
+        this.initializeSidemenu();
       }, 500);
     });
 
