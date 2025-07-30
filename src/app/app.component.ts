@@ -26,6 +26,7 @@ import { SpenderOnboardingService } from './core/services/spender-onboarding.ser
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { FooterService } from './core/services/footer.service';
 import { TasksService } from './core/services/tasks.service';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -92,6 +93,7 @@ export class AppComponent implements OnInit {
     private spenderOnboardingService: SpenderOnboardingService,
     private footerService: FooterService,
     private tasksService: TasksService,
+    private themeService: ThemeService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -135,6 +137,9 @@ export class AppComponent implements OnInit {
        * Ref: https://www.npmjs.com/package/@capacitor/text-zoom
        */
       await TextZoom.set({ value: 1 });
+
+      // Initialize theme service
+      this.themeService.setupSystemThemeListener();
 
       from(this.routerAuthService.isLoggedIn())
         .pipe(

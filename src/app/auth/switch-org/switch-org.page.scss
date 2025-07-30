@@ -137,3 +137,18 @@
     padding: 16px;
   }
 }
+
+// Add background color to the main page content
+ion-content {
+  --background: var(--background-primary);
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}

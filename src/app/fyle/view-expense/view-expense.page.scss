@@ -7,10 +7,12 @@
 
   &--container {
     padding: 0 16px 16px;
+    background-color: var(--background-primary);
   }
 
   &--title {
     padding: 12px 0 0 12px;
+    color: var(--primary-text);
   }
 
   &--alert-split {
@@ -20,7 +22,7 @@
   &--subtitle {
     font-size: 12px;
     line-height: 1.2;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     margin-bottom: 10px;
   }
 
@@ -35,11 +37,11 @@
 
   &--policy-container {
     border-radius: 6px;
-    background: colors.$light-grey;
+    background: var(--background-secondary);
     padding: 8px 16px;
     margin: 8px 0;
     font-size: 14px;
-    color: colors.$grey-light-2;
+    color: var(--secondary-text);
   }
 
   &--card-container {
@@ -50,7 +52,7 @@
     font-size: 14px;
     font-weight: 400;
     width: 100%;
-    color: colors.$black-light;
+    color: var(--secondary-text);
 
     &__block {
       width: 100%;
@@ -59,14 +61,14 @@
     &__merchant_block {
       display: flex;
       gap: 6px;
-      border-top: 1px solid colors.$grey;
+      border-top: 1px solid var(--border-color);
       padding-top: 12px;
       margin-top: 12px;
       align-items: center;
     }
 
     &__merchant_label {
-      color: colors.$black-light;
+      color: var(--secondary-text);
       font-size: 12px;
     }
 
@@ -74,13 +76,13 @@
       display: flex;
       align-items: center;
       gap: 2px;
-      color: colors.$blue-black;
+      color: var(--primary-text);
       font-weight: 500;
       font-size: 12px;
     }
 
     &__merchant_info_icon {
-      color: colors.$blue-black;
+      color: var(--primary-text);
       width: 16px;
       height: 16px;
     }
@@ -93,35 +95,36 @@
     }
 
     &__category {
-      color: colors.$black;
+      color: var(--primary-text);
       font-weight: 500;
     }
 
     &__merchant {
       font-size: 14px;
-      color: colors.$dark-grey;
+      color: var(--secondary-text);
     }
 
     &__project {
       padding-top: 8px;
-      color: colors.$black-light;
+      color: var(--secondary-text);
     }
 
     &__icon {
       vertical-align: text-bottom;
-      color: colors.$grey-light;
+      color: var(--secondary-text);
       height: 18px;
       width: 18px;
     }
 
     &__currency {
       margin-right: 2px;
+      color: var(--primary-text);
     }
 
     &__amount {
       font-size: 14px;
       font-weight: 500;
-      color: colors.$black;
+      color: var(--primary-text);
       margin-right: 4px;
     }
 
@@ -130,7 +133,7 @@
     }
 
     &__exchange-rate {
-      color: colors.$black-light;
+      color: var(--secondary-text);
     }
 
     &__state-pill {
@@ -144,20 +147,20 @@
     }
 
     &__transaction-status {
-      border-top: 1px solid colors.$grey;
+      border-top: 1px solid var(--border-color);
       padding-top: 12px;
       margin-top: 12px;
     }
   }
 
   &--label {
-    color: colors.$black-light;
+    color: var(--secondary-text);
     font-size: 12px;
     line-height: 1.4;
   }
 
   &--value {
-    color: colors.$blue-black;
+    color: var(--primary-text);
     font-size: 14px;
     font-weight: 500;
     line-height: 1.3;
@@ -172,28 +175,28 @@
     max-height: 38px;
 
     &__background {
-      background-color: colors.$off-white;
+      background-color: var(--background-secondary);
       border-radius: 50%;
       height: 100%;
       display: flex;
     }
 
     &__icon {
-      color: colors.$grey-light;
+      color: var(--secondary-text);
       height: 18px;
       width: 18px;
       margin: auto;
     }
 
     &__icon-lg {
-      color: colors.$grey-light;
+      color: var(--secondary-text);
       height: 22px;
       width: 22px;
       margin: auto;
     }
 
     &__icon-stroke-lg {
-      stroke: colors.$grey-light;
+      stroke: var(--secondary-text);
       height: 22px;
       width: 22px;
       margin: auto;
@@ -213,7 +216,7 @@
 
   &--divider {
     margin-top: 16px;
-    border-bottom: 1px solid colors.$grey;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--sparkle-icon {

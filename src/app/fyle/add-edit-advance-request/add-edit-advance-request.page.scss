@@ -19,7 +19,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
-      color: colors.$black-light;
+      color: var(--secondary-text);
     }
   }
 
@@ -41,8 +41,8 @@
     width: 72px;
     height: 88px;
     border-radius: 6px;
-    background: #d8d8d8;
-    color: #ababab;
+    background: var(--background-secondary);
+    color: var(--secondary-text);
     font-size: 14px;
     font-weight: 500;
     float: left;
@@ -59,7 +59,7 @@
     bottom: -8px;
     position: relative;
     margin: 10px 0;
-    color: #000;
+    color: var(--primary-text);
   }
 
   &--receipt-background {
@@ -101,27 +101,27 @@
 
   &--internal-block {
     padding: 8px 0;
-    background: #fff;
+    background: var(--background-primary);
     line-height: 1;
     margin-bottom: 12px;
 
     &__invalid {
-      border-color: colors.$red;
+      border-color: var(--error-color);
     }
   }
 
   &--custom-field-internal-block {
     padding: 16px 0;
-    background: #fff;
+    background: var(--background-primary);
     border: 0;
     line-height: 1;
   }
 
   &--text {
-    border-bottom: 1px solid colors.$grey-lighter;
+    border-bottom: 1px solid var(--border-color);
 
     &__invalid {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid var(--error-color);
     }
   }
 
@@ -130,7 +130,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: colors.$black-light;
+    color: var(--secondary-text);
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -142,14 +142,14 @@
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     width: 100%;
     padding: 0;
     margin: 6px 0 !important;
   }
 
   &--checkbox {
-    color: colors.$blue-black;
+    color: var(--primary-text);
   }
 
   &--date-input {
@@ -160,6 +160,7 @@
     padding: 0;
     margin: 6px 0;
     height: 18px;
+    color: var(--primary-text);
   }
 
   &--additional-notes-label {
@@ -171,7 +172,7 @@
   }
 
   &--mandatory-text {
-    color: colors.$red;
+    color: var(--error-color);
     line-height: 16px;
     margin-top: -16px;
     font-size: 12px;
@@ -185,7 +186,7 @@
   }
 
   &--amount-error {
-    color: colors.$red;
+    color: var(--error-color);
     font-size: 12px;
     margin: -8px 0 0 52%;
   }
@@ -215,13 +216,13 @@
     justify-content: center;
     flex-direction: column;
     border-radius: 4px;
-    color: colors.$gray-3;
+    color: var(--secondary-text);
     margin: 12px 12px 0 0;
     height: 64px;
   }
 
   &--receipt-image {
-    background-color: colors.$light-grey;
+    background-color: var(--background-secondary);
     min-width: 64px;
     min-height: 64px;
     max-width: 64px;
@@ -252,7 +253,7 @@
     font-size: 64px;
     height: 36px;
     width: 34px;
-    background-color: colors.$light-grey;
+    background-color: var(--background-secondary);
     border-radius: 16px;
   }
 
@@ -261,7 +262,7 @@
     padding-top: 10px;
     padding-bottom: 6px;
     &__count {
-      color: colors.$blue-black;
+      color: var(--primary-text);
       font-size: 24px;
       font-weight: 400;
       padding-top: 24px;
@@ -299,5 +300,93 @@
     height: 28px;
     border-radius: 8px;
     margin-bottom: 16px;
+  }
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
+}
+
+// Add background color to the content
+ion-content {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// General text color for the add-edit-advance-request page
+.add-edit-advance-request {
+  color: var(--primary-text);
+}
+
+// Ensure all text elements inherit the proper color
+.add-edit-advance-request * {
+  color: inherit;
+}
+
+// Override specific elements that need different colors
+.add-edit-advance-request {
+  &--text-label,
+  &--receipt {
+    color: var(--secondary-text);
+  }
+
+  &--text-input,
+  &--date-input,
+  &--receipt-text__count {
+    color: var(--primary-text);
+  }
+}
+
+// MDC Checkbox Dark Mode Fixes
+.add-edit-advance-request {
+  &--checkbox {
+    // Ensure the MDC checkbox label text is visible in dark mode
+    ::ng-deep .mdc-label {
+      color: var(--primary-text) !important;
+    }
+
+    // Ensure the MDC checkbox frame is visible in dark mode
+    ::ng-deep
+      .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate='true'])
+      ~ .mdc-checkbox__background
+      .mdc-checkbox__checkmark {
+      border-color: var(--border-color) !important;
+    }
+
+    // Ensure the MDC checkbox background is visible in dark mode
+    ::ng-deep .mdc-checkbox__background {
+      border-color: var(--border-color) !important;
+    }
+
+    // Ensure the MDC checkbox checkmark is visible when checked
+    ::ng-deep .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background .mdc-checkbox__checkmark {
+      color: var(--primary-text) !important;
+    }
+
+    // Ensure the MDC checkbox background when checked is visible in dark mode
+    ::ng-deep .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background {
+      background-color: colors.$brand-primary !important;
+      border-color: colors.$brand-primary !important;
+    }
   }
 }

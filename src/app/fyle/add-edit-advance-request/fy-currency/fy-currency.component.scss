@@ -7,13 +7,13 @@
     font-size: 12px;
     line-height: 16px;
     font-weight: 400;
-    color: colors.$black-light;
+    color: var(--secondary-text);
   }
 
   &--input {
     font-size: 14px;
     line-height: 18px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
     border: none;
     width: 100%;
     margin: 6px 0;
@@ -28,7 +28,7 @@
   }
 
   &--input-container {
-    border-bottom: 1px solid colors.$grey-lighter;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--form {
@@ -42,6 +42,7 @@
     line-height: 1.2;
     font-weight: 500;
     margin-top: 0;
+    color: var(--primary-text);
   }
 
   &--currency-block {
@@ -53,6 +54,6 @@
   }
 
   &__invalid {
-    border-bottom: 1px solid colors.$red;
+    border-bottom: 1px solid var(--error-color);
   }
 }

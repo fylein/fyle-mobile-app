@@ -1,0 +1,73 @@
+@use './colors.scss' as colors;
+
+// Dark mode theme variables
+:root.dark-mode {
+  // Primary Text Colors
+  --primary-text: #ffffff; // Pure White - Used for high-emphasis text
+  --primary-text-soft: #e0e0e0; // Light Gray - Common choice for primary text in Material Design's dark theme
+
+  // Secondary Text Colors
+  --secondary-text: #b0b0b0; // Medium Gray - Used for less prominent information
+
+  // Disabled Text Colors
+  --disabled-text: #888888; // Soft Gray - Used for disabled or inactive text
+
+  // Background Colors
+  --background-primary: #222635; // Main background - Updated as requested
+  --background-secondary: #202533; // Slightly lighter dark background
+  --background-card: #323645; // Section cards background - Updated as requested
+  --header-background: #323645; // Darker background for headers in dark mode
+
+  // Border Colors
+  --border-color: #404040; // Dark border color
+  --header-border-bottom: none; // No border in dark mode
+  --card-shadow: none; // No glow effect in dark mode
+
+  // Icon Colors
+  --icon-color: #b0b0b0; // Medium gray for icons
+
+  // Page Title Color
+  --page-title-color: #ffffff; // White for dark mode
+
+  // State Colors (keeping existing brand colors)
+  --success-color: #66bb6a;
+  --error-color: #da1e28;
+  --warning-color: #fbd84f;
+  --info-color: #5c98e5;
+}
+
+// Light mode theme variables (default)
+:root.light-mode {
+  // Primary Text Colors
+  --primary-text: #{colors.$black}; // Dark text for light mode
+  --primary-text-soft: #{colors.$blue-black}; // Slightly softer dark text
+
+  // Secondary Text Colors
+  --secondary-text: #{colors.$black-light}; // Medium gray for secondary text
+
+  // Disabled Text Colors
+  --disabled-text: #{colors.$grey-light}; // Light gray for disabled text
+
+  // Background Colors
+  --background-primary: #{colors.$white}; // Light gray background - Original
+  --background-secondary: #{colors.$light-grey}; // Light gray background - Original
+  --background-card: #{colors.$pure-white}; // White card background - Original
+  --header-background: #{colors.$pure-white}; // White background for headers in light mode
+
+  // Border Colors
+  --border-color: #{colors.$grey-lighter}; // Light border color
+  --header-border-bottom: 1px solid var(--border-color); // Border in light mode
+  --card-shadow: #{colors.$pink-shadow}; // Glow effect in light mode
+
+  // Icon Colors
+  --icon-color: #{colors.$black-light}; // Medium gray for icons
+
+  // Page Title Color
+  --page-title-color: #{colors.$black}; // Default dark color for light mode
+
+  // State Colors (keeping existing brand colors)
+  --success-color: #{colors.$highlight-green};
+  --error-color: #{colors.$red};
+  --warning-color: #{colors.$dark-yellow};
+  --info-color: #{colors.$highlight-blue};
+}

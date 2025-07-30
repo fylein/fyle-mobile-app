@@ -1,7 +1,7 @@
 @use '../../../../../assets/styles/fy_select';
 
 .selection-modal {
-  color: black;
+  color: var(--primary-text);
   &--list-element {
     padding: 18px 0;
     margin: 0 16px;
@@ -61,11 +61,11 @@
   }
 
   &--sub-title {
-    color: #ababab;
+    color: var(--secondary-text);
     font-size: 14px;
     font-weight: 700;
     padding: 5px 14px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--cta-container {

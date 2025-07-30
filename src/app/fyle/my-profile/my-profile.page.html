@@ -160,6 +160,8 @@
             [isEnabled]="preferenceSetting.isEnabled"
             [key]="preferenceSetting.key"
             [defaultCurrency]="preferenceSetting.defaultCurrency"
+            [options]="preferenceSetting.options"
+            [selectedOption]="preferenceSetting.selectedOption"
             (preferenceChanged)="toggleSetting($event)"
           >
           </app-preference-setting>

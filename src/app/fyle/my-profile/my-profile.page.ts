@@ -49,6 +49,7 @@ import { CommonEmployeeSettings } from 'src/app/core/models/common-employee-sett
 import { driver } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { ThemeService, ThemeMode } from 'src/app/core/services/theme.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -140,6 +141,7 @@ export class MyProfilePage {
     private router: Router,
     private walkthroughService: WalkthroughService,
     private featureConfigService: FeatureConfigService,
+    private themeService: ThemeService
   ) {}
 
   emailOptInWalkthrough(): void {
@@ -281,6 +283,28 @@ export class MyProfilePage {
   }
 
   toggleSetting(eventData: EventData): Subscription {
+    if (eventData.key === 'darkMode') {
+      // Handle dark mode setting
+      const themeMap: { [key: string]: ThemeMode } = {
+        'Light': 'light',
+        'Dark': 'dark',
+        'Auto': 'auto'
+      };
+      
+      const selectedTheme = themeMap[eventData.selectedOption];
+      if (selectedTheme) {
+        this.themeService.setTheme(selectedTheme);
+        
+        this.trackingService.onSettingsToggle({
+          userSetting: eventData.key,
+          action: `changed to ${eventData.selectedOption}`,
+        });
+      }
+      
+      return new Subscription(); // Return empty subscription for dark mode
+    }
+    
+    // Handle other settings
     const settingName = this.settingsMap[eventData.key];
     const setting = this.employeeSettings[settingName] as CommonEmployeeSettings;
     setting.enabled = eventData.isEnabled;
@@ -401,6 +425,16 @@ export class MyProfilePage {
           this.orgSettings.org_expense_form_autofills.allowed &&
           this.orgSettings.org_expense_form_autofills.enabled &&
           this.employeeSettings.expense_form_autofills?.allowed,
+      },
+      {
+        title: 'Dark mode',
+        content: 'Choose your preferred theme for the app.',
+        key: 'darkMode',
+        isEnabled: true,
+        isAllowed: true,
+        options: ['Light', 'Dark', 'Auto'],
+        selectedOption: this.themeService.getCurrentThemeValue() === 'light' ? 'Light' : 
+                       this.themeService.getCurrentThemeValue() === 'dark' ? 'Dark' : 'Auto',
       },
     ];
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);

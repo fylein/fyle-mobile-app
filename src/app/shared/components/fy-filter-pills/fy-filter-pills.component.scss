@@ -47,3 +47,19 @@
     text-transform: capitalize;
   }
 }
+
+// Style Ionic grid elements for dark mode
+ion-grid {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+ion-row {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+ion-col {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}

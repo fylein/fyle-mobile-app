@@ -2,7 +2,7 @@
 
 .reports {
   &--toolbar-header {
-    border-bottom: 1px solid colors.$grey-lightest;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--header-btn {
@@ -19,7 +19,7 @@
 
   &--body {
     padding-bottom: 20px;
-    background-color: colors.$white;
+    background-color: var(--background-primary);
   }
 
   &--zero-state-body {
@@ -37,7 +37,7 @@
     padding-left: 12px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: colors.$black-light !important;
+        color: var(--secondary-text) !important;
       }
     }
   }
@@ -49,7 +49,7 @@
     &-icon {
       font-size: 18px;
       margin-right: 6px;
-      color: #aaa;
+      color: var(--secondary-text);
     }
 
     &-close {
@@ -63,7 +63,7 @@
   }
 
   &--content {
-    --background: #{colors.$white};
+    --background: var(--background-primary);
     --padding-bottom: 82px;
   }
 
@@ -74,4 +74,34 @@
     justify-content: center;
     text-align: center;
   }
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
+}
+
+// Style filter pills container
+.filter-pills-container {
+  background-color: var(--background-primary);
+  padding: 8px 16px;
 }

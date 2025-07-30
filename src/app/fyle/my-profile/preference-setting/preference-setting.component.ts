@@ -17,9 +17,21 @@ export class PreferenceSettingComponent {
 
   @Input() defaultCurrency: string;
 
+  @Input() options?: string[];
+
+  @Input() selectedOption?: string;
+
   @Output() preferenceChanged = new EventEmitter<EventData>();
 
   onChange(): void {
-    this.preferenceChanged.emit({ key: this.key, isEnabled: this.isEnabled });
+    if (this.key === 'darkMode') {
+      this.preferenceChanged.emit({ 
+        key: this.key, 
+        isEnabled: true, 
+        selectedOption: this.selectedOption 
+      });
+    } else {
+      this.preferenceChanged.emit({ key: this.key, isEnabled: this.isEnabled });
+    }
   }
 }

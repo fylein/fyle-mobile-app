@@ -33,6 +33,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { ThemeService } from 'src/app/core/services/theme.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -92,6 +93,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private launchDarklyService: LaunchDarklyService,
     private orgSettingsService: OrgSettingsService,
     private spenderOnboardingService: SpenderOnboardingService,
+    private themeService: ThemeService
   ) {}
 
   ngOnInit(): void {

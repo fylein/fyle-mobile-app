@@ -88,6 +88,7 @@ import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-par
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { ThemeService } from 'src/app/core/services/theme.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -244,6 +245,7 @@ export class MyExpensesPage implements OnInit {
     private extendQueryParamsService: ExtendQueryParamsService,
     private footerService: FooterService,
     private translocoService: TranslocoService,
+    private themeService: ThemeService
   ) {}
 
   get HeaderState(): typeof HeaderState {

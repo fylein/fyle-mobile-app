@@ -28,6 +28,7 @@
 
 @use 'assets/fonts/font.css';
 @use 'theme/colors';
+@use 'theme/dark-mode';
 
 @use 'swiper/scss';
 @use 'swiper/scss/navigation';
@@ -792,6 +793,25 @@ ref - https://stackoverflow.com/a/31162426
   &__placeholder {
     &::before {
       color: colors.$grey-light;
+    }
+  }
+}
+
+// Dark mode override for date input
+:root.dark-mode .date-input {
+  &__format {
+    &::before {
+      color: var(--primary-text);
+    }
+
+    &::after {
+      color: var(--secondary-text);
+    }
+  }
+
+  &__placeholder {
+    &::before {
+      color: var(--secondary-text);
     }
   }
 }

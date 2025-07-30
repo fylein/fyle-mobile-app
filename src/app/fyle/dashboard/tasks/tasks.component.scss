@@ -2,11 +2,11 @@
 
 .tasks {
   &--toolbar {
-    border-bottom: 1px solid colors.$grey-lightest;
+    border-bottom: 1px solid var(--border-color);
   }
 
   &--body {
-    --background: #{colors.$white};
+    --background: var(--background-primary);
   }
 
   &--zero-state {
@@ -23,13 +23,13 @@
 }
 
 .task-card {
-  background-color: colors.$pure-white;
+  background-color: var(--background-card);
 
   &__container {
     margin: 0 16px;
 
     &--divider {
-      border-bottom: 1px solid colors.$grey;
+      border-bottom: 1px solid var(--border-color);
     }
   }
 }
@@ -40,7 +40,7 @@
   &--filter-pills {
     position: fixed;
     width: 100%;
-    background-color: colors.$white;
+    background-color: var(--background-primary);
     z-index: 99;
   }
 
@@ -51,7 +51,7 @@
 }
 
 .task-skeleton {
-  background-color: colors.$pure-white;
+  background-color: var(--background-card);
   &--icon {
     height: 24px;
     width: 24px;
@@ -62,7 +62,7 @@
   }
 
   &--card {
-    border-bottom: 1px solid colors.$grey-lighter;
+    border-bottom: 1px solid var(--border-color);
     margin: 0 16px;
   }
 

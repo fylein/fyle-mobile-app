@@ -26,7 +26,7 @@
   }
 
   &--zero-state-subheading {
-    color: colors.$blue-black;
+    color: var(--primary-text);
     font-size: 16px;
     line-height: 1.5;
     max-width: 320px;
@@ -36,7 +36,7 @@
   }
 
   &--toolbar-title {
-    color: colors.$black;
+    color: var(--primary-text);
     font-size: 20px;
     font-weight: 500;
     line-height: normal;
@@ -44,12 +44,12 @@
   }
 
   &--content-container {
-    --background: #{colors.$pure-white};
+    --background: var(--background-primary);
   }
 
   &--container {
     margin: 16px;
-    background: colors.$pure-white;
+    background: var(--background-card);
   }
 
   &--card {
@@ -57,48 +57,48 @@
     align-items: center;
     padding: 16px;
     margin-bottom: 16px;
-    background: colors.$pure-white;
+    background: var(--background-card);
     justify-content: space-between;
-    border: 1px solid colors.$grey;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
 
     &--title {
       font-size: 16px;
       font-weight: 500;
-      color: colors.$blue-black;
+      color: var(--primary-text);
     }
   }
 
   &--preferences-container {
     padding: 16px;
-    background: colors.$pure-white;
-    border: 1px solid colors.$grey;
+    background: var(--background-card);
+    border: 1px solid var(--border-color);
     border-radius: 8px 8px 0 0;
 
     &--title {
       font-size: 16px;
       font-weight: 500;
-      color: colors.$blue-black;
+      color: var(--primary-text);
     }
 
     &--description {
       font-size: 12px;
       font-weight: 400;
-      color: colors.$black-light;
+      color: var(--secondary-text);
     }
   }
 
   &--preferences-form {
     padding: 20px 16px;
-    background: colors.$pure-white;
-    border: 1px solid colors.$grey;
+    background: var(--background-card);
+    border: 1px solid var(--border-color);
     border-top: none;
     border-radius: 0 0 8px 8px;
 
     &--radio-button {
       font-size: 14px;
       font-weight: 400;
-      color: colors.$blue-black;
+      color: var(--primary-text);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -116,7 +116,7 @@
 
   &--navigate-icon {
     height: 16px;
-    color: colors.$blue-black;
+    color: var(--primary-text);
   }
 }
 
@@ -132,4 +132,28 @@
     border-radius: 8px;
     margin-bottom: 16px;
   }
+}
+
+// Add background color to the header
+ion-header {
+  --background: var(--background-primary);
+}
+
+ion-toolbar {
+  --background: var(--background-primary);
+  background-color: var(--background-primary);
+}
+
+// Fix header text color in dark mode
+ion-title {
+  color: var(--primary-text) !important;
+}
+
+// Fix header button colors in dark mode
+ion-button {
+  --color: var(--primary-text);
+}
+
+ion-icon {
+  color: var(--primary-text);
 }

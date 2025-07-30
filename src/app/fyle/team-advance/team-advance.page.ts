@@ -15,6 +15,7 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 import { TitleCasePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ThemeService } from 'src/app/core/services/theme.service';
 
 // eslint-disable-next-line
 type Filters = Partial<{
@@ -70,6 +71,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     private filtersHelperService: FiltersHelperService,
     private expenseFieldsService: ExpenseFieldsService,
     private titleCasePipe: TitleCasePipe,
+    private themeService: ThemeService
   ) {}
 
   ionViewWillEnter(): void {

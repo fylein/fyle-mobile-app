@@ -2,6 +2,19 @@
   <div class="preference-setting__card__title">{{ title }}</div>
   <div class="d-flex preference-setting__content-container">
     <div class="preference-setting__card__content">{{ content }}</div>
-    <ion-toggle mode="ios" [(ngModel)]="isEnabled" (ionChange)="onChange()"> </ion-toggle>
+    @if (key === 'darkMode') {
+      <ion-select 
+        mode="ios" 
+        [(ngModel)]="selectedOption" 
+        (ionChange)="onChange()"
+        interface="popover"
+        placeholder="Select theme">
+        @for (option of options; track option) {
+          <ion-select-option [value]="option">{{ option }}</ion-select-option>
+        }
+      </ion-select>
+    } @else {
+      <ion-toggle mode="ios" [(ngModel)]="isEnabled" (ionChange)="onChange()"> </ion-toggle>
+    }
   </div>
 </div>
