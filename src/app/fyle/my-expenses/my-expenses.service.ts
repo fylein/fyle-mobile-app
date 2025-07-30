@@ -9,8 +9,6 @@ import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 import { TranslocoService } from '@jsverse/transloco';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 @Injectable({
   providedIn: 'root',
@@ -18,10 +16,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 export class MyExpensesService {
   maskNumber = new MaskNumber();
 
-  constructor(
-    private translocoService: TranslocoService,
-    private orgSettingsService: OrgSettingsService,
-  ) {}
+  constructor(private translocoService: TranslocoService) {}
 
   generateSortFilterPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
     this.generateSortTxnDatePills(filter, filterPills);
@@ -254,8 +249,6 @@ export class MyExpensesService {
             return this.translocoService.translate('services.myExpenses.complete');
           } else if (state === 'POLICY_VIOLATED') {
             return this.translocoService.translate('services.myExpenses.policyViolatedPill');
-          } else if (state === 'BLOCKED') {
-            return this.translocoService.translate('services.myExpenses.blockedPill');
           } else if (state === 'CANNOT_REPORT') {
             return this.translocoService.translate('services.myExpenses.cannotReportPill');
           } else {
@@ -293,41 +286,29 @@ export class MyExpensesService {
     }
   }
 
-  getFilters(orgSettings?: OrgSettings): FilterOptions<string>[] {
-    const typeOptions = [
-      {
-        label: this.translocoService.translate('services.myExpenses.complete'),
-        value: 'READY_TO_REPORT',
-      },
-      {
-        label: this.translocoService.translate('services.myExpenses.incomplete'),
-        value: 'DRAFT',
-      },
-    ];
-    // Add BLOCKED filter only if is_new_critical_policy_violation_flow_enabled is true
-    if (orgSettings?.is_new_critical_policy_violation_flow_enabled) {
-      typeOptions.push({
-        label: this.translocoService.translate('services.myExpenses.blocked'),
-        value: 'BLOCKED',
-      });
-    } else {
-      // Use CANNOT_REPORT when the flag is false
-      typeOptions.push({
-        label: this.translocoService.translate('services.myExpenses.cannotReport'),
-        value: 'CANNOT_REPORT',
-      });
-    }
-
-    typeOptions.push({
-      label: this.translocoService.translate('services.myExpenses.policyViolated'),
-      value: 'POLICY_VIOLATED',
-    });
-
+  getFilters(): FilterOptions<string>[] {
     return [
       {
         name: this.translocoService.translate('services.myExpenses.type'),
         optionType: FilterOptionType.multiselect,
-        options: typeOptions,
+        options: [
+          {
+            label: this.translocoService.translate('services.myExpenses.complete'),
+            value: 'READY_TO_REPORT',
+          },
+          {
+            label: this.translocoService.translate('services.myExpenses.policyViolated'),
+            value: 'POLICY_VIOLATED',
+          },
+          {
+            label: this.translocoService.translate('services.myExpenses.cannotReport'),
+            value: 'CANNOT_REPORT',
+          },
+          {
+            label: this.translocoService.translate('services.myExpenses.incomplete'),
+            value: 'DRAFT',
+          },
+        ],
       } as FilterOptions<string>,
       {
         name: this.translocoService.translate('services.myExpenses.date'),

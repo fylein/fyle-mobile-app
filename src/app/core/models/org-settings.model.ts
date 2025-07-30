@@ -462,7 +462,6 @@ export interface OrgSettingsResponse {
   amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
   pending_cct_expense_restriction?: CommonOrgSettings;
   simplified_multi_stage_approvals?: CommonOrgSettings;
-  is_new_critical_policy_violation_flow_enabled?: boolean;
 }
 
 export interface UiPolicySettings {
@@ -578,5 +577,4 @@ export interface OrgSettings {
   amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
   pending_cct_expense_restriction?: CommonOrgSettings;
   simplified_multi_stage_approvals?: CommonOrgSettings;
-  is_new_critical_policy_violation_flow_enabled?: boolean;
 }

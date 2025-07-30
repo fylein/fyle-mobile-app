@@ -398,7 +398,7 @@ describe('TransactionService', () => {
   });
 
   it('generateStateOrFilter(): should generate state Or filters', () => {
-    const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'BLOCKED', 'CANNOT_REPORT', 'DRAFT'] };
+    const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'CANNOT_REPORT', 'DRAFT'] };
     const params = {
       or: [
         '(and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT))',
@@ -409,7 +409,6 @@ describe('TransactionService', () => {
     const stateOrFilter = [
       'and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))',
       'and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))',
-      'tx_state.in.(UNREPORTABLE)',
       'tx_policy_amount.lt.0.0001',
       'tx_state.in.(DRAFT)',
     ];

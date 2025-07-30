@@ -864,7 +864,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Policy violation',
+      category: 'Policy Violation',
       icon: 'warning-fill',
     },
   },

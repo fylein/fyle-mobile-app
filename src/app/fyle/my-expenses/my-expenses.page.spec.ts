@@ -258,11 +258,6 @@ describe('MyExpensesPage', () => {
       'myExpenseActionSheetAddButtonClicked',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
-    const mockModal = {
-      present: jasmine.createSpy('present').and.resolveTo(),
-      onDidDismiss: jasmine.createSpy('onDidDismiss').and.resolveTo({ data: null }),
-    };
-    modalControllerSpy.create.and.resolveTo(mockModal);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -292,7 +287,6 @@ describe('MyExpensesPage', () => {
       'isMergeAllowed',
       'isCriticalPolicyViolatedExpense',
       'isExpenseInDraft',
-      'isExpenseUnreportable',
       'getExpenseDeletionMessage',
       'getCCCExpenseMessage',
       'getDeleteDialogBody',
@@ -542,6 +536,7 @@ describe('MyExpensesPage', () => {
         },
         ReportState,
         MaskNumber,
+        provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     }).compileComponents();
@@ -857,14 +852,14 @@ describe('MyExpensesPage', () => {
       expect(expensesService.getExpensesCount).toHaveBeenCalledTimes(5);
       expect(expensesService.getExpensesCount).toHaveBeenCalledWith({
         report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
+        state: 'in.(COMPLETE,DRAFT)',
       });
       expect(expensesService.getExpenses).toHaveBeenCalledTimes(2);
       expect(expensesService.getExpenses).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
         report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
+        state: 'in.(COMPLETE,DRAFT)',
         order: 'spent_at.desc,created_at.desc,id.desc',
       });
 
@@ -885,15 +880,8 @@ describe('MyExpensesPage', () => {
         offset: 0,
         limit: 10,
         report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
+        state: 'in.(COMPLETE,DRAFT)',
         order: 'spent_at.desc,created_at.desc,id.desc',
-      });
-      expect(expensesService.getExpenses).toHaveBeenCalledWith({
-        offset: 0,
-        limit: 10,
-        report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
-        order: 'approvalDate.asc',
       });
     }));
 
@@ -928,7 +916,7 @@ describe('MyExpensesPage', () => {
 
       component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledWith({
-          state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
+          state: 'in.(COMPLETE,DRAFT)',
           report_id: 'is.null',
         });
         expect(allExpenseCountHeader).toBe(3);
@@ -1493,7 +1481,7 @@ describe('MyExpensesPage', () => {
       component.allExpensesStats$.subscribe((allExpenseStats) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
           report_id: 'is.null',
-          state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
+          state: 'in.(COMPLETE,DRAFT)',
           'matched_corporate_card_transactions->0->corporate_card_number': '8698',
         });
         expect(allExpenseStats).toEqual({
@@ -1512,7 +1500,7 @@ describe('MyExpensesPage', () => {
       component.allExpensesStats$.subscribe((allExpenseStats) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
           report_id: 'is.null',
-          state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
+          state: 'in.(COMPLETE,DRAFT)',
         });
         expect(allExpenseStats).toEqual({
           count: incompleteStats.data.count,
@@ -1536,7 +1524,7 @@ describe('MyExpensesPage', () => {
       });
       expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
         report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
+        state: 'in.(COMPLETE,DRAFT)',
         'matched_corporate_card_transactions->0->corporate_card_number': '8698',
       });
     });
@@ -2184,7 +2172,6 @@ describe('MyExpensesPage', () => {
           value: 'Credit',
         },
       ]);
-      component.orgSettings$ = of(orgSettingsRes);
     });
 
     it('should call modalController and myExpensesService', fakeAsync(() => {
@@ -2474,7 +2461,6 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showNewReportModal');
       spyOn(component, 'unreportableExpenseExceptionHandler');
       spyOn(component, 'reportableExpenseDialogHandler');
-      sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
     });
 
     describe('when restrictPendingTransactionsEnabled is false', () => {
@@ -2501,7 +2487,6 @@ describe('MyExpensesPage', () => {
         component.selectedElements = cloneDeep(apiExpenses1);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
-        sharedExpenseService.isExpenseUnreportable.and.returnValues(false, false);
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
         expect(sharedExpenseService.isCriticalPolicyViolatedExpense).toHaveBeenCalledTimes(2);
@@ -2511,6 +2496,10 @@ describe('MyExpensesPage', () => {
         expect(sharedExpenseService.isExpenseInDraft).toHaveBeenCalledTimes(2);
         expect(sharedExpenseService.isExpenseInDraft).toHaveBeenCalledWith(apiExpenses1[0]);
         expect(sharedExpenseService.isExpenseInDraft).toHaveBeenCalledWith(apiExpenses1[1]);
+
+        component.isReportableExpensesSelected = false;
+
+        expect(component.unreportableExpenseExceptionHandler).toHaveBeenCalledOnceWith(1, 2, 0);
       }));
 
       it('should call showOldReportsMatBottomSheet if reportType is oldReport', fakeAsync(() => {
@@ -2518,7 +2507,6 @@ describe('MyExpensesPage', () => {
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, false);
-        sharedExpenseService.isExpenseUnreportable.and.returnValues(false, false);
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
         expect(trackingService.addToReport).toHaveBeenCalled();
@@ -2530,7 +2518,6 @@ describe('MyExpensesPage', () => {
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, false);
-        sharedExpenseService.isExpenseUnreportable.and.returnValues(false, false);
         component.openCreateReportWithSelectedIds('newReport');
         tick(100);
         expect(trackingService.addToReport).toHaveBeenCalled();
@@ -2542,7 +2529,6 @@ describe('MyExpensesPage', () => {
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
-        sharedExpenseService.isExpenseUnreportable.and.returnValues(false, false);
         component.openCreateReportWithSelectedIds('newReport');
         tick(100);
         expect(trackingService.addToReport).toHaveBeenCalled();
@@ -2574,7 +2560,6 @@ describe('MyExpensesPage', () => {
         component.selectedElements = cloneDeep(apiExpenses1);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
-        sharedExpenseService.isExpenseUnreportable.and.returnValues(false, false);
         component.restrictPendingTransactionsEnabled = true;
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
@@ -2611,7 +2596,6 @@ describe('MyExpensesPage', () => {
   describe('reportableExpenseDialogHandler():', () => {
     beforeEach(() => {
       spyOn(component, 'openCriticalPolicyViolationPopOver');
-      component.orgSettings$ = of(orgSettingsRes);
       // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
     });
 
@@ -2705,7 +2689,7 @@ describe('MyExpensesPage', () => {
       tick(100);
 
       expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: Object({ report_id: 'is.null', state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)' }),
+        queryParams: Object({ report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)' }),
         order: 'spent_at.desc,created_at.desc,id.desc',
       });
       expect(component.filterExpensesBySearchString).not.toHaveBeenCalled();
@@ -2722,7 +2706,7 @@ describe('MyExpensesPage', () => {
       tick(100);
 
       expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)' },
+        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)' },
         order: 'category->name.asc',
       });
       expect(component.filterExpensesBySearchString).toHaveBeenCalledTimes(2);
@@ -3242,7 +3226,7 @@ describe('MyExpensesPage', () => {
       expect(component.isReportableExpensesSelected).toBeTrue();
 
       expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)', q: 'Bus:*' },
+        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)', q: 'Bus:*' },
       });
       expect(sharedExpenseService.excludeCCCExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
       expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(
