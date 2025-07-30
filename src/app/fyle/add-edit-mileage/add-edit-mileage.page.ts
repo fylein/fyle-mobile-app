@@ -2159,6 +2159,7 @@ export class AddEditMileagePage implements OnInit {
           ...this.getCostCenterDependentFields(),
         ] as TxnCustomProperties[];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
+          ...(dependentField.id && { id: dependentField.id }),
           name: dependentField.label,
           value: dependentField.value,
         }));
