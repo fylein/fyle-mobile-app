@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild } from '@angular/core';
+import { Component, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
@@ -37,7 +37,8 @@ import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import SwiperCore, { Pagination, Autoplay } from 'swiper';
-import { PaginationOptions, SwiperOptions } from 'swiper/types';
+import { PaginationOptions, Swiper, SwiperOptions } from 'swiper/types';
+import { SwiperComponent } from 'swiper/angular';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -54,6 +55,8 @@ export class DashboardPage {
   @ViewChild(CardStatsComponent) cardStatsComponent: CardStatsComponent;
 
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
+
+  @ViewChild('optInSwiper', { static: false }) swiperComponent: SwiperComponent;
 
   employeeSettings$: Observable<EmployeeSettings>;
 
@@ -140,6 +143,7 @@ export class DashboardPage {
     private walkthroughService: WalkthroughService,
     private footerService: FooterService,
     private timezoneService: TimezoneService,
+    private ngZone: NgZone,
   ) {}
 
   get displayedTaskCount(): number {
@@ -156,6 +160,10 @@ export class DashboardPage {
 
   get filterPills(): FilterPill[] {
     return this.tasksComponent.filterPills;
+  }
+
+  private get swiperInstance(): Swiper | undefined {
+    return this.swiperComponent?.swiperRef;
   }
 
   startDashboardAddExpenseWalkthrough(): void {
@@ -425,44 +433,35 @@ export class DashboardPage {
   }
 
   setSwiperConfig(): void {
-    // Ensure both observables exist before using them
-    if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
-      // Set default config if observables aren't ready
-      this.swiperConfig = {
-        slidesPerView: 1,
-        spaceBetween: 0,
-        centeredSlides: true,
-        loop: false,
-        autoplay: false,
-        pagination: false,
-      };
-      return;
-    }
-
     combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$])
       .pipe(take(1))
       .subscribe(([canShowOptInBanner, canShowEmailOptInBanner]) => {
         const showBothBanners = canShowOptInBanner && canShowEmailOptInBanner;
 
-        this.swiperConfig = {
-          slidesPerView: 1,
-          spaceBetween: 0,
-          centeredSlides: true,
-          loop: showBothBanners,
-          autoplay: showBothBanners
-            ? {
-                delay: 4000,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: false,
-              }
-            : false,
-          pagination: {
-            dynamicBullets: true,
-            renderBullet: (index: number, className: string): string => {
-              return `<span class="opt-in-banners ${className}"> </span>`;
-            },
-          },
-        };
+        const swiper = this.swiperInstance;
+
+        if (!swiper) {
+          return;
+        }
+
+        swiper.loopDestroy?.();
+        swiper.pagination.destroy();
+        swiper.update();
+
+        if (showBothBanners) {
+          swiper.loopCreate?.();
+          swiper.params.autoplay = {
+            delay: 4000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: false,
+          };
+          swiper.autoplay?.start();
+        } else {
+          swiper.autoplay?.stop();
+          swiper.params.autoplay = false;
+          swiper.pagination.destroy();
+        }
+        swiper.update();
       });
   }
 
@@ -502,6 +501,12 @@ export class DashboardPage {
 
   ionViewWillEnter(): void {
     this.isWalkthroughPaused = false;
+    this.swiperConfig = {
+      slidesPerView: 1,
+      spaceBetween: 0,
+      centeredSlides: true,
+      pagination: this.optInBannerPagination,
+    };
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
