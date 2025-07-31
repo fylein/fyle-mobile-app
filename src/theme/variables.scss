@@ -8,7 +8,7 @@
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
 $custom-typography: mat.m2-define-typography-config(
-  $font-family: '"sage-ui", "sage-text", "Helvetica Neue", "Helvetica", "Roboto", "Segoe UI", "Arial", sans-serif',
+  $font-family: '"sage-ui", "Helvetica Neue", "Helvetica", "Roboto", "Segoe UI", "Arial", sans-serif',
 );
 @include mat.all-component-typographies($custom-typography);
 @include mat.elevation-classes();
