@@ -102,9 +102,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     // Move platform ready check here after view is initialized
     this.platform.ready().then(() => {
-      setTimeout(() => {
+      setTimeout(async () => {
         this.isLoading = false;
         this.initializeSidemenu();
+        await SplashScreen.hide();
       }, 3000);
     });
   }
@@ -148,8 +149,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       await StatusBar.setStyle({
         style: Style.Default,
       });
-
-      setTimeout(async () => await SplashScreen.hide(), 200);
 
       /*
        * Use the app's font size irrespective of the user's device font size.
