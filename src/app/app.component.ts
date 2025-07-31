@@ -106,7 +106,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
         this.initializeSidemenu();
         await SplashScreen.hide();
-      }, 3000);
+      }, 2000);
     });
   }
 
