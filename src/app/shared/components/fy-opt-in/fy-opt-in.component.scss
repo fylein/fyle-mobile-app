@@ -180,7 +180,7 @@
   }
 
   &--send-code-btn {
-    background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
+    background: colors.$brand-primary;
     &__icon {
       width: 12px;
       height: 14px;
