@@ -58,6 +58,8 @@ export class StatsComponent implements OnInit {
 
   redirectToNewPage$: Observable<boolean>;
 
+  isUserAnApprover$: Observable<boolean>;
+
   constructor(
     private dashboardService: DashboardService,
     private currencyService: CurrencyService,
@@ -189,6 +191,8 @@ export class StatsComponent implements OnInit {
     that.currencySymbol$ = that.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide')),
     );
+
+    that.isUserAnApprover$ = that.dashboardService.isUserAnApprover();
 
     that.initializeReportStats();
     that.initializeExpensesStats();

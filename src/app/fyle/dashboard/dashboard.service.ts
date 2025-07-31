@@ -13,6 +13,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
 import { GroupedReportStats } from 'src/app/core/models/platform/v1/grouped-report-stats.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 @Injectable()
 export class DashboardService {
@@ -22,7 +23,7 @@ export class DashboardService {
     private spenderReportsService: SpenderReportsService,
     private approverReportsService: ApproverReportsService,
     private authService: AuthService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   getUnreportedExpensesStats(): Observable<Stats> {
@@ -36,7 +37,7 @@ export class DashboardService {
         map((stats) => ({
           count: stats.data.count,
           sum: stats.data.total_amount,
-        }))
+        })),
       );
   }
 
@@ -50,7 +51,7 @@ export class DashboardService {
         map((stats) => ({
           count: stats.data.count,
           sum: stats.data.total_amount,
-        }))
+        })),
       );
   }
 
@@ -65,7 +66,13 @@ export class DashboardService {
         } else {
           return of(null);
         }
-      })
+      }),
+    );
+  }
+
+  isUserAnApprover(): Observable<boolean> {
+    return from(this.authService.getEou()).pipe(
+      map((eou: ExtendedOrgUser) => eou.ou?.roles?.includes('APPROVER') ?? false),
     );
   }
 
@@ -81,7 +88,7 @@ export class DashboardService {
           paymentPending: this.transformStat(statsMap.get('PAYMENT_PENDING')),
           processing: this.transformStat(statsMap.get('PAYMENT_PROCESSING')),
         };
-      })
+      }),
     );
   }
 
