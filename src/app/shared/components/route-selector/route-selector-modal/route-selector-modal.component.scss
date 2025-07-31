@@ -73,7 +73,7 @@
   }
 
   &--save {
-    --color: #f36;
+    --color: #{colors.$brand-primary};
     font-size: 16px;
     line-height: 20px;
     letter-spacing: normal;

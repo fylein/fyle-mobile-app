@@ -882,7 +882,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .btn-primary {
-  background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
+  background: colors.$brand-primary;
   border-radius: 4px !important;
   font-size: 14px !important;
   line-height: 18px;
@@ -934,7 +934,7 @@ ref - https://stackoverflow.com/a/31162426
   letter-spacing: 0;
 
   &--primary {
-    --background: #{colors.$pink-gradient};
+    --background: #{colors.$brand-primary};
   }
 
   &--secondary {
