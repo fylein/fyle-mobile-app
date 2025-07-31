@@ -435,6 +435,7 @@ export class OrgSettingsService {
         allowed: incoming.simplified_multi_stage_approvals?.allowed,
         enabled: incoming.simplified_multi_stage_approvals?.enabled,
       },
+      is_new_critical_policy_violation_flow_enabled: incoming?.is_new_critical_policy_violation_flow_enabled,
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {

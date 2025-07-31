@@ -105,6 +105,7 @@
                   <app-fy-policy-violation-info
                     [policyDetails]="policyDetails"
                     [criticalPolicyViolated]="isCriticalPolicyViolated$ | async"
+                    [expense]="platformExpense$ | async"
                   >
                   </app-fy-policy-violation-info>
                 }
