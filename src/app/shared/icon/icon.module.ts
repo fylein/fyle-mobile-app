@@ -21,6 +21,9 @@ export class IconModule {
     'arrow-tail-left.svg',
     'arrow-tail-up.svg',
     'arrow-tail-up-down.svg',
+    'arrow-long-tail-right.svg',
+    'arrow-long-tail-left.svg',
+    'arrow-with-bent.svg',
     'attachment-none.svg',
     'attachment.svg',
     'bell-fill.svg',
@@ -39,6 +42,7 @@ export class IconModule {
     'check-square-fill.svg',
     'check-square-fill.svg',
     'check.svg',
+    'check-pad.svg',
     'chat.svg',
     'clear.svg',
     'clock.svg',
@@ -61,11 +65,13 @@ export class IconModule {
     'flash-on.svg',
     'folder.svg',
     'folder-fill.svg',
+    'fuel.svg',
     'gear.svg',
     'hamburger-menu.svg',
     'house-fill.svg',
     'house-filled-arrow-clockwise.svg',
     'house-outline.svg',
+    'hourglass.svg',
     'image.svg',
     'image.svg',
     'info-circle-fill.svg',
@@ -122,7 +128,10 @@ export class IconModule {
     'stars-filled.svg',
   ];
 
-  constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {
+  constructor(
+    private domSanitizer: DomSanitizer,
+    private matIconRegistry: MatIconRegistry,
+  ) {
     this.svgImageArray.forEach((imageName) => {
       this.matIconRegistry.addSvgIcon(imageName.replace('.svg', ''), this.setPath(`${this.path}/${imageName}`));
     });
