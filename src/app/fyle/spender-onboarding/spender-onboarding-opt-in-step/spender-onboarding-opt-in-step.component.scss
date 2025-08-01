@@ -135,7 +135,7 @@
 
   &__view-tnc-btn {
     width: 100%;
-    background: colors.$pink-gradient;
+    background: colors.$brand-primary;
     background-clip: text;
     color: transparent;
     padding: 12px 0;
@@ -344,7 +344,7 @@
   }
 
   &__send-code-btn {
-    background: linear-gradient(162.38deg, colors.$brand-primary 3.01%, colors.$brand-primary-light 111.5%);
+    background: colors.$brand-primary;
     &__icon {
       width: 12px;
       height: 14px;
