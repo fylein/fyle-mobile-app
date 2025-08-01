@@ -433,11 +433,23 @@ export class DashboardPage {
   }
 
   setSwiperConfig(): void {
+    // Set default config when observables are not ready
+    if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
+      this.swiperConfig = {
+        slidesPerView: 1,
+        spaceBetween: 0,
+        centeredSlides: true,
+        loop: false,
+        autoplay: false,
+        pagination: false,
+      };
+      return;
+    }
+
     combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$])
       .pipe(take(1))
       .subscribe(([canShowOptInBanner, canShowEmailOptInBanner]) => {
         const showBothBanners = canShowOptInBanner && canShowEmailOptInBanner;
-
         const swiper = this.swiperInstance;
 
         if (!swiper) {
