@@ -1203,6 +1203,27 @@ ion-modal.merchant-info {
   }
 }
 
+ion-modal.pending-gas-charge-info {
+  &::part(content) {
+    border-radius: 16px 16px 0 0 !important;
+    position: absolute;
+    bottom: 0;
+  }
+
+  --height: auto;
+
+  .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
+  }
+
+  ion-content {
+    overflow: auto;
+    min-height: 496px;
+  }
+}
+
 .icon--navigate {
   height: 14px;
 }
