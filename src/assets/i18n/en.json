@@ -1625,5 +1625,6 @@
   },
   "dashboard": {
     "pendingTasks": "You have {{count}} pending tasks"
-  }
+  },
+  "criticalPolicyViolated": "Critical policy violated"
 }
