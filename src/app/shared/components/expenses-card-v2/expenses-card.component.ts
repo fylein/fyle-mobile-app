@@ -30,6 +30,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { TranslocoService } from '@jsverse/transloco';
 import { ExpenseMissingMandatoryFields } from 'src/app/core/models/platform/v1/expense-missing-mandatory-fields.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { PendingGasChargeService } from 'src/app/core/services/pending-gas-charge.service';
 
 @Component({
   selector: 'app-expense-card-v2',
@@ -146,6 +147,8 @@ export class ExpensesCardComponent implements OnInit {
 
   vendorDetails: string;
 
+  isPendingGasCharge = false;
+
   constructor(
     private transactionService: TransactionService,
     private sharedExpenseService: SharedExpenseService,
@@ -164,6 +167,7 @@ export class ExpensesCardComponent implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private expensesService: ExpensesService,
     private translocoService: TranslocoService,
+    private pendingGasChargeService: PendingGasChargeService,
   ) {}
 
   get isSelected(): boolean {
@@ -317,6 +321,8 @@ export class ExpensesCardComponent implements OnInit {
     this.handleScanStatus();
 
     this.isIos = this.platform.is('ios');
+
+    this.isPendingGasCharge = this.pendingGasChargeService.isPendingGasCharge(this.expense);
   }
 
   setOtherData(): void {

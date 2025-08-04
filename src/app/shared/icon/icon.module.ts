@@ -95,6 +95,7 @@ export class IconModule {
     'plus.svg',
     'power.svg',
     'question-square-outline.svg',
+    'question-square-fill.svg',
     'radio-circle-fill.svg',
     'radio-circle-outline.svg',
     'rectangle.svg',

@@ -1634,5 +1634,9 @@
     "readMoreText": "Read more on how gas stations expenses are captured in Fyle",
     "readMoreLinkText": "here",
     "gotItButton": "Got it"
+  },
+  "pendingGasChargeInfo": {
+    "expenseListViewText": "Pending gas charge",
+    "text": "What is $1 pending gas charge?"
   }
 }
