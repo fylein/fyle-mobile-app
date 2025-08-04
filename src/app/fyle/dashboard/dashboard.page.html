@@ -21,7 +21,7 @@
 }
 @if (!(currentStateIndex === 1)) {
   <ion-header mode="md" class="dashboard--header">
-    <ion-toolbar class="stats--toolbar" [ngClass]="{ dashboard: canShowOptInBanner$ | async }">
+    <ion-toolbar class="stats--toolbar" [ngClass]="{ 'dashboard--opt-in-gradient': canShowOptInBanner$ | async }">
       <ion-buttons slot="start">
         <app-fy-menu-icon></app-fy-menu-icon>
       </ion-buttons>

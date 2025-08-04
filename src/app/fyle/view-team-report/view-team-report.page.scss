@@ -175,6 +175,7 @@ $sent-back-color: #da1e28;
 
   &--unreported-cta {
     padding: 10px 16px;
+    background-color: colors.$brand-primary;
     border-radius: 4px;
     color: colors.$pure-white;
     letter-spacing: 0px;
@@ -367,6 +368,7 @@ $sent-back-color: #da1e28;
   }
 
   &--primary-cta {
+    --background: #{colors.$brand-primary};
     border-radius: 4px;
     line-height: 18px;
     color: colors.$pure-white;
@@ -474,6 +476,7 @@ $sent-back-color: #da1e28;
   }
 
   &--self-profile {
+    background: linear-gradient(0deg, colors.$light-blue, colors.$light-blue);
     margin-right: 8px;
   }
 

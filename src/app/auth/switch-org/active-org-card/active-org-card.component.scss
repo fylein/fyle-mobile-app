@@ -1,7 +1,7 @@
 @use '../../../../theme/colors.scss';
 
 .active-org-card {
-  background: colors.$brand-primary;
+  background-color: colors.$background;
   border-radius: 0 0 20px 20px;
   padding: 20px 16px;
   color: colors.$black;

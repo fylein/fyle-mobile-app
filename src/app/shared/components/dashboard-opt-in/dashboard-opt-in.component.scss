@@ -2,6 +2,7 @@
 
 .dashboard-opt-in {
   &--container {
+    background-color: colors.$background;
     border-bottom: 2px solid colors.$pure-white;
     border-radius: 0 0 40px 40px;
     margin-bottom: 24px;
@@ -68,8 +69,7 @@
     position: relative;
     width: 45px;
     height: 45px;
-    background: colors.$brand-secondary;
-    z-index: 2;
+    background: linear-gradient(313.56deg, #2c304e 45.19%, rgba(44, 48, 78, 0.4) 153.45%);
     top: 40px;
 
     &:before,
@@ -79,7 +79,7 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: colors.$brand-secondary;
+      background: linear-gradient(313.56deg, #2c304e 45.19%, rgba(44, 48, 78, 0.4) 153.45%);
       top: 0;
       right: 0;
       animation: wave-animate 1.5s infinite ease-out;
