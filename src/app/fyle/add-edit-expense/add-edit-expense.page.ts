@@ -1,7 +1,7 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, signal, ViewChild } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -152,6 +152,7 @@ import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-ca
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { UnlinkCardTransactionResponse } from 'src/app/core/models/platform/unlink-card-transaction-response.model';
+// import { ProjectOption } from 'src/app/core/models/project-options.model';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -467,6 +468,10 @@ export class AddEditExpensePage implements OnInit {
   showBillable = false;
 
   isLoading = true;
+
+  isSelectedProjectDisabled = signal(false);
+
+  selectedDisabledProject = signal<ProjectV2 | null>(null);
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -3015,6 +3020,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    // Clear project cache when re-entering the form
+    this.recentLocalStorageItemsService.clear('recentlyUsedProjects');
+
     this.allCategories$ = this.categoriesService.getAll().pipe(shareReplay(1));
     this.activeCategories$ = this.allCategories$
       .pipe(map((catogories) => this.categoriesService.filterRequired(catogories)))
@@ -4067,11 +4075,19 @@ export class AddEditExpensePage implements OnInit {
           policyViolations: string[];
           policyAction: FinalExpensePolicyState;
           etxn: Partial<UnflattenedTransaction>;
+          error?: {
+            message?: string;
+          };
         }) => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
               map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
             );
+          }
+          if (err.status === 400) {
+            if (err.error.message.includes('project')) {
+              this.checkIfProjectIsDisabled();
+            }
           }
           if (err.type === 'criticalPolicyViolations') {
             return this.criticalPolicyViolationErrorHandler(err, customFields$);
@@ -4320,6 +4336,32 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  checkIfProjectIsDisabled(): void {
+    if (this.fg && this.fg.get('project')) {
+      this.selectedDisabledProject.set(this.fg.get('project').value as ProjectV2);
+      this.isSelectedProjectDisabled.set(true);
+
+      // Just clear the cache
+      this.recentLocalStorageItemsService.clear('expenseProjectCache');
+
+      // Clear recentProjects array
+      this.recentProjects = [];
+
+      // subscribe to the changes of the project control
+      this.fg.get('project').valueChanges.subscribe((value) => {
+        // if the project selected is not equal to the selectedDisabledProject, then make the isSelectedProjectDisabled to false or else make it true
+        if (value !== this.selectedDisabledProject()) {
+          this.isSelectedProjectDisabled.set(false);
+        } else {
+          this.isSelectedProjectDisabled.set(true);
+        }
+      });
+
+      this.fg.get('project').markAsTouched();
+      this.fg.get('project').markAsDirty();
+    }
+  }
+
   addExpense(redirectedFrom: string): Observable<OutboxQueue | Promise<OutboxQueue>> {
     this.showSaveExpenseLoader(redirectedFrom);
 
@@ -4383,9 +4425,18 @@ export class AddEditExpensePage implements OnInit {
           policyViolations?: string[];
           policyAction?: FinalExpensePolicyState;
           etxn?: Partial<UnflattenedTransaction>;
+          error?: {
+            message?: string;
+          };
         }) => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+          }
+
+          if (err.status === 400) {
+            if (err.error.message.includes('project')) {
+              this.checkIfProjectIsDisabled();
+            }
           }
 
           if (err.type === 'criticalPolicyViolations') {

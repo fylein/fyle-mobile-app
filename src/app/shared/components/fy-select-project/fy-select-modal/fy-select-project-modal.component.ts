@@ -43,6 +43,10 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   @Input() isProjectCategoryRestrictionsEnabled: boolean;
 
+  @Input() isSelectedProjectDisabled: boolean;
+
+  @Input() selectedDisabledProject: ProjectV2;
+
   recentrecentlyUsedItems$: Observable<ProjectOption[]>;
 
   value: string;
@@ -207,6 +211,12 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           return project as ProjectOption;
         }),
       ),
+      map((projects) => {
+        if (this.isSelectedProjectDisabled && this.selectedDisabledProject) {
+          return projects.filter((project) => project.value?.project_id !== this.selectedDisabledProject?.project_id);
+        }
+        return projects;
+      }),
     );
 
     this.recentrecentlyUsedItems$ = fromEvent<{ target: HTMLInputElement }>(

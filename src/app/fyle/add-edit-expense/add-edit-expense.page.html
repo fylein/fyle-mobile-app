@@ -535,7 +535,11 @@
                     @if (isProjectsVisible$ | async) {
                       <div
                         class="add-edit-expense--internal-block add-edit-expense--project-block"
-                        [ngClass]="{ 'add-edit-expense--no-project': !fg.controls.project.value }"
+                        [ngClass]="{
+                          'add-edit-expense--no-project': !fg.controls.project.value,
+                          'add-edit-expense--internal-block__invalid':
+                            fg.controls.project.touched && (isSelectedProjectDisabled() || !fg.controls.project.valid),
+                        }"
                       >
                         <app-fy-select-project
                           [cacheName]="'expenseProjectCache'"
@@ -547,8 +551,15 @@
                           formControlName="project"
                           [validInParent]="fg.controls.project.valid"
                           [touchedInParent]="fg.controls.project.touched"
+                          [isSelectedProjectDisabled]="isSelectedProjectDisabled()"
+                          [selectedDisabledProject]="selectedDisabledProject()"
                         >
                         </app-fy-select-project>
+                        @if (fg.controls.project.touched && isSelectedProjectDisabled()) {
+                          <div class="add-edit-expense--error">Project disabled, select a different one.</div>
+                        } @else if (fg.controls.project.touched && !fg.controls.project.valid) {
+                          <div class="add-edit-expense--error">Please select a project.</div>
+                        }
                       </div>
                     }
                   }

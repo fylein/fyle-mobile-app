@@ -43,6 +43,10 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   @Input() isProjectCategoryRestrictionsEnabled: boolean;
 
+  @Input() isSelectedProjectDisabled: boolean;
+
+  @Input() selectedDisabledProject: ProjectV2;
+
   @Output() valueChange = new EventEmitter<ProjectV2>();
 
   displayValue: string;
@@ -101,6 +105,8 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
         recentlyUsed: this.recentlyUsed,
         label: this.label,
         isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled,
+        isSelectedProjectDisabled: this.isSelectedProjectDisabled,
+        selectedDisabledProject: this.selectedDisabledProject,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
