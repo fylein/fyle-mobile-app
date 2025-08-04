@@ -4048,24 +4048,43 @@ export class AddEditExpensePage implements OnInit {
               return policyViolations$;
             }
           }),
-          map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+          map((policyViolations: ExpensePolicy): [ExpensePolicy, string[], FinalExpensePolicyState] => [
+            policyViolations,
             this.policyService.getPolicyRules(policyViolations),
             policyViolations?.data?.final_desired_state,
           ]),
-          switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
-            if (policyViolations.length > 0) {
-              return throwError({
-                type: 'policyViolations',
-                policyViolations,
-                policyAction,
-                etxn,
-              });
-            } else {
-              return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
-              );
-            }
-          }),
+          switchMap(
+            ([originalPolicyViolations, policyViolations, policyAction]: [
+              ExpensePolicy,
+              string[],
+              FinalExpensePolicyState,
+            ]) => {
+              // Check if expense is unreportable and show critical policy violation
+              if (policyAction?.unreportable && !etxn.tx.report_id) {
+                const criticalPolicyRules = this.policyService.getCriticalPolicyRules(originalPolicyViolations);
+                if (criticalPolicyRules.length > 0) {
+                  return throwError({
+                    type: 'criticalPolicyViolations',
+                    policyViolations: criticalPolicyRules,
+                    etxn,
+                  });
+                }
+              }
+
+              if (policyViolations.length > 0) {
+                return throwError({
+                  type: 'policyViolations',
+                  policyViolations,
+                  policyAction,
+                  etxn,
+                });
+              } else {
+                return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                  map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
+                );
+              }
+            },
+          ),
         );
       }),
       catchError(
@@ -4390,24 +4409,43 @@ export class AddEditExpensePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+                map((policyViolations: ExpensePolicy): [ExpensePolicy, string[], FinalExpensePolicyState] => [
+                  policyViolations,
                   this.policyService.getPolicyRules(policyViolations),
                   policyViolations?.data?.final_desired_state,
                 ]),
-                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
-                  if (policyViolations.length > 0) {
-                    return throwError({
-                      type: 'policyViolations',
-                      policyViolations,
-                      policyAction,
-                      etxn,
-                    });
-                  } else {
-                    return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
-                    );
-                  }
-                }),
+                switchMap(
+                  ([originalPolicyViolations, policyViolations, policyAction]: [
+                    ExpensePolicy,
+                    string[],
+                    FinalExpensePolicyState,
+                  ]) => {
+                    // Check if expense is unreportable and show critical policy violation
+                    if (policyAction?.unreportable && !etxn.tx.report_id) {
+                      const criticalPolicyRules = this.policyService.getCriticalPolicyRules(originalPolicyViolations);
+                      if (criticalPolicyRules.length > 0) {
+                        return throwError({
+                          type: 'criticalPolicyViolations',
+                          policyViolations: criticalPolicyRules,
+                          etxn,
+                        });
+                      }
+                    }
+
+                    if (policyViolations.length > 0) {
+                      return throwError({
+                        type: 'policyViolations',
+                        policyViolations,
+                        policyAction,
+                        etxn,
+                      });
+                    } else {
+                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
+                      );
+                    }
+                  },
+                ),
               );
             } else {
               return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
@@ -5132,24 +5170,43 @@ export class AddEditExpensePage implements OnInit {
                       return policyViolations$;
                     }
                   }),
-                  map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+                  map((policyViolations: ExpensePolicy): [ExpensePolicy, string[], FinalExpensePolicyState] => [
+                    policyViolations,
                     this.policyService.getPolicyRules(policyViolations),
                     policyViolations?.data?.final_desired_state,
                   ]),
-                  switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
-                    if (policyViolations.length > 0) {
-                      return throwError({
-                        type: 'policyViolations',
-                        policyViolations,
-                        policyAction,
-                        etxn,
-                      });
-                    } else {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
-                      );
-                    }
-                  }),
+                  switchMap(
+                    ([originalPolicyViolations, policyViolations, policyAction]: [
+                      ExpensePolicy,
+                      string[],
+                      FinalExpensePolicyState,
+                    ]) => {
+                      // Check if expense is unreportable and show critical policy violation
+                      if (policyAction?.unreportable && !etxn.tx.report_id) {
+                        const criticalPolicyRules = this.policyService.getCriticalPolicyRules(originalPolicyViolations);
+                        if (criticalPolicyRules.length > 0) {
+                          return throwError({
+                            type: 'criticalPolicyViolations',
+                            policyViolations: criticalPolicyRules,
+                            etxn,
+                          });
+                        }
+                      }
+
+                      if (policyViolations.length > 0) {
+                        return throwError({
+                          type: 'policyViolations',
+                          policyViolations,
+                          policyAction,
+                          etxn,
+                        });
+                      } else {
+                        return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                          map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
+                        );
+                      }
+                    },
+                  ),
                 );
               } else {
                 return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(

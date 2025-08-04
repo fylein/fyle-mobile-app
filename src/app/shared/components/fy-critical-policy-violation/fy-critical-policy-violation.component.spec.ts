@@ -118,6 +118,5 @@ describe('FyCriticalPolicyViolationComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.policy-violation-rule--container div'))).toEqual(
       'A violation message',
     );
-    expect(getTextContent(getElementBySelector(fixture, '.policy-violation-rule--container div'))).toEqual('A violation message');
   });
 });
