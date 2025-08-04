@@ -7,4 +7,5 @@ export interface FinalExpensePolicyState {
   remove_employee_approver1: boolean;
   run_status: string;
   run_summary: string[];
+  unreportable?: boolean;
 }
