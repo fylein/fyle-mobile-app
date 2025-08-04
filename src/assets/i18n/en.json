@@ -1626,5 +1626,19 @@
   "dashboard": {
     "pendingTasks": "You have {{count}} pending tasks"
   },
+  "pendingGasChargeInfoModal": {
+    "title": "Why am I seeing a $1 expense?",
+    "description": "Gas stations often place a temporary $1 hold amount when you swipe your card. This placeholder amount is updated to the actual amount within a few days of your purchase.",
+    "step1Description": "You swipe your card at the gas station",
+    "step2Description": "The gas station places a temporary $1 hold on your card",
+    "step3Description": "The $1 charge shows up in your Fyle account",
+    "step4Description": "After a few days, the gas station sends the actual amount to your bank",
+    "step5Description": "The $1 hold in your Fyle account automatically gets updated to reflect the actual amount",
+    "additionalInfoTitle": "Why am I seeing duplicate expenses for the same purchase?",
+    "additionalInfoDescription": "If you've uploaded your receipt through text or email, you might see temporary duplicate expenses in your account for a few days. These expenses will automatically merge into a single expense once the gas station sends the final amount to your bank. You can also manually merge the 2 expenses on your own.",
+    "readMoreText": "Read more on how gas stations expenses are captured in Fyle",
+    "readMoreLinkText": "here",
+    "gotItButton": "Got it"
+  },
   "criticalPolicyViolated": "Critical policy violated"
 }
