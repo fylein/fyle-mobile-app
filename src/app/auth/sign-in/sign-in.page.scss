@@ -7,7 +7,7 @@
     overflow: hidden;
     display: flex;
     justify-content: center;
-    background: linear-gradient(to bottom, #fafafc, #f1f6ff);
+    background-color: colors.$background;
     border-radius: 20px;
     &__video {
       width: auto;

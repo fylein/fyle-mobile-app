@@ -175,7 +175,7 @@ $sent-back-color: #da1e28;
 
   &--unreported-cta {
     padding: 10px 16px;
-    background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
+    background-color: colors.$brand-primary;
     border-radius: 4px;
     color: colors.$pure-white;
     letter-spacing: 0px;
@@ -191,7 +191,7 @@ $sent-back-color: #da1e28;
 
     &__icon {
       padding-left: 6px;
-      color: colors.$brand-primary-light;
+      color: colors.$brand-primary;
     }
   }
 
@@ -368,7 +368,7 @@ $sent-back-color: #da1e28;
   }
 
   &--primary-cta {
-    --background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
+    --background: #{colors.$brand-primary};
     border-radius: 4px;
     line-height: 18px;
     color: colors.$pure-white;

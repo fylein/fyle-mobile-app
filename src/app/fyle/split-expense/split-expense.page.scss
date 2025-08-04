@@ -211,7 +211,7 @@ $background-color: #fff;
   }
 
   &--mandatory {
-    color: colors.$brand-primary;
+    color: colors.$negative-500;
     font-size: 14px;
     font-weight: 400;
   }
@@ -290,7 +290,7 @@ $background-color: #fff;
     display: flex;
     padding: 12px;
     border-radius: 8px;
-    background: colors.$pink-gradient-light-2;
+    background: colors.$background;
 
     &__label {
       font-size: 12px;

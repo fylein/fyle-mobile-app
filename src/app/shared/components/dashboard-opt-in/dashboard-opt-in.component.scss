@@ -2,7 +2,7 @@
 
 .dashboard-opt-in {
   &--container {
-    background: linear-gradient(80deg, rgb(236 245 255 / 21%) 54.75%, rgb(255 237 252 / 30%) 86.07%);
+    background-color: colors.$background;
     border-bottom: 2px solid colors.$pure-white;
     border-radius: 0 0 40px 40px;
     margin-bottom: 24px;
@@ -70,7 +70,6 @@
     width: 45px;
     height: 45px;
     background: linear-gradient(313.56deg, #2c304e 45.19%, rgba(44, 48, 78, 0.4) 153.45%);
-    z-index: 2;
     top: 40px;
 
     &:before,

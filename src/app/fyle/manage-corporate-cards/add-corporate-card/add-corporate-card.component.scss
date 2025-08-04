@@ -44,7 +44,7 @@
     margin-bottom: 6px;
 
     &--mandatory {
-      color: colors.$red;
+      color: colors.$negative-500;
     }
   }
 
@@ -101,7 +101,7 @@
 
   &__view-tnc-btn {
     width: 100%;
-    background: colors.$pink-gradient;
+    background: colors.$brand-primary;
     background-clip: text;
     color: transparent;
     padding: 12px 0;
