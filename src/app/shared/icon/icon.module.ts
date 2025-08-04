@@ -71,7 +71,7 @@ export class IconModule {
     'info-circle-fill.svg',
     'info-circle-fill.svg',
     'info-gradient.svg',
-    'info-circle-gradient.svg',
+    'info-circle-white.svg',
     'list-plus.svg',
     'list.svg',
     'list-new.svg',
@@ -122,7 +122,10 @@ export class IconModule {
     'stars-filled.svg',
   ];
 
-  constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {
+  constructor(
+    private domSanitizer: DomSanitizer,
+    private matIconRegistry: MatIconRegistry,
+  ) {
     this.svgImageArray.forEach((imageName) => {
       this.matIconRegistry.addSvgIcon(imageName.replace('.svg', ''), this.setPath(`${this.path}/${imageName}`));
     });

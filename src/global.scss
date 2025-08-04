@@ -1073,11 +1073,11 @@ ion-popover.delete-dialog {
 }
 
 .segment-button-checked {
-  --color-checked: #2c304e;
+  --color-checked: #{colors.$gray-15};
 }
 
 .ios .segment-button-checked {
-  --indicator-color: #2c304e;
+  --indicator-color: #{colors.$gray-15};
   color: colors.$pure-white !important;
   margin: 2px;
   padding: 0 8px;
