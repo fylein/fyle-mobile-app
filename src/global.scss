@@ -1210,14 +1210,17 @@ ion-modal.pending-gas-charge-info {
     bottom: 0;
   }
 
+  --height: auto;
+
   .ion-page {
     position: relative;
     display: block;
     contain: content;
+  }
 
-    .inner-content {
-      overflow: auto;
-    }
+  ion-content {
+    overflow: auto;
+    min-height: 496px;
   }
 }
 

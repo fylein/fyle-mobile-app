@@ -111,6 +111,10 @@ $bright-yellow: #fbd84f;
 $walkthrough-bg: #2c304e;
 $walkthrough-text-color: #a9acbc;
 
+// custom colors for pending gas charge info modal
+$border-light-info: #d9def8;
+$background-lighter-background-info-lightest: #f3f6fa;
+
 // State Specific Map
 $states: (
   'draft': $highlight-black,
