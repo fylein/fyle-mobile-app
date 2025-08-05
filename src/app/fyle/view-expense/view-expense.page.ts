@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, ViewChild, ElementRef, signal } from '@angular/core';
 import { Observable, from, Subject, concat, noop, forkJoin, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -137,7 +137,7 @@ export class ViewExpensePage {
 
   isRTFEnabled: boolean;
 
-  isPendingGasCharge = false;
+  isPendingGasCharge = signal<boolean>(false);
 
   constructor(
     private loaderService: LoaderService,
@@ -353,7 +353,7 @@ export class ViewExpensePage {
       }
       this.foreignCurrencySymbol = getCurrencySymbol(expense.foreign_currency, 'wide');
       this.expenseCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
-      this.isPendingGasCharge = this.sharedExpensesService.isPendingGasCharge(expense);
+      this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(expense));
     });
 
     forkJoin([this.expenseFields$, this.expense$.pipe(take(1))])

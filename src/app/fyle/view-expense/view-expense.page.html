@@ -137,7 +137,7 @@
                   (statusClick)="openTransactionStatusInfoModal($event)"
                 ></app-transaction-status>
               </div>
-              @if (isPendingGasCharge) {
+              @if (isPendingGasCharge()) {
                 <app-pending-gas-charge-info [isExpenseListView]="false"></app-pending-gas-charge-info>
               }
             }

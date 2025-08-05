@@ -31,6 +31,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { ExpenseMissingMandatoryFields } from 'src/app/core/models/platform/v1/expense-missing-mandatory-fields.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-expense-card-v2',
@@ -147,7 +148,7 @@ export class ExpensesCardComponent implements OnInit {
 
   vendorDetails: string;
 
-  isPendingGasCharge = false;
+  isPendingGasCharge = signal<boolean>(false);
 
   constructor(
     private transactionService: TransactionService,
@@ -322,7 +323,7 @@ export class ExpensesCardComponent implements OnInit {
 
     this.isIos = this.platform.is('ios');
 
-    this.isPendingGasCharge = this.sharedExpensesService.isPendingGasCharge(this.expense);
+    this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(this.expense));
   }
 
   setOtherData(): void {

@@ -1,7 +1,7 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, signal, ViewChild } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -469,7 +469,7 @@ export class AddEditExpensePage implements OnInit {
 
   isLoading = true;
 
-  isPendingGasCharge = false;
+  isPendingGasCharge = signal<boolean>(false);
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2704,7 +2704,7 @@ export class AddEditExpensePage implements OnInit {
     return this.platformExpense$.pipe(
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
-        this.isPendingGasCharge = this.sharedExpensesService.isPendingGasCharge(expense);
+        this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(expense));
 
         if (etxn && etxn.tx.extracted_data) {
           this.autoCodedData = etxn.tx.extracted_data;
