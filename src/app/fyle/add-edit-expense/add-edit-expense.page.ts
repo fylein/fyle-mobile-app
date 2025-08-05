@@ -2,6 +2,9 @@
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Filesystem } from '@capacitor/filesystem';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -198,8 +201,6 @@ type FormValue = {
 })
 export class AddEditExpensePage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;
-
-  @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
 
   @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
 
@@ -4786,110 +4787,108 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  async uploadFileCallback(file: File): Promise<void> {
-    let fileData: { type: string; dataUrl: string | ArrayBuffer; actionSource: string };
-    if (file) {
-      if (file.size < MAX_FILE_SIZE) {
-        const fileRead$ = from(this.fileService.readFile(file));
-        const delayedLoader$ = timer(300).pipe(
-          switchMap(() => from(this.loaderService.showLoader('Please wait...', 5000))),
-          switchMap(() => fileRead$), // switch to fileRead$ after showing loader
-        );
-        // Use race to show loader only if fileRead$ takes more than 300ms.
-        fileRead$
-          .pipe(
-            raceWith(delayedLoader$),
-            map((dataUrl) => {
-              fileData = {
-                type: file.type,
-                dataUrl,
-                actionSource: 'gallery_upload',
-              };
-              this.attachReceipts(fileData);
-              this.trackingService.addAttachment({ type: file.type });
-            }),
-            finalize(() => this.loaderService.hideLoader()),
-          )
-          .subscribe();
-      } else {
-        this.showSizeLimitExceededPopover(MAX_FILE_SIZE);
-      }
-    }
-  }
-
-  async onChangeCallback(nativeElement: HTMLInputElement): Promise<void> {
-    const file = nativeElement.files[0];
-    this.uploadFileCallback(file);
-  }
-
   async addAttachments(event: Event): Promise<void> {
     event.stopPropagation();
+    const popup = await this.popoverController.create({
+      component: CameraOptionsPopupComponent,
+      cssClass: 'camera-options-popover',
+    });
 
-    if (this.platform.is('ios')) {
-      const nativeElement = this.fileUpload.nativeElement;
-      // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-      nativeElement.onchange = async () => {
-        this.onChangeCallback(nativeElement);
+    await popup.present();
+
+    const { data } = (await popup.onWillDismiss()) as {
+      data: {
+        option?: string;
+        type: string;
+        dataUrl: string;
+        actionSource?: string;
       };
-      nativeElement.click();
-    } else {
-      const popup = await this.popoverController.create({
-        component: CameraOptionsPopupComponent,
-        cssClass: 'camera-options-popover',
-        componentProps: {
-          mode: this.mode,
-        },
-      });
+    };
 
-      await popup.present();
-
-      let { data: receiptDetails } = (await popup.onWillDismiss()) as {
-        data: {
-          option?: string;
-          type: string;
-          dataUrl: string;
-          actionSource?: string;
-        };
-      };
-
-      if (receiptDetails && receiptDetails.option === 'camera') {
-        const captureReceiptModal = await this.modalController.create({
-          component: CaptureReceiptComponent,
-          componentProps: {
-            isModal: true,
-            allowGalleryUploads: false,
-            allowBulkFyle: false,
-          },
-          cssClass: 'hide-modal',
-        });
-
-        await captureReceiptModal.present();
-        this.isCameraPreviewStarted = true;
-
-        const { data } = (await captureReceiptModal.onWillDismiss()) as {
-          data: {
-            dataUrl: string;
-          };
-        };
-        this.isCameraPreviewStarted = false;
-
-        if (data && data.dataUrl) {
-          receiptDetails = {
-            type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
-            dataUrl: data.dataUrl,
-            actionSource: 'camera',
-          };
-        }
-      }
-      if (receiptDetails && receiptDetails.dataUrl) {
-        this.attachReceipts(receiptDetails as { type: string; dataUrl: string });
-        const message = 'Receipt added to Expense successfully';
-        this.showSnackBarToast({ message }, 'success', ['msb-success-with-camera-icon']);
-        this.showReceiptMandatoryError = false;
-
-        this.trackingService.showToastMessage({ ToastContent: message });
+    if (data && data.option) {
+      if (data.option === 'camera') {
+        this.openCamera();
+      } else {
+        this.openGallery();
       }
     }
+  }
+
+  async openCamera(): Promise<void> {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+      });
+
+      if (image && image.dataUrl) {
+        const receiptDetails = {
+          type: this.fileService.getImageTypeFromDataUrl(image.dataUrl),
+          dataUrl: image.dataUrl,
+          actionSource: 'camera',
+        };
+        this.attachReceipts(receiptDetails);
+        this.showAddedToExpenseToast();
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      this.showSnackBarToast({ message: 'Error opening camera' }, 'failure', ['msb-error-with-camera-icon']);
+    }
+  }
+
+  async openGallery(): Promise<void> {
+    try {
+      const result = await FilePicker.pickFiles({
+        types: ['image/jpeg', 'image/png', 'application/pdf', 'image/heic'],
+        readData: true,
+      });
+
+      if (result.files.length > 0) {
+        const file = result.files[0];
+
+        if (file.size > MAX_FILE_SIZE) {
+          this.showSizeLimitExceededPopover(MAX_FILE_SIZE);
+          return;
+        }
+
+        from(this.loaderService.showLoader('Please wait...', 5000)).subscribe(async () => {
+          let dataUrl = `data:${file.mimeType};base64,${file.data}`;
+
+          if (file.mimeType === 'image/heic') {
+            const conversionResult = await FilePicker.convertHeicToJpeg({
+              path: file.path,
+            });
+            const jpegFile = await Filesystem.readFile({
+              path: conversionResult.path,
+            });
+            dataUrl = `data:image/jpeg;base64,${jpegFile.data}`;
+          }
+
+          const receiptDetails = {
+            type: file.mimeType,
+            dataUrl: dataUrl,
+            actionSource: 'gallery_upload',
+          };
+
+          this.attachReceipts(receiptDetails);
+          this.trackingService.addAttachment({ type: file.mimeType });
+          this.showAddedToExpenseToast();
+          this.loaderService.hideLoader();
+        });
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      this.showSnackBarToast({ message: 'Error opening gallery' }, 'failure', ['msb-error-with-camera-icon']);
+    }
+  }
+
+  showAddedToExpenseToast(): void {
+    const message = 'Receipt added to Expense successfully';
+    this.showSnackBarToast({ message }, 'success', ['msb-success-with-camera-icon']);
+    this.showReceiptMandatoryError = false;
+    this.trackingService.showToastMessage({ ToastContent: message });
   }
 
   getReceiptExtension(name: string): string | null {
