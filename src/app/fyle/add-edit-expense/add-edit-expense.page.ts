@@ -556,21 +556,40 @@ export class AddEditExpensePage implements OnInit {
     return this.fg.controls[name];
   }
 
-  goBack(): void {
-    if (
-      this.activatedRoute.snapshot.params.persist_filters ||
-      this.activatedRoute.snapshot.params.isRedirectedFromReport
-    ) {
+  goBack(isSameReport?: boolean): void {
+    // Get necessary IDs from form and route params.
+    const formReportId = this.getFormValues().report?.id;
+    const routeReportId = this.activatedRoute.snapshot.params.rp_id as string;
+
+    const shouldPersistFilters = !!this.activatedRoute.snapshot.params.persist_filters;
+    const isRedirectedFromReport = !!this.activatedRoute.snapshot.params.isRedirectedFromReport;
+
+    // If filters need to be persisted or if the user was redirected from a report,
+    // simply navigate back to the previous page.
+    if (shouldPersistFilters || isRedirectedFromReport) {
       this.navController.back();
+      return;
+    }
+
+    let navigationRoute: [string, string, string, { id?: string }?];
+    let queryParams: { [key: string]: boolean } | undefined;
+
+    // Determine the navigation route based on the report context.
+    if (formReportId && routeReportId) {
+      // If the expense is associated with a report.
+      const reportId = isSameReport ? routeReportId : formReportId;
+      navigationRoute = ['/', 'enterprise', 'my_view_report', { id: String(reportId) }];
     } else {
+      // Default navigation if no report context.
+      navigationRoute = ['/', 'enterprise', 'my_expenses'];
       if (this.mode === 'add') {
-        this.router.navigate(['/', 'enterprise', 'my_expenses'], {
-          queryParams: { redirected_from_add_expense: true },
-        });
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        // If a new expense was added, add a query param for redirection context.
+        queryParams = { redirected_from_add_expense: true };
       }
     }
+
+    // Execute the navigation.
+    this.router.navigate(navigationRoute, { queryParams });
   }
 
   async showClosePopup(): Promise<void> {
@@ -2815,6 +2834,7 @@ export class AddEditExpensePage implements OnInit {
           id: expense.tx.id,
           txnIds: JSON.stringify(reviewList),
           activeIndex,
+          navigate_back: true,
         },
       ]);
     } else if (category === 'per diem') {
@@ -2826,6 +2846,7 @@ export class AddEditExpensePage implements OnInit {
           id: expense.tx.id,
           txnIds: JSON.stringify(reviewList),
           activeIndex,
+          navigate_back: true,
         },
       ]);
     } else {
@@ -2837,6 +2858,7 @@ export class AddEditExpensePage implements OnInit {
           id: expense.tx.id,
           txnIds: JSON.stringify(reviewList),
           activeIndex,
+          navigate_back: true,
         },
       ]);
     }
@@ -3800,6 +3822,8 @@ export class AddEditExpensePage implements OnInit {
   saveExpense(): void {
     const that = this;
     const formValues = this.getFormValues();
+    const isSameReport = this.activatedRoute.snapshot.params.rp_id === formValues.report?.id;
+
     forkJoin({
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
       isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
@@ -3828,7 +3852,7 @@ export class AddEditExpensePage implements OnInit {
                   this.saveExpenseLoader = false;
                 }),
               )
-              .subscribe(() => this.goBack());
+              .subscribe(() => this.goBack(isSameReport));
           }
         } else {
           // to do edit
