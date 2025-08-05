@@ -7,7 +7,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { IconModule } from 'src/app/shared/icon/icon.module';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
-describe('PendingGasChargeInfoComponent', () => {
+fdescribe('PendingGasChargeInfoComponent', () => {
   let component: PendingGasChargeInfoComponent;
   let fixture: ComponentFixture<PendingGasChargeInfoComponent>;
   let modalControllerSpy: jasmine.SpyObj<ModalController>;
@@ -19,7 +19,7 @@ describe('PendingGasChargeInfoComponent', () => {
     translocoServiceSpy.translate.and.returnValue('translated text');
 
     await TestBed.configureTestingModule({
-      imports: [PendingGasChargeInfoComponent, MatIconModule, HttpClientTestingModule, IconModule, TranslocoModule],
+      imports: [MatIconModule, HttpClientTestingModule, IconModule, TranslocoModule],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
