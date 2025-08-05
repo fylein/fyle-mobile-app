@@ -76,7 +76,11 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
-import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import {
+  expenseData,
+  platformExpenseData,
+  platformExpenseDataWithPendingGasCharge,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseWithMatchCCCData,
   transformedExpenseWithMatchCCCData3,
@@ -88,6 +92,7 @@ import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card
 import { cloneDeep } from 'lodash';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -138,6 +143,7 @@ export function TestCases6(getTestBed) {
     let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
+    let sharedExpensesService: jasmine.SpyObj<SharedExpensesService>;
 
     function setFormValueNull() {
       Object.defineProperty(component.fg, 'value', {
@@ -203,6 +209,7 @@ export function TestCases6(getTestBed) {
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -1238,5 +1245,23 @@ export function TestCases6(getTestBed) {
       expect(modalSpy.present).toHaveBeenCalledTimes(1);
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     }));
+
+    describe('Pending Gas Charge Functionality', () => {
+      it('should return true when expense is a pending gas charge', () => {
+        const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+        const result = sharedExpensesService.isPendingGasCharge(mockExpense);
+
+        expect(result).toBeTrue();
+      });
+
+      it('should return false when expense is not a pending gas charge', () => {
+        const mockExpense = cloneDeep(platformExpenseData);
+
+        const result = sharedExpensesService.isPendingGasCharge(mockExpense);
+
+        expect(result).toBeFalse();
+      });
+    });
   });
 }

@@ -27,6 +27,10 @@ export class ExpensesService {
     return expense.state && expense.state === ExpenseState.DRAFT;
   }
 
+  isExpenseUnreportable(expense: Expense): boolean {
+    return expense.state && expense.state === ExpenseState.UNREPORTABLE;
+  }
+
   isCriticalPolicyViolatedExpense(expense: Expense): boolean {
     return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
   }
@@ -124,12 +128,17 @@ export class ExpensesService {
         (expense) =>
           !this.isCriticalPolicyViolatedExpense(expense) &&
           !this.isExpenseInDraft(expense) &&
+          !this.isExpenseUnreportable(expense) &&
           expense.id &&
           !this.doesExpenseHavePendingCardTransaction(expense),
       );
     } else {
       return expenses.filter(
-        (expense) => !this.isCriticalPolicyViolatedExpense(expense) && !this.isExpenseInDraft(expense) && expense.id
+        (expense) =>
+          !this.isCriticalPolicyViolatedExpense(expense) &&
+          !this.isExpenseInDraft(expense) &&
+          !this.isExpenseUnreportable(expense) &&
+          expense.id,
       );
     }
   }
@@ -340,6 +349,10 @@ export class ExpensesService {
         stateOrFilter.push('and(is_policy_flagged.eq.true,or(policy_amount.is.null,policy_amount.gt.0.0001))');
       }
 
+      if (filters.state.includes(FilterState.BLOCKED)) {
+        stateOrFilter.push('state.in.(UNREPORTABLE)');
+      }
+
       if (filters.state.includes(FilterState.CANNOT_REPORT)) {
         stateOrFilter.push('policy_amount.lt.0.0001');
       }
@@ -490,5 +503,39 @@ export class ExpensesService {
         count: 1,
       };
     }
+  }
+
+  private isFuelExpense(expense: Expense): boolean {
+    const fuelCategories = ['fuel', 'gas', 'gasoline', 'petrol'];
+    const categoryName = expense?.category?.name?.toLowerCase() || '';
+    return fuelCategories.some((fuel) => categoryName.includes(fuel));
+  }
+
+  private isOneDollarAmount(expense: Expense): boolean {
+    return (
+      (expense?.amount === 1 || expense?.amount === 1.0) && (expense?.currency === 'USD' || expense?.currency === 'CAD')
+    );
+  }
+
+  private isPendingStatus(expense: Expense): boolean {
+    return expense?.matched_corporate_card_transactions?.[0]?.status === 'PENDING';
+  }
+
+  private hasNoReceipt(expense: Expense): boolean {
+    return !expense?.file_ids || expense.file_ids.length === 0;
+  }
+
+  private isCCMatchedExpense(expense: Expense): boolean {
+    return expense?.matched_corporate_card_transaction_ids.length > 0;
+  }
+
+  isPendingGasCharge(expense: Expense): boolean {
+    const isFuelExpense = this.isFuelExpense(expense);
+    const isOneDollar = this.isOneDollarAmount(expense);
+    const isPendingStatus = this.isPendingStatus(expense);
+    const hasNoReceipt = this.hasNoReceipt(expense);
+    const isCCMatchedExpense = this.isCCMatchedExpense(expense);
+
+    return isCCMatchedExpense && isFuelExpense && isOneDollar && isPendingStatus && hasNoReceipt;
   }
 }

@@ -171,6 +171,7 @@
               <app-fy-policy-violation-info
                 [policyDetails]="policyDetails"
                 [criticalPolicyViolated]="isCriticalPolicyViolated$ | async"
+                [expense]="platformExpense$ | async"
               ></app-fy-policy-violation-info>
             }
           }
@@ -226,7 +227,7 @@
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend date</div>
                 <div class="add-edit-expense--card-container__value">
-                  {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, YYYY' }}
+                  {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, yyyy' }}
                 </div>
               </ion-col>
               <ion-col>
@@ -282,6 +283,9 @@
                       (statusClick)="openTransactionStatusInfoModal($event)"
                     ></app-transaction-status>
                   </div>
+                  @if (isPendingGasCharge()) {
+                    <app-pending-gas-charge-info [isExpenseListView]="false"></app-pending-gas-charge-info>
+                  }
                 }
               }
             }
@@ -428,7 +432,7 @@
                     (autoCodedData.date
                       | date
                         : 'MMM dd,
-              YYYY') === (fg.controls.dateOfSpend.value | date: 'MMM dd, YYYY')
+              yyyy') === (fg.controls.dateOfSpend.value | date: 'MMM dd, yyyy')
                   ) {
                     <div class="add-edit-expense--auto-coded">
                       <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
