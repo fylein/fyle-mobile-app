@@ -44,12 +44,12 @@ $small-screen: 700px;
 
   &--secondary-cta {
     height: auto;
-    background-color: transparent;
-    color: colors.$black;
+    color: colors.$brand-primary;
+    background-color: colors.$pure-white;
     font-size: 14px;
     line-height: 1.3;
     min-width: 50%;
-    border: 1px solid colors.$grey-lightest;
+    border: 2px solid colors.$brand-primary;
     border-radius: 32px;
   }
 
