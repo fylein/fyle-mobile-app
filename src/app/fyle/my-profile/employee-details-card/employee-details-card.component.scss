@@ -6,9 +6,8 @@
   padding: 16px 16px 0;
 
   &__top-section {
-    background: url('../../../../assets/images/employee-card-bg.png') no-repeat bottom;
     height: 120px;
-    background-size: 100% 100%;
+    background-color: colors.$card-bg;
     box-shadow: 0px 4px 4px 0px rgba(225, 225, 225, 0.25);
     padding: 24px 16px;
     border-radius: 8px;

@@ -47,8 +47,7 @@
   }
 
   &--card {
-    background: url('../../../assets/images/card.png') no-repeat bottom;
-    background-size: 100% 100%;
+    background-color: colors.$card-bg;
     padding: 6px 8px;
     border-radius: 16px;
     height: 140px;
@@ -73,7 +72,6 @@
 
     &__icon {
       padding-left: 6px;
-      color: colors.$brand-primary;
     }
   }
 
@@ -234,7 +232,6 @@
     }
 
     &__btn {
-      color: colors.$blue-black;
       font-size: 14px;
       font-weight: 500;
       width: 100%;

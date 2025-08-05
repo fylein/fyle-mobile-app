@@ -34,6 +34,7 @@ $border-info-lighter: #5c98e51a !default;
 $translucent-grey: #dfdfe280 !default;
 $transparent-grey: rgba(255, 255, 255, 0.12) !default;
 $transparent-pearl-grey: rgba(215, 215, 215, 0.5) !default;
+$card-bg: #4e4e4e;
 
 $white: #fafafa !default;
 $pure-white: #fff !default;
@@ -51,9 +52,15 @@ $black-shadow: rgba(0, 0, 0, 0.1) !default;
 $shadow-lg: rgba(44, 48, 78, 0.1);
 $shadow-xs: rgba(44, 48, 78, 0.06);
 
+// sage colors
+$jade-80: #cce6da;
+
+$navy-150: #d9e0e4;
+
 $brand-primary: #007e45 !default;
 $brand-secondary: #335b70 !default;
-$background: #f5f5f5 !default;
+$background: #f2f5f6 !default;
+$card-border: #e6ebed;
 
 $pink: #fe4c8e !default;
 

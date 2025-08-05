@@ -675,7 +675,7 @@
   }
 
   &--card-container {
-    background-color: colors.$background;
+    border: 1px solid colors.$card-border;
     padding: 16px;
     margin: 12px 0;
     border-radius: 8px;

@@ -30,8 +30,7 @@ $sent-back-color: #da1e28;
   }
 
   &--card {
-    background: url('../../../assets/images/card.png') no-repeat bottom;
-    background-size: 100% 100%;
+    background-color: colors.$card-bg;
     margin: 12px 0;
     padding: 0 8px;
     border-radius: 16px;
@@ -191,7 +190,6 @@ $sent-back-color: #da1e28;
 
     &__icon {
       padding-left: 6px;
-      color: colors.$brand-primary;
     }
   }
 

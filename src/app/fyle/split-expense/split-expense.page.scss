@@ -290,7 +290,7 @@ $background-color: #fff;
     display: flex;
     padding: 12px;
     border-radius: 8px;
-    background: colors.$background;
+    border: 1px solid colors.$card-border;
 
     &__label {
       font-size: 12px;

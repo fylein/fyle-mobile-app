@@ -14,7 +14,7 @@
     background: url('../../../../../assets/images/personal-card-bg.png') no-repeat bottom;
     background-size: 100% 100%;
     box-shadow: 3px 10px 8px colors.$transparent-pearl-grey;
-    border-radius: 8px;
+    border-radius: 14px;
     z-index: 999;
   }
 
@@ -30,13 +30,12 @@
     background: url('../../../../../assets/images/personal-card-bg.png') no-repeat bottom;
     background-size: 100% 100%;
     box-shadow: 0px 2px 8px colors.$transparent-pearl-grey;
-    border-radius: 8px;
+    border-radius: 14px;
     z-index: 999;
   }
 
   &--account-info-minimal {
     font-size: 12px;
-    color: colors.$pure-white;
     padding-top: 10px;
     text-align: initial;
   }
@@ -45,14 +44,12 @@
     font-weight: 700;
     font-size: 18px;
     line-height: 20px;
-    color: colors.$pure-white;
     padding: 6px;
     flex-flow: wrap;
   }
 
   &--account-info {
     font-size: 12px;
-    color: colors.$pure-white;
     padding-top: 0;
     text-align: initial;
 
@@ -79,7 +76,6 @@
   }
 
   &--sync-detail {
-    color: colors.$pure-white;
     font-size: 12px;
     letter-spacing: 0.0016em;
     line-height: 14px;
@@ -89,6 +85,5 @@
   &--action-icon {
     font-size: 24px;
     margin-top: 4px 4px 0 0;
-    color: colors.$pure-white;
   }
 }
