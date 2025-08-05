@@ -70,6 +70,10 @@ export default defineConfig([
         type: "attribute",
         prefix: "app",
       }],
+      "@angular-eslint/prefer-standalone": "warn",
+      "@angular-eslint/prefer-signals": "error",
+      "@angular-eslint/prefer-inject": "error",
+      "@angular-eslint/no-uncalled-signals": "error",
       // Code style and formatting (not covered by TypeScript)
       indent: "off",
       semi: "error",
