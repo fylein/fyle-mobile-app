@@ -7,7 +7,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { IconModule } from 'src/app/shared/icon/icon.module';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
-fdescribe('PendingGasChargeInfoComponent', () => {
+describe('PendingGasChargeInfoComponent', () => {
   let component: PendingGasChargeInfoComponent;
   let fixture: ComponentFixture<PendingGasChargeInfoComponent>;
   let modalControllerSpy: jasmine.SpyObj<ModalController>;
