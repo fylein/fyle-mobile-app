@@ -1,7 +1,10 @@
+@use '../../../../theme/colors' as colors;
+
 .delegated-acc {
   position: fixed;
-  background: #ff3366;
-  color: #fff;
+  background: url('../../../../assets/images/switch-delegatee-view-bg.png') no-repeat bottom;
+  background-size: 100% 100%;
+  border-bottom: 1px solid colors.$grey-lighter;
   font-size: 12px;
   z-index: 10;
   text-align: center;
