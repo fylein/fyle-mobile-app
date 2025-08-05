@@ -1619,6 +1619,7 @@
     }
   },
   "dashboard": {
+    "pendingTask": "You have {{count}} pending task",
     "pendingTasks": "You have {{count}} pending tasks"
   }
 }
