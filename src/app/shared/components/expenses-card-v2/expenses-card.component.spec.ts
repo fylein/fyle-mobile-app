@@ -150,7 +150,7 @@ describe('ExpensesCardComponent', () => {
     }).compileComponents();
 
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -989,7 +989,7 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
       { getAllMap: () => {}, getMandatoryExpenseFields: () => {} } as any, // ExpenseFieldsService
       { get: () => {} } as any, // OrgSettingsService
       {} as any, // ExpensesService
-      { translate: () => '' } as any // TranslocoService
+      { translate: () => '' } as any, // TranslocoService
     );
     // Set up a default map for testing
     component.mandatoryFieldsMap = { 1: 'Project', 2: 'Cost Center', 3: 'Department' };
@@ -1034,7 +1034,7 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
     // @ts-ignore
     component.processMissingFieldsForDisplay(20, 10);
     // Should only include as many as fit, with ellipsis, and set remainingFieldsCount
-    expect(component.missingFieldsDisplayText).toContain('veryLon..., short');
+    expect(component.missingFieldsDisplayText).toContain('verylon..., short');
     expect(component.remainingFieldsCount).toBeGreaterThanOrEqual(1);
   });
 });
