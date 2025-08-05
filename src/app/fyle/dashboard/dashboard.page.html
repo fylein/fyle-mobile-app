@@ -89,7 +89,11 @@
                 }
               </div>
               <div class="dashboard--pending-tasks-stat-text">
-                <span>{{ 'dashboard.pendingTasks' | transloco: { count: taskCount } }}</span>
+                @if (taskCount === 1) {
+                  <span>{{ 'dashboard.pendingTask' | transloco: { count: taskCount } }}</span>
+                } @else {
+                  <span>{{ 'dashboard.pendingTasks' | transloco: { count: taskCount } }}</span>
+                }
               </div>
             </div>
             <div class="dashboard--pending-tasks-stat-arrow-button">
