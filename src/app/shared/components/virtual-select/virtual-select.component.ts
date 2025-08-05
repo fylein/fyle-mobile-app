@@ -43,8 +43,6 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() selectModalHeader = '';
 
-  @Input() showSaveButton = false;
-
   @Input() placeholder: string;
 
   @Input() defaultLabelProp: string;
@@ -124,7 +122,6 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
         enableSearch: this.enableSearch,
         selectModalHeader: this.selectModalHeader || selectModalHeader,
         placeholder: this.placeholder,
-        showSaveButton: this.showSaveButton,
         defaultLabelProp: this.defaultLabelProp,
         recentlyUsed: this.recentlyUsed,
         label: this.label,

@@ -882,7 +882,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .btn-primary {
   background: colors.$brand-primary;
-  border-radius: 4px !important;
+  border-radius: 32px !important;
   font-size: 14px !important;
   line-height: 18px;
   color: colors.$pure-white;
@@ -908,7 +908,7 @@ ref - https://stackoverflow.com/a/31162426
 .btn-outline-secondary {
   @extend .btn-secondary;
   border: 1px solid colors.$grey;
-  border-radius: 4px;
+  border-radius: 32px;
 }
 
 .cta-footer {
@@ -923,7 +923,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .fy-footer-cta {
   --box-shadow: none;
-  --border-radius: 4px;
+  --border-radius: 32px;
   height: 50px;
   text-transform: none;
   font-weight: 500;
