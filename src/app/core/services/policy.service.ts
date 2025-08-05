@@ -25,7 +25,7 @@ export class PolicyService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private approverPlatformApiService: ApproverPlatformApiService,
     private categoriesService: CategoriesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   transformTo(transaction: PublicPolicyExpense | Partial<Transaction>): PlatformPolicyExpense {
@@ -87,6 +87,16 @@ export class PolicyService {
   getCriticalPolicyRules(expensePolicy: ExpensePolicy): string[] {
     const criticalPopupRules: string[] = [];
 
+    // Check if expense is unreportable (blocked)
+    if (expensePolicy.data.final_desired_state.unreportable && expensePolicy.data.individual_desired_states) {
+      for (const desiredState of expensePolicy.data.individual_desired_states) {
+        // Check if this rule causes blocking (unreportable)
+        if (desiredState.run_status === 'VIOLATED_ACTION_SUCCESS') {
+          criticalPopupRules.push(desiredState.expense_policy_rule.description);
+        }
+      }
+    }
+
     if (expensePolicy.data.final_desired_state.run_status === 'SUCCESS') {
       expensePolicy.data.individual_desired_states.forEach((desiredState) => {
         if (
@@ -98,7 +108,6 @@ export class PolicyService {
         }
       });
     }
-
     return criticalPopupRules;
   }
 
@@ -178,7 +187,7 @@ export class PolicyService {
 
   prepareEtxnForPolicyCheck(
     etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-    selectedCCCTransaction: Partial<MatchedCCCTransaction>
+    selectedCCCTransaction: Partial<MatchedCCCTransaction>,
   ): Observable<PublicPolicyExpense> {
     const transactionCopy = cloneDeep(etxn.tx);
     /* Adding number of attachements and sending in test call as tx_num_files
@@ -202,7 +211,7 @@ export class PolicyService {
         map((category) => ({
           ...transactionCopy,
           org_category_id: category.id,
-        }))
+        })),
       );
     }
 
@@ -214,10 +223,10 @@ export class PolicyService {
       tx: PublicPolicyExpense;
       dataUrls: Partial<FileObject>[];
     },
-    selectedCCCTransaction: Partial<MatchedCCCTransaction>
+    selectedCCCTransaction: Partial<MatchedCCCTransaction>,
   ): Observable<PlatformPolicyExpense> {
     return this.prepareEtxnForPolicyCheck(etxn, selectedCCCTransaction).pipe(
-      map((publicPolicyExpense) => this.transformTo(publicPolicyExpense))
+      map((publicPolicyExpense) => this.transformTo(publicPolicyExpense)),
     );
   }
 }

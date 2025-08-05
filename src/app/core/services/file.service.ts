@@ -12,7 +12,10 @@ import { DateService } from './date.service';
   providedIn: 'root',
 })
 export class FileService {
-  constructor(private apiService: ApiService, private dateService: DateService) {}
+  constructor(
+    private apiService: ApiService,
+    private dateService: DateService,
+  ) {}
 
   downloadUrl(fileId: string): Observable<string> {
     return this.apiService.post<File>('/files/' + fileId + '/download_url').pipe(map((res) => res.url));
@@ -29,7 +32,7 @@ export class FileService {
           advance_request_id: advanceRequestId,
           skip_html: 'true',
         },
-      })
+      }),
     ).pipe(
       map((files) => {
         files.map((file) => {
@@ -37,7 +40,7 @@ export class FileService {
           this.setFileType(file as FileObject);
         });
         return files as unknown as FileObject[];
-      })
+      }),
     );
   }
 
@@ -110,21 +113,28 @@ export class FileService {
 
   readFile(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.onload = async (): Promise<void> => {
-        if (file.type === 'image/heic') {
-          const result = await heic2any({
-            blob: this.getBlobFromDataUrl(fileReader.result as string),
-            toType: 'image/jpeg',
-            quality: 50,
+      if (file.type === 'image/heic') {
+        heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 50,
+        })
+          .then((result) => {
+            this.getDataUrlFromBlob(result as Blob).then((dataUrl) => {
+              resolve(dataUrl);
+            });
+          })
+          .catch((err) => {
+            reject(err);
           });
-          const dataUrl = await this.getDataUrlFromBlob(result as Blob);
-          return resolve(dataUrl);
-        }
-        return resolve(fileReader.result.toString());
-      };
-      fileReader.readAsDataURL(file);
-      fileReader.onerror = (error): void => reject(error);
+      } else {
+        const fileReader = new FileReader();
+        fileReader.onload = async (): Promise<void> => {
+          return resolve(fileReader.result.toString());
+        };
+        fileReader.readAsDataURL(file);
+        fileReader.onerror = (error): void => reject(error);
+      }
     });
   }
 

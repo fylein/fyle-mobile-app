@@ -52,7 +52,6 @@ import { FormatDateDirective } from './directive/format-date.directive';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
-import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
 import { FyPolicyViolationInfoComponent } from './components/fy-policy-violation-info/fy-policy-violation-info.component';
 import { FyAddToReportComponent } from './components/fy-add-to-report/fy-add-to-report.component';
 import { FyAddToReportModalComponent } from './components/fy-add-to-report/fy-add-to-report-modal/fy-add-to-report-modal.component';
@@ -157,6 +156,8 @@ import { FyMsgPopoverComponent } from './components/fy-msg-popover/fy-msg-popove
 import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
 import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/fy-expansion-info-msg.component';
+import { PendingGasChargeInfoModalComponent } from './components/pending-gas-charge-info-modal/pending-gas-charge-info-modal.component';
+import { PendingGasChargeInfoComponent } from './components/pending-gas-charge-info/pending-gas-charge-info.component';
 
 @NgModule({
   declarations: [
@@ -183,7 +184,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     AuditHistoryComponent,
     StatusesDiffComponent,
     FyZeroStateComponent,
-    FyPopupComponent,
     FyApproverComponent,
     ApproverDialogComponent,
     FyMenuIconComponent,
@@ -291,6 +291,8 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     CCExpenseMerchantInfoModalComponent,
     DateWithTimezonePipe,
     FyExpansionInfoMsgComponent,
+    PendingGasChargeInfoModalComponent,
+    PendingGasChargeInfoComponent,
   ],
   imports: [
     CommonModule,
@@ -338,7 +340,6 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     StatusesDiffComponent,
     FormButtonValidationDirective,
     FyZeroStateComponent,
-    FyPopupComponent,
     FyApproverComponent,
     FyMenuIconComponent,
     FyPolicyViolationInfoComponent,
@@ -430,6 +431,8 @@ import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/
     FyExpansionInfoMsgComponent,
     TranslocoModule,
     PinchZoomComponent,
+    PendingGasChargeInfoModalComponent,
+    PendingGasChargeInfoComponent,
   ],
   providers: [
     DecimalPipe,

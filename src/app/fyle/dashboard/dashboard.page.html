@@ -52,16 +52,7 @@
           @if (eou$ | async; as eou) {
             @if ((canShowOptInBanner$ | async) || (canShowEmailOptInBanner$ | async)) {
               @if (swiperConfig) {
-                <swiper
-                  #optInSwiper
-                  class="opt-in-banners__swiper"
-                  [slidesPerView]="swiperConfig.slidesPerView"
-                  [spaceBetween]="swiperConfig.spaceBetween"
-                  [pagination]="swiperConfig.pagination"
-                  [centeredSlides]="swiperConfig.centeredSlides"
-                  [autoplay]="swiperConfig.autoplay"
-                  [loop]="swiperConfig.loop"
-                >
+                <swiper #optInSwiper class="opt-in-banners__swiper" [config]="swiperConfig">
                   @if (canShowOptInBanner$ | async) {
                     <ng-template swiperSlide>
                       <app-dashboard-opt-in [extendedOrgUser]="eou" (toggleOptInBanner)="toggleOptInBanner($event)">
@@ -94,7 +85,11 @@
                 }
               </div>
               <div class="dashboard--pending-tasks-stat-text">
-                <span>{{ 'dashboard.pendingTasks' | transloco: { count: taskCount } }}</span>
+                @if (taskCount === 1) {
+                  <span>{{ 'dashboard.pendingTask' | transloco: { count: taskCount } }}</span>
+                } @else {
+                  <span>{{ 'dashboard.pendingTasks' | transloco: { count: taskCount } }}</span>
+                }
               </div>
             </div>
             <div class="dashboard--pending-tasks-stat-arrow-button">

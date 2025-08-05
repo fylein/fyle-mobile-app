@@ -90,7 +90,6 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -140,7 +139,6 @@ export function TestCases3(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -194,14 +192,13 @@ export function TestCases3(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -218,7 +215,7 @@ export function TestCases3(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -431,11 +428,11 @@ export function TestCases3(getTestBed) {
         component.getExpenseAttachments('edit').subscribe((res) => {
           expect(res).toEqual(receiptInfoData2);
           expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(
-            platformExpenseWithExtractedData.file_ids
+            platformExpenseWithExtractedData.file_ids,
           );
           expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
             'invoice.pdf',
-            'https://sampledownloadurl.com'
+            'https://sampledownloadurl.com',
           );
           done();
         });
@@ -1070,7 +1067,7 @@ export function TestCases3(getTestBed) {
             {
               policyViolations: criticalPolicyViolation1,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
@@ -1092,7 +1089,7 @@ export function TestCases3(getTestBed) {
             {
               policyViolations: criticalPolicyViolation1,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe({
             next: () => {},
@@ -1118,14 +1115,14 @@ export function TestCases3(getTestBed) {
               policyViolations: criticalPolicyViolation1,
               policyAction: policyViolation1.data.final_desired_state,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
             done();
@@ -1144,7 +1141,7 @@ export function TestCases3(getTestBed) {
               policyViolations: criticalPolicyViolation1,
               policyAction: policyViolation1.data.final_desired_state,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe({
             next: () => {},
@@ -1168,14 +1165,14 @@ export function TestCases3(getTestBed) {
               policyViolations: criticalPolicyViolation1,
               policyAction: policyViolation1.data.final_desired_state,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe((result) => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
             expect(result.comment).toBe('No policy violation explanation provided');
@@ -1637,7 +1634,7 @@ export function TestCases3(getTestBed) {
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
         expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(
           mockFileData[0].transaction_id,
-          mockFileData[0].id
+          mockFileData[0].id,
         );
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();

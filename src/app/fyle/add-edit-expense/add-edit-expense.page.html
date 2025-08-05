@@ -171,6 +171,7 @@
               <app-fy-policy-violation-info
                 [policyDetails]="policyDetails"
                 [criticalPolicyViolated]="isCriticalPolicyViolated$ | async"
+                [expense]="platformExpense$ | async"
               ></app-fy-policy-violation-info>
             }
           }
@@ -282,6 +283,9 @@
                       (statusClick)="openTransactionStatusInfoModal($event)"
                     ></app-transaction-status>
                   </div>
+                  @if (isPendingGasCharge()) {
+                    <app-pending-gas-charge-info [isExpenseListView]="false"></app-pending-gas-charge-info>
+                  }
                 }
               }
             }
