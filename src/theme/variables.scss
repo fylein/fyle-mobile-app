@@ -11,8 +11,6 @@ $custom-typography: mat.m2-define-typography-config(
   $font-family: '"sage-ui", "Helvetica Neue", "Helvetica", "Roboto", "Segoe UI", "Arial", sans-serif',
 );
 @include mat.all-component-typographies($custom-typography);
-@include mat.elevation-classes();
-@include mat.app-background();
 
 /// warning color palette
 $fy-warning: (

@@ -296,17 +296,21 @@
           }
 
           <!-- Expense state (Incomplete / Complete) & Critical policy violations-->
-          <div class="expenses-card--default-view-container">
+          <div id="expense-state-pill-{{ expense.id }}" class="expenses-card--default-view-container" [ngClass]="{ 'is-pending-gas-charge': isPendingGasCharge }">
             <div class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}">
               <span>
                 {{ expense.state | expenseState | titlecase }}
               </span>
             </div>
-
+            <!-- TODO: Should remove this after switching to newer -->
             @if (isCriticalPolicyViolated) {
-            <div class="expenses-card--critical-policy-violatios">
-              {{ 'expensesCard.criticalPolicyViolations' | transloco }}
-            </div>
+              <div class="expenses-card--critical-policy-violatios">
+                {{ 'expensesCard.criticalPolicyViolations' | transloco }}
+              </div>
+            }
+
+            @if (isPendingGasCharge()) {
+              <app-pending-gas-charge-info [isExpenseListView]="true"></app-pending-gas-charge-info>
             }
           </div>
         </ng-template>

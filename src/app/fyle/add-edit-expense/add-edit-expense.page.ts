@@ -1,7 +1,7 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, signal, ViewChild } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -109,7 +109,6 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -152,6 +151,7 @@ import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-ca
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { UnlinkCardTransactionResponse } from 'src/app/core/models/platform/unlink-card-transaction-response.model';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -468,6 +468,8 @@ export class AddEditExpensePage implements OnInit {
 
   isLoading = true;
 
+  isPendingGasCharge = signal<boolean>(false);
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -491,7 +493,6 @@ export class AddEditExpensePage implements OnInit {
     private popoverController: PopoverController,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
-    private popupService: PopupService,
     private navController: NavController,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private trackingService: TrackingService,
@@ -519,6 +520,7 @@ export class AddEditExpensePage implements OnInit {
     private expensesService: ExpensesService,
     private advanceWalletsService: AdvanceWalletsService,
     private expenseCommentService: ExpenseCommentService,
+    private sharedExpensesService: SharedExpensesService,
   ) {}
 
   get isExpandedView(): boolean {
@@ -556,21 +558,40 @@ export class AddEditExpensePage implements OnInit {
     return this.fg.controls[name];
   }
 
-  goBack(): void {
-    if (
-      this.activatedRoute.snapshot.params.persist_filters ||
-      this.activatedRoute.snapshot.params.isRedirectedFromReport
-    ) {
+  goBack(isSameReport?: boolean): void {
+    // Get necessary IDs from form and route params.
+    const formReportId = this.getFormValues().report?.id;
+    const routeReportId = this.activatedRoute.snapshot.params.rp_id as string;
+
+    const shouldPersistFilters = !!this.activatedRoute.snapshot.params.persist_filters;
+    const isRedirectedFromReport = !!this.activatedRoute.snapshot.params.isRedirectedFromReport;
+
+    // If filters need to be persisted or if the user was redirected from a report,
+    // simply navigate back to the previous page.
+    if (shouldPersistFilters || isRedirectedFromReport) {
       this.navController.back();
+      return;
+    }
+
+    let navigationRoute: [string, string, string, { id?: string }?];
+    let queryParams: { [key: string]: boolean } | undefined;
+
+    // Determine the navigation route based on the report context.
+    if (formReportId && routeReportId) {
+      // If the expense is associated with a report.
+      const reportId = isSameReport ? routeReportId : formReportId;
+      navigationRoute = ['/', 'enterprise', 'my_view_report', { id: String(reportId) }];
     } else {
+      // Default navigation if no report context.
+      navigationRoute = ['/', 'enterprise', 'my_expenses'];
       if (this.mode === 'add') {
-        this.router.navigate(['/', 'enterprise', 'my_expenses'], {
-          queryParams: { redirected_from_add_expense: true },
-        });
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        // If a new expense was added, add a query param for redirection context.
+        queryParams = { redirected_from_add_expense: true };
       }
     }
+
+    // Execute the navigation.
+    this.router.navigate(navigationRoute, { queryParams });
   }
 
   async showClosePopup(): Promise<void> {
@@ -710,38 +731,6 @@ export class AddEditExpensePage implements OnInit {
         return isPaymentModeInvalid;
       }),
     );
-  }
-
-  async unmatchExpense(etxn: UnflattenedTransaction): Promise<void> {
-    const message = this.isSplitExpensesPresent
-      ? 'Unmatching the card transaction from this split expense will also unmatch it from the other splits associated with the expense.'
-      : 'This will remove the mapping between corporate card expense and this expense.';
-    const confirmPopup = await this.popupService.showPopup({
-      header: 'Unmatch?',
-      message,
-      primaryCta: {
-        text: 'UNMATCH',
-      },
-    });
-
-    if (confirmPopup === 'primary') {
-      this.showSelectedTransaction = false;
-      if (this.isDraftExpenseEnabled) {
-        this.isDraftExpense = false;
-      } else {
-        this.isDraftExpense = true;
-      }
-
-      if (['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx.state) > -1) {
-        this.canChangeMatchingCCCTransaction = false;
-      }
-
-      if (this.isSplitExpensesPresent) {
-        this.canChangeMatchingCCCTransaction = this.alreadyApprovedExpenses.length < 1;
-      }
-
-      this.selectedCCCTransaction = null;
-    }
   }
 
   setupNetworkWatcher(): void {
@@ -2700,6 +2689,7 @@ export class AddEditExpensePage implements OnInit {
     return this.platformExpense$.pipe(
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
+        this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(expense));
 
         if (etxn && etxn.tx.extracted_data) {
           this.autoCodedData = etxn.tx.extracted_data;
@@ -2815,6 +2805,7 @@ export class AddEditExpensePage implements OnInit {
           id: expense.tx.id,
           txnIds: JSON.stringify(reviewList),
           activeIndex,
+          navigate_back: true,
         },
       ]);
     } else if (category === 'per diem') {
@@ -2826,6 +2817,7 @@ export class AddEditExpensePage implements OnInit {
           id: expense.tx.id,
           txnIds: JSON.stringify(reviewList),
           activeIndex,
+          navigate_back: true,
         },
       ]);
     } else {
@@ -2837,6 +2829,7 @@ export class AddEditExpensePage implements OnInit {
           id: expense.tx.id,
           txnIds: JSON.stringify(reviewList),
           activeIndex,
+          navigate_back: true,
         },
       ]);
     }
@@ -3800,6 +3793,8 @@ export class AddEditExpensePage implements OnInit {
   saveExpense(): void {
     const that = this;
     const formValues = this.getFormValues();
+    const isSameReport = this.activatedRoute.snapshot.params.rp_id === formValues.report?.id;
+
     forkJoin({
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
       isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
@@ -3828,7 +3823,7 @@ export class AddEditExpensePage implements OnInit {
                   this.saveExpenseLoader = false;
                 }),
               )
-              .subscribe(() => this.goBack());
+              .subscribe(() => this.goBack(isSameReport));
           }
         } else {
           // to do edit
@@ -4040,24 +4035,43 @@ export class AddEditExpensePage implements OnInit {
               return policyViolations$;
             }
           }),
-          map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+          map((policyViolations: ExpensePolicy): [ExpensePolicy, string[], FinalExpensePolicyState] => [
+            policyViolations,
             this.policyService.getPolicyRules(policyViolations),
             policyViolations?.data?.final_desired_state,
           ]),
-          switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
-            if (policyViolations.length > 0) {
-              return throwError({
-                type: 'policyViolations',
-                policyViolations,
-                policyAction,
-                etxn,
-              });
-            } else {
-              return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
-              );
-            }
-          }),
+          switchMap(
+            ([originalPolicyViolations, policyViolations, policyAction]: [
+              ExpensePolicy,
+              string[],
+              FinalExpensePolicyState,
+            ]) => {
+              // Check if expense is unreportable and show critical policy violation
+              if (policyAction?.unreportable && !etxn.tx.report_id) {
+                const criticalPolicyRules = this.policyService.getCriticalPolicyRules(originalPolicyViolations);
+                if (criticalPolicyRules.length > 0) {
+                  return throwError({
+                    type: 'criticalPolicyViolations',
+                    policyViolations: criticalPolicyRules,
+                    etxn,
+                  });
+                }
+              }
+
+              if (policyViolations.length > 0) {
+                return throwError({
+                  type: 'policyViolations',
+                  policyViolations,
+                  policyAction,
+                  etxn,
+                });
+              } else {
+                return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                  map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
+                );
+              }
+            },
+          ),
         );
       }),
       catchError(
@@ -4348,24 +4362,43 @@ export class AddEditExpensePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+                map((policyViolations: ExpensePolicy): [ExpensePolicy, string[], FinalExpensePolicyState] => [
+                  policyViolations,
                   this.policyService.getPolicyRules(policyViolations),
                   policyViolations?.data?.final_desired_state,
                 ]),
-                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
-                  if (policyViolations.length > 0) {
-                    return throwError({
-                      type: 'policyViolations',
-                      policyViolations,
-                      policyAction,
-                      etxn,
-                    });
-                  } else {
-                    return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
-                    );
-                  }
-                }),
+                switchMap(
+                  ([originalPolicyViolations, policyViolations, policyAction]: [
+                    ExpensePolicy,
+                    string[],
+                    FinalExpensePolicyState,
+                  ]) => {
+                    // Check if expense is unreportable and show critical policy violation
+                    if (policyAction?.unreportable && !etxn.tx.report_id) {
+                      const criticalPolicyRules = this.policyService.getCriticalPolicyRules(originalPolicyViolations);
+                      if (criticalPolicyRules.length > 0) {
+                        return throwError({
+                          type: 'criticalPolicyViolations',
+                          policyViolations: criticalPolicyRules,
+                          etxn,
+                        });
+                      }
+                    }
+
+                    if (policyViolations.length > 0) {
+                      return throwError({
+                        type: 'policyViolations',
+                        policyViolations,
+                        policyAction,
+                        etxn,
+                      });
+                    } else {
+                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
+                      );
+                    }
+                  },
+                ),
               );
             } else {
               return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
@@ -5081,24 +5114,43 @@ export class AddEditExpensePage implements OnInit {
                       return policyViolations$;
                     }
                   }),
-                  map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+                  map((policyViolations: ExpensePolicy): [ExpensePolicy, string[], FinalExpensePolicyState] => [
+                    policyViolations,
                     this.policyService.getPolicyRules(policyViolations),
                     policyViolations?.data?.final_desired_state,
                   ]),
-                  switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
-                    if (policyViolations.length > 0) {
-                      return throwError({
-                        type: 'policyViolations',
-                        policyViolations,
-                        policyAction,
-                        etxn,
-                      });
-                    } else {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
-                      );
-                    }
-                  }),
+                  switchMap(
+                    ([originalPolicyViolations, policyViolations, policyAction]: [
+                      ExpensePolicy,
+                      string[],
+                      FinalExpensePolicyState,
+                    ]) => {
+                      // Check if expense is unreportable and show critical policy violation
+                      if (policyAction?.unreportable && !etxn.tx.report_id) {
+                        const criticalPolicyRules = this.policyService.getCriticalPolicyRules(originalPolicyViolations);
+                        if (criticalPolicyRules.length > 0) {
+                          return throwError({
+                            type: 'criticalPolicyViolations',
+                            policyViolations: criticalPolicyRules,
+                            etxn,
+                          });
+                        }
+                      }
+
+                      if (policyViolations.length > 0) {
+                        return throwError({
+                          type: 'policyViolations',
+                          policyViolations,
+                          policyAction,
+                          etxn,
+                        });
+                      } else {
+                        return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                          map((innerEtxn) => ({ etxn: innerEtxn, comment: null })),
+                        );
+                      }
+                    },
+                  ),
                 );
               } else {
                 return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(

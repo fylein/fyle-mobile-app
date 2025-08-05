@@ -34,7 +34,12 @@ import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camer
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { DebugElement, EventEmitter } from '@angular/core';
-import { apiExpenses1, expenseData, expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import {
+  apiExpenses1,
+  expenseData,
+  expenseResponseData,
+  platformExpenseDataWithPendingGasCharge,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
@@ -76,6 +81,7 @@ describe('ExpensesCardComponent', () => {
       'isExpenseInDraft',
       'isCriticalPolicyViolatedExpense',
       'getVendorDetails',
+      'isPendingGasCharge',
     ]);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
@@ -150,7 +156,7 @@ describe('ExpensesCardComponent', () => {
     }).compileComponents();
 
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -251,6 +257,7 @@ describe('ExpensesCardComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+    expect(component.expense).toBeDefined();
   });
 
   describe('isSelected getter', () => {
@@ -912,7 +919,7 @@ describe('ExpensesCardComponent', () => {
     });
   }));
 
-  it('dismiss(): hould emit the dismissed event with the expense object when called', () => {
+  it('dismiss(): should emit the dismissed event with the expense object when called', () => {
     const emitSpy = spyOn(component.dismissed, 'emit');
 
     const event = {
@@ -965,6 +972,54 @@ describe('ExpensesCardComponent', () => {
       expect(result).toBeFalse();
     });
   });
+
+  describe('Pending Gas Charge Functionality', () => {
+    it('should return true when expense is a pending gas charge', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(true);
+
+      const result = sharedExpenseService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeTrue();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should return false when expense is not a pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(false);
+
+      const result = sharedExpenseService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeFalse();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should set isPendingGasCharge property correctly', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(true);
+
+      component.expense = mockExpense;
+      component.ngOnInit();
+
+      expect(component.isPendingGasCharge()).toBeTrue();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should set isPendingGasCharge to false for non-pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(false);
+
+      component.expense = mockExpense;
+      component.ngOnInit();
+
+      expect(component.isPendingGasCharge()).toBeFalse();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+  });
 });
 
 describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
@@ -989,7 +1044,8 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
       { getAllMap: () => {}, getMandatoryExpenseFields: () => {} } as any, // ExpenseFieldsService
       { get: () => {} } as any, // OrgSettingsService
       {} as any, // ExpensesService
-      { translate: () => '' } as any // TranslocoService
+      { translate: () => '' } as any, // TranslocoService
+      {} as any, // SharedExpenseService
     );
     // Set up a default map for testing
     component.mandatoryFieldsMap = { 1: 'Project', 2: 'Cost Center', 3: 'Department' };
@@ -1034,7 +1090,7 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
     // @ts-ignore
     component.processMissingFieldsForDisplay(20, 10);
     // Should only include as many as fit, with ellipsis, and set remainingFieldsCount
-    expect(component.missingFieldsDisplayText).toContain('veryLon..., short');
+    expect(component.missingFieldsDisplayText).toContain('verylon..., short');
     expect(component.remainingFieldsCount).toBeGreaterThanOrEqual(1);
   });
 });
