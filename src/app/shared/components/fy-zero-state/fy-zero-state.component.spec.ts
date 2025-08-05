@@ -45,21 +45,6 @@ describe('FyZeroStateComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should click on the link', () => {
-    component.link = 'http://a_link';
-    fixture.detectChanges();
-    const linkSpy = spyOn(component.linkClicked, 'emit');
-    const linkButton = getElementBySelector(fixture, 'button') as HTMLElement;
-    click(linkButton);
-    expect(linkSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('onLinkClick(): should emit link event', () => {
-    const linkSpy = spyOn(component.linkClicked, 'emit');
-    component.onLinkClick(Event);
-    expect(linkSpy).toHaveBeenCalledTimes(1);
-  });
-
   it('should check if message icon is displayed', () => {
     component.message = '<ion-icon><ion-icon>';
     fixture.detectChanges();

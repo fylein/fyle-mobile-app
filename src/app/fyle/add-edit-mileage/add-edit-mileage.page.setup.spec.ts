@@ -33,7 +33,6 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -160,7 +159,6 @@ describe('AddEditMileagePage', () => {
       'getAll',
     ]);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'markPersonal',
@@ -353,10 +351,6 @@ describe('AddEditMileagePage', () => {
         {
           provide: NetworkService,
           useValue: networkServiceSpy,
-        },
-        {
-          provide: PopupService,
-          useValue: popupServiceSpy,
         },
         {
           provide: NavController,

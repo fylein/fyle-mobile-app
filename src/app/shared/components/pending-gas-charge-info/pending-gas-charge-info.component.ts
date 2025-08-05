@@ -7,6 +7,7 @@ import { PendingGasChargeInfoModalComponent } from '../pending-gas-charge-info-m
   selector: 'app-pending-gas-charge-info',
   templateUrl: './pending-gas-charge-info.component.html',
   styleUrls: ['./pending-gas-charge-info.component.scss'],
+  standalone: false,
 })
 export class PendingGasChargeInfoComponent {
   // Signals for reactive state

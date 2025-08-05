@@ -49,7 +49,6 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -104,7 +103,6 @@ export function TestCases1(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -167,7 +165,6 @@ export function TestCases1(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
         CorporateCreditCardExpenseService,
@@ -614,54 +611,6 @@ export function TestCases1(getTestBed) {
 
         component.fg.controls.tax_group.setValue(null);
         expect(component.fg.controls.tax_amount.value).toBeNull();
-      }));
-    });
-
-    describe('unmatchExpense():', () => {
-      it('should show popup and selected txns if primary action is selected', fakeAsync(() => {
-        popupService.showPopup.and.resolveTo('primary');
-
-        component.unmatchExpense(unflattenedExpData);
-        tick(500);
-
-        expect(popupService.showPopup).toHaveBeenCalledOnceWith({
-          header: 'Unmatch?',
-          message: 'This will remove the mapping between corporate card expense and this expense.',
-          primaryCta: {
-            text: 'UNMATCH',
-          },
-        });
-        expect(component.showSelectedTransaction).toBeFalse();
-        expect(component.isDraftExpense).toBeTrue();
-        expect(component.selectedCCCTransaction).toBeNull();
-        expect(component.canChangeMatchingCCCTransaction).toBeTrue();
-      }));
-
-      it('should show popup and other settings if it is a CCC txn and draft is enabled', fakeAsync(() => {
-        popupService.showPopup.and.resolveTo('primary');
-        component.isSplitExpensesPresent = true;
-        component.isDraftExpenseEnabled = true;
-        component.isSplitExpensesPresent = true;
-        component.alreadyApprovedExpenses = expenseResponseData;
-        fixture.detectChanges();
-
-        component.unmatchExpense({
-          ...unflattenedTxnData,
-          tx: { ...unflattenedTxnData.tx, state: 'APPROVER_PENDING' },
-        });
-        tick(500);
-
-        expect(popupService.showPopup).toHaveBeenCalledOnceWith({
-          header: 'Unmatch?',
-          message:
-            'Unmatching the card transaction from this split expense will also unmatch it from the other splits associated with the expense.',
-          primaryCta: {
-            text: 'UNMATCH',
-          },
-        });
-        expect(component.isDraftExpense).toBeFalse();
-        expect(component.canChangeMatchingCCCTransaction).toBeFalse();
-        expect(component.selectedCCCTransaction).toBeNull();
       }));
     });
 

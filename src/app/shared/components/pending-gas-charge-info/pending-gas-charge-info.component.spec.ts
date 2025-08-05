@@ -19,7 +19,7 @@ describe('PendingGasChargeInfoComponent', () => {
     translocoServiceSpy.translate.and.returnValue('translated text');
 
     await TestBed.configureTestingModule({
-      imports: [PendingGasChargeInfoComponent, MatIconModule, HttpClientTestingModule, IconModule, TranslocoModule],
+      imports: [MatIconModule, HttpClientTestingModule, IconModule, TranslocoModule],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
