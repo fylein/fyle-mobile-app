@@ -191,7 +191,7 @@ export default defineConfig([
       "max-len": "off",
       "space-before-function-paren": "off",
       "@typescript-eslint/quotes": "off",
-      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/explicit-function-return-type": "error",
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-empty-function": "off",
       "@typescript-eslint/no-empty-interface": "off",
