@@ -152,7 +152,7 @@ import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-ca
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { UnlinkCardTransactionResponse } from 'src/app/core/models/platform/unlink-card-transaction-response.model';
-import { PendingGasChargeService } from 'src/app/core/services/pending-gas-charge.service';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -522,7 +522,7 @@ export class AddEditExpensePage implements OnInit {
     private expensesService: ExpensesService,
     private advanceWalletsService: AdvanceWalletsService,
     private expenseCommentService: ExpenseCommentService,
-    private pendingGasChargeService: PendingGasChargeService,
+    private sharedExpensesService: SharedExpensesService,
   ) {}
 
   get isExpandedView(): boolean {
@@ -2704,6 +2704,7 @@ export class AddEditExpensePage implements OnInit {
     return this.platformExpense$.pipe(
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
+        this.isPendingGasCharge = this.sharedExpensesService.isPendingGasCharge(expense);
 
         if (etxn && etxn.tx.extracted_data) {
           this.autoCodedData = etxn.tx.extracted_data;
@@ -3265,8 +3266,6 @@ export class AddEditExpensePage implements OnInit {
       })
         .pipe(take(1))
         .subscribe((config) => {
-          this.isPendingGasCharge = this.pendingGasChargeService.isPendingGasCharge(config.platformExpense);
-
           if (
             config.pendingTxnRestrictionEnabled &&
             config.platformExpense.matched_corporate_card_transactions?.length &&

@@ -40,7 +40,7 @@ import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/p
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
-import { PendingGasChargeService } from 'src/app/core/services/pending-gas-charge.service';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -163,7 +163,7 @@ export class ViewExpensePage {
     private approverReportsService: ApproverReportsService,
     private spenderExpenseCommentService: SpenderExpenseCommentService,
     private approverExpenseCommentService: ApproverExpenseCommentService,
-    private pendingGasChargeService: PendingGasChargeService,
+    private sharedExpensesService: SharedExpensesService,
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -353,7 +353,7 @@ export class ViewExpensePage {
       }
       this.foreignCurrencySymbol = getCurrencySymbol(expense.foreign_currency, 'wide');
       this.expenseCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
-      this.isPendingGasCharge = this.pendingGasChargeService.isPendingGasCharge(expense);
+      this.isPendingGasCharge = this.sharedExpensesService.isPendingGasCharge(expense);
     });
 
     forkJoin([this.expenseFields$, this.expense$.pipe(take(1))])

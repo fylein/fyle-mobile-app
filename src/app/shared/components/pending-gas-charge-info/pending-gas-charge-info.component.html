@@ -1,8 +1,4 @@
-<div
-  class="pending-gas-charge-info"
-  [ngClass]="{ 'pending-gas-charge-info--expense-list-view': isExpenseListView }"
-  (click)="openPendingGasChargeInfoModal($event)"
->
+<div class="pending-gas-charge-info" [ngClass]="expenseListViewClass()" (click)="openPendingGasChargeInfoModal($event)">
   <span class="pending-gas-charge-info__text">
     @if (isExpenseListView) {
       {{ 'pendingGasChargeInfo.expenseListViewText' | transloco }}
