@@ -557,33 +557,39 @@ export class AddEditExpensePage implements OnInit {
   }
 
   goBack(isSameReport?: boolean): void {
-    if (isSameReport && this.getFormValues().report?.id && this.activatedRoute.snapshot.params.rp_id) {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'my_view_report',
-        {
-          id: String(this.activatedRoute.snapshot.params.rp_id),
-        },
-      ]);
-    } else if (!isSameReport && this.getFormValues().report?.id && this.activatedRoute.snapshot.params.rp_id) {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.getFormValues().report?.id }]);
+    // Get necessary IDs from form and route params.
+    const formReportId = this.getFormValues().report?.id;
+    const routeReportId = this.activatedRoute.snapshot.params.rp_id as string;
+
+    const shouldPersistFilters = !!this.activatedRoute.snapshot.params.persist_filters;
+    const isRedirectedFromReport = !!this.activatedRoute.snapshot.params.isRedirectedFromReport;
+
+    // If filters need to be persisted or if the user was redirected from a report,
+    // simply navigate back to the previous page.
+    if (shouldPersistFilters || isRedirectedFromReport) {
+      this.navController.back();
+      return;
+    }
+
+    let navigationRoute: [string, string, string, { id?: string }?];
+    let queryParams: { [key: string]: boolean } | undefined;
+
+    // Determine the navigation route based on the report context.
+    if (formReportId && routeReportId) {
+      // If the expense is associated with a report.
+      const reportId = isSameReport ? routeReportId : formReportId;
+      navigationRoute = ['/', 'enterprise', 'my_view_report', { id: String(reportId) }];
     } else {
-      if (
-        this.activatedRoute.snapshot.params.persist_filters ||
-        this.activatedRoute.snapshot.params.isRedirectedFromReport
-      ) {
-        this.navController.back();
-      } else {
-        if (this.mode === 'add') {
-          this.router.navigate(['/', 'enterprise', 'my_expenses'], {
-            queryParams: { redirected_from_add_expense: true },
-          });
-        } else {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        }
+      // Default navigation if no report context.
+      navigationRoute = ['/', 'enterprise', 'my_expenses'];
+      if (this.mode === 'add') {
+        // If a new expense was added, add a query param for redirection context.
+        queryParams = { redirected_from_add_expense: true };
       }
     }
+
+    // Execute the navigation.
+    this.router.navigate(navigationRoute, { queryParams });
   }
 
   async showClosePopup(): Promise<void> {
