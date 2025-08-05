@@ -18,7 +18,6 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
@@ -69,7 +68,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     private advanceRequestService: AdvanceRequestService,
     private fileService: FileService,
     private router: Router,
-    private popupService: PopupService,
     private popoverController: PopoverController,
     private actionSheetController: ActionSheetController,
     private authService: AuthService,
@@ -190,24 +188,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
   onUpdateApprover(message: boolean): void {
     if (message) {
       this.refreshApprovers$.next(null);
-    }
-  }
-
-  async delete(): Promise<void> {
-    const id = this.activatedRoute.snapshot.params.id as string;
-
-    const popupResults = await this.popupService.showPopup({
-      header: 'Confirm',
-      message: 'Are you sure you want to delete this Advance Request',
-      primaryCta: {
-        text: 'Delete Advance Request',
-      },
-    });
-
-    if (popupResults === 'primary') {
-      this.advanceRequestService.delete(id).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'team_advance']);
-      });
     }
   }
 
