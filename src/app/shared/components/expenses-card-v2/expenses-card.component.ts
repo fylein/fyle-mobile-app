@@ -594,7 +594,7 @@ export class ExpensesCardComponent implements OnInit {
       let fieldName = this.missingMandatoryFieldNames[i];
 
       if (fieldName && fieldName.length > 0) {
-        fieldName = fieldName.charAt(0).toLowerCase() + fieldName.slice(1);
+        fieldName = fieldName.toLowerCase();
       }
 
       if (fieldName.length > maxWordLength) {

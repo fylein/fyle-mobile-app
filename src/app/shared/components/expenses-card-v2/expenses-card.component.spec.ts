@@ -1090,7 +1090,7 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
     // @ts-ignore
     component.processMissingFieldsForDisplay(20, 10);
     // Should only include as many as fit, with ellipsis, and set remainingFieldsCount
-    expect(component.missingFieldsDisplayText).toContain('veryLon..., short');
+    expect(component.missingFieldsDisplayText).toContain('verylon..., short');
     expect(component.remainingFieldsCount).toBeGreaterThanOrEqual(1);
   });
 });
