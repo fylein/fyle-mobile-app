@@ -158,6 +158,7 @@ import { ShowAllApproversPopoverComponent } from './components/fy-approver/show-
 import { DateWithTimezonePipe } from './pipes/date-with-timezone.pipe';
 import { FyExpansionInfoMsgComponent } from './components/fy-expansion-info-msg/fy-expansion-info-msg.component';
 import { PendingGasChargeInfoModalComponent } from './components/pending-gas-charge-info-modal/pending-gas-charge-info-modal.component';
+import { PendingGasChargeInfoComponent } from './components/pending-gas-charge-info/pending-gas-charge-info.component';
 
 @NgModule({
   declarations: [
@@ -293,6 +294,7 @@ import { PendingGasChargeInfoModalComponent } from './components/pending-gas-cha
     DateWithTimezonePipe,
     FyExpansionInfoMsgComponent,
     PendingGasChargeInfoModalComponent,
+    PendingGasChargeInfoComponent,
   ],
   imports: [
     CommonModule,
@@ -433,6 +435,7 @@ import { PendingGasChargeInfoModalComponent } from './components/pending-gas-cha
     TranslocoModule,
     PinchZoomComponent,
     PendingGasChargeInfoModalComponent,
+    PendingGasChargeInfoComponent,
   ],
   providers: [
     DecimalPipe,

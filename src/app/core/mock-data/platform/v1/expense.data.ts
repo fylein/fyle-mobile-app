@@ -2539,6 +2539,43 @@ export const platformExpenseData: Expense = deepFreeze({
   verifier_comments: ['Amount changed due to following reason(s) : No policy violation explanation provided'],
 });
 
+export const platformExpenseDataWithPendingGasCharge: Expense = deepFreeze({
+  ...platformExpenseData,
+  amount: 1,
+  currency: 'USD',
+  category: {
+    code: 'FUEL',
+    id: 1,
+    display_name: 'Fuel',
+    name: 'Fuel',
+    sub_category: null,
+    system_category: 'Fuel',
+  },
+  matched_corporate_card_transaction_ids: ['transaction1'],
+  matched_corporate_card_transactions: [
+    {
+      id: 'transaction1',
+      corporate_card_id: 'card1',
+      corporate_card_number: '1234567890',
+      masked_corporate_card_number: '****1234',
+      corporate_card_user_full_name: 'John Doe',
+      bank_name: 'Test Bank',
+      amount: 1,
+      currency: 'USD',
+      spent_at: new Date(),
+      posted_at: new Date(),
+      description: 'Test transaction',
+      foreign_currency: 'USD',
+      status: ExpenseTransactionStatus.PENDING,
+      foreign_amount: 1,
+      merchant: 'Test Merchant',
+      category: 'Fuel',
+      matched_by: 'system',
+    },
+  ],
+  file_ids: [],
+});
+
 export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
   accounting_export_summary: {},
   added_to_report_at: null,

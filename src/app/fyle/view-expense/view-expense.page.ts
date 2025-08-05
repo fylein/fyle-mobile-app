@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, ViewChild, ElementRef, signal } from '@angular/core';
 import { Observable, from, Subject, concat, noop, forkJoin, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -40,6 +40,7 @@ import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/p
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -136,6 +137,8 @@ export class ViewExpensePage {
 
   isRTFEnabled: boolean;
 
+  isPendingGasCharge = signal<boolean>(false);
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -160,6 +163,7 @@ export class ViewExpensePage {
     private approverReportsService: ApproverReportsService,
     private spenderExpenseCommentService: SpenderExpenseCommentService,
     private approverExpenseCommentService: ApproverExpenseCommentService,
+    private sharedExpensesService: SharedExpensesService,
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -349,6 +353,7 @@ export class ViewExpensePage {
       }
       this.foreignCurrencySymbol = getCurrencySymbol(expense.foreign_currency, 'wide');
       this.expenseCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
+      this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(expense));
     });
 
     forkJoin([this.expenseFields$, this.expense$.pipe(take(1))])
