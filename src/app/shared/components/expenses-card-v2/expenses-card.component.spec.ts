@@ -1004,7 +1004,7 @@ describe('ExpensesCardComponent', () => {
       component.expense = mockExpense;
       component.ngOnInit();
 
-      expect(component.isPendingGasCharge).toBeTrue();
+      expect(component.isPendingGasCharge()).toBeTrue();
       expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
     });
 
@@ -1016,7 +1016,7 @@ describe('ExpensesCardComponent', () => {
       component.expense = mockExpense;
       component.ngOnInit();
 
-      expect(component.isPendingGasCharge).toBeFalse();
+      expect(component.isPendingGasCharge()).toBeFalse();
       expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
     });
   });
