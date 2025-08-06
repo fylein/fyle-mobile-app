@@ -1,4 +1,5 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild, Inject } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild } from '@angular/core';
+import { inject } from '@angular/core';
 import { CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
@@ -23,6 +24,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
+import { MLKitDocumentScannerService } from 'src/app/core/services/mlkit-document-scanner.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -65,26 +67,43 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   nativeSettings = NativeSettings;
 
-  constructor(
-    private modalController: ModalController,
-    private trackingService: TrackingService,
-    private router: Router,
-    private navController: NavController,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private imagePicker: ImagePicker,
-    private networkService: NetworkService,
-    private popoverController: PopoverController,
-    private loaderService: LoaderService,
-    private orgService: OrgService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private authService: AuthService,
-    private cameraService: CameraService,
-    private cameraPreviewService: CameraPreviewService,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
-    private translocoService: TranslocoService,
-  ) {}
+  private readonly modalController = inject(ModalController);
+
+  private readonly trackingService = inject(TrackingService);
+
+  private readonly router = inject(Router);
+
+  private readonly navController = inject(NavController);
+
+  private readonly transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private readonly imagePicker = inject(ImagePicker);
+
+  private readonly networkService = inject(NetworkService);
+
+  private readonly popoverController = inject(PopoverController);
+
+  private readonly loaderService = inject(LoaderService);
+
+  private readonly orgService = inject(OrgService);
+
+  private readonly platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private readonly matSnackBar = inject(MatSnackBar);
+
+  private readonly snackbarProperties = inject(SnackbarPropertiesService);
+
+  private readonly authService = inject(AuthService);
+
+  private readonly cameraService = inject(CameraService);
+
+  private readonly cameraPreviewService = inject(CameraPreviewService);
+
+  private readonly mlkitScanner = inject(MLKitDocumentScannerService);
+
+  private readonly devicePlatform = inject<'android' | 'ios' | 'web'>(DEVICE_PLATFORM);
+
+  private readonly translocoService = inject(TranslocoService);
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -382,27 +401,32 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       this.trackingService.receiptLimitReached();
       this.showLimitReachedPopover().subscribe(noop);
     } else {
-      const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
-        quality: 70,
-      };
-
-      from(this.cameraPreviewService.capture(cameraPreviewPictureOptions)).subscribe((receiptData) => {
-        const base64PictureData = 'data:image/jpeg;base64,' + receiptData.value;
-        this.lastCapturedReceipt = base64PictureData;
-        if (!this.isBulkMode) {
-          this.stopCamera();
-          this.base64ImagesWithSource.push({
-            source: 'MOBILE_DASHCAM_SINGLE',
-            base64Image: base64PictureData,
+      this.mlkitScanner.scanDocument().subscribe({
+        next: (base64PictureData) => {
+          this.lastCapturedReceipt = base64PictureData;
+          if (!this.isBulkMode) {
+            this.stopCamera();
+            this.base64ImagesWithSource.push({
+              source: 'MOBILE_DASHCAM_SINGLE',
+              base64Image: base64PictureData,
+            });
+            this.onSingleCapture();
+          } else {
+            this.base64ImagesWithSource.push({
+              source: 'MOBILE_DASHCAM_BULK',
+              base64Image: base64PictureData,
+            });
+            this.onBulkCapture();
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        error: (error) => {
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('failure', {
+              message: 'Camera not available',
+            }),
           });
-          this.onSingleCapture();
-        } else {
-          this.base64ImagesWithSource.push({
-            source: 'MOBILE_DASHCAM_BULK',
-            base64Image: base64PictureData,
-          });
-          this.onBulkCapture();
-        }
+        },
       });
     }
   }
@@ -515,7 +539,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   setUpAndStartCamera(): void {
-    this.cameraPreview.setUpAndStartCamera();
+    // MLKit scanner will handle camera setup and permissions
+    this.onCaptureReceipt();
+
     if (this.transactionsOutboxService.singleCaptureCount === 3) {
       this.showBulkModeToastMessage();
       this.isBulkModePromptShown = true;
@@ -523,6 +549,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   stopCamera(): void {
-    this.cameraPreview.stopCamera();
+    // MLKit scanner handles its own camera lifecycle
   }
 }
