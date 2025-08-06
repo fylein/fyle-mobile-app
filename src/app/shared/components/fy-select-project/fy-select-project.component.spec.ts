@@ -128,6 +128,8 @@ describe('FySelectProjectComponent', () => {
         recentlyUsed: component.recentlyUsed,
         label: component.label,
         isProjectCategoryRestrictionsEnabled: component.isProjectCategoryRestrictionsEnabled,
+        isSelectedProjectDisabled: component.isSelectedProjectDisabled,
+        selectedDisabledProject: component.selectedDisabledProject,
       },
       mode: 'ios',
       cssClass: 'fy-modal',
