@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import dayjs from 'dayjs';
@@ -148,7 +148,9 @@ export class ExpensesCardComponent implements OnInit {
 
   vendorDetails: string;
 
-  isPendingGasCharge = signal<boolean>(false);
+  readonly isPendingGasCharge = signal<boolean>(false);
+
+  private sharedExpensesService = inject(SharedExpensesService);
 
   constructor(
     private transactionService: TransactionService,
@@ -168,7 +170,6 @@ export class ExpensesCardComponent implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private expensesService: ExpensesService,
     private translocoService: TranslocoService,
-    private sharedExpensesService: SharedExpensesService,
   ) {}
 
   get isSelected(): boolean {
