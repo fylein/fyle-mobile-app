@@ -143,13 +143,13 @@
   &--secondary-cta {
     height: auto;
     background-color: transparent;
-    color: colors.$black;
+    color: colors.$brand-primary;
     font-size: 14px;
     line-height: 1.25;
     flex: auto;
-    border-radius: 4px;
+    border-radius: 32px;
     padding: 10px 12px;
-    border: 1px solid colors.$grey;
+    border: 2px solid colors.$brand-primary;
 
     &__disabled {
       opacity: 0.2;
@@ -162,7 +162,7 @@
     color: colors.$pure-white;
     font-size: 14px;
     line-height: 1.3;
-    border-radius: 4px;
+    border-radius: 32px;
     padding: 10px 12px;
     min-width: 50%;
     &__disabled {

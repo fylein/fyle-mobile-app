@@ -267,11 +267,6 @@ $sent-back-color: #da1e28;
     margin-bottom: 8px;
   }
 
-  &--primary-cta {
-    margin: 12px;
-    height: 48px;
-  }
-
   &--amount {
     color: colors.$white;
     font-size: 18px;
@@ -367,7 +362,6 @@ $sent-back-color: #da1e28;
 
   &--primary-cta {
     --background: #{colors.$brand-primary};
-    border-radius: 4px;
     line-height: 18px;
     color: colors.$pure-white;
     height: 52px;

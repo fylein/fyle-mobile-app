@@ -38,14 +38,13 @@
 $header-input-interior: #eeeeee;
 
 :root {
-  --ion-color-fyle-primary: #ff3366;
-  --ion-color-fyle-primary-rgb: 255, 51, 102;
+  --ion-color-fyle-primary: #{colors.$brand-primary};
+  --ion-color-fyle-primary-rgb: #{colors.$brand-primary-rgb};
   --ion-color-fyle-primary-contrast: #ffffff;
   --ion-color-fyle-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-fyle-primary-shade: #e02d5a;
-  --ion-color-fyle-primary-tint: #ff4775;
+  --ion-color-fyle-primary-shade: #006f3d;
+  --ion-color-fyle-primary-tint: #1a8b58;
   --ion-font-family: 'sage-ui', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Segoe UI', 'Arial';
-  --ion-color-fyle-sidenav-bg: #161528;
 }
 
 body {
@@ -883,7 +882,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .btn-primary {
   background: colors.$brand-primary;
-  border-radius: 4px !important;
+  border-radius: 32px !important;
   font-size: 14px !important;
   line-height: 18px;
   color: colors.$pure-white;
@@ -892,14 +891,15 @@ ref - https://stackoverflow.com/a/31162426
   text-transform: inherit;
   width: 100%;
   letter-spacing: 0px !important;
+  padding: 0 16px;
 }
 
 .btn-secondary {
   background: colors.$pure-white;
-  color: colors.$black-2;
-  font-size: 16px !important;
+  color: colors.$brand-primary;
+  font-size: 14px !important;
   line-height: 20px;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
   height: 52px !important;
   text-transform: inherit;
   width: 100%;
@@ -908,8 +908,8 @@ ref - https://stackoverflow.com/a/31162426
 
 .btn-outline-secondary {
   @extend .btn-secondary;
-  border: 1px solid colors.$grey;
-  border-radius: 4px;
+  border: 2px solid colors.$brand-primary;
+  border-radius: 32px;
 }
 
 .cta-footer {
@@ -924,7 +924,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .fy-footer-cta {
   --box-shadow: none;
-  --border-radius: 4px;
+  --border-radius: 32px;
   height: 50px;
   text-transform: none;
   font-weight: 500;
@@ -940,21 +940,16 @@ ref - https://stackoverflow.com/a/31162426
     --background: #{colors.$blue-black};
   }
 
-  &--tertiary-primary {
+  &--tertiary-secondary {
     --background: transparent;
     --color: #{colors.$brand-primary};
   }
 
-  &--tertiary-secondary {
-    --background: transparent;
-    --color: #{colors.$black-light};
-  }
-
   &--outline-secondary {
     --background: transparent;
-    --color: #{colors.$black-light};
-    border: 1px solid #{colors.$grey};
-    border-radius: 4px;
+    --color: #{colors.$brand-primary};
+    border: 2px solid #{colors.$brand-primary};
+    border-radius: 32px;
   }
 }
 

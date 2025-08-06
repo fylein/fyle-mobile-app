@@ -133,11 +133,6 @@
     margin-top: -10%;
   }
 
-  &--primary-cta {
-    margin: 12px;
-    height: 48px;
-  }
-
   &--amount {
     color: colors.$white;
     font-size: 18px;
@@ -367,42 +362,18 @@
     box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
     background-color: colors.$pure-white;
 
-    &__block {
-      border-radius: 4px;
-      border: 1px solid colors.$grey-lightest;
-      height: 40px;
+    &__icon {
+      width: 16px;
+      height: 16px;
     }
 
     &__cta {
       display: flex;
-      justify-content: center;
-      height: 36px;
       align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      gap: 8px;
     }
-  }
-
-  &--add-more-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 12px;
-  }
-
-  &--add-more-icon-container {
-    color: colors.$brand-primary;
-    margin-bottom: -3px;
-  }
-
-  &--add-more-icon {
-    font-size: 20px;
-    height: 20px;
-    width: 20px;
-  }
-
-  &--add-more-text {
-    margin-left: 5px;
-    color: colors.$black-light;
-    font-weight: 500;
-    font-size: 14px;
   }
 
   &--zero-state-header {

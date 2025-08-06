@@ -59,17 +59,6 @@
     justify-content: space-between;
   }
 
-  &--primary-cta,
-  &--secondary-cta {
-    height: 48px;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
-    --border-radius: 4px !important;
-    margin: 14px !important;
-    width: 100%;
-  }
-
   &--receipt-currency {
     display: flex;
     align-items: center;

@@ -32,7 +32,7 @@ $background-color: #fff;
       --color: colors.$brand-primary;
       color: colors.$brand-primary;
       width: 66px;
-      font-size: 16px;
+      font-size: 14px;
       line-height: 20px;
       font-weight: 500;
       text-transform: none;
@@ -276,14 +276,6 @@ $background-color: #fff;
     color: colors.$brand-primary;
     width: 16px;
     height: 16px;
-  }
-
-  &--add-more-label,
-  &--split-evenly-label {
-    color: colors.$blue-black;
-    font-size: 12px;
-    line-height: 18px;
-    font-weight: 500;
   }
 
   &--amount-block {

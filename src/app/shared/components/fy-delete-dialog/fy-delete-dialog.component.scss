@@ -46,14 +46,12 @@
 
   &--cta-container {
     margin-top: 18px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
   }
 
   &--delete {
-    min-width: 132px;
-    min-height: 36px;
-    background: colors.$red;
-    border-radius: 4px;
-    color: colors.$pure-white;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -64,9 +62,6 @@
   }
 
   &--cancel {
-    min-width: 124px;
-    min-height: 35px;
-    border-radius: 4px;
     display: flex;
     justify-content: center;
     align-items: center;
