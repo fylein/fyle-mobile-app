@@ -43,8 +43,10 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   @Input() isProjectCategoryRestrictionsEnabled: boolean;
 
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() isSelectedProjectDisabled: boolean;
 
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() selectedDisabledProject: ProjectV2;
 
   @Output() valueChange = new EventEmitter<ProjectV2>();

@@ -43,8 +43,10 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   @Input() isProjectCategoryRestrictionsEnabled: boolean;
 
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() isSelectedProjectDisabled: boolean;
 
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() selectedDisabledProject: ProjectV2;
 
   recentrecentlyUsedItems$: Observable<ProjectOption[]>;
