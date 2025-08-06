@@ -92,7 +92,7 @@ $background-color: #fff;
   }
 
   &--error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     font-size: 12px;
   }
@@ -306,14 +306,14 @@ $background-color: #fff;
   &--error-message-block {
     color: colors.$blue-black;
     border-radius: 4px;
-    background-color: colors.$pale-pink;
+    background-color: colors.$pure-white;
     font-size: 12px;
     padding: 8px 12px;
     line-height: 15px;
     display: flex;
     align-items: center;
     margin-top: 6px;
-    border: 1px solid colors.$red-1;
+    border: 1px solid colors.$negative-500;
   }
 
   &--error-icon {

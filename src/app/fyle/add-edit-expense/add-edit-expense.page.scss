@@ -169,7 +169,7 @@
     border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -200,7 +200,7 @@
     border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -448,15 +448,6 @@
     }
   }
 
-  &--error-message-block {
-    position: sticky;
-    width: 100%;
-    bottom: 0;
-    background: rgba(221, 0, 0, 0.7);
-    color: #fff;
-    padding: 16px;
-  }
-
   &--duplicate-pointer-container {
     position: absolute;
     left: 10px;
@@ -526,7 +517,7 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: colors.$negative-500;
   }
 
   &--card-header {
@@ -596,13 +587,13 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     font-size: 12px;
   }
 
   &--amount-error {
-    color: colors.$red;
+    color: colors.$negative-500;
     font-size: 12px;
     margin: -14px 0 0 53%;
   }
@@ -713,7 +704,7 @@
   &--date-error,
   &--travel-text-error,
   &--distance-error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     font-size: 12px;
     margin-top: 6px;
@@ -721,7 +712,7 @@
 
   &--travel-select-error,
   &--distance-unit-error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     font-size: 12px;
   }

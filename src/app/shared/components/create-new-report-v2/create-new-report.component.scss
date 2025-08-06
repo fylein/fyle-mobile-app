@@ -50,7 +50,7 @@
     border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid colors.$red-2;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -79,7 +79,7 @@
 
   &--error-message {
     margin-top: 2px;
-    color: colors.$red;
+    color: colors.$negative-500;
   }
 
   &--heading {

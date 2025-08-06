@@ -163,17 +163,12 @@
       border-bottom: 1px solid colors.$grey-lighter;
 
       &--error {
-        border-bottom: 1px solid colors.$red;
+        border-bottom: 1px solid colors.$negative-500;
       }
     }
 
     &__input:focus {
       border-bottom: 1px solid colors.$blue-black;
-    }
-
-    &__error {
-      color: colors.$red;
-      font-size: 12px;
     }
 
     &__info-box {
