@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CCCDetails } from 'src/app/core/models/ccc-expense-details.model';
@@ -13,17 +13,21 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
 import { GroupedReportStats } from 'src/app/core/models/platform/v1/grouped-report-stats.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 @Injectable()
 export class DashboardService {
-  constructor(
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private expensesService: ExpensesService,
-    private spenderReportsService: SpenderReportsService,
-    private approverReportsService: ApproverReportsService,
-    private authService: AuthService,
-    private translocoService: TranslocoService
-  ) {}
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private expensesService = inject(ExpensesService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private authService = inject(AuthService);
+
+  private translocoService = inject(TranslocoService);
 
   getUnreportedExpensesStats(): Observable<Stats> {
     return this.expensesService
@@ -36,7 +40,7 @@ export class DashboardService {
         map((stats) => ({
           count: stats.data.count,
           sum: stats.data.total_amount,
-        }))
+        })),
       );
   }
 
@@ -50,7 +54,7 @@ export class DashboardService {
         map((stats) => ({
           count: stats.data.count,
           sum: stats.data.total_amount,
-        }))
+        })),
       );
   }
 
@@ -65,7 +69,13 @@ export class DashboardService {
         } else {
           return of(null);
         }
-      })
+      }),
+    );
+  }
+
+  isUserAnApprover(): Observable<boolean> {
+    return from(this.authService.getEou()).pipe(
+      map((eou: ExtendedOrgUser) => eou.ou?.roles?.includes('APPROVER') ?? false),
     );
   }
 
@@ -81,7 +91,7 @@ export class DashboardService {
           paymentPending: this.transformStat(statsMap.get('PAYMENT_PENDING')),
           processing: this.transformStat(statsMap.get('PAYMENT_PROCESSING')),
         };
-      })
+      }),
     );
   }
 
