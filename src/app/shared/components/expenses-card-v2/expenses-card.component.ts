@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import dayjs from 'dayjs';
@@ -30,6 +30,8 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { TranslocoService } from '@jsverse/transloco';
 import { ExpenseMissingMandatoryFields } from 'src/app/core/models/platform/v1/expense-missing-mandatory-fields.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-expense-card-v2',
@@ -145,6 +147,10 @@ export class ExpensesCardComponent implements OnInit {
   isDraft: boolean;
 
   vendorDetails: string;
+
+  readonly isPendingGasCharge = signal<boolean>(false);
+
+  private sharedExpensesService = inject(SharedExpensesService);
 
   constructor(
     private transactionService: TransactionService,
@@ -317,6 +323,8 @@ export class ExpensesCardComponent implements OnInit {
     this.handleScanStatus();
 
     this.isIos = this.platform.is('ios');
+
+    this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(this.expense));
   }
 
   setOtherData(): void {

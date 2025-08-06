@@ -1,7 +1,7 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, signal, ViewChild, inject } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -109,7 +109,6 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -152,7 +151,7 @@ import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-ca
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { UnlinkCardTransactionResponse } from 'src/app/core/models/platform/unlink-card-transaction-response.model';
-// import { ProjectOption } from 'src/app/core/models/project-options.model';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -469,9 +468,13 @@ export class AddEditExpensePage implements OnInit {
 
   isLoading = true;
 
-  isSelectedProjectDisabled = signal(false);
+  readonly isPendingGasCharge = signal<boolean>(false);
 
-  selectedDisabledProject = signal<ProjectV2 | null>(null);
+  readonly isSelectedProjectDisabled = signal(false);
+
+  readonly selectedDisabledProject = signal<ProjectV2 | null>(null);
+
+  private sharedExpensesService = inject(SharedExpensesService);
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -496,7 +499,6 @@ export class AddEditExpensePage implements OnInit {
     private popoverController: PopoverController,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
-    private popupService: PopupService,
     private navController: NavController,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private trackingService: TrackingService,
@@ -734,38 +736,6 @@ export class AddEditExpensePage implements OnInit {
         return isPaymentModeInvalid;
       }),
     );
-  }
-
-  async unmatchExpense(etxn: UnflattenedTransaction): Promise<void> {
-    const message = this.isSplitExpensesPresent
-      ? 'Unmatching the card transaction from this split expense will also unmatch it from the other splits associated with the expense.'
-      : 'This will remove the mapping between corporate card expense and this expense.';
-    const confirmPopup = await this.popupService.showPopup({
-      header: 'Unmatch?',
-      message,
-      primaryCta: {
-        text: 'UNMATCH',
-      },
-    });
-
-    if (confirmPopup === 'primary') {
-      this.showSelectedTransaction = false;
-      if (this.isDraftExpenseEnabled) {
-        this.isDraftExpense = false;
-      } else {
-        this.isDraftExpense = true;
-      }
-
-      if (['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx.state) > -1) {
-        this.canChangeMatchingCCCTransaction = false;
-      }
-
-      if (this.isSplitExpensesPresent) {
-        this.canChangeMatchingCCCTransaction = this.alreadyApprovedExpenses.length < 1;
-      }
-
-      this.selectedCCCTransaction = null;
-    }
   }
 
   setupNetworkWatcher(): void {
@@ -2724,6 +2694,7 @@ export class AddEditExpensePage implements OnInit {
     return this.platformExpense$.pipe(
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
+        this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(expense));
 
         if (etxn && etxn.tx.extracted_data) {
           this.autoCodedData = etxn.tx.extracted_data;

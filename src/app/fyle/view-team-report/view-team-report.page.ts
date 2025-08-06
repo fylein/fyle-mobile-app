@@ -7,7 +7,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, take, takeUntil, filter } from 'rxjs/operators';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -154,7 +153,6 @@ export class ViewTeamReportPage {
     private loaderService: LoaderService,
     private router: Router,
     private popoverController: PopoverController,
-    private popupService: PopupService,
     private networkService: NetworkService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,

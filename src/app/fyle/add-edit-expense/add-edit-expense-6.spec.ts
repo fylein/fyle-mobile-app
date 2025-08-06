@@ -53,7 +53,6 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -77,7 +76,11 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
-import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import {
+  expenseData,
+  platformExpenseData,
+  platformExpenseDataWithPendingGasCharge,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseWithMatchCCCData,
   transformedExpenseWithMatchCCCData3,
@@ -89,6 +92,7 @@ import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card
 import { cloneDeep } from 'lodash';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -115,7 +119,6 @@ export function TestCases6(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -140,6 +143,7 @@ export function TestCases6(getTestBed) {
     let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
+    let sharedExpensesService: jasmine.SpyObj<SharedExpensesService>;
 
     function setFormValueNull() {
       Object.defineProperty(component.fg, 'value', {
@@ -176,14 +180,13 @@ export function TestCases6(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -200,12 +203,13 @@ export function TestCases6(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -261,7 +265,7 @@ export function TestCases6(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
         expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
       });
@@ -276,7 +280,7 @@ export function TestCases6(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
       });
     });
@@ -369,7 +373,7 @@ export function TestCases6(getTestBed) {
           'tax_group_id',
           'org_category_id',
         ],
-        undefined
+        undefined,
       );
     }));
 
@@ -502,10 +506,10 @@ export function TestCases6(getTestBed) {
         expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx6I9xcOZFU6');
         expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(
           unflattenedExpWithoutCCExpnSync,
-          ccTransactionData1
+          ccTransactionData1,
         );
         expect(corporateCreditCardExpenseService.getMatchedTransactionById).toHaveBeenCalledOnceWith(
-          unflattenedExpWithoutCCExpnSync.tx.corporate_credit_card_expense_group_id
+          unflattenedExpWithoutCCExpnSync.tx.corporate_credit_card_expense_group_id,
         );
         expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith([expenseData, expenseData]);
       });
@@ -1241,5 +1245,23 @@ export function TestCases6(getTestBed) {
       expect(modalSpy.present).toHaveBeenCalledTimes(1);
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     }));
+
+    describe('Pending Gas Charge Functionality', () => {
+      it('should return true when expense is a pending gas charge', () => {
+        const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+        const result = sharedExpensesService.isPendingGasCharge(mockExpense);
+
+        expect(result).toBeTrue();
+      });
+
+      it('should return false when expense is not a pending gas charge', () => {
+        const mockExpense = cloneDeep(platformExpenseData);
+
+        const result = sharedExpensesService.isPendingGasCharge(mockExpense);
+
+        expect(result).toBeFalse();
+      });
+    });
   });
 }
