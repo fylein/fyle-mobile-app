@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CCCDetails } from 'src/app/core/models/ccc-expense-details.model';
@@ -17,14 +17,17 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 @Injectable()
 export class DashboardService {
-  constructor(
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private expensesService: ExpensesService,
-    private spenderReportsService: SpenderReportsService,
-    private approverReportsService: ApproverReportsService,
-    private authService: AuthService,
-    private translocoService: TranslocoService,
-  ) {}
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private expensesService = inject(ExpensesService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private authService = inject(AuthService);
+
+  private translocoService = inject(TranslocoService);
 
   getUnreportedExpensesStats(): Observable<Stats> {
     return this.expensesService
