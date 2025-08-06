@@ -146,6 +146,7 @@
   }
 
   &--expenses-preview {
+    overflow: hidden;
     background-color: colors.$pure-white;
     border: 1px solid colors.$grey;
     margin: 0 20px;

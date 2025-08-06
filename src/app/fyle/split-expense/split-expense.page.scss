@@ -142,7 +142,7 @@ $background-color: #fff;
 
   &--remove-icon {
     background: none;
-    color: colors.$red;
+    color: colors.$negative-500;
     height: 20px;
     width: 20px;
   }
@@ -185,7 +185,7 @@ $background-color: #fff;
   }
 
   &--invalid {
-    border-bottom: 1px solid colors.$red;
+    border-bottom: 1px solid colors.$negative-500;
   }
 
   &--input {
@@ -241,14 +241,14 @@ $background-color: #fff;
 
   &--date-invalid {
     float: right;
-    color: colors.$red;
-    border-bottom: 1px solid colors.$red;
+    color: colors.$negative-500;
+    border-bottom: 1px solid colors.$negative-500;
   }
 
   &--date-error {
     width: 50%;
     float: right;
-    color: colors.$red;
+    color: colors.$negative-500;
     font-size: 12px;
     margin: -12px;
   }
@@ -318,7 +318,7 @@ $background-color: #fff;
 
   &--error-icon {
     margin-right: 12px;
-    color: colors.$red;
+    color: colors.$negative-500;
     height: 18px;
     width: 18px;
   }
