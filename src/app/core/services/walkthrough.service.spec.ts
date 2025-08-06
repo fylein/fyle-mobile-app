@@ -19,6 +19,7 @@ describe('WalkthroughDriverService', () => {
         'services.walkthrough.reportsTabDescription': 'Tap here to quickly access and manage your expense reports!',
         'services.walkthrough.approverDescription':
           "Easily manage and approve reports — Access your team's reports right from the home page!",
+        'services.walkthrough.blockedFilterDescription': 'Filter blocked expenses that violate critical policy & cannot be submitted.',
       };
       return translations[key] || key;
     });
@@ -66,5 +67,46 @@ describe('WalkthroughDriverService', () => {
     expect(steps[3].popover.description).toBe(
       `Easily manage and approve reports — Access your team's reports right from the home page!`
     );
+  });
+
+  describe('getMyExpensesBlockedFilterWalkthroughConfig', () => {
+    it('should return blocked filter walkthrough steps', () => {
+      const steps: DriveStep[] = service.getMyExpensesBlockedFilterWalkthroughConfig();
+      
+      expect(steps).toBeDefined();
+      expect(steps.length).toBe(1);
+    });
+
+    it('should have correct element targeting for blocked filter', () => {
+      const steps: DriveStep[] = service.getMyExpensesBlockedFilterWalkthroughConfig();
+      
+      expect(steps[0].element).toBe('#blocked-filter-checkbox');
+    });
+
+    it('should have correct popover configuration', () => {
+      const steps: DriveStep[] = service.getMyExpensesBlockedFilterWalkthroughConfig();
+      
+      expect(steps[0].popover.description).toBe('Filter blocked expenses that violate critical policy & cannot be submitted.');
+      expect(steps[0].popover.side).toBe('left');
+      expect(steps[0].popover.align).toBe('center');
+      expect(steps[0].popover.showButtons).toEqual(['close', 'next']);
+    });
+
+    it('should have correct onHighlightStarted configuration', () => {
+      const steps: DriveStep[] = service.getMyExpensesBlockedFilterWalkthroughConfig();
+      const mockOpts = { config: { stagePadding: 0, stageRadius: 0 } };
+      
+      // Execute the onHighlightStarted callback
+      steps[0].onHighlightStarted(null, null, mockOpts);
+      
+      expect(mockOpts.config.stagePadding).toBe(6);
+      expect(mockOpts.config.stageRadius).toBe(8);
+    });
+
+    it('should call translate service with correct key', () => {
+      service.getMyExpensesBlockedFilterWalkthroughConfig();
+      
+      expect(translocoService.translate).toHaveBeenCalledWith('services.walkthrough.blockedFilterDescription');
+    });
   });
 });

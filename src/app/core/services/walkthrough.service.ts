@@ -103,6 +103,26 @@ export class WalkthroughService {
     return steps;
   }
 
+  getMyExpensesBlockedFilterWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '#blocked-filter-checkbox',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.blockedFilterDescription'),
+          side: 'left',
+          align: 'center',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
   getActiveWalkthroughIndex(): number {
     return this.activeWalkthroughIndex;
   }

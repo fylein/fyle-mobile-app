@@ -131,6 +131,7 @@ import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-qu
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -168,6 +169,7 @@ describe('MyExpensesPage', () => {
   let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
   let authService: jasmine.SpyObj<AuthService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+  let walkthroughService: jasmine.SpyObj<WalkthroughService>;
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -303,8 +305,15 @@ describe('MyExpensesPage', () => {
       'toggleShowOptInAfterExpenseCreation',
       'canShowOptInModal',
     ]);
-    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['saveConfiguration']);
+    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['saveConfiguration', 'getConfiguration']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
+      'getMyExpensesBlockedFilterWalkthroughConfig',
+      'setIsOverlayClicked',
+      'getIsOverlayClicked',
+      'setActiveWalkthroughIndex',
+      'getActiveWalkthroughIndex',
+    ]);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
         reRenderOnLangChange: true,
@@ -533,6 +542,10 @@ describe('MyExpensesPage', () => {
           provide: TranslocoService,
           useValue: translocoServiceSpy,
         },
+        {
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
+        },
         ReportState,
         MaskNumber,
         provideHttpClientTesting(),
@@ -580,6 +593,7 @@ describe('MyExpensesPage', () => {
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
     component.loadExpenses$ = new BehaviorSubject({});
   }));
 
@@ -3626,5 +3640,270 @@ describe('MyExpensesPage', () => {
     component.optInShowTimer = setTimeout(() => {}, 2000);
     component.onPageClick();
     expect(utilityService.toggleShowOptInAfterExpenseCreation).toHaveBeenCalledTimes(1);
+  });
+
+  describe('Blocked Filter Walkthrough', () => {
+    describe('shouldShowBlockedFilterWalkthrough', () => {
+      it('should return true when config is not finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowBlockedFilterWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+        });
+      }));
+
+      it('should return false when config is finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowBlockedFilterWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeFalse();
+      }));
+
+      it('should return true when config is null', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: null,
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowBlockedFilterWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+      }));
+
+      it('should return true when getConfiguration throws error', fakeAsync(() => {
+        featureConfigService.getConfiguration.and.returnValue(throwError('API Error'));
+
+        let result: boolean;
+        component.shouldShowBlockedFilterWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+      }));
+    });
+
+    describe('setBlockedFilterWalkthroughFeatureFlag', () => {
+      beforeEach(() => {
+        featureConfigService.saveConfiguration.and.returnValue(of(null));
+      });
+
+      it('should save feature flag when walkthrough is completed', () => {
+        component.setBlockedFilterWalkthroughFeatureFlag(false);
+
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+        });
+      });
+
+      it('should save feature flag when walkthrough is skipped', () => {
+        component.setBlockedFilterWalkthroughFeatureFlag(true);
+
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+        });
+      });
+
+      it('should track completed event when walkthrough is finished', () => {
+        spyOn(trackingService, 'eventTrack');
+
+        component.setBlockedFilterWalkthroughFeatureFlag(false);
+
+        expect(trackingService.eventTrack).toHaveBeenCalledWith('My Expenses Blocked Filter Walkthrough Completed', {
+          Asset: 'Mobile',
+          from: 'MyExpenses',
+          filter_type: 'blocked',
+        });
+      });
+
+      it('should track skipped event when walkthrough is skipped', () => {
+        spyOn(trackingService, 'eventTrack');
+
+        component.setBlockedFilterWalkthroughFeatureFlag(true);
+
+        expect(trackingService.eventTrack).toHaveBeenCalledWith('My Expenses Blocked Filter Walkthrough Skipped', {
+          Asset: 'Mobile',
+          from: 'MyExpenses',
+          filter_type: 'blocked',
+        });
+      });
+    });
+
+    describe('startBlockedFilterWalkthrough', () => {
+      let mockDriverInstance: any;
+
+      beforeEach(() => {
+        mockDriverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+
+        // Mock the driver function
+        (window as any).driver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+        
+        walkthroughService.getMyExpensesBlockedFilterWalkthroughConfig.and.returnValue([
+          {
+            element: '#blocked-filter-checkbox',
+            popover: {
+              description: 'Filter blocked expenses that violate critical policy & cannot be submitted.',
+              side: 'left',
+              align: 'center',
+              showButtons: ['close', 'next'],
+            },
+          },
+        ]);
+      });
+
+      it('should initialize driver instance with correct configuration', () => {
+        component.startBlockedFilterWalkthrough();
+
+        expect((window as any).driver).toHaveBeenCalledWith(jasmine.objectContaining({
+          overlayOpacity: 0.6,
+          allowClose: true,
+          overlayClickBehavior: 'close',
+          showProgress: false,
+          overlayColor: '#161528',
+          stageRadius: 8,
+          stagePadding: 6,
+          popoverClass: 'custom-popover',
+          doneBtnText: 'Got it',
+          showButtons: ['close', 'next'],
+        }));
+      });
+
+      it('should get walkthrough steps from service', () => {
+        component.startBlockedFilterWalkthrough();
+
+        expect(walkthroughService.getMyExpensesBlockedFilterWalkthroughConfig).toHaveBeenCalled();
+        expect(mockDriverInstance.setSteps).toHaveBeenCalled();
+        expect(mockDriverInstance.drive).toHaveBeenCalled();
+      });
+
+      it('should handle driver errors gracefully', () => {
+        spyOn(console, 'error');
+        mockDriverInstance.drive.and.throwError('Driver failed');
+
+        component.startBlockedFilterWalkthrough();
+
+        expect(console.error).toHaveBeenCalledWith('Blocked filter walkthrough failed:', jasmine.any(Error));
+      });
+    });
+
+    describe('openFilters with walkthrough', () => {
+      beforeEach(() => {
+        spyOn(component, 'shouldShowBlockedFilterWalkthrough').and.resolveTo(true);
+        spyOn(component, 'startBlockedFilterWalkthrough');
+        modalController.create.and.resolveTo(
+          {
+            present: jasmine.createSpy('present').and.resolveTo(),
+            onWillDismiss: jasmine.createSpy('onWillDismiss').and.resolveTo({ data: null }),
+          } as any
+        );
+        
+        // Mock DOM elements
+        const mockElement = { click: jasmine.createSpy('click') };
+        spyOn(document, 'querySelector').and.returnValue(mockElement as any);
+      });
+
+      it('should trigger walkthrough when conditions are met', fakeAsync(() => {
+        const mockOrgSettings = { is_new_critical_policy_violation_flow_enabled: true };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+
+        component.openFilters();
+        tick(1000); // Wait for all timeouts
+
+        expect(component.shouldShowBlockedFilterWalkthrough).toHaveBeenCalled();
+        expect(component.startBlockedFilterWalkthrough).toHaveBeenCalled();
+      }));
+
+      it('should not trigger walkthrough when blocked filter is disabled', fakeAsync(() => {
+        const mockOrgSettings = { is_new_critical_policy_violation_flow_enabled: false };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+
+        component.openFilters();
+        tick(1000);
+
+        expect(component.shouldShowBlockedFilterWalkthrough).toHaveBeenCalled();
+        expect(component.startBlockedFilterWalkthrough).not.toHaveBeenCalled();
+      }));
+
+      it('should not trigger walkthrough when already shown', fakeAsync(() => {
+        const mockOrgSettings = { is_new_critical_policy_violation_flow_enabled: true };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        (component.shouldShowBlockedFilterWalkthrough as jasmine.Spy).and.resolveTo(false);
+
+        component.openFilters();
+        tick(1000);
+
+        expect(component.startBlockedFilterWalkthrough).not.toHaveBeenCalled();
+      }));
+    });
   });
 });
