@@ -504,14 +504,13 @@
 }
 @if (segmentValue === Segment.EXPENSES && (report$ | async)?.state === 'APPROVER_PENDING' && unreportedExpenses) {
   <ion-footer class="view-reports--add-expense-footer">
-    <div class="view-reports--add-expense-footer__block">
-      <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">
-        <div class="view-reports--add-more-icon-container">
-          <mat-icon class="view-reports--add-more-icon" svgIcon="plus-square"></mat-icon>
-        </div>
-        <div class="view-reports--add-more-text">Add expenses to report</div>
-      </div>
-    </div>
+    <button
+      (click)="showAddExpensesToReportModal()"
+      class="btn-outline-secondary view-reports--add-expense-footer__cta"
+    >
+      <mat-icon class="view-reports--add-expense-footer__icon" svgIcon="plus-square"></mat-icon>
+      <div>Add expenses to report</div>
+    </button>
   </ion-footer>
 }
 @if (segmentValue === Segment.COMMENTS) {

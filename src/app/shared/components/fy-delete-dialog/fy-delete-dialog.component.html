@@ -28,22 +28,22 @@
       <ion-col size="6">
         <div
           [ngClass]="{ 'fy-delete-dialog--cancel__disabled': deleteCallInProgress }"
-          class="fy-delete-dialog--cancel"
+          class="fy-delete-dialog--cancel btn-outline-secondary"
           (click)="cancel()"
-          >
+        >
           {{ 'fyDeleteDialog.cancel' | transloco }}
         </div>
       </ion-col>
       <ion-col size="6">
         <div
-          class="fy-delete-dialog--delete"
+          class="fy-delete-dialog--delete btn-primary"
           [ngClass]="{ 'fy-delete-dialog--delete-disabled': disableDelete }"
           (click)="delete()"
           appFormButtonValidation
           [loaderPosition]="LoaderPosition.prefix"
           [loading]="deleteCallInProgress"
           [loadingText]="ctaLoadingText ? ctaLoadingText : ('fyDeleteDialog.deleting' | transloco)"
-          >
+        >
           {{ ctaText ? ctaText : ('fyDeleteDialog.delete' | transloco) }}
         </div>
       </ion-col>

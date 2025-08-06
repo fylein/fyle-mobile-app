@@ -218,7 +218,7 @@ export const filterPopoverParams = {
 export const popoverControllerParams = {
   component: PopupAlertComponent,
   componentProps: {
-    title: 'Cannot Delete Report',
+    title: 'Cannot delete report',
     message: `Approved report cannot be deleted.`,
     primaryCta: {
       text: 'Close',
@@ -236,7 +236,7 @@ export const deletePopoverParamsRes = {
   cssClass: 'delete-dialog',
   backdropDismiss: false,
   componentProps: {
-    header: 'Delete Report',
+    header: 'Delete report',
     body: 'Are you sure you want to delete this report?',
     infoMessage: 'Deleting the report will not delete any of the expenses.',
     deleteMethod: mockDeleteMethod,
