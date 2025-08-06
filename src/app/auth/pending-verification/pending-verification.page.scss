@@ -193,11 +193,8 @@
   &__cta-secondary {
     display: flex;
     padding-top: 18px;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: colors.$blue-black;
-    display: flex;
     flex-direction: row;
   }
 }

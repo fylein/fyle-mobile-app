@@ -894,6 +894,12 @@ ref - https://stackoverflow.com/a/31162426
   padding: 0 16px;
 }
 
+// primary button above takes 100% widths.
+.btn-auto-width {
+  padding: 8px 16px;
+  width: auto;
+}
+
 .btn-secondary {
   background: colors.$pure-white;
   color: colors.$brand-primary;
