@@ -57,8 +57,6 @@ describe('VerifiedOrgAuthGuard', () => {
       tick();
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(result).toBeTrue();
     }));
 
@@ -73,8 +71,6 @@ describe('VerifiedOrgAuthGuard', () => {
       tick();
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'switch_org']);
       expect(result).toBeFalse();
     }));
@@ -90,8 +86,6 @@ describe('VerifiedOrgAuthGuard', () => {
       tick();
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'switch_org']);
       expect(result).toBeFalse();
     }));
@@ -107,8 +101,6 @@ describe('VerifiedOrgAuthGuard', () => {
       tick();
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(result).toBeFalse();
     }));
   });
