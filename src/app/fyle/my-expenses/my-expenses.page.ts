@@ -706,7 +706,9 @@ export class MyExpensesPage implements OnInit {
       });
     });
 
-    this.myExpenses$.subscribe(noop);
+    this.myExpenses$.subscribe(() => {
+      this.checkAndStartStatusPillWalkthroughs();
+    });
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     if (this.activatedRoute.snapshot.queryParams.filters) {
@@ -1973,6 +1975,31 @@ export class MyExpensesPage implements OnInit {
     );
   }
 
+  private async checkForStatusPills(): Promise<void> {
+    const hasBlockedPills = document.querySelectorAll('.expenses-card--state-container.state-blocked').length > 0;
+    const hasIncompletePills = document.querySelectorAll('.expenses-card--state-container.state-incomplete').length > 0;
+    
+    // Check if walkthrough should be shown (only once per org)
+    const shouldShowWalkthrough = await this.shouldShowStatusPillSequenceWalkthrough();
+    
+    if (hasBlockedPills && hasIncompletePills) {
+      // Both present - show sequence walkthrough
+      if (shouldShowWalkthrough) {
+        this.startStatusPillSequenceWalkthrough();
+      }
+    } else if (hasBlockedPills) {
+      // Only blocked present
+      if (shouldShowWalkthrough) {
+        this.startBlockedStatusPillWalkthrough();
+      }
+    } else if (hasIncompletePills) {
+      // Only incomplete present
+      if (shouldShowWalkthrough) {
+        this.startIncompleteStatusPillWalkthrough();
+      }
+    }
+  }
+
   startBlockedFilterWalkthrough(): void {
     const walkthroughSteps = this.walkthroughService.getMyExpensesBlockedFilterWalkthroughConfig();
     const driverInstance = driver({
@@ -2010,12 +2037,8 @@ export class MyExpensesPage implements OnInit {
       },
     });
 
-    try {
-      driverInstance.setSteps(walkthroughSteps);
-      driverInstance.drive();
-    } catch (error) {
-      console.error('Blocked filter walkthrough failed:', error);
-    }
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
   }
 
   setBlockedFilterWalkthroughFeatureFlag(overlayClicked: boolean): void {
@@ -2070,5 +2093,282 @@ export class MyExpensesPage implements OnInit {
           }
         });
     });
+  }
+
+  startBlockedStatusPillWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesBlockedStatusPillWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'],
+      
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setBlockedStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onNextClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setBlockedStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onDestroyStarted: () => {
+        // Always mark as finished when walkthrough ends (either completed or skipped)
+        this.setBlockedStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  startIncompleteStatusPillWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesIncompleteStatusPillWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'],
+      
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onNextClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onDestroyStarted: () => {
+        // Always mark as finished when walkthrough ends (either completed or skipped)
+        this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  setBlockedStatusPillWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+      key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked 
+      ? 'My Expenses Blocked Status Pill Walkthrough Skipped'
+      : 'My Expenses Blocked Status Pill Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      status_type: 'blocked',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  setIncompleteStatusPillWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+      key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked 
+      ? 'My Expenses Incomplete Status Pill Walkthrough Skipped'
+      : 'My Expenses Incomplete Status Pill Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      status_type: 'incomplete',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  shouldShowBlockedStatusPillWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+        key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          }
+        });
+    });
+  }
+
+  shouldShowIncompleteStatusPillWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+        key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          }
+        });
+    });
+  }
+
+  checkAndStartStatusPillWalkthroughs(): void {
+    setTimeout(() => {
+      this.checkForStatusPills();
+    }, 1000);
+  }
+
+  shouldShowStatusPillSequenceWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+        key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          }
+        });
+    });
+  }
+
+  startStatusPillSequenceWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesStatusPillSequenceWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'] as const,
+      
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setStatusPillSequenceWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onNextClick: () => {
+        driverInstance.moveNext();
+      },
+      
+      onDestroyStarted: () => {
+        // Always mark as finished when walkthrough ends (either completed or skipped)
+        this.setStatusPillSequenceWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  setStatusPillSequenceWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+      key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked 
+      ? 'My Expenses Status Pill Sequence Walkthrough Skipped'
+      : 'My Expenses Status Pill Sequence Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      status_type: 'blocked_and_incomplete',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
   }
 }

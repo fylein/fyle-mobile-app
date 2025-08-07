@@ -78,7 +78,9 @@
       "approverDescription": "Easily manage and approve reports — Access your team's reports right from the home page!",
       "profileEmailOptInDescription": "Forward receipts to this email ID and your expense will be created automatically.",
       "dashboardAddExpenseDescription": "With the Add Expense button - manually create expenses or upload receipts with ease — all from one place.",
-      "blockedFilterDescription": "Filter blocked expenses that violate critical policy & cannot be submitted."
+      "blockedFilterDescription": "Filter blocked expenses that violate critical policy & cannot be submitted.",
+      "blockedStatusPillDescription": "Expenses that are violating a critical policy will be blocked and show a red tag.",
+      "incompleteStatusPillDescription": "Expenses missing mandatory information will show a yellow incomplete tag."
     },
     "customInputs": {
       "deletedSuffix": " (Deleted)",

@@ -94,7 +94,11 @@ describe('WalkthroughDriverService', () => {
 
     it('should have correct onHighlightStarted configuration', () => {
       const steps: DriveStep[] = service.getMyExpensesBlockedFilterWalkthroughConfig();
-      const mockOpts = { config: { stagePadding: 0, stageRadius: 0 } };
+      const mockOpts = { 
+        config: { stagePadding: 0, stageRadius: 0 },
+        state: {} as any,
+        driver: {} as any
+      };
       
       // Execute the onHighlightStarted callback
       steps[0].onHighlightStarted(null, null, mockOpts);
