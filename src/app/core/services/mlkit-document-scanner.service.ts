@@ -17,11 +17,11 @@ export class MLKitDocumentScannerService {
       }),
     ).pipe(
       switchMap((result: ScanResult) => {
-        if (result.scannedImages && result.scannedImages.length > 0) {
-          // In bulk mode, we still return one image at a time to maintain compatibility
-          return from(this.convertFileToBase64(result.scannedImages[0]));
+        if (!result || !result.scannedImages || result.scannedImages.length === 0) {
+          throw new Error('No document scanned or scan was cancelled');
         }
-        throw new Error('No document scanned');
+        // In bulk mode, we still return one image at a time to maintain compatibility
+        return from(this.convertFileToBase64(result.scannedImages[0]));
       }),
     );
   }

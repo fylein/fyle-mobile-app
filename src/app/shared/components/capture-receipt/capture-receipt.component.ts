@@ -580,12 +580,16 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           ]);
         });
       },
-      error: () => {
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('failure', {
-            message: 'failed',
-          }),
-        });
+      error: (error: Error) => {
+        // Only show error if it's not a user cancellation
+        if (error?.message !== 'No document scanned or scan was cancelled') {
+          console.log('error', error);
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('failure', {
+              message: 'Document scanning failed. Please try again.' + error.message,
+            }),
+          });
+        }
       },
     });
   }
