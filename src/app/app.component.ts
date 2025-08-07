@@ -101,23 +101,10 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     // Move platform ready check here after view is initialized
-    this.platform.ready().then(() => {
-      setTimeout(async () => {
-        this.isLoading = false;
-        this.initializeSidemenu();
-        await SplashScreen.hide();
-      }, 1500);
-    });
-  }
-
-  private initializeSidemenu(): void {
-    if (this.isUserLoggedIn && this.sidemenuRef) {
-      if (this.isOnline) {
-        this.sidemenuRef.showSideMenuOnline();
-      } else {
-        this.sidemenuRef.showSideMenuOffline();
-      }
-    }
+    setTimeout(async () => {
+      this.isLoading = false;
+      await SplashScreen.hide();
+    }, 2000);
   }
 
   registerBackButtonAction(): void {
@@ -232,6 +219,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     }).subscribe(({ loggedInStatus, isOnline }) => {
       this.isUserLoggedIn = loggedInStatus;
 
+      if (this.isUserLoggedIn) {
+        if (this.isOnline) {
+          this.sidemenuRef.showSideMenuOnline();
+        } else {
+          this.sidemenuRef.showSideMenuOffline();
+        }
+      }
+
       const markOptions: PerformanceMarkOptions = {
         detail: this.isUserLoggedIn,
       };
@@ -240,7 +235,11 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
-        this.initializeSidemenu();
+        if (this.isOnline) {
+          this.sidemenuRef.showSideMenuOnline();
+        } else {
+          this.sidemenuRef.showSideMenuOffline();
+        }
       }, 500);
     });
 
