@@ -106,7 +106,7 @@ describe('AccountsService', () => {
 
     accountsService = TestBed.inject(AccountsService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     fyCurrencyPipe = TestBed.inject(FyCurrencyPipe) as jasmine.SpyObj<FyCurrencyPipe>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
@@ -133,17 +133,17 @@ describe('AccountsService', () => {
 
   it('should be able to check if etxn has same personal account payment mode', () => {
     expect(
-      accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal)
+      accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal),
     ).toBeFalse();
 
     expect(
-      accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal2)
+      accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal2),
     ).toBeTrue();
   });
 
   it('should be able to get etxn selected payment mode with source account id', () => {
     expect(accountsService.getEtxnSelectedPaymentMode(unflattenedTransactionCCC, paymentModesData)).toEqual(
-      paymentModeDataCCC
+      paymentModeDataCCC,
     );
   });
 
@@ -151,14 +151,14 @@ describe('AccountsService', () => {
     expect(
       accountsService.getEtxnSelectedPaymentMode(
         unflattenedTransactionAdvanceWallet,
-        paymentModesWithAdvanceWalletsResData
-      )
+        paymentModesWithAdvanceWalletsResData,
+      ),
     ).toEqual(paymentModeDataAdvanceWallet2);
   });
 
   it('should be able to get selected payment mode as null when extn is without source account id', () => {
     expect(
-      accountsService.getEtxnSelectedPaymentMode(unflattenedTxnWithoutSourceAccountIdData, paymentModesData)
+      accountsService.getEtxnSelectedPaymentMode(unflattenedTxnWithoutSourceAccountIdData, paymentModesData),
     ).toBeNull();
   });
 
@@ -172,21 +172,21 @@ describe('AccountsService', () => {
 
   it('should be able to set account properties', () => {
     expect(accountsService.setAccountProperties(paymentModeDataCCCWithoutAccountProperty, AccountType.CCC)).toEqual(
-      paymentModeDataCCC
+      paymentModeDataCCC,
     );
   });
 
   it('should be able to set account properties for advance account', () => {
     fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
     expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE)).toEqual(
-      paymentModeDataAdvance
+      paymentModeDataAdvance,
     );
   });
 
   it('should be able to set account properties for multiple advance account', () => {
     fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
     expect(accountsService.setAccountProperties(unflattenedAccount3Data, AccountType.ADVANCE)).toEqual(
-      paymentModeDataMultipleAdvance
+      paymentModeDataMultipleAdvance,
     );
   });
 
@@ -197,13 +197,13 @@ describe('AccountsService', () => {
   it('should be able to set account properties for multiple advance account as default without orig amount', () => {
     fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
     expect(accountsService.setAccountProperties(unflattenedAccount4Data, AccountType.ADVANCE)).toEqual(
-      paymentModeDataMultipleAdvWithoutOrigAmt
+      paymentModeDataMultipleAdvWithoutOrigAmt,
     );
   });
 
   it('should be able to filter the accounts with sufficient balance', () => {
     expect(accountsService.filterAccountsWithSufficientBalance(multiplePaymentModesData, true)).toEqual(
-      multiplePaymentModesData
+      multiplePaymentModesData,
     );
   });
 
@@ -215,8 +215,8 @@ describe('AccountsService', () => {
         allowedPaymentModes,
         false,
         etxnObjData,
-        false
-      )
+        false,
+      ),
     ).toEqual(multiplePaymentModesWithCompanyAccData);
   });
 
@@ -228,8 +228,8 @@ describe('AccountsService', () => {
         allowedPaymentModes,
         false,
         etxnObjWithSourceData,
-        false
-      )
+        false,
+      ),
     ).toEqual(multiplePaymentModesWithCompanyAccData);
   });
 
@@ -239,15 +239,15 @@ describe('AccountsService', () => {
       accountsService.getAllowedAccountsWithAdvanceWallets(
         multiplePaymentModesWithCompanyAccData2,
         allowedPaymentModes,
-        etxnObjData
-      )
+        etxnObjData,
+      ),
     ).toEqual(multiplePaymentModesWithCompanyAccData2);
   });
 
   it('should be able to get allowed accounts without passing etxn param', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_CASH_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdvData, allowedPaymentModes, false)).toEqual(
-      multiplePaymentModesWithCompanyAccData
+      multiplePaymentModesWithCompanyAccData,
     );
   });
 
@@ -259,8 +259,8 @@ describe('AccountsService', () => {
         allowedPaymentModes,
         false,
         etxnObjData,
-        true
-      )
+        true,
+      ),
     ).toEqual(multiplePaymentModesWithoutCCCAccData);
   });
 
@@ -272,8 +272,8 @@ describe('AccountsService', () => {
         allowedPaymentModes,
         false,
         etxnObjWithSourceData,
-        false
-      )
+        false,
+      ),
     ).toEqual(multiplePaymentModesIncPersonalAccData);
   });
 
@@ -286,11 +286,11 @@ describe('AccountsService', () => {
         allowedPaymentModes,
         true,
         etxnObjWithAdvSourceData,
-        false
-      )
+        false,
+      ),
     ).toEqual(multipleAdvAccountsData);
     expect(accountsService.getAdvanceAccountDisplayName(multipleAdvAccountsData[1], true)).toBe(
-      'Advance (Balance: $223,146,386.93)'
+      'Advance (Balance: $223,146,386.93)',
     );
     expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
@@ -311,7 +311,7 @@ describe('AccountsService', () => {
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
     expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
-      paymentModesResData
+      paymentModesResData,
     );
   });
 
@@ -331,7 +331,7 @@ describe('AccountsService', () => {
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
     expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
-      paymentModesResData
+      paymentModesResData,
     );
   });
 
@@ -352,8 +352,8 @@ describe('AccountsService', () => {
         paymentModesAccountsData,
         advanceWallet1Data,
         allowedPaymentModes,
-        config
-      )
+        config,
+      ),
     ).toEqual(paymentModesWithAdvanceWalletsResData);
   });
 
@@ -374,8 +374,8 @@ describe('AccountsService', () => {
         paymentModesAccountsData,
         advanceWallet1DataZeroBalance,
         allowedPaymentModes,
-        config
-      )
+        config,
+      ),
     ).toEqual(paymentModesWithZeroAdvanceWalletBalanceResData);
   });
 
@@ -396,8 +396,8 @@ describe('AccountsService', () => {
         paymentModesAccountsData,
         advanceWallet1Data,
         allowedPaymentModes,
-        config
-      )
+        config,
+      ),
     ).toEqual(paymentModesWithAdvanceWalletsResData);
     expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(1500, 'USD');
   });
@@ -409,8 +409,8 @@ describe('AccountsService', () => {
         multiplePaymentModesWithoutAdvData,
         allowedPaymentModes,
         etxnObjData,
-        false
-      )
+        false,
+      ),
     ).toEqual(multiplePaymentModesWithCompanyAccData);
   });
 
@@ -421,8 +421,8 @@ describe('AccountsService', () => {
         multiplePaymentModesWithoutAdvData,
         allowedPaymentModes,
         etxnObjWithSourceData,
-        false
-      )
+        false,
+      ),
     ).toEqual(multiplePaymentModesWithCompanyAccData);
   });
 
@@ -432,15 +432,15 @@ describe('AccountsService', () => {
       accountsService.getAllowedAccountsWithAdvanceWallets(
         multiplePaymentModesWithoutAdvData,
         allowedPaymentModes,
-        etxnObjData
-      )
+        etxnObjData,
+      ),
     ).toEqual(multiplePaymentModesWithCompanyAccData3);
   });
 
   it('should be able to get allowed accounts without passing etxn param', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_CASH_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
-      accountsService.getAllowedAccountsWithAdvanceWallets(multiplePaymentModesWithoutAdvData, allowedPaymentModes)
+      accountsService.getAllowedAccountsWithAdvanceWallets(multiplePaymentModesWithoutAdvData, allowedPaymentModes),
     ).toEqual(multiplePaymentModesWithCompanyAccData);
   });
 
@@ -451,8 +451,8 @@ describe('AccountsService', () => {
         multiplePaymentModesWithoutAdvData,
         allowedPaymentModes,
         etxnObjData,
-        true
-      )
+        true,
+      ),
     ).toEqual(multiplePaymentModesWithoutCCCAccData);
   });
 
@@ -463,8 +463,124 @@ describe('AccountsService', () => {
         multiplePaymentModesWithoutPersonalAccData,
         allowedPaymentModes,
         etxnObjWithSourceData,
-        false
-      )
+        false,
+      ),
     ).toEqual(multiplePaymentModesIncPersonalAccData);
+  });
+
+  it('should be able to get advance wallet display name with formatted balance', () => {
+    fyCurrencyPipe.transform.and.returnValue('$1,500.00');
+    const advanceWallet = advanceWallet1Data[0];
+
+    const displayName = accountsService.getAdvanceWalletDisplayName(advanceWallet);
+
+    expect(displayName).toBe('Advance Wallet (Balance: $1,500.00)');
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(1500, 'USD');
+    expect(translocoService.translate).toHaveBeenCalledWith('services.accounts.advanceWalletDisplayName', {
+      balance: '$1,500.00',
+    });
+  });
+
+  it('should be able to get advance account display name with multiple advance enabled', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
+    const account = unflattenedAccount2Data;
+
+    const displayName = accountsService.getAdvanceAccountDisplayName(account, true);
+
+    expect(displayName).toBe('Advance (Balance: $223,146,386.93)');
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
+    expect(translocoService.translate).toHaveBeenCalledWith('services.accounts.advanceAccountDisplayName', {
+      balance: '$223,146,386.93',
+    });
+  });
+
+  it('should be able to get advance account display name with multiple advance disabled', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
+    const account = unflattenedAccount2Data;
+
+    const displayName = accountsService.getAdvanceAccountDisplayName(account, false);
+
+    expect(displayName).toBe('Advance (Balance: $223,146,386.93)');
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
+  });
+
+  it('should be able to filter accounts with sufficient balance when advance is enabled', () => {
+    const accounts = [account1Data, account2Data];
+
+    const filteredAccounts = accountsService.filterAccountsWithSufficientBalance(accounts, true);
+
+    // Should include accounts with balance > 0 or PERSONAL/CCC accounts
+    expect(filteredAccounts.length).toBe(2);
+    // account1Data is PERSONAL type (always included)
+    // account2Data is ADVANCE type with balance > 0 (included when advance is enabled)
+    expect(filteredAccounts).toContain(account1Data);
+    expect(filteredAccounts).toContain(account2Data);
+  });
+
+  it('should be able to filter accounts with sufficient balance when advance is disabled', () => {
+    const accounts = [account1Data, account2Data];
+
+    const filteredAccounts = accountsService.filterAccountsWithSufficientBalance(accounts, false);
+
+    // Should include only PERSONAL/CCC accounts when advance is disabled
+    expect(filteredAccounts.length).toBe(1);
+    expect(filteredAccounts[0]).toEqual(account1Data); // account1Data is PERSONAL type
+  });
+
+  it('should be able to handle payment mode filtering for mileage expenses', () => {
+    const allowedPaymentModes = [AccountType.CCC, AccountType.PERSONAL];
+    const etxn = etxnObjData;
+
+    // Test through getAllowedAccounts which uses handlePaymentModeFiltering internally
+    const result = accountsService.getAllowedAccounts(
+      [account1Data, account2Data],
+      allowedPaymentModes,
+      false,
+      etxn,
+      true, // isMileageOrPerDiemExpense = true
+    );
+
+    // Should filter out CCC accounts for mileage expenses
+    expect(result.length).toBeGreaterThan(0);
+    // Verify that CCC accounts are filtered out for mileage expenses
+    const hasCCCAccount = result.some((account) => account.type === AccountType.CCC);
+    expect(hasCCCAccount).toBeFalse();
+  });
+
+  it('should be able to handle payment mode filtering when only CCC is allowed', () => {
+    const allowedPaymentModes = [AccountType.CCC];
+
+    // Use test data that includes CCC accounts
+    const accountsWithCCC = [account1Data, paymentModeDataCCC];
+
+    // Test through getAllowedAccounts which uses handlePaymentModeFiltering internally
+    const result = accountsService.getAllowedAccounts(accountsWithCCC, allowedPaymentModes, false, etxnObjData, false);
+
+    // Should only include CCC accounts
+    expect(result.length).toBeGreaterThan(0);
+    const allAreCCC = result.every((account) => account.type === AccountType.CCC);
+    expect(allAreCCC).toBeTrue();
+  });
+
+  it('should be able to process accounts by payment mode for different account types', () => {
+    const accounts = [account1Data, account2Data];
+    const allowedPaymentModes = [AccountType.PERSONAL, AccountType.ADVANCE];
+
+    // Test through getAllowedAccounts which uses processAccountsByPaymentMode internally
+    const result = accountsService.getAllowedAccounts(accounts, allowedPaymentModes, false, etxnObjData, false);
+
+    expect(result.length).toBeGreaterThan(0);
+
+    // Verify that accounts are properly processed with correct properties
+    const personalAccount = result.find((account) => account.type === AccountType.PERSONAL);
+    if (personalAccount) {
+      expect(personalAccount.isReimbursable).toBeTrue();
+      expect(personalAccount.displayName).toBe('Personal Card/Cash');
+    }
+
+    const advanceAccount = result.find((account) => account.type === AccountType.ADVANCE);
+    if (advanceAccount) {
+      expect(advanceAccount.isReimbursable).toBeFalse();
+    }
   });
 });
