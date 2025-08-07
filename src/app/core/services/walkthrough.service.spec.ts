@@ -3,7 +3,7 @@ import { WalkthroughService } from './walkthrough.service';
 import { DriveStep } from 'driver.js';
 import { TranslocoService } from '@jsverse/transloco';
 
-fdescribe('WalkthroughDriverService', () => {
+describe('WalkthroughDriverService', () => {
   let service: WalkthroughService;
   let translocoService: jasmine.SpyObj<TranslocoService>;
 
