@@ -704,14 +704,13 @@ export class DashboardPage {
       this.trackingService.dashboardActionSheetButtonClicked({
         Action: action,
       });
-      this.router.navigate([
-        '/',
-        'enterprise',
-        route,
-        {
-          navigate_back: true,
-        },
-      ]);
+      const autoCaptureExpenseParams: Params = {
+        navigate_back: true,
+      };
+      if (action === 'Auto capture expenses') {
+        autoCaptureExpenseParams.auto_capture_expenses = true;
+      }
+      this.router.navigate(['/', 'enterprise', route, autoCaptureExpenseParams]);
     };
   }
 
@@ -731,6 +730,12 @@ export class DashboardPage {
         icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add manually', 'add_edit_expense'),
+      },
+      {
+        text: 'Auto capture expenses',
+        icon: 'assets/svg/camera.svg',
+        cssClass: 'capture-receipt',
+        handler: this.actionSheetButtonsHandler('Auto capture expenses', 'camera_overlay'),
       },
     ];
 

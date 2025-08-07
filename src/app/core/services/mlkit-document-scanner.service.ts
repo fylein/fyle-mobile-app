@@ -7,11 +7,18 @@ import { switchMap } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class MLKitDocumentScannerService {
-  scanDocument(): Observable<string> {
-    return from(DocumentScanner.scanDocument({ resultFormats: 'JPEG', galleryImportAllowed: true, pageLimit: 1 })).pipe(
+  scanDocument(isBulkMode = false): Observable<string> {
+    return from(
+      DocumentScanner.scanDocument({
+        resultFormats: 'JPEG',
+        galleryImportAllowed: false, // Disable gallery import to prevent additional UI
+        pageLimit: isBulkMode ? 20 : 1, // Allow up to 20 pages in bulk mode, 1 in single mode
+        scannerMode: 'BASE', // Use basic mode to minimize editing UI
+      }),
+    ).pipe(
       switchMap((result: ScanResult) => {
         if (result.scannedImages && result.scannedImages.length > 0) {
-          // MLKit returns file URLs, so we need to convert them to base64
+          // In bulk mode, we still return one image at a time to maintain compatibility
           return from(this.convertFileToBase64(result.scannedImages[0]));
         }
         throw new Error('No document scanned');

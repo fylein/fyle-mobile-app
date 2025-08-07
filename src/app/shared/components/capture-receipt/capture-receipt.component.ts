@@ -4,7 +4,7 @@ import { CameraPreviewPictureOptions } from '@capacitor-community/camera-preview
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
@@ -72,6 +72,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   private readonly trackingService = inject(TrackingService);
 
   private readonly router = inject(Router);
+
+  private readonly route = inject(ActivatedRoute);
 
   private readonly navController = inject(NavController);
 
@@ -401,32 +403,27 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       this.trackingService.receiptLimitReached();
       this.showLimitReachedPopover().subscribe(noop);
     } else {
-      this.mlkitScanner.scanDocument().subscribe({
-        next: (base64PictureData) => {
-          this.lastCapturedReceipt = base64PictureData;
-          if (!this.isBulkMode) {
-            this.stopCamera();
-            this.base64ImagesWithSource.push({
-              source: 'MOBILE_DASHCAM_SINGLE',
-              base64Image: base64PictureData,
-            });
-            this.onSingleCapture();
-          } else {
-            this.base64ImagesWithSource.push({
-              source: 'MOBILE_DASHCAM_BULK',
-              base64Image: base64PictureData,
-            });
-            this.onBulkCapture();
-          }
-        },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        error: (error) => {
-          this.matSnackBar.openFromComponent(ToastMessageComponent, {
-            ...this.snackbarProperties.setSnackbarProperties('failure', {
-              message: 'Camera not available',
-            }),
+      const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
+        quality: 70,
+      };
+
+      from(this.cameraPreviewService.capture(cameraPreviewPictureOptions)).subscribe((receiptData) => {
+        const base64PictureData = 'data:image/jpeg;base64,' + receiptData.value;
+        this.lastCapturedReceipt = base64PictureData;
+        if (!this.isBulkMode) {
+          this.stopCamera();
+          this.base64ImagesWithSource.push({
+            source: 'MOBILE_DASHCAM_SINGLE',
+            base64Image: base64PictureData,
           });
-        },
+          this.onSingleCapture();
+        } else {
+          this.base64ImagesWithSource.push({
+            source: 'MOBILE_DASHCAM_BULK',
+            base64Image: base64PictureData,
+          });
+          this.onBulkCapture();
+        }
       });
     }
   }
@@ -539,9 +536,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   setUpAndStartCamera(): void {
-    // MLKit scanner will handle camera setup and permissions
-    this.onCaptureReceipt();
+    // Check if the URL contains auto_capture_expenses=true
+    const autoCaptureParam = this.route.snapshot.params?.['auto_capture_expenses'] as string | undefined;
+    if (autoCaptureParam === 'true') {
+      this.startDirectDocumentScan();
+      return;
+    }
 
+    this.cameraPreview.setUpAndStartCamera();
     if (this.transactionsOutboxService.singleCaptureCount === 3) {
       this.showBulkModeToastMessage();
       this.isBulkModePromptShown = true;
@@ -549,6 +551,75 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   stopCamera(): void {
-    // MLKit scanner handles its own camera lifecycle
+    this.cameraPreview.stopCamera();
+  }
+
+  // New direct document scanning functions
+  startDirectDocumentScan(): void {
+    this.mlkitScanner.scanDocument(false).subscribe({
+      next: (base64PictureData) => {
+        // Navigate directly to expense form with the scanned image
+        const isInstafyleEnabled$ = this.platformEmployeeSettingsService
+          .get()
+          .pipe(
+            map(
+              (employeeSettings) =>
+                employeeSettings.insta_fyle_settings.allowed && employeeSettings.insta_fyle_settings.enabled,
+            ),
+          );
+
+        isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_expense',
+            {
+              dataUrl: base64PictureData,
+              canExtractData: isInstafyleEnabled,
+            },
+          ]);
+        });
+      },
+      error: () => {
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('failure', {
+            message: 'failed',
+          }),
+        });
+      },
+    });
+  }
+
+  startDirectBulkDocumentScan(): void {
+    if (this.noOfReceipts >= 20) {
+      this.trackingService.receiptLimitReached();
+      this.showLimitReachedPopover().subscribe(noop);
+      return;
+    }
+
+    this.mlkitScanner.scanDocument(true).subscribe({
+      next: (base64PictureData) => {
+        this.base64ImagesWithSource.push({
+          source: 'MOBILE_DASHCAM_BULK',
+          base64Image: base64PictureData,
+        });
+        this.noOfReceipts += 1;
+
+        // Add to queue and navigate to my expenses
+        this.loaderService.showLoader(this.translocoService.translate('captureReceipt.pleaseWait'), 10000);
+        this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+          .pipe(finalize(() => this.loaderService.hideLoader()))
+          .subscribe(() => {
+            this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          });
+      },
+      error: () => {
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('failure', {
+            message: this.translocoService.translate('captureReceipt.documentScanFailed'),
+          }),
+        });
+      },
+    });
   }
 }
