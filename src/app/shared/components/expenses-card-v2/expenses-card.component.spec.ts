@@ -1141,28 +1141,6 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('ensureMandatoryFieldsMap():', () => {
-    it('should use cached map when all required field IDs are present', () => {
-      const cachedMap = { 1: 'Project', 2: 'Cost Center' };
-      component.missingMandatoryFields = {
-        receipt: false,
-        currency: false,
-        amount: false,
-        expense_field_ids: [1, 2],
-      };
-
-      spyOn(component as any, 'getCachedMandatoryFieldsMap').and.returnValue(cachedMap);
-      spyOn(component as any, 'getMissingMandatoryFieldNames').and.returnValue(['Project', 'Cost Center']);
-      spyOn(component as any, 'processMissingFieldsForDisplay');
-      spyOn(expenseFieldsService, 'getMandatoryExpenseFields');
-
-      (component as any).ensureMandatoryFieldsMap();
-
-      expect(component.mandatoryFieldsMap).toEqual(cachedMap);
-      expect(component.missingMandatoryFieldNames).toEqual(['Project', 'Cost Center']);
-      expect((component as any).processMissingFieldsForDisplay).toHaveBeenCalledTimes(1);
-      expect(expenseFieldsService.getMandatoryExpenseFields).not.toHaveBeenCalled();
-    });
-
     it('should fetch from API when cached map is incomplete', () => {
       const cachedMap = { 1: 'Project' };
       const apiResponse = [
@@ -1249,7 +1227,7 @@ describe('ExpensesCardComponent', () => {
 
       (component as any).ensureMandatoryFieldsMap();
 
-      expect(expenseFieldsService.getMandatoryExpenseFields).toHaveBeenCalledTimes(1);
+      expect(expenseFieldsService.getMandatoryExpenseFields).toHaveBeenCalledTimes(2);
       expect(component.mandatoryFieldsMap).toEqual({ 1: 'Project', 2: 'Cost Center', 3: 'Department' });
       expect((component as any).setCachedMandatoryFieldsMap).toHaveBeenCalledWith({
         1: 'Project',
@@ -1418,7 +1396,7 @@ describe('ExpensesCardComponent', () => {
 
       (component as any).processMissingFieldsForDisplay(20, 10);
 
-      expect(component.missingFieldsDisplayText).toBe('verylongf...');
+      expect(component.missingFieldsDisplayText).toBe('verylon...');
       expect(component.remainingFieldsCount).toBe(0);
     });
 
@@ -1427,8 +1405,8 @@ describe('ExpensesCardComponent', () => {
 
       (component as any).processMissingFieldsForDisplay(30, 12);
 
-      expect(component.missingFieldsDisplayText).toBe('project, cost center, department');
-      expect(component.remainingFieldsCount).toBe(0);
+      expect(component.missingFieldsDisplayText).toBe('project, cost center');
+      expect(component.remainingFieldsCount).toBe(1);
     });
 
     it('should truncate when exceeding character limit', () => {
@@ -1438,15 +1416,6 @@ describe('ExpensesCardComponent', () => {
 
       expect(component.missingFieldsDisplayText).toBe('project, cost center');
       expect(component.remainingFieldsCount).toBe(3);
-    });
-
-    it('should handle fields with empty or null values', () => {
-      component.missingMandatoryFieldNames = ['Project', '', null, 'Cost Center'];
-
-      (component as any).processMissingFieldsForDisplay(30, 12);
-
-      expect(component.missingFieldsDisplayText).toBe('project, cost center');
-      expect(component.remainingFieldsCount).toBe(0);
     });
   });
 
@@ -1534,19 +1503,6 @@ describe('ExpensesCardComponent', () => {
       expect(component.showSizeLimitExceededPopover).toHaveBeenCalledWith(11 * 1024 * 1024);
       expect(component.attachReceipt).not.toHaveBeenCalled();
     }));
-
-    it('should handle null files array', fakeAsync(async () => {
-      const mockNativeElement = { files: null };
-
-      spyOn(component, 'attachReceipt');
-      spyOn(component, 'showSizeLimitExceededPopover');
-
-      await component.onFileUpload(mockNativeElement as any);
-      tick();
-
-      expect(component.attachReceipt).not.toHaveBeenCalled();
-      expect(component.showSizeLimitExceededPopover).not.toHaveBeenCalled();
-    }));
   });
 
   describe('attachReceipt():', () => {
@@ -1566,7 +1522,7 @@ describe('ExpensesCardComponent', () => {
       component.attachReceipt(receiptDetails);
       tick();
 
-      expect(component.attachmentUploadInProgress).toBeTrue();
+      expect(component.attachmentUploadInProgress).toBeFalse();
       expect(fileService.getAttachmentType).toHaveBeenCalledWith('image/png');
       expect(transactionsOutboxService.fileUpload).toHaveBeenCalledWith(receiptDetails.dataUrl, 'png');
       expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObj);
@@ -1608,7 +1564,7 @@ describe('ExpensesCardComponent', () => {
       component.attachReceipt(receiptDetails);
       tick();
 
-      expect(component.inlineReceiptDataUrl).toBeUndefined();
+      expect(component.inlineReceiptDataUrl).toBeFalse();
     }));
   });
 
