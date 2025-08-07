@@ -9,7 +9,6 @@
     background: url('../../../../assets/images/card.png') no-repeat bottom;
     height: 120px;
     background-size: 100% 100%;
-    background-color: colors.$card-bg;
     box-shadow: 0px 4px 4px 0px rgba(225, 225, 225, 0.25);
     padding: 24px 16px;
     border-radius: 8px;
@@ -26,8 +25,10 @@
 
   &__icon-container {
     flex: 0 0 55px;
-    max-height: 54px;
-    background: url('../../../../assets/images/fy-profile-gradient.svg') no-repeat bottom;
+    max-height: 55px;
+    height: 55px;
+    border: 1px solid colors.$card-border;
+    border-radius: 50%;
 
     &__text {
       font-weight: 500;
