@@ -4296,4 +4296,258 @@ describe('MyExpensesPage', () => {
       });
     });
   });
+
+  describe('Additional Untested Functions - Part 2', () => {
+    describe('initClassObservables', () => {
+      it('should initialize class observables correctly', () => {
+        spyOn(component, 'initClassObservables');
+
+        component.initClassObservables();
+
+        expect(component.initClassObservables).toHaveBeenCalled();
+      });
+    });
+
+    describe('FooterState getter', () => {
+      it('should return FooterState enum', () => {
+        expect(component.FooterState).toEqual(FooterState);
+      });
+    });
+
+    describe('showCamera with different states', () => {
+      it('should set isCameraPreviewStarted to true when argument is true', () => {
+        component.isCameraPreviewStarted = false;
+        component.showCamera(true);
+        expect(component.isCameraPreviewStarted).toBeTrue();
+      });
+
+      it('should set isCameraPreviewStarted to false when argument is false', () => {
+        component.isCameraPreviewStarted = true;
+        component.showCamera(false);
+        expect(component.isCameraPreviewStarted).toBeFalse();
+      });
+    });
+
+    describe('onPageClick', () => {
+      it('should toggle showOptInAfterExpenseCreation flag', () => {
+        component.optInShowTimer = setTimeout(() => {}, 2000);
+        component.onPageClick();
+        expect(utilityService.toggleShowOptInAfterExpenseCreation).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('setModalDelay', () => {
+      it('should set optInShowTimer and call showPromoteOptInModal after delay', fakeAsync(() => {
+        spyOn(component, 'showPromoteOptInModal');
+
+        component.setModalDelay();
+        tick(4000);
+
+        expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+      }));
+    });
+
+    describe('setNavigationSubscription', () => {
+      it('should clear timeout and show promote opt-in modal if user navigates', fakeAsync(() => {
+        spyOn(component, 'showPromoteOptInModal');
+        const navigationEvent = new NavigationStart(1, 'my_expenses');
+        utilityService.canShowOptInModal.and.returnValue(of(true));
+        activatedRoute.snapshot.queryParams.redirected_from_add_expense = 'true';
+        utilityService.canShowOptInAfterExpenseCreation.and.returnValue(true);
+        Object.defineProperty(router, 'events', { value: of(navigationEvent) });
+
+        component.setNavigationSubscription();
+        tick(100);
+
+        expect(utilityService.canShowOptInModal).toHaveBeenCalledOnceWith({
+          feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+          key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        });
+        expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+        expect(utilityService.toggleShowOptInAfterExpenseCreation).toHaveBeenCalledOnceWith(false);
+      }));
+    });
+
+    describe('showPromoteOptInModal', () => {
+      beforeEach(() => {
+        authService.getEou.and.resolveTo(apiEouRes);
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+        featureConfigService.saveConfiguration.and.returnValue(of(null));
+      });
+
+      it('should show promote opt-in modal and track skip event if user skipped opt-in', fakeAsync(() => {
+        const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+        modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: true } });
+        modalController.create.and.resolveTo(modal);
+
+        component.showPromoteOptInModal();
+        tick(100);
+
+        expect(trackingService.showOptInModalPostExpenseCreation).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(modal.present).toHaveBeenCalledTimes(1);
+        expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+          key: 'OPT_IN_POPUP_SHOWN_COUNT',
+          value: {
+            count: 1,
+          },
+        });
+        expect(trackingService.skipOptInModalPostExpenseCreation).toHaveBeenCalledTimes(1);
+        expect(trackingService.optInFromPostExpenseCreationModal).not.toHaveBeenCalled();
+      }));
+
+      it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
+        const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+        modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: false } });
+        modalController.create.and.resolveTo(modal);
+
+        component.showPromoteOptInModal();
+        tick(100);
+
+        expect(trackingService.showOptInModalPostExpenseCreation).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(modal.present).toHaveBeenCalledTimes(1);
+        expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+          key: 'OPT_IN_POPUP_SHOWN_COUNT',
+          value: {
+            count: 1,
+          },
+        });
+        expect(trackingService.skipOptInModalPostExpenseCreation).not.toHaveBeenCalled();
+        expect(trackingService.optInFromPostExpenseCreationModal).toHaveBeenCalledTimes(1);
+      }));
+    });
+
+    describe('mergeExpenses', () => {
+      it('should navigate to merge_expense with payload data', () => {
+        component.selectedElements = apiExpenses1;
+        component.mergeExpenses();
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'merge_expense',
+          {
+            expenseIDs: JSON.stringify(['txDDLtRaflUW', 'tx5WDG9lxBDT']),
+            from: 'MY_EXPENSES',
+          },
+        ]);
+      });
+    });
+
+    describe('searchClick', () => {
+      it('should set headerState and call focus method on input', fakeAsync(() => {
+        component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
+        const inputElement = component.simpleSearchInput.nativeElement;
+        const mockFocus = spyOn(inputElement, 'focus');
+
+        component.searchClick();
+        expect(component.headerState).toEqual(HeaderState.simpleSearch);
+        tick(300);
+        expect(mockFocus).toHaveBeenCalledTimes(1);
+      }));
+    });
+
+    describe('onCameraClicked', () => {
+      it('should navigate to camera_overlay', () => {
+        component.onCameraClicked();
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'camera_overlay',
+          {
+            navigate_back: true,
+          },
+        ]);
+      });
+    });
+
+    describe('onHomeClicked', () => {
+      it('should navigate to my_dashboard and call trackingService', () => {
+        component.onHomeClicked();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+          queryParams: { state: 'home' },
+        });
+        expect(trackingService.footerHomeTabClicked).toHaveBeenCalledOnceWith({
+          page: 'Expenses',
+        });
+      });
+    });
+
+    describe('onTaskClicked', () => {
+      it('should navigate to my_dashboard and call trackingService', () => {
+        component.onTaskClicked();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+          queryParams: { state: 'tasks', tasksFilters: 'expenses' },
+        });
+        expect(trackingService.tasksPageOpened).toHaveBeenCalledOnceWith({
+          Asset: 'Mobile',
+          from: 'My Expenses',
+        });
+      });
+    });
+
+    describe('onFilterPillsClearAll', () => {
+      it('should call clearFilters', () => {
+        spyOn(component, 'clearFilters');
+        component.onFilterPillsClearAll();
+        expect(component.clearFilters).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('onFilterClick', () => {
+      it('should call openFilters with correct parameter', fakeAsync(() => {
+        spyOn(component, 'openFilters');
+
+        component.onFilterClick('state');
+        tick(100);
+
+        expect(component.openFilters).toHaveBeenCalledOnceWith('Type');
+      }));
+    });
+
+    describe('onFilterClose', () => {
+      beforeEach(() => {
+        component.loadExpenses$ = new BehaviorSubject({});
+        component.filters = {
+          sortDir: 'asc',
+          sortParam: 'tx_org_category',
+        };
+        component.currentPageNumber = 2;
+        spyOn(component, 'addNewFiltersToParams').and.returnValue({
+          pageNumber: 3,
+        });
+        spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
+      });
+
+      it('should remove sortDir and sortParam if filterType is sort', () => {
+        component.onFilterClose('sort');
+
+        expect(component.filters.sortDir).toBeUndefined();
+        expect(component.filters.sortParam).toBeUndefined();
+        expect(component.currentPageNumber).toBe(1);
+        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+        component.loadExpenses$.subscribe((data) => {
+          expect(data).toEqual({ pageNumber: 3 });
+        });
+        expect(component.filterPills).toEqual(creditTxnFilterPill);
+      });
+
+      it('should remove property from filter if filterType is other than sort', () => {
+        component.onFilterClose('sortDir');
+        expect(component.filters).toEqual({
+          sortParam: 'tx_org_category',
+        });
+        expect(component.currentPageNumber).toBe(1);
+        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+        component.loadExpenses$.subscribe((data) => {
+          expect(data).toEqual({ pageNumber: 3 });
+        });
+        expect(component.filterPills).toEqual(creditTxnFilterPill);
+      });
+    });
+  });
 });
