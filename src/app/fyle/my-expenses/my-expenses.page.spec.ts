@@ -653,7 +653,7 @@ describe('MyExpensesPage', () => {
       inputElement = component.simpleSearchInput.nativeElement;
 
       // Mock featureConfigService.getConfiguration to prevent undefined subscribe error
-      featureConfigService.getConfiguration.and.returnValue(
+      (featureConfigService.getConfiguration as any).resolveTo(
         of({
           feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
           key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
@@ -677,13 +677,15 @@ describe('MyExpensesPage', () => {
       walkthroughService.getMyExpensesIncompleteStatusPillWalkthroughConfig.and.returnValue([]);
 
       // Spy on shouldShowStatusPillSequenceWalkthrough to prevent undefined subscribe error
-      spyOn(component, 'shouldShowStatusPillSequenceWalkthrough').and.returnValue(Promise.resolve(false));
+      spyOn(component, 'shouldShowStatusPillSequenceWalkthrough').and.resolveTo(false);
 
       // Initialize orgSettings$ observable
       component.orgSettings$ = of({ is_new_critical_policy_violation_flow_enabled: true });
 
+      (myExpenseService.getFilters as any).resolveTo([]);
+
       // Mock featureConfigService.getConfiguration
-      featureConfigService.getConfiguration.and.returnValue(of(null));
+      (featureConfigService.getConfiguration as any).resolveTo(of(null));
     });
 
     it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and employeeSettings properties are enabled', fakeAsync(() => {
@@ -2233,7 +2235,7 @@ describe('MyExpensesPage', () => {
       component.orgSettings$ = of(orgSettingsRes);
 
       // Mock featureConfigService.getConfiguration
-      featureConfigService.getConfiguration.and.returnValue(of(null));
+      (featureConfigService.getConfiguration as any).resolveTo(of(null));
     });
 
     it('should call modalController and myExpensesService', fakeAsync(() => {
@@ -3883,7 +3885,7 @@ describe('MyExpensesPage', () => {
         ]);
 
         // Mock featureConfigService.getConfiguration
-        featureConfigService.getConfiguration.and.returnValue(of(null));
+        (featureConfigService.getConfiguration as any).resolveTo(of(null));
       });
 
       it('should initialize driver instance with correct configuration', () => {
