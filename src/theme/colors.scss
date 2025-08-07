@@ -34,7 +34,6 @@ $border-info-lighter: #5c98e51a !default;
 $translucent-grey: #dfdfe280 !default;
 $transparent-grey: rgba(255, 255, 255, 0.12) !default;
 $transparent-pearl-grey: rgba(215, 215, 215, 0.5) !default;
-$card-bg: #4e4e4e;
 
 $white: #fafafa !default;
 $pure-white: #fff !default;
@@ -56,6 +55,7 @@ $shadow-xs: rgba(44, 48, 78, 0.06);
 $jade-80: #cce6da;
 
 $navy-150: #d9e0e4;
+$neutral-500: #335b70;
 
 $negative-500: #cd384b;
 
@@ -105,8 +105,8 @@ $rejected-color: #d50000;
 $bright-yellow: #fbd84f;
 
 //walkthrough colours
-$walkthrough-bg: #2c304e;
-$walkthrough-text-color: #a9acbc;
+$walkthrough-bg: $neutral-500;
+$walkthrough-text-color: $pure-white;
 
 // custom colors for pending gas charge info modal
 $border-light-info: #d9def8;

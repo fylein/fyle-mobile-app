@@ -108,12 +108,13 @@
 
   &__more-options-btn {
     background: transparent;
+    display: flex;
   }
 
   &__more-options-btn-icon {
     width: 20px;
     height: 20px;
-    color: colors.$dark-grey;
+    color: colors.$pure-white;
   }
 }
 
