@@ -60,6 +60,8 @@ export class StatsComponent implements OnInit {
 
   isUserAnApprover$: Observable<boolean>;
 
+  isOrgPrimary$: Observable<boolean>;
+
   constructor(
     private dashboardService: DashboardService,
     private currencyService: CurrencyService,
@@ -193,6 +195,10 @@ export class StatsComponent implements OnInit {
     );
 
     that.isUserAnApprover$ = that.dashboardService.isUserAnApprover();
+
+    this.isOrgPrimary$ = combineLatest([this.orgService.getCurrentOrg(), this.orgService.getPrimaryOrg()]).pipe(
+      map(([currentOrg, primaryOrg]) => currentOrg.id === primaryOrg.id),
+    );
 
     that.initializeReportStats();
     that.initializeExpensesStats();
