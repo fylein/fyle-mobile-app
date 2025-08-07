@@ -4297,7 +4297,7 @@ describe('MyExpensesPage', () => {
     });
   });
 
-  describe('Additional Untested Functions - Part 2', () => {
+  describe('Component Interaction and Navigation Functions', () => {
     describe('initClassObservables', () => {
       it('should initialize class observables correctly', () => {
         spyOn(component, 'initClassObservables');
