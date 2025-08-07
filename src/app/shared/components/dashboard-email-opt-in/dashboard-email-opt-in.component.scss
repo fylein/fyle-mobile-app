@@ -15,14 +15,15 @@
   }
 
   &__skip {
-    text-decoration: underline;
-    color: colors.$dark-grey;
+    color: colors.$brand-primary;
+    font-size: 14px;
+    font-weight: 500;
     text-align: end;
     position: relative;
     bottom: 35px;
 
     &--text {
-      padding: 32px;
+      margin: 32px;
     }
   }
 
