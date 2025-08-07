@@ -1840,6 +1840,94 @@ describe('ExpensesCardComponent', () => {
       expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
     });
   });
+
+  describe('ensureMandatoryFieldsMap - Cache Hit Test', () => {
+    it('should use cached map when all required field IDs are present', () => {
+      const cachedMap = { 1: 'Project', 2: 'Cost Center' };
+      component.missingMandatoryFields = {
+        receipt: false,
+        currency: false,
+        amount: false,
+        expense_field_ids: [1, 2],
+      };
+
+      spyOn(component as any, 'getCachedMandatoryFieldsMap').and.returnValue(cachedMap);
+      spyOn(component as any, 'getMissingMandatoryFieldNames').and.returnValue(['Project', 'Cost Center']);
+      spyOn(component as any, 'processMissingFieldsForDisplay');
+
+      (component as any).ensureMandatoryFieldsMap();
+
+      expect(component.mandatoryFieldsMap).toEqual(cachedMap);
+      expect(component.missingMandatoryFieldNames).toEqual(['Project', 'Cost Center']);
+      expect((component as any).processMissingFieldsForDisplay).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('addAttachments - Early Return Test', () => {
+    it('should not proceed when canAddAttachment returns false', fakeAsync(() => {
+      const event = {
+        stopPropagation: jasmine.createSpy('stopPropagation'),
+      };
+
+      spyOn(component, 'canAddAttachment').and.returnValue(false);
+      spyOn(component, 'onFileUpload');
+
+      component.addAttachments(event as any);
+      tick();
+
+      expect(component.canAddAttachment).toHaveBeenCalledTimes(1);
+      expect(component.onFileUpload).not.toHaveBeenCalled();
+      expect(event.stopPropagation).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe('Pending Gas Charge Functionality', () => {
+    it('should return true when expense is a pending gas charge', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(true);
+
+      const result = sharedExpenseService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeTrue();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should return false when expense is not a pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(false);
+
+      const result = sharedExpenseService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeFalse();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should set isPendingGasCharge property correctly', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(true);
+
+      component.expense = mockExpense;
+      component.ngOnInit();
+
+      expect(component.isPendingGasCharge()).toBeTrue();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should set isPendingGasCharge to false for non-pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(false);
+
+      component.expense = mockExpense;
+      component.ngOnInit();
+
+      expect(component.isPendingGasCharge()).toBeFalse();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+  });
 });
 
 describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
