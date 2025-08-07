@@ -103,21 +103,9 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Move platform ready check here after view is initialized
     setTimeout(async () => {
       this.isLoading = false;
-      // this.initializeSidemenu();
       await SplashScreen.hide();
     }, 2000);
   }
-
-  // private initializeSidemenu(): void {
-  //   if (this.isUserLoggedIn && this.sidemenuRef) {
-  //     console.log('initializeSidemenu', this.isOnline);
-  //     if (this.isOnline) {
-  //       this.sidemenuRef.showSideMenuOnline();
-  //     } else {
-  //       this.sidemenuRef.showSideMenuOffline();
-  //     }
-  //   }
-  // }
 
   registerBackButtonAction(): void {
     this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
