@@ -1024,29 +1024,40 @@ describe('ExpensesCardComponent', () => {
 
 describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
   let component: ExpensesCardComponent;
+  let fixture: ComponentFixture<ExpensesCardComponent>;
+
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ExpensesCardComponent],
+      imports: [IonicModule.forRoot()],
+      providers: [
+        { provide: TransactionService, useValue: {} },
+        { provide: SharedExpenseService, useValue: {} },
+        { provide: PlatformEmployeeSettingsService, useValue: {} },
+        { provide: FileService, useValue: {} },
+        { provide: PopoverController, useValue: {} },
+        { provide: NetworkService, useValue: {} },
+        { provide: TransactionsOutboxService, useValue: {} },
+        { provide: ModalController, useValue: {} },
+        { provide: Platform, useValue: { is: (): boolean => false } },
+        { provide: MatSnackBar, useValue: {} },
+        { provide: SnackbarPropertiesService, useValue: { setSnackbarProperties: (): object => ({}) } },
+        { provide: TrackingService, useValue: { addAttachment: (): void => {}, showToastMessage: (): void => {} } },
+        { provide: CurrencyService, useValue: { getHomeCurrency: (): void => {} } },
+        {
+          provide: ExpenseFieldsService,
+          useValue: { getAllMap: (): void => {}, getMandatoryExpenseFields: (): void => {} },
+        },
+        { provide: OrgSettingsService, useValue: { get: (): void => {} } },
+        { provide: ExpensesService, useValue: {} },
+        { provide: TranslocoService, useValue: { translate: (): string => '' } },
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
-    // Provide minimal mocks for all constructor dependencies
-    component = new ExpensesCardComponent(
-      {} as any, // TransactionService
-      {} as any, // SharedExpenseService
-      {} as any, // PlatformEmployeeSettingsService
-      {} as any, // FileService
-      {} as any, // PopoverController
-      {} as any, // NetworkService
-      {} as any, // TransactionsOutboxService
-      {} as any, // ModalController
-      { is: () => false } as any, // Platform
-      {} as any, // MatSnackBar
-      { setSnackbarProperties: () => ({}) } as any, // SnackbarPropertiesService
-      { addAttachment: () => {}, showToastMessage: () => {} } as any, // TrackingService
-      { getHomeCurrency: () => {} } as any, // CurrencyService
-      { getAllMap: () => {}, getMandatoryExpenseFields: () => {} } as any, // ExpenseFieldsService
-      { get: () => {} } as any, // OrgSettingsService
-      {} as any, // ExpensesService
-      { translate: () => '' } as any, // TranslocoService
-      {} as any, // SharedExpenseService
-    );
+    fixture = TestBed.createComponent(ExpensesCardComponent);
+    component = fixture.componentInstance;
     // Set up a default map for testing
     component.mandatoryFieldsMap = { 1: 'Project', 2: 'Cost Center', 3: 'Department' };
   });
