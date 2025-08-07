@@ -3,7 +3,7 @@
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="dependent-field-modal__title">
-        {{ 'dependentFieldModal.selectLabel' | transloco : { label: label } }}
+        {{ 'dependentFieldModal.selectLabel' | transloco: { label: label } }}
       </div>
     </ion-title>
     <ion-buttons slot="start">
@@ -21,13 +21,9 @@
         class="dependent-field-modal__search-input smartlook-show"
         matInput
         [placeholder]="placeholder || ('dependentFieldModal.search' | transloco)"
-        />
+      />
       @if (isLoading) {
-        <mat-icon
-          class="dependent-field-modal__autocomplete-loader"
-          svgIcon="loader"
-          matSuffix
-        ></mat-icon>
+        <mat-icon class="dependent-field-modal__autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
       }
       @if (value && !isLoading) {
         <button
@@ -36,7 +32,7 @@
           [attr.aria-label]="'dependentFieldModal.clear' | transloco"
           mat-icon-button
           matSuffix
-          >
+        >
           <mat-icon>close</mat-icon>
         </button>
       }
@@ -51,9 +47,9 @@
         @if (filteredOptions.length === 0) {
           <div>
             <app-fy-zero-state
-              [header]="'dependentFieldModal.noResultFound' | transloco : { label: label }"
-              [submessage]="'dependentFieldModal.searchOrSelect' | transloco : { label: label }"
-              [image]="'../../../../assets/images/zero-states/search.png'"
+              [header]="'dependentFieldModal.noResultFound' | transloco: { label: label }"
+              [submessage]="'dependentFieldModal.searchOrSelect' | transloco: { label: label }"
+              [image]="'../../../../assets/svg/zero-states/search.svg'"
               [unscaledImage]="true"
               [useNewStyling]="true"
             ></app-fy-zero-state>
@@ -62,13 +58,10 @@
         @if (filteredOptions.length > 0) {
           <div class="dependent-field-modal__single-element-block">
             @for (filteredListItem of filteredOptions; track filteredListItem) {
-              <div
-                (click)="onElementSelect(filteredListItem)"
-                class="dependent-field-modal__list-element"
-                matRipple
-                >
+              <div (click)="onElementSelect(filteredListItem)" class="dependent-field-modal__list-element" matRipple>
                 <div class="dependent-field-modal__label">
-                  <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
+                  <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value">
+                  </app-fy-highlight-text>
                 </div>
                 @if (filteredListItem.selected) {
                   <mat-icon class="dependent-field-modal__check"> check </mat-icon>
