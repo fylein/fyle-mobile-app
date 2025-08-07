@@ -1,5 +1,5 @@
 import { getCurrencySymbol } from '@angular/common';
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
@@ -209,43 +209,41 @@ export class MyExpensesPage implements OnInit {
 
   navigationSubscription: Subscription;
 
-  constructor(
-    private networkService: NetworkService,
-    private loaderService: LoaderService,
-    private modalController: ModalController,
-    private transactionService: TransactionService,
-    private popoverController: PopoverController,
-    private router: Router,
-    private transactionOutboxService: TransactionsOutboxService,
-    private activatedRoute: ActivatedRoute,
-    private trackingService: TrackingService,
-    private storageService: StorageService,
-    private tokenService: TokenService,
-    private modalProperties: ModalPropertiesService,
-    private matBottomSheet: MatBottomSheet,
-    private matSnackBar: MatSnackBar,
-    private actionSheetController: ActionSheetController,
-    private snackbarProperties: SnackbarPropertiesService,
-    private tasksService: TasksService,
-    private corporateCreditCardService: CorporateCreditCardExpenseService,
-    private myExpensesService: MyExpensesService,
-    private orgSettingsService: OrgSettingsService,
-    private currencyService: CurrencyService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private platformHandlerService: PlatformHandlerService,
-    private categoriesService: CategoriesService,
-    private navController: NavController,
-    private expenseService: ExpensesService,
-    private sharedExpenseService: SharedExpenseService,
-    private spenderReportsService: SpenderReportsService,
-    private authService: AuthService,
-    private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService,
-    private extendQueryParamsService: ExtendQueryParamsService,
-    private footerService: FooterService,
-    private translocoService: TranslocoService,
-    private walkthroughService: WalkthroughService,
-  ) {}
+  private networkService = inject(NetworkService);
+  private loaderService = inject(LoaderService);
+  private modalController = inject(ModalController);
+  private transactionService = inject(TransactionService);
+  private popoverController = inject(PopoverController);
+  private router = inject(Router);
+  private transactionOutboxService = inject(TransactionsOutboxService);
+  private activatedRoute = inject(ActivatedRoute);
+  private trackingService = inject(TrackingService);
+  private storageService = inject(StorageService);
+  private tokenService = inject(TokenService);
+  private modalProperties = inject(ModalPropertiesService);
+  private matBottomSheet = inject(MatBottomSheet);
+  private matSnackBar = inject(MatSnackBar);
+  private actionSheetController = inject(ActionSheetController);
+  private snackbarProperties = inject(SnackbarPropertiesService);
+  private tasksService = inject(TasksService);
+  private corporateCreditCardService = inject(CorporateCreditCardExpenseService);
+  private myExpensesService = inject(MyExpensesService);
+  private orgSettingsService = inject(OrgSettingsService);
+  private currencyService = inject(CurrencyService);
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+  private platformHandlerService = inject(PlatformHandlerService);
+  private categoriesService = inject(CategoriesService);
+  private navController = inject(NavController);
+  private expenseService = inject(ExpensesService);
+  private sharedExpenseService = inject(SharedExpenseService);
+  private spenderReportsService = inject(SpenderReportsService);
+  private authService = inject(AuthService);
+  private utilityService = inject(UtilityService);
+  private featureConfigService = inject(FeatureConfigService);
+  private extendQueryParamsService = inject(ExtendQueryParamsService);
+  private footerService = inject(FooterService);
+  private translocoService = inject(TranslocoService);
+  private walkthroughService = inject(WalkthroughService);
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
