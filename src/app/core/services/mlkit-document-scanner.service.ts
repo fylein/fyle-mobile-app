@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DocumentScanner, ScanResult } from '@capacitor-mlkit/document-scanner';
+import { Filesystem, Encoding } from '@capacitor/filesystem';
 import { from, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -26,21 +27,21 @@ export class MLKitDocumentScannerService {
     );
   }
 
-  private async convertFileToBase64(fileUrl: string): Promise<string> {
+  private async convertFileToBase64(fileUri: string): Promise<string> {
     try {
-      const response = await fetch(fileUrl);
-      const blob = await response.blob();
-      return new Promise<string>((resolve, reject): void => {
-        const reader = new FileReader();
-        reader.onloadend = (): void => {
-          const base64data = reader.result as string;
-          resolve(base64data);
-        };
-        reader.onerror = (): void => reject(new Error('Failed to convert file to base64'));
-        reader.readAsDataURL(blob);
+      // Read the file content using Filesystem API
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const result = await Filesystem.readFile({
+        path: fileUri,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        encoding: Encoding.UTF8,
       });
+
+      // file.data will be base64 string
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      return 'data:image/jpeg;base64,' + result.data;
     } catch {
-      throw new Error('Failed to convert file to base64');
+      throw new Error('Failed to read file from URI');
     }
   }
 }

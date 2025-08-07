@@ -51,6 +51,7 @@
     "@capacitor/clipboard": "^7.0.0",
     "@capacitor/core": "^7.0.0",
     "@capacitor/device": "^7.0.0",
+    "@capacitor/filesystem": "^7.1.4",
     "@capacitor/geolocation": "^7.0.0",
     "@capacitor/haptics": "^7.0.0",
     "@capacitor/ios": "^7.0.0",
