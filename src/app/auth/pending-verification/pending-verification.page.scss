@@ -25,7 +25,7 @@
   &__error-icon {
     width: 45px;
     height: 45px;
-    fill: colors.$red;
+    fill: colors.$negative-500;
   }
 
   &__error-icon-container {
@@ -62,7 +62,7 @@
   }
 
   &__error-message {
-    color: colors.$red;
+    color: colors.$negative-500;
     font-size: 12px;
     display: flex;
     align-items: center;
@@ -193,11 +193,8 @@
   &__cta-secondary {
     display: flex;
     padding-top: 18px;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: colors.$blue-black;
-    display: flex;
     flex-direction: row;
   }
 }

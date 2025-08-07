@@ -22,7 +22,7 @@
   }
 
   &--input-invalid {
-    border-bottom: 1px solid colors.$red;
+    border-bottom: 1px solid colors.$negative-500;
   }
 
   &--mandatory {
@@ -74,7 +74,7 @@
   }
 
   &__invalid {
-    border-bottom: 1px solid colors.$red;
+    border-bottom: 1px solid colors.$negative-500;
   }
 
   &--exchange-rate-container {

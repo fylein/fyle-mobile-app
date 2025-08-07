@@ -208,15 +208,6 @@ ion-popover.error-popover {
   color: colors.$dark-yellow !important;
 }
 
-.icon--flagged {
-  color: colors.$red;
-}
-
-.icon--unflagged {
-  color: transparent;
-  stroke: colors.$black-light;
-}
-
 .intermediate-loader .loading-wrapper .loading-spinner ion-spinner {
   color: colors.$brand-primary;
 }
@@ -827,10 +818,10 @@ ref - https://stackoverflow.com/a/31162426
   }
 
   .danger {
-    color: colors.$red;
+    color: colors.$negative-500;
 
     .action-sheet-icon {
-      color: colors.$red;
+      color: colors.$negative-500;
     }
   }
 
@@ -892,6 +883,12 @@ ref - https://stackoverflow.com/a/31162426
   width: 100%;
   letter-spacing: 0px !important;
   padding: 0 16px;
+}
+
+// primary button above takes 100% widths.
+.btn-auto-width {
+  padding: 8px 16px;
+  width: auto;
 }
 
 .btn-secondary {

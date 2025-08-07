@@ -36,11 +36,9 @@
             type="tel"
             [maxlength]="15"
             [minlength]="7"
-            />
+          />
           @if (mobileNumberError?.length) {
-            <span class="opt-in--mobile-input-container__error">{{
-              mobileNumberError
-            }}</span>
+            <span class="opt-in--mobile-input-container__error">{{ mobileNumberError }}</span>
           }
         </div>
       }
@@ -57,7 +55,7 @@
         @if (showOtpTimer) {
           <span class="opt-in--otp-container__label__otp-timer">
             {{ 'fyOptIn.resendCodeIn' | transloco }}
-            <span class="opt-in--otp-container__label__otp-timer--timer"> 0:{{ otpTimer | number : '2.0' }} </span>
+            <span class="opt-in--otp-container__label__otp-timer--timer"> 0:{{ otpTimer | number: '2.0' }} </span>
             <span class="opt-in--otp-container__label__attempts">
               ({{ otpAttemptsLeft }} {{ 'fyOptIn.attemptsLeft' | transloco }})
             </span>
@@ -71,69 +69,68 @@
               buttonType="secondary"
               [loading]="sendCodeLoading"
               [loadingText]="'fyOptIn.sendingCode' | transloco"
-              >
+            >
               {{ 'fyOptIn.resendCode' | transloco }}
             </button>
             <span class="opt-in--otp-container__label__attempts"
               >({{ otpAttemptsLeft }} {{ 'fyOptIn.attemptsLeft' | transloco }})</span
-              >
-            }
-            @if (disableResendOtp) {
-              <div class="opt-in--otp-container__label__resend--disabled-container">
-                <span class="opt-in--otp-container__label__resend--disabled"> {{ 'fyOptIn.resendCode' | transloco }} </span>
-                <span class="opt-in--otp-container__label__attempts">(0 {{ 'fyOptIn.attemptsLeft' | transloco }})</span>
-              </div>
-            }
+            >
+          }
+          @if (disableResendOtp) {
+            <div class="opt-in--otp-container__label__resend--disabled-container">
+              <span class="opt-in--otp-container__label__resend--disabled">
+                {{ 'fyOptIn.resendCode' | transloco }}
+              </span>
+              <span class="opt-in--otp-container__label__attempts">(0 {{ 'fyOptIn.attemptsLeft' | transloco }})</span>
+            </div>
           }
         }
+      }
+    </div>
+  }
+  @if (optInFlowState === OptInFlowState.SUCCESS) {
+    <div class="opt-in--success">
+      <ion-icon
+        class="fy-icon opt-in--success__image-container"
+        src="../../../assets/svg/check-circle-fill.svg"
+      ></ion-icon>
+      <div class="opt-in--success__header">{{ 'fyOptIn.successHeader' | transloco }}</div>
+      <div class="opt-in--success__description">
+        {{ 'fyOptIn.successDescription' | transloco }}
       </div>
-    }
-    @if (optInFlowState === OptInFlowState.SUCCESS) {
-      <div class="opt-in--success">
-        <ion-icon
-          class="fy-icon opt-in--success__image-container"
-          src="../../../assets/svg/check-circle-fill.svg"
-        ></ion-icon>
-        <div class="opt-in--success__header">{{ 'fyOptIn.successHeader' | transloco }}</div>
-        <div class="opt-in--success__description">
-          {{ 'fyOptIn.successDescription' | transloco }}
-        </div>
-      </div>
-    }
-  </ion-content>
+    </div>
+  }
+</ion-content>
 
-  <ion-footer class="opt-in--footer">
-    @if (optInFlowState === OptInFlowState.MOBILE_INPUT) {
-      <div class="opt-in--primary-cta">
-        <button
-          mat-flat-button
-          appFormButtonValidation
-          class="opt-in--send-code-btn"
-          color="primary"
-          (click)="saveMobileNumber()"
-          [loading]="sendCodeLoading"
-          [loadingText]="'fyOptIn.sendCodeLoading' | transloco"
-          >
-          {{ 'fyOptIn.sendCodeBtn' | transloco }}
+<ion-footer class="opt-in--footer">
+  @if (optInFlowState === OptInFlowState.MOBILE_INPUT) {
+    <div class="opt-in--primary-cta">
+      <button
+        appFormButtonValidation
+        class="opt-in--send-code-btn btn-primary"
+        color="primary"
+        (click)="saveMobileNumber()"
+        [loading]="sendCodeLoading"
+        [loadingText]="'fyOptIn.sendCodeLoading' | transloco"
+      >
+        <span>{{ 'fyOptIn.sendCodeBtn' | transloco }}</span>
+        <mat-icon class="fy-icon opt-in--send-code-btn__icon" svgIcon="arrow-tail-right"></mat-icon>
+      </button>
+    </div>
+  }
+  @if (optInFlowState === OptInFlowState.SUCCESS) {
+    <div>
+      <ion-buttons class="opt-in--success__footer">
+        <ion-button class="btn-outline-secondary" (click)="openHelpArticle()">
+          <span class="opt-in--success__footer--secondary-cta-text"> {{ 'fyOptIn.readHelpArticle' | transloco }} </span>
           <span>
-            <mat-icon class="fy-icon opt-in--send-code-btn__icon" svgIcon="arrow-tail-right"></mat-icon>
+            <mat-icon class="fy-icon opt-in--success__help-article-icon" svgIcon="open-in-new-tab"></mat-icon>
           </span>
-        </button>
-      </div>
-    }
-    @if (optInFlowState === OptInFlowState.SUCCESS) {
-      <div>
-        <ion-buttons class="opt-in--success__footer">
-          <ion-button class="btn-outline-secondary" (click)="openHelpArticle()">
-            <span class="opt-in--success__footer--secondary-cta-text"> {{ 'fyOptIn.readHelpArticle' | transloco }} </span>
-            <span>
-              <mat-icon class="fy-icon opt-in--success__help-article-icon" svgIcon="open-in-new-tab"></mat-icon>
-            </span>
-          </ion-button>
-          <ion-button class="btn-primary" (click)="onGotItClicked()">
-            <span class="opt-in--success__footer--primary-cta-text">{{ 'fyOptIn.gotIt' | transloco }}</span>
-          </ion-button>
-        </ion-buttons>
-      </div>
-    }
-  </ion-footer>
+        </ion-button>
+        <ion-button class="btn-primary" (click)="onGotItClicked()">
+          <span class="opt-in--success__footer--primary-cta-text">{{ 'fyOptIn.gotIt' | transloco }}</span>
+        </ion-button>
+      </ion-buttons>
+    </div>
+  }
+</ion-footer>

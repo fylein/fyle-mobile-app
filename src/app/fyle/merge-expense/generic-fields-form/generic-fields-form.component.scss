@@ -40,7 +40,7 @@
 
   &--text {
     &__invalid {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -128,7 +128,7 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: colors.$negative-500;
   }
 
   &--icon-corporate-card {
@@ -176,7 +176,7 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     margin-top: -12px;
     font-size: 12px;

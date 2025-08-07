@@ -35,7 +35,7 @@
   }
 
   &--input-invalid {
-    border-bottom: 1px solid colors.$red;
+    border-bottom: 1px solid colors.$negative-500;
   }
 
   &--mandatory {
