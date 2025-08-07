@@ -11,9 +11,9 @@
       </ion-button>
       <ion-button class="my-reports--header-btn" (click)="openFilters()">
         @if (filterPills?.length) {
-        <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
         } @else {
-        <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
         }
       </ion-button>
       <ion-button
@@ -39,15 +39,15 @@
           (focus)="onSearchBarFocus()"
         />
         @if (simpleSearchText) {
-        <button
-          (click)="clearText('isFromSearchBar')"
-          aria-label="Clear"
-          class="my-reports--simple-search-close"
-          mat-icon-button
-          matSuffix
-        >
-          <mat-icon svgIcon="clear"></mat-icon>
-        </button>
+          <button
+            (click)="clearText('isFromSearchBar')"
+            aria-label="Clear"
+            class="my-reports--simple-search-close"
+            mat-icon-button
+            matSuffix
+          >
+            <mat-icon svgIcon="clear"></mat-icon>
+          </button>
         }
       </mat-form-field>
     </div>
@@ -55,97 +55,107 @@
 </app-fy-header>
 
 <ion-content class="my-reports--content">
-  <div class="my-reports--body" [ngClass]="{'my-reports--zero-state-body': (count$ | async) === 0}">
+  <div class="my-reports--body" [ngClass]="{ 'my-reports--zero-state-body': (count$ | async) === 0 }">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
     @if (filterPills?.length) {
-    <div class="filter-pills-container">
-      <app-fy-filter-pills
-        class="filter-pills"
-        (filterClose)="onFilterClose($event)"
-        (filterClicked)="onFilterClick($event)"
-        (clearAll)="onFilterPillsClearAll()"
-        [filterPills]="filterPills"
-      ></app-fy-filter-pills>
-    </div>
+      <div class="filter-pills-container">
+        <app-fy-filter-pills
+          class="filter-pills"
+          (filterClose)="onFilterClose($event)"
+          (filterClicked)="onFilterClick($event)"
+          (clearAll)="onFilterPillsClearAll()"
+          [filterPills]="filterPills"
+        ></app-fy-filter-pills>
+      </div>
     }
 
     <ng-template #loading>
       <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
     </ng-template>
     @if ((count$ | async) === 0) {
-    <div class="my-reports--zero-state">
-      @if (!(filters?.state || filters?.date || simpleSearchText)) {
-      <app-fy-zero-state
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-        image="../../../assets/images/zero-states/reports.png"
-        [message]="'myReportsPage.zeroState.noReports' | transloco"
-      ></app-fy-zero-state>
-      <button
-        type="button"
-        [routerLink]="['/', 'enterprise', 'my_create_report']"
-        class="my-reports--zero-state-cta text-center"
-        (click)="trackReportZeroStateClick()"
-      >
-        {{ 'myReportsPage.createExpenseReport' | transloco }}
-      </button>
-      } @if ((filters?.state || filters?.date)) {
-      <app-fy-zero-state
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-        image="../../../assets/images/zero-states/reports.png"
-        [message]="'myReportsPage.zeroState.noReportsMatchingFilters' | transloco"
-        [submessage]="'myReportsPage.zeroState.matchingAppliedFilters' | transloco"
-      ></app-fy-zero-state>
-      } @if (!filters?.state && !filters?.date && simpleSearchText) {
-      <app-fy-zero-state
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-        image="../../../assets/images/zero-states/search.png"
-        [message]="'myReportsPage.zeroState.noResultsFound' | transloco"
-        [submessage]="'myReportsPage.zeroState.tryDifferentKeyword' | transloco"
-      ></app-fy-zero-state>
+      <div class="my-reports--zero-state">
+        @if (!(filters?.state || filters?.date || simpleSearchText)) {
+          <app-fy-zero-state
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+            image="../../../assets/images/zero-states/reports.png"
+            [message]="'myReportsPage.zeroState.noReports' | transloco"
+          ></app-fy-zero-state>
+          <button
+            type="button"
+            [routerLink]="['/', 'enterprise', 'my_create_report']"
+            class="my-reports--zero-state-cta text-center"
+            (click)="trackReportZeroStateClick()"
+          >
+            {{ 'myReportsPage.createExpenseReport' | transloco }}
+          </button>
+        }
+        @if (filters?.state || filters?.date) {
+          <app-fy-zero-state
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+            image="../../../assets/images/zero-states/reports.png"
+            [message]="'myReportsPage.zeroState.noReportsMatchingFilters' | transloco"
+            [submessage]="'myReportsPage.zeroState.matchingAppliedFilters' | transloco"
+          ></app-fy-zero-state>
+        }
+        @if (!filters?.state && !filters?.date && simpleSearchText) {
+          <app-fy-zero-state
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+            image="../../../assets/images/zero-states/search.png"
+            [message]="'myReportsPage.zeroState.noResultsFound' | transloco"
+            [submessage]="'myReportsPage.zeroState.tryDifferentKeyword' | transloco"
+          ></app-fy-zero-state>
+        }
+      </div>
+    }
+    @if (!isLoading) {
+      @if (simplifyReportsSettings$ | async; as simplifyReportsSettings) {
+        @let reports = myReports$ | async;
+        @for (report of reports; track report.id; let i = $index) {
+          <app-reports-card
+            [report]="report"
+            [prevDate]="reports[i - 1]?.created_at"
+            [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
+            (gotoReport)="onReportClick($event)"
+            (viewComments)="onViewCommentsClick()"
+          ></app-reports-card>
+        }
+      } @else {
+        <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
       }
-    </div>
-    } @if (!isLoading) { @if ((simplifyReportsSettings$ | async); as simplifyReportsSettings) { @let reports =
-    myReports$ | async; @for (report of reports; track report.id; let i = $index) {
-    <app-reports-card
-      [report]="report"
-      [prevDate]="reports[i-1]?.created_at"
-      [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
-      (gotoReport)="onReportClick($event)"
-      (viewComments)="onViewCommentsClick()"
-    ></app-reports-card>
-    } } @else {
-    <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
-    } } @else {
-    <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
-    } @if (isConnected$|async) { @if (isLoadingDataInInfiniteScroll) {
-    <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
-    } }
+    } @else {
+      <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
+    }
+    @if (isConnected$ | async) {
+      @if (isLoadingDataInInfiniteScroll) {
+        <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
+      }
+    }
   </div>
 
   @if (!isLoadingDataInInfiniteScroll && (isInfiniteScrollRequired$ | async)) {
-  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
-    <ion-infinite-scroll-content
-      loadingSpinner="bubbles"
-      [loadingText]="'myReportsPage.loading.loadingMoreData' | transloco"
-    >
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        [loadingText]="'myReportsPage.loading.loadingMoreData' | transloco"
+      >
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
   }
 </ion-content>
 
 @if (!isSearchBarFocused) {
-<ion-footer mode="md">
-  <app-fy-footer
-    (homeClicked)="onHomeClicked()"
-    (taskClicked)="onTaskClicked()"
-    (cameraClicked)="onCameraClicked()"
-    [taskCount]="reportsTaskCount"
-  ></app-fy-footer>
-</ion-footer>
+  <ion-footer mode="md">
+    <app-fy-footer
+      (homeClicked)="onHomeClicked()"
+      (taskClicked)="onTaskClicked()"
+      (cameraClicked)="onCameraClicked()"
+      [taskCount]="reportsTaskCount"
+    ></app-fy-footer>
+  </ion-footer>
 }
