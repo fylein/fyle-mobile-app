@@ -3,7 +3,7 @@ import { WalkthroughService } from './walkthrough.service';
 import { DriveStep } from 'driver.js';
 import { TranslocoService } from '@jsverse/transloco';
 
-describe('WalkthroughDriverService', () => {
+fdescribe('WalkthroughDriverService', () => {
   let service: WalkthroughService;
   let translocoService: jasmine.SpyObj<TranslocoService>;
 
@@ -270,6 +270,96 @@ describe('WalkthroughDriverService', () => {
       service.getMyExpensesStatusPillSequenceWalkthroughConfig();
 
       expect(translocoService.translate).toHaveBeenCalledWith('services.walkthrough.blockedStatusPillDescription');
+      expect(translocoService.translate).toHaveBeenCalledWith('services.walkthrough.incompleteStatusPillDescription');
+    });
+  });
+
+  describe('getMyExpensesBlockedStatusPillWalkthroughConfig', () => {
+    it('should return blocked status pill walkthrough steps', () => {
+      const steps: DriveStep[] = service.getMyExpensesBlockedStatusPillWalkthroughConfig();
+
+      expect(steps).toBeDefined();
+      expect(steps.length).toBe(1);
+    });
+
+    it('should have correct element targeting for blocked status pill', () => {
+      const steps: DriveStep[] = service.getMyExpensesBlockedStatusPillWalkthroughConfig();
+
+      expect(steps[0].element).toBe('.expenses-card--state-container.state-blocked:nth-child(1)');
+    });
+
+    it('should have correct popover configuration', () => {
+      const steps: DriveStep[] = service.getMyExpensesBlockedStatusPillWalkthroughConfig();
+
+      expect(steps[0].popover.description).toBe('This expense is blocked due to policy violations');
+      expect(steps[0].popover.side).toBe('bottom');
+      expect(steps[0].popover.align).toBe('start');
+      expect(steps[0].popover.showButtons).toEqual(['close', 'next']);
+    });
+
+    it('should have correct onHighlightStarted configuration', () => {
+      const steps: DriveStep[] = service.getMyExpensesBlockedStatusPillWalkthroughConfig();
+      const mockOpts = {
+        config: { stagePadding: 0, stageRadius: 0 },
+        state: {} as any,
+        driver: {} as any,
+      };
+
+      // Execute the onHighlightStarted callback
+      steps[0].onHighlightStarted(null, null, mockOpts);
+
+      expect(mockOpts.config.stagePadding).toBe(6);
+      expect(mockOpts.config.stageRadius).toBe(8);
+    });
+
+    it('should call translate service with correct key', () => {
+      service.getMyExpensesBlockedStatusPillWalkthroughConfig();
+
+      expect(translocoService.translate).toHaveBeenCalledWith('services.walkthrough.blockedStatusPillDescription');
+    });
+  });
+
+  describe('getMyExpensesIncompleteStatusPillWalkthroughConfig', () => {
+    it('should return incomplete status pill walkthrough steps', () => {
+      const steps: DriveStep[] = service.getMyExpensesIncompleteStatusPillWalkthroughConfig();
+
+      expect(steps).toBeDefined();
+      expect(steps.length).toBe(1);
+    });
+
+    it('should have correct element targeting for incomplete status pill', () => {
+      const steps: DriveStep[] = service.getMyExpensesIncompleteStatusPillWalkthroughConfig();
+
+      expect(steps[0].element).toBe('.expenses-card--state-container.state-incomplete:nth-child(1)');
+    });
+
+    it('should have correct popover configuration', () => {
+      const steps: DriveStep[] = service.getMyExpensesIncompleteStatusPillWalkthroughConfig();
+
+      expect(steps[0].popover.description).toBe('This expense is incomplete and needs more information');
+      expect(steps[0].popover.side).toBe('bottom');
+      expect(steps[0].popover.align).toBe('start');
+      expect(steps[0].popover.showButtons).toEqual(['close', 'next']);
+    });
+
+    it('should have correct onHighlightStarted configuration', () => {
+      const steps: DriveStep[] = service.getMyExpensesIncompleteStatusPillWalkthroughConfig();
+      const mockOpts = {
+        config: { stagePadding: 0, stageRadius: 0 },
+        state: {} as any,
+        driver: {} as any,
+      };
+
+      // Execute the onHighlightStarted callback
+      steps[0].onHighlightStarted(null, null, mockOpts);
+
+      expect(mockOpts.config.stagePadding).toBe(6);
+      expect(mockOpts.config.stageRadius).toBe(8);
+    });
+
+    it('should call translate service with correct key', () => {
+      service.getMyExpensesIncompleteStatusPillWalkthroughConfig();
+
       expect(translocoService.translate).toHaveBeenCalledWith('services.walkthrough.incompleteStatusPillDescription');
     });
   });
