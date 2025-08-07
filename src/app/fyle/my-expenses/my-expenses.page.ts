@@ -210,39 +210,73 @@ export class MyExpensesPage implements OnInit {
   navigationSubscription: Subscription;
 
   private networkService = inject(NetworkService);
+
   private loaderService = inject(LoaderService);
+
   private modalController = inject(ModalController);
+
   private transactionService = inject(TransactionService);
+
   private popoverController = inject(PopoverController);
+
   private router = inject(Router);
+
   private transactionOutboxService = inject(TransactionsOutboxService);
+
   private activatedRoute = inject(ActivatedRoute);
+
   private trackingService = inject(TrackingService);
+
   private storageService = inject(StorageService);
+
   private tokenService = inject(TokenService);
+
   private modalProperties = inject(ModalPropertiesService);
+
   private matBottomSheet = inject(MatBottomSheet);
+
   private matSnackBar = inject(MatSnackBar);
+
   private actionSheetController = inject(ActionSheetController);
+
   private snackbarProperties = inject(SnackbarPropertiesService);
+
   private tasksService = inject(TasksService);
+
   private corporateCreditCardService = inject(CorporateCreditCardExpenseService);
+
   private myExpensesService = inject(MyExpensesService);
+
   private orgSettingsService = inject(OrgSettingsService);
+
   private currencyService = inject(CurrencyService);
+
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
   private platformHandlerService = inject(PlatformHandlerService);
+
   private categoriesService = inject(CategoriesService);
+
   private navController = inject(NavController);
+
   private expenseService = inject(ExpensesService);
+
   private sharedExpenseService = inject(SharedExpenseService);
+
   private spenderReportsService = inject(SpenderReportsService);
+
   private authService = inject(AuthService);
+
   private utilityService = inject(UtilityService);
+
   private featureConfigService = inject(FeatureConfigService);
+
   private extendQueryParamsService = inject(ExtendQueryParamsService);
+
   private footerService = inject(FooterService);
+
   private translocoService = inject(TranslocoService);
+
   private walkthroughService = inject(WalkthroughService);
 
   get HeaderState(): typeof HeaderState {
