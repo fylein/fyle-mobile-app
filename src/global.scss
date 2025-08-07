@@ -886,9 +886,10 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 // primary button above takes 100% widths.
-.btn-auto-width {
+.btn-auto-dimension {
   padding: 8px 16px;
   width: auto;
+  height: auto !important;
 }
 
 .btn-secondary {

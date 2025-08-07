@@ -145,13 +145,17 @@
     <div class="personal-cards--zero-state">
       <app-fy-zero-state
         class="stats--zero-state"
-        image="../../../../assets/images/zero-states/cards.png"
+        image="../../../../assets/svg/zero-states/cards.svg"
         message="You have no linked cards right now"
         submessage="Link your card to view transactions"
         [unscaledImage]="true"
         [useNewStyling]="true"
       ></app-fy-zero-state>
-      <button type="submit" class="personal-cards--link-card-button text-center" (click)="linkAccount()">
+      <button
+        type="submit"
+        class="personal-cards--link-card-button btn-primary btn-auto-dimension text-center"
+        (click)="linkAccount()"
+      >
         Link your card
       </button>
     </div>

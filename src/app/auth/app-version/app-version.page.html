@@ -1,10 +1,10 @@
 <ion-content>
   <div class="app-version--container">
-    @if (true) {
+    @if (message) {
       <div class="app-version--message">
-        Your app version is outdated and does not contain a critical fix. Please update your app
+        {{ message }}
       </div>
     }
-    <button (click)="updateApp()" class="btn-primary btn-auto-width">Update app</button>
+    <button (click)="updateApp()" class="btn-primary btn-auto-dimension">Update app</button>
   </div>
 </ion-content>
