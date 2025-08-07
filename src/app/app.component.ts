@@ -101,13 +101,11 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     // Move platform ready check here after view is initialized
-    this.platform.ready().then(() => {
-      setTimeout(async () => {
-        this.isLoading = false;
-        // this.initializeSidemenu();
-        await SplashScreen.hide();
-      }, 1500);
-    });
+    setTimeout(async () => {
+      this.isLoading = false;
+      // this.initializeSidemenu();
+      await SplashScreen.hide();
+    }, 2000);
   }
 
   // private initializeSidemenu(): void {
