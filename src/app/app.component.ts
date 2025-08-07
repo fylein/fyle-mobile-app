@@ -104,21 +104,22 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.platform.ready().then(() => {
       setTimeout(async () => {
         this.isLoading = false;
-        this.initializeSidemenu();
+        // this.initializeSidemenu();
         await SplashScreen.hide();
       }, 1500);
     });
   }
 
-  private initializeSidemenu(): void {
-    if (this.isUserLoggedIn && this.sidemenuRef) {
-      if (this.isOnline) {
-        this.sidemenuRef.showSideMenuOnline();
-      } else {
-        this.sidemenuRef.showSideMenuOffline();
-      }
-    }
-  }
+  // private initializeSidemenu(): void {
+  //   if (this.isUserLoggedIn && this.sidemenuRef) {
+  //     console.log('initializeSidemenu', this.isOnline);
+  //     if (this.isOnline) {
+  //       this.sidemenuRef.showSideMenuOnline();
+  //     } else {
+  //       this.sidemenuRef.showSideMenuOffline();
+  //     }
+  //   }
+  // }
 
   registerBackButtonAction(): void {
     this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
@@ -232,6 +233,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     }).subscribe(({ loggedInStatus, isOnline }) => {
       this.isUserLoggedIn = loggedInStatus;
 
+      if (this.isUserLoggedIn) {
+        if (this.isOnline) {
+          this.sidemenuRef.showSideMenuOnline();
+        } else {
+          this.sidemenuRef.showSideMenuOffline();
+        }
+      }
+
       const markOptions: PerformanceMarkOptions = {
         detail: this.isUserLoggedIn,
       };
@@ -240,7 +249,11 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
-        this.initializeSidemenu();
+        if (this.isOnline) {
+          this.sidemenuRef.showSideMenuOnline();
+        } else {
+          this.sidemenuRef.showSideMenuOffline();
+        }
       }, 500);
     });
 
