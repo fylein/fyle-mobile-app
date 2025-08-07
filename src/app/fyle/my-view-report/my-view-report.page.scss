@@ -47,7 +47,8 @@
   }
 
   &--card {
-    background-color: colors.$card-bg;
+    background: url('../../../assets/images/card.png') no-repeat bottom;
+    background-size: 100% 100%;
     padding: 6px 8px;
     border-radius: 16px;
     height: 140px;
