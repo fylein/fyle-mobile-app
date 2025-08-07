@@ -132,6 +132,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -3991,6 +3992,308 @@ describe('MyExpensesPage', () => {
 
         expect(component.startBlockedFilterWalkthrough).not.toHaveBeenCalled();
       }));
+    });
+  });
+
+  describe('Status Pill Walkthrough Functions', () => {
+    describe('shouldShowStatusPillSequenceWalkthrough', () => {
+      it('should return true when config is not finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowStatusPillSequenceWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+        });
+      }));
+
+      it('should return false when config is finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowStatusPillSequenceWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeFalse();
+      }));
+    });
+
+    describe('startStatusPillSequenceWalkthrough', () => {
+      let mockDriverInstance: any;
+
+      beforeEach(() => {
+        mockDriverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+
+        const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+        (window as any).driver = mockDriver;
+
+        walkthroughService.getMyExpensesStatusPillSequenceWalkthroughConfig.and.returnValue([
+          {
+            element: '#blocked-status-pill',
+            popover: {
+              description: 'This shows blocked expenses',
+              side: 'left',
+              align: 'center',
+            },
+          },
+        ]);
+      });
+    });
+
+    describe('setStatusPillSequenceWalkthroughFeatureFlag', () => {
+      beforeEach(() => {
+        featureConfigService.saveConfiguration.and.returnValue(of(null));
+      });
+
+      it('should save feature flag when walkthrough is completed', () => {
+        component.setStatusPillSequenceWalkthroughFeatureFlag(false);
+
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+        });
+      });
+
+      it('should track completed event when walkthrough is finished', () => {
+        component.setStatusPillSequenceWalkthroughFeatureFlag(false);
+
+        expect(trackingService.eventTrack).toHaveBeenCalledWith(
+          'My Expenses Status Pill Sequence Walkthrough Completed',
+          {
+            Asset: 'Mobile',
+            from: 'MyExpenses',
+            status_type: 'blocked_and_incomplete',
+          },
+        );
+      });
+    });
+
+    describe('shouldShowBlockedStatusPillWalkthrough', () => {
+      it('should return true when config is not finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowBlockedStatusPillWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+        });
+      }));
+    });
+
+    describe('shouldShowIncompleteStatusPillWalkthrough', () => {
+      it('should return true when config is not finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowIncompleteStatusPillWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+        });
+      }));
+    });
+
+    describe('startBlockedStatusPillWalkthrough', () => {
+      let mockDriverInstance: any;
+
+      beforeEach(() => {
+        mockDriverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+
+        const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+        (window as any).driver = mockDriver;
+
+        walkthroughService.getMyExpensesBlockedStatusPillWalkthroughConfig.and.returnValue([
+          {
+            element: '#blocked-status-pill',
+            popover: {
+              description: 'This shows blocked expenses',
+              side: 'left',
+              align: 'center',
+            },
+          },
+        ]);
+      });
+    });
+
+    describe('startIncompleteStatusPillWalkthrough', () => {
+      let mockDriverInstance: any;
+
+      beforeEach(() => {
+        mockDriverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+
+        const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+        (window as any).driver = mockDriver;
+
+        walkthroughService.getMyExpensesIncompleteStatusPillWalkthroughConfig.and.returnValue([
+          {
+            element: '#incomplete-status-pill',
+            popover: {
+              description: 'This shows incomplete expenses',
+              side: 'left',
+              align: 'center',
+            },
+          },
+        ]);
+      });
+    });
+
+    describe('setBlockedStatusPillWalkthroughFeatureFlag', () => {
+      beforeEach(() => {
+        featureConfigService.saveConfiguration.and.returnValue(of(null));
+      });
+
+      it('should save feature flag when walkthrough is completed', () => {
+        component.setBlockedStatusPillWalkthroughFeatureFlag(false);
+
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+        });
+      });
+
+      it('should track completed event when walkthrough is finished', () => {
+        component.setBlockedStatusPillWalkthroughFeatureFlag(false);
+
+        expect(trackingService.eventTrack).toHaveBeenCalledWith(
+          'My Expenses Blocked Status Pill Walkthrough Completed',
+          {
+            Asset: 'Mobile',
+            from: 'MyExpenses',
+            status_type: 'blocked',
+          },
+        );
+      });
+    });
+
+    describe('setIncompleteStatusPillWalkthroughFeatureFlag', () => {
+      beforeEach(() => {
+        featureConfigService.saveConfiguration.and.returnValue(of(null));
+      });
+
+      it('should save feature flag when walkthrough is completed', () => {
+        component.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+        });
+      });
+
+      it('should track completed event when walkthrough is finished', () => {
+        component.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+
+        expect(trackingService.eventTrack).toHaveBeenCalledWith(
+          'My Expenses Incomplete Status Pill Walkthrough Completed',
+          {
+            Asset: 'Mobile',
+            from: 'MyExpenses',
+            status_type: 'incomplete',
+          },
+        );
+      });
     });
   });
 });
