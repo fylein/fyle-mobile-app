@@ -105,8 +105,8 @@ $rejected-color: #d50000;
 $bright-yellow: #fbd84f;
 
 //walkthrough colours
-$walkthrough-bg: #2c304e;
-$walkthrough-text-color: #a9acbc;
+$walkthrough-bg: $neutral-500;
+$walkthrough-text-color: $pure-white;
 
 // custom colors for pending gas charge info modal
 $border-light-info: #d9def8;
