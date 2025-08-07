@@ -27,53 +27,55 @@
 </ion-header>
 <div class="fy-modal">
   @if (data.openReports.length) {
-  <div class="report-list--container">
-    @for (report of data.openReports; track report.id; let i = $index) {
-    <div class="report-list--list">
-      <div data-testid="report" mat-ripple (click)="addTransactionToReport(report)">
-        @if (i > 0) {
-        <div class="report-list--divider"></div>
-        }
-        <ion-grid class="ion-no-padding">
-          <ion-row class="report-list--report-card">
-            <ion-col size="0.75">
-              <mat-icon class="report-list--list-icon" svgIcon="list-new"></mat-icon>
-            </ion-col>
-            <ion-col size="8.25" class="ion-no-padding">
-              <div class="report-list--purpose">{{ report.purpose }}</div>
-              <div class="report-list--count">
-                {{ report.num_expenses }}
-                {{
-                  (report.num_expenses > 1 ? 'addTxnToReportDialog.expenses' : 'addTxnToReportDialog.expense')
-                    | transloco
-                }}
-              </div>
-              <div class="report-list--currency-amount-container">
-                <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
-                <span class="report-list--amount">
-                  {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
-                </span>
-              </div>
-            </ion-col>
-            <ion-col size="2.75" class="ion-no-padding ion-text-right">
-              <div class="ion-text-right">
-                <div class="text-center report-list--state state-pill state-{{ report.state | reportState }}">
-                  {{ report.state | reportState | titlecase }}
-                </div>
-              </div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </div>
+    <div class="report-list--container">
+      @for (report of data.openReports; track report.id; let i = $index) {
+        <div class="report-list--list">
+          <div data-testid="report" mat-ripple (click)="addTransactionToReport(report)">
+            @if (i > 0) {
+              <div class="report-list--divider"></div>
+            }
+            <ion-grid class="ion-no-padding">
+              <ion-row class="report-list--report-card">
+                <ion-col size="0.75">
+                  <mat-icon class="report-list--list-icon" svgIcon="list-new"></mat-icon>
+                </ion-col>
+                <ion-col size="8.25" class="ion-no-padding">
+                  <div class="report-list--purpose">{{ report.purpose }}</div>
+                  <div class="report-list--count">
+                    {{ report.num_expenses }}
+                    {{
+                      (report.num_expenses > 1 ? 'addTxnToReportDialog.expenses' : 'addTxnToReportDialog.expense')
+                        | transloco
+                    }}
+                  </div>
+                  <div class="report-list--currency-amount-container">
+                    <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
+                    <span class="report-list--amount">
+                      {{
+                        { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency
+                      }}
+                    </span>
+                  </div>
+                </ion-col>
+                <ion-col size="2.75" class="ion-no-padding ion-text-right">
+                  <div class="ion-text-right">
+                    <div class="text-center report-list--state state-pill state-{{ report.state | reportState }}">
+                      {{ report.state | reportState | titlecase }}
+                    </div>
+                  </div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+        </div>
+      }
     </div>
-    }
-  </div>
   } @else {
-  <app-fy-zero-state
-    image="../../../../../assets/images/zero-states/reports.png"
-    [message]="'addTxnToReportDialog.noReports' | transloco"
-    [taskImageStyle]="{ 'max-width': '220px', 'max-height': '124px', width: '220px', height: '124px' }"
-    [submessage]="'addTxnToReportDialog.createDraftReportCta' | transloco"
-  ></app-fy-zero-state>
+    <app-fy-zero-state
+      image="../../../../../assets/svg/zero-states/reports.svg"
+      [message]="'addTxnToReportDialog.noReports' | transloco"
+      [taskImageStyle]="{ 'max-width': '220px', 'max-height': '124px', width: '220px', height: '124px' }"
+      [submessage]="'addTxnToReportDialog.createDraftReportCta' | transloco"
+    ></app-fy-zero-state>
   }
 </div>

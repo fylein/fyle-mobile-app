@@ -9,17 +9,18 @@
   <ng-container base>
     <ion-buttons mode="md" slot="end">
       @if ((linkedAccountsCount$ | async) !== 0) {
-      <ion-button class="personal-cards--header-btn" (click)="searchClick()">
-        <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
-      </ion-button>
-      } @if ((linkedAccountsCount$ | async) !== 0) {
-      <ion-button class="personal-cards--header-btn" (click)="openFilters()">
-        @if (filterPills?.length) {
-        <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
-        } @else {
-        <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
-        }
-      </ion-button>
+        <ion-button class="personal-cards--header-btn" (click)="searchClick()">
+          <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
+        </ion-button>
+      }
+      @if ((linkedAccountsCount$ | async) !== 0) {
+        <ion-button class="personal-cards--header-btn" (click)="openFilters()">
+          @if (filterPills?.length) {
+            <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
+          } @else {
+            <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
+          }
+        </ion-button>
       }
       <ion-button class="personal-cards--header-btn" (click)="linkAccount()">
         <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
@@ -27,26 +28,26 @@
     </ion-buttons>
   </ng-container>
   @if ((linkedAccountsCount$ | async) !== 0) {
-  <ng-container personalCardContent>
-    <ion-toolbar mode="{{mode}}" class="personal-cards--segment-container">
-      <ion-segment
-        class="personal-cards-segment-block"
-        (ionChange)="segmentChanged($event)"
-        value="{{selectedTransactionType}}"
-      >
-        <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn">
-          Transactions
-        </ion-segment-button>
-        <ion-segment-button
-          value="MATCHED"
-          class="personal-cards--segment-block__btn personal-cards--segment-block__space-left"
+    <ng-container personalCardContent>
+      <ion-toolbar mode="{{ mode }}" class="personal-cards--segment-container">
+        <ion-segment
+          class="personal-cards-segment-block"
+          (ionChange)="segmentChanged($event)"
+          value="{{ selectedTransactionType }}"
         >
-          Expenses created
-        </ion-segment-button>
-        <ion-segment-button value="HIDDEN" class="personal-cards--segment-block__btn"> Hidden </ion-segment-button>
-      </ion-segment>
-    </ion-toolbar>
-  </ng-container>
+          <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn">
+            Transactions
+          </ion-segment-button>
+          <ion-segment-button
+            value="MATCHED"
+            class="personal-cards--segment-block__btn personal-cards--segment-block__space-left"
+          >
+            Expenses created
+          </ion-segment-button>
+          <ion-segment-button value="HIDDEN" class="personal-cards--segment-block__btn"> Hidden </ion-segment-button>
+        </ion-segment>
+      </ion-toolbar>
+    </ng-container>
   }
 
   <ng-container simpleSearch>
@@ -63,166 +64,199 @@
             (focus)="onSearchBarFocus()"
           />
           @if (simpleSearchText) {
-          <button
-            (click)="clearText('isFromSearchBar')"
-            aria-label="Clear"
-            class="personal-cards--simple-search-close"
-            mat-icon-button
-            matSuffix
-          >
-            <mat-icon svgIcon="clear"></mat-icon>
-          </button>
+            <button
+              (click)="clearText('isFromSearchBar')"
+              aria-label="Clear"
+              class="personal-cards--simple-search-close"
+              mat-icon-button
+              matSuffix
+            >
+              <mat-icon svgIcon="clear"></mat-icon>
+            </button>
           }
         </div>
       </mat-form-field>
     </div>
   </ng-container>
 </app-fy-header>
-@if (((linkedAccountsCount$ | async) > 0) && (isConnected$|async)) { @if (linkedAccounts$ | async; as linkedAccounts) {
-@if (!isLoading && scrollingDirection !== 'down') {
-<app-bank-account-cards
-  [linkedAccounts]="linkedAccounts"
-  [minimal]="scrolled && scrollingDirection === 'up'"
-  (deleted)="onDeleted()"
-  (changed)="onCardChanged($event)"
-></app-bank-account-cards>
-} } @if (scrollingDirection === 'up' || !scrolled) {
-<div class="personal-cards--actions-header">
-  <button
-    type="submit"
-    class="personal-cards--range-button text-center personal-cards--actions-header__left"
-    (click)="openDateRangeModal()"
-  >
-    <ng-container>
-      <ion-icon slot="icon-only" class="personal-cards--icon" src="../../../assets/svg/calendar.svg"></ion-icon>
-      {{txnDateRange}}
-    </ng-container>
-  </button>
-  <button
-    type="submit"
-    class="personal-cards--fetch-button text-center personal-cards--actions-header__right"
-    (click)="fetchNewTransactions()"
-    [disabled]="isfetching"
-  >
-    @if (!isfetching) { Fetch transactions } @if (isfetching) { Fetching
-    <ion-spinner name="crescent" class="personal-cards--fetching-spinner"></ion-spinner>
+@if ((linkedAccountsCount$ | async) > 0 && (isConnected$ | async)) {
+  @if (linkedAccounts$ | async; as linkedAccounts) {
+    @if (!isLoading && scrollingDirection !== 'down') {
+      <app-bank-account-cards
+        [linkedAccounts]="linkedAccounts"
+        [minimal]="scrolled && scrollingDirection === 'up'"
+        (deleted)="onDeleted()"
+        (changed)="onCardChanged($event)"
+      ></app-bank-account-cards>
     }
-  </button>
-</div>
-} @if (filterPills?.length) {
-<div class="personal-cards--filter-pills-container">
-  <app-fy-filter-pills
-    class="personal-cards--filter-pills"
-    (filterClose2)="onFilterClose($event)"
-    (filterClicked2)="onFilterClick($event)"
-    (clearAll)="onFilterPillsClearAll()"
-    [filterPills]="filterPills"
-  >
-  </app-fy-filter-pills>
-</div>
-} }
+  }
+  @if (scrollingDirection === 'up' || !scrolled) {
+    <div class="personal-cards--actions-header">
+      <button
+        type="submit"
+        class="personal-cards--range-button text-center personal-cards--actions-header__left"
+        (click)="openDateRangeModal()"
+      >
+        <ng-container>
+          <ion-icon slot="icon-only" class="personal-cards--icon" src="../../../assets/svg/calendar.svg"></ion-icon>
+          {{ txnDateRange }}
+        </ng-container>
+      </button>
+      <button
+        type="submit"
+        class="personal-cards--fetch-button text-center personal-cards--actions-header__right"
+        (click)="fetchNewTransactions()"
+        [disabled]="isfetching"
+      >
+        @if (!isfetching) {
+          Fetch transactions
+        }
+        @if (isfetching) {
+          Fetching
+          <ion-spinner name="crescent" class="personal-cards--fetching-spinner"></ion-spinner>
+        }
+      </button>
+    </div>
+  }
+  @if (filterPills?.length) {
+    <div class="personal-cards--filter-pills-container">
+      <app-fy-filter-pills
+        class="personal-cards--filter-pills"
+        (filterClose2)="onFilterClose($event)"
+        (filterClicked2)="onFilterClick($event)"
+        (clearAll)="onFilterPillsClearAll()"
+        [filterPills]="filterPills"
+      >
+      </app-fy-filter-pills>
+    </div>
+  }
+}
 <ion-content class="personal-cards--content" [scrollEvents]="true">
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  @if (isLoading && ((linkedAccountsCount$ | async) !== 0)) {
-  <div class="ion-padding">
-    <ion-skeleton-text class="personal-cards--bank-account-shimmer" animated></ion-skeleton-text>
-  </div>
-  } @if (((linkedAccountsCount$ | async) === 0) && (isConnected$|async)) {
-  <div class="personal-cards--zero-state">
-    <app-fy-zero-state
-      class="stats--zero-state"
-      image="../../../../assets/images/zero-states/cards.png"
-      message="You have no linked cards right now"
-      submessage="Link your card to view transactions"
-      [unscaledImage]="true"
-      [useNewStyling]="true"
-    ></app-fy-zero-state>
-    <button type="submit" class="personal-cards--link-card-button text-center" (click)="linkAccount()">
-      Link your card
-    </button>
-  </div>
-  } @if (((linkedAccountsCount$ | async) > 0) && (isConnected$|async)) { @if (selectionMode) {
-  <ion-item class="personal-cards--select-all-container">
-    <mat-checkbox class="custom-mat-checkbox" [(ngModel)]="selectAll" (ngModelChange)="onSelectAll($event)">
-      Select all
-    </mat-checkbox>
-  </ion-item>
-  } @if (isCardsLoaded) {
-  <ng-container>
-    @if (((transactionsCount$ | async) === 0) && !isTransactionsLoading) {
-    <div class="personal-cards--zero-state personal-cards--transactions-zero-state">
-      @if (!isSearchBarFocused) {
-      <app-fy-zero-state
-        class="stats--zero-state"
-        image="../../../../assets/images/no-transactions.svg"
-        header="No Transactions Found!"
-        message="Looks like you have no transactions"
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-      ></app-fy-zero-state>
-      } @if (isSearchBarFocused) {
-      <app-fy-zero-state
-        class="stats--zero-state"
-        image="../../../../assets/images/no-search-result.svg"
-        header="No Search Results found !"
-        message="No transactions matched for your search"
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-      ></app-fy-zero-state>
-      }
+  @if (isLoading && (linkedAccountsCount$ | async) !== 0) {
+    <div class="ion-padding">
+      <ion-skeleton-text class="personal-cards--bank-account-shimmer" animated></ion-skeleton-text>
     </div>
-    } @if (((transactionsCount$ | async) !== 0) && transactions$ | async; as transactions) { @for (transaction of
-    transactions; track transaction.id; let i = $index) { @if (!isTransactionsLoading) {
-    <app-personal-card-transaction
-      (click)="createExpense(transaction)"
-      [transaction]="transaction"
-      [previousTxnDate]="transactions[i-1]?.spent_at"
-      [isMatchedCountLoading]="transaction.id === loadingTxnId"
-      [status]="selectedTransactionType"
-      [isSelectionModeEnabled]="selectionMode"
-      [selectedElements]="selectedElements"
-      (setMultiselectMode)="switchSelectionMode($event)"
-      (cardClickedForSelection)="toggleExpense($event)"
-    >
-    </app-personal-card-transaction>
-    } } }
-  </ng-container>
-  } } @if (((linkedAccountsCount$ | async) !== 0) && isTransactionsLoading || isLoadingDataInfiniteScroll) {
-  <app-transactions-shimmer> </app-transactions-shimmer>
-  } @if (isConnected$|async) { @if (!isLoadingDataInfiniteScroll && isCardsLoaded) { @if (!selectionMode) { @if
-  (isInfiniteScrollRequired$ | async) {
-  <ion-infinite-scroll (ionInfinite)="loadData($event)" threshold="100px">
-    <ion-infinite-scroll-content></ion-infinite-scroll-content>
-  </ion-infinite-scroll>
-  } } } }
+  }
+  @if ((linkedAccountsCount$ | async) === 0 && (isConnected$ | async)) {
+    <div class="personal-cards--zero-state">
+      <app-fy-zero-state
+        class="stats--zero-state"
+        image="../../../../assets/svg/zero-states/cards.svg"
+        message="You have no linked cards right now"
+        submessage="Link your card to view transactions"
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+      ></app-fy-zero-state>
+      <button type="submit" class="personal-cards--link-card-button text-center" (click)="linkAccount()">
+        Link your card
+      </button>
+    </div>
+  }
+  @if ((linkedAccountsCount$ | async) > 0 && (isConnected$ | async)) {
+    @if (selectionMode) {
+      <ion-item class="personal-cards--select-all-container">
+        <mat-checkbox class="custom-mat-checkbox" [(ngModel)]="selectAll" (ngModelChange)="onSelectAll($event)">
+          Select all
+        </mat-checkbox>
+      </ion-item>
+    }
+    @if (isCardsLoaded) {
+      <ng-container>
+        @if ((transactionsCount$ | async) === 0 && !isTransactionsLoading) {
+          <div class="personal-cards--zero-state personal-cards--transactions-zero-state">
+            @if (!isSearchBarFocused) {
+              <app-fy-zero-state
+                class="stats--zero-state"
+                image="../../../../assets/images/no-transactions.svg"
+                header="No Transactions Found!"
+                message="Looks like you have no transactions"
+                [unscaledImage]="true"
+                [useNewStyling]="true"
+              ></app-fy-zero-state>
+            }
+            @if (isSearchBarFocused) {
+              <app-fy-zero-state
+                class="stats--zero-state"
+                image="../../../../assets/images/no-search-result.svg"
+                header="No Search Results found !"
+                message="No transactions matched for your search"
+                [unscaledImage]="true"
+                [useNewStyling]="true"
+              ></app-fy-zero-state>
+            }
+          </div>
+        }
+        @if ((transactionsCount$ | async) !== 0 && transactions$ | async; as transactions) {
+          @for (transaction of transactions; track transaction.id; let i = $index) {
+            @if (!isTransactionsLoading) {
+              <app-personal-card-transaction
+                (click)="createExpense(transaction)"
+                [transaction]="transaction"
+                [previousTxnDate]="transactions[i - 1]?.spent_at"
+                [isMatchedCountLoading]="transaction.id === loadingTxnId"
+                [status]="selectedTransactionType"
+                [isSelectionModeEnabled]="selectionMode"
+                [selectedElements]="selectedElements"
+                (setMultiselectMode)="switchSelectionMode($event)"
+                (cardClickedForSelection)="toggleExpense($event)"
+              >
+              </app-personal-card-transaction>
+            }
+          }
+        }
+      </ng-container>
+    }
+  }
+  @if (((linkedAccountsCount$ | async) !== 0 && isTransactionsLoading) || isLoadingDataInfiniteScroll) {
+    <app-transactions-shimmer> </app-transactions-shimmer>
+  }
+  @if (isConnected$ | async) {
+    @if (!isLoadingDataInfiniteScroll && isCardsLoaded) {
+      @if (!selectionMode) {
+        @if (isInfiniteScrollRequired$ | async) {
+          <ion-infinite-scroll (ionInfinite)="loadData($event)" threshold="100px">
+            <ion-infinite-scroll-content></ion-infinite-scroll-content>
+          </ion-infinite-scroll>
+        }
+      }
+    }
+  }
 </ion-content>
 
 @if (!isSearchBarFocused) {
-<ion-footer>
-  @if (!selectionMode) {
-  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()">
-  </app-fy-footer>
-  } @if (selectionMode) {
-  <ion-toolbar mode="md">
-    <div class="personal-cards--footer-toolbar">
-      <ion-buttons>
-        <ion-button (click)="switchSelectionMode()" [disabled]="isHiding" class="btn-secondary"> Cancel </ion-button>
-        <ion-button
-          (click)="hideSelectedTransactions()"
-          [disabled]="isHiding"
-          [loadingText]="'Hiding'"
-          [loading]="isHiding"
-          appFormButtonValidation
-          class="btn-primary"
-        >
-          Hide
-        </ion-button>
-      </ion-buttons>
-    </div>
-  </ion-toolbar>
-  }
-</ion-footer>
+  <ion-footer>
+    @if (!selectionMode) {
+      <app-fy-footer
+        (homeClicked)="onHomeClicked()"
+        (taskClicked)="onTaskClicked()"
+        (cameraClicked)="onCameraClicked()"
+      >
+      </app-fy-footer>
+    }
+    @if (selectionMode) {
+      <ion-toolbar mode="md">
+        <div class="personal-cards--footer-toolbar">
+          <ion-buttons>
+            <ion-button (click)="switchSelectionMode()" [disabled]="isHiding" class="btn-secondary">
+              Cancel
+            </ion-button>
+            <ion-button
+              (click)="hideSelectedTransactions()"
+              [disabled]="isHiding"
+              [loadingText]="'Hiding'"
+              [loading]="isHiding"
+              appFormButtonValidation
+              class="btn-primary"
+            >
+              Hide
+            </ion-button>
+          </ion-buttons>
+        </div>
+      </ion-toolbar>
+    }
+  </ion-footer>
 }
