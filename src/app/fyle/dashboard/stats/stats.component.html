@@ -172,7 +172,7 @@
           }
         </div>
       } @else {
-        @if (isUserAnApprover$ | async) {
+        @if ((isUserAnApprover$ | async) && (isOrgPrimary$ | async)) {
           <ion-row class="stats--report-stats-row-team">
             <ion-col class="stats--report-stats-col">
               <div class="stats--header">
