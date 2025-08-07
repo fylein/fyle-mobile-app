@@ -2312,6 +2312,23 @@ describe('MyExpensesPage', () => {
     expect(component.filterPills).toEqual(creditTxnFilterPill);
   });
 
+  it('should clear filters and reset page number when clearFilters is called', () => {
+    component.filters = { state: ['APPROVED'], type: ['MILEAGE'] };
+    component.currentPageNumber = 5;
+    component.filterPills = [{ label: 'Approved', type: 'string', value: 'APPROVED' }];
+
+    spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1 });
+    spyOn(component, 'generateFilterPills').and.returnValue([]);
+
+    component.clearFilters();
+
+    expect(component.filters).toEqual({});
+    expect(component.currentPageNumber).toBe(1);
+    expect(component.addNewFiltersToParams).toHaveBeenCalled();
+    expect(component.generateFilterPills).toHaveBeenCalledWith({});
+    expect(component.filterPills).toEqual([]);
+  });
+
   describe('selectExpense(): ', () => {
     beforeEach(() => {
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
