@@ -25,7 +25,7 @@
   &__error-icon {
     width: 45px;
     height: 45px;
-    fill: colors.$red;
+    fill: colors.$negative-500;
   }
 
   &__error-icon-container {
@@ -62,7 +62,7 @@
   }
 
   &__error-message {
-    color: colors.$red;
+    color: colors.$negative-500;
     font-size: 12px;
     display: flex;
     align-items: center;

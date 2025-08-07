@@ -11,14 +11,7 @@
         src="../../../assets/svg/fyle-logo-dark.svg"
       ></ion-icon>
     </div>
-    <!-- TODO: Will added along with confirmation popover -->
-    <!-- <ion-buttons slot="end">
-    <ion-button (click)="signOut()" class="switch-org__toolbar__icon-container">
-      <ion-icon class="switch-org__toolbar__icon-container__icon" src="../../../assets/svg/power.svg"></ion-icon>
-      <span>Sign Out</span>
-    </ion-button>
-  </ion-buttons> -->
-</ion-toolbar>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
@@ -38,7 +31,7 @@
     }
   }
 
-  <div class="switch-org__content-container" [ngClass]="{'switch-org__content-container--sticky': !isIos}">
+  <div class="switch-org__content-container" [ngClass]="{ 'switch-org__content-container--sticky': !isIos }">
     <div #content class="switch-org__content-container__block switch-org__content-container__content-block">
       <div class="switch-org__content-container__content d-flex">
         <div class="switch-org__content-container__content__sub-block">
@@ -61,7 +54,7 @@
         <mat-form-field
           appearance="outline"
           class="mat-form-field-no-padding switch-org__searchbar-container__searchbar"
-          >
+        >
           <mat-icon
             class="switch-org__searchbar-container__searchbar__search-icon"
             matPrefix
@@ -74,7 +67,7 @@
             placeholder="Search for an org"
             autocomplete="off"
             class="smartlook-show"
-            />
+          />
           @if (searchInput.length) {
             <button
               (click)="resetSearch()"
@@ -82,7 +75,7 @@
               class="switch-org__searchbar-container__searchbar__clear-icon"
               mat-icon-button
               matSuffix
-              >
+            >
               <mat-icon svgIcon="clear"></mat-icon>
             </button>
           }
@@ -103,7 +96,7 @@
                 [org]="org"
                 [isPrimaryOrg]="org.id === primaryOrg.id"
                 (selectOrg)="switchOrg(org)"
-                >
+              >
               </app-org-card>
             }
           }
@@ -122,11 +115,9 @@
         }
       }
     } @else {
-      @for (dummy of [1,2,3,4,5,6]; track dummy) {
+      @for (dummy of [1, 2, 3, 4, 5, 6]; track dummy) {
         <app-org-card [isLoading]="true"></app-org-card>
       }
     }
-
-
   </div>
 </ion-content>

@@ -39,11 +39,11 @@
   }
 
   &__input-invalid {
-    border-bottom: 1px solid colors.$red;
+    border-bottom: 1px solid colors.$negative-500;
   }
 
   &__mandatory {
-    color: colors.$brand-primary;
+    color: colors.$negative-500;
     font-size: 14px;
     font-weight: 400;
   }
@@ -57,7 +57,7 @@
   }
 
   &__error {
-    color: colors.$red;
+    color: colors.$negative-500;
     font-size: 12px;
     padding-top: 4px;
   }

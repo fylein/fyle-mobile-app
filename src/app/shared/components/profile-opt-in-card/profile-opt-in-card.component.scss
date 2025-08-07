@@ -61,7 +61,7 @@
 
       &--inactive {
         @extend .profile-opt-in-card__status__icon;
-        background-color: colors.$red;
+        background-color: colors.$negative-500;
       }
     }
 
@@ -105,7 +105,7 @@
 
     &__delete-icon {
       @extend .profile-opt-in-card__mobile__edit-icon;
-      color: colors.$red;
+      color: colors.$negative-500;
     }
   }
 

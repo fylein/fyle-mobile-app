@@ -50,9 +50,9 @@
     padding: 6px 10px;
     gap: 4px;
     height: 32px;
-    background: colors.$light-pink;
+    background: colors.$red-1;
     border-radius: 36px;
-    color: colors.$red;
+    color: colors.$negative-500;
   }
 
   &--fields-violations-count {
@@ -60,7 +60,7 @@
     gap: 4px;
     height: 32px;
     background: transparent;
-    color: colors.$red;
+    color: colors.$negative-500;
   }
 
   &--textarea {

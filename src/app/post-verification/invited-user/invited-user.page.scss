@@ -17,7 +17,7 @@
   }
 
   &__error {
-    color: colors.$red;
+    color: colors.$negative-500;
     font-size: 12px;
     display: flex;
     align-items: center;
@@ -27,18 +27,11 @@
     border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid colors.$negative-500;
     }
     &__password-focus {
       border-bottom: 1px solid colors.$black;
     }
-  }
-
-  &__mandatory {
-    color: colors.$brand-primary;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: 400;
   }
 
   &__text-label {
