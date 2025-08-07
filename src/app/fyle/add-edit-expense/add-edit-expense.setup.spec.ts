@@ -192,7 +192,7 @@ describe('AddEditExpensePage', () => {
       'receiptScanTime',
       'receiptScanTimeInstaFyle',
     ]);
-    const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
+    const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'clear']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [
       'getRecentCostCenters',
       'getRecentlyUsedProjects',

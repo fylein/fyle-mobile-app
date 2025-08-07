@@ -24,6 +24,7 @@ export class PendingGasChargeInfoComponent {
   });
 
   // Input setter to update signal
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set isExpenseListView(value: boolean | undefined) {
     this._isExpenseListView.set(value);
   }

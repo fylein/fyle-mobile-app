@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
@@ -33,7 +33,7 @@ import { TasksService } from './core/services/tasks.service';
   styleUrls: ['app.component.scss'],
   standalone: false,
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild('sidemenuRef') sidemenuRef: SidemenuComponent;
 
   eou$: Observable<ExtendedOrgUser>;
@@ -72,6 +72,8 @@ export class AppComponent implements OnInit {
     'team_reports',
   ];
 
+  isLoading = true;
+
   constructor(
     private platform: Platform,
     private router: Router,
@@ -95,6 +97,14 @@ export class AppComponent implements OnInit {
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
+  }
+
+  ngAfterViewInit(): void {
+    // Move platform ready check here after view is initialized
+    setTimeout(async () => {
+      this.isLoading = false;
+      await SplashScreen.hide();
+    }, 2000);
   }
 
   registerBackButtonAction(): void {
@@ -126,8 +136,6 @@ export class AppComponent implements OnInit {
       await StatusBar.setStyle({
         style: Style.Default,
       });
-
-      setTimeout(async () => await SplashScreen.hide(), 200);
 
       /*
        * Use the app's font size irrespective of the user's device font size.
@@ -210,8 +218,9 @@ export class AppComponent implements OnInit {
       isOnline: this.isConnected$.pipe(take(1)),
     }).subscribe(({ loggedInStatus, isOnline }) => {
       this.isUserLoggedIn = loggedInStatus;
-      if (loggedInStatus) {
-        if (isOnline) {
+
+      if (this.isUserLoggedIn) {
+        if (this.isOnline) {
           this.sidemenuRef.showSideMenuOnline();
         } else {
           this.sidemenuRef.showSideMenuOffline();

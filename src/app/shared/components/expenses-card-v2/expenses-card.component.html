@@ -296,7 +296,11 @@
           }
 
           <!-- Expense state (Incomplete / Complete) & Critical policy violations-->
-          <div id="expense-state-pill-{{ expense.id }}" class="expenses-card--default-view-container" [ngClass]="{ 'is-pending-gas-charge': isPendingGasCharge }">
+          <div
+            id="expense-state-pill-{{ expense.id }}"
+            class="expenses-card--default-view-container"
+            [ngClass]="{ 'is-pending-gas-charge': isPendingGasCharge }"
+          >
             <div class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}">
               <span>
                 {{ expense.state | expenseState | titlecase }}
