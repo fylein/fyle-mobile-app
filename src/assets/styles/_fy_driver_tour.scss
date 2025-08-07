@@ -30,7 +30,9 @@
 
 .driver-popover-description {
   font-size: 14px;
+  padding-bottom: 10px;
   max-width: 200px;
+  font-family: 'sage-ui', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Segoe UI', 'Arial';
 }
 
 .driver-popover-close-btn {
@@ -41,14 +43,12 @@
   right: 5px;
 }
 
-.driver-popover-description {
-  padding-bottom: 10px;
-}
-
 .driver-popover-footer {
   margin-top: 38px;
+  font-family: 'sage-ui', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Segoe UI', 'Arial';
   button {
     background-color: transparent;
+    font-family: 'sage-ui', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Segoe UI', 'Arial';
   }
 }
 
