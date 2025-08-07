@@ -2202,8 +2202,8 @@ export class AddEditExpensePage implements OnInit {
       switchMap((category) =>
         iif(
           () => this.mode === 'add',
-          this.getCategoryOnAdd(category as OrgCategory),
-          this.getCategoryOnEdit(category as OrgCategory),
+          this.getCategoryOnAdd(categoryControl.value as OrgCategory),
+          this.getCategoryOnEdit(categoryControl.value as OrgCategory),
         ),
       ),
       switchMap((category: OrgCategory) => {
