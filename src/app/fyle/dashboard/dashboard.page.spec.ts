@@ -43,6 +43,7 @@ import {
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { TranslocoService } from '@jsverse/transloco';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -69,6 +70,7 @@ describe('DashboardPage', () => {
   let footerService: jasmine.SpyObj<FooterService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+  let walkthroughService: jasmine.SpyObj<WalkthroughService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -118,6 +120,13 @@ describe('DashboardPage', () => {
 
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['setTimezone']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
+      'getNavBarWalkthroughConfig',
+      'setIsOverlayClicked',
+      'setActiveWalkthroughIndex',
+      'getActiveWalkthroughIndex',
+      'getIsOverlayClicked',
+    ]);
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
       imports: [IonicModule.forRoot()],
@@ -168,6 +177,10 @@ describe('DashboardPage', () => {
           provide: TranslocoService,
           useValue: translocoServiceSpy,
         },
+        {
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -199,6 +212,7 @@ describe('DashboardPage', () => {
     footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
     fixture.detectChanges();
   }));
 
@@ -1264,5 +1278,52 @@ describe('DashboardPage', () => {
         expect(res).toBeFalse();
       });
     }));
+  });
+
+  describe('startTour():', () => {
+    let mockDriverInstance: any;
+    let mockNavbarWalkthroughSteps: any[];
+
+    beforeEach(() => {
+      mockNavbarWalkthroughSteps = [
+        {
+          element: '#footer-walkthrough',
+          popover: {
+            description: 'Test description',
+            side: 'top',
+            align: 'center',
+          },
+        },
+      ];
+
+      mockDriverInstance = {
+        setSteps: jasmine.createSpy('setSteps'),
+        drive: jasmine.createSpy('drive'),
+        destroy: jasmine.createSpy('destroy'),
+        getActiveIndex: jasmine.createSpy('getActiveIndex').and.returnValue(0),
+        moveNext: jasmine.createSpy('moveNext'),
+      };
+
+      // Mock the driver function by creating a global mock
+      (window as any).driver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+      walkthroughService.getNavBarWalkthroughConfig.and.returnValue(mockNavbarWalkthroughSteps);
+      walkthroughService.getActiveWalkthroughIndex.and.returnValue(0);
+      walkthroughService.getIsOverlayClicked.and.returnValue(false);
+      spyOn(component, 'setNavbarWalkthroughFeatureConfigFlag').and.stub();
+    });
+
+    it('should call walkthroughService.getNavBarWalkthroughConfig with correct parameter', () => {
+      component.startTour(false);
+
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledTimes(1);
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledWith(false);
+    });
+
+    it('should call walkthroughService.getNavBarWalkthroughConfig with true for approver', () => {
+      component.startTour(true);
+
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledTimes(1);
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledWith(true);
+    });
   });
 });

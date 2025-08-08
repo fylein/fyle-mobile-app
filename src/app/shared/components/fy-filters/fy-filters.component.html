@@ -67,6 +67,7 @@
                 mode="md"
                 button
                 (click)="switchFilter(activeFilter, option)"
+                [id]="getOptionElementId(activeFilter.name, option.value)"
                 >
                 @if (currentFilterValueMap[activeFilter.name]?.includes(option.value)) {
                   <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/check-square-fill.svg"></ion-icon>

@@ -449,6 +449,17 @@ describe('AppComponent', () => {
     expect(trackingService.footerReportsTabClicked).toHaveBeenCalledTimes(1);
   });
 
+  it('should update isSwitchedToDelegator when switchDelegator() is called', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+
+    component.switchDelegator(true);
+    expect(component.isSwitchedToDelegator).toBeTrue();
+
+    component.switchDelegator(false);
+    expect(component.isSwitchedToDelegator).toBeFalse();
+  });
+
   it('getShowFooter() should call getTotalTasksCount and handleRouteChanges', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const component = fixture.debugElement.componentInstance;

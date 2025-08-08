@@ -520,4 +520,274 @@ describe('CardStatsComponent', () => {
       expect(component.loadCardDetails$.next).toHaveBeenCalledTimes(1);
     }));
   });
+
+  describe('filterVirtualCardsByStateAndAmount', () => {
+    it('should return all cards when no virtual cards are present', () => {
+      const cardDetails: PlatformCorporateCardDetail[] = [
+        {
+          card: {
+            ...mastercardRTFCard,
+            virtual_card_id: undefined,
+            virtual_card_state: undefined,
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+        {
+          card: {
+            ...mastercardRTFCard,
+            id: 'card2',
+            virtual_card_id: undefined,
+            virtual_card_state: undefined,
+          },
+          stats: {
+            totalTxnsCount: 5,
+            totalCompleteTxns: 3,
+            totalCompleteExpensesAmount: 100,
+            totalDraftTxns: 2,
+            totalDraftAmount: 50,
+          },
+        },
+      ];
+
+      const result = component.filterVirtualCardsByStateAndAmount(cardDetails);
+
+      expect(result).toEqual(cardDetails);
+      expect(result.length).toBe(2);
+    });
+
+    it('should filter virtual cards with ACTIVE state', () => {
+      const cardDetails: PlatformCorporateCardDetail[] = [
+        {
+          card: {
+            ...mastercardRTFCard,
+            virtual_card_id: 'virtual1',
+            virtual_card_state: 'ACTIVE',
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+        {
+          card: {
+            ...mastercardRTFCard,
+            id: 'card2',
+            virtual_card_id: 'virtual2',
+            virtual_card_state: 'INACTIVE',
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+      ];
+
+      const result = component.filterVirtualCardsByStateAndAmount(cardDetails);
+
+      expect(result.length).toBe(1);
+      expect(result[0].card.virtual_card_id).toBe('virtual1');
+      expect(result[0].card.virtual_card_state).toBe('ACTIVE');
+    });
+
+    it('should filter virtual cards with PREACTIVE state', () => {
+      const cardDetails: PlatformCorporateCardDetail[] = [
+        {
+          card: {
+            ...mastercardRTFCard,
+            virtual_card_id: 'virtual1',
+            virtual_card_state: 'PREACTIVE',
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+        {
+          card: {
+            ...mastercardRTFCard,
+            id: 'card2',
+            virtual_card_id: 'virtual2',
+            virtual_card_state: 'INACTIVE',
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+      ];
+
+      const result = component.filterVirtualCardsByStateAndAmount(cardDetails);
+
+      expect(result.length).toBe(1);
+      expect(result[0].card.virtual_card_id).toBe('virtual1');
+      expect(result[0].card.virtual_card_state).toBe('PREACTIVE');
+    });
+
+    it('should filter virtual cards with transactions count greater than 0', () => {
+      const cardDetails: PlatformCorporateCardDetail[] = [
+        {
+          card: {
+            ...mastercardRTFCard,
+            virtual_card_id: 'virtual1',
+            virtual_card_state: 'INACTIVE',
+          },
+          stats: {
+            totalTxnsCount: 5,
+            totalCompleteTxns: 3,
+            totalCompleteExpensesAmount: 100,
+            totalDraftTxns: 2,
+            totalDraftAmount: 50,
+          },
+        },
+        {
+          card: {
+            ...mastercardRTFCard,
+            id: 'card2',
+            virtual_card_id: 'virtual2',
+            virtual_card_state: 'INACTIVE',
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+      ];
+
+      const result = component.filterVirtualCardsByStateAndAmount(cardDetails);
+
+      expect(result.length).toBe(1);
+      expect(result[0].card.virtual_card_id).toBe('virtual1');
+      expect(result[0].stats.totalTxnsCount).toBe(5);
+    });
+
+    it('should filter virtual cards that meet multiple criteria', () => {
+      const cardDetails: PlatformCorporateCardDetail[] = [
+        {
+          card: {
+            ...mastercardRTFCard,
+            virtual_card_id: 'virtual1',
+            virtual_card_state: 'ACTIVE',
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+        {
+          card: {
+            ...mastercardRTFCard,
+            id: 'card2',
+            virtual_card_id: 'virtual2',
+            virtual_card_state: 'PREACTIVE',
+          },
+          stats: {
+            totalTxnsCount: 10,
+            totalCompleteTxns: 5,
+            totalCompleteExpensesAmount: 200,
+            totalDraftTxns: 5,
+            totalDraftAmount: 100,
+          },
+        },
+        {
+          card: {
+            ...mastercardRTFCard,
+            id: 'card3',
+            virtual_card_id: 'virtual3',
+            virtual_card_state: 'INACTIVE',
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+        {
+          card: {
+            ...mastercardRTFCard,
+            id: 'card4',
+            virtual_card_id: undefined,
+            virtual_card_state: undefined,
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+      ];
+
+      const result = component.filterVirtualCardsByStateAndAmount(cardDetails);
+
+      expect(result.length).toBe(3);
+      expect(result[0].card.virtual_card_id).toBe('virtual1');
+      expect(result[1].card.virtual_card_id).toBe('virtual2');
+      expect(result[2].card.virtual_card_id).toBeUndefined();
+    });
+
+    it('should exclude virtual cards that do not meet any criteria', () => {
+      const cardDetails: PlatformCorporateCardDetail[] = [
+        {
+          card: {
+            ...mastercardRTFCard,
+            virtual_card_id: 'virtual1',
+            virtual_card_state: 'INACTIVE',
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+        {
+          card: {
+            ...mastercardRTFCard,
+            id: 'card2',
+            virtual_card_id: 'virtual2',
+            virtual_card_state: 'USED',
+          },
+          stats: {
+            totalTxnsCount: 0,
+            totalCompleteTxns: 0,
+            totalCompleteExpensesAmount: 0,
+            totalDraftTxns: 0,
+            totalDraftAmount: 0,
+          },
+        },
+      ];
+
+      const result = component.filterVirtualCardsByStateAndAmount(cardDetails);
+
+      expect(result.length).toBe(0);
+    });
+  });
 });

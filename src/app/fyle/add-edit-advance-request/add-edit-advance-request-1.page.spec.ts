@@ -326,5 +326,29 @@ export function TestCases1(getTestBed) {
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
+
+    it('should test scrollInputIntoView method with smooth behavior', () => {
+      const mockElement = document.createElement('input');
+      spyOn(mockElement, 'scrollIntoView');
+      spyOn(component, 'getActiveElement').and.returnValue(mockElement);
+
+      component.scrollInputIntoView();
+
+      expect(mockElement.scrollIntoView).toHaveBeenCalledWith({
+        block: 'center',
+      });
+    });
+
+    it('should test getActiveElement method returns correct element', () => {
+      const mockElement = document.createElement('input');
+      Object.defineProperty(document, 'activeElement', {
+        value: mockElement,
+        writable: true,
+      });
+
+      const result = component.getActiveElement();
+
+      expect(result).toBe(mockElement);
+    });
   });
 }
