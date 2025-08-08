@@ -203,4 +203,12 @@ export class FyFiltersComponent implements OnInit {
       this.currentFilterValueMap[currentFilter.name] = option.value;
     }
   }
+
+  getOptionElementId(filterName: string, optionValue: string): string {
+    // Create consistent IDs for walkthrough targeting
+    if (filterName === 'Type' && optionValue === 'BLOCKED') {
+      return 'blocked-filter-checkbox';
+    }
+    return `${filterName.toLowerCase().replace(/\s+/g, '-')}-${optionValue.toLowerCase().replace(/\s+/g, '-')}-option`;
+  }
 }

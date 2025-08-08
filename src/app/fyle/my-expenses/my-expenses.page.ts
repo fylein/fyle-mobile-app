@@ -1,5 +1,5 @@
 import { getCurrencySymbol } from '@angular/common';
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
@@ -87,6 +87,8 @@ import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-par
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { driver } from 'driver.js';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -207,42 +209,75 @@ export class MyExpensesPage implements OnInit {
 
   navigationSubscription: Subscription;
 
-  constructor(
-    private networkService: NetworkService,
-    private loaderService: LoaderService,
-    private modalController: ModalController,
-    private transactionService: TransactionService,
-    private popoverController: PopoverController,
-    private router: Router,
-    private transactionOutboxService: TransactionsOutboxService,
-    private activatedRoute: ActivatedRoute,
-    private trackingService: TrackingService,
-    private storageService: StorageService,
-    private tokenService: TokenService,
-    private modalProperties: ModalPropertiesService,
-    private matBottomSheet: MatBottomSheet,
-    private matSnackBar: MatSnackBar,
-    private actionSheetController: ActionSheetController,
-    private snackbarProperties: SnackbarPropertiesService,
-    private tasksService: TasksService,
-    private corporateCreditCardService: CorporateCreditCardExpenseService,
-    private myExpensesService: MyExpensesService,
-    private orgSettingsService: OrgSettingsService,
-    private currencyService: CurrencyService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private platformHandlerService: PlatformHandlerService,
-    private categoriesService: CategoriesService,
-    private navController: NavController,
-    private expenseService: ExpensesService,
-    private sharedExpenseService: SharedExpenseService,
-    private spenderReportsService: SpenderReportsService,
-    private authService: AuthService,
-    private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService,
-    private extendQueryParamsService: ExtendQueryParamsService,
-    private footerService: FooterService,
-    private translocoService: TranslocoService,
-  ) {}
+  private networkService = inject(NetworkService);
+
+  private loaderService = inject(LoaderService);
+
+  private modalController = inject(ModalController);
+
+  private transactionService = inject(TransactionService);
+
+  private popoverController = inject(PopoverController);
+
+  private router = inject(Router);
+
+  private transactionOutboxService = inject(TransactionsOutboxService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private trackingService = inject(TrackingService);
+
+  private storageService = inject(StorageService);
+
+  private tokenService = inject(TokenService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private matBottomSheet = inject(MatBottomSheet);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private actionSheetController = inject(ActionSheetController);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private tasksService = inject(TasksService);
+
+  private corporateCreditCardService = inject(CorporateCreditCardExpenseService);
+
+  private myExpensesService = inject(MyExpensesService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private currencyService = inject(CurrencyService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private navController = inject(NavController);
+
+  private expenseService = inject(ExpensesService);
+
+  private sharedExpenseService = inject(SharedExpenseService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private authService = inject(AuthService);
+
+  private utilityService = inject(UtilityService);
+
+  private featureConfigService = inject(FeatureConfigService);
+
+  private extendQueryParamsService = inject(ExtendQueryParamsService);
+
+  private footerService = inject(FooterService);
+
+  private translocoService = inject(TranslocoService);
+
+  private walkthroughService = inject(WalkthroughService);
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
@@ -703,7 +738,9 @@ export class MyExpensesPage implements OnInit {
       });
     });
 
-    this.myExpenses$.subscribe(noop);
+    this.myExpenses$.subscribe(() => {
+      this.checkAndStartStatusPillWalkthroughs();
+    });
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     if (this.activatedRoute.snapshot.queryParams.filters) {
@@ -1011,6 +1048,26 @@ export class MyExpensesPage implements OnInit {
     });
 
     await filterPopover.present();
+
+    // Check if we should show blocked filter walkthrough
+    const shouldShowWalkthrough = await this.shouldShowBlockedFilterWalkthrough();
+    const hasBlockedFilter = orgSettings?.is_new_critical_policy_violation_flow_enabled;
+    
+    if (shouldShowWalkthrough && hasBlockedFilter) {
+      // Wait for modal to be fully rendered
+      setTimeout(() => {
+        // Ensure the Type filter is active to show blocked option
+        const typeFilterElement = document.querySelector('ion-item[class*="fy-filters--filter-item"]:first-child');
+        if (typeFilterElement) {
+          (typeFilterElement as HTMLElement).click();
+          
+          // Wait for options to load, then start walkthrough
+          setTimeout(() => {
+            this.startBlockedFilterWalkthrough();
+          }, 300);
+        }
+      }, 500);
+    }
 
     const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | string[]>[] };
 
@@ -1948,5 +2005,402 @@ export class MyExpensesPage implements OnInit {
       takeUntil(stopPolling$),
       takeUntil(this.onPageExit$),
     );
+  }
+
+  private async checkForStatusPills(): Promise<void> {
+    const hasBlockedPills = document.querySelectorAll('.expenses-card--state-container.state-blocked').length > 0;
+    const hasIncompletePills = document.querySelectorAll('.expenses-card--state-container.state-incomplete').length > 0;
+    
+    // Check if walkthrough should be shown (only once per org)
+    const shouldShowWalkthrough = await this.shouldShowStatusPillSequenceWalkthrough();
+    
+    if (hasBlockedPills && hasIncompletePills) {
+      // Both present - show sequence walkthrough
+      if (shouldShowWalkthrough) {
+        this.startStatusPillSequenceWalkthrough();
+      }
+    } else if (hasBlockedPills) {
+      // Only blocked present
+      if (shouldShowWalkthrough) {
+        this.startBlockedStatusPillWalkthrough();
+      }
+    } else if (hasIncompletePills) {
+      // Only incomplete present
+      if (shouldShowWalkthrough) {
+        this.startIncompleteStatusPillWalkthrough();
+      }
+    }
+  }
+
+  startBlockedFilterWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesBlockedFilterWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'],
+      
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setBlockedFilterWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onNextClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setBlockedFilterWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onDestroyStarted: () => {
+        if (this.walkthroughService.getIsOverlayClicked()) {
+          this.setBlockedFilterWalkthroughFeatureFlag(true);
+          driverInstance.destroy();
+        } else {
+          this.setBlockedFilterWalkthroughFeatureFlag(false);
+          driverInstance.destroy();
+        }
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  setBlockedFilterWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+      key: 'BLOCKED_FILTER_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked 
+      ? 'My Expenses Blocked Filter Walkthrough Skipped'
+      : 'My Expenses Blocked Filter Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      filter_type: 'blocked',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  shouldShowBlockedFilterWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+        key: 'BLOCKED_FILTER_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          }
+        });
+    });
+  }
+
+  startBlockedStatusPillWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesBlockedStatusPillWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'],
+      
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setBlockedStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onNextClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setBlockedStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onDestroyStarted: () => {
+        // Always mark as finished when walkthrough ends (either completed or skipped)
+        this.setBlockedStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  startIncompleteStatusPillWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesIncompleteStatusPillWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'],
+      
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onNextClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onDestroyStarted: () => {
+        // Always mark as finished when walkthrough ends (either completed or skipped)
+        this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  setBlockedStatusPillWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+      key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked 
+      ? 'My Expenses Blocked Status Pill Walkthrough Skipped'
+      : 'My Expenses Blocked Status Pill Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      status_type: 'blocked',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  setIncompleteStatusPillWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+      key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked 
+      ? 'My Expenses Incomplete Status Pill Walkthrough Skipped'
+      : 'My Expenses Incomplete Status Pill Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      status_type: 'incomplete',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  shouldShowBlockedStatusPillWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+        key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          }
+        });
+    });
+  }
+
+  shouldShowIncompleteStatusPillWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+        key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          }
+        });
+    });
+  }
+
+  checkAndStartStatusPillWalkthroughs(): void {
+    setTimeout(() => {
+      this.checkForStatusPills();
+    }, 1000);
+  }
+
+  shouldShowStatusPillSequenceWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+        key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          }
+        });
+    });
+  }
+
+  startStatusPillSequenceWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesStatusPillSequenceWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'] as const,
+      
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setStatusPillSequenceWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+      
+      onNextClick: () => {
+        driverInstance.moveNext();
+      },
+      
+      onDestroyStarted: () => {
+        // Always mark as finished when walkthrough ends (either completed or skipped)
+        this.setStatusPillSequenceWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  setStatusPillSequenceWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+      key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked 
+      ? 'My Expenses Status Pill Sequence Walkthrough Skipped'
+      : 'My Expenses Status Pill Sequence Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      status_type: 'blocked_and_incomplete',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
   }
 }
