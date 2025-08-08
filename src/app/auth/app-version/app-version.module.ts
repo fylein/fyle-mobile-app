@@ -9,9 +9,10 @@ import { AppVersionPageRoutingModule } from './app-version-routing.module';
 import { AppVersionPage } from './app-version.page';
 
 import { MatButtonModule } from '@angular/material/button';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, AppVersionPageRoutingModule, MatButtonModule],
+  imports: [CommonModule, FormsModule, IonicModule, AppVersionPageRoutingModule, MatButtonModule, SharedModule],
   declarations: [AppVersionPage],
 })
 export class AppVersionPageModule {}

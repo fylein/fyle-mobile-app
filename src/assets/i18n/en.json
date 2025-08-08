@@ -1463,6 +1463,8 @@
     "createNewReport": "Create new report",
     "addToReports": "Add to reports",
     "startReview": "Start review",
+    "clearAriaLabel": "Clear",
+    "createFirstExpensesAlt": "Create First Expenses",
     "zeroState": {
       "noExpenses": "You have no expenses right now",
       "noResultsFound": "No results found",
@@ -1647,6 +1649,47 @@
   "pendingGasChargeInfo": {
     "expenseListViewText": "Pending gas charge",
     "text": "What is $1 pending gas charge?"
+  },
+  "supportDialog": {
+    "contactSupport": "Contact support",
+    "havingTroubleWithProcess": "Having trouble with the process?",
+    "contactYourAdmin": "Contact your admin",
+    "havingTroubleUnderstandingFyle": "Having trouble understanding fyle",
+    "helpCenterDescription": "We have everything to clear up in our help center",
+    "visitHelpCenter": "Visit help center",
+    "stillFacingIssues": "Still facing issues that you need help with?",
+    "weAreHappyToHelp": "We are happy to help",
+    "sendQueriesWithScreenshot": "Please send your queries along with screenshot(if necessary) to",
+    "supportEmail": "support@fylehq.com"
+  },
+  "pendingVerification": {
+    "invitationExpired": "The invitation has expired",
+    "enterRegisteredEmailDescription": "Enter your registered email address to receive a new invitation and set up your account on Fyle.",
+    "registeredEmailLabel": "Registered email",
+    "registeredEmailPlaceholder": "Enter registered email",
+    "invalidEmailError": "Please enter a valid email.",
+    "sendInvite": "Send invite",
+    "sendingInvite": "Sending invite",
+    "backToSignIn": "Back to sign in",
+    "invitationLinkSent": "Invitation link sent",
+    "invitationLinkSentDescription": "A new invitation link has been sent to your registered email address. Check your inbox to continue setting up your account.",
+    "backToSignInAriaLabel": "Navigate back to sign in page"
+  },
+  "newPassword": {
+    "resetPassword": "Reset password",
+    "newPasswordLabel": "New password",
+    "newPasswordPlaceholder": "Enter password",
+    "confirmNewPasswordLabel": "Confirm new password",
+    "confirmNewPasswordPlaceholder": "Re-enter password",
+    "passwordCannotBeEmpty": "Password cannot be empty",
+    "pleaseEnterValidPassword": "Please enter a valid password.",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "resetPasswordButton": "Reset password",
+    "resetting": "Resetting",
+    "backToSignIn": "Back to sign in"
+  },
+  "appVersion": {
+    "updateApp": "Update app"
   },
   "criticalPolicyViolated": "Critical policy violated"
 }

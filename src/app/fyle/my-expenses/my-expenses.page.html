@@ -47,7 +47,7 @@
         @if (simpleSearchText) {
           <button
             (click)="clearText('isFromSearchBar')"
-            aria-label="Clear"
+            [attr.aria-label]="'myExpensesPage.clearAriaLabel' | transloco"
             class="my-expenses--simple-search-close"
             mat-icon-button
             matSuffix
@@ -139,14 +139,14 @@
       <div class="my-expenses--zero-state">
         @if (!simpleSearchText) {
           <img
-            alt="Create First Expenses"
+            [alt]="'myExpensesPage.createFirstExpensesAlt' | transloco"
             class="my-expenses--zero-state-img"
             src="../../../assets/svg/zero-states/expenses.svg"
           />
         }
         @if (simpleSearchText) {
           <img
-            alt="Create First Expenses"
+            [alt]="'myExpensesPage.createFirstExpensesAlt' | transloco"
             class="my-expenses--zero-state-img"
             src="../../../assets/svg/zero-states/search.svg"
           />

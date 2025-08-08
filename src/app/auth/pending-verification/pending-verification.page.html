@@ -12,24 +12,30 @@
               ></ion-icon>
             </div>
             <div>
-              <div class="pending-verification__page-header">The invitation has expired</div>
+              <div class="pending-verification__page-header">
+                {{ 'pendingVerification.invitationExpired' | transloco }}
+              </div>
               <div class="pending-verification__sub-header">
-                Enter your registered email address to receive a new invitation and set up your account on Fyle.
+                {{ 'pendingVerification.enterRegisteredEmailDescription' | transloco }}
               </div>
             </div>
             <form [formGroup]="fg" class="pending-verification__input-container">
-              <div class="pending-verification__input-container__label">Registered email</div>
+              <div class="pending-verification__input-container__label">
+                {{ 'pendingVerification.registeredEmailLabel' | transloco }}
+              </div>
               <input
                 #simpleEmailInput
                 matInput
                 type="email"
-                placeholder="Enter registered email"
+                [placeholder]="'pendingVerification.registeredEmailPlaceholder' | transloco"
                 formControlName="email"
                 pattern="\S+@\S+\.\S{2,}"
                 class="pending-verification__input-container__input"
               />
               @if (fg.controls.email.touched && !fg.controls.email.valid) {
-                <div class="pending-verification__error-message">Please enter a valid email.</div>
+                <div class="pending-verification__error-message">
+                  {{ 'pendingVerification.invalidEmailError' | transloco }}
+                </div>
               }
             </form>
           </div>
@@ -41,9 +47,9 @@
               [disabled]="!fg.valid"
               appFormButtonValidation
               [loading]="isLoading"
-              [loadingText]="'Sending invite'"
+              [loadingText]="'pendingVerification.sendingInvite' | transloco"
             >
-              Send invite
+              {{ 'pendingVerification.sendInvite' | transloco }}
             </ion-button>
             <div class="pending-verification__cta-secondary btn-secondary" (click)="onGotoSignInClick()">
               <ion-icon
@@ -51,7 +57,7 @@
                 [src]="'/assets/svg/arrow-left.svg'"
                 slot="icon-only"
               ></ion-icon>
-              <span class="pending-verification__cta-text">Back to sign in</span>
+              <span class="pending-verification__cta-text">{{ 'pendingVerification.backToSignIn' | transloco }}</span>
             </div>
           </div>
         </div>
@@ -68,10 +74,9 @@
                 ></ion-icon>
               </div>
               <section class="pending-verification__text">
-                <h1 class="pending-verification__header">Invitation link sent</h1>
+                <h1 class="pending-verification__header">{{ 'pendingVerification.invitationLinkSent' | transloco }}</h1>
                 <p class="pending-verification__content">
-                  A new invitation link has been sent to your registered email address. Check your inbox to continue
-                  setting up your account.
+                  {{ 'pendingVerification.invitationLinkSentDescription' | transloco }}
                 </p>
               </section>
             </div>
@@ -81,7 +86,7 @@
               (click)="onGotoSignInClick()"
               class="btn-primary"
               fill="clear"
-              aria-label="Navigate back to sign in page"
+              [attr.aria-label]="'pendingVerification.backToSignInAriaLabel' | transloco"
               role="button"
             >
               <div class="pending-verification__cta-content">
@@ -90,7 +95,7 @@
                   [src]="'/assets/svg/arrow-left.svg'"
                   slot="icon-only"
                 ></ion-icon>
-                <span class="pending-verification__cta-text">Back to sign in</span>
+                <span class="pending-verification__cta-text">{{ 'pendingVerification.backToSignIn' | transloco }}</span>
               </div>
             </ion-button>
           </div>
