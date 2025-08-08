@@ -472,7 +472,7 @@ export class MyViewReportPage {
       cssClass: 'pop-up-in-center',
       backdropDismiss: false,
       componentProps: {
-        header: 'Delete Report',
+        header: 'Delete report',
         body: 'Are you sure you want to delete this report?',
         infoMessage:
           report.state === ReportState.DRAFT && report.num_expenses === 0

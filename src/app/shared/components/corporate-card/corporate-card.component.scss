@@ -13,9 +13,10 @@
   border-radius: 16px;
   background: url('../../../../assets/images/corporate-card-bg.png') no-repeat center;
   background-size: cover;
+  color: colors.$pure-white;
 
   &__bank-name {
-    color: colors.$dark-grey;
+    opacity: 0.7;
     font-size: 14px;
     line-height: 8px;
   }
@@ -82,14 +83,13 @@
   }
 
   &__feed-label {
-    color: colors.$black-light;
+    opacity: 0.7;
     font-size: 14px;
     line-height: normal;
   }
 
   &__feed-value {
     font-size: 14px;
-    color: colors.$blue-black;
     line-height: 1.16;
   }
 
@@ -108,12 +108,13 @@
 
   &__more-options-btn {
     background: transparent;
+    display: flex;
   }
 
   &__more-options-btn-icon {
     width: 20px;
     height: 20px;
-    color: colors.$dark-grey;
+    color: colors.$pure-white;
   }
 }
 

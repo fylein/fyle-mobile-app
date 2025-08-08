@@ -77,7 +77,7 @@ export class IconModule {
     'info-circle-fill.svg',
     'info-circle-fill.svg',
     'info-gradient.svg',
-    'info-circle-gradient.svg',
+    'info-circle-white.svg',
     'list-plus.svg',
     'list.svg',
     'list-new.svg',

@@ -2,7 +2,7 @@
 
 .sidemenu-header {
   &__toolbar {
-    --background: #{colors.$black};
+    --background: #{colors.$gray-15};
   }
 
   &__grid {
@@ -15,7 +15,8 @@
   &__icon-container {
     flex: 0 0 55px;
     height: 55px;
-    background: url('../../../../../assets/images/fy-profile-gradient.svg') no-repeat bottom;
+    border: 1px solid colors.$navy-50;
+    border-radius: 50%;
 
     &__text {
       font-weight: 500;

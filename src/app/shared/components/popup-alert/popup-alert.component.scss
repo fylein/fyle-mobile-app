@@ -44,27 +44,28 @@ $small-screen: 700px;
 
   &--secondary-cta {
     height: auto;
-    background-color: transparent;
-    color: colors.$black;
+    color: colors.$brand-primary;
+    background-color: colors.$pure-white;
     font-size: 14px;
     line-height: 1.3;
     min-width: 50%;
-    border: 1px solid colors.$grey-lightest;
+    border: 2px solid colors.$brand-primary;
+    padding: 8px 16px;
+    border-radius: 32px;
   }
 
   &--primary-cta {
-    min-height: 35px;
-    background: colors.$pink-gradient;
+    background: colors.$brand-primary;
     color: colors.$pure-white;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.25;
-    border-radius: 4px;
-    padding: 16px 12px;
+    border-radius: 32px;
+    padding: 8px 16px;
     min-width: 50%;
     width: 100%;
 
     &__alert {
-      background: colors.$red;
+      background: colors.$brand-primary;
     }
   }
 
@@ -97,7 +98,7 @@ $small-screen: 700px;
   &--error-icon {
     height: 14px;
     width: 14px;
-    fill: colors.$red;
+    fill: colors.$negative-500;
   }
 
   &--content-container {

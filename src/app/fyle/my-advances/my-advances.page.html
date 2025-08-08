@@ -1,21 +1,22 @@
 <ion-header mode="md">
   <ion-toolbar mode="md" class="my-advances--toolbar-header">
     @if (!navigateBack) {
-    <ion-buttons mode="md" slot="start">
-      <app-fy-menu-icon></app-fy-menu-icon>
-    </ion-buttons>
-    } @if (navigateBack) {
-    <ion-buttons mode="md" slot="start">
-      <ion-back-button mode="md"></ion-back-button>
-    </ion-buttons>
+      <ion-buttons mode="md" slot="start">
+        <app-fy-menu-icon></app-fy-menu-icon>
+      </ion-buttons>
+    }
+    @if (navigateBack) {
+      <ion-buttons mode="md" slot="start">
+        <ion-back-button mode="md"></ion-back-button>
+      </ion-buttons>
     }
     <ion-title class="page-title" mode="md">My advances</ion-title>
     <ion-buttons mode="md" slot="end">
       <ion-button class="my-advances--header-btn" (click)="openFilters()">
         @if (filterPills?.length) {
-        <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
         } @else {
-        <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
         }
       </ion-button>
       <ion-button class="my-advances--header-btn" (click)="goToAddEditAdvanceRequest()">
@@ -27,51 +28,56 @@
 
 <ion-content class="my-advances--content">
   @if (filterPills?.length) {
-  <div class="filter-pills-container">
-    <app-fy-filter-pills
-      class="filter-pills"
-      (filterClose)="onFilterClose($event)"
-      (filterClicked)="onFilterClick($event)"
-      (clearAll)="onFilterPillsClearAll()"
-      [filterPills]="filterPills"
-    ></app-fy-filter-pills>
-  </div>
-  } @if (isLoading) {
-  <app-fy-loading-screen></app-fy-loading-screen>
+    <div class="filter-pills-container">
+      <app-fy-filter-pills
+        class="filter-pills"
+        (filterClose)="onFilterClose($event)"
+        (filterClicked)="onFilterClick($event)"
+        (clearAll)="onFilterPillsClearAll()"
+        [filterPills]="filterPills"
+      ></app-fy-filter-pills>
+    </div>
   }
-  <div class="my-advances--body" [ngClass]="{'my-advances--zero-state-body': (advances$|async)?.length === 0 }">
+  @if (isLoading) {
+    <app-fy-loading-screen></app-fy-loading-screen>
+  }
+  <div class="my-advances--body" [ngClass]="{ 'my-advances--zero-state-body': (advances$ | async)?.length === 0 }">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
     @if ((advances$ | async)?.length === 0) {
-    <div class="my-advances--zero-state">
-      @if ((filterParams$ | async)?.state && !(filterParams$ | async)?.date) {
-      <app-fy-zero-state
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-        image="../../../assets/images/zero-states/advances.png"
-        message="You have no advances"
-        submessage="matching the applied filters"
-      ></app-fy-zero-state>
-      } @if (!(filterParams$ | async)?.state && !(filterParams$ | async)?.date) {
-      <app-fy-zero-state
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-        image="../../../assets/images/zero-states/advances.png"
-        message="You have no advances right now"
-      ></app-fy-zero-state>
+      <div class="my-advances--zero-state">
+        @if ((filterParams$ | async)?.state && !(filterParams$ | async)?.date) {
+          <app-fy-zero-state
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+            image="../../../assets/svg/zero-states/advances.svg"
+            message="You have no advances"
+            submessage="matching the applied filters"
+          ></app-fy-zero-state>
+        }
+        @if (!(filterParams$ | async)?.state && !(filterParams$ | async)?.date) {
+          <app-fy-zero-state
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+            image="../../../assets/svg/zero-states/advances.svg"
+            message="You have no advances right now"
+          ></app-fy-zero-state>
+        }
+      </div>
+    }
+    @if (!isLoading) {
+      @let advances = advances$ | async;
+      @for (advance of advances; track advance.areq_id; let i = $index) {
+        <app-my-advances-card
+          [advanceRequest]="advance"
+          [prevDate]="advances[i - 1]?.created_at"
+          (advanceClick)="onAdvanceClick($event)"
+        >
+        </app-my-advances-card>
       }
-    </div>
-    } @if (!isLoading) { @let advances = advances$ | async; @for (advance of advances; track advance.areq_id; let i =
-    $index) {
-    <app-my-advances-card
-      [advanceRequest]="advance"
-      [prevDate]="advances[i-1]?.created_at"
-      (advanceClick)="onAdvanceClick($event)"
-    >
-    </app-my-advances-card>
-    } }
+    }
   </div>
 </ion-content>
 

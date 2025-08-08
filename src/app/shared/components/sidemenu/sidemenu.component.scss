@@ -1,7 +1,7 @@
 @use '../../../../theme/colors.scss';
 
 .sidemenu {
-  --ion-background-color: #{colors.$black};
+  --ion-background-color: #{colors.$gray-15};
   --ion-text-color: #{colors.$pure-white};
 
   &__content-container {

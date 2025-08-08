@@ -43,14 +43,14 @@
   }
 
   &--mandatory {
-    color: colors.$brand-primary;
+    color: colors.$negative-500;
   }
 
   &--text {
     border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid colors.$red-2;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -79,7 +79,7 @@
 
   &--error-message {
     margin-top: 2px;
-    color: colors.$red;
+    color: colors.$negative-500;
   }
 
   &--heading {
@@ -143,13 +143,13 @@
   &--secondary-cta {
     height: auto;
     background-color: transparent;
-    color: colors.$black;
+    color: colors.$brand-primary;
     font-size: 14px;
     line-height: 1.25;
     flex: auto;
-    border-radius: 4px;
+    border-radius: 32px;
     padding: 10px 12px;
-    border: 1px solid colors.$grey;
+    border: 2px solid colors.$brand-primary;
 
     &__disabled {
       opacity: 0.2;
@@ -158,11 +158,11 @@
 
   &--primary-cta {
     min-height: 52px;
-    background: colors.$pink-gradient;
+    background: colors.$brand-primary;
     color: colors.$pure-white;
     font-size: 14px;
     line-height: 1.3;
-    border-radius: 4px;
+    border-radius: 32px;
     padding: 10px 12px;
     min-width: 50%;
     &__disabled {

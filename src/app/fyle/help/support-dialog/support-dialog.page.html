@@ -18,7 +18,7 @@
         <p class="support--heading">Having trouble with the process?</p>
         <p>Contact your admin</p>
         <div class="support--admin-list">
-          @for (admin of adminList; track admin; let i=$index) {
+          @for (admin of adminList; track admin; let i = $index) {
             <div class="support--admin-list-contact-card smartlook-hide">
               <div>{{ admin.full_name }}</div>
               <a href="mailto:{{ admin.email }}">{{ admin.email }}</a>
@@ -30,7 +30,9 @@
           <p class="support--heading">Having trouble understanding fyle</p>
           <p>We have everything to clear up in our help center</p>
           <div>
-            <button (click)="openHelpLink()" mat-flat-button class="support--helpLinkBtn">Visit help center</button>
+            <button (click)="openHelpLink()" class="support--helpLinkBtn btn-outline-secondary">
+              Visit help center
+            </button>
           </div>
           <p>Still facing issues that you need help with?</p>
           <p>We are happy to help</p>

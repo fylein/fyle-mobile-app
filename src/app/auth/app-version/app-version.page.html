@@ -1,12 +1,10 @@
-<ion-header mode="md">
-  <div class="app-version--header">App version is not supported</div>
-</ion-header>
-
 <ion-content>
   <div class="app-version--container">
     @if (message) {
-      <div class="app-version--message">{{message}}</div>
+      <div class="app-version--message">
+        {{ message }}
+      </div>
     }
-    <button (click)="updateApp()" mat-flat-button color="primary">Update app</button>
+    <button (click)="updateApp()" class="btn-primary btn-auto-dimension">Update app</button>
   </div>
 </ion-content>

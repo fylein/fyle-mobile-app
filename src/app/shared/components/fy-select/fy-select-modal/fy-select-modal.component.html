@@ -23,14 +23,14 @@
           id="election-modal--search-input"
           matInput
           [placeholder]="placeholder || ('fySelectModal.search' | transloco)"
-          />
+        />
         @if (value) {
           <button
             (click)="clearValue()"
             [attr.aria-label]="'fySelectModal.clear' | transloco"
             mat-icon-button
             matSuffix
-            >
+          >
             <mat-icon>close</mat-icon>
           </button>
         }
@@ -45,9 +45,9 @@
       @if (filteredOptions.length === 0) {
         <div>
           <app-fy-zero-state
-            [header]="'fySelectModal.noResultsHeader' | transloco : { label: label }"
-            [submessage]="'fySelectModal.noResultsSubmessage' | transloco : { label: label }"
-            [image]="'../../../../assets/images/zero-states/search.png'"
+            [header]="'fySelectModal.noResultsHeader' | transloco: { label: label }"
+            [submessage]="'fySelectModal.noResultsSubmessage' | transloco: { label: label }"
+            [image]="'../../../../assets/svg/zero-states/search.svg'"
             [unscaledImage]="true"
             [useNewStyling]="true"
           ></app-fy-zero-state>
@@ -59,11 +59,7 @@
       <div class="selection-modal--single-element-block">
         @for (filteredListItem of filteredOptions$ | async; track filteredListItem) {
           @if (!filteredListItem.value && filteredListItem?.label?.length > 0) {
-            <div
-              (click)="onElementSelect(filteredListItem)"
-              class="selection-modal--list-element"
-              matRipple
-              >
+            <div (click)="onElementSelect(filteredListItem)" class="selection-modal--list-element" matRipple>
               <ng-template #defaultSelectionElementFiltered let-label="label" let-selected="selected">
                 <div class="selection-modal--label">
                   <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
@@ -73,8 +69,11 @@
                 }
               </ng-template>
               <ng-container
-                *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElementFiltered; context: filteredListItem"
-                >
+                *ngTemplateOutlet="
+                  selectionElement ? selectionElement : defaultSelectionElementFiltered;
+                  context: filteredListItem
+                "
+              >
               </ng-container>
             </div>
           }
@@ -83,15 +82,9 @@
     }
 
     @if (cacheName && (recentrecentlyUsedItems$ | async)?.length > 0) {
-      <div
-        class="selection-modal--recently-used-block"
-        >
+      <div class="selection-modal--recently-used-block">
         @for (recentrecentlyUsedItem of recentrecentlyUsedItems$ | async; track recentrecentlyUsedItem) {
-          <div
-            (click)="onElementSelect(recentrecentlyUsedItem)"
-            class="selection-modal--list-element"
-            matRipple
-            >
+          <div (click)="onElementSelect(recentrecentlyUsedItem)" class="selection-modal--list-element" matRipple>
             <ng-template #defaultSelectionElementRecentlyUsed let-label="label" let-selected="selected">
               <div class="selection-modal--recently-used-item-content">
                 <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
@@ -104,11 +97,11 @@
               }
             </ng-template>
             <ng-container
-          *ngTemplateOutlet="
-            selectionElement ? selectionElement : defaultSelectionElementRecentlyUsed;
-            context: recentrecentlyUsedItem
-          "
-              >
+              *ngTemplateOutlet="
+                selectionElement ? selectionElement : defaultSelectionElementRecentlyUsed;
+                context: recentrecentlyUsedItem
+              "
+            >
             </ng-container>
           </div>
         }
@@ -119,11 +112,7 @@
       <div>
         @for (filteredListItem of filteredOptions$ | async; track filteredListItem) {
           @if (filteredListItem?.label?.length > 0) {
-            <div
-              (click)="onElementSelect(filteredListItem)"
-              class="selection-modal--list-element"
-              matRipple
-              >
+            <div (click)="onElementSelect(filteredListItem)" class="selection-modal--list-element" matRipple>
               <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
                 <div class="selection-modal--label">
                   <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
@@ -133,8 +122,11 @@
                 }
               </ng-template>
               <ng-container
-                *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElement; context: filteredListItem"
-                >
+                *ngTemplateOutlet="
+                  selectionElement ? selectionElement : defaultSelectionElement;
+                  context: filteredListItem
+                "
+              >
               </ng-container>
             </div>
           }
@@ -148,7 +140,13 @@
   <ion-footer>
     <ion-toolbar>
       <div class="selection-modal--cta-container">
-        <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
+        <ion-button
+          (click)="saveToCacheAndUse()"
+          class="selection-modal--primary-cta"
+          shape="round"
+          color="fyle-primary"
+          fill="solid"
+        >
           {{ 'fySelectModal.save' | transloco }}
         </ion-button>
       </div>

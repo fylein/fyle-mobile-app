@@ -120,7 +120,7 @@
     border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -192,7 +192,7 @@
     }
 
     &__invalid {
-      border-color: colors.$red;
+      border-color: colors.$negative-500;
     }
   }
 
@@ -246,7 +246,7 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     margin-top: -16px;
     font-size: 12px;
@@ -353,15 +353,6 @@
     }
   }
 
-  &--error-message-block {
-    position: sticky;
-    width: 100%;
-    bottom: 0;
-    background: rgba(221, 0, 0, 0.7);
-    color: #fff;
-    padding: 16px;
-  }
-
   &--zero-state {
     margin-top: 80px;
     display: flex;
@@ -466,7 +457,7 @@
   }
 
   &--mandatory {
-    color: colors.$brand-primary;
+    color: colors.$negative-500;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;

@@ -30,8 +30,6 @@ export class VirtualSelectModalComponent implements AfterViewInit {
 
   @Input() selectModalHeader = '';
 
-  @Input() showSaveButton = false;
-
   @Input() placeholder: string;
 
   @Input() defaultLabelProp: string;

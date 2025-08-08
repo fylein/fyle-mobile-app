@@ -569,7 +569,6 @@ export const virtualSelectModalControllerParams = {
     enableSearch: true,
     selectModalHeader: 'Select item',
     placeholder: undefined,
-    showSaveButton: false,
     defaultLabelProp: undefined,
     recentlyUsed: undefined,
     label: '',

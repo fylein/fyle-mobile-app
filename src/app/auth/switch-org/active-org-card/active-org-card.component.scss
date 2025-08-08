@@ -1,7 +1,7 @@
 @use '../../../../theme/colors.scss';
 
 .active-org-card {
-  background: colors.$pink-gradient-2;
+  background-color: colors.$background;
   border-radius: 0 0 20px 20px;
   padding: 20px 16px;
   color: colors.$black;
@@ -60,7 +60,7 @@
 
     &__pill {
       padding: 4px 0 4px 12px;
-      background-color: colors.$blue-black;
+      background-color: colors.$gray-15;
       border-radius: 16px;
       color: colors.$pure-white;
       font-size: 12px;

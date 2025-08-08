@@ -32,7 +32,7 @@ $background-color: #fff;
       --color: colors.$brand-primary;
       color: colors.$brand-primary;
       width: 66px;
-      font-size: 16px;
+      font-size: 14px;
       line-height: 20px;
       font-weight: 500;
       text-transform: none;
@@ -92,7 +92,7 @@ $background-color: #fff;
   }
 
   &--error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     font-size: 12px;
   }
@@ -142,7 +142,7 @@ $background-color: #fff;
 
   &--remove-icon {
     background: none;
-    color: colors.$red;
+    color: colors.$negative-500;
     height: 20px;
     width: 20px;
   }
@@ -185,7 +185,7 @@ $background-color: #fff;
   }
 
   &--invalid {
-    border-bottom: 1px solid colors.$red;
+    border-bottom: 1px solid colors.$negative-500;
   }
 
   &--input {
@@ -211,7 +211,7 @@ $background-color: #fff;
   }
 
   &--mandatory {
-    color: colors.$brand-primary;
+    color: colors.$negative-500;
     font-size: 14px;
     font-weight: 400;
   }
@@ -241,14 +241,14 @@ $background-color: #fff;
 
   &--date-invalid {
     float: right;
-    color: colors.$red;
-    border-bottom: 1px solid colors.$red;
+    color: colors.$negative-500;
+    border-bottom: 1px solid colors.$negative-500;
   }
 
   &--date-error {
     width: 50%;
     float: right;
-    color: colors.$red;
+    color: colors.$negative-500;
     font-size: 12px;
     margin: -12px;
   }
@@ -278,19 +278,11 @@ $background-color: #fff;
     height: 16px;
   }
 
-  &--add-more-label,
-  &--split-evenly-label {
-    color: colors.$blue-black;
-    font-size: 12px;
-    line-height: 18px;
-    font-weight: 500;
-  }
-
   &--amount-block {
     display: flex;
     padding: 12px;
     border-radius: 8px;
-    background: colors.$pink-gradient-light-2;
+    border: 1px solid colors.$navy-50;
 
     &__label {
       font-size: 12px;
@@ -314,19 +306,19 @@ $background-color: #fff;
   &--error-message-block {
     color: colors.$blue-black;
     border-radius: 4px;
-    background-color: colors.$pale-pink;
+    background-color: colors.$pure-white;
     font-size: 12px;
     padding: 8px 12px;
     line-height: 15px;
     display: flex;
     align-items: center;
     margin-top: 6px;
-    border: 1px solid colors.$red-1;
+    border: 1px solid colors.$negative-500;
   }
 
   &--error-icon {
     margin-right: 12px;
-    color: colors.$red;
+    color: colors.$negative-500;
     height: 18px;
     width: 18px;
   }
