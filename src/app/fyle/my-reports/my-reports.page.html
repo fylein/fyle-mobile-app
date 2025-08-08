@@ -43,7 +43,6 @@
           (click)="clearText('isFromSearchBar')"
           aria-label="Clear"
           class="my-reports--simple-search-close"
-          mat-button
           mat-icon-button
           matSuffix
         >
@@ -111,17 +110,16 @@
       ></app-fy-zero-state>
       }
     </div>
-    } @if (!isLoading) { @if ((simplifyReportsSettings$ | async); as simplifyReportsSettings) {
-    <div *ngFor="let report of myReports$ | async as list; let i = index">
-      <app-reports-card
-        [report]="report"
-        [prevDate]="list[i-1]?.created_at"
-        [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
-        (gotoReport)="onReportClick($event)"
-        (viewComments)="onViewCommentsClick()"
-      ></app-reports-card>
-    </div>
-    } @else {
+    } @if (!isLoading) { @if ((simplifyReportsSettings$ | async); as simplifyReportsSettings) { @let reports =
+    myReports$ | async; @for (report of reports; track report.id; let i = $index) {
+    <app-reports-card
+      [report]="report"
+      [prevDate]="reports[i-1]?.created_at"
+      [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
+      (gotoReport)="onReportClick($event)"
+      (viewComments)="onViewCommentsClick()"
+    ></app-reports-card>
+    } } @else {
     <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
     } } @else {
     <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>

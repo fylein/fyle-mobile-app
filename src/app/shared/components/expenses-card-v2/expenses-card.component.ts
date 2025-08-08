@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import dayjs from 'dayjs';
@@ -30,11 +30,14 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { TranslocoService } from '@jsverse/transloco';
 import { ExpenseMissingMandatoryFields } from 'src/app/core/models/platform/v1/expense-missing-mandatory-fields.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-expense-card-v2',
   templateUrl: './expenses-card.component.html',
   styleUrls: ['./expenses-card.component.scss'],
+  standalone: false,
 })
 export class ExpensesCardComponent implements OnInit {
   // Cache key for localStorage
@@ -145,6 +148,10 @@ export class ExpensesCardComponent implements OnInit {
 
   vendorDetails: string;
 
+  readonly isPendingGasCharge = signal<boolean>(false);
+
+  private sharedExpensesService = inject(SharedExpensesService);
+
   constructor(
     private transactionService: TransactionService,
     private sharedExpenseService: SharedExpenseService,
@@ -162,7 +169,7 @@ export class ExpensesCardComponent implements OnInit {
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
     private expensesService: ExpensesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get isSelected(): boolean {
@@ -269,7 +276,7 @@ export class ExpensesCardComponent implements OnInit {
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = (this.expense.spent_at || this.expense.created_at).toDateString();
       const previousDate = new Date(
-        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
+        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string,
       ).toDateString();
       this.showDt = currentDate !== previousDate;
     }
@@ -286,7 +293,7 @@ export class ExpensesCardComponent implements OnInit {
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
     this.isSycing$ = this.isConnected$.pipe(
-      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
+      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense),
     );
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
@@ -302,13 +309,13 @@ export class ExpensesCardComponent implements OnInit {
       .pipe(
         map((homeCurrency) => {
           this.homeCurrency = homeCurrency;
-        })
+        }),
       )
       .subscribe(noop);
 
     this.isProjectEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.setExpenseDetails();
@@ -316,6 +323,8 @@ export class ExpensesCardComponent implements OnInit {
     this.handleScanStatus();
 
     this.isIos = this.platform.is('ios');
+
+    this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(this.expense));
   }
 
   setOtherData(): void {
@@ -464,7 +473,7 @@ export class ExpensesCardComponent implements OnInit {
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;
-        })
+        }),
       )
       .subscribe(() => {
         this.isReceiptPresent = true;
@@ -474,7 +483,7 @@ export class ExpensesCardComponent implements OnInit {
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      startWith(true)
+      startWith(true),
     );
   }
 
@@ -586,7 +595,7 @@ export class ExpensesCardComponent implements OnInit {
       let fieldName = this.missingMandatoryFieldNames[i];
 
       if (fieldName && fieldName.length > 0) {
-        fieldName = fieldName.charAt(0).toLowerCase() + fieldName.slice(1);
+        fieldName = fieldName.toLowerCase();
       }
 
       if (fieldName.length > maxWordLength) {

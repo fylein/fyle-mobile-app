@@ -4,6 +4,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Directive({
   selector: '[appFormButtonValidation]',
+  standalone: false,
 })
 export class FormButtonValidationDirective implements OnChanges {
   @Input() loadingText: string;
@@ -41,7 +42,10 @@ export class FormButtonValidationDirective implements OnChanges {
     'directives.formButtonValidation.getStarted': 'directives.formButtonValidation.gettingStarted',
   };
 
-  constructor(private elementRef: ElementRef, private translocoService: TranslocoService) {}
+  constructor(
+    private elementRef: ElementRef,
+    private translocoService: TranslocoService,
+  ) {}
 
   get selectedElement(): HTMLElement & { disabled?: boolean } {
     return this.elementRef?.nativeElement as HTMLElement & { disabled?: boolean };

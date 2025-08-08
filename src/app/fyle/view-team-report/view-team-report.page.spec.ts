@@ -15,7 +15,6 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -74,7 +73,6 @@ describe('ViewTeamReportPageV2', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let router: jasmine.SpyObj<Router>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let popupService: jasmine.SpyObj<PopupService>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
@@ -101,7 +99,6 @@ describe('ViewTeamReportPageV2', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
@@ -169,10 +166,6 @@ describe('ViewTeamReportPageV2', () => {
         {
           provide: PopoverController,
           useValue: popoverControllerSpy,
-        },
-        {
-          provide: PopupService,
-          useValue: popupServiceSpy,
         },
         {
           provide: NetworkService,
@@ -247,7 +240,6 @@ describe('ViewTeamReportPageV2', () => {
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
@@ -298,20 +290,13 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('loadReports(): should load reports', (done) => {
-    loaderService.showLoader.and.resolveTo();
     approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
-    loaderService.hideLoader.and.resolveTo();
 
     component
       .loadReports()
-      .pipe(
-        finalize(() => {
-          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        })
-      )
+      .pipe()
       .subscribe((res) => {
         expect(res).toEqual(expectedReportsSinglePage[0]);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
         done();
       });
@@ -377,17 +362,15 @@ describe('ViewTeamReportPageV2', () => {
 
   describe('ionViewWillEnter():', () => {
     it('should initialize the variables and load reports and statuses', fakeAsync(() => {
-      spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
+      spyOn(component, 'loadReports').and.callThrough();
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      approverReportsService.getReportById.and.returnValues(of(expectedReportsSinglePage[0]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       const mockPdfExportData = cloneDeep(pdfExportData1);
 
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
@@ -400,7 +383,6 @@ describe('ViewTeamReportPageV2', () => {
         expect(res).toEqual(apiEouRes);
       });
 
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -416,7 +398,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(
         component.convertToEstatus(component.systemComments),
-        component.type
+        component.type,
       );
 
       component.report$.subscribe((res) => {
@@ -470,9 +452,7 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(false);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      loaderService.showLoader.and.resolveTo();
-      spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
-      loaderService.hideLoader.and.resolveTo();
+      spyOn(component, 'loadReports').and.callThrough();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -490,7 +470,6 @@ describe('ViewTeamReportPageV2', () => {
         expect(res).toEqual(apiEouRes);
       });
 
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -505,7 +484,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(
         component.convertToEstatus(component.systemComments),
-        component.type
+        component.type,
       );
 
       expect(component.totalCommentsCount).toEqual(3);
@@ -1052,15 +1031,17 @@ describe('ViewTeamReportPageV2', () => {
     component.approvalAmount = 250.75;
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.view-reports--employee-name__name'))).toEqual(
-      expectedReportsSinglePage[0].employee.user.full_name
-    );
-    expect(getTextContent(getElementBySelector(fixture, '.view-reports--submitted-date__date'))).toEqual(
-      'Feb 01, 2023'
-    );
-    expect(getTextContent(getElementBySelector(fixture, '.view-reports--purpose-amount-block__amount'))).toEqual(
-      component.approvalAmount.toString()
-    );
+    const empEl = getElementBySelector(fixture, '.view-reports--employee-name__name');
+    const dateEl = getElementBySelector(fixture, '.view-reports--submitted-date__date');
+    const amtEl = getElementBySelector(fixture, '.view-reports--purpose-amount-block__amount');
+
+    expect(empEl).withContext('Employee element missing').not.toBeNull();
+    expect(dateEl).withContext('Date element missing').not.toBeNull();
+    expect(amtEl).withContext('Amount element missing').not.toBeNull();
+
+    expect(getTextContent(empEl)).toEqual(expectedReportsSinglePage[0].employee.user.full_name);
+    expect(getTextContent(dateEl)).toEqual('Feb 01, 2023');
+    expect(getTextContent(amtEl)).toEqual(component.approvalAmount.toString());
 
     const openButton = getElementBySelector(fixture, '.view-reports--view-info') as HTMLElement;
     click(openButton);
@@ -1225,7 +1206,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.showApprovalInfoMessage).toBeTrue();
       expect(component.approvalInfoMessage).toEqual(
-        `You are approving $250.75 in expenses, which differs from the report total since the report also includes 2 other expenses (which may include credits) that don't require your approval based on your company's policies.`
+        `You are approving $250.75 in expenses, which differs from the report total since the report also includes 2 other expenses (which may include credits) that don't require your approval based on your company's policies.`,
       );
       expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
         value: 150.5,
@@ -1241,7 +1222,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
         '#280a31',
-        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
+        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87',
       );
     });
   });

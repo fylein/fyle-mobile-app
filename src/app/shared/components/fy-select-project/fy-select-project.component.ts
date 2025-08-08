@@ -18,6 +18,7 @@ import { ProjectOption } from 'src/app/core/models/project-options.model';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy {
   @Input() mandatory = false;
@@ -42,6 +43,12 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   @Input() isProjectCategoryRestrictionsEnabled: boolean;
 
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() isSelectedProjectDisabled: boolean;
+
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() selectedDisabledProject: ProjectV2;
+
   @Output() valueChange = new EventEmitter<ProjectV2>();
 
   displayValue: string;
@@ -52,7 +59,10 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   onChangeCallback: (value: ProjectV2) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {
@@ -97,6 +107,8 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
         recentlyUsed: this.recentlyUsed,
         label: this.label,
         isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled,
+        isSelectedProjectDisabled: this.isSelectedProjectDisabled,
+        selectedDisabledProject: this.selectedDisabledProject,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),

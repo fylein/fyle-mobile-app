@@ -8,7 +8,6 @@
         ></ion-icon>
       </div>
     }
-
     @if (isReceiptPresent) {
       <div class="expenses-card--receipt-image-container expenses-card--with-image">
         <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
@@ -34,7 +33,7 @@
         </div>
 
         <div class="expenses-card--date">
-          {{ expense.spent_at | date : 'MMM dd, YYYY' }}
+          {{ expense.spent_at | date: 'MMM dd, yyyy' }}
         </div>
 
         <div class="d-flex">

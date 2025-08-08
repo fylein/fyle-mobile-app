@@ -7,7 +7,6 @@ import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { map, distinctUntilChanged, debounceTime, switchMap, shareReplay } from 'rxjs/operators';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
@@ -36,6 +35,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
   selector: 'app-team-reports',
   templateUrl: './team-reports.page.html',
   styleUrls: ['./team-reports.page.scss'],
+  standalone: false,
 })
 export class TeamReportsPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
@@ -97,7 +97,6 @@ export class TeamReportsPage implements OnInit {
     private dateService: DateService,
     private router: Router,
     private currencyService: CurrencyService,
-    private popupService: PopupService,
     private trackingService: TrackingService,
     private activatedRoute: ActivatedRoute,
     private extendQueryParamsService: ExtendQueryParamsService,
@@ -106,7 +105,7 @@ export class TeamReportsPage implements OnInit {
     private reportStatePipe: ReportState,
     private approverReportsService: ApproverReportsService,
     private authService: AuthService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -132,7 +131,7 @@ export class TeamReportsPage implements OnInit {
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled })),
     );
 
     this.eou$.subscribe((eou: ExtendedOrgUser) => {
@@ -161,7 +160,7 @@ export class TeamReportsPage implements OnInit {
             return value;
           }),
           distinctUntilChanged(),
-          debounceTime(1000)
+          debounceTime(1000),
         )
         .subscribe((searchString) => {
           const currentParams = this.loadData$.getValue();
@@ -193,7 +192,7 @@ export class TeamReportsPage implements OnInit {
           }
           this.acc = this.acc.concat(res.data);
           return this.acc;
-        })
+        }),
       );
 
       this.teamReports$ = paginatedPipe.pipe(shareReplay(1));
@@ -205,11 +204,11 @@ export class TeamReportsPage implements OnInit {
           this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsCount(queryParams);
         }),
-        shareReplay(1)
+        shareReplay(1),
       );
 
       const paginatedScroll$ = this.teamReports$.pipe(
-        switchMap((reports) => this.count$.pipe(map((count) => count > reports.length)))
+        switchMap((reports) => this.count$.pipe(map((count) => count > reports.length))),
       );
 
       this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
@@ -467,7 +466,7 @@ export class TeamReportsPage implements OnInit {
 
   convertRptDtSortToSelectedFilters(
     filter: Partial<TeamReportsFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'last_submitted_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -484,7 +483,7 @@ export class TeamReportsPage implements OnInit {
 
   addSortToGeneratedFilters(
     filter: Partial<TeamReportsFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     this.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
@@ -523,7 +522,7 @@ export class TeamReportsPage implements OnInit {
 
   convertNameSortToSelectedFilters(
     filter: Partial<TeamReportsFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -540,7 +539,7 @@ export class TeamReportsPage implements OnInit {
 
   convertSelectedSortFiltersToFilters(
     sortBy: SelectedFilters<string>,
-    generatedFilters: Partial<TeamReportsFilters>
+    generatedFilters: Partial<TeamReportsFilters>,
   ): void {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
@@ -736,7 +735,7 @@ export class TeamReportsPage implements OnInit {
 
   convertAmountSortToSelectedFilters(
     filter: Partial<TeamReportsFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({

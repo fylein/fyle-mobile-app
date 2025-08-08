@@ -11,6 +11,7 @@ import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-pers
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
   styleUrls: ['./personal-cards-matched-expenses.page.scss'],
+  standalone: false,
 })
 export class PersonalCardsMatchedExpensesPage {
   headerState: HeaderState = HeaderState.base;
@@ -26,7 +27,7 @@ export class PersonalCardsMatchedExpensesPage {
   constructor(
     private router: Router,
     private modalController: ModalController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
   ) {
     this.personalCard = this.router.getCurrentNavigation().extras.state.personalCard as PlatformPersonalCard;
     this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails as PlatformPersonalCardTxn;

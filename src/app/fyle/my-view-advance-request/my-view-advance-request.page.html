@@ -3,40 +3,43 @@
     <ion-buttons
       mode="md"
       slot="start"
-      [ngClass]="{'view-advance-request--header-btn-container__sm': isDeviceWidthSmall}"
+      [ngClass]="{ 'view-advance-request--header-btn-container__sm': isDeviceWidthSmall }"
     >
-      <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
+      <ion-button [routerLink]="['/', 'enterprise', 'my_advances']" routerLinkActive="router-link-active">
         <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title" [ngClass]="{'view-advance-request--title-sm': isDeviceWidthSmall}"
+    <ion-title mode="md" class="page-title" [ngClass]="{ 'view-advance-request--title-sm': isDeviceWidthSmall }"
       >View advance request</ion-title
     >
     <ion-buttons
       class="view-advance-request--header-btn-container"
-      [ngClass]="{'view-advance-request--header-btn-container__sm': isDeviceWidthSmall}"
+      [ngClass]="{ 'view-advance-request--header-btn-container__sm': isDeviceWidthSmall }"
       slot="end"
     >
-      @if (actions$|async; as actions) { @if (actions?.can_edit) {
-      <ion-button class="view-advance-request--header-btn-container__btn" (click)="edit()">
-        <ion-icon [src]="'../../../assets/svg/edit.svg'" slot="icon-only"></ion-icon>
-      </ion-button>
-      } }
+      @if (actions$ | async; as actions) {
+        @if (actions?.can_edit) {
+          <ion-button class="view-advance-request--header-btn-container__btn" (click)="edit()">
+            <ion-icon [src]="'../../../assets/svg/edit.svg'" slot="icon-only"></ion-icon>
+          </ion-button>
+        }
+      }
       <ion-button class="view-advance-request--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
-      @if (actions$|async; as actions) { @if (actions?.can_delete) {
-      <ion-button class="view-advance-request--header-btn-container__btn" (click)="delete()">
-        <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
-      </ion-button>
-      } }
+      @if (actions$ | async; as actions) {
+        @if (actions?.can_delete) {
+          <ion-button class="view-advance-request--header-btn-container__btn" (click)="delete()">
+            <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
+          </ion-button>
+        }
+      }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  @if (advanceRequest$|async; as advanceRequest) {
-  <div>
+  @if (advanceRequest$ | async; as advanceRequest) {
     <div class="view-advance-request--container">
       <app-summary-tile
         [purpose]="advanceRequest.areq_purpose || '-'"
@@ -45,30 +48,31 @@
         [status]="internalState.name"
         [approvals]="activeApprovals$ | async"
       ></app-summary-tile>
-      @if (attachedFiles$|async; as attachedFiles) {
-      <div>
-        @if (attachedFiles?.length > 0) {
+      @if (attachedFiles$ | async; as attachedFiles) {
         <div>
-          <app-receipt-preview-thumbnail
-            [attachments]="attachedFiles"
-            (viewAttachments)="viewAttachments(attachedFiles)"
-            [canEdit]="false"
-          >
-          </app-receipt-preview-thumbnail>
+          @if (attachedFiles?.length > 0) {
+            <div>
+              <app-receipt-preview-thumbnail
+                [attachments]="attachedFiles"
+                (viewAttachments)="viewAttachments(attachedFiles)"
+                [canEdit]="false"
+              >
+              </app-receipt-preview-thumbnail>
+            </div>
+          }
+          @if (attachedFiles?.length === 0) {
+            <div class="view-advance-request--content-container">
+              <div class="view-advance-request--element">
+                <app-fy-statistic
+                  [icon]="'../../../../assets/svg/attachment-none.svg'"
+                  [type]="StatisticTypes.STRING"
+                  [label]="'Receipt'"
+                  [value]="'Not Attached'"
+                ></app-fy-statistic>
+              </div>
+            </div>
+          }
         </div>
-        } @if (attachedFiles?.length === 0) {
-        <div class="view-advance-request--content-container">
-          <div class="view-advance-request--element">
-            <app-fy-statistic
-              [icon]="'../../../../assets/svg/attachment-none.svg'"
-              [type]="StatisticTypes.STRING"
-              [label]="'Receipt'"
-              [value]="'Not Attached'"
-            ></app-fy-statistic>
-          </div>
-        </div>
-        }
-      </div>
       }
       <div>
         <div class="view-advance-request--element">
@@ -76,7 +80,7 @@
             [icon]="'../../../../assets/svg/wallet.svg'"
             [type]="StatisticTypes.STRING"
             [label]="'Request number'"
-            [value]="advanceRequest.areq_advance_request_number|| '-'"
+            [value]="advanceRequest.areq_advance_request_number || '-'"
           ></app-fy-statistic>
         </div>
         <div class="view-advance-request--divider"></div>
@@ -88,21 +92,21 @@
                   [icon]="'../../../../assets/svg/calendar.svg'"
                   [type]="StatisticTypes.DATE"
                   [label]="'Created date'"
-                  [value]="advanceRequest.areq_created_at | date: 'MMM dd, YYYY'"
+                  [value]="advanceRequest.areq_created_at | date: 'MMM dd, yyyy'"
                 ></app-fy-statistic>
               </div>
             </ion-col>
             @if (advanceRequest.areq_approved_at) {
-            <ion-col class="p-0" size="6">
-              <div class="view-advance-request--element">
-                <app-fy-statistic
-                  [icon]="'../../../../assets/svg/calendar.svg'"
-                  [type]="StatisticTypes.DATE"
-                  [label]="'Approved date'"
-                  [value]="advanceRequest.areq_approved_at | date: 'MMM dd, YYYY'"
-                ></app-fy-statistic>
-              </div>
-            </ion-col>
+              <ion-col class="p-0" size="6">
+                <div class="view-advance-request--element">
+                  <app-fy-statistic
+                    [icon]="'../../../../assets/svg/calendar.svg'"
+                    [type]="StatisticTypes.DATE"
+                    [label]="'Approved date'"
+                    [value]="advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'"
+                  ></app-fy-statistic>
+                </div>
+              </ion-col>
             }
           </ion-row>
         </ion-grid>
@@ -111,7 +115,7 @@
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="StatisticTypes.STRING"
             [label]="'Purpose'"
-            [value]="advanceRequest.areq_purpose|| '-'"
+            [value]="advanceRequest.areq_purpose || '-'"
           ></app-fy-statistic>
         </div>
         <div class="view-advance-request--element">
@@ -119,7 +123,7 @@
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="StatisticTypes.STRING"
             [label]="projectFieldName | titlecase"
-            [value]="(advanceRequest.project_name || '-') | ellipsis: 15"
+            [value]="advanceRequest.project_name || '-' | ellipsis: 15"
           ></app-fy-statistic>
         </div>
         <div class="view-advance-request--divider"></div>
@@ -132,81 +136,121 @@
           ></app-fy-statistic>
         </div>
         <!-- Custom Fields block -->
-        @if (advanceRequestCustomFields$|async; as advanceRequestCustomFields) { @if (advanceRequestCustomFields.length
-        > 0) {
-        <div>
-          @for (advanceRequestCustomField of advanceRequestCustomFields; track advanceRequestCustomField.id; let i =
-          $index) {
-          <div class="view-advance-request--element">
-            @if (advanceRequestCustomField.type === StatisticTypes.DATE.toUpperCase() &&
-            advanceRequestCustomField.value) {
+        @if (advanceRequestCustomFields$ | async; as advanceRequestCustomFields) {
+          @if (advanceRequestCustomFields.length > 0) {
             <div>
-              <app-fy-statistic
-                [icon]="'../../../../assets/svg/calendar.svg'"
-                [type]="StatisticTypes.DATE"
-                [label]="advanceRequestCustomField.name"
-                [value]="advanceRequestCustomField.value | date: 'MMM dd, YYYY'"
-              ></app-fy-statistic>
+              @for (
+                advanceRequestCustomField of advanceRequestCustomFields;
+                track advanceRequestCustomField.id;
+                let i = $index
+              ) {
+                <div class="view-advance-request--element">
+                  @if (
+                    advanceRequestCustomField.type === StatisticTypes.DATE.toUpperCase() &&
+                    advanceRequestCustomField.value
+                  ) {
+                    <div>
+                      <app-fy-statistic
+                        [icon]="'../../../../assets/svg/calendar.svg'"
+                        [type]="StatisticTypes.DATE"
+                        [label]="advanceRequestCustomField.name"
+                        [value]="advanceRequestCustomField.value | date: 'MMM dd, yyyy'"
+                      ></app-fy-statistic>
+                    </div>
+                  }
+                  @if (
+                    advanceRequestCustomField.type === StatisticTypes.DATE.toUpperCase() &&
+                    !advanceRequestCustomField.value
+                  ) {
+                    <div>
+                      <app-fy-statistic
+                        [icon]="'../../../../assets/svg/calendar.svg'"
+                        [type]="StatisticTypes.DATE"
+                        [label]="advanceRequestCustomField.name"
+                        [value]="'-'"
+                      ></app-fy-statistic>
+                    </div>
+                  }
+                  @if (advanceRequestCustomField.type === StatisticTypes.BOOLEAN.toUpperCase()) {
+                    <div>
+                      <app-fy-statistic
+                        [icon]="'../../../../assets/svg/list.svg'"
+                        [type]="StatisticTypes.BOOLEAN"
+                        [label]="advanceRequestCustomField.name"
+                        [value]="advanceRequestCustomField.value ? 'Yes' : 'No'"
+                      ></app-fy-statistic>
+                    </div>
+                  }
+                  @if (
+                    advanceRequestCustomField.type !== StatisticTypes.BOOLEAN.toUpperCase() &&
+                    advanceRequestCustomField.type !== 'DATE'
+                  ) {
+                    <div>
+                      <app-fy-statistic
+                        [icon]="'../../../../assets/svg/list.svg'"
+                        [type]="StatisticTypes.BOOLEAN"
+                        [label]="advanceRequestCustomField.name"
+                        [value]="advanceRequestCustomField.value || '-'"
+                      ></app-fy-statistic>
+                    </div>
+                  }
+                </div>
+              }
             </div>
-            } @if (advanceRequestCustomField.type === StatisticTypes.DATE.toUpperCase() &&
-            !advanceRequestCustomField.value) {
-            <div>
-              <app-fy-statistic
-                [icon]="'../../../../assets/svg/calendar.svg'"
-                [type]="StatisticTypes.DATE"
-                [label]="advanceRequestCustomField.name"
-                [value]="'-'"
-              ></app-fy-statistic>
-            </div>
-            } @if (advanceRequestCustomField.type === StatisticTypes.BOOLEAN.toUpperCase()) {
-            <div>
-              <app-fy-statistic
-                [icon]="'../../../../assets/svg/list.svg'"
-                [type]="StatisticTypes.BOOLEAN"
-                [label]="advanceRequestCustomField.name"
-                [value]="advanceRequestCustomField.value ? 'Yes' : 'No'"
-              ></app-fy-statistic>
-            </div>
-            } @if (advanceRequestCustomField.type !== StatisticTypes.BOOLEAN.toUpperCase() &&
-            advanceRequestCustomField.type !== 'DATE') {
-            <div>
-              <app-fy-statistic
-                [icon]="'../../../../assets/svg/list.svg'"
-                [type]="StatisticTypes.BOOLEAN"
-                [label]="advanceRequestCustomField.name"
-                [value]="advanceRequestCustomField.value || '-'"
-              ></app-fy-statistic>
-            </div>
-            }
-          </div>
           }
-        </div>
-        } } @if (advanceRequest?.areq_advance_id) {
-        <div class="view-advance-request--divider"></div>
+        }
+        @if (advanceRequest?.areq_advance_id) {
+          <div class="view-advance-request--divider"></div>
         }
       </div>
       @if (advanceRequest?.areq_advance_id) {
-      <div class="view-advance-request--view-advance">
-        <div class="view-advance-request--icon-container">
-          <img class="view-advance-request--icon" [src]="'../../../../assets/svg/open-in-new-tab.svg'" />
+        <div class="view-advance-request--view-advance">
+          <div class="view-advance-request--icon-container">
+            <img class="view-advance-request--icon" [src]="'../../../../assets/svg/open-in-new-tab.svg'" />
+          </div>
+          <div>
+            <a
+              class="view-advance-request--anchor"
+              [routerLink]="['/', 'enterprise', 'my_view_advance', { id: advanceRequest.areq_advance_id }]"
+              >View advance</a
+            >
+          </div>
         </div>
-        <div>
-          <a
-            class="view-advance-request--anchor"
-            [routerLink]="['/', 'enterprise', 'my_view_advance', {id: advanceRequest.areq_advance_id}]"
-            >View advance</a
-          >
-        </div>
-      </div>
       }
     </div>
-  </div>
+  } @else {
+    <div class="view-advance-request--skeleton-wrapper">
+      <!-- Summary Card Skeleton -->
+      <div class="view-advance-request--skeleton-card">
+        <ion-skeleton-text animated class="view-advance-request--skeleton-purpose"></ion-skeleton-text>
+        <ion-skeleton-text animated class="view-advance-request--skeleton-amount"></ion-skeleton-text>
+        <ion-skeleton-text animated class="view-advance-request--skeleton-status"></ion-skeleton-text>
+      </div>
+
+      <!-- Attachments Skeleton -->
+      <div class="view-advance-request--skeleton-attachments">
+        <ion-skeleton-text animated class="view-advance-request--skeleton-attachment-thumb"></ion-skeleton-text>
+        <ion-skeleton-text animated class="view-advance-request--skeleton-attachment-thumb"></ion-skeleton-text>
+        <ion-skeleton-text animated class="view-advance-request--skeleton-attachment-thumb"></ion-skeleton-text>
+      </div>
+
+      <!-- Details Skeleton -->
+      @for (item of [1, 2, 3, 4, 5, 6]; track $index) {
+        <div class="view-advance-request--skeleton-details">
+          <ion-skeleton-text animated class="view-advance-request--skeleton-label"></ion-skeleton-text>
+          <ion-skeleton-text animated class="view-advance-request--skeleton-value"></ion-skeleton-text>
+        </div>
+      }
+    </div>
   }
 </ion-content>
-@if (actions$|async; as actions) { @if (actions?.can_pull_back) {
-<ion-footer>
-  <ion-toolbar class="fy-footer-cta-container" mode="md">
-    <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="pullBack()"> Pull back </ion-button>
-  </ion-toolbar>
-</ion-footer>
-} }
+
+@if (actions$ | async; as actions) {
+  @if (actions?.can_pull_back) {
+    <ion-footer>
+      <ion-toolbar class="fy-footer-cta-container" mode="md">
+        <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="pullBack()"> Pull back </ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  }
+}

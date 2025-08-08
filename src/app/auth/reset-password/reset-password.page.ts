@@ -12,6 +12,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   selector: 'app-reset-password',
   templateUrl: './reset-password.page.html',
   styleUrls: ['./reset-password.page.scss'],
+  standalone: false,
 })
 export class ResetPasswordPage {
   currentPageState: PageState;
@@ -34,7 +35,7 @@ export class ResetPasswordPage {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
   ) {}
 
   ionViewWillEnter(): void {
@@ -60,7 +61,7 @@ export class ResetPasswordPage {
       .pipe(
         finalize(() => {
           this.isLoading = false;
-        })
+        }),
       )
       .subscribe({
         next: () => {

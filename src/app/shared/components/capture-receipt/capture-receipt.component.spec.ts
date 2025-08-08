@@ -74,6 +74,7 @@ describe('CaptureReceiptComponent', () => {
     selector: 'app-camera-preview',
     template: '',
     providers: [{ provide: CameraPreviewComponent, useClass: CameraPreviewStubComponent }],
+    standalone: false,
   })
   class CameraPreviewStubComponent {
     setUpAndStartCamera() {
@@ -210,7 +211,7 @@ describe('CaptureReceiptComponent', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
@@ -471,7 +472,7 @@ describe('CaptureReceiptComponent', () => {
       spyOn(component, 'showReceiptPreview').and.returnValue(
         of({
           base64ImagesWithSource: images,
-        })
+        }),
       );
 
       component.openReceiptPreviewModal();
@@ -486,7 +487,7 @@ describe('CaptureReceiptComponent', () => {
       spyOn(component, 'showReceiptPreview').and.returnValue(
         of({
           base64ImagesWithSource: [],
-        })
+        }),
       );
       spyOn(component, 'setUpAndStartCamera').and.returnValue(null);
 
@@ -500,7 +501,7 @@ describe('CaptureReceiptComponent', () => {
         of({
           base64ImagesWithSource: [images[0]],
           continueCaptureReceipt: true,
-        })
+        }),
       );
       spyOn(component, 'setUpAndStartCamera').and.returnValue(null);
 
@@ -515,7 +516,7 @@ describe('CaptureReceiptComponent', () => {
         of({
           base64ImagesWithSource: [undefined],
           continueCaptureReceipt: true,
-        })
+        }),
       );
       spyOn(component, 'setUpAndStartCamera').and.returnValue(null);
 
@@ -567,7 +568,7 @@ describe('CaptureReceiptComponent', () => {
       new Promise((resolve) => {
         const limitReachedPopoverSpy = jasmine.createSpyObj('limitReachedPopover', ['present']);
         resolve(limitReachedPopoverSpy);
-      })
+      }),
     );
     component.showLimitReachedPopover().subscribe(() => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -783,7 +784,7 @@ describe('CaptureReceiptComponent', () => {
           });
           popOverSpy.onDidDismiss.and.resolveTo({ data: 'value' });
           resolve(popOverSpy);
-        })
+        }),
       );
       fixture.detectChanges();
 
@@ -805,10 +806,10 @@ describe('CaptureReceiptComponent', () => {
                   base64ImagesWithSource: [],
                 },
               });
-            })
+            }),
           );
           resolve(popOverSpy);
-        })
+        }),
       );
       component.isOffline$ = of(false);
       fixture.detectChanges();
@@ -847,7 +848,7 @@ describe('CaptureReceiptComponent', () => {
       expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.captureSingleReceiptTime);
       expect(performance.measure).toHaveBeenCalledOnceWith(
         PerfTrackers.captureSingleReceiptTime,
-        PerfTrackers.appLaunchStartTime
+        PerfTrackers.appLaunchStartTime,
       );
       expect(performance.getEntriesByName).toHaveBeenCalledTimes(4);
       expect(trackingService.captureSingleReceiptTime).toHaveBeenCalledOnceWith({
@@ -871,7 +872,7 @@ describe('CaptureReceiptComponent', () => {
       expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.captureSingleReceiptTime);
       expect(performance.measure).toHaveBeenCalledOnceWith(
         PerfTrackers.captureSingleReceiptTime,
-        PerfTrackers.appLaunchStartTime
+        PerfTrackers.appLaunchStartTime,
       );
       expect(performance.getEntriesByName).toHaveBeenCalledTimes(4);
       expect(trackingService.captureSingleReceiptTime).toHaveBeenCalledOnceWith({

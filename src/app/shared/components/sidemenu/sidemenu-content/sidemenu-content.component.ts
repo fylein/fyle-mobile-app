@@ -12,6 +12,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   selector: 'app-sidemenu-content',
   templateUrl: './sidemenu-content.component.html',
   styleUrls: ['./sidemenu-content.component.scss'],
+  standalone: false,
 })
 export class SidemenuContentComponent implements OnInit {
   @Input() sideMenuList: Partial<SidemenuItem>[];
@@ -24,7 +25,7 @@ export class SidemenuContentComponent implements OnInit {
     private menuController: MenuController,
     private freshChatService: FreshChatService,
     private loaderService: LoaderService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
   ) {}
 
   ngOnInit(): void {}

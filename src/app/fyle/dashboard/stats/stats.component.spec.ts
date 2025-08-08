@@ -40,6 +40,7 @@ describe('StatsComponent', () => {
       'getUnreportedExpensesStats',
       'getIncompleteExpensesStats',
       'getReportStateMapping',
+      'isUserAnApprover',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -183,7 +184,7 @@ describe('StatsComponent', () => {
         expect(dashboardService.getReportsStats).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(paymentModeService.isNonReimbursableOrg).toHaveBeenCalledOnceWith(
-          orgSettingsParamsWithSimplifiedReport.payment_mode_settings
+          orgSettingsParamsWithSimplifiedReport.payment_mode_settings,
         );
         expect(component.reportStatsLoading).toBeFalse();
         done();
@@ -279,7 +280,7 @@ describe('StatsComponent', () => {
       expect(performance.measure).toHaveBeenCalledOnceWith(
         PerfTrackers.appLaunchTime,
         PerfTrackers.appLaunchStartTime,
-        PerfTrackers.appLaunchEndTime
+        PerfTrackers.appLaunchEndTime,
       );
       expect(performance.getEntriesByName).toHaveBeenCalledTimes(3);
       expect(trackingService.appLaunchTime).toHaveBeenCalledOnceWith({
@@ -304,7 +305,7 @@ describe('StatsComponent', () => {
       expect(performance.measure).toHaveBeenCalledOnceWith(
         PerfTrackers.appLaunchTime,
         PerfTrackers.appLaunchStartTime,
-        PerfTrackers.appLaunchEndTime
+        PerfTrackers.appLaunchEndTime,
       );
       expect(performance.getEntriesByName).toHaveBeenCalledTimes(3);
       expect(trackingService.appLaunchTime).toHaveBeenCalledOnceWith({
@@ -445,7 +446,7 @@ describe('StatsComponent', () => {
       expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.dashboardLaunchTime);
       expect(performance.measure).toHaveBeenCalledOnceWith(
         PerfTrackers.dashboardLaunchTime,
-        PerfTrackers.onClickSwitchOrg
+        PerfTrackers.onClickSwitchOrg,
       );
       expect(performance.getEntriesByName).toHaveBeenCalledTimes(2);
       expect(trackingService.dashboardLaunchTime).toHaveBeenCalledOnceWith({
@@ -468,7 +469,7 @@ describe('StatsComponent', () => {
       expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.dashboardLaunchTime);
       expect(performance.measure).toHaveBeenCalledOnceWith(
         PerfTrackers.dashboardLaunchTime,
-        PerfTrackers.onClickSwitchOrg
+        PerfTrackers.onClickSwitchOrg,
       );
       expect(performance.getEntriesByName).toHaveBeenCalledTimes(2);
       expect(trackingService.dashboardLaunchTime).toHaveBeenCalledOnceWith({

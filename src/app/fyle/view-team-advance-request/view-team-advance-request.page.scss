@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .view-team-advance-request {
   &--toolbar {
@@ -29,7 +29,7 @@
 
   &--divider {
     margin: 24px 0px;
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &--title-sm {
@@ -43,7 +43,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
@@ -218,5 +218,52 @@
     color: #666;
     font-size: 14px;
     margin: 0 0 10px;
+  }
+}
+
+// Skeleton Loading Styles
+.view-team-advance-request {
+  &--skeleton-wrapper {
+    padding: 16px;
+  }
+
+  &--skeleton-card {
+    border: 1px solid colors.$grey-5;
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  &--skeleton-purpose {
+    width: 60%;
+    height: 20px;
+    margin-bottom: 12px;
+  }
+
+  &--skeleton-amount {
+    width: 40%;
+    height: 24px;
+    margin-bottom: 8px;
+  }
+
+  &--skeleton-status {
+    width: 30%;
+    height: 20px;
+  }
+
+  &--skeleton-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  &--skeleton-label {
+    width: 40%;
+    height: 18px;
+  }
+
+  &--skeleton-value {
+    width: 30%;
+    height: 18px;
   }
 }

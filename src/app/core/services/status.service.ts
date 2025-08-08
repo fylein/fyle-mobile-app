@@ -12,7 +12,10 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class StatusService {
-  constructor(private apiService: ApiService, private translocoService: TranslocoService) {}
+  constructor(
+    private apiService: ApiService,
+    private translocoService: TranslocoService,
+  ) {}
 
   find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
@@ -20,8 +23,8 @@ export class StatusService {
         estatuses?.map((estatus) => {
           estatus.st_created_at = new Date(estatus.st_created_at);
           return estatus;
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -29,7 +32,7 @@ export class StatusService {
     objectType: string,
     objectId: string,
     status: { comment: string | ExtendedStatus },
-    notify: boolean = false
+    notify = false,
   ): Observable<TransactionStatus> {
     return this.apiService.post<TransactionStatus>('/' + objectType + '/' + objectId + '/statuses', {
       status,
@@ -90,10 +93,18 @@ export class StatusService {
         };
         break;
       case lowerCaseComment.indexOf('policy violation will trigger the following action') > -1:
-        statusCategory = {
-          category: this.translocoService.translate('services.status.policyViolation'),
-          icon: 'warning-fill',
-        };
+        // Check if the report is blocked (contains "could not be added to a report")
+        if (lowerCaseComment.indexOf('could not be added to a report') > -1) {
+          statusCategory = {
+            category: this.translocoService.translate('services.status.criticalPolicyViolation'),
+            icon: 'warning-fill',
+          };
+        } else {
+          statusCategory = {
+            category: this.translocoService.translate('services.status.policyViolation'),
+            icon: 'warning-fill',
+          };
+        }
         break;
       case lowerCaseComment.indexOf('added to the report') > -1:
         statusCategory = {
@@ -263,7 +274,7 @@ export class StatusService {
         if (sortedStatus.length) {
           return sortedStatus[0].st_comment;
         }
-      })
+      }),
     );
   }
 

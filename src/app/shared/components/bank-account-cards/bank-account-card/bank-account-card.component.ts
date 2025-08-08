@@ -16,6 +16,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',
   styleUrls: ['./bank-account-card.component.scss'],
+  standalone: false,
 })
 export class BankAccountCardComponent implements OnInit {
   @Input() accountDetails: PlatformPersonalCard;
@@ -35,13 +36,13 @@ export class BankAccountCardComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private dateService: DateService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
     if (this.accountDetails.yodlee_last_synced_at) {
       this.lastSyncedAt = this.dateService.convertUTCDateToLocalDate(
-        new Date(this.accountDetails.yodlee_last_synced_at)
+        new Date(this.accountDetails.yodlee_last_synced_at),
       );
     }
   }
@@ -72,7 +73,7 @@ export class BankAccountCardComponent implements OnInit {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
             panelClass: ['msb-success'],
           });
-        })
+        }),
       )
       .subscribe(() => this.deleted.emit());
   }

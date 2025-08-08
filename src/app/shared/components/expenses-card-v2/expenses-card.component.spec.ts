@@ -20,7 +20,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { of, take } from 'rxjs';
+import { of, take, throwError } from 'rxjs';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
@@ -34,7 +34,12 @@ import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camer
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { DebugElement, EventEmitter } from '@angular/core';
-import { apiExpenses1, expenseData, expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import {
+  apiExpenses1,
+  expenseData,
+  expenseResponseData,
+  platformExpenseDataWithPendingGasCharge,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
@@ -76,6 +81,7 @@ describe('ExpensesCardComponent', () => {
       'isExpenseInDraft',
       'isCriticalPolicyViolatedExpense',
       'getVendorDetails',
+      'isPendingGasCharge',
     ]);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
@@ -150,7 +156,7 @@ describe('ExpensesCardComponent', () => {
     }).compileComponents();
 
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -251,6 +257,7 @@ describe('ExpensesCardComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+    expect(component.expense).toBeDefined();
   });
 
   describe('isSelected getter', () => {
@@ -912,7 +919,7 @@ describe('ExpensesCardComponent', () => {
     });
   }));
 
-  it('dismiss(): hould emit the dismissed event with the expense object when called', () => {
+  it('dismiss(): should emit the dismissed event with the expense object when called', () => {
     const emitSpy = spyOn(component.dismissed, 'emit');
 
     const event = {
@@ -965,32 +972,1000 @@ describe('ExpensesCardComponent', () => {
       expect(result).toBeFalse();
     });
   });
+
+  describe('Pending Gas Charge Functionality', () => {
+    it('should return true when expense is a pending gas charge', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(true);
+
+      const result = sharedExpenseService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeTrue();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should return false when expense is not a pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(false);
+
+      const result = sharedExpenseService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeFalse();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should set isPendingGasCharge property correctly', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(true);
+
+      component.expense = mockExpense;
+      component.ngOnInit();
+
+      expect(component.isPendingGasCharge()).toBeTrue();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should set isPendingGasCharge to false for non-pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(false);
+
+      component.expense = mockExpense;
+      component.ngOnInit();
+
+      expect(component.isPendingGasCharge()).toBeFalse();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+  });
+
+  describe('setExpenseDetails():', () => {
+    it('should set category and expense type flags correctly', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        category: {
+          name: 'Mileage',
+          code: 'mileage',
+          id: 1,
+          display_name: 'Mileage',
+          sub_category: null,
+          system_category: 'Mileage',
+        },
+      };
+
+      spyOn(component, 'setIsPolicyViolated');
+      spyOn(component, 'canShowPaymentModeIcon');
+      spyOn(component, 'getReceipt');
+      spyOn(component, 'setOtherData');
+
+      component.setExpenseDetails();
+
+      expect(component.category).toBe('mileage');
+      expect(component.isMileageExpense).toBeTrue();
+      expect(component.isPerDiem).toBeFalse();
+      expect(component.setIsPolicyViolated).toHaveBeenCalledTimes(1);
+      expect(component.canShowPaymentModeIcon).toHaveBeenCalledTimes(1);
+      expect(component.getReceipt).toHaveBeenCalledTimes(1);
+      expect(component.setOtherData).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set per diem flag correctly', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        category: {
+          name: 'Per Diem',
+          code: 'per_diem',
+          id: 2,
+          display_name: 'Per Diem',
+          sub_category: null,
+          system_category: 'Per Diem',
+        },
+      };
+
+      component.setExpenseDetails();
+
+      expect(component.category).toBe('per diem');
+      expect(component.isMileageExpense).toBeFalse();
+      expect(component.isPerDiem).toBeTrue();
+    });
+
+    it('should set showDt to true when expense has no id and isFirstOfflineExpense is true', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        id: null,
+      };
+      component.isFirstOfflineExpense = true;
+
+      component.setExpenseDetails();
+
+      expect(component.showDt).toBeTrue();
+    });
+
+    it('should set showDt to false when expense has no id and isFirstOfflineExpense is false', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        id: null,
+      };
+      component.isFirstOfflineExpense = false;
+
+      component.setExpenseDetails();
+
+      expect(component.showDt).toBeFalse();
+    });
+
+    it('should set showDt based on date comparison when previousExpenseTxnDate is provided', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        id: 'tx123',
+        spent_at: new Date('2023-01-15'),
+      };
+      component.previousExpenseTxnDate = new Date('2023-01-14');
+      component.previousExpenseCreatedAt = null;
+
+      component.setExpenseDetails();
+
+      expect(component.showDt).toBeTrue();
+    });
+
+    it('should set showDt to false when dates are the same', () => {
+      const sameDate = new Date('2023-01-15');
+      component.expense = {
+        ...cloneDeep(expenseData),
+        id: 'tx123',
+        spent_at: sameDate,
+      };
+      component.previousExpenseTxnDate = sameDate;
+      component.previousExpenseCreatedAt = null;
+
+      component.setExpenseDetails();
+
+      expect(component.showDt).toBeFalse();
+    });
+
+    it('should use created_at when spent_at is not available', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        id: 'tx123',
+        spent_at: null,
+        created_at: new Date('2023-01-15'),
+      };
+      component.previousExpenseCreatedAt = new Date('2023-01-14');
+      component.previousExpenseTxnDate = null;
+
+      component.setExpenseDetails();
+
+      expect(component.showDt).toBeTrue();
+    });
+  });
+
+  describe('ensureMandatoryFieldsMap():', () => {
+    it('should fetch from API when cached map is incomplete', () => {
+      const cachedMap = { 1: 'Project' };
+      const apiResponse = [
+        {
+          id: 1,
+          field_name: 'Project',
+          code: 'project',
+          column_name: 'project_id',
+          created_at: new Date(),
+          default_value: null,
+          field_type: 'SELECT',
+          is_mandatory: true,
+          is_reimbursable: true,
+          is_visible: true,
+          org_id: 'org123',
+          updated_at: new Date(),
+          parent_field_id: null,
+          placeholder: 'Select Project',
+          is_custom: false,
+          is_enabled: true,
+          org_category_ids: [1, 2, 3],
+          seq: 1,
+          type: 'SELECT',
+        },
+        {
+          id: 2,
+          field_name: 'Cost Center',
+          code: 'cost_center',
+          column_name: 'cost_center_id',
+          created_at: new Date(),
+          default_value: null,
+          field_type: 'SELECT',
+          is_mandatory: true,
+          is_reimbursable: true,
+          is_visible: true,
+          org_id: 'org123',
+          updated_at: new Date(),
+          parent_field_id: null,
+          placeholder: 'Select Cost Center',
+          is_custom: false,
+          is_enabled: true,
+          org_category_ids: [1, 2, 3],
+          seq: 2,
+          type: 'SELECT',
+        },
+        {
+          id: 3,
+          field_name: 'Department',
+          code: 'department',
+          column_name: 'department_id',
+          created_at: new Date(),
+          default_value: null,
+          field_type: 'SELECT',
+          is_mandatory: true,
+          is_reimbursable: true,
+          is_visible: true,
+          org_id: 'org123',
+          updated_at: new Date(),
+          parent_field_id: null,
+          placeholder: 'Select Department',
+          is_custom: false,
+          is_enabled: true,
+          org_category_ids: [1, 2, 3],
+          seq: 3,
+          type: 'SELECT',
+        },
+      ];
+      component.missingMandatoryFields = {
+        receipt: false,
+        currency: false,
+        amount: false,
+        expense_field_ids: [1, 2, 3],
+      };
+
+      spyOn(component as any, 'getCachedMandatoryFieldsMap').and.returnValue(cachedMap);
+      spyOn(component as any, 'setCachedMandatoryFieldsMap');
+      spyOn(component as any, 'getMissingMandatoryFieldNames').and.returnValue([
+        'Project',
+        'Cost Center',
+        'Department',
+      ]);
+      spyOn(component as any, 'processMissingFieldsForDisplay');
+      expenseFieldsService.getMandatoryExpenseFields.and.returnValue(of(apiResponse));
+
+      (component as any).ensureMandatoryFieldsMap();
+
+      expect(expenseFieldsService.getMandatoryExpenseFields).toHaveBeenCalledTimes(2);
+      expect(component.mandatoryFieldsMap).toEqual({ 1: 'Project', 2: 'Cost Center', 3: 'Department' });
+      expect((component as any).setCachedMandatoryFieldsMap).toHaveBeenCalledWith({
+        1: 'Project',
+        2: 'Cost Center',
+        3: 'Department',
+      });
+    });
+
+    it('should handle API error and fallback to cached map', () => {
+      const cachedMap = { 1: 'Project' };
+      component.missingMandatoryFields = {
+        receipt: false,
+        currency: false,
+        amount: false,
+        expense_field_ids: [1, 2],
+      };
+
+      spyOn(component as any, 'getCachedMandatoryFieldsMap').and.returnValue(cachedMap);
+      spyOn(component as any, 'getMissingMandatoryFieldNames').and.returnValue(['Project']);
+      spyOn(component as any, 'processMissingFieldsForDisplay');
+      expenseFieldsService.getMandatoryExpenseFields.and.returnValue(throwError(() => new Error('API Error')));
+
+      (component as any).ensureMandatoryFieldsMap();
+
+      expect(component.mandatoryFieldsMap).toEqual(cachedMap);
+      expect((component as any).processMissingFieldsForDisplay).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle empty API response', () => {
+      const cachedMap = { 1: 'Project' };
+      component.missingMandatoryFields = {
+        receipt: false,
+        currency: false,
+        amount: false,
+        expense_field_ids: [1, 2],
+      };
+
+      spyOn(component as any, 'getCachedMandatoryFieldsMap').and.returnValue(cachedMap);
+      spyOn(component as any, 'getMissingMandatoryFieldNames').and.returnValue(['Project']);
+      spyOn(component as any, 'processMissingFieldsForDisplay');
+      expenseFieldsService.getMandatoryExpenseFields.and.returnValue(of(null));
+
+      (component as any).ensureMandatoryFieldsMap();
+
+      expect(component.mandatoryFieldsMap).toEqual(cachedMap);
+      expect((component as any).processMissingFieldsForDisplay).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getMissingMandatoryFieldNames():', () => {
+    it('should return empty array when missingMandatoryFields is null', () => {
+      component.missingMandatoryFields = null;
+      component.mandatoryFieldsMap = { 1: 'Project', 2: 'Cost Center' };
+
+      const result = (component as any).getMissingMandatoryFieldNames();
+
+      expect(result).toEqual([]);
+    });
+
+    it('should include receipt field when missing', () => {
+      component.missingMandatoryFields = {
+        receipt: true,
+        currency: false,
+        amount: false,
+        expense_field_ids: [],
+      };
+      component.mandatoryFieldsMap = {};
+
+      const result = (component as any).getMissingMandatoryFieldNames();
+
+      expect(result).toContain('receipt');
+    });
+
+    it('should include currency field when missing', () => {
+      component.missingMandatoryFields = {
+        receipt: false,
+        currency: true,
+        amount: false,
+        expense_field_ids: [],
+      };
+      component.mandatoryFieldsMap = {};
+
+      const result = (component as any).getMissingMandatoryFieldNames();
+
+      expect(result).toContain('currency');
+    });
+
+    it('should include amount field when missing', () => {
+      component.missingMandatoryFields = {
+        receipt: false,
+        currency: false,
+        amount: true,
+        expense_field_ids: [],
+      };
+      component.mandatoryFieldsMap = {};
+
+      const result = (component as any).getMissingMandatoryFieldNames();
+
+      expect(result).toContain('amount');
+    });
+
+    it('should include expense field names from map', () => {
+      component.missingMandatoryFields = {
+        receipt: false,
+        currency: false,
+        amount: false,
+        expense_field_ids: [1, 2],
+      };
+      component.mandatoryFieldsMap = { 1: 'Project', 2: 'Cost Center' };
+
+      const result = (component as any).getMissingMandatoryFieldNames();
+
+      expect(result).toEqual(['Project', 'Cost Center']);
+    });
+
+    it('should combine all missing fields', () => {
+      component.missingMandatoryFields = {
+        receipt: true,
+        currency: false,
+        amount: true,
+        expense_field_ids: [1, 2],
+      };
+      component.mandatoryFieldsMap = { 1: 'Project', 2: 'Cost Center' };
+
+      const result = (component as any).getMissingMandatoryFieldNames();
+
+      expect(result).toEqual(['receipt', 'amount', 'Project', 'Cost Center']);
+    });
+
+    it('should skip expense field IDs that are not in the map', () => {
+      component.missingMandatoryFields = {
+        receipt: false,
+        currency: false,
+        amount: false,
+        expense_field_ids: [1, 2, 3],
+      };
+      component.mandatoryFieldsMap = { 1: 'Project' };
+
+      const result = (component as any).getMissingMandatoryFieldNames();
+
+      expect(result).toEqual(['Project']);
+    });
+  });
+
+  describe('processMissingFieldsForDisplay():', () => {
+    it('should handle empty missing field names', () => {
+      component.missingMandatoryFieldNames = [];
+
+      (component as any).processMissingFieldsForDisplay();
+
+      expect(component.missingFieldsDisplayText).toBe('');
+      expect(component.remainingFieldsCount).toBe(0);
+    });
+
+    it('should process single field name', () => {
+      component.missingMandatoryFieldNames = ['Project'];
+
+      (component as any).processMissingFieldsForDisplay();
+
+      expect(component.missingFieldsDisplayText).toBe('project');
+      expect(component.remainingFieldsCount).toBe(0);
+    });
+
+    it('should truncate long field names with ellipsis', () => {
+      component.missingMandatoryFieldNames = ['VeryLongFieldNameThatNeedsTruncation'];
+
+      (component as any).processMissingFieldsForDisplay(20, 10);
+
+      expect(component.missingFieldsDisplayText).toBe('verylon...');
+      expect(component.remainingFieldsCount).toBe(0);
+    });
+
+    it('should handle multiple fields within character limit', () => {
+      component.missingMandatoryFieldNames = ['Project', 'Cost Center', 'Department'];
+
+      (component as any).processMissingFieldsForDisplay(30, 12);
+
+      expect(component.missingFieldsDisplayText).toBe('project, cost center');
+      expect(component.remainingFieldsCount).toBe(1);
+    });
+
+    it('should truncate when exceeding character limit', () => {
+      component.missingMandatoryFieldNames = ['Project', 'Cost Center', 'Department', 'Location', 'Category'];
+
+      (component as any).processMissingFieldsForDisplay(20, 12);
+
+      expect(component.missingFieldsDisplayText).toBe('project, cost center');
+      expect(component.remainingFieldsCount).toBe(3);
+    });
+  });
+
+  describe('getCachedMandatoryFieldsMap():', () => {
+    it('should return parsed JSON from localStorage', () => {
+      const testMap = { 1: 'Project', 2: 'Cost Center' };
+      localStorage.setItem('mandatory_expense_fields_cache', JSON.stringify(testMap));
+
+      const result = (component as any).getCachedMandatoryFieldsMap();
+
+      expect(result).toEqual(testMap);
+    });
+
+    it('should return empty object when localStorage is empty', () => {
+      localStorage.removeItem('mandatory_expense_fields_cache');
+
+      const result = (component as any).getCachedMandatoryFieldsMap();
+
+      expect(result).toEqual({});
+    });
+
+    it('should return empty object when localStorage has invalid JSON', () => {
+      localStorage.setItem('mandatory_expense_fields_cache', 'invalid-json');
+
+      const result = (component as any).getCachedMandatoryFieldsMap();
+
+      expect(result).toEqual({});
+    });
+  });
+
+  describe('setCachedMandatoryFieldsMap():', () => {
+    it('should store map in localStorage', () => {
+      const testMap = { 1: 'Project', 2: 'Cost Center' };
+      spyOn(localStorage, 'setItem');
+
+      (component as any).setCachedMandatoryFieldsMap(testMap);
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('mandatory_expense_fields_cache', JSON.stringify(testMap));
+    });
+
+    it('should handle localStorage errors gracefully', () => {
+      const testMap = { 1: 'Project' };
+      spyOn(localStorage, 'setItem').and.throwError('Quota exceeded');
+
+      expect(() => {
+        (component as any).setCachedMandatoryFieldsMap(testMap);
+      }).not.toThrow();
+    });
+  });
+
+  describe('onFileUpload():', () => {
+    it('should process file upload successfully', fakeAsync(async () => {
+      const mockFile = new File(['test content'], 'test.png', { type: 'image/png' });
+      const mockNativeElement = { files: [mockFile] };
+      const dataUrl = 'data:image/png;base64,test';
+
+      fileService.readFile.and.resolveTo(dataUrl);
+      spyOn(component, 'attachReceipt');
+      spyOn(component, 'showSizeLimitExceededPopover');
+
+      await component.onFileUpload(mockNativeElement as any);
+      tick();
+
+      expect(fileService.readFile).toHaveBeenCalledWith(mockFile);
+      expect(trackingService.addAttachment).toHaveBeenCalledWith({ type: 'image/png' });
+      expect(component.attachReceipt).toHaveBeenCalledWith({
+        type: 'image/png',
+        dataUrl,
+        actionSource: 'gallery_upload',
+      });
+      expect(component.showSizeLimitExceededPopover).not.toHaveBeenCalled();
+    }));
+
+    it('should show size limit popover for large files', fakeAsync(async () => {
+      const mockFile = new File(['test content'], 'test.png', { type: 'image/png' });
+      Object.defineProperty(mockFile, 'size', { value: 12 * 1024 * 1024 }); // 12MB
+      const mockNativeElement = { files: [mockFile] };
+
+      spyOn(component, 'attachReceipt');
+      spyOn(component, 'showSizeLimitExceededPopover');
+
+      await component.onFileUpload(mockNativeElement as any);
+      tick();
+
+      expect(component.showSizeLimitExceededPopover).toHaveBeenCalledWith(11 * 1024 * 1024);
+      expect(component.attachReceipt).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe('attachReceipt():', () => {
+    it('should attach receipt successfully', fakeAsync(() => {
+      const receiptDetails = {
+        type: 'image/png',
+        dataUrl: 'data:image/png;base64,test',
+        actionSource: 'camera',
+      };
+      const fileObj = { id: 'file123', name: 'test.png' };
+
+      fileService.getAttachmentType.and.returnValue('png');
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
+      expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseData));
+      spyOn(component, 'matchReceiptWithEtxn');
+
+      component.attachReceipt(receiptDetails);
+      tick();
+
+      expect(component.attachmentUploadInProgress).toBeFalse();
+      expect(fileService.getAttachmentType).toHaveBeenCalledWith('image/png');
+      expect(transactionsOutboxService.fileUpload).toHaveBeenCalledWith(receiptDetails.dataUrl, 'png');
+      expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObj);
+      expect(expensesService.attachReceiptToExpense).toHaveBeenCalledWith(component.expense.id, fileObj.id);
+      expect(component.isReceiptPresent).toBeTrue();
+      expect(component.attachmentUploadInProgress).toBeFalse();
+    }));
+
+    it('should set inline receipt data URL for non-PDF files', fakeAsync(() => {
+      const receiptDetails = {
+        type: 'image/png',
+        dataUrl: 'data:image/png;base64,test',
+        actionSource: 'camera',
+      };
+      const fileObj = { id: 'file123', name: 'test.png' };
+
+      fileService.getAttachmentType.and.returnValue('png');
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
+      expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseData));
+
+      component.attachReceipt(receiptDetails);
+      tick();
+
+      expect(component.inlineReceiptDataUrl).toBe(receiptDetails.dataUrl);
+    }));
+
+    it('should not set inline receipt data URL for PDF files', fakeAsync(() => {
+      const receiptDetails = {
+        type: 'application/pdf',
+        dataUrl: 'data:application/pdf;base64,test',
+        actionSource: 'camera',
+      };
+      const fileObj = { id: 'file123', name: 'test.pdf' };
+
+      fileService.getAttachmentType.and.returnValue('pdf');
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
+      expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseData));
+
+      component.attachReceipt(receiptDetails);
+      tick();
+
+      expect(component.inlineReceiptDataUrl).toBeFalse();
+    }));
+  });
+
+  describe('setupNetworkWatcher():', () => {
+    it('should setup network watcher correctly', fakeAsync(() => {
+      const mockEventEmitter = new EventEmitter<boolean>();
+      networkService.connectivityWatcher.and.returnValue(mockEventEmitter);
+      networkService.isOnline.and.returnValue(of(true));
+
+      component.setupNetworkWatcher();
+
+      expect(networkService.connectivityWatcher).toHaveBeenCalled();
+      expect(networkService.isOnline).toHaveBeenCalled();
+
+      component.isConnected$.pipe(take(1)).subscribe((isConnected) => {
+        expect(isConnected).toBeTrue();
+      });
+      tick();
+    }));
+  });
+
+  describe('showSizeLimitExceededPopover():', () => {
+    it('should create and present popover with correct properties', fakeAsync(async () => {
+      const maxFileSize = 11 * 1024 * 1024;
+      const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(popOverSpy);
+
+      await component.showSizeLimitExceededPopover(maxFileSize);
+      tick();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Size limit exceeded',
+          message: 'The uploaded file is greater than 11MB in size. Please reduce the file size and try again.',
+          primaryCta: {
+            text: 'OK',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(popOverSpy.present).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('addAttachments():', () => {
+    it('should call onFileUpload method on iOS when file input is clicked', fakeAsync(() => {
+      const event = {
+        stopPropagation: jasmine.createSpy('stopPropagation'),
+      };
+      component.isIos = true;
+
+      const dummyNativeElement = document.createElement('input');
+
+      component.fileUpload = {
+        nativeElement: dummyNativeElement,
+      };
+
+      const nativeElement1 = component.fileUpload.nativeElement as HTMLInputElement;
+      spyOn(component, 'onFileUpload').and.stub();
+      spyOn(component, 'canAddAttachment').and.returnValue(true);
+      spyOn(nativeElement1, 'click').and.callThrough();
+
+      component.addAttachments(event as any);
+      fixture.detectChanges();
+      tick(500);
+      nativeElement1.dispatchEvent(new Event('change'));
+      expect(component.onFileUpload).toHaveBeenCalledOnceWith(dummyNativeElement);
+      tick(500);
+      nativeElement1.dispatchEvent(new Event('click'));
+      expect(nativeElement1.click).toHaveBeenCalledTimes(1);
+    }));
+
+    it('when device not an Ios it should open the camera popover', fakeAsync(() => {
+      const event = {
+        stopPropagation: jasmine.createSpy('stopPropagation'),
+      };
+      component.isIos = false;
+      const receiptDetails = {
+        type: 'png',
+        dataUrl: ' data.dataUrl',
+        actionSource: 'camera',
+        option: 'camera',
+      };
+      spyOn(component, 'canAddAttachment').and.returnValue(true);
+      const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.resolveTo(popOverSpy);
+      popOverSpy.onWillDismiss.and.resolveTo(receiptDetails);
+
+      component.addAttachments(event as any);
+      fixture.detectChanges();
+      tick(500);
+      expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: CameraOptionsPopupComponent,
+        cssClass: 'camera-options-popover',
+      });
+      expect(popOverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popOverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should call attachReceipt and show a success toast when receiptDetails is set and option is camera', fakeAsync(() => {
+      const event = {
+        stopPropagation: jasmine.createSpy('stopPropagation'),
+      };
+      const emitSpy = spyOn(component.showCamera, 'emit');
+      const receiptDetails = {
+        type: 'png',
+        dataUrl: 'mockDataUrl.png',
+        actionSource: 'camera',
+      };
+
+      const dataRes = {
+        data: {
+          type: 'png',
+          dataUrl: 'mockDataUrl.png',
+          actionSource: 'camera',
+          option: 'camera',
+        },
+      };
+
+      component.isIos = false;
+      spyOn(component, 'attachReceipt');
+      spyOn(component, 'canAddAttachment').and.returnValue(true);
+      const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.resolveTo(popOverSpy);
+      popOverSpy.onWillDismiss.and.resolveTo(dataRes);
+      const captureReceiptModalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
+      modalController.create.and.resolveTo(captureReceiptModalSpy);
+      captureReceiptModalSpy.onWillDismiss.and.resolveTo(dataRes);
+      fileService.getImageTypeFromDataUrl.and.returnValue('png');
+
+      component.addAttachments(event as any);
+      tick(500);
+      expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: CaptureReceiptComponent,
+        componentProps: {
+          isModal: true,
+          allowGalleryUploads: false,
+          allowBulkFyle: false,
+        },
+        cssClass: 'hide-modal',
+      });
+      expect(component.canAddAttachment).toHaveBeenCalledTimes(1);
+      expect(captureReceiptModalSpy.present).toHaveBeenCalledTimes(1);
+      expect(emitSpy).toHaveBeenCalledWith(true);
+      expect(captureReceiptModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      tick(500);
+      expect(emitSpy).toHaveBeenCalledWith(false);
+      expect(emitSpy).toHaveBeenCalledTimes(2);
+      expect(component.attachReceipt).toHaveBeenCalledOnceWith(receiptDetails);
+      expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith(dataRes.data.dataUrl);
+
+      const message = 'Receipt added to Expense successfully';
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarProperties.setSnackbarProperties('success', { message }),
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: message });
+    }));
+  });
+
+  it('setupNetworkWatcher(): should setup the network watcher', fakeAsync(() => {
+    networkService.isOnline.and.returnValue(of(true));
+    const eventEmitterMock = new EventEmitter<boolean>();
+    networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
+
+    component.setupNetworkWatcher();
+    component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
+      expect(connectionStatus).toBeTrue();
+    });
+  }));
+
+  it('dismiss(): should emit the dismissed event with the expense object when called', () => {
+    const emitSpy = spyOn(component.dismissed, 'emit');
+
+    const event = {
+      stopPropagation: jasmine.createSpy('stopPropagation'),
+      preventDefault: jasmine.createSpy('preventDefault'),
+    };
+
+    component.dismiss(event as any);
+    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+  });
+
+  describe('isZeroAmountPerDiemOrMileage():', () => {
+    it('should check if scan is complete and return true if it is per diem expense with amount 0', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        amount: 0,
+      };
+      component.expense.category.name = 'Per Diem';
+      const result = component.isZeroAmountPerDiemOrMileage();
+      expect(result).toBeTrue();
+    });
+
+    it('should check if scan is complete and return true if it is per diem expense with user amount 0', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        amount: null,
+        claim_amount: 0,
+      };
+      component.expense.category.name = 'Per Diem';
+      const result = component.isZeroAmountPerDiemOrMileage();
+      expect(result).toBeTrue();
+    });
+
+    it('should check if scan is complete and return true if it is mileage expense with amount 0', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        amount: 0,
+      };
+      component.expense.category.name = 'Mileage';
+      const result = component.isZeroAmountPerDiemOrMileage();
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if org category is null', () => {
+      component.expense = cloneDeep(expenseData);
+      component.expense.category.name = null;
+      const result = component.isZeroAmountPerDiemOrMileage();
+      expect(result).toBeFalse();
+    });
+  });
+
+  describe('Pending Gas Charge Functionality', () => {
+    it('should return true when expense is a pending gas charge', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(true);
+
+      const result = sharedExpenseService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeTrue();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should return false when expense is not a pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(false);
+
+      const result = sharedExpenseService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeFalse();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should set isPendingGasCharge property correctly', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(true);
+
+      component.expense = mockExpense;
+      component.ngOnInit();
+
+      expect(component.isPendingGasCharge()).toBeTrue();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should set isPendingGasCharge to false for non-pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(false);
+
+      component.expense = mockExpense;
+      component.ngOnInit();
+
+      expect(component.isPendingGasCharge()).toBeFalse();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+  });
+
+  describe('ensureMandatoryFieldsMap - Cache Hit Test', () => {
+    it('should use cached map when all required field IDs are present', () => {
+      const cachedMap = { 1: 'Project', 2: 'Cost Center' };
+      component.missingMandatoryFields = {
+        receipt: false,
+        currency: false,
+        amount: false,
+        expense_field_ids: [1, 2],
+      };
+
+      spyOn(component as any, 'getCachedMandatoryFieldsMap').and.returnValue(cachedMap);
+      spyOn(component as any, 'getMissingMandatoryFieldNames').and.returnValue(['Project', 'Cost Center']);
+      spyOn(component as any, 'processMissingFieldsForDisplay');
+
+      (component as any).ensureMandatoryFieldsMap();
+
+      expect(component.mandatoryFieldsMap).toEqual(cachedMap);
+      expect(component.missingMandatoryFieldNames).toEqual(['Project', 'Cost Center']);
+      expect((component as any).processMissingFieldsForDisplay).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('addAttachments - Early Return Test', () => {
+    it('should not proceed when canAddAttachment returns false', fakeAsync(() => {
+      const event = {
+        stopPropagation: jasmine.createSpy('stopPropagation'),
+      };
+
+      spyOn(component, 'canAddAttachment').and.returnValue(false);
+      spyOn(component, 'onFileUpload');
+
+      component.addAttachments(event as any);
+      tick();
+
+      expect(component.canAddAttachment).toHaveBeenCalledTimes(1);
+      expect(component.onFileUpload).not.toHaveBeenCalled();
+      expect(event.stopPropagation).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe('Pending Gas Charge Functionality', () => {
+    it('should return true when expense is a pending gas charge', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(true);
+
+      const result = sharedExpenseService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeTrue();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should return false when expense is not a pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(false);
+
+      const result = sharedExpenseService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeFalse();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should set isPendingGasCharge property correctly', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(true);
+
+      component.expense = mockExpense;
+      component.ngOnInit();
+
+      expect(component.isPendingGasCharge()).toBeTrue();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should set isPendingGasCharge to false for non-pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpenseService.isPendingGasCharge.and.returnValue(false);
+
+      component.expense = mockExpense;
+      component.ngOnInit();
+
+      expect(component.isPendingGasCharge()).toBeFalse();
+      expect(sharedExpenseService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+  });
 });
 
 describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
   let component: ExpensesCardComponent;
+  let fixture: ComponentFixture<ExpensesCardComponent>;
+
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ExpensesCardComponent],
+      imports: [IonicModule.forRoot()],
+      providers: [
+        { provide: TransactionService, useValue: {} },
+        { provide: SharedExpenseService, useValue: {} },
+        { provide: PlatformEmployeeSettingsService, useValue: {} },
+        { provide: FileService, useValue: {} },
+        { provide: PopoverController, useValue: {} },
+        { provide: NetworkService, useValue: {} },
+        { provide: TransactionsOutboxService, useValue: {} },
+        { provide: ModalController, useValue: {} },
+        { provide: Platform, useValue: { is: (): boolean => false } },
+        { provide: MatSnackBar, useValue: {} },
+        { provide: SnackbarPropertiesService, useValue: { setSnackbarProperties: (): object => ({}) } },
+        { provide: TrackingService, useValue: { addAttachment: (): void => {}, showToastMessage: (): void => {} } },
+        { provide: CurrencyService, useValue: { getHomeCurrency: (): void => {} } },
+        {
+          provide: ExpenseFieldsService,
+          useValue: { getAllMap: (): void => {}, getMandatoryExpenseFields: (): void => {} },
+        },
+        { provide: OrgSettingsService, useValue: { get: (): void => {} } },
+        { provide: ExpensesService, useValue: {} },
+        { provide: TranslocoService, useValue: { translate: (): string => '' } },
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
-    // Provide minimal mocks for all constructor dependencies
-    component = new ExpensesCardComponent(
-      {} as any, // TransactionService
-      {} as any, // SharedExpenseService
-      {} as any, // PlatformEmployeeSettingsService
-      {} as any, // FileService
-      {} as any, // PopoverController
-      {} as any, // NetworkService
-      {} as any, // TransactionsOutboxService
-      {} as any, // ModalController
-      { is: () => false } as any, // Platform
-      {} as any, // MatSnackBar
-      { setSnackbarProperties: () => ({}) } as any, // SnackbarPropertiesService
-      { addAttachment: () => {}, showToastMessage: () => {} } as any, // TrackingService
-      { getHomeCurrency: () => {} } as any, // CurrencyService
-      { getAllMap: () => {}, getMandatoryExpenseFields: () => {} } as any, // ExpenseFieldsService
-      { get: () => {} } as any, // OrgSettingsService
-      {} as any, // ExpensesService
-      { translate: () => '' } as any // TranslocoService
-    );
+    fixture = TestBed.createComponent(ExpensesCardComponent);
+    component = fixture.componentInstance;
     // Set up a default map for testing
     component.mandatoryFieldsMap = { 1: 'Project', 2: 'Cost Center', 3: 'Department' };
   });
@@ -1034,7 +2009,7 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
     // @ts-ignore
     component.processMissingFieldsForDisplay(20, 10);
     // Should only include as many as fit, with ellipsis, and set remainingFieldsCount
-    expect(component.missingFieldsDisplayText).toContain('veryLon..., short');
+    expect(component.missingFieldsDisplayText).toContain('verylon..., short');
     expect(component.remainingFieldsCount).toBeGreaterThanOrEqual(1);
   });
 });

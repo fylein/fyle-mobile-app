@@ -14,6 +14,7 @@ import { ApproverReportsService } from '../core/services/platform/v1/approver/re
   selector: 'app-deep-link-redirection',
   templateUrl: './deep-link-redirection.page.html',
   styleUrls: ['./deep-link-redirection.page.scss'],
+  standalone: false,
 })
 export class DeepLinkRedirectionPage {
   constructor(
@@ -26,7 +27,7 @@ export class DeepLinkRedirectionPage {
     private deepLinkService: DeepLinkService,
     private expensesService: ExpensesService,
     private approverReportsService: ApproverReportsService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
   ) {}
 
   ionViewWillEnter(): void {
@@ -53,14 +54,14 @@ export class DeepLinkRedirectionPage {
         this.switchOrg();
         return EMPTY;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     // If orgId is the same as the current user orgId, then redirect to the dashboard page
     eou$
       .pipe(
         filter((eou) => orgId === eou.ou.org_id),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe({
         next: () => {
@@ -80,7 +81,7 @@ export class DeepLinkRedirectionPage {
     eou$
       .pipe(
         filter((eou) => orgId !== eou.ou.org_id),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe({
         next: () => {
@@ -118,7 +119,7 @@ export class DeepLinkRedirectionPage {
       },
       async () => {
         await this.loaderService.hideLoader();
-      }
+      },
     );
   }
 
@@ -139,7 +140,7 @@ export class DeepLinkRedirectionPage {
           this.switchOrg();
           return EMPTY;
         }),
-        shareReplay(1)
+        shareReplay(1),
       );
 
       // If expenseOrgId is the same as user orgId, then redirect to the expense page
@@ -148,7 +149,7 @@ export class DeepLinkRedirectionPage {
           filter((eou) => expenseOrgId === eou.ou.org_id),
           switchMap(() => this.expensesService.getExpenseById(txnId)),
           map((expense) => this.transactionService.transformExpense(expense)),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => from(this.loaderService.hideLoader())),
         )
         .subscribe({
           next: (etxn) => {
@@ -162,7 +163,7 @@ export class DeepLinkRedirectionPage {
       eou$
         .pipe(
           filter((eou) => expenseOrgId !== eou.ou.org_id),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => from(this.loaderService.hideLoader())),
         )
         .subscribe(() =>
           this.router.navigate([
@@ -173,7 +174,7 @@ export class DeepLinkRedirectionPage {
               txnId,
               orgId: expenseOrgId,
             },
-          ])
+          ]),
         );
     }
   }
@@ -212,7 +213,7 @@ export class DeepLinkRedirectionPage {
       },
       async () => {
         await this.loaderService.hideLoader();
-      }
+      },
     );
   }
 

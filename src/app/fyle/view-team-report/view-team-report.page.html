@@ -2,9 +2,9 @@
   <ion-toolbar class="view-reports--toolbar">
     <ion-buttons mode="md" slot="start">
       @if (navigateBack) {
-      <ion-button mat-icon-button [routerLink]="['/','enterprise','team_reports']">
-        <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
-      </ion-button>
+        <ion-button mat-icon-button [routerLink]="['/', 'enterprise', 'team_reports']">
+          <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
       }
     </ion-buttons>
     <ng-container>
@@ -12,369 +12,479 @@
     </ng-container>
     <ion-buttons mode="md" slot="end">
       @if (isReportReported) {
-      <ion-button (click)="sendBack()">
-        <ion-icon
-          [src]="'../../../assets/svg/send-back.svg'"
-          class="view-reports--send-back"
-          slot="icon-only"
-        ></ion-icon>
-      </ion-button>
+        <ion-button (click)="sendBack()">
+          <ion-icon
+            [src]="'../../../assets/svg/send-back.svg'"
+            class="view-reports--send-back"
+            slot="icon-only"
+          ></ion-icon>
+        </ion-button>
       }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="view-reports--container">
-  @if (report$|async; as report) {
-  <div class="view-reports--body">
-    <div>
-      @if (showApprovalInfoMessage && canApproveReport) {
-      <div class="view-reports--info-msg-container">
-        <app-fy-expansion-info-msg
-          [infoMsgContent]="approvalInfoMessage"
-          [showHelpLink]="true"
-          helpLinkLabel="Learn more"
-          (helpLinkClick)="openHelpArticle()"
-        >
-        </app-fy-expansion-info-msg>
-      </div>
-      }
-      <div class="view-reports--card">
-        <ion-grid>
-          <ion-row class="view-reports--purpose-state">
-            <ion-col size="8.5">
-              <div class="view-reports--purpose-amount-block">
-                <div class="view-reports--purpose-amount-block__purpose">
-                  {{report.purpose | ellipsis: 25}} @if ((canEdit$|async) && report && (report.state ===
-                  'APPROVER_PENDING')) {
-                  <ion-icon
-                    [src]="'../../../../assets/svg/edit.svg'"
-                    slot="icon-only"
-                    (click)="editReportName()"
-                    class="view-reports--card-header__icon"
-                  ></ion-icon>
-                  }
+  @if (report$ | async; as report) {
+    <div class="view-reports--body">
+      <div>
+        @if (showApprovalInfoMessage && canApproveReport) {
+          <div class="view-reports--info-msg-container">
+            <app-fy-expansion-info-msg
+              [infoMsgContent]="approvalInfoMessage"
+              [showHelpLink]="true"
+              helpLinkLabel="Learn more"
+              (helpLinkClick)="openHelpArticle()"
+            >
+            </app-fy-expansion-info-msg>
+          </div>
+        }
+        <div class="view-reports--card">
+          <ion-grid>
+            <ion-row class="view-reports--purpose-state">
+              <ion-col size="8.5">
+                <div class="view-reports--purpose-amount-block">
+                  <div class="view-reports--purpose-amount-block__purpose">
+                    {{ report.purpose | ellipsis: 25 }}
+                    @if ((canEdit$ | async) && report && report.state === 'APPROVER_PENDING') {
+                      <ion-icon
+                        [src]="'../../../../assets/svg/edit.svg'"
+                        slot="icon-only"
+                        (click)="editReportName()"
+                        class="view-reports--card-header__icon"
+                      ></ion-icon>
+                    }
+                  </div>
                 </div>
-              </div>
-            </ion-col>
-            <ion-col size="3.5">
-              @if ((simplifyReportsSettings$ | async); as simplifyReportsSettings) {
-              <div class="view-reports--report-state-pill state-pill state-{{report.state | reportState}}">
-                {{report.state | reportState | snakeCaseToSpaceCase}}
-              </div>
-              }
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col size="8">
-              <div class="view-reports--amount">
-                <span class="view-reports--purpose-amount-block__currency"> {{ reportCurrencySymbol }} </span>
-                <span class="view-reports--purpose-amount-block__amount">
-                  {{ { value: approvalAmount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
-                </span>
-              </div>
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col size="12" class="view-reports--employee-name-block">
-              <div class="view-reports--employee-name">
-                <div>
-                  <span class="view-reports--employee-name__text">Employee : </span>
-                  <span class="view-reports--employee-name__name smartlook-hide">
-                    {{report.employee.user.full_name | ellipsis: 30}}</span
-                  >
+              </ion-col>
+              <ion-col size="3.5">
+                @if (simplifyReportsSettings$ | async; as simplifyReportsSettings) {
+                  <div class="view-reports--report-state-pill state-pill state-{{ report.state | reportState }}">
+                    {{ report.state | reportState | snakeCaseToSpaceCase }}
+                  </div>
+                }
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="8">
+                <div class="view-reports--amount">
+                  <span class="view-reports--purpose-amount-block__currency"> {{ reportCurrencySymbol }} </span>
+                  <span class="view-reports--purpose-amount-block__amount">
+                    {{
+                      { value: approvalAmount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency
+                    }}
+                  </span>
                 </div>
-              </div>
-            </ion-col>
-          </ion-row>
-          <ion-row class="view-reports--date-info-block">
-            <ion-col class="view-reports--submitted-date-container" size="8">
-              <div>
-                <div class="view-reports--submitted-date">
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="12" class="view-reports--employee-name-block">
+                <div class="view-reports--employee-name">
                   <div>
-                    <span class="view-reports--submitted-date__text">
-                      {{ report.last_resubmitted_at ? "Resubmitted date : " : "Submitted date : "}}
-                    </span>
-                    <span class="view-reports--submitted-date__date"
-                      >{{(report.last_resubmitted_at || report.last_submitted_at) | date: 'MMM dd, YYYY'}}</span
+                    <span class="view-reports--employee-name__text">Employee : </span>
+                    <span class="view-reports--employee-name__name smartlook-hide">
+                      {{ report.employee.user.full_name | ellipsis: 30 }}</span
                     >
                   </div>
                 </div>
-              </div>
-            </ion-col>
-            <ion-col size="4" class="view-reports--view-info-container">
-              <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
-                <ion-icon
-                  class="view-reports--view-info__icon"
-                  src="../../../assets/svg/info-circle-gradient.svg"
-                ></ion-icon>
-                <span class="view-reports--view-info__content">View info</span>
-              </div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </div>
-      @if ((report.state !== 'DRAFT')) {
-      <div class="view-reports--approvers-section">
-        @if (approvals.length > 0) {
-        <div class="view-reports--approval-state-block">
-          <div class="view-reports--approvers-title-block">
-            <div class="view-reports--approvers-edit-container">
-              <div class="view-reports--approvers">Approvers</div>
-              @if (permissions$|async; as permissions) {
-              <div>
-                @if (permissions.can_add_approver) {
-                <app-fy-approver
-                  [approverEmailsList]="getApproverEmails(approvals)"
-                  [id]="report.id"
-                  [ownerEmail]="report.employee.user.email"
-                  [type]="'TEAM_REPORT'"
-                  (notify)="onUpdateApprover($event)"
-                >
-                </app-fy-approver>
+              </ion-col>
+            </ion-row>
+            <ion-row class="view-reports--date-info-block">
+              <ion-col class="view-reports--submitted-date-container" size="8">
+                <div>
+                  <div class="view-reports--submitted-date">
+                    <div>
+                      <span class="view-reports--submitted-date__text">
+                        {{ report.last_resubmitted_at ? 'Resubmitted date : ' : 'Submitted date : ' }}
+                      </span>
+                      <span class="view-reports--submitted-date__date">{{
+                        report.last_resubmitted_at || report.last_submitted_at | date: 'MMM dd, yyyy'
+                      }}</span>
+                    </div>
+                  </div>
+                </div>
+              </ion-col>
+              <ion-col size="4" class="view-reports--view-info-container">
+                <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
+                  <ion-icon
+                    class="view-reports--view-info__icon"
+                    src="../../../assets/svg/info-circle-gradient.svg"
+                  ></ion-icon>
+                  <span class="view-reports--view-info__content">View info</span>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+        @if (report.state !== 'DRAFT') {
+          <div class="view-reports--approvers-section">
+            @if (approvals.length > 0) {
+              <div class="view-reports--approval-state-block">
+                <div class="view-reports--approvers-title-block">
+                  <div class="view-reports--approvers-edit-container">
+                    <div class="view-reports--approvers">Approvers</div>
+                    @if (permissions$ | async; as permissions) {
+                      <div>
+                        @if (permissions.can_add_approver) {
+                          <app-fy-approver
+                            [approverEmailsList]="getApproverEmails(approvals)"
+                            [id]="report.id"
+                            [ownerEmail]="report.employee.user.email"
+                            [type]="'TEAM_REPORT'"
+                            (notify)="onUpdateApprover($event)"
+                          >
+                          </app-fy-approver>
+                        }
+                      </div>
+                    }
+                  </div>
+                  @if (showViewApproverModal && approvals.length > 1) {
+                    <div class="view-reports--view-approvers" (click)="openViewApproverModal()">View all</div>
+                  }
+                </div>
+                @if (!showViewApproverModal) {
+                  <div>
+                    @for (approver of approvals; track approver) {
+                      <div>
+                        <div class="view-reports--approvers-list">
+                          <div class="smartlook-hide">{{ approver?.approver_user?.full_name | ellipsis: 15 }}</div>
+                          <div class="view-reports--approver-state-section">
+                            <div
+                              class="view-reports--approver-state-pill view-reports--approver-state-pill__{{
+                                approver.state | lowercase
+                              }}"
+                            ></div>
+                            <span>{{
+                              approver.state === 'APPROVAL_DONE'
+                                ? 'Approved'
+                                : (approver.state | titlecase | snakeCaseToSpaceCase)
+                            }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+                @if (showViewApproverModal && approverToShow) {
+                  <div class="view-reports--approvers-list">
+                    <div class="smartlook-hide">{{ approverToShow?.approver_user?.full_name | ellipsis: 15 }}</div>
+                    <div class="view-reports--approver-state-section">
+                      <div
+                        class="view-reports--approver-state-pill view-reports--approver-state-pill__{{
+                          approverToShow?.state | lowercase
+                        }}"
+                      ></div>
+                      <span class="view-reports--approver-state-pill__text">{{
+                        approverToShow?.state === 'APPROVAL_DONE'
+                          ? 'Approved'
+                          : (approverToShow?.state | titlecase | snakeCaseToSpaceCase)
+                      }}</span>
+                    </div>
+                  </div>
                 }
               </div>
-              }
-            </div>
-            @if (showViewApproverModal && approvals.length > 1) {
-            <div class="view-reports--view-approvers" (click)="openViewApproverModal()">View all</div>
             }
           </div>
-          @if (!showViewApproverModal) {
-          <div>
-            @for (approver of approvals; track approver) {
+        }
+        <div class="view-reports--segment-block-container">
+          <ion-segment
+            class="segment-block view-reports--segment-block-container__segment"
+            (ionChange)="segmentChanged($event)"
+            value="expenses"
+          >
+            <ion-segment-button value="expenses" class="view-reports--segment-block-container__btn text-capitalize">
+              Expenses
+            </ion-segment-button>
+            <ion-segment-button value="comments" class="view-reports--segment-block-container__btn text-capitalize">
+              Comments
+            </ion-segment-button>
+            @if (systemEstatuses && systemEstatuses.length > 0) {
+              <ion-segment-button value="history" class="view-reports--segment-block-container__btn text-capitalize">
+                History
+              </ion-segment-button>
+            }
+          </ion-segment>
+          <!-- Expenses Section -->
+          @if (isExpensesView) {
             <div>
-              <div class="view-reports--approvers-list">
-                <div class="smartlook-hide">{{ approver?.approver_user?.full_name | ellipsis: 15 }}</div>
-                <div class="view-reports--approver-state-section">
-                  <div
-                    class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
-                  ></div>
-                  <span
-                    >{{ approver.state === 'APPROVAL_DONE' ? 'Approved' : (approver.state | titlecase |
-                    snakeCaseToSpaceCase)}}</span
-                  >
+              @if (isExpensesLoading) {
+                <app-fy-loading-screen></app-fy-loading-screen>
+              }
+              @if (!isExpensesLoading && report.num_expenses > 0) {
+                <div>
+                  <div class="view-reports--divider"></div>
+                  <div class="view-reports-expense-card-block">
+                    @let expenses = expenses$ | async;
+                    @for (expense of expenses; track expense.id; let i = $index) {
+                      <app-expense-card-v2
+                        [expense]="expense"
+                        [expenseIndex]="i"
+                        [previousExpenseTxnDate]="expenses[i - 1]?.spent_at"
+                        [previousExpenseCreatedAt]="expenses[i - 1]?.created_at"
+                        (goToTransaction)="goToTransaction($event)"
+                        [isFromReports]="true"
+                        [isFromViewReports]="true"
+                      >
+                      </app-expense-card-v2>
+                    }
+                  </div>
+                  <ng-template #ExpensesLoader>
+                    <ion-spinner name="crescent"></ion-spinner>
+                  </ng-template>
                 </div>
-              </div>
-            </div>
-            }
-          </div>
-          } @if (showViewApproverModal && approverToShow) {
-          <div class="view-reports--approvers-list">
-            <div class="smartlook-hide">{{ approverToShow?.approver_user?.full_name | ellipsis: 15 }}</div>
-            <div class="view-reports--approver-state-section">
-              <div
-                class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approverToShow?.state | lowercase}}"
-              ></div>
-              <span class="view-reports--approver-state-pill__text"
-                >{{ approverToShow?.state === 'APPROVAL_DONE' ? 'Approved' : (approverToShow?.state | titlecase |
-                snakeCaseToSpaceCase)}}</span
-              >
-            </div>
-          </div>
-          }
-        </div>
-        }
-      </div>
-      }
-      <div class="view-reports--segment-block-container">
-        <ion-segment
-          class="segment-block view-reports--segment-block-container__segment"
-          (ionChange)="segmentChanged($event)"
-          value="expenses"
-        >
-          <ion-segment-button value="expenses" class="view-reports--segment-block-container__btn text-capitalize">
-            Expenses
-          </ion-segment-button>
-          <ion-segment-button value="comments" class="view-reports--segment-block-container__btn text-capitalize">
-            Comments
-          </ion-segment-button>
-          @if (systemEstatuses && systemEstatuses.length > 0) {
-          <ion-segment-button value="history" class="view-reports--segment-block-container__btn text-capitalize">
-            History
-          </ion-segment-button>
-          }
-        </ion-segment>
-        <!-- Expenses Section -->
-        @if (isExpensesView) {
-        <div>
-          @if (isExpensesLoading) {
-          <app-fy-loading-screen></app-fy-loading-screen>
-          } @if (!isExpensesLoading && report.num_expenses > 0) {
-          <div>
-            <div class="view-reports--divider"></div>
-            <div class="view-reports-expense-card-block">
-              @let expenses = expenses$|async; @for (expense of expenses; track expense.id; let i = $index) {
-              <app-expense-card-v2
-                [expense]="expense"
-                [expenseIndex]="i"
-                [previousExpenseTxnDate]="expenses[i-1]?.spent_at"
-                [previousExpenseCreatedAt]="expenses[i-1]?.created_at"
-                (goToTransaction)="goToTransaction($event)"
-                [isFromReports]="true"
-                [isFromViewReports]="true"
-              >
-              </app-expense-card-v2>
+              }
+              @if (!isExpensesLoading && report.num_expenses === 0) {
+                <div class="view-reports--expenses-zero-state">
+                  <div class="text-center">
+                    <img src="../../../assets/images/zero-states/new-expenses.png" alt="No expense in this report" />
+                  </div>
+                </div>
               }
             </div>
-            <ng-template #ExpensesLoader>
-              <ion-spinner name="crescent"></ion-spinner>
-            </ng-template>
-          </div>
-          } @if (!isExpensesLoading && report.num_expenses === 0) {
-          <div class="view-reports--expenses-zero-state">
-            <div class="text-center">
-              <img src="../../../assets/images/zero-states/new-expenses.png" alt="No expense in this report" />
-            </div>
-          </div>
           }
-        </div>
-        }
-        <!-- Comments section -->
-        @if (isCommentsView && userComments && userComments.length > 0) {
-        <div class="view-comment--container">
-          @for (estatus of userComments; track estatus) {
-          <div>
-            @if (estatus.show_dt) {
+          <!-- Comments section -->
+          @if (isCommentsView && userComments && userComments.length > 0) {
+            <div class="view-comment--container">
+              @for (estatus of userComments; track estatus) {
+                <div>
+                  @if (estatus.show_dt) {
+                    <div>
+                      <div class="view-comment--date text-center">{{ estatus.created_at | dateWithTimezone }}</div>
+                    </div>
+                  }
+                  @if (estatus.isSelfComment) {
+                    <div class="view-comment--block" [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }">
+                      <ion-grid class="view-comment--card view-comment--self-comment text-right">
+                        <ion-row>
+                          <ion-col size="12">
+                            <div class="view-comment--name-container smartlook-hide">
+                              {{ estatus.creator_user?.full_name }}
+                            </div>
+                          </ion-col>
+                        </ion-row>
+                        <ion-row>
+                          <ion-col size="12">
+                            @if (
+                              !(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)
+                            ) {
+                              <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
+                            }
+                            @if (estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1) {
+                              <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
+                            }
+                          </ion-col>
+                        </ion-row>
+                        <ion-row>
+                          <ion-col size="12">
+                            <div class="view-comment--comment-timestamp">
+                              {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                            </div>
+                          </ion-col>
+                        </ion-row>
+                      </ion-grid>
+                      <div class="view-comment--profile view-comment--self-profile">
+                        <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
+                      </div>
+                    </div>
+                  }
+                  @if (!estatus.isSelfComment) {
+                    <div class="view-comment--block" [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }">
+                      <div class="view-comment--profile view-comment--others-profile">
+                        <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
+                      </div>
+                      <ion-grid class="view-comment--card view-comment--others-comment text-left">
+                        <ion-row>
+                          <ion-col size="12">
+                            <div class="view-comment--name-container smartlook-hide">
+                              {{ estatus.creator_user?.full_name }}
+                            </div>
+                          </ion-col>
+                        </ion-row>
+                        <ion-row>
+                          <ion-col size="12">
+                            @if (
+                              !(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)
+                            ) {
+                              <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
+                            }
+                            @if (estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1) {
+                              <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
+                            }
+                          </ion-col>
+                        </ion-row>
+                        <ion-row>
+                          <ion-col size="12">
+                            <div class="view-comment--comment-timestamp">
+                              {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                            </div>
+                          </ion-col>
+                        </ion-row>
+                      </ion-grid>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+          @if (isCommentsView && userComments && userComments.length === 0) {
+            <div class="view-comment--zero-state">
+              <app-fy-zero-state
+                [image]="'../../../assets/images/zero-states/new-comments.png'"
+                [header]="'Need to clarify something?'"
+                [message]="'Post a comment.'"
+                [useNewStyling]="true"
+                [unscaledImage]="true"
+              ></app-fy-zero-state>
+            </div>
+          }
+          @if (isCommentsView && !userComments) {
             <div>
-              <div class="view-comment--date text-center">{{ estatus.created_at | dateWithTimezone }}</div>
-            </div>
-            } @if (estatus.isSelfComment) {
-            <div class="view-comment--block" [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }">
-              <ion-grid class="view-comment--card view-comment--self-comment text-right">
-                <ion-row>
-                  <ion-col size="12">
-                    <div class="view-comment--name-container smartlook-hide">{{ estatus.creator_user?.full_name }}</div>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="12">
-                    @if (!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)) {
-                    <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
-                    } @if (estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1) {
-                    <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
-                    }
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">
-                      {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
-                    </div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-              <div class="view-comment--profile view-comment--self-profile">
-                <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
+              <div class="view-comment--spinner">
+                <ion-spinner name="crescent"></ion-spinner>
               </div>
             </div>
-            } @if (!estatus.isSelfComment) {
-            <div class="view-comment--block" [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }">
-              <div class="view-comment--profile view-comment--others-profile">
-                <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
-              </div>
-              <ion-grid class="view-comment--card view-comment--others-comment text-left">
-                <ion-row>
-                  <ion-col size="12">
-                    <div class="view-comment--name-container smartlook-hide">{{ estatus.creator_user?.full_name }}</div>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="12">
-                    @if (!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)) {
-                    <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
-                    } @if (estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1) {
-                    <div class="view-comment--comment-detail">{{ estatus.comment }}</div>
-                    }
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">
-                      {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
-                    </div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
+          }
+          <!-- History section -->
+          @if (isHistoryView && systemEstatuses && systemEstatuses.length > 0) {
+            <div class="view-reports--history-container">
+              <app-audit-history [estatuses]="systemEstatuses"></app-audit-history>
             </div>
-            }
-          </div>
           }
         </div>
-        } @if (isCommentsView && userComments && userComments.length === 0) {
-        <div class="view-comment--zero-state">
-          <app-fy-zero-state
-            [image]="'../../../assets/images/zero-states/new-comments.png'"
-            [header]="'Need to clarify something?'"
-            [message]="'Post a comment.'"
-            [useNewStyling]="true"
-            [unscaledImage]="true"
-          ></app-fy-zero-state>
-        </div>
-        } @if (isCommentsView && !userComments) {
-        <div>
-          <div class="view-comment--spinner">
-            <ion-spinner name="crescent"></ion-spinner>
-          </div>
-        </div>
-        }
-        <!-- History section -->
-        @if (isHistoryView && systemEstatuses && systemEstatuses.length > 0) {
-        <div class="view-reports--history-container">
-          <app-audit-history [estatuses]="systemEstatuses"></app-audit-history>
-        </div>
-        }
       </div>
     </div>
-  </div>
+  } @else {
+    <div class="view-reports--body full-height">
+      <div class="view-reports--wrapper">
+        <!-- Report Card Skeleton -->
+        <div class="view-reports--card">
+          <ion-grid>
+            <ion-row class="view-reports--purpose-state">
+              <ion-col size="8.5">
+                <div class="view-reports--purpose-amount-block">
+                  <ion-skeleton-text animated class="view-reports--skeleton-purpose"></ion-skeleton-text>
+                </div>
+              </ion-col>
+              <ion-col size="3.5">
+                <ion-skeleton-text animated class="view-reports--skeleton-state"></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="8">
+                <ion-skeleton-text animated class="view-reports--skeleton-amount"></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12" class="view-reports--employee-name-block">
+                <ion-skeleton-text animated class="view-reports--skeleton-employee"></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+
+            <ion-row class="view-reports--date-info-block">
+              <ion-col size="8">
+                <ion-skeleton-text animated class="view-reports--skeleton-date"></ion-skeleton-text>
+              </ion-col>
+              <ion-col size="4">
+                <ion-skeleton-text animated class="view-reports--skeleton-info"></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+
+        <!-- Approvers Section Skeleton -->
+        <div class="view-reports--approvers-wrapper">
+          <div class="view-reports--approvers-section">
+            <ion-skeleton-text animated class="view-reports--skeleton-approvers-header"></ion-skeleton-text>
+            <div class="view-reports--approvers-list">
+              <ion-skeleton-text animated class="view-reports--skeleton-approver-name"></ion-skeleton-text>
+              <ion-skeleton-text animated class="view-reports--skeleton-approver-state"></ion-skeleton-text>
+            </div>
+          </div>
+        </div>
+
+        <!-- Segment and Content Skeleton -->
+        <div class="view-reports--segment-block-container">
+          <div class="view-reports--segment-block-container__btn-wrapper">
+            <ion-skeleton-text animated class="view-reports--skeleton-segment"></ion-skeleton-text>
+          </div>
+
+          <!-- Expenses List Skeleton -->
+          <div class="view-reports--skeleton-expenses">
+            @for (item of [1, 2, 3, 4]; track $index) {
+              <div class="view-reports--skeleton-expense-item">
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="2">
+                      <ion-skeleton-text animated class="view-reports--skeleton-expense-icon"></ion-skeleton-text>
+                    </ion-col>
+                    <ion-col size="7">
+                      <ion-skeleton-text animated class="view-reports--skeleton-expense-title"></ion-skeleton-text>
+                      <ion-skeleton-text animated class="view-reports--skeleton-expense-subtitle"></ion-skeleton-text>
+                    </ion-col>
+                    <ion-col size="3">
+                      <ion-skeleton-text animated class="view-reports--skeleton-expense-amount"></ion-skeleton-text>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
   }
 </ion-content>
 
-@if (permissions$|async; as permissions) { @if (!isCommentsView && isReportReported && permissions.can_approve) {
-<ion-footer class="cta-footer">
-  @if (canShowTooltip && !canApprove) {
-  <div class="view-reports--disabled-info text-center">
-    <div class="view-reports--disabled-info-content">
-      Waiting for other approvers to approve this expense report
-      <ion-icon
-        (click)="toggleTooltip()"
-        class="view-reports--icon-close"
-        src="../../../../assets/svg/cross.svg"
-        slot="icon-only"
-      ></ion-icon>
-    </div>
-  </div>
+@if (permissions$ | async; as permissions) {
+  @if (!isCommentsView && isReportReported && permissions.can_approve) {
+    <ion-footer class="cta-footer">
+      @if (canShowTooltip && !canApprove) {
+        <div class="view-reports--disabled-info text-center">
+          <div class="view-reports--disabled-info-content">
+            Waiting for other approvers to approve this expense report
+            <ion-icon
+              (click)="toggleTooltip()"
+              class="view-reports--icon-close"
+              src="../../../../assets/svg/cross.svg"
+              slot="icon-only"
+            ></ion-icon>
+          </div>
+        </div>
+      }
+      <ion-toolbar mode="md">
+        <ion-button
+          (click)="approveReport()"
+          class="view-reports--primary-cta"
+          [ngClass]="{
+            'view-reports--primary-cta__disabled': !canApprove,
+          }"
+          [disabled]="approveReportLoader"
+          appFormButtonValidation
+          [loadingText]="'Approving'"
+          [loading]="approveReportLoader"
+        >
+          Approve report
+        </ion-button>
+      </ion-toolbar>
+    </ion-footer>
   }
-  <ion-toolbar mode="md">
-    <ion-button
-      (click)="approveReport()"
-      class="view-reports--primary-cta"
-      [ngClass]="{
-          'view-reports--primary-cta__disabled': !canApprove
-        }"
-      [disabled]="approveReportLoader"
-      appFormButtonValidation
-      [loadingText]="'Approving'"
-      [loading]="approveReportLoader"
-    >
-      Approve report
-    </ion-button>
-  </ion-toolbar>
-</ion-footer>
-} } @if (isCommentsView) {
-<ion-footer class="view-comment--add-comment-container">
-  <div>
-    <div class="view-comment--type-comment-block">
-      <textarea
-        #commentInput
-        class="view-comment--text-area"
-        rows="1"
-        matInput
-        placeholder="Type your comment here..."
-        [(ngModel)]="newComment"
-      ></textarea>
-      <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send-fill"></mat-icon>
+}
+@if (isCommentsView) {
+  <ion-footer class="view-comment--add-comment-container">
+    <div>
+      <div class="view-comment--type-comment-block">
+        <textarea
+          #commentInput
+          class="view-comment--text-area"
+          rows="1"
+          matInput
+          placeholder="Type your comment here..."
+          [(ngModel)]="newComment"
+        ></textarea>
+        <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send-fill"></mat-icon>
+      </div>
     </div>
-  </div>
-</ion-footer>
+  </ion-footer>
 }

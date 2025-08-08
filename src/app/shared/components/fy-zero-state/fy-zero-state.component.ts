@@ -5,6 +5,7 @@ import { EventEmitter } from 'events';
   selector: 'app-fy-zero-state',
   templateUrl: './fy-zero-state.component.html',
   styleUrls: ['./fy-zero-state.component.scss'],
+  standalone: false,
 })
 export class FyZeroStateComponent implements OnInit, AfterViewInit {
   @ViewChild('messageRef') messageRef: ElementRef;
@@ -16,8 +17,6 @@ export class FyZeroStateComponent implements OnInit, AfterViewInit {
   @Input() message: string;
 
   @Input() submessage: string;
-
-  @Input() link: string;
 
   // TODO: Remove off when all old zero states are replaced with new ones
   // zero state has a max-width associated with the image.
@@ -39,9 +38,5 @@ export class FyZeroStateComponent implements OnInit, AfterViewInit {
       this.messageRef.nativeElement.innerHTML = this.message;
       this.messageRef.nativeElement.getElementsByTagName('ion-icon')[0]?.classList.add('zero-state--icon');
     }
-  }
-
-  onLinkClick(event) {
-    this.linkClicked.emit(event);
   }
 }

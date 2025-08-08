@@ -17,7 +17,7 @@
           class="corporate-card__more-options-btn"
           (click)="cardOptionsClick.emit(card)"
           data-testid="more-options-btn"
-          >
+        >
           <ion-icon
             class="corporate-card__more-options-btn-icon"
             src="../../../../assets/svg/vertical-dots-menu.svg"
@@ -40,25 +40,22 @@
           <span data-testid="feed-info">{{ 'corporateCard.live' | transloco }}</span>
         </div>
       }
-
       @if (
-        card.data_feed_source === dataFeedSourceTypes.YODLEE ||
-        card.data_feed_source === dataFeedSourceTypes.AMEX_FEED
-        ) {
+        card.data_feed_source === dataFeedSourceTypes.YODLEE || card.data_feed_source === dataFeedSourceTypes.AMEX_FEED
+      ) {
         <span class="corporate-card__feed-label">{{ 'corporateCard.lastSynced' | transloco }}</span>
         <span class="corporate-card__feed-value" data-testid="feed-info">{{
-          card.last_synced_at | date : 'MMM dd, YYYY'
+          card.last_synced_at | date: 'MMM dd, yyyy'
         }}</span>
       }
-
       @if (
         (card.data_feed_source === dataFeedSourceTypes.STATEMENT_UPLOAD && !isCardConnectedToRTF) ||
         isCardConnectedToBankFeed
-        ) {
+      ) {
         <span class="corporate-card__feed-label">{{ 'corporateCard.syncedUsing' | transloco }}</span>
         <span class="corporate-card__feed-label" data-testid="feed-info">{{
           (card.data_feed_source === 'STATEMENT_UPLOAD' ? 'corporateCard.statementUpload' : 'corporateCard.bankFeed')
-          | transloco
+            | transloco
         }}</span>
       }
     </div>
@@ -70,25 +67,24 @@
               src="../../../../assets/images/amex-logo.png"
               class="corporate-card__logo--amex__icon"
               data-testid="amex-icon"
-              />
+            />
           }
         </ng-container>
       }
-
       @if (isCardConnectedToRTF) {
         @if (card.is_visa_enrolled) {
           <img
             src="../../../../assets/images/visa-logo.png"
             class="corporate-card__logo--visa__icon"
             data-testid="visa-icon"
-            />
+          />
         }
         @if (card.is_mastercard_enrolled) {
           <img
             src="../../../../assets/images/mastercard-logo.png"
             class="corporate-card__logo--mastercard__icon"
             data-testid="mastercard-icon"
-            />
+          />
         }
       }
     </div>

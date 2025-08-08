@@ -20,6 +20,7 @@ import { of } from 'rxjs';
 @Component({
   selector: 'app-card-number',
   template: '<div></div>',
+  standalone: false,
 })
 class MockCardNumberComponent {
   @Input() cardNumber: string;
@@ -62,7 +63,7 @@ describe('CorporateCardComponent', () => {
     component = fixture.componentInstance;
 
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {

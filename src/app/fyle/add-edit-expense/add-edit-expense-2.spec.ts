@@ -52,7 +52,6 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -148,7 +147,6 @@ export function TestCases2(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -203,14 +201,13 @@ export function TestCases2(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -227,7 +224,7 @@ export function TestCases2(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -281,7 +278,7 @@ export function TestCases2(getTestBed) {
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(false));
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
@@ -305,7 +302,7 @@ export function TestCases2(getTestBed) {
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(null));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(false));
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
@@ -330,7 +327,7 @@ export function TestCases2(getTestBed) {
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(false));
         spyOn(component, 'getCCCSettings').and.returnValue(true);
@@ -355,10 +352,10 @@ export function TestCases2(getTestBed) {
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY])
+          of([AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY]),
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed),
         );
         spyOn(component, 'getCCCSettings').and.returnValue(false);
         accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesWithAdvanceWalletsResData);
@@ -392,7 +389,7 @@ export function TestCases2(getTestBed) {
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
             'USD',
             'INR',
-            new Date('2023-02-15T06:30:00.000Z')
+            new Date('2023-02-15T06:30:00.000Z'),
           );
           done();
         });
@@ -497,7 +494,7 @@ export function TestCases2(getTestBed) {
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData);
           expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(
-            mockTransformedExpense.tx.extracted_data.category
+            mockTransformedExpense.tx.extracted_data.category,
           );
           expect(dateService.getUTCDate).not.toHaveBeenCalled();
           expect(component.isIncompleteExpense).toBeTrue();
@@ -581,7 +578,7 @@ export function TestCases2(getTestBed) {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
             expect(loaderService.showLoader).toHaveBeenCalledOnceWith(
               'This expense no longer exists. Redirecting to expenses list',
-              1000
+              1000,
             );
             expect(component.goBack).toHaveBeenCalledTimes(1);
             done();
@@ -616,7 +613,7 @@ export function TestCases2(getTestBed) {
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(
         transformedExpenseDataWithSubCategory,
         component.reviewList,
-        1
+        1,
       );
     });
 
@@ -634,6 +631,7 @@ export function TestCases2(getTestBed) {
             id: expense.tx.id,
             txnIds: JSON.stringify(txn_ids),
             activeIndex: 0,
+            navigate_back: true,
           },
         ]);
       });
@@ -650,6 +648,7 @@ export function TestCases2(getTestBed) {
             id: expense.tx.id,
             txnIds: JSON.stringify(txn_ids),
             activeIndex: 0,
+            navigate_back: true,
           },
         ]);
       });
@@ -666,6 +665,7 @@ export function TestCases2(getTestBed) {
             id: expense.tx.id,
             txnIds: JSON.stringify(txn_ids),
             activeIndex: 0,
+            navigate_back: true,
           },
         ]);
       });
@@ -870,7 +870,7 @@ export function TestCases2(getTestBed) {
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-            component.selectedCCCTransaction
+            component.selectedCCCTransaction,
           );
           expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
 
@@ -887,7 +887,7 @@ export function TestCases2(getTestBed) {
             finalize(() => {
               expect(component.hideSaveExpenseLoader).toHaveBeenCalledTimes(1);
               done();
-            })
+            }),
           )
           .subscribe();
       });
@@ -907,7 +907,7 @@ export function TestCases2(getTestBed) {
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-            component.selectedCCCTransaction
+            component.selectedCCCTransaction,
           );
           expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
 
@@ -949,7 +949,7 @@ export function TestCases2(getTestBed) {
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-            component.selectedCCCTransaction
+            component.selectedCCCTransaction,
           );
           expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
 
@@ -1161,7 +1161,7 @@ export function TestCases2(getTestBed) {
 
       const result = await component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state
+        splitPolicyExp4.data.final_desired_state,
       );
 
       expect(result).toEqual({ comment: 'primary' });
@@ -1214,7 +1214,7 @@ export function TestCases2(getTestBed) {
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
             'USD',
             'INR',
-            new Date('2023-02-15T06:30:00.000Z')
+            new Date('2023-02-15T06:30:00.000Z'),
           );
         });
       }));
@@ -1274,7 +1274,7 @@ export function TestCases2(getTestBed) {
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             true,
-            'rpId'
+            'rpId',
           )
           .componentProps.deleteMethod();
         expect(reportsService.ejectExpenses).toHaveBeenCalledTimes(1);
@@ -1285,7 +1285,7 @@ export function TestCases2(getTestBed) {
         component
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
-            false
+            false,
           )
           .componentProps.deleteMethod();
         expect(expensesService.deleteExpenses).toHaveBeenCalledTimes(1);
@@ -1319,10 +1319,10 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           true,
-          'rpFE5X1Pqi9P'
+          'rpFE5X1Pqi9P',
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, true, 'rpFE5X1Pqi9P')
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, true, 'rpFE5X1Pqi9P'),
         );
       }));
 
@@ -1352,10 +1352,10 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           undefined,
-          undefined
+          undefined,
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined),
         );
       }));
 
@@ -1390,17 +1390,17 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           undefined,
-          undefined
+          undefined,
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined),
         );
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.reviewList[+component.activeIndex]);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           transformedExpenseData,
           component.reviewList,
-          +component.activeIndex
+          +component.activeIndex,
         );
       }));
     });
@@ -1480,7 +1480,7 @@ export function TestCases2(getTestBed) {
 
       expect(component.policyDetails).toEqual(individualExpPolicyStateData2);
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
-        activatedRoute.snapshot.params.id
+        activatedRoute.snapshot.params.id,
       );
     });
 

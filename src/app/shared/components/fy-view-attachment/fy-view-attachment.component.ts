@@ -21,6 +21,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-view-attachment',
   templateUrl: './fy-view-attachment.component.html',
   styleUrls: ['./fy-view-attachment.component.scss'],
+  standalone: false,
 })
 export class FyViewAttachmentComponent implements OnInit {
   @Input() attachments: FileObject[];
@@ -69,7 +70,7 @@ export class FyViewAttachmentComponent implements OnInit {
     private fileService: FileService,
     private transactionsOutboxService: TransactionsOutboxService,
     private router: Router,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -94,7 +95,7 @@ export class FyViewAttachmentComponent implements OnInit {
           tap((base64Url: string) => {
             attachment.url = base64Url;
             attachment.thumbnail = base64Url;
-          })
+          }),
         );
       } else {
         if (attachment.type === 'pdf') {
@@ -108,7 +109,7 @@ export class FyViewAttachmentComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.loading = false;
-        })
+        }),
       )
       .subscribe();
   }
@@ -188,7 +189,7 @@ export class FyViewAttachmentComponent implements OnInit {
               return of(null);
             }
           }),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => from(this.loaderService.hideLoader())),
         )
         .subscribe(() => {
           try {
@@ -254,12 +255,12 @@ export class FyViewAttachmentComponent implements OnInit {
                 Direction: this.rotatingDirection,
                 Source: this.router.url,
               });
-            })
+            }),
           );
         }),
         finalize(() => {
           this.saving = false;
-        })
+        }),
       )
       .subscribe({
         error: () => {

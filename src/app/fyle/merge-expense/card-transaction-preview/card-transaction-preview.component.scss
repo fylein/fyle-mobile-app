@@ -1,14 +1,14 @@
-@import '../../../../theme/colors.scss';
-@import '../../../../theme/forms.scss';
+@use '../../../../theme/colors.scss';
+@use '../../../../theme/forms.scss';
 
 .card-transaction {
   padding: 10px 0;
   &--matching-card {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
     display: flex;
     padding: 4px 0;
     justify-content: space-between;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--icon-corporate-card {
@@ -19,7 +19,7 @@
 
   &--ccc-expense {
     pointer-events: none;
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 
   &--matching-content {

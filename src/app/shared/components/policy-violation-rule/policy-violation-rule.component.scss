@@ -1,19 +1,47 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .policy-violation-rule {
   &--container {
     padding: 16px;
     border-radius: 3px;
     margin-bottom: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
 
     &__normal-violation {
-      background-color: $floral-white;
-      border: 1px solid $pale-orange;
+      background-color: colors.$pure-white;
+      border: 1px solid colors.$grey-lighter;
     }
 
     &__critical-violation {
-      background-color: $snow-white;
-      border: 1px solid $pale-pink;
+      background-color: colors.$pure-white;
+      border: 1px solid colors.$grey-lighter;
+    }
+  }
+
+  &--icons {
+    display: flex;
+    align-items: center;
+    padding-right: 4px;
+    gap: 4px;
+
+    &__policy-violated-critical-icon {
+      width: 16px;
+      height: 16px;
+      color: colors.$red;
+      font-size: 16px;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    &__policy-violated-normal-icon {
+      width: 16px;
+      height: 16px;
+      color: colors.$dark-yellow;
+      font-size: 16px;
+      flex-shrink: 0;
+      display: block;
     }
   }
 }

@@ -8,7 +8,10 @@ import { TrackingService } from './tracking.service';
   providedIn: 'root',
 })
 export class DeepLinkService {
-  constructor(private router: Router, private trackingService: TrackingService) {}
+  constructor(
+    private router: Router,
+    private trackingService: TrackingService,
+  ) {}
 
   getJsonFromUrl(url?: string): Redirect {
     const query = url?.split('?')[1];
@@ -63,8 +66,8 @@ export class DeepLinkService {
             id: reportId,
           },
         ]);
-      } else if (redirectUri.match('/view_expense/tx') && redirectUri.split('/view_expense/').pop().length === 12) {
-        const txnId = redirectUri.split('/view_expense/').pop();
+      } else if (redirectUri.match('/my_expenses/') && redirectUri.split('txnId=').pop().length === 12) {
+        const txnId = redirectUri.split('txnId=').pop();
         const subModule = 'expense';
         this.router.navigate([
           '/',

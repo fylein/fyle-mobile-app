@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
@@ -31,8 +31,9 @@ import { TasksService } from './core/services/tasks.service';
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
+  standalone: false,
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild('sidemenuRef') sidemenuRef: SidemenuComponent;
 
   eou$: Observable<ExtendedOrgUser>;
@@ -71,6 +72,8 @@ export class AppComponent implements OnInit {
     'team_reports',
   ];
 
+  isLoading = true;
+
   constructor(
     private platform: Platform,
     private router: Router,
@@ -90,10 +93,18 @@ export class AppComponent implements OnInit {
     private gmapsService: GmapsService,
     private spenderOnboardingService: SpenderOnboardingService,
     private footerService: FooterService,
-    private tasksService: TasksService
+    private tasksService: TasksService,
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
+  }
+
+  ngAfterViewInit(): void {
+    // Move platform ready check here after view is initialized
+    setTimeout(async () => {
+      this.isLoading = false;
+      await SplashScreen.hide();
+    }, 2000);
   }
 
   registerBackButtonAction(): void {
@@ -126,8 +137,6 @@ export class AppComponent implements OnInit {
         style: Style.Default,
       });
 
-      setTimeout(async () => await SplashScreen.hide(), 200);
-
       /*
        * Use the app's font size irrespective of the user's device font size.
        * This is to ensure that the app's UI is consistent across devices.
@@ -144,7 +153,7 @@ export class AppComponent implements OnInit {
             this.appVersionService.load(deviceInfo);
             return this.appVersionService.getUserAppVersionDetails(deviceInfo);
           }),
-          filter((userAppVersionDetails) => !!userAppVersionDetails)
+          filter((userAppVersionDetails) => !!userAppVersionDetails),
         )
         .subscribe((userAppVersionDetails) => {
           const { appSupportDetails, lastLoggedInVersion, deviceInfo } = userAppVersionDetails;
@@ -161,7 +170,7 @@ export class AppComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -176,7 +185,7 @@ export class AppComponent implements OnInit {
           } else {
             this.sidemenuRef.showSideMenuOffline();
           }
-        })
+        }),
       )
       .subscribe();
   }
@@ -209,8 +218,9 @@ export class AppComponent implements OnInit {
       isOnline: this.isConnected$.pipe(take(1)),
     }).subscribe(({ loggedInStatus, isOnline }) => {
       this.isUserLoggedIn = loggedInStatus;
-      if (loggedInStatus) {
-        if (isOnline) {
+
+      if (this.isUserLoggedIn) {
+        if (this.isOnline) {
           this.sidemenuRef.showSideMenuOnline();
         } else {
           this.sidemenuRef.showSideMenuOffline();
@@ -387,7 +397,7 @@ export class AppComponent implements OnInit {
           const queryParams: { [key: string]: string } = urlTree.queryParams;
 
           return { lastSegment, matrixParams, queryParams };
-        })
+        }),
       )
       .subscribe(({ lastSegment, queryParams }: { lastSegment: string; queryParams: { [key: string]: string } }) => {
         this.currentPath = lastSegment;

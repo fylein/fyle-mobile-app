@@ -3,6 +3,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 @Pipe({
   name: 'expenseState',
+  standalone: false,
 })
 export class ExpenseState implements PipeTransform {
   constructor(private translocoService: TranslocoService) {}
@@ -20,6 +21,7 @@ export class ExpenseState implements PipeTransform {
       PAYMENT_PENDING: this.translocoService.translate('pipes.expenseState.paymentPending'),
       PAYMENT_PROCESSING: this.translocoService.translate('pipes.expenseState.processing'),
       PAID: this.translocoService.translate('pipes.expenseState.closed'),
+      UNREPORTABLE: this.translocoService.translate('pipes.expenseState.blocked'),
     };
 
     return states[val];

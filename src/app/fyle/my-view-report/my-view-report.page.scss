@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .view-reports {
   &--toolbar {
@@ -12,7 +12,7 @@
     align-items: center;
     gap: 2px;
     border-radius: 4px;
-    color: $blue-black;
+    color: colors.$blue-black;
     text-align: center;
     font-size: 12px;
     font-style: normal;
@@ -28,12 +28,12 @@
 
   &--btn-container {
     &__btn {
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
   &--container {
-    --background: #{$white};
+    --background: #{colors.$white};
   }
 
   &--body {
@@ -67,13 +67,13 @@
   &--card-header {
     display: flex;
     font-size: 14px;
-    color: $blue-black;
+    color: colors.$blue-black;
     padding-bottom: 8px;
     margin-bottom: 8px;
 
     &__icon {
       padding-left: 6px;
-      color: $brand-primary-light;
+      color: colors.$brand-primary-light;
     }
   }
 
@@ -86,8 +86,8 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    background-color: $pure-white;
-    box-shadow: 0 -2px 12px $pink-shadow;
+    background-color: colors.$pure-white;
+    box-shadow: 0 -2px 12px colors.$pink-shadow;
     z-index: 999;
   }
 
@@ -100,7 +100,7 @@
 
   &--card-body {
     font-size: 16px;
-    color: $gray-3;
+    color: colors.$gray-3;
     font-weight: 300;
     margin-bottom: 16px;
     line-height: 1;
@@ -108,19 +108,19 @@
 
   &--approval-state {
     &__submitted {
-      color: $submitted-color;
+      color: colors.$submitted-color;
     }
     &__complete {
-      color: $fyled-color;
+      color: colors.$fyled-color;
     }
     &_sent_back {
-      color: $sent-back-color;
+      color: colors.$sent-back-color;
     }
     &__approved {
-      color: $approved-color;
+      color: colors.$approved-color;
     }
     &__paid {
-      color: $paid-color;
+      color: colors.$paid-color;
     }
   }
 
@@ -141,7 +141,7 @@
   }
 
   &--amount {
-    color: $white;
+    color: colors.$white;
     font-size: 18px;
     display: flex;
     align-items: center;
@@ -158,7 +158,7 @@
   &--purpose-amount-block {
     display: flex;
     justify-content: space-between;
-    color: $pure-white;
+    color: colors.$pure-white;
 
     &__purpose {
       font-size: 14px;
@@ -186,12 +186,12 @@
     font-weight: 500;
     font-size: 12px;
     &__text {
-      color: $light-grey;
+      color: colors.$light-grey;
       opacity: 0.8;
     }
 
     &__date {
-      color: $pure-white;
+      color: colors.$pure-white;
     }
   }
 
@@ -204,12 +204,12 @@
     font-size: 12px;
 
     &__text {
-      color: $light-grey;
+      color: colors.$light-grey;
       opacity: 0.8;
     }
 
     &__name {
-      color: $pure-white;
+      color: colors.$pure-white;
     }
   }
 
@@ -230,11 +230,11 @@
     }
 
     &__segment.md {
-      border-bottom: 1px solid $grey-lighter;
+      border-bottom: 1px solid colors.$grey-lighter;
     }
 
     &__btn {
-      color: $blue-black;
+      color: colors.$blue-black;
       font-size: 14px;
       font-weight: 500;
       width: 100%;
@@ -247,7 +247,7 @@
     padding: 1px 4px;
     font-size: 12px;
     font-weight: 500;
-    color: $light-grey;
+    color: colors.$light-grey;
 
     &__icon {
       height: 18px;
@@ -267,7 +267,7 @@
   }
 
   &--approvers-section {
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     border-radius: 16px;
     box-shadow: 0px 4px 4px rgba(22, 21, 40, 0.08);
     font-size: 12px;
@@ -275,7 +275,7 @@
   }
 
   &--approvers {
-    color: $black-light;
+    color: colors.$black-light;
     padding: 18px 10px 0;
     margin-top: 6px;
     display: flex;
@@ -296,7 +296,7 @@
     &__date {
       margin: 0 4px;
       font-size: 10px;
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
@@ -307,19 +307,19 @@
     margin: 0 4px;
 
     &__approval_pending {
-      background-color: $fyled-color;
+      background-color: colors.$fyled-color;
     }
 
     &__approval_done {
-      background-color: $approved-color;
+      background-color: colors.$approved-color;
     }
 
     &__approval_disabled {
-      background-color: $gray-3;
+      background-color: colors.$gray-3;
     }
 
     &__text {
-      color: $black-light;
+      color: colors.$black-light;
       font-size: 12px;
       font-weight: 500;
       line-height: 1.5;
@@ -327,14 +327,14 @@
   }
 
   &--expenses-card-block {
-    background: $pure-white;
+    background: colors.$pure-white;
     padding: 6px;
     border-radius: 16px;
     box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
   }
 
   &--expenses-zero-state {
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -349,30 +349,30 @@
   }
 
   &--add-expenses-container {
-    border: 1px solid $grey-lightest;
+    border: 1px solid colors.$grey-lightest;
     padding: 12px;
     margin-right: 12px;
     border-radius: 4px;
     height: 50px;
 
     &__icon_container {
-      color: $brand-primary;
+      color: colors.$brand-primary;
       margin-bottom: -1px;
     }
 
     &__icon {
-      color: $pink-gradient;
+      color: colors.$pink-gradient;
     }
   }
 
   &--add-expense-footer {
     padding: 16px;
     box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
 
     &__block {
       border-radius: 4px;
-      border: 1px solid $grey-lightest;
+      border: 1px solid colors.$grey-lightest;
       height: 40px;
     }
 
@@ -391,7 +391,7 @@
   }
 
   &--add-more-icon-container {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     margin-bottom: -3px;
   }
 
@@ -403,7 +403,7 @@
 
   &--add-more-text {
     margin-left: 5px;
-    color: $black-light;
+    color: colors.$black-light;
     font-weight: 500;
     font-size: 14px;
   }
@@ -412,7 +412,7 @@
     font-size: 14px;
     display: block;
     margin-bottom: 16px;
-    color: $blue-black;
+    color: colors.$blue-black;
     line-height: 1.5;
     font-weight: 500;
   }
@@ -420,7 +420,7 @@
   &--zero-state-semibold-header {
     font-size: 14px;
     display: block;
-    color: $blue-black;
+    color: colors.$blue-black;
     line-height: 1.5;
   }
 
@@ -432,13 +432,13 @@
   }
 
   &--history-container {
-    background: $pure-white;
+    background: colors.$pure-white;
     border-radius: 16px;
     padding: 24px 0;
   }
 
   &--comments {
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     height: 100%;
     position: absolute;
   }
@@ -447,7 +447,7 @@
     padding: 10px 16px;
     background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
     border-radius: 4px;
-    color: $pure-white;
+    color: colors.$pure-white;
     letter-spacing: 0px;
     font-size: 12px;
   }
@@ -455,7 +455,7 @@
 
 .view-comment {
   &--container {
-    background: $pure-white;
+    background: colors.$pure-white;
     padding: 16px;
     border-radius: 16px;
     box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
@@ -473,13 +473,13 @@
   }
 
   &--self-comment {
-    background-color: $light-blue;
+    background-color: colors.$light-blue;
     margin-left: 24px;
     margin-right: 10px;
   }
 
   &--others-comment {
-    background-color: $light-purple;
+    background-color: colors.$light-purple;
     margin-right: 24px;
     margin-left: 10px;
   }
@@ -488,27 +488,27 @@
     left: 5px;
     font-size: 14px;
     line-height: 18px;
-    color: $black-light;
+    color: colors.$black-light;
     margin-top: 8px;
   }
 
   &--comment-timestamp {
     font-size: 12px;
     line-height: 20px;
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 
   &--type-comment-block {
     height: 40px;
     display: flex;
-    background-color: $pure-white;
-    border: 1px solid $outline-grey;
+    background-color: colors.$pure-white;
+    border: 1px solid colors.$outline-grey;
     border-radius: 4px;
     padding: 6px;
-    color: $black-2;
+    color: colors.$black-2;
 
     &:focus {
-      border: 1px solid $black-light;
+      border: 1px solid colors.$black-light;
     }
   }
 
@@ -521,13 +521,13 @@
 
   &--send-icon {
     margin-left: 10px;
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 
   &--add-comment-container {
     padding: 16px;
     box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
   }
 
   &--close {
@@ -542,12 +542,12 @@
   }
 
   &--self-profile {
-    background: linear-gradient(0deg, $light-blue, $light-blue);
+    background: linear-gradient(0deg, colors.$light-blue, colors.$light-blue);
     margin-right: 8px;
   }
 
   &--others-profile {
-    background: $light-purple;
+    background: colors.$light-purple;
     margin-left: 8px;
   }
 
@@ -577,14 +577,14 @@
   &--date {
     font-size: 12px;
     line-height: 20px;
-    color: $grey-light;
+    color: colors.$grey-light;
     margin-top: 16px;
   }
 
   &--comment-detail {
     font-size: 16px;
     line-height: 20px;
-    color: $dark-blue;
+    color: colors.$dark-blue;
   }
 
   &--zero-state-block {
@@ -594,5 +594,104 @@
   &--zero-state {
     margin: 26% 0;
     padding: 12px 0;
+  }
+
+  // Skeleton Loading Styles
+  &--skeleton-purpose {
+    height: 20px;
+    width: 200px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-state {
+    height: 24px;
+    width: 80px;
+    border-radius: 12px;
+  }
+
+  &--skeleton-amount {
+    height: 28px;
+    width: 150px;
+    border-radius: 4px;
+    margin-top: 8px;
+  }
+
+  &--skeleton-date {
+    height: 16px;
+    width: 180px;
+    border-radius: 4px;
+    margin-top: 12px;
+  }
+
+  &--skeleton-info {
+    height: 16px;
+    width: 60px;
+    border-radius: 4px;
+    margin-top: 12px;
+  }
+
+  &--skeleton-approvers-header {
+    height: 18px;
+    width: 100px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+
+  &--skeleton-approver-name {
+    height: 16px;
+    width: 120px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+
+  &--skeleton-approver-state {
+    height: 14px;
+    width: 80px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-segment {
+    height: 40px;
+    width: 100%;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  &--skeleton-expenses {
+    margin-top: 16px;
+  }
+
+  &--skeleton-expense-item {
+    background-color: colors.$pure-white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid colors.$grey-lightest;
+  }
+
+  &--skeleton-expense-icon {
+    height: 40px;
+    width: 40px;
+    border-radius: 8px;
+  }
+
+  &--skeleton-expense-title {
+    height: 16px;
+    width: 140px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--skeleton-expense-subtitle {
+    height: 14px;
+    width: 100px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-expense-amount {
+    height: 18px;
+    width: 80px;
+    border-radius: 4px;
+    margin-left: auto;
   }
 }

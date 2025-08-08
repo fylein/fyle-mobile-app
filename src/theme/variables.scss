@@ -11,7 +11,6 @@ $custom-typography: mat.m2-define-typography-config(
   $font-family: '"aktiv-grotesk", "Lato", sans-serif',
 );
 @include mat.all-component-typographies($custom-typography);
-@include mat.core();
 
 /// warning color palette
 $fy-warning: (
@@ -53,7 +52,15 @@ $fy-theme-accent: mat.m2-define-palette(mat.$m2-gray-palette, 200);
 $fy-theme-warn: mat.m2-define-palette($fy-warning);
 
 // create theme (use mat-dark-theme for themes with dark backgrounds)
-$fy-theme: mat.m2-define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme-warn);
+$fy-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $fy-theme-primary,
+      accent: $fy-theme-accent,
+      warn: $fy-theme-warn,
+    ),
+  )
+);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component

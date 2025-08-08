@@ -46,6 +46,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-tasks',
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.scss'],
+  standalone: false,
 })
 export class TasksComponent implements OnInit {
   @Output() optedIn = new EventEmitter<void>();
@@ -100,7 +101,7 @@ export class TasksComponent implements OnInit {
     private orgService: OrgService,
     private popoverController: PopoverController,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -131,7 +132,7 @@ export class TasksComponent implements OnInit {
         const showTeamReportTask = currentOrg.id === primaryOrg.id;
         return this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters, showTeamReportTask);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.tasks$.subscribe((tasks) => {
@@ -152,8 +153,7 @@ export class TasksComponent implements OnInit {
        * and hide it if the user is navigating to tasks section from teams section
        * Since we don't have tasks for team advances, have added a check only for team reports filter
        */
-      this.showReportAutoSubmissionInfoCard =
-        autoSubmissionReportDate && !isIncompleteExpensesTaskShown && paramFilters !== 'team_reports';
+      this.showReportAutoSubmissionInfoCard = autoSubmissionReportDate && paramFilters !== 'team_reports';
     });
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters as string;
@@ -224,7 +224,7 @@ export class TasksComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -469,21 +469,23 @@ export class TasksComponent implements OnInit {
   onAddCorporateCardClick(): void {
     const orgSettings$ = this.orgSettingsService.get();
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+      map(
+        (orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled,
+      ),
     );
 
     this.isMastercardRTFEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
-      )
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled,
+      ),
     );
 
     this.isYodleeEnabled$ = forkJoin([orgSettings$]).pipe(
       map(
         ([orgSettings]) =>
-          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled
-      )
+          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled,
+      ),
     );
     forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
       async ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) => {
@@ -503,7 +505,7 @@ export class TasksComponent implements OnInit {
         if (popoverResponse.data?.success) {
           this.handleEnrollmentSuccess();
         }
-      }
+      },
     );
   }
 
@@ -517,7 +519,7 @@ export class TasksComponent implements OnInit {
         switchMap(() =>
           this.expensesService.getAllExpenses({
             queryParams,
-          })
+          }),
         ),
         map((expenses) => {
           const initialExpense = expenses[0];
@@ -527,7 +529,7 @@ export class TasksComponent implements OnInit {
             allExpenseIds,
           };
         }),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe(({ initial, allExpenseIds }) => {
         let category;
@@ -545,6 +547,7 @@ export class TasksComponent implements OnInit {
               id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
+              navigate_back: true,
             },
           ]);
         } else if (category === 'per diem') {
@@ -556,6 +559,7 @@ export class TasksComponent implements OnInit {
               id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
+              navigate_back: true,
             },
           ]);
         } else {
@@ -567,6 +571,7 @@ export class TasksComponent implements OnInit {
               id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
+              navigate_back: true,
             },
           ]);
         }
@@ -584,7 +589,7 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingReport')))
         .pipe(
           switchMap(() => this.spenderReportsService.getAllReportsByParams(queryParams)),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
         )
         .subscribe((res) => {
           if (res[0]?.id) {
@@ -609,7 +614,7 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingAdvance')))
         .pipe(
           switchMap(() => this.advanceRequestService.getSpenderAdvanceRequests({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
         )
         .subscribe((res) => {
           this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: res.data[0].areq_id }]);
@@ -633,7 +638,7 @@ export class TasksComponent implements OnInit {
         return from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingReport')))
           .pipe(
             switchMap(() => this.approverReportsService.getAllReportsByParams(queryParams)),
-            finalize(() => this.loaderService.hideLoader())
+            finalize(() => this.loaderService.hideLoader()),
           )
           .subscribe((res) => {
             if (res[0]?.id) {
@@ -661,7 +666,7 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingReport')))
         .pipe(
           switchMap(() => this.spenderReportsService.getAllReportsByParams(queryParams)),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
         )
         .subscribe((res) => {
           if (res[0]?.id) {
@@ -685,7 +690,7 @@ export class TasksComponent implements OnInit {
   addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
     return from(this.loaderService.showLoader(this.translocoService.translate('tasks.addingExpenseToReport'))).pipe(
       switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
-      finalize(() => this.loaderService.hideLoader())
+      finalize(() => this.loaderService.hideLoader()),
     );
   }
 
@@ -719,7 +724,7 @@ export class TasksComponent implements OnInit {
     const readyToReportExpenses$ = this.orgSettingsService.get().pipe(
       map(
         (orgSetting) =>
-          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled,
       ),
       switchMap((filterPendingTxn: boolean) =>
         this.expensesService.getAllExpenses(params).pipe(
@@ -732,10 +737,10 @@ export class TasksComponent implements OnInit {
                   return true;
                 }
               })
-              .map((expenses) => expenses.id)
-          )
-        )
-      )
+              .map((expenses) => expenses.id),
+          ),
+        ),
+      ),
     );
 
     this.spenderReportsService
@@ -747,8 +752,10 @@ export class TasksComponent implements OnInit {
               // (JSON.stringify(openReport.approvals.map((approval) => approval.state)) -> Filter report if any approver approved this report.
               !openReport.approvals ||
               (openReport.approvals &&
-                !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
-          )
+                !(
+                  JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1
+                )),
+          ),
         ),
         switchMap((openReports) => {
           const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
@@ -760,12 +767,12 @@ export class TasksComponent implements OnInit {
         switchMap((data: { report: Report }) => {
           if (data && data.report) {
             return readyToReportExpenses$.pipe(
-              switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId))
+              switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId)),
             );
           } else {
             return of(null);
           }
-        })
+        }),
       )
       .subscribe((report: Report) => {
         if (report) {

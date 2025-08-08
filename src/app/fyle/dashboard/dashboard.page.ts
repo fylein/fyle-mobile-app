@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild } from '@angular/core';
+import { Component, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
@@ -37,7 +37,8 @@ import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import SwiperCore, { Pagination, Autoplay } from 'swiper';
-import { PaginationOptions, SwiperOptions } from 'swiper/types';
+import { PaginationOptions, Swiper, SwiperOptions } from 'swiper/types';
+import { SwiperComponent } from 'swiper/angular';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -46,6 +47,7 @@ SwiperCore.use([Pagination, Autoplay]);
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
+  standalone: false,
 })
 export class DashboardPage {
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
@@ -53,6 +55,8 @@ export class DashboardPage {
   @ViewChild(CardStatsComponent) cardStatsComponent: CardStatsComponent;
 
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
+
+  @ViewChild('optInSwiper', { static: false }) swiperComponent: SwiperComponent;
 
   employeeSettings$: Observable<EmployeeSettings>;
 
@@ -138,7 +142,8 @@ export class DashboardPage {
     private snackbarProperties: SnackbarPropertiesService,
     private walkthroughService: WalkthroughService,
     private footerService: FooterService,
-    private timezoneService: TimezoneService
+    private timezoneService: TimezoneService,
+    private ngZone: NgZone,
   ) {}
 
   get displayedTaskCount(): number {
@@ -155,6 +160,10 @@ export class DashboardPage {
 
   get filterPills(): FilterPill[] {
     return this.tasksComponent.filterPills;
+  }
+
+  private get swiperInstance(): Swiper | undefined {
+    return this.swiperComponent?.swiperRef;
   }
 
   startDashboardAddExpenseWalkthrough(): void {
@@ -377,7 +386,7 @@ export class DashboardPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit$),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -389,7 +398,7 @@ export class DashboardPage {
 
     const isBannerShown$ = this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
       map((config) => config?.value),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     return forkJoin({
@@ -406,7 +415,7 @@ export class DashboardPage {
 
         return true;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -419,14 +428,13 @@ export class DashboardPage {
     return this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
       map((config) => config?.value),
       map((isBannerShown) => !isBannerShown),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
   setSwiperConfig(): void {
-    // Ensure both observables exist before using them
+    // Set default config when observables are not ready
     if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
-      // Set default config if observables aren't ready
       this.swiperConfig = {
         slidesPerView: 1,
         spaceBetween: 0,
@@ -442,26 +450,30 @@ export class DashboardPage {
       .pipe(take(1))
       .subscribe(([canShowOptInBanner, canShowEmailOptInBanner]) => {
         const showBothBanners = canShowOptInBanner && canShowEmailOptInBanner;
+        const swiper = this.swiperInstance;
 
-        this.swiperConfig = {
-          slidesPerView: 1,
-          spaceBetween: 0,
-          centeredSlides: true,
-          loop: showBothBanners,
-          autoplay: showBothBanners
-            ? {
-                delay: 4000,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: false,
-              }
-            : false,
-          pagination: {
-            dynamicBullets: true,
-            renderBullet: (index: number, className: string): string => {
-              return `<span class="opt-in-banners ${className}"> </span>`;
-            },
-          },
-        };
+        if (!swiper) {
+          return;
+        }
+
+        swiper.loopDestroy?.();
+        swiper.pagination.destroy();
+        swiper.update();
+
+        if (showBothBanners) {
+          swiper.loopCreate?.();
+          swiper.params.autoplay = {
+            delay: 4000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: false,
+          };
+          swiper.autoplay?.start();
+        } else {
+          swiper.autoplay?.stop();
+          swiper.params.autoplay = false;
+          swiper.pagination.destroy();
+        }
+        swiper.update();
       });
   }
 
@@ -501,6 +513,12 @@ export class DashboardPage {
 
   ionViewWillEnter(): void {
     this.isWalkthroughPaused = false;
+    this.swiperConfig = {
+      slidesPerView: 1,
+      spaceBetween: 0,
+      centeredSlides: true,
+      pagination: this.optInBannerPagination,
+    };
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
@@ -539,7 +557,7 @@ export class DashboardPage {
             }
 
             this.userName = eou.us.full_name;
-          })
+          }),
         )
         .subscribe(noop);
     }
@@ -574,7 +592,7 @@ export class DashboardPage {
             } else {
               this.openSMSOptInDialog(eou);
             }
-          })
+          }),
         )
         .subscribe();
     }
@@ -636,7 +654,7 @@ export class DashboardPage {
   registerBackButtonAction(): void {
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.LOW,
-      this.backButtonActionHandler
+      this.backButtonActionHandler,
     );
   }
 

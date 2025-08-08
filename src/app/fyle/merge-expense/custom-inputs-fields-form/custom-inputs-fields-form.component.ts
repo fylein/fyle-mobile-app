@@ -31,6 +31,7 @@ interface CombinedOptions {
   templateUrl: './custom-inputs-fields-form.component.html',
   styleUrls: ['./custom-inputs-fields-form.component.scss'],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: CustomInputsFieldsFormComponent, multi: true }],
+  standalone: false,
 })
 export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges {
   @Input() customInputs: CustomInputsField[];
@@ -47,7 +48,10 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
 
   onTouched: () => void = noop;
 
-  constructor(private formBuilder: UntypedFormBuilder, private injector: Injector) {}
+  constructor(
+    private formBuilder: UntypedFormBuilder,
+    private injector: Injector,
+  ) {}
 
   ngOnInit(): void {
     this.customFieldsForm = this.formBuilder.group({
@@ -63,7 +67,7 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
         this.formBuilder.group({
           name: [customField.name],
           value: [customField.value],
-        })
+        }),
       );
     }
     customFieldsFormArray.updateValueAndValidity();

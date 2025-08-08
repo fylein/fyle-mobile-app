@@ -17,9 +17,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
@@ -34,6 +32,7 @@ import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-request
   selector: 'app-view-team-advance',
   templateUrl: './view-team-advance-request.page.html',
   styleUrls: ['./view-team-advance-request.page.scss'],
+  standalone: false,
 })
 export class ViewTeamAdvanceRequestPage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
@@ -58,8 +57,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
   actionSheetButtons = [];
 
-  isLoading = false;
-
   sendBackLoading = false;
 
   rejectLoading = false;
@@ -71,17 +68,15 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     private advanceRequestService: AdvanceRequestService,
     private fileService: FileService,
     private router: Router,
-    private popupService: PopupService,
     private popoverController: PopoverController,
     private actionSheetController: ActionSheetController,
-    private loaderService: LoaderService,
     private authService: AuthService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
+    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number,
   ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
@@ -104,10 +99,10 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
-          })
-        )
+          }),
+        ),
       ),
-      reduce((acc, curr) => acc.concat(curr), [] as FileObject[])
+      reduce((acc, curr) => acc.concat(curr), [] as FileObject[]),
     );
   }
 
@@ -115,19 +110,14 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id as string;
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
-      switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.advanceRequestService.getApproverAdvanceRequest(id))
-        )
-      ),
-      finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1)
+      switchMap(() => this.advanceRequestService.getApproverAdvanceRequest(id)),
+      shareReplay(1),
     );
 
     this.actions$ = this.advanceRequestService.getApproverPermissions(id).pipe(shareReplay(1));
 
     this.showAdvanceActions$ = this.actions$.pipe(
-      map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject)
+      map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject),
     );
 
     this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestIdPlatformForApprover(id);
@@ -135,14 +125,14 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     this.activeApprovals$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() => this.approvals$),
-      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED'))
+      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED')),
     );
 
     this.attachedFiles$ = this.getAttachedReceipts(id);
 
     this.customFields$ = this.advanceRequestService.getCustomFieldsForApprover();
 
-    const customFields$ = forkJoin({
+    this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$.pipe(take(1)),
       customFields: this.customFields$,
       eou: from(this.authService.getEou()),
@@ -155,7 +145,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             res.advanceRequest.areq_custom_field_values.length > 0
           ) {
             customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-              res.advanceRequest.areq_custom_field_values
+              res.advanceRequest.areq_custom_field_values,
             );
           }
 
@@ -169,12 +159,11 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           return res.customFields;
         } else {
           return this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            res.advanceRequest.areq_custom_field_values
+            res.advanceRequest.areq_custom_field_values,
           );
         }
-      })
+      }),
     );
-    this.advanceRequestCustomFields$ = customFields$;
 
     this.setupActionSheet();
     this.getAndUpdateProjectName().then((projectField) => (this.projectFieldName = projectField.field_name));
@@ -199,24 +188,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
   onUpdateApprover(message: boolean): void {
     if (message) {
       this.refreshApprovers$.next(null);
-    }
-  }
-
-  async delete(): Promise<void> {
-    const id = this.activatedRoute.snapshot.params.id as string;
-
-    const popupResults = await this.popupService.showPopup({
-      header: 'Confirm',
-      message: 'Are you sure you want to delete this Advance Request',
-      primaryCta: {
-        text: 'Delete Advance Request',
-      },
-    });
-
-    if (popupResults === 'primary') {
-      this.advanceRequestService.delete(id).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'team_advance']);
-      });
     }
   }
 
@@ -291,7 +262,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     };
 
     if (data && data.action === 'approve') {
-      this.isLoading = true;
       this.advanceRequestService
         .approve(areq.areq_id)
         .pipe(
@@ -299,7 +269,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             this.trackingService.eventTrack('Team Advances Approval Failed', { id: areq.areq_id });
             return EMPTY;
           }),
-          finalize(() => (this.isLoading = false))
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);
@@ -342,7 +311,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           finalize(() => {
             this.sendBackLoading = false;
             this.trackingService.sendBackAdvance({ Asset: 'Mobile' });
-          })
+          }),
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);
@@ -384,7 +353,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           finalize(() => {
             this.rejectLoading = false;
             this.trackingService.rejectAdvance({ Asset: 'Mobile' });
-          })
+          }),
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);

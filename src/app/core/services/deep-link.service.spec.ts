@@ -80,9 +80,9 @@ describe('DeepLinkService', () => {
   });
 
   describe('redirect():', () => {
-    it('should navigate to the expense page when the redirect URI contains "/view_expense/" with txn ID', () => {
+    it('should navigate to the expense page when the redirect URI contains "/my_expenses/" with txn ID', () => {
       deepLinkService.redirect({
-        redirect_uri: `${baseURL}/view_expense/tx1oTNwgRdRq`,
+        redirect_uri: `${baseURL}/my_expenses/?state=all&txnId=tx1oTNwgRdRq`,
       });
       expect(router.navigate).toHaveBeenCalledWith([
         '/',

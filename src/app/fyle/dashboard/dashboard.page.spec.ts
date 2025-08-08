@@ -43,6 +43,7 @@ import {
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { TranslocoService } from '@jsverse/transloco';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -69,6 +70,7 @@ describe('DashboardPage', () => {
   let footerService: jasmine.SpyObj<FooterService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+  let walkthroughService: jasmine.SpyObj<WalkthroughService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -118,6 +120,13 @@ describe('DashboardPage', () => {
 
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['setTimezone']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
+      'getNavBarWalkthroughConfig',
+      'setIsOverlayClicked',
+      'setActiveWalkthroughIndex',
+      'getActiveWalkthroughIndex',
+      'getIsOverlayClicked',
+    ]);
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
       imports: [IonicModule.forRoot()],
@@ -168,6 +177,10 @@ describe('DashboardPage', () => {
           provide: TranslocoService,
           useValue: translocoServiceSpy,
         },
+        {
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -184,7 +197,7 @@ describe('DashboardPage', () => {
     smartlookService = TestBed.inject(SmartlookService) as jasmine.SpyObj<SmartlookService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     backButtonService = TestBed.inject(BackButtonService) as jasmine.SpyObj<BackButtonService>;
@@ -199,6 +212,7 @@ describe('DashboardPage', () => {
     footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
     fixture.detectChanges();
   }));
 
@@ -461,7 +475,7 @@ describe('DashboardPage', () => {
     component.registerBackButtonAction();
     expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
       BackButtonActionPriority.LOW,
-      backButtonActionHandlerSpy
+      backButtonActionHandlerSpy,
     );
   });
 
@@ -540,7 +554,7 @@ describe('DashboardPage', () => {
         jasmine.any(Function),
         jasmine.objectContaining({
           panelClass: 'msb-info',
-        })
+        }),
       );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: testMessage });
     });
@@ -1101,6 +1115,29 @@ describe('DashboardPage', () => {
       });
     });
 
+    let mockSwiper: any;
+
+    beforeEach(() => {
+      mockSwiper = {
+        loopDestroy: jasmine.createSpy('loopDestroy'),
+        loopCreate: jasmine.createSpy('loopCreate'),
+        pagination: {
+          destroy: jasmine.createSpy('destroy'),
+        },
+        autoplay: {
+          start: jasmine.createSpy('start'),
+          stop: jasmine.createSpy('stop'),
+        },
+        params: {},
+        update: jasmine.createSpy('update'),
+      };
+
+      // Mock the swiperInstance getter
+      Object.defineProperty(component, 'swiperInstance', {
+        get: () => mockSwiper,
+      });
+    });
+
     it('should configure swiper with autoplay and loop when both banners are available', fakeAsync(() => {
       // Setup: Both banners should be shown
       component.canShowOptInBanner$ = of(true);
@@ -1109,17 +1146,16 @@ describe('DashboardPage', () => {
       component.setSwiperConfig();
       tick();
 
-      // Verify swiper is configured for multiple banners
-      expect(component.swiperConfig.loop).toBeTrue();
-      expect(component.swiperConfig.autoplay).toEqual({
+      // Verify swiper instance is configured correctly
+      expect(mockSwiper.loopDestroy).toHaveBeenCalled();
+      expect(mockSwiper.loopCreate).toHaveBeenCalled();
+      expect(mockSwiper.autoplay.start).toHaveBeenCalled();
+      expect(mockSwiper.params.autoplay).toEqual({
         delay: 4000,
         disableOnInteraction: false,
         pauseOnMouseEnter: false,
       });
-      expect(component.swiperConfig.pagination).toEqual({
-        dynamicBullets: true,
-        renderBullet: jasmine.any(Function),
-      });
+      expect(mockSwiper.update).toHaveBeenCalled();
     }));
 
     it('should configure swiper without autoplay and loop when only one banner is available', fakeAsync(() => {
@@ -1130,13 +1166,14 @@ describe('DashboardPage', () => {
       component.setSwiperConfig();
       tick();
 
-      // Verify swiper is configured for single banner
-      expect(component.swiperConfig.loop).toBeFalse();
-      expect(component.swiperConfig.autoplay).toBeFalse();
-      expect(component.swiperConfig.pagination).toEqual({
-        dynamicBullets: true,
-        renderBullet: jasmine.any(Function),
-      });
+      // Verify swiper instance is configured correctly
+      expect(mockSwiper.loopDestroy).toHaveBeenCalled();
+      expect(mockSwiper.loopCreate).not.toHaveBeenCalled();
+      expect(mockSwiper.autoplay.stop).toHaveBeenCalled();
+      expect(mockSwiper.autoplay.start).not.toHaveBeenCalled();
+      expect(mockSwiper.params.autoplay).toBeFalse();
+      expect(mockSwiper.pagination.destroy).toHaveBeenCalled();
+      expect(mockSwiper.update).toHaveBeenCalled();
     }));
 
     it('should configure swiper without autoplay and loop when no banners are available', fakeAsync(() => {
@@ -1147,13 +1184,14 @@ describe('DashboardPage', () => {
       component.setSwiperConfig();
       tick();
 
-      // Verify swiper is configured for no banners
-      expect(component.swiperConfig.loop).toBeFalse();
-      expect(component.swiperConfig.autoplay).toBeFalse();
-      expect(component.swiperConfig.pagination).toEqual({
-        dynamicBullets: true,
-        renderBullet: jasmine.any(Function),
-      });
+      // Verify swiper instance is configured correctly
+      expect(mockSwiper.loopDestroy).toHaveBeenCalled();
+      expect(mockSwiper.loopCreate).not.toHaveBeenCalled();
+      expect(mockSwiper.autoplay.stop).toHaveBeenCalled();
+      expect(mockSwiper.autoplay.start).not.toHaveBeenCalled();
+      expect(mockSwiper.params.autoplay).toBeFalse();
+      expect(mockSwiper.pagination.destroy).toHaveBeenCalled();
+      expect(mockSwiper.update).toHaveBeenCalled();
     }));
   });
 
@@ -1240,5 +1278,52 @@ describe('DashboardPage', () => {
         expect(res).toBeFalse();
       });
     }));
+  });
+
+  describe('startTour():', () => {
+    let mockDriverInstance: any;
+    let mockNavbarWalkthroughSteps: any[];
+
+    beforeEach(() => {
+      mockNavbarWalkthroughSteps = [
+        {
+          element: '#footer-walkthrough',
+          popover: {
+            description: 'Test description',
+            side: 'top',
+            align: 'center',
+          },
+        },
+      ];
+
+      mockDriverInstance = {
+        setSteps: jasmine.createSpy('setSteps'),
+        drive: jasmine.createSpy('drive'),
+        destroy: jasmine.createSpy('destroy'),
+        getActiveIndex: jasmine.createSpy('getActiveIndex').and.returnValue(0),
+        moveNext: jasmine.createSpy('moveNext'),
+      };
+
+      // Mock the driver function by creating a global mock
+      (window as any).driver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+      walkthroughService.getNavBarWalkthroughConfig.and.returnValue(mockNavbarWalkthroughSteps);
+      walkthroughService.getActiveWalkthroughIndex.and.returnValue(0);
+      walkthroughService.getIsOverlayClicked.and.returnValue(false);
+      spyOn(component, 'setNavbarWalkthroughFeatureConfigFlag').and.stub();
+    });
+
+    it('should call walkthroughService.getNavBarWalkthroughConfig with correct parameter', () => {
+      component.startTour(false);
+
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledTimes(1);
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledWith(false);
+    });
+
+    it('should call walkthroughService.getNavBarWalkthroughConfig with true for approver', () => {
+      component.startTour(true);
+
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledTimes(1);
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledWith(true);
+    });
   });
 });

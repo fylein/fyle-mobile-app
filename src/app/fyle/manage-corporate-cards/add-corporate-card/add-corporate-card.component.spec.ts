@@ -29,6 +29,7 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 @Component({
   selector: 'app-fy-alert-info',
   template: '<div></div>',
+  standalone: false,
 })
 export class MockFyAlertInfoComponent {
   @Input() message: string;
@@ -274,7 +275,7 @@ describe('AddCorporateCardComponent', () => {
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(errorMessage.textContent).toContain(
-        'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
+        'Enter a valid Mastercard number. If you have other cards, please contact your admin.',
       );
     }));
 
@@ -301,7 +302,7 @@ describe('AddCorporateCardComponent', () => {
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(errorMessage.textContent).toContain(
-        'Enter a valid Visa number. If you have other cards, please contact your admin.'
+        'Enter a valid Visa number. If you have other cards, please contact your admin.',
       );
     }));
 
@@ -327,7 +328,7 @@ describe('AddCorporateCardComponent', () => {
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.textContent).toContain(
-        'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
+        'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.',
       );
     }));
   });
@@ -509,7 +510,7 @@ describe('AddCorporateCardComponent', () => {
       expect(alertMessageComponent).toBeTruthy();
       expect(alertMessageComponent.componentInstance.type).toBe('information');
       expect(alertMessageComponent.componentInstance.message).toBe(
-        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.'
+        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.',
       );
       expect(addCorporateCardBtn.disabled).toBeTrue();
       expect(trackingService.enrollingNonRTFCard).toHaveBeenCalledOnceWith(enrollingNonRTFCardProperties);

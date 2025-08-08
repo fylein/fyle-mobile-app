@@ -1,5 +1,5 @@
-@import '../../../theme/colors.scss';
-@import '../../../theme/forms.scss';
+@use '../../../theme/colors.scss';
+@use '../../../theme/forms.scss';
 
 .add-edit-per-diem {
   &--toolbar {
@@ -20,7 +20,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
@@ -36,7 +36,7 @@
       padding-inline-end: 0;
       position: relative;
       line-height: 26px;
-      color: $black;
+      color: colors.$black;
       font-weight: 400;
       top: 12px;
       height: 64px;
@@ -122,7 +122,7 @@
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -141,7 +141,7 @@
   }
 
   &--date {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
     padding: 4px 0 !important;
     width: 100%;
   }
@@ -151,7 +151,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -168,10 +168,10 @@
   }
 
   &--text {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid colors.$red;
     }
   }
 
@@ -180,7 +180,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -198,14 +198,14 @@
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 100%;
     padding: 0;
     margin: 6px 0;
   }
 
   &--checkbox {
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--project-container {
@@ -245,15 +245,15 @@
     margin-bottom: 12px;
 
     &__invalid {
-      border-color: $red;
+      border-color: colors.$red;
     }
   }
 
   &--conversion {
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
     display: flex;
     border-radius: 8px;
-    color: $blue-black;
+    color: colors.$blue-black;
     font-size: 12px;
     padding: 10px;
   }
@@ -274,11 +274,11 @@
     justify-content: space-between;
     align-items: center;
     height: 52px;
-    border: 1px solid $grey-lighter;
+    border: 1px solid colors.$grey-lighter;
     border-radius: 16px;
     font-size: 16px;
     font-weight: 500;
-    padding: 10px;
+    padding: 0 16px;
   }
 
   &--amount-value {
@@ -286,7 +286,7 @@
   }
 
   &--error {
-    color: $red;
+    color: colors.$red;
     line-height: 16px;
     margin-top: -16px;
     font-size: 12px;
@@ -346,6 +346,42 @@
     background: rgba(221, 0, 0, 0.7);
     color: #fff;
     padding: 16px;
+  }
+
+  // Skeleton Loading Styles
+  &--skeleton-container {
+    padding: 16px;
+  }
+
+  &--skeleton-days {
+    height: 24px;
+    width: 80px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-rate {
+    height: 20px;
+    width: 120px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-amount {
+    height: 28px;
+    width: 100px;
+    border-radius: 4px;
+  }
+
+  &--skeleton-label {
+    height: 16px;
+    width: 100px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--skeleton-input {
+    height: 48px;
+    border-radius: 8px;
+    margin-bottom: 16px;
   }
 
   &--zero-state {
@@ -467,17 +503,17 @@
 
   &--payment-mode-header {
     font-size: 14px;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--payment-mode-section {
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     margin-top: 4px;
   }
 
   &--check {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     font-size: 20px;
   }
 
@@ -496,12 +532,12 @@
   &--type-name {
     font-weight: 400;
     font-size: 16px;
-    color: $black;
+    color: colors.$black;
   }
 
   &--type-rate {
     font-size: 12px;
-    color: $grey-light;
+    color: colors.$grey-light;
     margin-top: 5px;
   }
 
@@ -511,7 +547,7 @@
   }
 
   &__skeleton-loader {
-    background: $off-white;
+    background: colors.$off-white;
     border-radius: 4px;
     height: 16px;
 

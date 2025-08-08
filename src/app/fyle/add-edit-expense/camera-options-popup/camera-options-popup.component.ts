@@ -12,6 +12,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-camera-options-popup',
   templateUrl: './camera-options-popup.component.html',
   styleUrls: ['./camera-options-popup.component.scss'],
+  standalone: false,
 })
 export class CameraOptionsPopupComponent implements OnInit {
   @Input() mode: string;
@@ -23,7 +24,7 @@ export class CameraOptionsPopupComponent implements OnInit {
     private fileService: FileService,
     private trackingService: TrackingService,
     private loaderService: LoaderService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -45,9 +46,11 @@ export class CameraOptionsPopupComponent implements OnInit {
       const fileRead$ = from(this.fileService.readFile(file));
       const delayedLoader$ = timer(300).pipe(
         switchMap(() =>
-          from(this.loaderService.showLoader(this.translocoService.translate('cameraOptionsPopup.loaderMessage'), 5000))
+          from(
+            this.loaderService.showLoader(this.translocoService.translate('cameraOptionsPopup.loaderMessage'), 5000),
+          ),
         ),
-        switchMap(() => fileRead$) // switch to fileRead$ after showing loader
+        switchMap(() => fileRead$), // switch to fileRead$ after showing loader
       );
 
       // Use race to show loader only if fileRead$ takes more than 300ms.
@@ -61,7 +64,7 @@ export class CameraOptionsPopupComponent implements OnInit {
               actionSource: 'gallery_upload',
             });
           }),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
         )
         .subscribe();
     } else {

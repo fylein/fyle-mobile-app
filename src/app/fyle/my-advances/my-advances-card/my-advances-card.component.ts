@@ -9,6 +9,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-my-advances-card',
   templateUrl: './my-advances-card.component.html',
   styleUrls: ['./my-advances-card.component.scss'],
+  standalone: false,
 })
 export class MyAdvancesCardComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,7 +28,10 @@ export class MyAdvancesCardComponent implements OnInit {
 
   showDate = false;
 
-  constructor(private advanceRequestService: AdvanceRequestService, private translocoService: TranslocoService) {}
+  constructor(
+    private advanceRequestService: AdvanceRequestService,
+    private translocoService: TranslocoService,
+  ) {}
 
   ngOnInit(): void {
     if (this.advanceRequest && this.prevDate) {

@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, Input, OnInit } from '@angular/core';
 import { FilterOptions } from './filter-options.interface';
 import { SelectedFilters } from './selected-filters.interface';
@@ -9,6 +14,7 @@ import { forkJoin, Observable, of } from 'rxjs';
   selector: 'app-fy-filters',
   templateUrl: './fy-filters.component.html',
   styleUrls: ['./fy-filters.component.scss'],
+  standalone: false,
 })
 export class FyFiltersComponent implements OnInit {
   @Input() simplifyReportsSettings$: Observable<any> = of({ enabled: false });
@@ -136,7 +142,7 @@ export class FyFiltersComponent implements OnInit {
           value: this.currentFilterValueMap[key],
           associatedData: this.customDateMap[key],
         } as SelectedFilters<any>),
-      []
+      [],
     );
     this.modalController.dismiss(filters);
   }
@@ -147,7 +153,7 @@ export class FyFiltersComponent implements OnInit {
     option: {
       label: string;
       value: any;
-    }
+    },
   ) {
     if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
       this.currentFilterValueMap[currentFilter.name] = null;
@@ -167,13 +173,13 @@ export class FyFiltersComponent implements OnInit {
       label: string;
       value: any;
     },
-    currentFilter: FilterOptions<any>
+    currentFilter: FilterOptions<any>,
   ) {
     if (filter) {
       const doesValueExistInFilter = filter.some((value) => value === option.value);
       if (doesValueExistInFilter) {
         this.currentFilterValueMap[currentFilter.name] = this.currentFilterValueMap[currentFilter.name].filter(
-          (value) => value !== option.value
+          (value) => value !== option.value,
         );
       } else {
         this.currentFilterValueMap[currentFilter.name].push(option.value);
@@ -189,12 +195,20 @@ export class FyFiltersComponent implements OnInit {
     option: {
       label: string;
       value: any;
-    }
+    },
   ) {
     if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
       this.currentFilterValueMap[currentFilter.name] = null;
     } else {
       this.currentFilterValueMap[currentFilter.name] = option.value;
     }
+  }
+
+  getOptionElementId(filterName: string, optionValue: string): string {
+    // Create consistent IDs for walkthrough targeting
+    if (filterName === 'Type' && optionValue === 'BLOCKED') {
+      return 'blocked-filter-checkbox';
+    }
+    return `${filterName.toLowerCase().replace(/\s+/g, '-')}-${optionValue.toLowerCase().replace(/\s+/g, '-')}-option`;
   }
 }

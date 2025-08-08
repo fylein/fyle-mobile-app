@@ -1,0 +1,10 @@
+<div class="pending-gas-charge-info" [ngClass]="expenseListViewClass()" (click)="openPendingGasChargeInfoModal($event)">
+  <span class="pending-gas-charge-info__text">
+    @if (isExpenseListView) {
+      {{ 'pendingGasChargeInfo.expenseListViewText' | transloco }}
+    } @else {
+      {{ 'pendingGasChargeInfo.text' | transloco }}
+    }
+  </span>
+  <mat-icon class="pending-gas-charge-info__icon" svgIcon="question-square-fill"></mat-icon>
+</div>

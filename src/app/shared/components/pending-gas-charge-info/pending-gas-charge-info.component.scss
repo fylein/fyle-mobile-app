@@ -1,0 +1,31 @@
+@use '../../../../theme/colors.scss';
+
+.pending-gas-charge-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background-color: colors.$off-white;
+  border-radius: 2px;
+  padding: 4px 8px;
+  width: fit-content;
+  margin-top: 16px;
+  white-space: nowrap;
+
+  &--expense-list-view {
+    margin-top: 8px;
+  }
+
+  &__text {
+    font-size: 12px;
+    line-height: 1.5;
+    color: colors.$black-light;
+    font-weight: 500;
+  }
+
+  &__icon {
+    fill: colors.$grey-light;
+    height: 14px;
+    width: 14px;
+  }
+}

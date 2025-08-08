@@ -7,7 +7,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, take, takeUntil, filter } from 'rxjs/operators';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -45,6 +44,7 @@ import { BrowserHandlerService } from 'src/app/core/services/browser-handler.ser
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
   styleUrls: ['./view-team-report.page.scss'],
+  standalone: false,
 })
 export class ViewTeamReportPage {
   @ViewChild('commentInput') commentInput: ElementRef;
@@ -109,8 +109,6 @@ export class ViewTeamReportPage {
 
   reportExpensesIds: string[];
 
-  isExpensesLoading: boolean;
-
   isSequentialApprovalEnabled = false;
 
   canApprove = true;
@@ -155,7 +153,6 @@ export class ViewTeamReportPage {
     private loaderService: LoaderService,
     private router: Router,
     private popoverController: PopoverController,
-    private popupService: PopupService,
     private networkService: NetworkService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
@@ -169,7 +166,7 @@ export class ViewTeamReportPage {
     private orgSettingsService: OrgSettingsService,
     private approverReportsService: ApproverReportsService,
     private dateWithTimezonePipe: DateWithTimezonePipe,
-    private browserHandlerService: BrowserHandlerService
+    private browserHandlerService: BrowserHandlerService,
   ) {}
 
   ionViewWillLeave(): void {
@@ -181,7 +178,7 @@ export class ViewTeamReportPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -196,15 +193,30 @@ export class ViewTeamReportPage {
   }
 
   loadReports(): Observable<Report> {
-    return this.loadReportDetails$.pipe(
-      tap(() => this.loaderService.showLoader()),
-      switchMap(() =>
-        this.approverReportsService
-          .getReportById(this.activatedRoute.snapshot.params.id as string)
-          .pipe(finalize(() => this.loaderService.hideLoader()))
-      ),
-      shareReplay(1)
+    return this.approverReportsService
+      .getReportById(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
+  }
+
+  setupReportData(report: Report): Report {
+    if (!report) {
+      // If no report details are available, user might have been removed as approver
+      this.router.navigate(['/', 'enterprise', 'team_reports']);
+      return null;
+    }
+
+    this.approvals = report?.approvals?.filter((approval) =>
+      [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state),
     );
+    if (this.showViewApproverModal) {
+      this.approvals.sort((a, b) => a.approver_order - b.approver_order);
+      this.setupApproverToShow(report);
+    }
+    this.setupComments(report);
+    this.reportCurrencySymbol = getCurrencySymbol(report.currency, 'wide');
+    this.reportName = report.purpose;
+    this.isReportReported = ['APPROVER_PENDING'].indexOf(report.state) > -1;
+    return report;
   }
 
   getApprovalSettings(orgSettings: OrgSettings): boolean {
@@ -216,6 +228,9 @@ export class ViewTeamReportPage {
   }
 
   convertToEstatus(comments: ExtendedComment[]): ExtendedStatus[] {
+    if (!comments) {
+      return [];
+    }
     return comments.map((comment) => {
       const status: ExtendedStatus = {
         st_comment: comment.comment,
@@ -246,7 +261,7 @@ export class ViewTeamReportPage {
       this.totalCommentsCount = this.estatuses.filter((estatus) => estatus.creator_user_id !== 'SYSTEM').length;
 
       this.systemComments = this.estatuses.filter(
-        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id
+        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id,
       );
 
       this.type =
@@ -257,7 +272,7 @@ export class ViewTeamReportPage {
       this.systemEstatuses = this.statusService.createStatusMap(this.convertToEstatus(this.systemComments), this.type);
 
       this.userComments = this.estatuses.filter(
-        (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id)
+        (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id),
       );
 
       this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
@@ -276,17 +291,16 @@ export class ViewTeamReportPage {
 
   setupApproverToShow(report: Report): void {
     const filteredApprover = this.approvals.filter(
-      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
+      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id,
     );
     const highestRankApprover = this.approvals.reduce(
       (max, approver) => (approver.approver_order > max.approver_order ? approver : max),
-      this.approvals[0]
+      this.approvals[0],
     );
     this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
   }
 
   ionViewWillEnter(): void {
-    this.isExpensesLoading = true;
     this.setupNetworkWatcher();
 
     const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as string | null;
@@ -294,60 +308,27 @@ export class ViewTeamReportPage {
       this.navigateBack = JSON.parse(navigateBack) as boolean;
     }
 
-    this.report$ = this.loadReports();
-    this.eou$ = from(this.authService.getEou());
+    this.loadReportDetails$.next(null);
 
+    this.report$ = this.loadReports().pipe(
+      map((report) => this.setupReportData(report)),
+      filter((report): report is Report => !!report),
+    );
+
+    this.eou$ = from(this.authService.getEou());
     this.eou$.subscribe((eou) => (this.eou = eou));
 
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: this.getReportClosureSettings(orgSettings) }))
+      map((orgSettings) => ({ enabled: this.getReportClosureSettings(orgSettings) })),
     );
 
-    this.report$ = this.refreshApprovals$.pipe(
-      switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
-          map((report) => {
-            this.approvals = report?.approvals?.filter((approval) =>
-              [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
-            );
-            if (this.showViewApproverModal) {
-              this.approvals.sort((a, b) => a.approver_order - b.approver_order);
-              this.setupApproverToShow(report);
-            }
-            return report;
-          })
-        )
-      ),
-      map((report) => {
-        this.setupComments(report);
-        return report;
-      }),
-      finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1)
-    );
-
-    this.report$.pipe(filter((report) => !!report)).subscribe((report: Report) => {
-      this.reportCurrencySymbol = getCurrencySymbol(report.currency, 'wide');
-      this.reportName = report.purpose;
-      /**
-       * if current user is remove from approver, report call will go again to fetch current report details
-       * so checking if report details are available in report than continue execution
-       * else redirect them to team reports
-       */
-      if (report) {
-        this.isReportReported = ['APPROVER_PENDING'].indexOf(report.state) > -1;
-      }
-    });
-
-    this.expenses$ = this.expensesService.getReportExpenses(this.activatedRoute.snapshot.params.id as string).pipe(
-      shareReplay(1),
-      finalize(() => (this.isExpensesLoading = false))
-    );
+    this.expenses$ = this.expensesService
+      .getReportExpenses(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
 
     this.expensesAmountSum$ = this.expenses$.pipe(
-      map((expenses) => expenses.reduce((acc, curr) => acc + curr.amount, 0))
+      map((expenses) => expenses.reduce((acc, curr) => acc + curr.amount, 0)),
     );
 
     this.permissions$ = this.approverReportsService
@@ -363,29 +344,32 @@ export class ViewTeamReportPage {
       eou: this.eou$,
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-    }).subscribe(({ expenses, eou, report, orgSettings }) => {
-      this.reportExpensesIds = expenses.map((expense) => expense.id);
-      this.showViewApproverModal =
-        orgSettings?.simplified_multi_stage_approvals?.allowed && orgSettings.simplified_multi_stage_approvals.enabled;
-      this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
-      this.canApprove =
-        this.isSequentialApprovalEnabled || this.showViewApproverModal
-          ? report.next_approver_user_ids &&
-            report.next_approver_user_ids.length > 0 &&
-            report.next_approver_user_ids.includes(eou.us.id)
-          : true;
-      this.canShowTooltip = true;
-      if (this.showViewApproverModal) {
-        this.approvals.sort((a, b) => a.approver_order - b.approver_order);
-        this.setupApproverToShow(report);
-      }
+    }).subscribe({
+      next: ({ expenses, eou, report, orgSettings }) => {
+        this.reportExpensesIds = expenses.map((expense) => expense.id);
+        this.showViewApproverModal =
+          orgSettings?.simplified_multi_stage_approvals?.allowed &&
+          orgSettings.simplified_multi_stage_approvals.enabled;
+        this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
+        this.canApprove =
+          this.isSequentialApprovalEnabled || this.showViewApproverModal
+            ? report.next_approver_user_ids &&
+              report.next_approver_user_ids.length > 0 &&
+              report.next_approver_user_ids.includes(eou.us.id)
+            : true;
+        this.canShowTooltip = true;
+        if (this.showViewApproverModal) {
+          this.approvals.sort((a, b) => a.approver_order - b.approver_order);
+          this.setupApproverToShow(report);
+        }
 
-      if (this.expensesAmountSum$) {
-        this.expensesAmountSum$.pipe(take(1)).subscribe((sum) => {
-          this.approvalAmount = sum;
-          this.setApproverInfoMessage(expenses, report);
-        });
-      }
+        if (this.expensesAmountSum$) {
+          this.expensesAmountSum$.pipe(take(1)).subscribe((sum) => {
+            this.approvalAmount = sum;
+            this.setApproverInfoMessage(expenses, report);
+          });
+        }
+      },
     });
 
     this.permissions$.subscribe((permissions) => {
@@ -605,7 +589,7 @@ export class ViewTeamReportPage {
         switchMap((report) => {
           report.purpose = reportName;
           return this.reportService.approverUpdateReportPurpose(report);
-        })
+        }),
       )
       .subscribe(() => {
         this.loadReportDetails$.next();
@@ -631,8 +615,8 @@ export class ViewTeamReportPage {
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
         switchMap(
-          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>
-        )
+          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>,
+        ),
       )
       .subscribe((editReportNamePopoverDetails) => {
         const newReportName = editReportNamePopoverDetails?.data?.reportName;
@@ -653,7 +637,7 @@ export class ViewTeamReportPage {
       const expenseText = noOfExpensesNotRequireApproval === 1 ? 'other expense' : 'other expenses';
       this.approvalInfoMessage = `You are approving ${this.formatCurrency(
         this.approvalAmount,
-        report.currency
+        report.currency,
       )} in expenses, which differs from the report total since the report also includes ${noOfExpensesNotRequireApproval} ${expenseText} (which may include credits) that don't require your approval based on your company's policies.`;
     }
   }
@@ -661,7 +645,7 @@ export class ViewTeamReportPage {
   async openHelpArticle(): Promise<void> {
     await this.browserHandlerService.openLinkWithToolbarColor(
       '#280a31',
-      'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
+      'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87',
     );
   }
 

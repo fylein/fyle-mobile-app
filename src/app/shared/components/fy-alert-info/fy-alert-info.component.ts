@@ -5,6 +5,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-fy-alert-info',
   templateUrl: './fy-alert-info.component.html',
   styleUrls: ['./fy-alert-info.component.scss'],
+  standalone: false,
 })
 export class FyAlertInfoComponent implements OnInit {
   @Input() message: string;

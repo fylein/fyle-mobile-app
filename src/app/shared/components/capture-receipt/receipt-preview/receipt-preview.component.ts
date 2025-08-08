@@ -22,6 +22,7 @@ SwiperCore.use([Pagination]);
   selector: 'app-receipt-preview',
   templateUrl: './receipt-preview.component.html',
   styleUrls: ['./receipt-preview.component.scss'],
+  standalone: false,
 })
 export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
@@ -52,7 +53,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     private imagePicker: ImagePicker,
     private trackingService: TrackingService,
     private router: Router,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   async openCropReceiptModal(): Promise<void> {
@@ -130,7 +131,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
       BackButtonActionPriority.HIGH,
       () => {
         this.closeModal();
-      }
+      },
     );
     this.swiper?.swiperRef.update();
   }

@@ -13,6 +13,7 @@ import { TranslocoService } from '@jsverse/transloco';
   selector: 'app-add-corporate-card',
   templateUrl: './add-corporate-card.component.html',
   styleUrls: ['./add-corporate-card.component.scss'],
+  standalone: false,
 })
 export class AddCorporateCardComponent implements OnInit {
   @Input() isVisaRTFEnabled: boolean;
@@ -42,7 +43,7 @@ export class AddCorporateCardComponent implements OnInit {
     private realTimeFeedService: RealTimeFeedService,
     private trackingService: TrackingService,
     private router: Router,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   ngOnInit(): void {
@@ -90,7 +91,7 @@ export class AddCorporateCardComponent implements OnInit {
         }),
         finalize(() => {
           this.isEnrollingCard = false;
-        })
+        }),
       )
       .subscribe((res) => {
         if (res) {

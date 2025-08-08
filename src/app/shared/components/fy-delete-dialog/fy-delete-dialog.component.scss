@@ -1,4 +1,4 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .fy-delete-dialog {
   &--grid {
@@ -10,7 +10,7 @@
     font-size: 18px;
     line-height: 23px;
     text-align: center;
-    color: $black;
+    color: colors.$black;
     padding: 7px;
     font-weight: 500;
   }
@@ -19,13 +19,13 @@
     font-size: 14px;
     line-height: 18px;
     text-align: left;
-    color: $blue-black;
+    color: colors.$blue-black;
     padding: 7px 7px 0;
     width: 247px;
   }
 
   &--info-container {
-    border: 1px solid $grey;
+    border: 1px solid colors.$grey;
     border-radius: 8px;
     margin-top: 18px;
     padding: 12px 6px;
@@ -33,13 +33,13 @@
     &__icon {
       width: 18px;
       height: 18px;
-      color: $highlight-blue;
+      color: colors.$highlight-blue;
     }
 
     &__message {
       font-size: 12px;
       line-height: 15px;
-      color: $blue-black;
+      color: colors.$blue-black;
       margin-left: 10px;
     }
   }
@@ -51,9 +51,9 @@
   &--delete {
     min-width: 132px;
     min-height: 36px;
-    background: $red;
+    background: colors.$red;
     border-radius: 4px;
-    color: $pure-white;
+    color: colors.$pure-white;
     display: flex;
     justify-content: center;
     align-items: center;

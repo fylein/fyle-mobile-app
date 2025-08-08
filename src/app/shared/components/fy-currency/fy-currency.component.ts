@@ -25,6 +25,7 @@ import { TranslocoService } from '@jsverse/transloco';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChanges {
   @Input() txnDt: Date;
@@ -60,7 +61,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     private modalController: ModalController,
     private currencyService: CurrencyService,
     private modalProperties: ModalPropertiesService,
-    private translocoService: TranslocoService
+    private translocoService: TranslocoService,
   ) {}
 
   get valid(): boolean {
@@ -102,7 +103,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
           } else {
             return of({ formValue, exchangeRate: null });
           }
-        })
+        }),
       )
       .subscribe(({ formValue, exchangeRate }: { formValue: CurrencyAmountFormValues; exchangeRate: number }) => {
         if (exchangeRate) {
@@ -163,8 +164,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
         this.currencyService.getExchangeRate(
           (this.fg.value as CurrencyAmountFormValues).currency,
           this.homeCurrency,
-          this.txnDt || new Date()
-        )
+          this.txnDt || new Date(),
+        ),
       )
         .pipe()
         .subscribe((newExchangeRate) => {
@@ -273,7 +274,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
           },
           {
             emitEvent: false,
-          }
+          },
         );
 
         this.value = {
