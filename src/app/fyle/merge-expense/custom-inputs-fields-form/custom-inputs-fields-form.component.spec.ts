@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form.component';
-import { FormArray, UntypedFormBuilder, FormControl } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {
   customInputsFieldData1,
@@ -79,6 +79,7 @@ describe('CustomInputsFieldsFormComponent', () => {
     expect(component.customFieldsForm.value).toEqual({
       fields: [
         {
+          id: '1',
           name: 'Merchant',
           value: 'Jio',
         },

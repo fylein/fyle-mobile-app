@@ -65,6 +65,7 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
     for (const customField of this.customInputs) {
       customFieldsFormArray.push(
         this.formBuilder.group({
+          ...(customField.id && { id: [customField.id] }),
           name: [customField.name],
           value: [customField.value],
         }),
