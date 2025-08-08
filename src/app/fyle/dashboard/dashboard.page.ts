@@ -30,7 +30,7 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { driver, DriveStep } from 'driver.js';
+import { Driver, driver, DriveStep } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
@@ -118,6 +118,8 @@ export class DashboardPage {
     },
   };
 
+  dashboardAddExpenseWalkthroughDriverInstance: Driver;
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -169,7 +171,7 @@ export class DashboardPage {
   startDashboardAddExpenseWalkthrough(): void {
     const dashboardAddExpenseWalkthroughSteps: DriveStep[] =
       this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
-    const driverInstance = driver({
+    this.dashboardAddExpenseWalkthroughDriverInstance = driver({
       overlayOpacity: 0.5,
       allowClose: true,
       overlayClickBehavior: 'close',
@@ -185,8 +187,8 @@ export class DashboardPage {
       },
     });
 
-    driverInstance.setSteps(dashboardAddExpenseWalkthroughSteps);
-    driverInstance.drive();
+    this.dashboardAddExpenseWalkthroughDriverInstance.setSteps(dashboardAddExpenseWalkthroughSteps);
+    this.dashboardAddExpenseWalkthroughDriverInstance.drive();
   }
 
   setDashboardAddExpenseWalkthroughFeatureConfigFlag(): void {
@@ -755,6 +757,9 @@ export class DashboardPage {
 
   async openAddExpenseActionSheet(): Promise<void> {
     const that = this;
+    if (this.dashboardAddExpenseWalkthroughDriverInstance) {
+      this.dashboardAddExpenseWalkthroughDriverInstance.destroy();
+    }
     that.trackingService.dashboardActionSheetOpened();
     const actionSheet = await this.actionSheetController.create({
       header: 'ADD EXPENSE',

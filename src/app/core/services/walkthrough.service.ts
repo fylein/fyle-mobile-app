@@ -103,6 +103,99 @@ export class WalkthroughService {
     return steps;
   }
 
+  getMyExpensesBlockedFilterWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '#blocked-filter-checkbox',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.blockedFilterDescription'),
+          side: 'left',
+          align: 'center',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
+  getMyExpensesBlockedStatusPillWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '.expenses-card--state-container.state-blocked:nth-child(1)',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.blockedStatusPillDescription'),
+          side: 'bottom',
+          align: 'start',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
+  getMyExpensesIncompleteStatusPillWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '.expenses-card--state-container.state-incomplete:nth-child(1)',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.incompleteStatusPillDescription'),
+          side: 'bottom',
+          align: 'start',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
+  getMyExpensesStatusPillSequenceWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '.expenses-card--state-container.state-blocked',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.blockedStatusPillDescription'),
+          side: 'bottom',
+          align: 'start',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+      {
+        element: '.expenses-card--state-container.state-incomplete',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.incompleteStatusPillDescription'),
+          side: 'bottom',
+          align: 'start',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
   getActiveWalkthroughIndex(): number {
     return this.activeWalkthroughIndex;
   }
