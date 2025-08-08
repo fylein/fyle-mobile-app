@@ -4163,21 +4163,22 @@ describe('MyExpensesPage', () => {
           drive: jasmine.createSpy('drive'),
           destroy: jasmine.createSpy('destroy'),
         };
-        it('should start blocked status pill walkthrough', () => {
-          const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
-          (window as any).driver = mockDriver;
+      });
 
-          walkthroughService.getMyExpensesBlockedStatusPillWalkthroughConfig.and.returnValue([
-            {
-              element: '#blocked-status-pill',
-              popover: {
-                description: 'This shows blocked expenses',
-                side: 'left',
-                align: 'center',
-              },
+      it('should start blocked status pill walkthrough', () => {
+        const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+        (window as any).driver = mockDriver;
+
+        walkthroughService.getMyExpensesBlockedStatusPillWalkthroughConfig.and.returnValue([
+          {
+            element: '#blocked-status-pill',
+            popover: {
+              description: 'This shows blocked expenses',
+              side: 'left',
+              align: 'center',
             },
-          ]);
-        });
+          },
+        ]);
       });
     });
 
@@ -4190,21 +4191,22 @@ describe('MyExpensesPage', () => {
           drive: jasmine.createSpy('drive'),
           destroy: jasmine.createSpy('destroy'),
         };
-        it('should start incomplete status pill walkthrough', () => {
-          const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
-          (window as any).driver = mockDriver;
+      });
 
-          walkthroughService.getMyExpensesIncompleteStatusPillWalkthroughConfig.and.returnValue([
-            {
-              element: '#incomplete-status-pill',
-              popover: {
-                description: 'This shows incomplete expenses',
-                side: 'left',
-                align: 'center',
-              },
+      it('should start incomplete status pill walkthrough', () => {
+        const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+        (window as any).driver = mockDriver;
+
+        walkthroughService.getMyExpensesIncompleteStatusPillWalkthroughConfig.and.returnValue([
+          {
+            element: '#incomplete-status-pill',
+            popover: {
+              description: 'This shows incomplete expenses',
+              side: 'left',
+              align: 'center',
             },
-          ]);
-        });
+          },
+        ]);
       });
     });
 
