@@ -7,6 +7,7 @@ const formBuilder = new UntypedFormBuilder();
 export const customInputsFieldData1: CustomInputsField[] = deepFreeze([
   {
     control: formBuilder.group({
+      id: '1',
       name: 'Merchant',
       value: 'Jio',
     }),
@@ -27,5 +28,5 @@ export const expectedCustomInputsFieldWithoutControl = customInputsFieldData1.ma
 }));
 
 export const expectedCustomInputsFieldControlValues = customInputsFieldData1.map(
-  ({ control }: { control: { value: { name: string; value: string } } }) => control.value
+  ({ control }: { control: { value: { name: string; value: string } } }) => control.value,
 );
