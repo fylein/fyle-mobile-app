@@ -12,11 +12,11 @@
   @if (dialogType === 'contact_support') {
     <div>
       <div class="support--header">
-        <div class="support_title">{{ 'supportDialog.contactSupport' | transloco }}</div>
+        <div class="support_title">Contact support</div>
       </div>
       <div class="support--content">
-        <p class="support--heading">{{ 'supportDialog.havingTroubleWithProcess' | transloco }}</p>
-        <p>{{ 'supportDialog.contactYourAdmin' | transloco }}</p>
+        <p class="support--heading">Having trouble with the process?</p>
+        <p>Contact your admin</p>
         <div class="support--admin-list">
           @for (admin of adminList; track admin; let i = $index) {
             <div class="support--admin-list-contact-card smartlook-hide">
@@ -27,20 +27,18 @@
         </div>
         <div class="support--page-divider"></div>
         <div>
-          <p class="support--heading">{{ 'supportDialog.havingTroubleUnderstandingFyle' | transloco }}</p>
-          <p>{{ 'supportDialog.helpCenterDescription' | transloco }}</p>
+          <p class="support--heading">Having trouble understanding fyle</p>
+          <p>We have everything to clear up in our help center</p>
           <div>
             <button (click)="openHelpLink()" class="support--helpLinkBtn btn-outline-secondary">
-              {{ 'supportDialog.visitHelpCenter' | transloco }}
+              Visit help center
             </button>
           </div>
-          <p>{{ 'supportDialog.stillFacingIssues' | transloco }}</p>
-          <p>{{ 'supportDialog.weAreHappyToHelp' | transloco }}</p>
-          <p>{{ 'supportDialog.sendQueriesWithScreenshot' | transloco }}</p>
+          <p>Still facing issues that you need help with?</p>
+          <p>We are happy to help</p>
+          <p>Please send your queries along with screenshot(if necessary) to</p>
           <p>
-            <a href="mailto:{{ 'supportDialog.supportEmail' | transloco }}">{{
-              'supportDialog.supportEmail' | transloco
-            }}</a>
+            <a href="mailto:support@fylehq.com">support&#64;fylehq.com</a>
           </p>
         </div>
       </div>
