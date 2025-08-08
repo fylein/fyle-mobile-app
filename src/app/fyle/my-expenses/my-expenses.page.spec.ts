@@ -4056,32 +4056,6 @@ describe('MyExpensesPage', () => {
       }));
     });
 
-    describe('startStatusPillSequenceWalkthrough', () => {
-      let mockDriverInstance: any;
-
-      beforeEach(() => {
-        mockDriverInstance = {
-          setSteps: jasmine.createSpy('setSteps'),
-          drive: jasmine.createSpy('drive'),
-          destroy: jasmine.createSpy('destroy'),
-        };
-
-        const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
-        (window as any).driver = mockDriver;
-
-        walkthroughService.getMyExpensesStatusPillSequenceWalkthroughConfig.and.returnValue([
-          {
-            element: '#blocked-status-pill',
-            popover: {
-              description: 'This shows blocked expenses',
-              side: 'left',
-              align: 'center',
-            },
-          },
-        ]);
-      });
-    });
-
     describe('setStatusPillSequenceWalkthroughFeatureFlag', () => {
       beforeEach(() => {
         featureConfigService.saveConfiguration.and.returnValue(of(null));
