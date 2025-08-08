@@ -1,9 +1,10 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild, Inject } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild } from '@angular/core';
+import { inject } from '@angular/core';
 import { CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
@@ -23,6 +24,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
+import { MLKitDocumentScannerService } from 'src/app/core/services/mlkit-document-scanner.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -65,26 +67,45 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   nativeSettings = NativeSettings;
 
-  constructor(
-    private modalController: ModalController,
-    private trackingService: TrackingService,
-    private router: Router,
-    private navController: NavController,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private imagePicker: ImagePicker,
-    private networkService: NetworkService,
-    private popoverController: PopoverController,
-    private loaderService: LoaderService,
-    private orgService: OrgService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private authService: AuthService,
-    private cameraService: CameraService,
-    private cameraPreviewService: CameraPreviewService,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
-    private translocoService: TranslocoService,
-  ) {}
+  private readonly modalController = inject(ModalController);
+
+  private readonly trackingService = inject(TrackingService);
+
+  private readonly router = inject(Router);
+
+  private readonly route = inject(ActivatedRoute);
+
+  private readonly navController = inject(NavController);
+
+  private readonly transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private readonly imagePicker = inject(ImagePicker);
+
+  private readonly networkService = inject(NetworkService);
+
+  private readonly popoverController = inject(PopoverController);
+
+  private readonly loaderService = inject(LoaderService);
+
+  private readonly orgService = inject(OrgService);
+
+  private readonly platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private readonly matSnackBar = inject(MatSnackBar);
+
+  private readonly snackbarProperties = inject(SnackbarPropertiesService);
+
+  private readonly authService = inject(AuthService);
+
+  private readonly cameraService = inject(CameraService);
+
+  private readonly cameraPreviewService = inject(CameraPreviewService);
+
+  private readonly mlkitScanner = inject(MLKitDocumentScannerService);
+
+  private readonly devicePlatform = inject<'android' | 'ios' | 'web'>(DEVICE_PLATFORM);
+
+  private readonly translocoService = inject(TranslocoService);
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -515,6 +536,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   setUpAndStartCamera(): void {
+    // Check if the URL contains auto_capture_expenses=true
+    const autoCaptureParam = this.route.snapshot.params?.['auto_capture_expenses'] as string | undefined;
+    if (autoCaptureParam === 'true') {
+      this.startDirectDocumentScan();
+      return;
+    }
+
     this.cameraPreview.setUpAndStartCamera();
     if (this.transactionsOutboxService.singleCaptureCount === 3) {
       this.showBulkModeToastMessage();
@@ -524,5 +552,78 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   stopCamera(): void {
     this.cameraPreview.stopCamera();
+  }
+
+  // New direct document scanning functions
+  startDirectDocumentScan(): void {
+    this.mlkitScanner.scanDocument(false).subscribe({
+      next: (base64PictureData) => {
+        // Navigate directly to expense form with the scanned image
+        const isInstafyleEnabled$ = this.platformEmployeeSettingsService
+          .get()
+          .pipe(
+            map(
+              (employeeSettings) =>
+                employeeSettings.insta_fyle_settings.allowed && employeeSettings.insta_fyle_settings.enabled,
+            ),
+          );
+
+        isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_expense',
+            {
+              dataUrl: base64PictureData,
+              canExtractData: isInstafyleEnabled,
+            },
+          ]);
+        });
+      },
+      error: (error: Error) => {
+        // Only show error if it's not a user cancellation
+        if (error?.message !== 'No document scanned or scan was cancelled') {
+          console.log('error', error);
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('failure', {
+              message: 'Document scanning failed. Please try again.' + error.message,
+            }),
+          });
+        }
+      },
+    });
+  }
+
+  startDirectBulkDocumentScan(): void {
+    if (this.noOfReceipts >= 20) {
+      this.trackingService.receiptLimitReached();
+      this.showLimitReachedPopover().subscribe(noop);
+      return;
+    }
+
+    this.mlkitScanner.scanDocument(true).subscribe({
+      next: (base64PictureData) => {
+        this.base64ImagesWithSource.push({
+          source: 'MOBILE_DASHCAM_BULK',
+          base64Image: base64PictureData,
+        });
+        this.noOfReceipts += 1;
+
+        // Add to queue and navigate to my expenses
+        this.loaderService.showLoader(this.translocoService.translate('captureReceipt.pleaseWait'), 10000);
+        this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+          .pipe(finalize(() => this.loaderService.hideLoader()))
+          .subscribe(() => {
+            this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          });
+      },
+      error: () => {
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('failure', {
+            message: this.translocoService.translate('captureReceipt.documentScanFailed'),
+          }),
+        });
+      },
+    });
   }
 }
