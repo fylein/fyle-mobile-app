@@ -1391,8 +1391,8 @@ ion-modal.personal-cards-range-modal {
 ion-toggle {
   height: 22px;
   width: 52px;
-  --track-background: #{colors.$grey-light};
-  --track-background-checked: #{colors.$brand-primary};
+  --track-background: #{colors.$pure-white};
+  --track-background-checked: #{colors.$navy-500};
   --handle-spacing: 4px;
   --handle-border-radius: 50%;
   --handle-width: 14px;
@@ -1400,29 +1400,40 @@ ion-toggle {
   &::part(track) {
     height: 22px;
     width: 52px;
+    border: 1px solid colors.$navy-500;
+  }
+
+  &::part(handle) {
+    background-color: colors.$navy-300;
   }
 }
 
 ion-toggle::before {
   position: absolute;
-  color: #{colors.$pure-white};
+  color: #{colors.$navy-300};
   content: 'No';
   font-size: 12px;
   font-weight: 500;
   z-index: 1;
   top: 1px;
-  right: 12px;
+  right: 10px;
 }
 
-ion-toggle.toggle-checked::before {
-  position: absolute;
-  color: #{colors.$pure-white};
-  content: 'Yes';
-  font-size: 12px;
-  font-weight: 500;
-  z-index: 1;
-  top: 1px;
-  left: 10px;
+ion-toggle.toggle-checked {
+  &::before {
+    position: absolute;
+    color: #{colors.$pure-white};
+    content: 'Yes';
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 1;
+    top: 1px;
+    left: 10px;
+  }
+
+  &::part(handle) {
+    background-color: colors.$pure-white;
+  }
 }
 
 .mat-tooltip.tooltip {
