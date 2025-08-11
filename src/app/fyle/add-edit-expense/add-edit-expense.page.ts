@@ -1379,7 +1379,6 @@ export class AddEditExpensePage implements OnInit {
                 currency: personalCardTxn.currency,
                 amount: personalCardTxn.amount,
                 vendor: personalCardTxn.merchant,
-                purpose: personalCardTxn.description,
                 skip_reimbursement: false,
                 locations: [],
                 num_files: 0,
