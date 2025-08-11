@@ -526,19 +526,19 @@ ion-popover.camera-options-popover {
 
 .mat-mdc-checkbox-checked.mat-accent {
   .mdc-checkbox__background {
-    background-color: colors.$blue-black !important;
+    background-color: colors.$pure-white !important;
   }
 }
 
 .mdc-checkbox__checkmark {
-  color: colors.$white !important;
+  color: colors.$black !important;
   padding: 2px;
 }
 
 mat-checkbox {
   .mdc-checkbox__background {
     border-radius: 4px !important;
-    border-color: colors.$black-2 !important;
+    border-color: colors.$navy-300 !important;
     border-width: 1.5px !important;
   }
 }
