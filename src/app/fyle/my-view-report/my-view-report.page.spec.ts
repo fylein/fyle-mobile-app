@@ -65,6 +65,8 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { TIMEZONE } from 'src/app/constants';
 
 describe('MyViewReportPage', () => {
+  // Increase timeout due to chunk loading erroror in Ionic components
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -510,9 +512,7 @@ describe('MyViewReportPage', () => {
   });
 
   describe('editReportName(): ', () => {
-    it('should edit report name', fakeAsync(function () {
-      // Increase timeout for this test due to Ionic Core chunk loading
-      this.timeout(30000);
+    it('should edit report name', fakeAsync(() => {
       component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
       component.canEdit$ = of(true);
       component.isLoading = false;
