@@ -32,7 +32,7 @@
         <ion-buttons class="stats--action-shortcut-container" slot="end">
           @if ((orgSettings$ | async) && (specialCategories$ | async)) {
             <div class="stats--action-shortcut" id="dashboard-add-expense-button" (click)="openAddExpenseActionSheet()">
-              <mat-icon class="stats--action-shortcut-plus-icon" svgIcon="plus"></mat-icon>
+              <mat-icon class="stats--action-shortcut-plus-icon" svgIcon="plus-square"></mat-icon>
               <span>Add expense</span>
             </div>
           } @else {
