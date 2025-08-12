@@ -1567,17 +1567,24 @@ export class AddEditExpensePage implements OnInit {
   getDefaultPaymentModes(): Observable<PlatformAccount | AdvanceWallet> {
     return forkJoin({
       paymentModes: this.paymentModes$,
-      orgSettings: this.orgSettingsService.get(),
+      employeeSettings: this.platformEmployeeSettingsService.get(),
     }).pipe(
-      map(({ paymentModes, orgSettings }) => {
-        const paymentModesOrder = orgSettings?.payment_mode_settings?.payment_modes_order;
-
-        if (paymentModesOrder && paymentModesOrder.length > 0) {
-          const defaultPaymentModeType = paymentModesOrder[0];
-
+      map(({ paymentModes, employeeSettings }) => {
+        const allAllowedPaymentModes = employeeSettings?.payment_mode_settings?.allowed_payment_modes;
+        
+        if (allAllowedPaymentModes && allAllowedPaymentModes.length > 0) {
+          // Use first allowed payment mode from employee settings
+          const defaultPaymentModeType = allAllowedPaymentModes[0];
+          
+          // Find the first payment mode that matches the default type
           const defaultPaymentMode = paymentModes.find((paymentMode) => {
-            const accountType = (paymentMode.value as PlatformAccount).type;
-            return accountType === String(defaultPaymentModeType);
+            if ('type' in paymentMode.value) {
+              // For PlatformAccount objects, check the type property
+              return (paymentMode.value as PlatformAccount).type === defaultPaymentModeType;
+            } else {
+              // For AdvanceWallet objects, they represent PERSONAL_ADVANCE_ACCOUNT
+              return defaultPaymentModeType === 'PERSONAL_ADVANCE_ACCOUNT';
+            }
           });
 
           if (defaultPaymentMode) {
