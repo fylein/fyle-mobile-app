@@ -807,7 +807,7 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
 
         component.getDefaultPaymentModes().subscribe((res) => {
-          expect(res).toEqual(accountOptionData1[1].value);
+          expect(res).toEqual(accountOptionData1[0].value);
           done();
         });
       });
@@ -821,7 +821,7 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
 
         component.getDefaultPaymentModes().subscribe((res) => {
-          expect(res).toEqual(accountOptionData1[1].value);
+          expect(res).toEqual(accountOptionData1[0].value);
           done();
         });
       });
