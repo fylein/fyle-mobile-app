@@ -802,6 +802,7 @@ export function TestCases5(getTestBed) {
         component.paymentModes$ = of(accountOptionData1);
         component.employeeSettings$ = of(employeeSettingsData);
         component.isCreatedFromCCC = true;
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         fixture.detectChanges();
 
@@ -815,6 +816,7 @@ export function TestCases5(getTestBed) {
         component.paymentModes$ = of(accountOptionData1);
         component.employeeSettings$ = of(employeeSettingsData2);
         component.isCreatedFromCCC = false;
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData2));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         fixture.detectChanges();
 

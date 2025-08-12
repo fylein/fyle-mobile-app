@@ -250,16 +250,18 @@ export class AccountsService {
   ): string[] {
     let updatedModes = [...allowedPaymentModes];
 
+    // Check if only CCC is allowed BEFORE filtering
+    const isOnlyCCCAllowed = updatedModes.length === 1 && updatedModes[0] === AccountType.CCC;
+
     // Mileage and per diem expenses cannot have PCCC as a payment mode
     if (isMileageOrPerDiemExpense) {
       updatedModes = updatedModes.filter((mode) => mode !== AccountType.CCC);
     }
 
-    // Check if only CCC is allowed
-    const isOnlyCCCAllowed = updatedModes.length === 1 && updatedModes[0] === AccountType.CCC;
-
     // Only add PERSONAL_CASH_ACCOUNT as fallback if no payment mode configurations are set
-    if (!isOnlyCCCAllowed && !updatedModes.includes(AccountType.PERSONAL) && allowedPaymentModes.length === 0) {
+    // OR if only CCC was allowed but got filtered out for mileage/per diem expenses
+    if ((!isOnlyCCCAllowed && !updatedModes.includes(AccountType.PERSONAL) && allowedPaymentModes.length === 0) ||
+        (isOnlyCCCAllowed && isMileageOrPerDiemExpense && !updatedModes.includes(AccountType.PERSONAL))) {
       updatedModes.push(AccountType.PERSONAL);
     }
 
