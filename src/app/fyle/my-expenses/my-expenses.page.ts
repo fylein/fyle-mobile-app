@@ -1052,7 +1052,7 @@ export class MyExpensesPage implements OnInit {
     // Check if we should show blocked filter walkthrough
     const shouldShowWalkthrough = await this.shouldShowBlockedFilterWalkthrough();
     const hasBlockedFilter = orgSettings?.is_new_critical_policy_violation_flow_enabled;
-    
+
     if (shouldShowWalkthrough && hasBlockedFilter) {
       // Wait for modal to be fully rendered
       setTimeout(() => {
@@ -1060,7 +1060,7 @@ export class MyExpensesPage implements OnInit {
         const typeFilterElement = document.querySelector('ion-item[class*="fy-filters--filter-item"]:first-child');
         if (typeFilterElement) {
           (typeFilterElement as HTMLElement).click();
-          
+
           // Wait for options to load, then start walkthrough
           setTimeout(() => {
             this.startBlockedFilterWalkthrough();
@@ -2010,23 +2010,23 @@ export class MyExpensesPage implements OnInit {
   private async checkForStatusPills(): Promise<void> {
     const hasBlockedPills = document.querySelectorAll('.expenses-card--state-container.state-blocked').length > 0;
     const hasIncompletePills = document.querySelectorAll('.expenses-card--state-container.state-incomplete').length > 0;
-    
-    // Check if walkthrough should be shown (only once per org)
-    const shouldShowWalkthrough = await this.shouldShowStatusPillSequenceWalkthrough();
-    
+
     if (hasBlockedPills && hasIncompletePills) {
       // Both present - show sequence walkthrough
-      if (shouldShowWalkthrough) {
+      const shouldShowSequenceWalkthrough = await this.shouldShowStatusPillSequenceWalkthrough();
+      if (shouldShowSequenceWalkthrough) {
         this.startStatusPillSequenceWalkthrough();
       }
     } else if (hasBlockedPills) {
       // Only blocked present
-      if (shouldShowWalkthrough) {
+      const shouldShowBlockedWalkthrough = await this.shouldShowBlockedStatusPillWalkthrough();
+      if (shouldShowBlockedWalkthrough) {
         this.startBlockedStatusPillWalkthrough();
       }
     } else if (hasIncompletePills) {
       // Only incomplete present
-      if (shouldShowWalkthrough) {
+      const shouldShowIncompleteWalkthrough = await this.shouldShowIncompleteStatusPillWalkthrough();
+      if (shouldShowIncompleteWalkthrough) {
         this.startIncompleteStatusPillWalkthrough();
       }
     }
@@ -2045,19 +2045,19 @@ export class MyExpensesPage implements OnInit {
       popoverClass: 'custom-popover',
       doneBtnText: 'Got it',
       showButtons: ['close', 'next'],
-      
+
       onCloseClick: () => {
         this.walkthroughService.setIsOverlayClicked(false);
         this.setBlockedFilterWalkthroughFeatureFlag(false);
         driverInstance.destroy();
       },
-      
+
       onNextClick: () => {
         this.walkthroughService.setIsOverlayClicked(false);
         this.setBlockedFilterWalkthroughFeatureFlag(false);
         driverInstance.destroy();
       },
-      
+
       onDestroyStarted: () => {
         if (this.walkthroughService.getIsOverlayClicked()) {
           this.setBlockedFilterWalkthroughFeatureFlag(true);
@@ -2079,7 +2079,7 @@ export class MyExpensesPage implements OnInit {
       key: 'BLOCKED_FILTER_FIRST_TIME',
     };
 
-    const eventTrackName = overlayClicked 
+    const eventTrackName = overlayClicked
       ? 'My Expenses Blocked Filter Walkthrough Skipped'
       : 'My Expenses Blocked Filter Walkthrough Completed';
 
@@ -2122,7 +2122,7 @@ export class MyExpensesPage implements OnInit {
           error: () => {
             // Default to showing walkthrough on error
             resolve(true);
-          }
+          },
         });
     });
   }
@@ -2140,19 +2140,19 @@ export class MyExpensesPage implements OnInit {
       popoverClass: 'custom-popover',
       doneBtnText: 'Got it',
       showButtons: ['close', 'next'],
-      
+
       onCloseClick: () => {
         this.walkthroughService.setIsOverlayClicked(false);
         this.setBlockedStatusPillWalkthroughFeatureFlag(false);
         driverInstance.destroy();
       },
-      
+
       onNextClick: () => {
         this.walkthroughService.setIsOverlayClicked(false);
         this.setBlockedStatusPillWalkthroughFeatureFlag(false);
         driverInstance.destroy();
       },
-      
+
       onDestroyStarted: () => {
         // Always mark as finished when walkthrough ends (either completed or skipped)
         this.setBlockedStatusPillWalkthroughFeatureFlag(false);
@@ -2177,19 +2177,19 @@ export class MyExpensesPage implements OnInit {
       popoverClass: 'custom-popover',
       doneBtnText: 'Got it',
       showButtons: ['close', 'next'],
-      
+
       onCloseClick: () => {
         this.walkthroughService.setIsOverlayClicked(false);
         this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
         driverInstance.destroy();
       },
-      
+
       onNextClick: () => {
         this.walkthroughService.setIsOverlayClicked(false);
         this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
         driverInstance.destroy();
       },
-      
+
       onDestroyStarted: () => {
         // Always mark as finished when walkthrough ends (either completed or skipped)
         this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
@@ -2207,7 +2207,7 @@ export class MyExpensesPage implements OnInit {
       key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
     };
 
-    const eventTrackName = overlayClicked 
+    const eventTrackName = overlayClicked
       ? 'My Expenses Blocked Status Pill Walkthrough Skipped'
       : 'My Expenses Blocked Status Pill Walkthrough Completed';
 
@@ -2236,7 +2236,7 @@ export class MyExpensesPage implements OnInit {
       key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
     };
 
-    const eventTrackName = overlayClicked 
+    const eventTrackName = overlayClicked
       ? 'My Expenses Incomplete Status Pill Walkthrough Skipped'
       : 'My Expenses Incomplete Status Pill Walkthrough Completed';
 
@@ -2279,7 +2279,7 @@ export class MyExpensesPage implements OnInit {
           error: () => {
             // Default to showing walkthrough on error
             resolve(true);
-          }
+          },
         });
     });
   }
@@ -2304,7 +2304,7 @@ export class MyExpensesPage implements OnInit {
           error: () => {
             // Default to showing walkthrough on error
             resolve(true);
-          }
+          },
         });
     });
   }
@@ -2335,7 +2335,7 @@ export class MyExpensesPage implements OnInit {
           error: () => {
             // Default to showing walkthrough on error
             resolve(true);
-          }
+          },
         });
     });
   }
@@ -2353,17 +2353,17 @@ export class MyExpensesPage implements OnInit {
       popoverClass: 'custom-popover',
       doneBtnText: 'Got it',
       showButtons: ['close', 'next'] as const,
-      
+
       onCloseClick: () => {
         this.walkthroughService.setIsOverlayClicked(false);
         this.setStatusPillSequenceWalkthroughFeatureFlag(false);
         driverInstance.destroy();
       },
-      
+
       onNextClick: () => {
         driverInstance.moveNext();
       },
-      
+
       onDestroyStarted: () => {
         // Always mark as finished when walkthrough ends (either completed or skipped)
         this.setStatusPillSequenceWalkthroughFeatureFlag(false);
@@ -2381,7 +2381,7 @@ export class MyExpensesPage implements OnInit {
       key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
     };
 
-    const eventTrackName = overlayClicked 
+    const eventTrackName = overlayClicked
       ? 'My Expenses Status Pill Sequence Walkthrough Skipped'
       : 'My Expenses Status Pill Sequence Walkthrough Completed';
 
