@@ -7,9 +7,6 @@ module.exports = function (config) {
     plugins: [],
     client: {
       clearContext: false, // leave Jasmine Spec Runner output visible in browser
-      jasmine: {
-        timeoutInterval: 30000 // Increase timeout for Ionic components
-      }
     },
     reporters: ['progress', 'kjhtml', 'coverage'],
     // coverageIstanbulReporter NO LONGER HERE

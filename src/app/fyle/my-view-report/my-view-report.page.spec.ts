@@ -510,7 +510,9 @@ describe('MyViewReportPage', () => {
   });
 
   describe('editReportName(): ', () => {
-    it('should edit report name', fakeAsync(() => {
+    it('should edit report name', fakeAsync(function () {
+      // Increase timeout for this test due to Ionic Core chunk loading
+      this.timeout(30000);
       component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
       component.canEdit$ = of(true);
       component.isLoading = false;
