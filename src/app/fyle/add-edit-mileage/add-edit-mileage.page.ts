@@ -1747,6 +1747,11 @@ export class AddEditMileagePage implements OnInit {
       this.updateDistanceOnRoundTripChange();
     });
 
+    // Add location change detection to automatically sync distance (like web app)
+    this.fg.controls.route.valueChanges.pipe(distinctUntilKeyChanged('mileageLocations')).subscribe(() => {
+      this.syncDistanceWithGPS();
+    });
+
     this.isLoading = true;
 
     forkJoin({
@@ -1825,9 +1830,10 @@ export class AddEditMileagePage implements OnInit {
 
           this.showCommuteDeductionField = this.mileageService.isCommuteDeductionEnabled(orgSettings);
 
-          if (this.showCommuteDeductionField) {
-            this.distanceUnit = orgSettings.mileage?.unit === 'MILES' ? 'Miles' : 'km';
+          // Always set distanceUnit for mileage expenses
+          this.distanceUnit = orgSettings.mileage?.unit === 'MILES' ? 'Miles' : 'km';
 
+          if (this.showCommuteDeductionField) {
             this.commuteDetails = commuteDeductionDetails?.commute_details || null;
 
             this.commuteDeductionOptions = this.mileageService.getCommuteDeductionOptions(
@@ -2315,6 +2321,12 @@ export class AddEditMileagePage implements OnInit {
         }
 
         const rate = res.rate;
+
+        // distance = user-entered/modified distance
+        // mileage_calculated_distance = GPS-calculated distance
+        const userDistance = +formValue.route.distance;
+        const gpsCalculatedDistance = calculatedDistance;
+
         return {
           tx: {
             ...etxn.tx,
@@ -2324,7 +2336,7 @@ export class AddEditMileagePage implements OnInit {
             source_account_id: sourceAccountId,
             skip_reimbursement: skipReimbursement,
             billable: formValue.billable,
-            distance: +formValue.route.distance,
+            distance: userDistance,
             org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
             txn_dt: this.dateService.getUTCDate(new Date(formValue.dateOfSpend)),
             source: 'MOBILE',
@@ -2333,13 +2345,13 @@ export class AddEditMileagePage implements OnInit {
             amount,
             orig_currency: null,
             orig_amount: null,
-            mileage_calculated_distance: calculatedDistance,
+            mileage_calculated_distance: gpsCalculatedDistance,
             mileage_calculated_amount: parseFloat(
               (
                 (rate ||
                   etxn.tx.mileage_rate ||
                   this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name?.vehicle_type)) *
-                calculatedDistance
+                gpsCalculatedDistance
               ).toFixed(2),
             ),
             project_id: formValue.project && formValue.project.project_id,
@@ -3047,6 +3059,31 @@ export class AddEditMileagePage implements OnInit {
     } else {
       // If user closes the modal without saving the commute details, reset the commute deduction field to null
       this.fg.patchValue({ commuteDeduction: null }, { emitEvent: false });
+    }
+  }
+
+  syncDistanceWithGPS(): void {
+    const routeControl = this.getFormControl('route') as {
+      value: { mileageLocations: Location[]; distance: number; roundTrip: boolean };
+    };
+    const mileageLocations = routeControl.value?.mileageLocations;
+    const isRoundTrip = routeControl.value?.roundTrip;
+
+    if (mileageLocations && mileageLocations.length > 0) {
+      this.mileageService.getDistance(mileageLocations).subscribe((distance) => {
+        const distanceInKm = distance / 1000;
+        let finalDistance = this.distanceUnit?.toLowerCase() === 'miles' ? distanceInKm * 0.6213 : distanceInKm;
+
+        // Apply round trip calculation
+        if (isRoundTrip) {
+          finalDistance = finalDistance * 2;
+        }
+
+        // Round to 2 decimal places
+        finalDistance = parseFloat(finalDistance.toFixed(2));
+
+        this.fg.controls.route.patchValue({ distance: finalDistance, roundTrip: isRoundTrip }, { emitEvent: false });
+      });
     }
   }
 }
