@@ -3761,6 +3761,7 @@ export class AddEditExpensePage implements OnInit {
       map((customFields) => {
         const allDependentFields = [...this.getProjectDependentFields(), ...this.getCostCenterDependentFields()];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
+          ...(dependentField.id && { id: dependentField.id }),
           name: dependentField.label,
           value: dependentField.value,
         }));
