@@ -1073,7 +1073,7 @@ export function TestCases1(getTestBed) {
             value: { mileageLocations: [locationData1, locationData3] },
           })
           .subscribe((res) => {
-            expect(res).toEqual(12.43);
+            expect(res).toEqual(12.42);
             expect(mileageService.getDistance).toHaveBeenCalledOnceWith([locationData1, locationData3]);
             done();
           });

@@ -2423,8 +2423,9 @@ export class AddEditMileagePage implements OnInit {
       switchMap((distance) =>
         this.etxn$.pipe(
           map((etxn) => {
-            const distanceInKm = distance / 1000;
-            const finalDistance = etxn.tx.distance_unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
+            const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+            const finalDistance =
+              etxn.tx.distance_unit === 'MILES' ? parseFloat((distanceInKm * 0.6213).toFixed(2)) : distanceInKm;
             return finalDistance;
           }),
         ),
