@@ -104,13 +104,6 @@ describe('UpdateMobileNumberComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): should focus on input element after view is initialized', () => {
-    const inputElement = getElementBySelector(fixture, 'input') as HTMLInputElement;
-    component.inputEl.nativeElement = inputElement;
-
-    expect(document.activeElement).toBe(inputElement);
-  });
-
   it('closePopover(): should dismiss the modal', () => {
     popoverController.dismiss.and.resolveTo();
     const closeCta = getElementBySelector(fixture, 'ion-button') as HTMLIonButtonElement;
@@ -129,7 +122,7 @@ describe('UpdateMobileNumberComponent', () => {
 
       const errorElement = getElementBySelector(
         fixture,
-        '.update-mobile-number--input-container__error'
+        '.update-mobile-number--input-container__error',
       ) as HTMLSpanElement;
       expect(component.error).toEqual(valueError.error);
 

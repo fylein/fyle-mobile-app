@@ -38,18 +38,17 @@
 $header-input-interior: #eeeeee;
 
 :root {
-  --ion-color-fyle-primary: #ff3366;
-  --ion-color-fyle-primary-rgb: 255, 51, 102;
+  --ion-color-fyle-primary: #{colors.$brand-primary};
+  --ion-color-fyle-primary-rgb: #{colors.$brand-primary-rgb};
   --ion-color-fyle-primary-contrast: #ffffff;
   --ion-color-fyle-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-fyle-primary-shade: #e02d5a;
-  --ion-color-fyle-primary-tint: #ff4775;
-  --ion-font-family: 'aktiv-grotesk', 'Lato', sans-serif;
-  --ion-color-fyle-sidenav-bg: #161528;
+  --ion-color-fyle-primary-shade: #006f3d;
+  --ion-color-fyle-primary-tint: #1a8b58;
+  --ion-font-family: 'sage-ui', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Segoe UI', 'Arial';
 }
 
 body {
-  font-family: 'aktiv-grotesk', 'Lato', sans-serif !important;
+  font-family: 'sage-ui', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Segoe UI', 'Arial' !important;
 }
 
 .ion-color-fyle-primary {
@@ -207,15 +206,6 @@ ion-popover.error-popover {
 
 .icon--alert-warning {
   color: colors.$dark-yellow !important;
-}
-
-.icon--flagged {
-  color: colors.$red;
-}
-
-.icon--unflagged {
-  color: transparent;
-  stroke: colors.$black-light;
 }
 
 .intermediate-loader .loading-wrapper .loading-spinner ion-spinner {
@@ -536,19 +526,19 @@ ion-popover.camera-options-popover {
 
 .mat-mdc-checkbox-checked.mat-accent {
   .mdc-checkbox__background {
-    background-color: colors.$blue-black !important;
+    background-color: colors.$pure-white !important;
   }
 }
 
 .mdc-checkbox__checkmark {
-  color: colors.$white !important;
+  color: colors.$black !important;
   padding: 2px;
 }
 
 mat-checkbox {
   .mdc-checkbox__background {
     border-radius: 4px !important;
-    border-color: colors.$black-2 !important;
+    border-color: colors.$navy-300 !important;
     border-width: 1.5px !important;
   }
 }
@@ -828,10 +818,10 @@ ref - https://stackoverflow.com/a/31162426
   }
 
   .danger {
-    color: colors.$red;
+    color: colors.$negative-500;
 
     .action-sheet-icon {
-      color: colors.$red;
+      color: colors.$negative-500;
     }
   }
 
@@ -882,8 +872,8 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .btn-primary {
-  background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
-  border-radius: 4px !important;
+  background: colors.$brand-primary;
+  border-radius: 32px !important;
   font-size: 14px !important;
   line-height: 18px;
   color: colors.$pure-white;
@@ -892,14 +882,15 @@ ref - https://stackoverflow.com/a/31162426
   text-transform: inherit;
   width: 100%;
   letter-spacing: 0px !important;
+  padding: 0 16px;
 }
 
 .btn-secondary {
   background: colors.$pure-white;
-  color: colors.$black-2;
-  font-size: 16px !important;
+  color: colors.$brand-primary;
+  font-size: 14px !important;
   line-height: 20px;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
   height: 52px !important;
   text-transform: inherit;
   width: 100%;
@@ -908,8 +899,15 @@ ref - https://stackoverflow.com/a/31162426
 
 .btn-outline-secondary {
   @extend .btn-secondary;
-  border: 1px solid colors.$grey;
-  border-radius: 4px;
+  border: 2px solid colors.$brand-primary;
+  border-radius: 32px;
+}
+
+// primary button above takes 100% widths.
+.btn-auto-dimension {
+  padding: 8px 16px;
+  width: auto;
+  height: auto !important;
 }
 
 .cta-footer {
@@ -920,12 +918,11 @@ ref - https://stackoverflow.com/a/31162426
   padding: 14px 16px;
   display: flex;
   column-gap: 18px;
-  box-shadow: 0px -2px 10px rgb(0 0 0 / 10%);
 }
 
 .fy-footer-cta {
   --box-shadow: none;
-  --border-radius: 4px;
+  --border-radius: 32px;
   height: 50px;
   text-transform: none;
   font-weight: 500;
@@ -934,28 +931,23 @@ ref - https://stackoverflow.com/a/31162426
   letter-spacing: 0;
 
   &--primary {
-    --background: #{colors.$pink-gradient};
+    --background: #{colors.$brand-primary};
   }
 
   &--secondary {
     --background: #{colors.$blue-black};
   }
 
-  &--tertiary-primary {
+  &--tertiary-secondary {
     --background: transparent;
     --color: #{colors.$brand-primary};
   }
 
-  &--tertiary-secondary {
-    --background: transparent;
-    --color: #{colors.$black-light};
-  }
-
   &--outline-secondary {
     --background: transparent;
-    --color: #{colors.$black-light};
-    border: 1px solid #{colors.$grey};
-    border-radius: 4px;
+    --color: #{colors.$brand-primary};
+    border: 2px solid #{colors.$brand-primary};
+    border-radius: 32px;
   }
 }
 
@@ -1074,11 +1066,11 @@ ion-popover.delete-dialog {
 }
 
 .segment-button-checked {
-  --color-checked: #2c304e;
+  --color-checked: #{colors.$gray-15};
 }
 
 .ios .segment-button-checked {
-  --indicator-color: #2c304e;
+  --indicator-color: #{colors.$gray-15};
   color: colors.$pure-white !important;
   margin: 2px;
   padding: 0 8px;
@@ -1308,10 +1300,6 @@ ion-popover.delete-button-class {
   margin-top: 6%;
 }
 
-.opt-in-banners__swiper {
-  padding: 0 16px;
-}
-
 .opt-in-banners__swiper .swiper-pagination {
   position: absolute;
   text-align: center;
@@ -1403,8 +1391,8 @@ ion-modal.personal-cards-range-modal {
 ion-toggle {
   height: 22px;
   width: 52px;
-  --track-background: #{colors.$grey-light};
-  --track-background-checked: #{colors.$brand-primary};
+  --track-background: #{colors.$pure-white};
+  --track-background-checked: #{colors.$navy-500};
   --handle-spacing: 4px;
   --handle-border-radius: 50%;
   --handle-width: 14px;
@@ -1412,29 +1400,40 @@ ion-toggle {
   &::part(track) {
     height: 22px;
     width: 52px;
+    border: 1px solid colors.$navy-500;
+  }
+
+  &::part(handle) {
+    background-color: colors.$navy-300;
   }
 }
 
 ion-toggle::before {
   position: absolute;
-  color: #{colors.$pure-white};
+  color: #{colors.$navy-300};
   content: 'No';
   font-size: 12px;
   font-weight: 500;
   z-index: 1;
   top: 1px;
-  right: 12px;
+  right: 10px;
 }
 
-ion-toggle.toggle-checked::before {
-  position: absolute;
-  color: #{colors.$pure-white};
-  content: 'Yes';
-  font-size: 12px;
-  font-weight: 500;
-  z-index: 1;
-  top: 1px;
-  left: 10px;
+ion-toggle.toggle-checked {
+  &::before {
+    position: absolute;
+    color: #{colors.$pure-white};
+    content: 'Yes';
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 1;
+    top: 1px;
+    left: 10px;
+  }
+
+  &::part(handle) {
+    background-color: colors.$pure-white;
+  }
 }
 
 .mat-tooltip.tooltip {

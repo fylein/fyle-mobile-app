@@ -177,36 +177,7 @@
     width: 100%;
   }
 
-  &--secondary-cta {
-    height: auto;
-    background-color: transparent;
-    color: colors.$black;
-    font-size: 16px;
-    line-height: 1.25;
-
-    &__disabled {
-      opacity: 0.2;
-    }
-  }
-
-  &--primary-cta {
-    min-height: 52px;
-    background: colors.$pink-gradient;
-    color: colors.$pure-white;
-    font-size: 14px;
-    line-height: 1.3;
-    border-radius: 4px;
-    width: 100%;
-  }
-
   &--link-card-button {
-    padding: 11px 16px;
-    background: colors.$pink-gradient;
-    color: colors.$pure-white;
-    font-size: 14px;
-    line-height: 1.3;
-    border-radius: 4px;
-    width: fit-content;
     margin-left: auto;
     margin-right: auto;
     margin-top: 20px;
@@ -214,11 +185,11 @@
 
   &--fetch-button {
     padding: 8px 16px;
-    background: colors.$pink-gradient;
+    background: colors.$brand-primary;
     color: colors.$pure-white;
     font-size: 12px;
     line-height: 1.3;
-    border-radius: 8px;
+    border-radius: 32px;
     width: fit-content;
   }
 

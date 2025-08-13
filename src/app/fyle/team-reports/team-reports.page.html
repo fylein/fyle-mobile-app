@@ -3,7 +3,7 @@
   [navigateBack]="navigateBack"
   [title]="'Team expense reports'"
   (simpleSearchCancel)="onSimpleSearchCancel()"
-  >
+>
   <ng-container base>
     <ion-buttons mode="md" slot="end">
       <ion-button class="reports--header-btn" (click)="searchClick()">
@@ -30,7 +30,7 @@
           matInput
           placeholder="Search"
           (focus)="onSearchBarFocus()"
-          />
+        />
         @if (simpleSearchText) {
           <button
             (click)="clearText('isFromSearchBar')"
@@ -38,7 +38,7 @@
             class="reports--simple-search-close"
             mat-icon-button
             matSuffix
-            >
+          >
             <mat-icon svgIcon="clear"></mat-icon>
           </button>
         }
@@ -48,7 +48,7 @@
 </app-fy-header>
 
 <ion-content class="reports--content">
-  <div class="reports--body" [ngClass]="{'reports--zero-state-body': (count$ | async) === 0}">
+  <div class="reports--body" [ngClass]="{ 'reports--zero-state-body': (count$ | async) === 0 }">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
@@ -65,17 +65,16 @@
       </div>
     }
 
-
     @if (!isLoading) {
-      @if ((simplifyReportsSettings$ | async); as simplifyReportsSettings) {
+      @if (simplifyReportsSettings$ | async; as simplifyReportsSettings) {
         @let teamReports = teamReports$ | async;
         @for (report of teamReports; track report.id; let i = $index) {
           <app-reports-card
             [report]="report"
-            [prevDate]="teamReports[i-1]?.created_at"
+            [prevDate]="teamReports[i - 1]?.created_at"
             [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
             (gotoReport)="onReportClick($event)"
-            >
+          >
           </app-reports-card>
         }
       } @else {
@@ -85,7 +84,7 @@
       <app-fy-loading-screen class="reports--shimmers"></app-fy-loading-screen>
     }
 
-    @if (isConnected$|async) {
+    @if (isConnected$ | async) {
       @if (isLoadingDataInInfiniteScroll) {
         <app-fy-loading-screen class="reports--shimmers"></app-fy-loading-screen>
       }
@@ -97,15 +96,15 @@
           <app-fy-zero-state
             [unscaledImage]="true"
             [useNewStyling]="true"
-            image="../../../assets/images/zero-states/reports.png"
+            image="../../../assets/svg/zero-states/reports.svg"
             message="You have no reports right now"
           ></app-fy-zero-state>
         }
-        @if ((filters?.state || filters?.date)) {
+        @if (filters?.state || filters?.date) {
           <app-fy-zero-state
             [unscaledImage]="true"
             [useNewStyling]="true"
-            image="../../../assets/images/zero-states/reports.png"
+            image="../../../assets/svg/zero-states/reports.svg"
             message="You have no team reports"
             submessage="matching the applied filters"
           ></app-fy-zero-state>
@@ -114,7 +113,7 @@
           <app-fy-zero-state
             [unscaledImage]="true"
             [useNewStyling]="true"
-            image="../../../assets/images/zero-states/search.png"
+            image="../../../assets/svg/zero-states/search.svg"
             message="No results found"
             submessage="Try a different keyword"
           ></app-fy-zero-state>
@@ -124,10 +123,7 @@
   </div>
 
   @if (!isLoadingDataInInfiniteScroll && (isInfiniteScrollRequired$ | async)) {
-    <ion-infinite-scroll
-      threshold="100px"
-      (ionInfinite)="loadData($event)"
-      >
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
       <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
       </ion-infinite-scroll-content>
     </ion-infinite-scroll>

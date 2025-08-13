@@ -175,7 +175,7 @@ $sent-back-color: #da1e28;
 
   &--unreported-cta {
     padding: 10px 16px;
-    background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
+    background-color: colors.$brand-primary;
     border-radius: 4px;
     color: colors.$pure-white;
     letter-spacing: 0px;
@@ -191,7 +191,6 @@ $sent-back-color: #da1e28;
 
     &__icon {
       padding-left: 6px;
-      color: colors.$brand-primary-light;
     }
   }
 
@@ -267,11 +266,6 @@ $sent-back-color: #da1e28;
     line-height: 1;
     margin-top: 8px;
     margin-bottom: 8px;
-  }
-
-  &--primary-cta {
-    margin: 12px;
-    height: 48px;
   }
 
   &--amount {
@@ -368,8 +362,7 @@ $sent-back-color: #da1e28;
   }
 
   &--primary-cta {
-    --background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
-    border-radius: 4px;
+    --background: #{colors.$brand-primary};
     line-height: 18px;
     color: colors.$pure-white;
     height: 52px;
@@ -451,7 +444,6 @@ $sent-back-color: #da1e28;
     width: calc(100% - 40px);
     height: 30px;
     border: none;
-    padding-top: 5px;
   }
 
   &--send-icon {

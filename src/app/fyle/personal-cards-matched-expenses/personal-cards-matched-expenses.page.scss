@@ -35,7 +35,7 @@
 
   &--icon {
     font-size: 24px;
-    color: colors.$pink;
+    color: colors.$brand-primary;
     display: inline-block;
     vertical-align: middle;
   }
@@ -146,6 +146,7 @@
   }
 
   &--expenses-preview {
+    overflow: hidden;
     background-color: colors.$pure-white;
     border: 1px solid colors.$grey;
     margin: 0 20px;

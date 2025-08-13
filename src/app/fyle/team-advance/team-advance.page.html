@@ -31,7 +31,7 @@
   @if (isLoading) {
     <app-fy-loading-screen></app-fy-loading-screen>
   }
-  @if (count$|async) {
+  @if (count$ | async) {
     <div class="advance-request--body">
       <ion-refresher slot="fixed" (ionRefresh)="changeState($event)">
         <ion-refresher-content></ion-refresher-content>
@@ -41,9 +41,9 @@
         @for (teamAdvancerequest of teamAdvancerequests; track teamAdvancerequest.areq_id; let i = $index) {
           <app-team-adv-card
             [advanceRequest]="teamAdvancerequest"
-            [prevDate]="teamAdvancerequests[i-1]?.areq_created_at"
+            [prevDate]="teamAdvancerequests[i - 1]?.areq_created_at"
             (gotoAdvance)="onAdvanceClick($event)"
-            >
+          >
           </app-team-adv-card>
         }
       }
@@ -55,15 +55,15 @@
           <app-fy-zero-state
             [unscaledImage]="true"
             [useNewStyling]="true"
-            image="../../../assets/images/zero-states/advances.png"
+            image="../../../assets/svg/zero-states/advances.svg"
             message="Your have no team advances right now"
           ></app-fy-zero-state>
         }
-        @if ((filters?.state || filters?.sortParam || filters?.sortDir)) {
+        @if (filters?.state || filters?.sortParam || filters?.sortDir) {
           <app-fy-zero-state
             [unscaledImage]="true"
             [useNewStyling]="true"
-            image="../../../assets/images/zero-states/advances.png"
+            image="../../../assets/svg/zero-states/advances.svg"
             message="Your have no team advances"
             submessage="matching the applied filters"
           ></app-fy-zero-state>
@@ -72,12 +72,8 @@
     }
   }
 
-
   @if (isInfiniteScrollRequired$ | async) {
-    <ion-infinite-scroll
-      threshold="100px"
-      (ionInfinite)="changeState($event, true)"
-      >
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="changeState($event, true)">
       <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
       </ion-infinite-scroll-content>
     </ion-infinite-scroll>

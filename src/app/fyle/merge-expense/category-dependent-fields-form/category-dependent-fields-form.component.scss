@@ -38,14 +38,14 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     margin-top: -12px;
     font-size: 12px;
   }
 
   &--mandatory {
-    color: colors.$brand-primary;
+    color: colors.$negative-500;
     display: inline-block;
   }
 

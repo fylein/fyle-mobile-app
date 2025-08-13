@@ -6,7 +6,7 @@
   padding: 16px 16px 0;
 
   &__top-section {
-    background: url('../../../../assets/images/employee-card-bg.png') no-repeat bottom;
+    background: url('../../../../assets/images/card.png') no-repeat bottom;
     height: 120px;
     background-size: 100% 100%;
     box-shadow: 0px 4px 4px 0px rgba(225, 225, 225, 0.25);
@@ -23,94 +23,12 @@
     --ion-grid-column-padding: 0;
   }
 
-  &__bottom-section {
-    background: colors.$pure-white;
-    padding: 16px;
-    border-radius: 0 0 8px 8px;
-    color: colors.$black;
-
-    &__add-number {
-      color: colors.$black-light;
-      font-weight: 500;
-    }
-
-    &__edit-number {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    &__number-container {
-      padding-top: 4px;
-      white-space: nowrap;
-    }
-
-    &__number {
-      font-size: 16px;
-      font-weight: 500;
-    }
-
-    &__icon-edit {
-      height: 18px;
-      width: 18px;
-      vertical-align: middle;
-      padding: 0 4px 6px;
-      color: colors.$brand-primary;
-    }
-
-    &__status-container {
-      min-width: 0;
-      margin-left: 8px;
-    }
-
-    &__status {
-      margin: auto 0;
-      font-weight: 500;
-      color: colors.$blue-black;
-      display: flex;
-      align-items: center;
-
-      &__icon {
-        border-radius: 100%;
-        background-color: colors.$red;
-        height: 8px;
-        width: 8px;
-        margin-right: 6px;
-        flex-shrink: 0;
-
-        &--verified {
-          @extend .employee-details-card__bottom-section__status__icon;
-          background-color: colors.$green;
-        }
-      }
-    }
-
-    &__verify {
-      color: colors.$brand-primary;
-      font-size: 16px;
-      font-weight: 500;
-      padding-left: 8px;
-      border-left: 1px solid colors.$grey;
-      margin-left: 8px;
-
-      &--disabled {
-        color: colors.$grey-light;
-      }
-    }
-
-    &__icon {
-      height: 18px;
-      width: 18px;
-      vertical-align: middle;
-      padding: 0 4px 4px 0;
-      color: colors.$brand-primary;
-    }
-  }
-
   &__icon-container {
     flex: 0 0 55px;
-    max-height: 54px;
-    background: url('../../../../assets/images/fy-profile-gradient.svg') no-repeat bottom;
+    max-height: 55px;
+    height: 55px;
+    border: 1px solid colors.$navy-50;
+    border-radius: 50%;
 
     &__text {
       font-weight: 500;

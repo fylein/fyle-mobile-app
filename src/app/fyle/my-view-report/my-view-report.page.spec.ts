@@ -65,6 +65,8 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { TIMEZONE } from 'src/app/constants';
 
 describe('MyViewReportPage', () => {
+  // Increase timeout due to chunk loading erroror in Ionic components
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;

@@ -79,48 +79,6 @@
     }
   }
 
-  &--primary-cta,
-  &--secondary-cta {
-    height: 48px;
-    font-size: 14px;
-    text-transform: inherit;
-    font-weight: 600;
-    border-radius: 8px;
-    width: 100%;
-    margin: 12px 0;
-    --border-radius: 4px !important;
-
-    &:first-child {
-      margin-right: 4px;
-    }
-
-    &:last-child {
-      margin-left: 4px;
-    }
-  }
-
-  &--secondary-cta {
-    margin: 0;
-    border-radius: 0;
-    &__border {
-      border-right: 1px solid colors.$grey;
-    }
-  }
-
-  &--secondary-cta-text {
-    min-width: 80px;
-  }
-
-  &--secondary-cta-icon {
-    &__left {
-      margin-right: 18px;
-    }
-
-    &__right {
-      margin-left: 18px;
-    }
-  }
-
   &--receipt-currency {
     display: flex;
     align-items: center;
@@ -188,7 +146,7 @@
 
   &--spinner-icon {
     margin-top: 12px;
-    color: #f36;
+    color: colors.$brand-primary;
   }
 
   &--currency {
@@ -211,7 +169,7 @@
     border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -242,7 +200,7 @@
     border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -490,15 +448,6 @@
     }
   }
 
-  &--error-message-block {
-    position: sticky;
-    width: 100%;
-    bottom: 0;
-    background: rgba(221, 0, 0, 0.7);
-    color: #fff;
-    padding: 16px;
-  }
-
   &--duplicate-pointer-container {
     position: absolute;
     left: 10px;
@@ -568,7 +517,7 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: colors.$negative-500;
   }
 
   &--card-header {
@@ -638,13 +587,13 @@
   }
 
   &--error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     font-size: 12px;
   }
 
   &--amount-error {
-    color: colors.$red;
+    color: colors.$negative-500;
     font-size: 12px;
     margin: -14px 0 0 53%;
   }
@@ -654,7 +603,7 @@
   }
 
   &--mandatory {
-    color: colors.$brand-primary;
+    color: colors.$negative-500;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -675,7 +624,7 @@
   }
 
   &--card-container {
-    background: colors.$pink-gradient-2;
+    border: 1px solid colors.$navy-50;
     padding: 16px;
     margin: 12px 0;
     border-radius: 8px;
@@ -755,7 +704,7 @@
   &--date-error,
   &--travel-text-error,
   &--distance-error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     font-size: 12px;
     margin-top: 6px;
@@ -763,7 +712,7 @@
 
   &--travel-select-error,
   &--distance-unit-error {
-    color: colors.$red;
+    color: colors.$negative-500;
     line-height: 16px;
     font-size: 12px;
   }

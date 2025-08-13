@@ -10,7 +10,7 @@
         (filterClicked)="onFilterClick($event)"
         (clearAll)="onFilterPillsClearAll()"
         [filterPills]="filterPills"
-        >
+      >
       </app-fy-filter-pills>
     </div>
   }
@@ -42,7 +42,7 @@
               @if (!filterPills?.length) {
                 <app-fy-zero-state
                   [useNewStyling]="true"
-                  image="../../../../assets/images/zero-states/tasks.png"
+                  image="../../../../assets/svg/zero-states/tasks.svg"
                   [message]="'tasks.noTasks' | transloco"
                 ></app-fy-zero-state>
               }
@@ -50,7 +50,7 @@
                 <app-fy-zero-state
                   [unscaledImage]="true"
                   [useNewStyling]="true"
-                  image="../../../../assets/images/zero-states/tasks.png"
+                  image="../../../../assets/svg/zero-states/tasks.svg"
                   [message]="'tasks.noTasksFiltered' | transloco"
                   [submessage]="'tasks.matchingFilters' | transloco"
                 ></app-fy-zero-state>
@@ -106,5 +106,4 @@
       }
     }
   }
-
 </div>

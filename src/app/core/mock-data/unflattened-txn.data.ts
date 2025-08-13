@@ -1373,7 +1373,6 @@ export const expectedExpenseObservable4: Partial<UnflattenedTransaction> = deepF
     vendor: 'vendor',
     skip_reimbursement: false,
     txn_dt: new Date('2023-01-24T11:30:00.000Z'),
-    purpose: 'mocha',
     org_category_id: undefined,
     fyle_category: undefined,
     locations: [],

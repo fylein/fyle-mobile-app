@@ -1,5 +1,5 @@
 <div class="add-card-container" (click)="addCardClick.emit($event)" data-testid="add-card-container">
-  <img class="add-card-container__img" src="../../../../assets/images/cards.svg" />
+  <img class="add-card-container__img" src="../../../../assets/svg/zero-states/cards.svg" />
   @if (showZeroStateMessage) {
     <span data-testid="zero-state-message">{{ 'addCard.noCardAddedYet' | transloco }}</span>
   }

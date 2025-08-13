@@ -1,14 +1,4 @@
-$header-background: #464d57;
-
 .app-version {
-  &--header {
-    height: 45px;
-    text-align: center;
-    font-size: 18px;
-    padding-top: 12px;
-    background-color: #464d57;
-  }
-
   &--container {
     display: flex;
     flex-direction: column;

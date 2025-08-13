@@ -36,7 +36,7 @@
     height: 18px;
     width: 18px;
     margin: 0 20px 0 -10px;
-    color: colors.$red;
+    color: colors.$negative-500;
   }
 
   &--merge {
@@ -81,7 +81,7 @@
   }
 
   &--flagged {
-    color: colors.$red;
+    color: colors.$negative-500;
   }
 
   &--unflagged {

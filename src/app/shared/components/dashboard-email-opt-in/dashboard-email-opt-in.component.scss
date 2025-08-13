@@ -2,11 +2,9 @@
 
 .dashboard-opt-in {
   &--container {
-    background: linear-gradient(80deg, rgb(236 245 255 / 21%) 54.75%, rgb(255 237 252 / 30%) 86.07%);
-    border-bottom: 2px solid colors.$pure-white;
-    border-radius: 0 0 40px 40px;
     margin-bottom: 24px;
     margin-top: 6px;
+    padding-bottom: 3px;
   }
 
   &--content-center {
@@ -17,14 +15,15 @@
   }
 
   &__skip {
-    text-decoration: underline;
-    color: colors.$dark-grey;
+    color: colors.$brand-primary;
+    font-size: 14px;
+    font-weight: 500;
     text-align: end;
     position: relative;
     bottom: 35px;
 
     &--text {
-      padding: 32px;
+      margin: 32px;
     }
   }
 
@@ -74,9 +73,9 @@
   &__opt-in-btn {
     border-radius: 50%;
     position: relative;
+    background-color: colors.$navy-500;
     width: 45px;
     height: 45px;
-    background: linear-gradient(313.56deg, #2c304e 45.19%, rgba(44, 48, 78, 0.4) 153.45%);
     z-index: 2;
     top: 58px;
 
@@ -86,8 +85,8 @@
       content: '';
       width: 100%;
       height: 100%;
+      background-color: colors.$navy-500;
       border-radius: 50%;
-      background: linear-gradient(313.56deg, #2c304e 45.19%, rgba(44, 48, 78, 0.4) 153.45%);
       top: 0;
       right: 0;
       animation: wave-animate 1.5s infinite ease-out;

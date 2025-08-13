@@ -44,7 +44,7 @@
     margin-bottom: 6px;
 
     &--mandatory {
-      color: colors.$red;
+      color: colors.$negative-500;
     }
   }
 
@@ -56,7 +56,7 @@
     margin-bottom: 2px;
 
     &--error {
-      border-bottom: 1px solid colors.$red;
+      border-bottom: 1px solid colors.$negative-500;
     }
 
     &:focus-within:not(&--error) {
@@ -89,7 +89,7 @@
   }
 
   &__input-errors {
-    color: colors.$red;
+    color: colors.$negative-500;
     font-size: 12px;
     line-height: 1.3;
 
@@ -101,7 +101,7 @@
 
   &__view-tnc-btn {
     width: 100%;
-    background: colors.$pink-gradient;
+    background: colors.$brand-primary;
     background-clip: text;
     color: transparent;
     padding: 12px 0;
