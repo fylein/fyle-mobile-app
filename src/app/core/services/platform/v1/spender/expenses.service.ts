@@ -326,6 +326,7 @@ export class ExpensesService {
       ended_at: transaction.to_dt,
       locations: transaction.locations as unknown as Location[],
       custom_fields: transaction.custom_properties.map((customProperty) => ({
+        ...(customProperty.id && { id: customProperty.id }),
         name: customProperty.name,
         value: customProperty.value,
       })),
