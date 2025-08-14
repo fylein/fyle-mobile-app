@@ -1340,7 +1340,7 @@ export function TestCases2(getTestBed) {
         component.isRedirectedFromReport = false;
         fixture.detectChanges();
 
-        const header = 'Delete Expense';
+        const header = 'Delete expense';
         const body = 'Are you sure you want to delete this expense?';
         const ctaText = 'Delete';
         const ctaLoadingText = 'Deleting';
@@ -1379,7 +1379,7 @@ export function TestCases2(getTestBed) {
         component.isRedirectedFromReport = true;
         fixture.detectChanges();
 
-        const header = 'Delete Expense';
+        const header = 'Delete expense';
         const body = 'Are you sure you want to delete this expense?';
         const ctaText = 'Delete';
         const ctaLoadingText = 'Deleting';

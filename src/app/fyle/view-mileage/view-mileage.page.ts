@@ -217,7 +217,7 @@ export class ViewMileagePage {
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
-        header: 'Remove Expense',
+        header: 'Remove expense',
         body: 'Are you sure you want to remove this expense from the report?',
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
