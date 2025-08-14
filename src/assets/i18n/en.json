@@ -620,7 +620,7 @@
     "expenseInfoMissing": "Expense information missing",
     "exchangeRateAt": "at",
     "criticalPolicyViolations": "Critical policy violations",
-    "receiptAddedSuccess": "Receipt added to xpense successfully",
+    "receiptAddedSuccess": "Receipt added to expense successfully",
     "fileSizeError": "The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.",
     "your": "Your",
     "mileage": "mileage",
