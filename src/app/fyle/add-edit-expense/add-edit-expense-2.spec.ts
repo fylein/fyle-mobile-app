@@ -1307,7 +1307,7 @@ export function TestCases2(getTestBed) {
         component.isRedirectedFromReport = true;
         fixture.detectChanges();
 
-        const header = 'Remove Expense';
+        const header = 'Remove expense';
         const body = 'Are you sure you want to remove this expense from this report?';
         const ctaText = 'Remove';
         const ctaLoadingText = 'Removing';
