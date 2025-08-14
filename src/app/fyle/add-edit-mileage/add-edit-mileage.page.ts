@@ -1316,8 +1316,11 @@ export class AddEditMileagePage implements OnInit {
         // Case when distance is zero and mileage locations are present, on changing roundTrip, it should calculate distance as per location
         if (distance === 0 && mileageLocations?.length > 1) {
           this.mileageService.getDistance(mileageLocations).subscribe((distance) => {
-            const distanceInKm = distance / 1000;
-            const finalDistance = this.distanceUnit?.toLowerCase() === 'miles' ? distanceInKm * 0.6213 : distanceInKm;
+            const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+            const finalDistance =
+              this.distanceUnit?.toLowerCase() === 'miles'
+                ? parseFloat((distanceInKm * 0.6213).toFixed(2))
+                : distanceInKm;
             let modifiedDistance = parseFloat((finalDistance * 2 - commuteDeductedDistance).toFixed(2));
             if (modifiedDistance < 0) {
               modifiedDistance = 0;
@@ -1418,8 +1421,11 @@ export class AddEditMileagePage implements OnInit {
       if (mileageLocations?.length > 1 && distance === 0) {
         this.mileageService.getDistance(mileageLocations).subscribe((distance) => {
           this.previousCommuteDeductionType = commuteDeductionType;
-          const distanceInKm = distance / 1000;
-          let finalDistance = this.distanceUnit?.toLowerCase() === 'miles' ? distanceInKm * 0.6213 : distanceInKm;
+          const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+          let finalDistance =
+            this.distanceUnit?.toLowerCase() === 'miles'
+              ? parseFloat((distanceInKm * 0.6213).toFixed(2))
+              : distanceInKm;
           if (this.getFormValues().route?.roundTrip) {
             finalDistance = finalDistance * 2;
           }
@@ -2628,8 +2634,9 @@ export class AddEditMileagePage implements OnInit {
               if (distance) {
                 return this.etxn$.pipe(
                   map((etxn) => {
-                    const distanceInKm = distance / 1000;
-                    const finalDistance = etxn.tx.distance_unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
+                    const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+                    const finalDistance =
+                      etxn.tx.distance_unit === 'MILES' ? parseFloat((distanceInKm * 0.6213).toFixed(2)) : distanceInKm;
                     return finalDistance;
                   }),
                 );
@@ -2640,9 +2647,9 @@ export class AddEditMileagePage implements OnInit {
             map((finalDistance) => {
               if (finalDistance) {
                 if (this.getFormValues().route.roundTrip) {
-                  return (finalDistance * 2).toFixed(2);
+                  return parseFloat((finalDistance * 2).toFixed(2));
                 } else {
-                  return finalDistance.toFixed(2);
+                  return parseFloat(finalDistance.toFixed(2));
                 }
               } else {
                 return null;
