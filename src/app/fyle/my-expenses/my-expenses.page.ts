@@ -679,13 +679,11 @@ export class MyExpensesPage implements OnInit {
         if (dEincompleteExpenseIds.length === 0) {
           return of(expenses); // All scans are completed
         } else {
-          return this.pollDEIncompleteExpenses(dEincompleteExpenseIds, expenses).pipe(
-            startWith(expenses),
-            timeout(30000),
-          );
+          return this.pollDEIncompleteExpenses(dEincompleteExpenseIds, expenses).pipe(startWith(expenses));
         }
       }),
       shareReplay(1),
+      takeUntil(this.onPageExit$),
     );
 
     this.count$ = this.loadExpenses$.pipe(
