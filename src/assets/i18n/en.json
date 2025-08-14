@@ -264,7 +264,7 @@
       "regularExpenses": "Regular Expenses",
       "perDiem": "Per Diem",
       "mileage": "Mileage",
-      "expenseType": "Expense Type",
+      "expenseType": "Expense type",
       "date": "Date",
       "thisWeekPill": "this Week",
       "thisMonthPill": "this Month",
@@ -273,9 +273,9 @@
       "to": " to ",
       "greaterThanOrEqual": ">= ",
       "lessThanOrEqual": "<= ",
-      "receiptsAttached": "Receipts Attached",
+      "receiptsAttached": "Receipts attached",
       "potentialDuplicates": "Potential duplicates",
-      "splitExpense": "Split Expense",
+      "splitExpense": "Split expense",
       "cardsEndingIn": "Cards ending in...",
       "type": "Type",
       "incomplete": "Incomplete",
@@ -286,7 +286,7 @@
       "custom": "Custom",
       "yes": "Yes",
       "no": "No",
-      "policyViolated": "Policy Violated",
+      "policyViolated": "Policy violated",
       "cannotReport": "Cannot Report",
       "blocked": "Blocked",
       "dateNewToOldSort": "Date - New to Old",
@@ -536,7 +536,7 @@
     "discardSingleReceiptMessage": "Not a good picture? No worries. Discard and click again.",
     "discard": "Discard",
     "cancel": "Cancel",
-    "removeReceiptTitle": "Remove Receipt",
+    "removeReceiptTitle": "Remove receipt",
     "removeReceiptMessage": "Are you sure you want to remove this receipt?",
     "remove": "Remove"
   },
@@ -601,7 +601,7 @@
     "addPrefix": "Add \""
   },
   "expensesCard": {
-    "receiptAdded": "Receipt added to Expense successfully",
+    "receiptAdded": "Receipt added to expense successfully",
     "sizeLimitExceeded": "Size limit exceeded",
     "fileTooLarge": "The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.",
     "ok": "OK",
@@ -620,7 +620,7 @@
     "expenseInfoMissing": "Expense information missing",
     "exchangeRateAt": "at",
     "criticalPolicyViolations": "Critical policy violations",
-    "receiptAddedSuccess": "Receipt added to Expense successfully",
+    "receiptAddedSuccess": "Receipt added to xpense successfully",
     "fileSizeError": "The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.",
     "your": "Your",
     "mileage": "mileage",
@@ -920,7 +920,7 @@
     "saving": "Saving",
     "saveChanges": "Save changes",
     "saved": "Saved",
-    "removeReceiptTitle": "Remove Receipt",
+    "removeReceiptTitle": "Remove receipt",
     "removeReceiptMessage": "Are you sure you want to remove this receipt?",
     "remove": "Remove",
     "cancel": "Cancel"
@@ -942,7 +942,7 @@
     "reportNameError": "Please enter expense report name.",
     "expensesHeading": "Expenses",
     "selectAll": "Select all",
-    "savingReport": "Saving Report",
+    "savingReport": "Saving report",
     "saveAsDraft": "Save as draft",
     "submittingReport": "Submitting Report",
     "submitReport": "Submit report",
@@ -1393,7 +1393,7 @@
     "addButton": "Add"
   },
   "suggestedDuplicates": {
-    "dismissSuccess": "Duplicates was successfully dismissed",
+    "dismissSuccess": "Duplicates were successfully dismissed",
     "expensesFor": "expenses for",
     "dismissAll": "Dismiss all",
     "merge": "Merge"
@@ -1538,7 +1538,7 @@
       "expensesAddedToReportSuccess": "Expenses added to report successfully"
     },
     "openDeleteExpensesPopover": {
-      "deleteExpense": "Delete Expense",
+      "deleteExpense": "Delete expense",
       "excludeAndDelete": "Exclude and Delete",
       "delete": "Delete",
       "oneExpenseDeleted": "1 expense has been deleted",

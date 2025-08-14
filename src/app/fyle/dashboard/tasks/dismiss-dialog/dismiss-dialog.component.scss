@@ -22,7 +22,6 @@
 
   &--dismiss {
     display: flex;
-    padding: 12px 16px;
     justify-content: center;
     color: colors.$pure-white;
     align-items: center;
@@ -32,10 +31,8 @@
 
   &--cancel {
     display: flex;
-    padding: 12px 16px;
     justify-content: center;
     align-items: center;
-    color: colors.$blue-black;
     &__disabled {
       opacity: 0.2;
     }
