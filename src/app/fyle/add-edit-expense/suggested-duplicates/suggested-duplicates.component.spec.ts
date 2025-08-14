@@ -10,10 +10,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Router } from '@angular/router';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -79,7 +76,7 @@ describe('SuggestedDuplicatesComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'suggestedDuplicates.dismissSuccess': 'Duplicates was successfully dismissed',
+        'suggestedDuplicates.dismissSuccess': 'Duplicates were successfully dismissed',
         'suggestedDuplicates.dismissAll': 'Dismiss all',
         'suggestedDuplicates.dismiss': 'Dismiss',
         'suggestedDuplicates.merge': 'Merge',
@@ -135,7 +132,7 @@ describe('SuggestedDuplicatesComponent', () => {
       data: {
         icon: 'check-square-fill',
         showCloseButton: true,
-        message: 'Duplicates was successfully dismissed',
+        message: 'Duplicates were successfully dismissed',
       },
       duration: 3000,
     };
@@ -150,7 +147,7 @@ describe('SuggestedDuplicatesComponent', () => {
     component.showDismissedSuccessToast();
     fixture.detectChanges();
     expect(setSnackbarPropertiesSpy).toHaveBeenCalledOnceWith('success', {
-      message: 'Duplicates was successfully dismissed',
+      message: 'Duplicates were successfully dismissed',
     });
     expect(openFromComponentSpy).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...snackbarProperties,
@@ -183,7 +180,7 @@ describe('SuggestedDuplicatesComponent', () => {
 
     expect(dismissDuplicatesSpy).toHaveBeenCalledOnceWith(
       ['txDDLtRaflUW', 'tx5WDG9lxBDT'],
-      ['txDDLtRaflUW', 'tx5WDG9lxBDT']
+      ['txDDLtRaflUW', 'tx5WDG9lxBDT'],
     );
     expect(showDismissedSuccessToastSpy).toHaveBeenCalledTimes(1);
     expect(modalControllerDismissSpy).toHaveBeenCalledOnceWith({ action: 'dismissed' });

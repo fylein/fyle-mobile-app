@@ -48,7 +48,7 @@ export class MyExpensesService {
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
 
-    const receiptAttachedFilter = selectedFilters.find((filter) => filter.name === 'Receipts Attached');
+    const receiptAttachedFilter = selectedFilters.find((filter) => filter.name === 'Receipts attached');
 
     if (receiptAttachedFilter) {
       generatedFilters.receiptsAttached = <string>receiptAttachedFilter.value;
@@ -60,7 +60,7 @@ export class MyExpensesService {
       generatedFilters.potentialDuplicates = <string>potentialDuplicatesFilter.value;
     }
 
-    const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense Type');
+    const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense type');
 
     if (expenseTypeFilter) {
       generatedFilters.type = <string[]>expenseTypeFilter.value;
@@ -76,7 +76,7 @@ export class MyExpensesService {
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
-    const splitExpenseFilter = selectedFilters.find((filter) => filter.name === 'Split Expense');
+    const splitExpenseFilter = selectedFilters.find((filter) => filter.name === 'Split expense');
 
     if (splitExpenseFilter) {
       generatedFilters.splitExpense = <string>splitExpenseFilter.value;

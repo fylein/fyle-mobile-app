@@ -57,7 +57,7 @@ describe('MyExpensesService', () => {
         'services.myExpenses.regularExpenses': 'Regular Expenses',
         'services.myExpenses.perDiem': 'Per Diem',
         'services.myExpenses.mileage': 'Mileage',
-        'services.myExpenses.expenseType': 'Expense Type',
+        'services.myExpenses.expenseType': 'Expense type',
         'services.myExpenses.date': 'Date',
         'services.myExpenses.thisWeekPill': 'this Week',
         'services.myExpenses.thisMonthPill': 'this Month',
@@ -66,9 +66,9 @@ describe('MyExpensesService', () => {
         'services.myExpenses.to': ' to ',
         'services.myExpenses.greaterThanOrEqual': '>= ',
         'services.myExpenses.lessThanOrEqual': '<= ',
-        'services.myExpenses.receiptsAttached': 'Receipts Attached',
+        'services.myExpenses.receiptsAttached': 'Receipts attached',
         'services.myExpenses.potentialDuplicates': 'Potential duplicates',
-        'services.myExpenses.splitExpense': 'Split Expense',
+        'services.myExpenses.splitExpense': 'Split expense',
         'services.myExpenses.cardsEndingIn': 'Cards ending in...',
         'services.myExpenses.type': 'Type',
         'services.myExpenses.incomplete': 'Incomplete',
@@ -79,7 +79,7 @@ describe('MyExpensesService', () => {
         'services.myExpenses.custom': 'Custom',
         'services.myExpenses.yes': 'Yes',
         'services.myExpenses.no': 'No',
-        'services.myExpenses.policyViolated': 'Policy Violated',
+        'services.myExpenses.policyViolated': 'Policy violated',
         'services.myExpenses.cannotReport': 'Cannot Report',
         'services.myExpenses.blocked': 'Blocked',
         'services.myExpenses.dateNewToOldSort': 'Date - New to Old',
@@ -188,7 +188,7 @@ describe('MyExpensesService', () => {
       filterPill,
     );
     expect(filterPill).toEqual([
-      { label: 'Expense Type', type: 'type', value: 'Regular Expenses, Per Diem, Mileage, custom' },
+      { label: 'Expense type', type: 'type', value: 'Regular Expenses, Per Diem, Mileage, custom' },
     ]);
   });
 

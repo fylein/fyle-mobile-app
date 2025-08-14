@@ -189,7 +189,7 @@ describe('ExpensesCardComponent', () => {
     sharedExpenseService.isExpenseInDraft.and.returnValue(true);
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'expensesCard.receiptAdded': 'Receipt added to Expense successfully',
+        'expensesCard.receiptAdded': 'Receipt added to expense successfully',
         'expensesCard.sizeLimitExceeded': 'Size limit exceeded',
         'expensesCard.fileTooLarge':
           'The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.',
@@ -209,7 +209,7 @@ describe('ExpensesCardComponent', () => {
         'expensesCard.expenseInfoMissing': 'Expense information missing',
         'expensesCard.exchangeRateAt': 'at',
         'expensesCard.criticalPolicyViolations': 'Critical policy violations',
-        'expensesCard.receiptAddedSuccess': 'Receipt added to Expense successfully',
+        'expensesCard.receiptAddedSuccess': 'Receipt added to expense successfully',
         'expensesCard.fileSizeError':
           'The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.',
         'expensesCard.your': 'Your',
@@ -899,7 +899,7 @@ describe('ExpensesCardComponent', () => {
       expect(component.attachReceipt).toHaveBeenCalledOnceWith(receiptDetails);
       expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith(dataRes.data.dataUrl);
 
-      const message = 'Receipt added to Expense successfully';
+      const message = 'Receipt added to expense successfully';
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarProperties.setSnackbarProperties('success', { message }),
         panelClass: ['msb-success-with-camera-icon'],
@@ -1719,7 +1719,7 @@ describe('ExpensesCardComponent', () => {
       expect(component.attachReceipt).toHaveBeenCalledOnceWith(receiptDetails);
       expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith(dataRes.data.dataUrl);
 
-      const message = 'Receipt added to Expense successfully';
+      const message = 'Receipt added to expense successfully';
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarProperties.setSnackbarProperties('success', { message }),
         panelClass: ['msb-success-with-camera-icon'],

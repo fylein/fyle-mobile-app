@@ -1814,15 +1814,15 @@ export class MyExpensesPage implements OnInit {
     if (filterType === 'state') {
       await this.openFilters('Type');
     } else if (filterType === 'receiptsAttached') {
-      await this.openFilters('Receipts Attached');
+      await this.openFilters('Receipts attached');
     } else if (filterType === 'type') {
-      await this.openFilters('Expense Type');
+      await this.openFilters('Expense type');
     } else if (filterType === 'date') {
       await this.openFilters('Date');
     } else if (filterType === 'sort') {
       await this.openFilters('Sort by');
     } else if (filterType === 'splitExpense') {
-      await this.openFilters('Split Expense');
+      await this.openFilters('Split expense');
     } else if (filterType === 'potentialDuplicates') {
       await this.openFilters('Potential duplicates');
     } else if (filterType === 'cardNumbers') {

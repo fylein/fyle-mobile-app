@@ -2,23 +2,23 @@ import deepFreeze from 'deep-freeze-strict';
 
 export const actionSheetOptionsData = deepFreeze([
   {
-    text: 'Split Expense By Category',
+    text: 'Split expense by category',
     handler: () => {},
   },
   {
-    text: 'Split Expense By Project',
+    text: 'Split expense by project',
     handler: () => {},
   },
   {
-    text: 'Split Expense By Cost Center',
+    text: 'Split expense by cost center',
     handler: () => {},
   },
   {
-    text: 'Dismiss as Card Payment',
+    text: 'Dismiss as card payment',
     handler: () => {},
   },
   {
-    text: 'Remove Card Expense',
+    text: 'Remove card expense',
     handler: () => {},
   },
 ]);

@@ -15,14 +15,18 @@
         <ion-col size="6">
           <div
             [ngClass]="{ 'dismiss-dialog--cancel__disabled': dismissCallInProgress }"
-            class="dismiss-dialog--cancel"
+            class="dismiss-dialog--cancel btn-secondary btn-auto-dimension"
             (click)="cancel()"
           >
             {{ 'dismissDialog.cancel' | transloco }}
           </div>
         </ion-col>
         <ion-col size="6">
-          <div class="dismiss-dialog--dismiss" (click)="dismiss()" appFormButtonValidation>
+          <div
+            class="dismiss-dialog--dismiss btn-primary btn-auto-dimension"
+            (click)="dismiss()"
+            appFormButtonValidation
+          >
             {{ 'dismissDialog.confirm' | transloco }}
           </div>
         </ion-col>

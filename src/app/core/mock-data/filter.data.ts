@@ -28,7 +28,7 @@ export const filterOptions1 = deepFreeze([
         value: 'COMPLETE',
       },
       {
-        label: 'Policy Violated',
+        label: 'Policy violated',
         value: 'POLICY_VIOLATED',
       },
       {
@@ -38,7 +38,7 @@ export const filterOptions1 = deepFreeze([
     ],
   } as FilterOptions<string>,
   {
-    name: 'Receipts Attached',
+    name: 'Receipts attached',
     optionType: FilterOptionType.singleselect,
     options: [
       {
@@ -52,7 +52,7 @@ export const filterOptions1 = deepFreeze([
     ],
   } as FilterOptions<string>,
   {
-    name: 'Expense Type',
+    name: 'Expense type',
     optionType: FilterOptionType.multiselect,
     options: [
       {
