@@ -2647,9 +2647,9 @@ export class AddEditMileagePage implements OnInit {
             map((finalDistance) => {
               if (finalDistance) {
                 if (this.getFormValues().route.roundTrip) {
-                  return parseFloat((finalDistance * 2).toFixed(2));
+                  return (finalDistance * 2).toFixed(2);
                 } else {
-                  return parseFloat(finalDistance.toFixed(2));
+                  return finalDistance.toFixed(2);
                 }
               } else {
                 return null;
