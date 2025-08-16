@@ -337,7 +337,7 @@
             [loading]="saveAdvanceLoading"
             [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading"
           >
-            Submit request
+            {{ (from === 'TEAM_ADVANCE' && mode === 'edit') ? 'Save request' : 'Submit request' }}
           </ion-button>
         }
       </ion-buttons>
