@@ -63,7 +63,6 @@ import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { of } from 'rxjs';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
 
