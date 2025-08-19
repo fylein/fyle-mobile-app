@@ -94,8 +94,8 @@ export class RouteSelectorModalComponent implements OnInit {
         if (distance === null) {
           this.calculatedLocationDistance = null;
         } else {
-          const distanceInKm = distance / 1000;
-          const finalDistance = this.unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
+          const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+          const finalDistance = this.unit === 'MILES' ? parseFloat((distanceInKm * 0.6213).toFixed(2)) : distanceInKm;
           //value comes as an Input in this component, if roundTrip is already set double the value during initialization
           if (this.value?.roundTrip) {
             this.calculatedLocationDistance = parseFloat((finalDistance * 2).toFixed(2));
@@ -148,8 +148,8 @@ export class RouteSelectorModalComponent implements OnInit {
           this.distance = null;
           this.calculatedLocationDistance = null;
         } else {
-          const distanceInKm = distance / 1000;
-          const finalDistance = this.unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
+          const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+          const finalDistance = this.unit === 'MILES' ? parseFloat((distanceInKm * 0.6213).toFixed(2)) : distanceInKm;
           if (finalDistance === 0) {
             this.distance = '0';
             this.calculatedLocationDistance = 0;
