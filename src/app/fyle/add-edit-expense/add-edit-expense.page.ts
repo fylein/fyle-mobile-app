@@ -772,7 +772,7 @@ export class AddEditExpensePage implements OnInit {
     forkJoin({
       generatedEtxn: this.generateEtxnFromFg(this.etxn$, customFields$),
       txnFields: this.txnFields$.pipe(take(1)),
-      expenseFields: this.expenseFieldsService.getAllEnabled().pipe(shareReplay(1)),
+      expenseFields: this.expenseFieldsService.getAllEnabled(false).pipe(shareReplay(1)),
     }).subscribe(
       (res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj; expenseFields: ExpenseField[] }) => {
         if (res.generatedEtxn.tx.report_id && !formValue.report?.id) {

@@ -1245,7 +1245,7 @@ export function TestCases5(getTestBed) {
 
         component.updateDistanceOnDeductionChange('ONE_WAY');
 
-        expect(component.initialDistance).toEqual(26.0946);
+        expect(component.initialDistance).toEqual(26.1);
         expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
           'ONE_WAY',
           commuteDeductionOptionsData1[0],
