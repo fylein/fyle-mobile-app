@@ -25,14 +25,14 @@ export class ExpenseFieldsService {
   ) {}
 
   @Cacheable()
-  getAllEnabled(): Observable<ExpenseField[]> {
+  getAllEnabled(onlyDefault = true): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
           params: {
             org_id: `eq.${eou.ou.org_id}`,
             is_enabled: 'eq.true',
-            is_custom: 'eq.false',
+            ...(onlyDefault ? { is_custom: 'eq.false' } : {}),  
             order: 'seq.asc',
           },
         })
