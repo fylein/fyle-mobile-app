@@ -63,8 +63,8 @@ export class FySelectCommuteDetailsComponent implements OnInit {
   }
 
   getCalculatedDistance(distanceResponse: number, distanceUnit: string): number {
-    const distanceInKM = distanceResponse / 1000;
-    const finalDistance = distanceUnit === 'MILES' ? distanceInKM * 0.6213 : distanceInKM;
+    const distanceInKM = parseFloat((distanceResponse / 1000).toFixed(2));
+    const finalDistance = distanceUnit === 'MILES' ? parseFloat((distanceInKM * 0.6213).toFixed(2)) : distanceInKM;
     return finalDistance;
   }
 
