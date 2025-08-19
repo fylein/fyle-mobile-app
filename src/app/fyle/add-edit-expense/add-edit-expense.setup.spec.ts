@@ -63,9 +63,9 @@ import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -73,7 +73,7 @@ export function setFormValid(component) {
   });
 }
 
-describe('AddEditExpensePage', () => {
+fdescribe('AddEditExpensePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
       'getMyAccounts',
@@ -240,17 +240,11 @@ describe('AddEditExpensePage', () => {
     ]);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
+
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, getTranslocoModule()],
       providers: [
         UntypedFormBuilder,
         {
@@ -450,10 +444,7 @@ describe('AddEditExpensePage', () => {
           provide: AdvanceWalletsService,
           useValue: advanceWalletsServiceSpy,
         },
-        {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
-        },
+
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],

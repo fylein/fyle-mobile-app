@@ -5,23 +5,20 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
 import { projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { splitExpData, splitExpTransformedData } from 'src/app/core/mock-data/expense.data';
-
+import { splitExpTransformedData } from 'src/app/core/mock-data/expense.data';
 import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
+import { expectedFileData1 } from 'src/app/core/mock-data/file-object.data';
 import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 import {
-  filteredCategoriesData,
   orgCategoryData,
   orgCategoryData1,
   sortedCategory,
@@ -105,18 +102,13 @@ import {
   unflattenedAccount1Data,
   advanceWallet1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import {
-  apiV2ResponseMultiple,
-  expectedProjectsResponse,
-  testActiveCategoryList,
-} from 'src/app/core/test-data/projects.spec.data';
+import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { txnFieldsData2, txnFieldsFlightData } from 'src/app/core/mock-data/expense-fields-map.data';
 import {
-  apiExpenses2,
   expenseData,
   platformExpenseData,
   platformExpenseWithExtractedData,
@@ -178,20 +170,8 @@ export function TestCases5(getTestBed) {
     let platform: jasmine.SpyObj<Platform>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
-    let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(() => {
-      const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-        config: {
-          reRenderOnLangChange: true,
-        },
-        langChanges$: of('en'),
-        _loadDependencies: () => Promise.resolve(),
-      });
       const TestBed = getTestBed();
-      TestBed.configureTestingModule({
-        imports: [TranslocoModule],
-        providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
-      });
       TestBed.compileComponents();
 
       fixture = TestBed.createComponent(AddEditExpensePage);
@@ -246,7 +226,6 @@ export function TestCases5(getTestBed) {
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
-      translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
         paymentMode: [, Validators.required],

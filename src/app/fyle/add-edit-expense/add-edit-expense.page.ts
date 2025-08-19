@@ -148,6 +148,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
+import { TranslocoService } from '@jsverse/transloco';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { UnlinkCardTransactionResponse } from 'src/app/core/models/platform/unlink-card-transaction-response.model';
@@ -476,6 +477,8 @@ export class AddEditExpensePage implements OnInit {
 
   private sharedExpensesService = inject(SharedExpensesService);
 
+  private translocoService = inject(TranslocoService);
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -606,14 +609,14 @@ export class AddEditExpensePage implements OnInit {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Unsaved Changes',
-          message: 'You have unsaved information that will be lost if you discard this expense.',
+          title: this.translocoService.translate<string>('addEditExpense.unsavedChanges'),
+          message: this.translocoService.translate<string>('addEditExpense.unsavedChangesMessage'),
           primaryCta: {
-            text: 'Discard',
+            text: this.translocoService.translate<string>('addEditExpense.discard'),
             action: 'continue',
           },
           secondaryCta: {
-            text: 'Cancel',
+            text: this.translocoService.translate<string>('addEditExpense.cancel'),
             action: 'cancel',
           },
         },
@@ -867,10 +870,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async removeCorporateCardExpense(): Promise<void> {
-    const header = 'Remove Card Expense';
+    const header = this.translocoService.translate('addEditExpense.removeCardExpense');
     const body = this.transactionService.getRemoveCardExpenseDialogBody(this.isSplitExpensesPresent);
-    const ctaText = 'Confirm';
-    const ctaLoadingText = 'Confirming';
+    const ctaText = this.translocoService.translate('addEditExpense.confirm');
+    const ctaLoadingText = this.translocoService.translate('addEditExpense.confirming');
     const deletePopover = await this.popoverController.create(
       this.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText),
     );
@@ -900,7 +903,7 @@ export class AddEditExpensePage implements OnInit {
       } else {
         this.goBack();
       }
-      const toastMessage = 'Successfully removed the card details from the expense.';
+      const toastMessage = this.translocoService.translate('addEditExpense.successfullyRemovedCardDetails');
       const toastMessageData = {
         message: toastMessage,
       };
@@ -950,12 +953,16 @@ export class AddEditExpensePage implements OnInit {
       (etxn) => (this.corporateCreditCardExpenseGroupId = etxn?.tx?.corporate_credit_card_expense_group_id),
     );
     const isMarkPersonal = type === 'personal' && this.isExpenseMatchedForDebitCCCE;
-    const header = isMarkPersonal ? 'Mark Expense as Personal' : 'Dismiss this expense?';
+    const header = isMarkPersonal
+      ? this.translocoService.translate('addEditExpense.markExpenseAsPersonal')
+      : this.translocoService.translate('addEditExpense.dismissThisExpense');
     const body = isMarkPersonal
-      ? "This corporate card expense will be marked as personal and you won't be able to edit it.\nDo you wish to proceed?"
-      : "This corporate card expense will be dismissed and you won't be able to edit it.\nDo you wish to proceed?";
-    const ctaText = 'Yes';
-    const ctaLoadingText = isMarkPersonal ? 'Marking' : 'Dismissing';
+      ? this.translocoService.translate('addEditExpense.markAsPersonalMessage')
+      : this.translocoService.translate('addEditExpense.dismissMessage');
+    const ctaText = this.translocoService.translate('addEditExpense.yes');
+    const ctaLoadingText = isMarkPersonal
+      ? this.translocoService.translate('addEditExpense.marking')
+      : this.translocoService.translate('addEditExpense.dismissing');
 
     const deletePopover = await this.popoverController.create(
       this.getMarkDismissModalParams(
@@ -978,7 +985,9 @@ export class AddEditExpensePage implements OnInit {
 
     if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      const toastMessage = isMarkPersonal ? 'Marked expense as Personal' : 'Dismissed expense';
+      const toastMessage = isMarkPersonal
+        ? this.translocoService.translate('addEditExpense.markedExpenseAsPersonal')
+        : this.translocoService.translate('addEditExpense.dismissedExpense');
       const toastMessageData = {
         message: toastMessage,
       };
@@ -1034,7 +1043,7 @@ export class AddEditExpensePage implements OnInit {
 
   showTransactionPendingToast(): void {
     this.showSnackBarToast(
-      { message: "Can't split as the Transaction status is pending. Please wait until it's Posted." },
+      { message: this.translocoService.translate('addEditExpense.cantSplitTransactionPending') },
       'failure',
       ['msb-failure'],
     );
@@ -1050,7 +1059,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (isSplitExpenseAllowed) {
           actionSheetOptions.push({
-            text: 'Split expense',
+            text: this.translocoService.translate('addEditExpense.actionSheetSplitExpense'),
             handler: () => this.splitExpenseHandler(),
           });
         }
@@ -1058,14 +1067,14 @@ export class AddEditExpensePage implements OnInit {
         if (this.isCccExpense) {
           if (this.isExpenseMatchedForDebitCCCE) {
             actionSheetOptions.push({
-              text: 'Mark as Personal',
+              text: this.translocoService.translate('addEditExpense.actionSheetMarkAsPersonal'),
               handler: () => this.markPersonalHandler(),
             });
           }
 
           if (this.canDismissCCCE) {
             actionSheetOptions.push({
-              text: 'Dimiss as Card Payment',
+              text: this.translocoService.translate('addEditExpense.actionSheetDismissAsCardPayment'),
               handler: () => this.markDismissHandler(),
             });
           }
@@ -1073,7 +1082,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
           actionSheetOptions.push({
-            text: 'Remove Card Expense',
+            text: this.translocoService.translate('addEditExpense.actionSheetRemoveCardExpense'),
             handler: () => this.removeCCCHandler(),
           });
         }
@@ -1087,7 +1096,7 @@ export class AddEditExpensePage implements OnInit {
       .pipe(
         switchMap((actionSheetOptions) => {
           const actionSheet = this.actionSheetController.create({
-            header: 'MORE ACTIONS',
+            header: this.translocoService.translate('addEditExpense.actionSheetMoreActionsHeader'),
             mode: 'md',
             cssClass: 'fy-action-sheet',
             buttons: actionSheetOptions,
@@ -4927,7 +4936,7 @@ export class AddEditExpensePage implements OnInit {
       }
       if (receiptDetails && receiptDetails.dataUrl) {
         this.attachReceipts(receiptDetails as { type: string; dataUrl: string });
-        const message = 'Receipt added to expense successfully';
+        const message = this.translocoService.translate('addEditExpense.receiptAddedToExpense');
         this.showSnackBarToast({ message }, 'success', ['msb-success-with-camera-icon']);
         this.showReceiptMandatoryError = false;
 
@@ -5065,11 +5074,15 @@ export class AddEditExpensePage implements OnInit {
 
   async deleteExpense(reportId?: string): Promise<void> {
     const removeExpenseFromReport = reportId && this.isRedirectedFromReport;
-    const header = removeExpenseFromReport ? 'Remove expense' : 'Delete expense';
+    const header = removeExpenseFromReport
+      ? this.translocoService.translate('addEditExpense.removeExpense')
+      : this.translocoService.translate('addEditExpense.deleteExpense');
     const body = removeExpenseFromReport
-      ? 'Are you sure you want to remove this expense from this report?'
-      : 'Are you sure you want to delete this expense?';
-    const ctaText = removeExpenseFromReport ? 'Remove' : 'Delete';
+      ? this.translocoService.translate('addEditExpense.removeExpenseFromReportMessage')
+      : this.translocoService.translate('addEditExpense.deleteExpenseMessage');
+    const ctaText = removeExpenseFromReport
+      ? this.translocoService.translate('addEditExpense.remove')
+      : this.translocoService.translate('addEditExpense.delete');
     const ctaLoadingText = removeExpenseFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create(
@@ -5418,12 +5431,12 @@ export class AddEditExpensePage implements OnInit {
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Size limit exceeded',
-        message: `The uploaded file is greater than ${(maxFileSize / (1024 * 1024)).toFixed(
-          0,
-        )}MB in size. Please reduce the file size and try again.`,
+        title: this.translocoService.translate<string>('addEditExpense.sizeLimitExceeded'),
+        message: this.translocoService.translate<string>('addEditExpense.sizeLimitExceededMessage', {
+          maxFileSize: (maxFileSize / (1024 * 1024)).toFixed(0),
+        }),
         primaryCta: {
-          text: 'OK',
+          text: this.translocoService.translate<string>('addEditExpense.ok'),
         },
       },
       cssClass: 'pop-up-in-center',
