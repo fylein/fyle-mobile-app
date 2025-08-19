@@ -362,12 +362,12 @@ export function TestCases4(getTestBed) {
           actionSource: 'camera',
         });
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
-          { message: 'Receipt added to Expense successfully' },
+          { message: 'Receipt added to expense successfully' },
           'success',
           ['msb-success-with-camera-icon'],
         );
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
-          ToastContent: 'Receipt added to Expense successfully',
+          ToastContent: 'Receipt added to expense successfully',
         });
       }));
     });

@@ -22,9 +22,9 @@ describe('MileageService', () => {
     // Mock translate method to return expected strings
     translocoServiceSpy.translate.and.callFake((key: string) => {
       const translations: { [key: string]: string } = {
-        'services.mileage.oneWayDistance': 'One Way Distance',
-        'services.mileage.roundTripDistance': 'Round Trip Distance',
-        'services.mileage.noDeduction': 'No Deduction',
+        'services.mileage.oneWayDistance': 'One way distance',
+        'services.mileage.roundTripDistance': 'Round trip distance',
+        'services.mileage.noDeduction': 'No deduction',
       };
       return translations[key] || key;
     });
@@ -50,7 +50,7 @@ describe('MileageService', () => {
     mileageService = TestBed.inject(MileageService);
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });

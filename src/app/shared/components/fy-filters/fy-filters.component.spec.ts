@@ -72,7 +72,7 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     expect(component).toBeTruthy();
@@ -82,11 +82,11 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     expect(component.activeFilter).toEqual({
-      name: 'Expense Type',
+      name: 'Expense type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
@@ -109,7 +109,7 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     expect(component.currentFilterValueMap).toEqual({
@@ -117,14 +117,14 @@ describe('FyFiltersComponent', () => {
       'Updated date': 'custom',
       'Transactions Type': 'Debit',
       Type: 'custom',
-      'Receipts Attached': 'custom',
+      'Receipts attached': 'custom',
     });
   });
 
   it('should set custom date filter map correctly', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     component.selectedFilterValues = [
       {
@@ -155,7 +155,7 @@ describe('FyFiltersComponent', () => {
   it('should set not custom date filter map correctly', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     component.selectedFilterValues = [
       {
@@ -487,7 +487,7 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     expect(component.getNoOfFilters()).toBe(5);
@@ -497,7 +497,7 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filterDefinition = {
@@ -550,7 +550,7 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     component.cancel();
@@ -561,7 +561,7 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     expect(component.currentFilterValueMap).toEqual({
@@ -569,7 +569,7 @@ describe('FyFiltersComponent', () => {
       'Updated date': 'custom',
       'Transactions Type': 'Debit',
       Type: 'custom',
-      'Receipts Attached': 'custom',
+      'Receipts attached': 'custom',
     });
     expect(component.customDateMap).toEqual({});
     expect(component.startDate).toBeUndefined();
@@ -647,7 +647,7 @@ describe('FyFiltersComponent', () => {
           value: 'COMPLETE',
         },
         {
-          label: 'Policy Violated',
+          label: 'Policy violated',
           value: 'POLICY_VIOLATED',
         },
         {
@@ -669,11 +669,11 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Receipts Attached';
+    component.activeFilterInitialName = 'Receipts attached';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filterDefinition = {
-      name: 'Receipts Attached',
+      name: 'Receipts attached',
       optionType: FilterOptionType.singleselect,
       options: [
         {
@@ -699,7 +699,7 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     component.currentFilterValueMap = {
@@ -732,7 +732,7 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filter = 'State';
@@ -771,12 +771,12 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filter = '';
     const filterOptions = {
-      name: 'Expense Type',
+      name: 'Expense type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
@@ -798,13 +798,13 @@ describe('FyFiltersComponent', () => {
       value: 'MILEAGE',
     };
     component.currentFilterValueMap = {
-      'Expense Type': 'MILEAGE',
+      'Expense type': 'MILEAGE',
     };
 
     component.switchDateFilter(filter, filterOptions, options);
 
-    expect(component.currentFilterValueMap['Expense Type']).toEqual('MILEAGE');
-    expect(component.customDateMap['Expense Type']).toBeNull();
+    expect(component.currentFilterValueMap['Expense type']).toEqual('MILEAGE');
+    expect(component.customDateMap['Expense type']).toBeNull();
     expect(component.startDate).toBeNull();
     expect(component.endDate).toBeNull();
   });
@@ -813,12 +813,12 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filter = ['MILEAGE'];
     const filterOptions = {
-      name: 'Expense Type',
+      name: 'Expense type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
@@ -840,24 +840,24 @@ describe('FyFiltersComponent', () => {
       value: 'MILEAGE',
     };
     component.currentFilterValueMap = {
-      'Expense Type': ['MILEAGE'],
+      'Expense type': ['MILEAGE'],
     };
 
     component.switchMultiselectFilter(filter, options, filterOptions);
 
-    expect(component.currentFilterValueMap['Expense Type']).toEqual([]);
+    expect(component.currentFilterValueMap['Expense type']).toEqual([]);
   });
 
   it("switchMultiSelectFilter(): should add filter if doesn't exist", () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filter = ['REGULAR_EXPENSES'];
     const filterOptions = {
-      name: 'Expense Type',
+      name: 'Expense type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
@@ -879,24 +879,24 @@ describe('FyFiltersComponent', () => {
       value: 'PER_DIEM',
     };
     component.currentFilterValueMap = {
-      'Expense Type': ['REGULAR_EXPENSES'],
+      'Expense type': ['REGULAR_EXPENSES'],
     };
 
     component.switchMultiselectFilter(filter, options, filterOptions);
 
-    expect(component.currentFilterValueMap['Expense Type']).toEqual(['REGULAR_EXPENSES', 'PER_DIEM']);
+    expect(component.currentFilterValueMap['Expense type']).toEqual(['REGULAR_EXPENSES', 'PER_DIEM']);
   });
 
   it("switchMultiSelectFilter(): should add currentFilterValueMap if filter doesn't exist", () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filter = '';
     const filterOptions = {
-      name: 'Expense Type',
+      name: 'Expense type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
@@ -920,19 +920,19 @@ describe('FyFiltersComponent', () => {
 
     component.switchMultiselectFilter(filter, options, filterOptions);
 
-    expect(component.currentFilterValueMap['Expense Type']).toEqual(['MILEAGE']);
+    expect(component.currentFilterValueMap['Expense type']).toEqual(['MILEAGE']);
   });
 
   it('switchSingleSelectFilter(): should update currentFilterValueMap if filter exist', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
-    const filter = 'Expense Type';
+    const filter = 'Expense type';
     const filterOptions = {
-      name: 'Expense Type',
+      name: 'Expense type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
@@ -954,24 +954,24 @@ describe('FyFiltersComponent', () => {
       value: 'PER_DIEM',
     };
     component.currentFilterValueMap = {
-      'Expense Type': 'PER_DIEM',
+      'Expense type': 'PER_DIEM',
     };
 
     component.switchSingleSelectFilter(filter, filterOptions, options);
 
-    expect(component.currentFilterValueMap['Expense Type']).toBeNull();
+    expect(component.currentFilterValueMap['Expense type']).toBeNull();
   });
 
   it("switchSingleSelectFilter(): should update currentFilterValueMap if filter doesn't exist", () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Expense type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filter = '';
     const filterOptions = {
-      name: 'Expense Type',
+      name: 'Expense type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
@@ -995,6 +995,6 @@ describe('FyFiltersComponent', () => {
 
     component.switchSingleSelectFilter(filter, filterOptions, options);
 
-    expect(component.currentFilterValueMap['Expense Type']).toEqual('PER_DIEM');
+    expect(component.currentFilterValueMap['Expense type']).toEqual('PER_DIEM');
   });
 });

@@ -4,17 +4,17 @@ import { CommuteDeductionOptions } from '../models/commute-deduction-options.mod
 
 export const commuteDeductionOptionsData1: CommuteDeductionOptions[] = deepFreeze([
   {
-    label: 'One Way Distance',
+    label: 'One way distance',
     value: 'ONE_WAY',
     distance: 100,
   },
   {
-    label: 'Round Trip Distance',
+    label: 'Round trip distance',
     value: 'ROUND_TRIP',
     distance: 200,
   },
   {
-    label: 'No Deduction',
+    label: 'No deduction',
     value: 'NO_DEDUCTION',
     distance: 0,
   },

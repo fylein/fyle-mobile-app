@@ -405,7 +405,7 @@ describe('MyExpensesPage', () => {
           'Expenses added to an existing draft report',
         'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToReportSuccess':
           'Expenses added to report successfully',
-        'myExpensesPage.openDeleteExpensesPopover.deleteExpense': 'Delete Expense',
+        'myExpensesPage.openDeleteExpensesPopover.deleteExpense': 'Delete expense',
         'myExpensesPage.openDeleteExpensesPopover.excludeAndDelete': 'Exclude and Delete',
         'myExpensesPage.openDeleteExpensesPopover.delete': 'Delete',
         'myExpensesPage.openDeleteExpensesPopover.oneExpenseDeleted': '1 expense has been deleted',
@@ -3132,7 +3132,7 @@ describe('MyExpensesPage', () => {
         cssClass: 'delete-dialog',
         backdropDismiss: false,
         componentProps: {
-          header: 'Delete Expense',
+          header: 'Delete expense',
           body: 'Once deleted, the action cannot be undone',
           ctaText: 'Exclude and Delete',
           disableDelete: false,
@@ -3158,7 +3158,7 @@ describe('MyExpensesPage', () => {
         cssClass: 'delete-dialog',
         backdropDismiss: false,
         componentProps: {
-          header: 'Delete Expense',
+          header: 'Delete expense',
           body: 'Once deleted, the action cannot be undone',
           ctaText: 'Delete',
           disableDelete: true,
@@ -3181,7 +3181,7 @@ describe('MyExpensesPage', () => {
         cssClass: 'delete-dialog',
         backdropDismiss: false,
         componentProps: {
-          header: 'Delete Expense',
+          header: 'Delete expense',
           body: 'Once deleted, the action cannot be undone',
           ctaText: 'Exclude and Delete',
           disableDelete: false,
