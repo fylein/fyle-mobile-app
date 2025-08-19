@@ -60,7 +60,7 @@ export const expectedFilterPill1: FilterPill[] = deepFreeze([
     value: 'Incomplete, Complete',
   },
   {
-    label: 'Receipts Attached',
+    label: 'Receipts attached',
     type: 'receiptsAttached',
     value: 'yes',
   },
@@ -70,7 +70,7 @@ export const expectedFilterPill1: FilterPill[] = deepFreeze([
     value: 'yes',
   },
   {
-    label: 'Expense Type',
+    label: 'Expense type',
     type: 'type',
     value: 'Per Diem, Mileage',
   },
@@ -85,7 +85,7 @@ export const expectedFilterPill1: FilterPill[] = deepFreeze([
     value: '****1234, ****5678',
   },
   {
-    label: 'Split Expense',
+    label: 'Split expense',
     type: 'splitExpense',
     value: 'yes',
   },
@@ -93,7 +93,7 @@ export const expectedFilterPill1: FilterPill[] = deepFreeze([
 
 export const expectedFilterPill2: FilterPill[] = deepFreeze([
   {
-    label: 'Receipts Attached',
+    label: 'Receipts attached',
     type: 'receiptsAttached',
     value: 'yes',
   },
@@ -103,7 +103,7 @@ export const expectedFilterPill2: FilterPill[] = deepFreeze([
     value: 'category - a to z',
   },
   {
-    label: 'Split Expense',
+    label: 'Split expense',
     type: 'splitExpense',
     value: 'yes',
   },
@@ -116,7 +116,7 @@ export const stateFilterPill: FilterPill = deepFreeze({
 });
 
 export const receiptsAttachedFilterPill: FilterPill = deepFreeze({
-  label: 'Receipts Attached',
+  label: 'Receipts attached',
   type: 'receiptsAttached',
   value: 'yes',
 });
@@ -136,7 +136,7 @@ export const dateFilterPill: FilterPill[] = deepFreeze([
 ]);
 
 export const typeFilterPill: FilterPill = deepFreeze({
-  label: 'Expense Type',
+  label: 'Expense type',
   type: 'type',
   value: 'Per Diem, Mileage',
 });
@@ -154,7 +154,7 @@ export const cardFilterPill: FilterPill = deepFreeze({
 });
 
 export const splitExpenseFilterPill: FilterPill = deepFreeze({
-  label: 'Split Expense',
+  label: 'Split expense',
   type: 'splitExpense',
   value: 'yes',
 });
