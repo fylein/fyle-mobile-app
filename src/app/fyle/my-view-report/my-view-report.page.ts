@@ -270,9 +270,10 @@ export class MyViewReportPage {
         this.setupComments(report);
         this.approvals = report?.approvals;
         // filtering out disabled approvals from my view report page
-        this.approvals = report?.approvals?.filter((approval) =>
-          [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state),
-        );
+        this.approvals =
+          report?.approvals?.filter((approval) =>
+            [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state),
+          ) || [];
         if (this.showViewApproverModal) {
           this.approvals.sort((a, b) => a.approver_order - b.approver_order);
           this.setupApproverToShow(report);

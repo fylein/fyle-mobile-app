@@ -20,17 +20,24 @@
     @if (mode) {
       <ion-title class="page-title" mode="md" [ngClass]="{ 'add-edit-expense--title__review': reviewList?.length }">
         @if (mode === 'add') {
-          <div class="add-edit-expense--toolbar__title">Add expense</div>
+          <div class="add-edit-expense--toolbar__title">{{ 'addEditExpense.addExpenseTitle' | transloco }}</div>
         }
         @if (mode === 'edit') {
           <div>
             @if (reviewList?.length) {
-              Review expense
+              {{ 'addEditExpense.reviewExpenseTitle' | transloco }}
               <div class="add-edit-expense--sub-header">
                 {{ +activeIndex + 1 }} of {{ reviewList?.length }} expense{{ reviewList?.length > 1 ? 's' : '' }}
               </div>
             } @else {
-              <div>{{ isIncompleteExpense ? 'Review' : 'Edit' }} expense</div>
+              <div>
+                {{
+                  isIncompleteExpense
+                    ? ('addEditExpense.reviewTitle' | transloco)
+                    : ('addEditExpense.editExpenseTitle' | transloco)
+                }}
+                expense
+              </div>
             }
           </div>
         }
@@ -131,13 +138,16 @@
       <div>
         @if (showReceiptMandatoryError) {
           <div class="add-edit-expense--alert-offline receipt-mandatory-error">
-            <app-fy-alert-info message="Please upload the receipt." type="error"></app-fy-alert-info>
+            <app-fy-alert-info
+              [message]="'addEditExpense.receiptMandatoryError' | transloco"
+              type="error"
+            ></app-fy-alert-info>
           </div>
         }
         @if (isIncompleteExpense) {
           <div class="add-edit-expense--alert-offline">
             <app-fy-alert-info
-              message="Mandatory field values are missing. Please update the details and save the Expense."
+              [message]="'addEditExpense.incompleteExpenseError' | transloco"
               type="warning"
             ></app-fy-alert-info>
           </div>
@@ -145,10 +155,10 @@
         @if (duplicateExpenses?.length > 0) {
           <div class="add-edit-expense--alert-offline">
             <app-fy-alert-info
-              [message]="'This expense might be a duplicate of an existing expense.'"
+              [message]="'addEditExpense.duplicateExpenseWarning' | transloco"
               [type]="'warning'"
               [showActionButton]="true"
-              [actionButtonContent]="'View'"
+              [actionButtonContent]="'addEditExpense.viewButton' | transloco"
               (actionClick)="showSuggestedDuplicates(duplicateExpenses)"
             >
             </app-fy-alert-info>
@@ -156,12 +166,7 @@
         }
         @if (instaFyleCancelled) {
           <div class="add-edit-expense--alert-offline">
-            <app-fy-alert-info
-              [message]="
-                'Extracting receipt details is taking longer than expected due to a bad network, please add the details manually'
-              "
-              [type]="'information'"
-            >
+            <app-fy-alert-info [message]="'addEditExpense.instaFyleCancelledInfo' | transloco" [type]="'information'">
             </app-fy-alert-info>
           </div>
         }
@@ -177,7 +182,10 @@
           }
           @if (isSplitExpense) {
             <div class="add-edit-expense--alert-split">
-              <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
+              <app-fy-alert-info
+                [message]="'addEditExpense.expenseCreatedDueToSplitInfo' | transloco"
+                [type]="'information'"
+              ></app-fy-alert-info>
             </div>
           }
           @if (isAmountCapped$ | async) {
@@ -185,10 +193,16 @@
               <div class="capped-info">
                 <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
                 <div class="capped-message">
-                  Claimed amount {{ etxn.tx.user_amount | currency: etxn.tx.currency : '' }} was capped to
-                  {{ etxn.tx.amount | currency: etxn.tx.currency : '' }} due to policy
+                  {{
+                    'addEditExpense.amountCappedMessage'
+                      | transloco
+                        : {
+                            amount: (etxn.tx.user_amount | currency: etxn.tx.currency : ''),
+                            cappedAmount: (etxn.tx.amount | currency: etxn.tx.currency : ''),
+                          }
+                  }}
                   @if (isAmountDisabled$ | async) {
-                    <span> and cannot be edited.</span>
+                    <span>{{ 'addEditExpense.amountCappedCannotEdit' | transloco }}</span>
                   }
                 </div>
               </div>
@@ -203,12 +217,7 @@
               <div class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border">
                 <mat-icon class="add-edit-expense--split-info-icon" svgIcon="info-circle-fill"></mat-icon>
                 <div class="add-edit-expense--split-info-message">
-                  If the expense is merged with incorrect card details, click on Options (<span
-                    ><ion-icon
-                      class="add-edit-expense--icon-dots"
-                      [src]="'../../../assets/svg/vertical-dots-menu.svg'"
-                    ></ion-icon></span
-                  >) to remove the card details.
+                  {{ 'addEditExpense.cardDetailsInfo' | transloco }}
                 </div>
               </div>
             }
@@ -216,7 +225,9 @@
           <ion-grid class="add-edit-expense--card-container">
             <ion-row>
               <ion-col>
-                <div class="add-edit-expense--card-container__label">Card ending in...</div>
+                <div class="add-edit-expense--card-container__label">
+                  {{ 'addEditExpense.cardEndingInLabel' | transloco }}
+                </div>
                 <div class="add-edit-expense--card-container__value">
                   {{ cardNumber ? (cardNumber | maskNumber) : '-' }}
                 </div>
@@ -225,13 +236,17 @@
                 </div>
               </ion-col>
               <ion-col>
-                <div class="add-edit-expense--card-container__label">Spend date</div>
+                <div class="add-edit-expense--card-container__label">
+                  {{ 'addEditExpense.spendDateLabel' | transloco }}
+                </div>
                 <div class="add-edit-expense--card-container__value">
                   {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, yyyy' }}
                 </div>
               </ion-col>
               <ion-col>
-                <div class="add-edit-expense--card-container__label">Spend amount</div>
+                <div class="add-edit-expense--card-container__label">
+                  {{ 'addEditExpense.spendAmountLabel' | transloco }}
+                </div>
                 @if (selectedCCCTransaction?.amount > 0) {
                   <div>
                     <span class="add-edit-expense--card-container__value">{{
@@ -255,16 +270,20 @@
             @if (selectedCCCTransaction?.description) {
               <ion-row>
                 <ion-col>
-                  <div class="add-edit-expense--card-container__label">Card transaction</div>
+                  <div class="add-edit-expense--card-container__label">
+                    {{ 'addEditExpense.cardTransactionLabel' | transloco }}
+                  </div>
                   <div class="add-edit-expense--card-container__value">{{ selectedCCCTransaction.description }}</div>
                 </ion-col>
               </ion-row>
             }
             <ng-container>
               <div class="add-edit-expense--card-container__merchant_block">
-                <div class="add-edit-expense--card-container__merchant_label">Merchant:</div>
+                <div class="add-edit-expense--card-container__merchant_label">
+                  {{ 'addEditExpense.merchantLabel' | transloco }}
+                </div>
                 <div class="add-edit-expense--card-container__merchant_value">
-                  <span> {{ selectedCCCTransaction?.vendor || 'Unavailable' }} </span>
+                  <span> {{ selectedCCCTransaction?.vendor || ('addEditExpense.unavailableText' | transloco) }} </span>
                   <ion-icon
                     (click)="openCCExpenseMerchantInfoModal()"
                     src="../../../assets/svg/info-circle-outline.svg"
@@ -298,7 +317,9 @@
                 @if (attachmentUploadInProgress) {
                   <div class="add-edit-expense--receipt-image">
                     <ion-spinner class="add-edit-expense--spinner-icon" icon="circles"></ion-spinner>
-                    <div class="add-edit-expense--receipt-image-subheader">Uploading</div>
+                    <div class="add-edit-expense--receipt-image-subheader">
+                      {{ 'addEditExpense.uploadingText' | transloco }}
+                    </div>
                   </div>
                 }
                 @if (attachedReceiptsCount === 0 && !attachmentUploadInProgress) {
@@ -351,7 +372,7 @@
                         'add-edit-expense--orig-amount-error': fg.controls?.currencyObj?.value?.orig_currency,
                       }"
                     >
-                      Please enter the amount.
+                      {{ 'addEditExpense.pleaseEnterAmountError' | transloco }}
                     </div>
                   }
                 }
@@ -408,7 +429,7 @@
                         }"
                         class="add-edit-expense--date-label"
                       >
-                        {{ txnFields.txn_dt?.field_name || 'Date of Spend' }}
+                        {{ txnFields.txn_dt?.field_name || ('addEditExpense.dateOfSpendLabel' | transloco) }}
                         @if (txnFields.txn_dt?.is_mandatory) {
                           <span class="add-edit-expense--mandatory">*</span>
                         }
@@ -418,11 +439,13 @@
                         (keydown)="$event.preventDefault()"
                         [max]="maxDate"
                         [min]="minDate"
-                        [placeholder]="txnFields.txn_dt?.placeholder || 'Date of spend'"
+                        [placeholder]="
+                          txnFields.txn_dt?.placeholder || ('addEditExpense.dateOfSpendPlaceholder' | transloco)
+                        "
                         class="add-edit-expense--date-input date-input__format smartlook-show"
                         formControlName="dateOfSpend"
                         type="date"
-                        [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
+                        [name]="txnFields.txn_dt?.field_name || ('addEditExpense.dateOfSpendLabel' | transloco)"
                       />
                     </div>
                   }
@@ -436,11 +459,13 @@
                   ) {
                     <div class="add-edit-expense--auto-coded">
                       <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
-                      Date is auto coded.
+                      {{ 'addEditExpense.dateAutoCodedInfo' | transloco }}
                     </div>
                   }
                   @if (fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid) {
-                    <div class="add-edit-expense--date-error">Please select a valid date.</div>
+                    <div class="add-edit-expense--date-error">
+                      {{ 'addEditExpense.selectValidDateError' | transloco }}
+                    </div>
                   }
                 }
               </ion-col>
@@ -454,14 +479,14 @@
                       <app-fy-select
                         [disabled]="isExpenseBankTxn"
                         [enableSearch]="false"
-                        [label]="'Payment mode'"
+                        [label]="'addEditExpense.paymentModeLabel' | transloco"
                         [mandatory]="true"
                         [nullOption]="false"
                         [options]="paymentModes"
-                        [selectModalHeader]="'Select payment mode'"
+                        [selectModalHeader]="'addEditExpense.selectPaymentModeHeader' | transloco"
                         [selectionElement]="paymentMode"
                         formControlName="paymentMode"
-                        [placeholder]="'Payment mode'"
+                        [placeholder]="'addEditExpense.paymentModeLabel' | transloco"
                         [touchedInParent]="fg.controls.paymentMode.touched"
                         [validInParent]="fg.controls.paymentMode.valid"
                       >
@@ -476,10 +501,14 @@
                               </div>
                             }
                             @if (paymentMode.isReimbursable) {
-                              <div class="add-edit-expense--payment-mode-section">(Reimbursable)</div>
+                              <div class="add-edit-expense--payment-mode-section">
+                                {{ 'addEditExpense.reimbursableText' | transloco }}
+                              </div>
                             }
                             @if (!paymentMode.isReimbursable) {
-                              <div class="add-edit-expense--payment-mode-section">(Non Reimbursable)</div>
+                              <div class="add-edit-expense--payment-mode-section">
+                                {{ 'addEditExpense.nonReimbursableText' | transloco }}
+                              </div>
                             }
                           }
                         </div>
@@ -489,7 +518,9 @@
                       </ng-template>
                     </div>
                     @if (fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid) {
-                      <div class="add-edit-expense--error">Please select a valid payment mode.</div>
+                      <div class="add-edit-expense--error">
+                        {{ 'addEditExpense.selectValidPaymentModeError' | transloco }}
+                      </div>
                     }
                   }
                 </ion-col>
@@ -523,12 +554,7 @@
             canChangeMatchingCCCTransaction &&
             !(transactionInReport$ | async)
           ) {
-            <app-fy-alert-info
-              [message]="
-                'Expense will be saved as a draft. Kindly ensure that it is matched with an appropriate card transaction later, although we will attempt to auto-match it for you.'
-              "
-              [type]="'warning'"
-            >
+            <app-fy-alert-info [message]="'addEditExpense.draftExpenseWarning' | transloco" [type]="'warning'">
             </app-fy-alert-info>
           }
           @if (txnFields$ | async; as txnFields) {
@@ -1489,9 +1515,8 @@
                 @if (txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0) {
                   <app-fy-alert-info
                     [message]="
-                      'There are no ' +
-                      txnFields?.project_id?.field_name +
-                      's assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'
+                      'addEditExpense.noProjectsAssignedWarning'
+                        | transloco: { projectFieldName: txnFields?.project_id?.field_name }
                     "
                     [type]="'warning'"
                   >
@@ -1503,9 +1528,7 @@
           @if (filteredCategories$ | async; as categories) {
             @if (txnFields?.org_category_id?.is_mandatory && !categories.length) {
               <app-fy-alert-info
-                [message]="
-                  'There are no Categories assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'
-                "
+                [message]="'addEditExpense.noCategoriesAssignedWarning' | transloco"
                 [type]="'warning'"
               >
               </app-fy-alert-info>
@@ -1520,9 +1543,7 @@
               @if (txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0) {
                 <app-fy-alert-info
                   class="add-edit-expense--cost-center-alert"
-                  [message]="
-                    'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'
-                  "
+                  [message]="'addEditExpense.noCostCentersAssignedWarning' | transloco"
                   [type]="'warning'"
                 >
                 </app-fy-alert-info>
