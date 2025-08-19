@@ -76,7 +76,6 @@ import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data
 import { sortedCategory } from 'src/app/core/mock-data/org-category.data';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -126,21 +125,9 @@ export function TestCases1(getTestBed) {
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
-    let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(() => {
       const TestBed = getTestBed();
       TestBed.compileComponents();
-      const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-        config: {
-          reRenderOnLangChange: true,
-        },
-        langChanges$: of('en'),
-        _loadDependencies: () => Promise.resolve(),
-      });
-      TestBed.configureTestingModule({
-        imports: [TranslocoModule],
-        providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
-      });
       fixture = TestBed.createComponent(AddEditExpensePage);
       component = fixture.componentInstance;
 
@@ -193,7 +180,6 @@ export function TestCases1(getTestBed) {
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
-      translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
         paymentMode: [, Validators.required],
@@ -305,7 +291,7 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith({
           component: PopupAlertComponent,
           componentProps: {
-            title: 'Unsaved Changes',
+            title: 'Unsaved changes',
             message: 'You have unsaved information that will be lost if you discard this expense.',
             primaryCta: {
               text: 'Discard',
@@ -339,7 +325,7 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith({
           component: PopupAlertComponent,
           componentProps: {
-            title: 'Unsaved Changes',
+            title: 'Unsaved changes',
             message: 'You have unsaved information that will be lost if you discard this expense.',
             primaryCta: {
               text: 'Discard',
@@ -875,7 +861,7 @@ export function TestCases1(getTestBed) {
         },
       };
       transactionService.removeCorporateCardExpense.and.returnValue(of(mockUnlinkResponse));
-      const header = 'Remove Card Expense';
+      const header = 'Remove card expense';
       const body = 'removed';
       const ctaText = 'Confirm';
       const ctaLoadingText = 'Confirming';
@@ -906,7 +892,7 @@ export function TestCases1(getTestBed) {
         component.removeCorporateCardExpense();
         tick(500);
 
-        const header = 'Remove Card Expense';
+        const header = 'Remove card expense';
         const body = 'removed';
         const ctaText = 'Confirm';
         const ctaLoadingText = 'Confirming';
@@ -961,7 +947,7 @@ export function TestCases1(getTestBed) {
         component.removeCorporateCardExpense();
         tick(500);
 
-        const header = 'Remove Card Expense';
+        const header = 'Remove card expense';
         const body = 'removed';
         const ctaText = 'Confirm';
         const ctaLoadingText = 'Confirming';
@@ -1004,7 +990,7 @@ export function TestCases1(getTestBed) {
         component.removeCorporateCardExpense();
         tick(500);
 
-        const header = 'Remove Card Expense';
+        const header = 'Remove card expense';
         const body = 'removed';
         const ctaText = 'Confirm';
         const ctaLoadingText = 'Confirming';
@@ -1033,7 +1019,7 @@ export function TestCases1(getTestBed) {
         component.removeCorporateCardExpense();
         tick(500);
 
-        const header = 'Remove Card Expense';
+        const header = 'Remove card expense';
         const body = 'removed';
         const ctaText = 'Confirm';
         const ctaLoadingText = 'Confirming';
@@ -1102,12 +1088,12 @@ export function TestCases1(getTestBed) {
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
-          { message: 'Marked expense as Personal' },
+          { message: 'Marked expense as personal' },
           'information',
           ['msb-info'],
         );
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
-          ToastContent: 'Marked expense as Personal',
+          ToastContent: 'Marked expense as personal',
         });
       }));
 
@@ -1132,12 +1118,12 @@ export function TestCases1(getTestBed) {
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
-          { message: 'Marked expense as Personal' },
+          { message: 'Marked expense as personal' },
           'information',
           ['msb-info'],
         );
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
-          ToastContent: 'Marked expense as Personal',
+          ToastContent: 'Marked expense as personal',
         });
         expect(component.corporateCreditCardExpenseGroupId).toBeUndefined();
       }));
