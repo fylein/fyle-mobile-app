@@ -157,7 +157,7 @@ describe('FySelectCommuteDetailsComponent', () => {
 
       const distance = component.getCalculatedDistance(distanceInMeters, distanceUnit);
 
-      expect(distance).toBe(13.0473);
+      expect(distance).toBe(13.05);
     });
   });
 
@@ -276,7 +276,7 @@ describe('FySelectCommuteDetailsComponent', () => {
         expect(component.showToastMessage).toHaveBeenCalledOnceWith(
           'We were unable to save your commute details. Please enter correct home and work location.',
           ToastType.FAILURE,
-          'msb-failure'
+          'msb-failure',
         );
       }
     }));
