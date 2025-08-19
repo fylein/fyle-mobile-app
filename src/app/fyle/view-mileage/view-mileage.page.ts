@@ -242,13 +242,13 @@ export class ViewMileagePage {
   setCommuteDeductionDetails(commuteDeduction: string): void {
     switch (commuteDeduction) {
       case 'ONE_WAY':
-        this.commuteDeduction = 'One Way';
+        this.commuteDeduction = 'One way';
         break;
       case 'ROUND_TRIP':
-        this.commuteDeduction = 'Round Trip';
+        this.commuteDeduction = 'Round trip';
         break;
       default:
-        this.commuteDeduction = 'No Deduction';
+        this.commuteDeduction = 'No deduction';
         break;
     }
   }

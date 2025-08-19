@@ -105,9 +105,9 @@
       "pleaseWait": "Please wait..."
     },
     "mileage": {
-      "oneWayDistance": "One Way Distance",
-      "roundTripDistance": "Round Trip Distance",
-      "noDeduction": "No Deduction"
+      "oneWayDistance": "One way distance",
+      "roundTripDistance": "Round trip distance",
+      "noDeduction": "No deduction"
     },
     "report": {
       "automaticSubmissionOnDate": "(Automatic Submission On {{date}})"
