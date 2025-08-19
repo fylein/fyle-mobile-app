@@ -1050,7 +1050,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (isSplitExpenseAllowed) {
           actionSheetOptions.push({
-            text: 'Split Expense',
+            text: 'Split expense',
             handler: () => this.splitExpenseHandler(),
           });
         }
@@ -1571,11 +1571,11 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       map(({ paymentModes, employeeSettings }) => {
         const allAllowedPaymentModes = employeeSettings?.payment_mode_settings?.allowed_payment_modes;
-        
+
         if (allAllowedPaymentModes && allAllowedPaymentModes.length > 0) {
           // Use first allowed payment mode from employee settings
           const defaultPaymentModeType = allAllowedPaymentModes[0];
-          
+
           // Find the first payment mode that matches the default type
           const defaultPaymentMode = paymentModes.find((paymentMode) => {
             if ('type' in paymentMode.value) {
@@ -4927,7 +4927,7 @@ export class AddEditExpensePage implements OnInit {
       }
       if (receiptDetails && receiptDetails.dataUrl) {
         this.attachReceipts(receiptDetails as { type: string; dataUrl: string });
-        const message = 'Receipt added to Expense successfully';
+        const message = 'Receipt added to expense successfully';
         this.showSnackBarToast({ message }, 'success', ['msb-success-with-camera-icon']);
         this.showReceiptMandatoryError = false;
 
@@ -5065,7 +5065,7 @@ export class AddEditExpensePage implements OnInit {
 
   async deleteExpense(reportId?: string): Promise<void> {
     const removeExpenseFromReport = reportId && this.isRedirectedFromReport;
-    const header = removeExpenseFromReport ? 'Remove Expense' : 'Delete Expense';
+    const header = removeExpenseFromReport ? 'Remove expense' : 'Delete expense';
     const body = removeExpenseFromReport
       ? 'Are you sure you want to remove this expense from this report?'
       : 'Are you sure you want to delete this expense?';

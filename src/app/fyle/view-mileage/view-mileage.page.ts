@@ -217,7 +217,7 @@ export class ViewMileagePage {
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
-        header: 'Remove Expense',
+        header: 'Remove expense',
         body: 'Are you sure you want to remove this expense from the report?',
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
@@ -242,13 +242,13 @@ export class ViewMileagePage {
   setCommuteDeductionDetails(commuteDeduction: string): void {
     switch (commuteDeduction) {
       case 'ONE_WAY':
-        this.commuteDeduction = 'One Way';
+        this.commuteDeduction = 'One way';
         break;
       case 'ROUND_TRIP':
-        this.commuteDeduction = 'Round Trip';
+        this.commuteDeduction = 'Round trip';
         break;
       default:
-        this.commuteDeduction = 'No Deduction';
+        this.commuteDeduction = 'No deduction';
         break;
     }
   }

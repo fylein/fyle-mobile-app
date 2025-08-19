@@ -73,7 +73,7 @@ export const filterOptions2: FilterOptions<string>[] = deepFreeze([
         value: 'BLOCKED',
       },
       {
-        label: 'Policy Violated',
+        label: 'Policy violated',
         value: 'POLICY_VIOLATED',
       },
     ],
@@ -105,7 +105,7 @@ export const filterOptions2: FilterOptions<string>[] = deepFreeze([
     ],
   },
   {
-    name: 'Receipts Attached',
+    name: 'Receipts attached',
     optionType: FilterOptionType.singleselect,
     options: [
       {
@@ -119,7 +119,7 @@ export const filterOptions2: FilterOptions<string>[] = deepFreeze([
     ],
   },
   {
-    name: 'Expense Type',
+    name: 'Expense type',
     optionType: FilterOptionType.multiselect,
     options: [
       {
@@ -181,7 +181,7 @@ export const filterOptions2: FilterOptions<string>[] = deepFreeze([
     ],
   },
   {
-    name: 'Split Expense',
+    name: 'Split expense',
     optionType: FilterOptionType.singleselect,
     options: [
       {
@@ -206,7 +206,7 @@ export const filterOptions3: FilterOptions<string>[] = deepFreeze([
         value: 'READY_TO_REPORT',
       },
       {
-        label: 'Policy Violated',
+        label: 'Policy violated',
         value: 'POLICY_VIOLATED',
       },
       {
@@ -246,7 +246,7 @@ export const filterOptions3: FilterOptions<string>[] = deepFreeze([
     ],
   },
   {
-    name: 'Receipts Attached',
+    name: 'Receipts attached',
     optionType: FilterOptionType.singleselect,
     options: [
       {
@@ -260,7 +260,7 @@ export const filterOptions3: FilterOptions<string>[] = deepFreeze([
     ],
   },
   {
-    name: 'Expense Type',
+    name: 'Expense type',
     optionType: FilterOptionType.multiselect,
     options: [
       {
@@ -308,7 +308,7 @@ export const filterOptions3: FilterOptions<string>[] = deepFreeze([
     ],
   },
   {
-    name: 'Split Expense',
+    name: 'Split expense',
     optionType: FilterOptionType.singleselect,
     options: [
       {

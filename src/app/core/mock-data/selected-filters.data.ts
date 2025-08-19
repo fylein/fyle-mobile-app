@@ -28,7 +28,7 @@ export const selectedFilters1: SelectedFilters<string>[] = deepFreeze([
     value: 'custom',
   },
   {
-    name: 'Receipts Attached',
+    name: 'Receipts attached',
     value: 'custom',
   },
 ]);
@@ -142,11 +142,11 @@ export const selectedFilters7: SelectedFilters<string | string[]>[] = deepFreeze
     value: 'custom',
   },
   {
-    name: 'Receipts Attached',
+    name: 'Receipts attached',
     value: 'Yes',
   },
   {
-    name: 'Expense Type',
+    name: 'Expense type',
     value: ['Mileage'],
   },
   {
@@ -155,7 +155,7 @@ export const selectedFilters7: SelectedFilters<string | string[]>[] = deepFreeze
   },
   { name: 'Sort by', value: 'dateNewToOld' },
   {
-    name: 'Split Expense',
+    name: 'Split expense',
     value: 'Yes',
   },
 ]);
@@ -170,11 +170,11 @@ export const selectedFilters8: SelectedFilters<string | string[]>[] = deepFreeze
     value: 'custom',
   },
   {
-    name: 'Receipts Attached',
+    name: 'Receipts attached',
     value: 'Yes',
   },
   {
-    name: 'Expense Type',
+    name: 'Expense type',
     value: ['Mileage'],
   },
   {
@@ -183,7 +183,7 @@ export const selectedFilters8: SelectedFilters<string | string[]>[] = deepFreeze
   },
   { name: 'Sort by', value: 'dateNewToOld' },
   {
-    name: 'Split Expense',
+    name: 'Split expense',
     value: 'Yes',
   },
 ]);
@@ -194,7 +194,7 @@ export const selectedFilters9: SelectedFilters<string | string[]>[] = deepFreeze
     value: ['DRAFT', 'READY_TO_REPORT'],
   },
   {
-    name: 'Receipts Attached',
+    name: 'Receipts attached',
     value: 'YES',
   },
   {
@@ -210,7 +210,7 @@ export const selectedFilters9: SelectedFilters<string | string[]>[] = deepFreeze
     },
   },
   {
-    name: 'Expense Type',
+    name: 'Expense type',
     value: ['PerDiem', 'Mileage'],
   },
   {
@@ -218,7 +218,7 @@ export const selectedFilters9: SelectedFilters<string | string[]>[] = deepFreeze
     value: ['1234', '5678'],
   },
   {
-    name: 'Split Expense',
+    name: 'Split expense',
     value: 'YES',
   },
 ]);
