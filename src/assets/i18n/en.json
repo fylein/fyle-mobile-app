@@ -1492,7 +1492,7 @@
     "addExpenseTitle": "Add expense",
     "reviewExpenseTitle": "Review expense",
     "editExpenseTitle": "Edit expense",
-    "reviewTitle": "Review",
+    "reviewTitle": "Review expense",
     "receiptMandatoryError": "Please upload the receipt.",
     "incompleteExpenseError": "Mandatory field values are missing. Please update the details and save the Expense.",
     "duplicateExpenseWarning": "This expense might be a duplicate of an existing expense.",
