@@ -54,7 +54,7 @@ import { TranslocoService } from '@jsverse/transloco';
 
 const accountsCallResponse1 = [account1Data, account2Data];
 
-fdescribe('AccountsService', () => {
+describe('AccountsService', () => {
   let accountsService: AccountsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let fyCurrencyPipe: jasmine.SpyObj<FyCurrencyPipe>;
