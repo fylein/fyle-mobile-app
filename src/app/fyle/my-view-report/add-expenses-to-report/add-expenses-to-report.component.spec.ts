@@ -11,7 +11,7 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { AddExpensesToReportComponent } from './add-expenses-to-report.component';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { TranslocoTestingModule } from '@jsverse/transloco';
 
 describe('AddExpensesToReportComponent', () => {
   let component: AddExpensesToReportComponent;
@@ -19,7 +19,6 @@ describe('AddExpensesToReportComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let router: jasmine.SpyObj<Router>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   const expense1 = expenseData;
   const expense2 = { ...expenseData, id: 'txcSFe6efB62' };
   const expense3 = { ...expenseData, id: 'txcSFe6efB63' };
@@ -28,16 +27,9 @@ describe('AddExpensesToReportComponent', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
       declarations: [AddExpensesToReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), TranslocoTestingModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -53,10 +45,6 @@ describe('AddExpensesToReportComponent', () => {
           provide: Router,
           useValue: routerSpy,
         },
-        {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
-        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -66,31 +54,6 @@ describe('AddExpensesToReportComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'addExpensesToReport.addExpenses': 'Add expenses',
-        'addExpensesToReport.expenses': 'Expenses',
-        'addExpensesToReport.expense': 'Expense',
-        'addExpensesToReport.selectAll': 'Select all',
-        'addExpensesToReport.noExpenseInReport': 'No expense in this report',
-        'addExpensesToReport.noCompleteExpenses': 'You have no complete expenses',
-        'addExpensesToReport.clickOnThe': 'Click on the',
-        'addExpensesToReport.toAddNewExpense': 'to add a new expense to this report',
-        'addExpensesToReport.addToReport': 'Add to report',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
 
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
     component.selectedExpenseIds = ['txCYDX0peUw5', 'txfCdl3TEZ7K'];
@@ -253,7 +216,7 @@ describe('AddExpensesToReportComponent', () => {
     tick();
     fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--zero-state--header'))).toEqual(
-      'You have no complete expenses'
+      'You have no complete expenses',
     );
   }));
 });

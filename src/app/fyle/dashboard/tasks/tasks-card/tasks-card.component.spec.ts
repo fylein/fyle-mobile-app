@@ -30,10 +30,14 @@ describe('TasksCardComponent', () => {
       return translations[key] || key;
     });
     TestBed.configureTestingModule({
-    declarations: [TasksCardComponent],
-    imports: [IonicModule.forRoot(), MatRippleModule, MatIconModule, MatIconTestingModule],
-    providers: [{ provide: TranslocoService, useValue: translocoService }, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
-}).compileComponents();
+      declarations: [TasksCardComponent],
+      imports: [IonicModule.forRoot(), MatRippleModule, MatIconModule, MatIconTestingModule],
+      providers: [
+        { provide: TranslocoService, useValue: translocoService },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TasksCardComponent);
     component = fixture.componentInstance;
@@ -47,7 +51,7 @@ describe('TasksCardComponent', () => {
       icon: TaskIcon.REPORT,
       ctas: [
         {
-          content: 'Add to report',
+          content: 'Add to expense report',
           event: TASKEVENT.expensesAddToReport,
         },
       ],
