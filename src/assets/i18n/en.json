@@ -1307,14 +1307,11 @@
     "offlineMessage": "Fear not, you can still add expenses offline."
   },
   "shareReport": {
-    "title": "Share report",
-    "cancel": "Cancel",
-    "details": "Share report via email.",
+    "title": "Share expense report",
     "emailPlaceholder": "Email ID",
-    "invalidEmail": "Please enter a valid email",
-    "ctaButton": "Pull back",
     "share": "Share",
-    "shareWith": "Share report with"
+    "shareWith": "Share report with",
+    "errorMessage": "Please enter a valid email address"
   },
   "advanceActions": {
     "approveAdvance": "Approve advance",
