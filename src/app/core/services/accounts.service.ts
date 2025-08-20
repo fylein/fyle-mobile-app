@@ -253,11 +253,10 @@ export class AccountsService {
     // Mileage and per diem expenses cannot have PCCC as a payment mode
     if (isMileageOrPerDiemExpense) {
       updatedModes = updatedModes.filter((mode) => mode !== AccountType.CCC);
-    }
-
-    // Only add PERSONAL_CASH_ACCOUNT as fallback if both PERSONAL and COMPANY are not present
-    if (!updatedModes.includes(AccountType.PERSONAL) && !updatedModes.includes(AccountType.COMPANY)) {
-      updatedModes.push(AccountType.PERSONAL);
+      // Only add PERSONAL_CASH_ACCOUNT as fallback if both PERSONAL and COMPANY are not present for mileage and per diem expenses
+      if (!updatedModes.includes(AccountType.PERSONAL) && !updatedModes.includes(AccountType.COMPANY)) {
+        updatedModes.push(AccountType.PERSONAL);
+      }
     }
 
     // Add current expense account to allowedPaymentModes if it's not present
