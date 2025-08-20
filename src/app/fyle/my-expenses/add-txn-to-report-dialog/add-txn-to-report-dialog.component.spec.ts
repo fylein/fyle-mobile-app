@@ -15,7 +15,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog.component';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
-import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
+import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('AddTxnToReportDialogComponent', () => {
   let component: AddTxnToReportDialogComponent;
@@ -37,7 +37,7 @@ describe('AddTxnToReportDialogComponent', () => {
         ReportState,
         SnakeCaseToSpaceCase,
       ],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule, TranslocoTestingModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule, getTranslocoModule()],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
