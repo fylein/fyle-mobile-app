@@ -715,7 +715,7 @@
                       @if (canRemoveFromReport || !etxn?.tx?.report_id) {
                         <div class="add-edit-mileage--internal-block">
                           <app-fy-add-to-report
-                            [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
+                            [label]="etxn.tx.report_id ? 'Report' : 'Add to expensereport'"
                             [options]="reports"
                             formControlName="report"
                             [autoSubmissionReportName]="autoSubmissionReportName$ | async"
