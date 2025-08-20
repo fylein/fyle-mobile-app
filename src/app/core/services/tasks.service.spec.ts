@@ -69,7 +69,7 @@ import {
 import { OrgService } from './org.service';
 import { orgData1 } from '../mock-data/org.data';
 import { UtilityService } from './utility.service';
-import { TranslocoTestingModule } from '@jsverse/transloco';
+import { getTranslocoModule } from '../testing/transloco-testing.utils';
 describe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
@@ -110,7 +110,7 @@ describe('TasksService', () => {
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
 
     TestBed.configureTestingModule({
-      imports: [TranslocoTestingModule],
+      imports: [getTranslocoModule()],
       providers: [
         TasksService,
         {

@@ -129,7 +129,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { TranslocoTestingModule } from '@jsverse/transloco';
+import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 
@@ -324,7 +324,7 @@ describe('MyExpensesPage', () => {
     TestBed.configureTestingModule({
       declarations: [MyExpensesPage, ReportState, MaskNumber],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoTestingModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, getTranslocoModule()],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
