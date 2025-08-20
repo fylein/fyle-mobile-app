@@ -350,35 +350,33 @@
               </div>
             }
           }
-          <div>
-            @if (etxn$ | async; as etxn) {
-              <div class="add-edit-expense--currency">
-                @if (homeCurrency$ | async; as homeCurrency) {
-                  <app-currency
-                    [formControl]="fg?.controls?.currencyObj"
-                    [homeCurrency]="homeCurrency"
-                    [recentlyUsed]="recentCurrencies"
-                    [txnDt]="fg?.controls?.dateOfSpend?.value"
-                    [expanded]="attachedReceiptsCount === 0"
-                    [touchedInParent]="fg?.controls?.currencyObj?.touched"
-                    [validInParent]="fg?.controls?.currencyObj?.valid"
-                    [autoCodedData]="autoCodedData"
+          @if (etxn$ | async; as etxn) {
+            <div class="add-edit-expense--currency">
+              @if (homeCurrency$ | async; as homeCurrency) {
+                <app-currency
+                  [formControl]="fg?.controls?.currencyObj"
+                  [homeCurrency]="homeCurrency"
+                  [recentlyUsed]="recentCurrencies"
+                  [txnDt]="fg?.controls?.dateOfSpend?.value"
+                  [expanded]="attachedReceiptsCount === 0"
+                  [touchedInParent]="fg?.controls?.currencyObj?.touched"
+                  [validInParent]="fg?.controls?.currencyObj?.valid"
+                  [autoCodedData]="autoCodedData"
+                >
+                </app-currency>
+                @if (fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid) {
+                  <div
+                    class="add-edit-expense--amount-error"
+                    [ngClass]="{
+                      'add-edit-expense--orig-amount-error': fg.controls?.currencyObj?.value?.orig_currency,
+                    }"
                   >
-                  </app-currency>
-                  @if (fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid) {
-                    <div
-                      class="add-edit-expense--amount-error"
-                      [ngClass]="{
-                        'add-edit-expense--orig-amount-error': fg.controls?.currencyObj?.value?.orig_currency,
-                      }"
-                    >
-                      {{ 'addEditExpense.pleaseEnterAmountError' | transloco }}
-                    </div>
-                  }
+                    {{ 'addEditExpense.pleaseEnterAmountError' | transloco }}
+                  </div>
                 }
-              </div>
-            }
-          </div>
+              }
+            </div>
+          }
         </div>
         @if (newExpenseDataUrls && newExpenseDataUrls.length > 0) {
           <app-receipt-preview-thumbnail

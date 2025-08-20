@@ -626,18 +626,26 @@ export class MyExpensesPage implements OnInit {
         this.loadExpenses$.next(currentParams);
       });
 
+    // helper function to generate load expenses query params
+    const loadExpensesQueryParams = (
+      params: Partial<GetExpenseQueryParam>,
+    ): Record<string, string | boolean | string[]> => {
+      let queryParams = params.queryParams || {};
+
+      queryParams.report_id = queryParams.report_id || 'is.null';
+      queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
+
+      if (params.searchString) {
+        queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
+      } else if (params.searchString === '') {
+        delete queryParams.q;
+      }
+      return queryParams;
+    };
+
     const paginatedPipe = this.loadExpenses$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams || {};
-
-        queryParams.report_id = queryParams.report_id || 'is.null';
-        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
-
-        if (params.searchString) {
-          queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        } else if (params.searchString === '') {
-          delete queryParams.q;
-        }
+        const queryParams = loadExpensesQueryParams(params);
         const orderByParams =
           params.sortParam && params.sortDir
             ? `${params.sortParam}.${params.sortDir}`
@@ -688,10 +696,7 @@ export class MyExpensesPage implements OnInit {
 
     this.count$ = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {};
-
-        queryParams.report_id = queryParams.report_id || 'is.null';
-        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
+        const queryParams = loadExpensesQueryParams(params);
         return this.expenseService.getExpensesCount(queryParams);
       }),
       shareReplay(1),

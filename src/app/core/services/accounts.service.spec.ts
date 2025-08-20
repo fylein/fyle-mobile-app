@@ -268,13 +268,14 @@ describe('AccountsService', () => {
   it('should be able to get allowed accounts when current expense payment mode is not allowed', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'];
     expect(
-      accountsService.getAllowedAccountsWithAdvanceWallets(
+      accountsService.getAllowedAccounts(
         multiplePaymentModesWithoutPersonalAccData,
         allowedPaymentModes,
+        false,
         etxnObjWithSourceData,
         false,
       ),
-    ).toEqual(multiplePaymentModesWithPersonalAndCompanyData);
+    ).toEqual(multiplePaymentModesIncPersonalAccData);
   });
 
   it('should be able to return allowed accounts with advance accounts', () => {
@@ -465,6 +466,6 @@ describe('AccountsService', () => {
         etxnObjWithSourceData,
         false,
       ),
-    ).toEqual(multiplePaymentModesWithPersonalAndCompanyData);
+    ).toEqual(multiplePaymentModesIncPersonalAccData);
   });
 });
