@@ -69,7 +69,7 @@ import {
 import { OrgService } from './org.service';
 import { orgData1 } from '../mock-data/org.data';
 import { UtilityService } from './utility.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { getTranslocoModule } from '../testing/transloco-testing.utils';
 describe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
@@ -87,7 +87,6 @@ describe('TasksService', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   const mockTaskClearSubject = new Subject();
   const homeCurrency = 'INR';
 
@@ -109,91 +108,9 @@ describe('TasksService', () => {
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg', 'getPrimaryOrg']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
-
-    // Mock translate method to return expected strings
-    translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'services.tasks.expenses': 'Expenses',
-        'services.tasks.reports': 'Reports',
-        'services.tasks.advances': 'Advances',
-        'services.tasks.incomplete': 'Incomplete',
-        'services.tasks.complete': 'Complete',
-        'services.tasks.duplicate': 'Duplicate',
-        'services.tasks.draft': 'Draft',
-        'services.tasks.sentBack': 'Sent Back',
-        'services.tasks.unapproved': 'Unapproved',
-        'services.tasks.updatePhoneNumberHeader': 'Update phone number',
-        'services.tasks.optInToTextReceiptsHeader': 'Opt in to text receipts',
-        'services.tasks.updatePhoneNumberSubheader':
-          'Update your number to receive reminders for receipts through text messaging.',
-        'services.tasks.optInToTextReceiptsSubheader': 'Enable texting your receipts and instantly submit expenses',
-        'services.tasks.updateAndOptIn': 'Update',
-        'services.tasks.optIn': 'Opt in',
-        'services.tasks.addCorporateCard': 'Add corporate card',
-        'services.tasks.addCorporateCardSubheader': 'Link your corporate card to sync expenses from your card.',
-        'services.tasks.addCard': 'Add Card',
-        'services.tasks.potentialDuplicatesHeader': 'Merge duplicate expenses',
-        'services.tasks.potentialDuplicatesSubheader': 'Merge duplicate expenses present in your account',
-        'services.tasks.review': 'Review',
-        'services.tasks.merge': 'Merge',
-        'services.tasks.worth': 'worth',
-        'services.tasks.reportSentBack': 'Review sent back report',
-        'services.tasks.reportsSentBack': 'Review sent back reports',
-        'services.tasks.sentBackReportSubheader': 'Fix issues in your report to resubmit.',
-        'services.tasks.sentBackReportsSubheader': 'Fix issues in your reports to resubmit.',
-        'services.tasks.viewReport': 'View Report',
-        'services.tasks.viewReports': 'View Reports',
-        'services.tasks.advanceSentBack': 'Review sent back advance',
-        'services.tasks.advancesSentBack': 'Review sent back advances',
-        'services.tasks.sentBackAdvanceSubheader': 'Fix issues in your advance to resubmit.',
-        'services.tasks.sentBackAdvancesSubheader': 'Fix issues in your advances to resubmit.',
-        'services.tasks.viewAdvance': 'View Advance',
-        'services.tasks.viewAdvances': 'View Advances',
-        'services.tasks.unsubmittedReport': 'Submit {count} expense report',
-        'services.tasks.unsubmittedReports': 'Submit {count} expense reports',
-        'services.tasks.unsubmittedReportSubheader': 'Submit report for approval.',
-        'services.tasks.unsubmittedReportsSubheader': 'Submit reports for approval.',
-        'services.tasks.submitReport': 'Submit',
-        'services.tasks.reportToBeApproved': "Approve team's {count} report",
-        'services.tasks.reportsToBeApproved': "Approve team's {count} reports",
-        'services.tasks.teamReportSubheader': 'Approve pending report from your team.',
-        'services.tasks.teamReportsSubheader': 'Approve pending reports from your team.',
-        'services.tasks.approveReport': 'Approve',
-        'services.tasks.incompleteExpense': 'Complete {count} expense',
-        'services.tasks.incompleteExpenses': 'Complete {count} expenses',
-        'services.tasks.draftExpenseSubheader': 'Fill in missing details for incomplete expense',
-        'services.tasks.draftExpensesSubheader': 'Fill in missing details for incomplete expenses',
-        'services.tasks.completeExpense': 'Complete',
-        'services.tasks.expenseReadyToReport': 'Add {count} expense to report',
-        'services.tasks.expensesReadyToReport': 'Add {count} expenses to report',
-        'services.tasks.unreportedExpenseSubheader': 'Add complete expenses to a report and submit.',
-        'services.tasks.addToReport': 'Add to report',
-        'services.tasks.addCommuteDetails': 'Add Commute Details',
-        'services.tasks.addCommuteDetailsSubheader':
-          'Add your Home and Work locations to easily deduct commute distance from your mileage expenses',
-        'services.tasks.add': 'Add',
-      };
-
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params) {
-        if (params.count !== undefined) {
-          translation = translation.replace(/\{count\}/g, params.count);
-        }
-        if (params.amount !== undefined) {
-          // For amount parameter, replace with the actual amount or empty string if not provided
-          // If amount is provided, it should include a space before it
-          const amountValue = params.amount ? `${params.amount}` : '';
-          translation = translation.replace(/\{amount\}/g, amountValue);
-        }
-      }
-
-      return translation;
-    });
 
     TestBed.configureTestingModule({
+      imports: [getTranslocoModule()],
       providers: [
         TasksService,
         {
@@ -256,10 +173,6 @@ describe('TasksService', () => {
           provide: UtilityService,
           useValue: utilityServiceSpy,
         },
-        {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
-        },
       ],
     });
     tasksService = TestBed.inject(TasksService);
@@ -269,7 +182,7 @@ describe('TasksService', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
@@ -283,7 +196,6 @@ describe('TasksService', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     utilityService.isUserFromINCluster.and.resolveTo(false);
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -658,7 +570,7 @@ describe('TasksService', () => {
         potentialDuplicates: true,
         teamReports: true,
         sentBackAdvances: true,
-      })
+      }),
     ).toEqual([
       {
         label: 'Expenses',
@@ -686,7 +598,7 @@ describe('TasksService', () => {
         potentialDuplicates: true,
         teamReports: true,
         sentBackAdvances: false,
-      })
+      }),
     ).toEqual([
       {
         label: 'Expenses',
@@ -709,7 +621,7 @@ describe('TasksService', () => {
         potentialDuplicates: true,
         teamReports: true,
         sentBackAdvances: false,
-      })
+      }),
     ).toEqual([
       {
         label: 'Expenses',
@@ -743,7 +655,7 @@ describe('TasksService', () => {
         teamReports: [teamReportTaskSample],
         unreportedExpenses: [unreportedExpenseTaskSample],
         unsubmittedReports: [unsubmittedReportTaskSample],
-      }
+      },
     );
 
     expect(filteredTaskList).toEqual([
@@ -781,7 +693,7 @@ describe('TasksService', () => {
         totalCount: 1,
         totalAmount: totalCount,
       },
-      homeCurrency
+      homeCurrency,
     );
     expect(tasks[0].subheader).toEqual('Add complete expenses to a report and submit.');
   });
@@ -792,7 +704,7 @@ describe('TasksService', () => {
         totalAmount: 0,
         totalCount: 0,
       },
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks).toEqual([]);
@@ -802,7 +714,7 @@ describe('TasksService', () => {
         total_amount: 0,
         count: 0,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks2).toEqual([]);
@@ -812,7 +724,7 @@ describe('TasksService', () => {
         total_amount: 0,
         count: 0,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks3).toEqual([]);
@@ -822,7 +734,7 @@ describe('TasksService', () => {
         totalAmount: 0,
         totalCount: 0,
       },
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks4).toEqual([]);
@@ -832,7 +744,7 @@ describe('TasksService', () => {
         total_amount: 0,
         count: 0,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks5).toEqual([]);
@@ -842,7 +754,7 @@ describe('TasksService', () => {
         totalCount: 0,
         totalAmount: 0,
       },
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks6).toEqual([]);
@@ -957,7 +869,7 @@ describe('TasksService', () => {
     userEventService.onTaskCacheClear.and.callFake((refreshCallback) =>
       mockTaskClearSubject.subscribe(() => {
         refreshCallback();
-      })
+      }),
     );
 
     reportService.getReportAutoSubmissionDetails.and.returnValue(
@@ -965,7 +877,7 @@ describe('TasksService', () => {
         data: {
           next_at: new Date(20, 12, 2022),
         },
-      })
+      }),
     );
 
     setupData();
@@ -977,7 +889,7 @@ describe('TasksService', () => {
     tasksService.totalTaskCount$
       .pipe(
         filter((count) => count === 5),
-        take(1)
+        take(1),
       )
       .subscribe((count) => {
         expect(count).toEqual(5);
@@ -998,7 +910,7 @@ describe('TasksService', () => {
         totalCount: 1,
         totalAmount: sentBackAdvancesResponse.total_amount,
       },
-      homeCurrency
+      homeCurrency,
     );
 
     expect(sentBackAdvanceTask).toEqual([
@@ -1039,7 +951,7 @@ describe('TasksService', () => {
         count: 2,
         total_amount: sentBackResponse[0].aggregates[1].function_value,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(sentBackReportTask).toEqual([
@@ -1077,7 +989,7 @@ describe('TasksService', () => {
         totalCount: 1,
         totalAmount: incompleteExpensesResponse[0].aggregates[1].function_value,
       },
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks).toEqual([
@@ -1112,7 +1024,7 @@ describe('TasksService', () => {
         total_amount: unsubmittedReportsResponse[0].aggregates[1].function_value,
         count: 1,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks).toEqual([
@@ -1153,7 +1065,7 @@ describe('TasksService', () => {
         total_amount: teamReportResponse[0].aggregates[1].function_value,
         count: 1,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks).toEqual([
@@ -1178,7 +1090,7 @@ describe('TasksService', () => {
     userEventService.onTaskCacheClear.and.callFake((refreshCallback) =>
       mockTaskClearSubject.subscribe(() => {
         refreshCallback();
-      })
+      }),
     );
 
     reportService.getReportAutoSubmissionDetails.and.returnValue(of(null));
@@ -1192,7 +1104,7 @@ describe('TasksService', () => {
     tasksService.totalTaskCount$
       .pipe(
         filter((count) => count === 7),
-        take(1)
+        take(1),
       )
       .subscribe((count) => {
         expect(count).toEqual(7);
@@ -1244,7 +1156,7 @@ describe('TasksService', () => {
       eou.org.currency = 'CAD';
       authService.getEou.and.resolveTo(eou);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
-        [addMobileNumberTask]
+        [addMobileNumberTask],
       );
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -1260,7 +1172,7 @@ describe('TasksService', () => {
       eou.org.currency = 'USD';
       authService.getEou.and.resolveTo(eou);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
-        [addMobileNumberTask]
+        [addMobileNumberTask],
       );
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
