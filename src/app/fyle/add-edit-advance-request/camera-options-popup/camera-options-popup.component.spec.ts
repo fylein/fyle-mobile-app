@@ -129,6 +129,8 @@ describe('CameraOptionsPopupComponent', () => {
     beforeEach(() => {
       // Setup fileUpload ViewChild mock
       const mockNativeElement = document.createElement('input');
+
+      // @ts-expect-error - fileUpload is a read-only property
       component.fileUpload = signal({
         nativeElement: mockNativeElement,
       });
@@ -196,6 +198,7 @@ describe('CameraOptionsPopupComponent', () => {
     }));
 
     it('should handle null fileUpload ViewChild gracefully', fakeAsync(() => {
+      // @ts-expect-error - fileUpload is a read-only property
       component.fileUpload = null;
 
       expect(() => {

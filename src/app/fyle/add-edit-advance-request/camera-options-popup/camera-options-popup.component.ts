@@ -13,7 +13,7 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   private fileService = inject(FileService);
 
-  fileUpload = viewChild<ElementRef<HTMLInputElement>>('fileUpload');
+  readonly fileUpload = viewChild<ElementRef<HTMLInputElement>>('fileUpload');
 
   ngOnInit() {}
 
