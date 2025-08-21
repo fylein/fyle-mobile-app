@@ -356,7 +356,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Home',
           isVisible: true,
-          icon: 'dashboard',
+          icon: 'house-outline',
           route: ['/', 'enterprise', 'my_dashboard'],
         },
         {
