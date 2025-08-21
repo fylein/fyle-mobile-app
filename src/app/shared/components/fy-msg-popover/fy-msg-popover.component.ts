@@ -10,7 +10,7 @@ import { PopoverController } from '@ionic/angular';
 export class FyMsgPopoverComponent {
   private popoverController = inject(PopoverController);
 
-  readonly msg = input('');
+  msg: string;
 
   dismiss(): void {
     this.popoverController.dismiss();

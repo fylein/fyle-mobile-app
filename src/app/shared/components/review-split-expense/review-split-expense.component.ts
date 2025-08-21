@@ -10,7 +10,7 @@ import { ModalController } from '@ionic/angular';
 export class ReviewSplitExpenseComponent {
   private modalController = inject(ModalController);
 
-  readonly splitExpenses = input<Expense[]>([]);
+  splitExpenses: Expense[];
 
   goToExpense(event: { expense: Expense; expenseIndex: number }): void {
     this.modalController.dismiss({
