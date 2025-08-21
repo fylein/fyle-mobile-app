@@ -8,7 +8,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
-import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { selectedExpense1, selectedExpenses } from 'src/app/core/mock-data/expense.data';
 import {
   expenseData,
@@ -255,7 +254,7 @@ describe('MyCreateReportPage', () => {
       component.selectedElements = cloneDeep(readyToReportExpensesData);
       fixture.detectChanges();
 
-      component.ctaClickedEvent('create_report');
+      component.ctaClickedEvent('submit_report');
 
       expect(component.sendFirstReportCreated).toHaveBeenCalledTimes(1);
       expect(spenderReportsService.create).toHaveBeenCalledOnceWith(
@@ -263,7 +262,7 @@ describe('MyCreateReportPage', () => {
           purpose: component.reportTitle,
           source: 'MOBILE',
         },
-        [readyToReportExpensesData[0].id, readyToReportExpensesData[1].id]
+        [readyToReportExpensesData[0].id, readyToReportExpensesData[1].id],
       );
       expect(trackingService.createReport).toHaveBeenCalledOnceWith({
         Expense_Count: 2,
@@ -279,7 +278,7 @@ describe('MyCreateReportPage', () => {
       component.emptyInput = true;
       fixture.detectChanges();
 
-      component.ctaClickedEvent('create_report');
+      component.ctaClickedEvent('submit_report');
       tick(500);
 
       expect(component.showReportNameError).toBeTrue();
