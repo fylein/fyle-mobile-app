@@ -50,11 +50,11 @@ export class CustomInputsService {
     );
   }
 
-  filterByCategory(customInputs: ExpenseField[], orgCategoryId: number): ExpenseField[] {
+  filterByCategory(customInputs: ExpenseField[], orgCategoryId: string): ExpenseField[] {
     return customInputs
       .filter((customInput) =>
         customInput.org_category_ids
-          ? customInput.org_category_ids && customInput.org_category_ids.some((id) => id === orgCategoryId)
+          ? customInput.org_category_ids && customInput.org_category_ids.some((id) => id === Number(orgCategoryId))
           : true,
       )
       .sort();
@@ -68,7 +68,7 @@ export class CustomInputsService {
     return 0;
   }
 
-  fillCustomProperties(orgCategoryId: number, customProperties: Partial<CustomInput>[]): Observable<CustomField[]> {
+  fillCustomProperties(orgCategoryId: string, customProperties: Partial<CustomInput>[]): Observable<CustomField[]> {
     return this.getAll().pipe(
       // Call getAll without any arguments
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
