@@ -686,7 +686,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
     this.customInputs$ = this.loadCustomFields$.pipe(
       startWith(null),
-      switchMap((categoryId: number) =>
+      switchMap((categoryId: string) =>
         allCustomFields$.pipe(
           map((fields) => fields.filter((field) => field.type !== 'DEPENDENT_SELECT')),
           switchMap((fields) => {

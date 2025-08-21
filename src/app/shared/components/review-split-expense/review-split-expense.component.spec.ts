@@ -55,17 +55,16 @@ describe('ReviewSplitExpenseComponent', () => {
 
   it('should initialize with split expenses input', () => {
     const mockExpenses = [expenseData];
-    component.splitExpenses = mockExpenses;
-    fixture.detectChanges();
+    fixture.componentRef.setInput('splitExpenses', mockExpenses);
 
-    expect(component.splitExpenses).toEqual(mockExpenses);
+    expect(component.splitExpenses()).toEqual(mockExpenses);
   });
 
   it('should handle empty split expenses array', () => {
-    component.splitExpenses = [];
+    fixture.componentRef.setInput('splitExpenses', []);
     fixture.detectChanges();
 
-    expect(component.splitExpenses).toEqual([]);
+    expect(component.splitExpenses()).toEqual([]);
   });
 
   it('goToExpense(): should call modalController.dismiss with correct params on goToTransaction', () => {

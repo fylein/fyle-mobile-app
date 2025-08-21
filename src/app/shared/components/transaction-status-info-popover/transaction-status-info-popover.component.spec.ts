@@ -78,7 +78,7 @@ describe('TransactionStatusInfoComponent', () => {
   describe('template', () => {
     describe('title', () => {
       it('should display the correct title when transaction status is PENDING', () => {
-        component.transactionStatus = ExpenseTransactionStatus.PENDING;
+        fixture.componentRef.setInput('transactionStatus', ExpenseTransactionStatus.PENDING);
 
         fixture.detectChanges();
 
@@ -87,7 +87,7 @@ describe('TransactionStatusInfoComponent', () => {
       });
 
       it('should display the correct title when transaction status is POSTED', () => {
-        component.transactionStatus = ExpenseTransactionStatus.POSTED;
+        fixture.componentRef.setInput('transactionStatus', ExpenseTransactionStatus.POSTED);
 
         fixture.detectChanges();
 
@@ -98,7 +98,7 @@ describe('TransactionStatusInfoComponent', () => {
 
     describe('content', () => {
       it('should display the correct content when transaction status is PENDING', fakeAsync(() => {
-        component.transactionStatus = ExpenseTransactionStatus.PENDING;
+        fixture.componentRef.setInput('transactionStatus', ExpenseTransactionStatus.PENDING);
 
         fixture.detectChanges();
         tick();
@@ -106,18 +106,20 @@ describe('TransactionStatusInfoComponent', () => {
 
         const content = getElementBySelector(fixture, '[data-testid="content"');
         expect(content.textContent).toEqual(
-          `Your transaction status is 'Pending' until your bank processes the transaction.`
+          `Your transaction status is 'Pending' until your bank processes the transaction.`,
         );
       }));
 
-      it('should display the correct content when transaction status is POSTED', () => {
-        component.transactionStatus = ExpenseTransactionStatus.POSTED;
+      it('should display the correct content when transaction status is POSTED', fakeAsync(() => {
+        fixture.componentRef.setInput('transactionStatus', ExpenseTransactionStatus.POSTED);
 
+        fixture.detectChanges();
+        tick();
         fixture.detectChanges();
 
         const content = getElementBySelector(fixture, '[data-testid="content"');
         expect(content.textContent).toEqual('The transaction has been processed by your bank.');
-      });
+      }));
     });
   });
 });

@@ -278,7 +278,7 @@ export class ViewPerDiemPage {
     this.perDiemCustomFields$ = this.perDiemExpense$.pipe(
       switchMap((expense) =>
         this.customInputsService.fillCustomProperties(
-          expense.category_id,
+          expense.category_id.toString(),
           expense.custom_fields as Partial<CustomInput>[],
         ),
       ),

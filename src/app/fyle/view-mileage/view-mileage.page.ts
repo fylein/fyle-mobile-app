@@ -400,7 +400,7 @@ export class ViewMileagePage {
     this.mileageCustomFields$ = this.mileageExpense$.pipe(
       switchMap((expense) =>
         this.customInputsService.fillCustomProperties(
-          expense.category_id,
+          expense.category_id.toString(),
           expense.custom_fields as Partial<CustomInput>[],
         ),
       ),

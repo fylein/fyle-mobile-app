@@ -315,7 +315,7 @@ export class ViewExpensePage {
     this.customProperties$ = this.expenseWithoutCustomProperties$.pipe(
       concatMap((expense) =>
         this.customInputsService.fillCustomProperties(
-          expense.category_id,
+          expense.category_id.toString(),
           expense.custom_fields as Partial<CustomInput>[],
         ),
       ),
