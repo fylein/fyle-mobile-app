@@ -52,10 +52,14 @@ describe('ShareReportComponent', () => {
   it('should do nothing when the email input field is empty or invalid', async () => {
     modalController.dismiss.and.resolveTo(true);
 
-    component.shareReport({ value: '', invalid: false, control: { markAllAsTouched: () => {} } });
+    component.shareReport({ value: '', invalid: false, control: { markAllAsTouched: () => {}, setErrors: () => {} } });
     expect(modalController.dismiss).not.toHaveBeenCalled();
 
-    component.shareReport({ value: 'invalid_email', invalid: true, control: { markAllAsTouched: () => {} } });
+    component.shareReport({
+      value: 'invalid_email',
+      invalid: true,
+      control: { markAllAsTouched: () => {}, setErrors: () => {} },
+    });
     expect(modalController.dismiss).not.toHaveBeenCalled();
   });
 
