@@ -1,0 +1,307 @@
+name: WCAG Accessibility Scan
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  run-accessibility-scan:
+    name: Run WCAG Accessibility Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm install --save-dev --legacy-peer-deps
+
+      - name: Install accessibility tools globally
+        run: |
+          # Install tools globally to avoid package.json changes
+          npm install -g axe-core @axe-core/cli
+          npm install -g eslint-plugin-jsx-a11y
+
+      - name: Find files to scan
+        id: find-files
+        run: |
+          # Find relevant files for accessibility scanning
+          echo "HTML_FILES=$(find . -name "*.html" -not -path "./node_modules/*" -not -path "./dist/*" -not -path "./www/*" -not -path "./build/*" | head -20 | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          echo "TS_FILES=$(find . -name "*.ts" -not -path "./node_modules/*" -not -path "./dist/*" -not -path "./www/*" -not -path "./build/*" -not -name "*.d.ts" -not -path "./e2e/*" | head -15 | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          echo "COMPONENT_FILES=$(find . -name "*.component.ts" -not -path "./node_modules/*" -not -path "./dist/*" -not -path "./www/*" -not -path "./build/*" | head -10 | tr '\n' ' ')" >> $GITHUB_OUTPUT
+
+      - name: Run ESLint with accessibility rules
+        id: eslint-a11y
+        continue-on-error: true
+        run: |
+          # Create temporary eslint config focused on accessibility
+          cat > .eslintrc.a11y.js << 'EOF'
+          module.exports = {
+            extends: ['plugin:jsx-a11y/recommended'],
+            plugins: ['jsx-a11y'],
+            rules: {
+              'jsx-a11y/alt-text': ['warn', { elements: ['img', 'object', 'area', 'input[type="image"]'] }],
+              'jsx-a11y/anchor-is-valid': 'warn',
+              'jsx-a11y/aria-props': 'warn',
+              'jsx-a11y/aria-proptypes': 'warn',
+              'jsx-a11y/aria-unsupported-elements': 'warn',
+              'jsx-a11y/role-has-required-aria-props': 'warn',
+              'jsx-a11y/role-supports-aria-props': 'warn',
+              'jsx-a11y/tabindex-no-positive': 'warn',
+              'jsx-a11y/label-has-associated-control': 'warn',
+              'jsx-a11y/media-has-caption': 'warn',
+              'jsx-a11y/no-autofocus': 'warn',
+              'jsx-a11y/no-redundant-roles': 'warn'
+            },
+            overrides: [
+              {
+                files: ['*.ts'],
+                parser: '@typescript-eslint/parser',
+                plugins: ['@typescript-eslint']
+              }
+            ]
+          };
+          EOF
+          
+          # Run eslint with accessibility rules on component files first, then other TS files
+          if [ -n "${{ steps.find-files.outputs.COMPONENT_FILES }}" ]; then
+            npx eslint --config .eslintrc.a11y.js --format json \
+              ${{ steps.find-files.outputs.COMPONENT_FILES }} \
+              > eslint-a11y-report.json 2>/dev/null || true
+          else
+            echo "[]" > eslint-a11y-report.json
+          fi
+
+      - name: Scan HTML templates with axe-core
+        id: axe-scan
+        continue-on-error: true
+        run: |
+          if [ -n "${{ steps.find-files.outputs.HTML_FILES }}" ]; then
+            # Create a simple axe runner script
+            cat > run-axe-scan.js << 'EOF'
+            const fs = require('fs');
+            const { execSync } = require('child_process');
+            
+            const htmlFiles = process.argv.slice(2);
+            
+            if (htmlFiles.length === 0) {
+              console.log('No HTML files to scan');
+              fs.writeFileSync('axe-report.json', '[]');
+              process.exit(0);
+            }
+            
+            const results = [];
+            
+            htmlFiles.forEach(file => {
+              try {
+                console.log(`Scanning ${file} for accessibility issues...`);
+                // Use axe-core CLI to scan each file
+                const output = execSync(`npx axe ${file} --format json --exit-code 0`, { 
+                  encoding: 'utf8',
+                  stdio: ['pipe', 'pipe', 'ignore']
+                });
+                
+                const result = JSON.parse(output);
+                if (result.violations && result.violations.length > 0) {
+                  result.violations.forEach(violation => {
+                    results.push({
+                      file: file,
+                      violation: violation
+                    });
+                  });
+                }
+              } catch (error) {
+                console.log(`Error scanning ${file}:`, error.message);
+              }
+            });
+            
+            fs.writeFileSync('axe-report.json', JSON.stringify(results, null, 2));
+            console.log(`Found ${results.length} accessibility violations across ${htmlFiles.length} files`);
+            EOF
+            
+            node run-axe-scan.js ${{ steps.find-files.outputs.HTML_FILES }}
+          else
+            echo "[]" > axe-report.json
+          fi
+
+      - name: Process results and generate report
+        id: process-results
+        run: |
+          # Create reports directory
+          mkdir -p accessibility-reports
+          
+          # Process ESLint results
+          if [ -f "eslint-a11y-report.json" ]; then
+            node -e "
+              const fs = require('fs');
+              try {
+                const report = JSON.parse(fs.readFileSync('eslint-a11y-report.json', 'utf8'));
+                let issues = [];
+                
+                if (Array.isArray(report)) {
+                  report.forEach(file => {
+                    if (file.messages && file.messages.length > 0) {
+                      file.messages.forEach(msg => {
+                        if (msg.severity > 0 && msg.ruleId && msg.ruleId.includes('a11y')) {
+                          issues.push({
+                            file: file.filePath,
+                            line: msg.line,
+                            message: msg.message,
+                            rule: msg.ruleId,
+                            severity: msg.severity === 1 ? 'warning' : 'error'
+                          });
+                        }
+                      });
+                    }
+                  });
+                }
+                
+                fs.writeFileSync('accessibility-reports/eslint-issues.json', JSON.stringify(issues, null, 2));
+                console.log('Found ' + issues.length + ' ESLint accessibility issues');
+              } catch (e) {
+                console.log('Error processing ESLint report:', e.message);
+                fs.writeFileSync('accessibility-reports/eslint-issues.json', '[]');
+              }
+            "
+          fi
+          
+          # Process axe results
+          if [ -f "axe-report.json" ]; then
+            node -e "
+              const fs = require('fs');
+              try {
+                const report = JSON.parse(fs.readFileSync('axe-report.json', 'utf8'));
+                fs.writeFileSync('accessibility-reports/axe-issues.json', JSON.stringify(report, null, 2));
+                console.log('Found ' + report.length + ' axe-core accessibility violations');
+              } catch (e) {
+                console.log('Error processing axe report:', e.message);
+                fs.writeFileSync('accessibility-reports/axe-issues.json', '[]');
+              }
+            "
+          fi
+          
+          # Generate summary markdown
+          node -e "
+            const fs = require('fs');
+            
+            // Read issues
+            const eslintIssues = JSON.parse(fs.readFileSync('accessibility-reports/eslint-issues.json', 'utf8'));
+            const axeIssues = JSON.parse(fs.readFileSync('accessibility-reports/axe-issues.json', 'utf8'));
+            
+            // Generate summary
+            let summary = '# 🔍 WCAG Accessibility Scan Report\\n\\n';
+            summary += '## 📊 Summary\\n';
+            summary += '- **ESLint accessibility issues**: ' + eslintIssues.length + '\\n';
+            summary += '- **Axe-core HTML violations**: ' + axeIssues.length + '\\n\\n';
+            
+            if (eslintIssues.length > 0) {
+              summary += '## ⚠️ ESLint Accessibility Issues\\n';
+              eslintIssues.slice(0, 8).forEach(issue => {
+                const relativePath = issue.file.replace(process.cwd() + '/', '');
+                summary += '- **`' + relativePath + '`** (line ' + issue.line + '): ' + issue.message + '\\n';
+                summary += '  - *Rule: ' + issue.rule + ', Severity: ' + issue.severity + '*\\n';
+              });
+              if (eslintIssues.length > 8) {
+                summary += '- *... and ' + (eslintIssues.length - 8) + ' more issues*\\n';
+              }
+              summary += '\\n';
+            }
+            
+            if (axeIssues.length > 0) {
+              summary += '## 🚨 HTML Accessibility Violations\\n';
+              const uniqueViolations = new Set();
+              
+              axeIssues.slice(0, 5).forEach(issue => {
+                if (!uniqueViolations.has(issue.violation.id)) {
+                  uniqueViolations.add(issue.violation.id);
+                  summary += '### ' + issue.violation.id + ': ' + issue.violation.help + '\\n';
+                  summary += '**Impact**: ' + issue.violation.impact + '\\n';
+                  summary += '**Files affected**: ' + axeIssues.filter(i => i.violation.id === issue.violation.id).length + '\\n';
+                  summary += '**Help URL**: ' + issue.violation.helpUrl + '\\n\\n';
+                }
+              });
+              
+              if (axeIssues.length > 5) {
+                summary += '- *... and ' + (axeIssues.length - 5) + ' more violations across ' + new Set(axeIssues.map(i => i.file)).size + ' files*\\n';
+              }
+            }
+            
+            if (eslintIssues.length === 0 && axeIssues.length === 0) {
+              summary += '🎉 No accessibility issues found in the scanned files!\\n';
+              summary += '\\n*Scanned files: ' + ('${{ steps.find-files.outputs.HTML_FILES }}'.split(' ').filter(f => f).length + ' HTML, ' + '${{ steps.find-files.outputs.COMPONENT_FILES }}'.split(' ').filter(f => f).length + ' components)*';
+            }
+            
+            summary += '\\n---\\n*This report was generated automatically by the WCAG Accessibility Scan workflow.*';
+            
+            fs.writeFileSync('accessibility-reports/summary.md', summary);
+            console.log('Generated accessibility report');
+          "
+
+      - name: Upload accessibility reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: accessibility-reports
+          path: accessibility-reports/
+
+      - name: Post PR comment with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const core = require('@actions/core');
+            
+            try {
+              const reportPath = 'accessibility-reports/summary.md';
+              if (fs.existsSync(reportPath)) {
+                const report = fs.readFileSync(reportPath, 'utf8');
+                const { data: comments } = await github.rest.issues.listComments({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number
+                });
+                
+                // Find existing comment from this action
+                const botComment = comments.find(comment => 
+                  comment.user.login === 'github-actions[bot]' && 
+                  comment.body.includes('WCAG Accessibility Scan Report')
+                );
+                
+                if (botComment) {
+                  // Update existing comment
+                  await github.rest.issues.updateComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    comment_id: botComment.id,
+                    body: report
+                  });
+                  core.info('Updated existing PR comment');
+                } else {
+                  // Create new comment
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: context.issue.number,
+                    body: report
+                  });
+                  core.info('Created new PR comment');
+                }
+              } else {
+                core.warning('Accessibility report not found, skipping comment');
+              }
+            } catch (error) {
+              core.error('Error posting comment: ' + error.message);
+            }
