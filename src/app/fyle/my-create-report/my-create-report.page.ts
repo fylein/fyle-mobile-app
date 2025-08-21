@@ -22,8 +22,6 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
   standalone: false,
 })
 export class MyCreateReportPage implements OnInit {
-  @ViewChild('reportTitleInput') reportTitleInput: NgModel;
-
   readyToReportExpenses: PlatformExpense[];
 
   selectedElements: PlatformExpense[];
@@ -103,7 +101,7 @@ export class MyCreateReportPage implements OnInit {
     }
   }
 
-  ctaClickedEvent(reportActionType): Subscription {
+  ctaClickedEvent(reportActionType: 'create_draft_report' | 'submit_report'): Subscription {
     this.showReportNameError = false;
     if (!this.reportTitle && this.reportTitle.trim().length <= 0 && this.emptyInput) {
       this.showReportNameError = true;
@@ -190,7 +188,7 @@ export class MyCreateReportPage implements OnInit {
     const expenseIDs = this.selectedElements.map((ele) => ele.id);
     this.selectedTotalAmount = this.getTotalSelectedExpensesAmount(this.selectedElements);
 
-    if (this.reportTitleInput && !this.reportTitleInput.dirty) {
+    if (!this.reportTitle) {
       return this.spenderReportsService.suggestPurpose(expenseIDs).subscribe((res) => {
         this.reportTitle = res;
       });
