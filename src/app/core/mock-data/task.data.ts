@@ -101,7 +101,7 @@ export const unreportedExpenseTaskSample = deepFreeze({
   icon: TaskIcon.REPORT,
   ctas: [
     {
-      content: 'Add to report',
+      content: 'Add to expense report',
       event: TASKEVENT.expensesAddToReport,
     },
   ],

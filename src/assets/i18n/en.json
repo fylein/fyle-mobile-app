@@ -206,7 +206,6 @@
       "expenseReadyToReport": "Add {{count}} expense to report",
       "expensesReadyToReport": "Add {{count}} expenses to report",
       "unreportedExpenseSubheader": "Add complete expenses to a report and submit.",
-      "addToReport": "Add to report",
       "addCommuteDetails": "Add Commute Details",
       "addCommuteDetailsSubheader": "Add your Home and Work locations to easily deduct commute distance from your mileage expenses",
       "add": "Add"
@@ -759,7 +758,7 @@
     "mobileNumberLabel": "Mobile number"
   },
   "fyAddToReportModal": {
-    "title": "Add to report",
+    "title": "Add to expense report",
     "none": "None",
     "expense": "Expense",
     "expenses": "Expenses",
@@ -1341,7 +1340,7 @@
     "successfullyMatched": "Successfully matched the expense."
   },
   "addTxnToReportDialog": {
-    "title": "Add to report",
+    "title": "Add to expense report",
     "expense": "Expense",
     "expenses": "Expenses",
     "noReports": "You have no reports right now",
@@ -1437,7 +1436,7 @@
     "noCompleteExpenses": "You have no complete expenses",
     "clickOnThe": "Click on the",
     "toAddNewExpense": "to add a new expense to this report",
-    "addToReport": "Add to report"
+    "addToReport": "Add to expense report"
   },
   "dateRangeModal": {
     "dateRange": "Date range",
@@ -1554,7 +1553,7 @@
     "selectCustomFieldHeader": "Select {{fieldName}}",
     "enterValidCustomFieldError": "Please enter {{fieldName}}.",
     "reportLabel": "Report",
-    "addToReportLabel": "Add to report",
+    "addToReportLabel": "Add to expense report",
     "hideMoreFieldsButton": "Hide more fields",
     "showMoreFieldsButton": "Show more fields",
     "savingText": "Saving",

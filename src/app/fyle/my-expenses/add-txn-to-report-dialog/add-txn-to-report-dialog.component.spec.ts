@@ -15,7 +15,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog.component';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('AddTxnToReportDialogComponent', () => {
   let component: AddTxnToReportDialogComponent;
@@ -23,42 +23,10 @@ describe('AddTxnToReportDialogComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let matBottomsheet: jasmine.SpyObj<MatBottomSheet>;
   let router: jasmine.SpyObj<Router>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
-
-    // Mock the translate method
-    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'pipes.reportState.draft': 'Draft',
-        'addTxnToReportDialog.title': 'Add to report',
-        'addTxnToReportDialog.expense': 'Expense',
-        'addTxnToReportDialog.expenses': 'Expenses',
-        'addTxnToReportDialog.noReports': 'You have no reports right now',
-        'addTxnToReportDialog.createDraftReportCta':
-          'To create a draft report please click on <ion-icon class="report-list--zero-state__icon" slot="icon-only" src="../../../../../assets/svg/plus-square.svg"></ion-icon>',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
 
     TestBed.configureTestingModule({
       declarations: [
@@ -69,7 +37,7 @@ describe('AddTxnToReportDialogComponent', () => {
         ReportState,
         SnakeCaseToSpaceCase,
       ],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule, TranslocoModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule, getTranslocoModule()],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -89,10 +57,6 @@ describe('AddTxnToReportDialogComponent', () => {
           provide: MAT_BOTTOM_SHEET_DATA,
           useValue: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
         },
-        {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
-        },
       ],
     }).compileComponents();
 
@@ -101,7 +65,6 @@ describe('AddTxnToReportDialogComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     matBottomsheet = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
     fixture.detectChanges();
   }));
