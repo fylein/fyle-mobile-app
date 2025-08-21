@@ -1,7 +1,7 @@
 import { map, Observable, of, Subject, switchMap } from 'rxjs';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { ApproverService } from './approver.service';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { Cacheable } from 'ts-cacheable';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
@@ -13,7 +13,9 @@ const employeeSettingsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class PlatformEmployeeSettingsService {
-  constructor(private approverService: ApproverService, private costCentersService: CostCentersService) {}
+  private approverService = inject(ApproverService);
+
+  private costCentersService = inject(CostCentersService);
 
   @Cacheable({
     cacheBusterObserver: employeeSettingsCacheBuster$,
@@ -28,7 +30,7 @@ export class PlatformEmployeeSettingsService {
             return employeeSettings;
           }
           return null;
-        })
+        }),
       );
   }
 
@@ -43,12 +45,14 @@ export class PlatformEmployeeSettingsService {
             .getAllActive()
             .pipe(
               map((costCenters) =>
-                costCenters.filter((costCenter) => employeeSettings.cost_center_ids?.includes(costCenter.id.toString()))
-              )
+                costCenters.filter((costCenter) =>
+                  employeeSettings.cost_center_ids?.includes(costCenter.id.toString()),
+                ),
+              ),
             );
         }
         return of([] as CostCenter[]);
-      })
+      }),
     );
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CardTransactionStat } from '../models/card-transaction-stat.model';
@@ -20,7 +20,7 @@ const cacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class CorporateCreditCardExpenseService {
-  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   @CacheBuster({
     cacheBusterNotifier: cacheBuster$,
@@ -86,8 +86,8 @@ export class CorporateCreditCardExpenseService {
               count: number;
               data: corporateCardTransaction[];
               offset: number;
-            }
-        )
+            },
+        ),
       );
   }
 
@@ -125,7 +125,7 @@ export class CorporateCreditCardExpenseService {
 
   getPlatformCorporateCardDetails(
     cards: PlatformCorporateCard[],
-    cardDetails: CCCDetails[]
+    cardDetails: CCCDetails[],
   ): PlatformCorporateCardDetail[] {
     return cards.map((card: PlatformCorporateCard) => {
       const formattedCard: PlatformCorporateCardDetail = {
@@ -173,23 +173,26 @@ export class CorporateCreditCardExpenseService {
    */
   private transformCardData(cardData: CardTransactionStat[]): CCCDetails[] {
     return Object.values(
-      cardData.reduce((cardMap, { corporate_card_id, bank_name, card_number, state, count, total_amount }) => {
-        if (!cardMap[corporate_card_id]) {
-          cardMap[corporate_card_id] = {
-            bank_name,
-            card_number,
-            corporate_card_id,
-            DRAFT: { count: 0, total_amount: 0 },
-            COMPLETE: { count: 0, total_amount: 0 },
-          };
-        }
+      cardData.reduce(
+        (cardMap, { corporate_card_id, bank_name, card_number, state, count, total_amount }) => {
+          if (!cardMap[corporate_card_id]) {
+            cardMap[corporate_card_id] = {
+              bank_name,
+              card_number,
+              corporate_card_id,
+              DRAFT: { count: 0, total_amount: 0 },
+              COMPLETE: { count: 0, total_amount: 0 },
+            };
+          }
 
-        if (state in cardMap[corporate_card_id]) {
-          cardMap[corporate_card_id][state] = { count, total_amount };
-        }
+          if (state in cardMap[corporate_card_id]) {
+            cardMap[corporate_card_id][state] = { count, total_amount };
+          }
 
-        return cardMap;
-      }, {} as Record<string, CCCDetails>)
+          return cardMap;
+        },
+        {} as Record<string, CCCDetails>,
+      ),
     );
   }
 }

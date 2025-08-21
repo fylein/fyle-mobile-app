@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController } from '@ionic/angular';
@@ -22,23 +22,29 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FySelectCommuteDetailsComponent implements OnInit {
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private modalController = inject(ModalController);
+
+  private locationService = inject(LocationService);
+
+  private employeesService = inject(EmployeesService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() existingCommuteDetails?: CommuteDetails;
 
   commuteDetails: UntypedFormGroup;
 
   saveCommuteDetailsLoading = false;
-
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private modalController: ModalController,
-    private locationService: LocationService,
-    private employeesService: EmployeesService,
-    private orgSettingsService: OrgSettingsService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.commuteDetails = this.formBuilder.group({

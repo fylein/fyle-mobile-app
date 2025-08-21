@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { CameraPreviewOptions } from '@capacitor-community/camera-preview';
 import { from } from 'rxjs';
 import { DEVICE_PLATFORM } from 'src/app/constants';
@@ -14,6 +14,12 @@ import * as Sentry from '@sentry/angular';
   standalone: false,
 })
 export class CameraPreviewComponent implements OnInit, OnChanges {
+  private devicePlatform = inject(DEVICE_PLATFORM);
+
+  private cameraService = inject(CameraService);
+
+  private cameraPreviewService = inject(CameraPreviewService);
+
   @Input() isBulkMode = false;
 
   @Input() isOffline = false;
@@ -49,12 +55,6 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   showModeChangedMessage = false;
 
   isIos = true;
-
-  constructor(
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
-    private cameraService: CameraService,
-    private cameraPreviewService: CameraPreviewService,
-  ) {}
 
   get CameraState(): typeof CameraState {
     return CameraState;

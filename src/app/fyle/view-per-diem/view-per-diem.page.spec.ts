@@ -164,10 +164,10 @@ describe('ViewPerDiemPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     spenderExpenseCommentService = TestBed.inject(
-      SpenderExpenseCommentService
+      SpenderExpenseCommentService,
     ) as jasmine.SpyObj<SpenderExpenseCommentService>;
     approverExpenseCommentService = TestBed.inject(
-      ApproverExpenseCommentService
+      ApproverExpenseCommentService,
     ) as jasmine.SpyObj<ApproverExpenseCommentService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
@@ -232,7 +232,7 @@ describe('ViewPerDiemPage', () => {
     it('should get policy details for team expenses', () => {
       component.view = ExpenseView.team;
       policyService.getApproverExpensePolicyViolations.and.returnValue(
-        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states)
+        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states),
       );
       component.getPolicyDetails('txRNWeQRXhso');
       expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith('txRNWeQRXhso');
@@ -242,7 +242,7 @@ describe('ViewPerDiemPage', () => {
     it('should get policy details for individual expenses', () => {
       component.view = ExpenseView.individual;
       policyService.getSpenderExpensePolicyViolations.and.returnValue(
-        of(expensePolicyStatesData.data[0].individual_desired_states)
+        of(expensePolicyStatesData.data[0].individual_desired_states),
       );
       component.getPolicyDetails('txVTmNOp5JEa');
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('txVTmNOp5JEa');
@@ -332,7 +332,7 @@ describe('ViewPerDiemPage', () => {
         .pipe(
           finalize(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          })
+          }),
         )
         .subscribe((extendedPerDiem) => {
           expect(spenderExpensesService.getExpenseById).toHaveBeenCalledOnceWith('tx3qwe4ty');
@@ -366,7 +366,7 @@ describe('ViewPerDiemPage', () => {
 
     it('should call dependentFieldsService.getDependentFieldValuesForBaseField with undefined if "txnFields.project_id" and "txnFields.cost_center_id" is array containing undefined', fakeAsync(() => {
       expenseFieldsService.getAllMap.and.returnValue(
-        of({ ...expenseFieldsMapResponse4, project_id: [undefined], cost_center_id: [undefined] })
+        of({ ...expenseFieldsMapResponse4, project_id: [undefined], cost_center_id: [undefined] }),
       );
       component.ionViewWillEnter();
       tick(100);
@@ -374,7 +374,7 @@ describe('ViewPerDiemPage', () => {
       component.projectDependentCustomProperties$.subscribe((projectDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           perDiemExpense.custom_fields as Partial<CustomInput>[],
-          undefined
+          undefined,
         );
         expect(projectDependentCustomProperties).toEqual(customInputData1);
       });
@@ -382,7 +382,7 @@ describe('ViewPerDiemPage', () => {
       component.costCenterDependentCustomProperties$.subscribe((costCenterDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalledOnceWith(
           perDiemExpense.custom_fields as Partial<CustomInput>[],
-          undefined
+          undefined,
         );
         expect(costCenterDependentCustomProperties).toEqual(customInputData1);
       });
@@ -390,7 +390,7 @@ describe('ViewPerDiemPage', () => {
 
     it('should set projectDependentCustomProperties$ and costCenterDependentCustomProperties$ to undefined if "txnFields.project_id" and "txnFields.cost_center_id" is undefined', fakeAsync(() => {
       expenseFieldsService.getAllMap.and.returnValue(
-        of({ ...expenseFieldsMapResponse4, project_id: undefined, cost_center_id: undefined })
+        of({ ...expenseFieldsMapResponse4, project_id: undefined, cost_center_id: undefined }),
       );
       component.ionViewWillEnter();
       tick(100);
@@ -479,8 +479,8 @@ describe('ViewPerDiemPage', () => {
 
       component.perDiemCustomFields$.subscribe((perDiemCustomFields) => {
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          perDiemExpense.category_id,
-          perDiemExpense.custom_fields as Partial<CustomInput>[]
+          perDiemExpense.category_id.toString(),
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
         );
         // Called twice because of the two custom fields
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(2);

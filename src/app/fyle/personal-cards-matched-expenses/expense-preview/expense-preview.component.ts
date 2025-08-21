@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
 import { finalize, map } from 'rxjs/operators';
@@ -19,6 +19,24 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class ExpensePreviewComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  private personalCardsService = inject(PersonalCardsService);
+
+  private router = inject(Router);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private platform = inject(Platform);
+
+  private trackingService = inject(TrackingService);
+
+  private expensesService = inject(ExpensesService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() expenseId: string;
 
   @Input() card: string;
@@ -32,18 +50,6 @@ export class ExpensePreviewComponent implements OnInit {
   type: string;
 
   isIos = false;
-
-  constructor(
-    private modalController: ModalController,
-    private personalCardsService: PersonalCardsService,
-    private router: Router,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private platform: Platform,
-    private trackingService: TrackingService,
-    private expensesService: ExpensesService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');

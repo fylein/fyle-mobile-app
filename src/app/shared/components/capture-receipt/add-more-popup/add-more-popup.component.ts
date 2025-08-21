@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -9,12 +9,11 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class AddMorePopupComponent implements OnInit {
-  actionButtons: { icon: string; title: string; mode: string }[];
+  private matBottomSheet = inject(MatBottomSheet);
 
-  constructor(
-    private matBottomSheet: MatBottomSheet,
-    private translocoService: TranslocoService,
-  ) {}
+  private translocoService = inject(TranslocoService);
+
+  actionButtons: { icon: string; title: string; mode: string }[];
 
   ngOnInit(): void {
     this.actionButtons = [

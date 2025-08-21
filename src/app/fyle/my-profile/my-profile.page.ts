@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -57,6 +57,60 @@ import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/
   standalone: false,
 })
 export class MyProfilePage {
+  private authService = inject(AuthService);
+
+  private userEventService = inject(UserEventService);
+
+  private secureStorageService = inject(SecureStorageService);
+
+  private storageService = inject(StorageService);
+
+  private deviceService = inject(DeviceService);
+
+  private loaderService = inject(LoaderService);
+
+  private tokenService = inject(TokenService);
+
+  private trackingService = inject(TrackingService);
+
+  private orgService = inject(OrgService);
+
+  private networkService = inject(NetworkService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private popoverController = inject(PopoverController);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private spenderService = inject(SpenderService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private employeesService = inject(EmployeesService);
+
+  private paymentModeService = inject(PaymentModesService);
+
+  private utilityService = inject(UtilityService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private router = inject(Router);
+
+  private walkthroughService = inject(WalkthroughService);
+
+  private featureConfigService = inject(FeatureConfigService);
+
   employeeSettings: EmployeeSettings;
 
   orgSettings: OrgSettings;
@@ -111,36 +165,6 @@ export class MyProfilePage {
   isLoading: boolean;
 
   overlayClickCount = 0;
-
-  constructor(
-    private authService: AuthService,
-    private userEventService: UserEventService,
-    private secureStorageService: SecureStorageService,
-    private storageService: StorageService,
-    private deviceService: DeviceService,
-    private loaderService: LoaderService,
-    private tokenService: TokenService,
-    private trackingService: TrackingService,
-    private orgService: OrgService,
-    private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService,
-    private popoverController: PopoverController,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private spenderService: SpenderService,
-    private activatedRoute: ActivatedRoute,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private employeesService: EmployeesService,
-    private paymentModeService: PaymentModesService,
-    private utilityService: UtilityService,
-    private orgUserService: OrgUserService,
-    private spenderOnboardingService: SpenderOnboardingService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private router: Router,
-    private walkthroughService: WalkthroughService,
-    private featureConfigService: FeatureConfigService,
-  ) {}
 
   emailOptInWalkthrough(): void {
     const emailOptInWalkthroughSteps = this.walkthroughService.getProfileEmailOptInWalkthroughConfig();

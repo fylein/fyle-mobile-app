@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Pipe({
@@ -6,6 +6,8 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class ReportState implements PipeTransform {
+  private translocoService = inject(TranslocoService);
+
   private stateKeyMap: Record<string, string> = {
     DRAFT: 'pipes.reportState.draft',
     APPROVER_PENDING: 'pipes.reportState.submitted',
@@ -23,8 +25,6 @@ export class ReportState implements PipeTransform {
     APPROVAL_DISABLED: 'pipes.reportState.disabled',
     APPROVAL_REJECTED: 'pipes.reportState.rejected',
   };
-
-  constructor(private translocoService: TranslocoService) {}
 
   transform(val: string): string {
     if (!val) {

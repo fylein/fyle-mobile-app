@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Cacheable } from 'ts-cacheable';
 import { DependentFieldValuesApiParams } from '../models/platform/dependent-field-values-api-params.model';
@@ -14,10 +14,9 @@ import { CustomInput } from '../models/custom-input.model';
   providedIn: 'root',
 })
 export class DependentFieldsService {
-  constructor(
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private customInputsService: CustomInputsService
-  ) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private customInputsService = inject(CustomInputsService);
 
   //Cache response for 5 unique configurations for config object
   //This avoids repetitive calls if user opens the parent modal again after changing child field
@@ -55,24 +54,24 @@ export class DependentFieldsService {
   //This method returns array of dependent field values based on id of base field
   getDependentFieldValuesForBaseField(
     txnCustomProperties: Partial<CustomInput>[],
-    parentFieldId: number
+    parentFieldId: number,
   ): Observable<Partial<CustomInput>[]> {
     return this.getDependentFieldsForBaseField(parentFieldId).pipe(
       map((dependentExpenseFields: ExpenseField[]) =>
         dependentExpenseFields.reduce(
           (dependentCustomProperties: Partial<CustomInput>[], dependentExpenseField: ExpenseField) => {
             const dependentFieldValue: Partial<CustomInput> = txnCustomProperties.find(
-              (customProperty) => customProperty.name === dependentExpenseField.field_name
+              (customProperty) => customProperty.name === dependentExpenseField.field_name,
             );
             if (dependentFieldValue) {
               dependentFieldValue.value = dependentFieldValue.value || '-';
               return [...dependentCustomProperties, dependentFieldValue];
             }
           },
-          []
-        )
+          [],
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -83,7 +82,7 @@ export class DependentFieldsService {
         const dependentExpenseFields: ExpenseField[] = [];
         while (parentFieldId) {
           const nextDependentField = expenseFields.find(
-            (expenseField) => expenseField.parent_field_id === parentFieldId
+            (expenseField) => expenseField.parent_field_id === parentFieldId,
           );
           if (nextDependentField) {
             dependentExpenseFields.push(nextDependentField);
@@ -91,7 +90,7 @@ export class DependentFieldsService {
           parentFieldId = nextDependentField?.id;
         }
         return dependentExpenseFields;
-      })
+      }),
     );
   }
 }

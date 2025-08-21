@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { getCurrencySymbol } from '@angular/common';
 import { MatBottomSheet, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -11,16 +11,20 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
   standalone: false,
 })
 export class AddTxnToReportDialogComponent implements OnInit {
+  private currencyService = inject(CurrencyService);
+
+  data = inject<{
+    openReports: Report[];
+    isNewReportsFlowEnabled: boolean;
+  }>(MAT_BOTTOM_SHEET_DATA);
+
+  private matBottomsheet = inject(MatBottomSheet);
+
+  private router = inject(Router);
+
   @Input() openReports;
 
   reportCurrencySymbol: string;
-
-  constructor(
-    private currencyService: CurrencyService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: { openReports: Report[]; isNewReportsFlowEnabled: boolean },
-    private matBottomsheet: MatBottomSheet,
-    private router: Router,
-  ) {}
 
   closeAddToReportModal(): void {
     this.matBottomsheet.dismiss();

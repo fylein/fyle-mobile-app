@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 
@@ -9,9 +9,9 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
   standalone: false,
 })
 export class TransactionStatusInfoPopoverComponent {
-  @Input() transactionStatus: ExpenseTransactionStatus;
+  private popoverController = inject(PopoverController);
 
-  constructor(private popoverController: PopoverController) {}
+  transactionStatus: ExpenseTransactionStatus;
 
   get TransactionStatus(): typeof ExpenseTransactionStatus {
     return ExpenseTransactionStatus;

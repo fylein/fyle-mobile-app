@@ -198,6 +198,104 @@ type FormValue = {
   standalone: false,
 })
 export class AddEditExpensePage implements OnInit {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private accountsService = inject(AccountsService);
+
+  private authService = inject(AuthService);
+
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private categoriesService = inject(CategoriesService);
+
+  private dateService = inject(DateService);
+
+  private projectsService = inject(ProjectsService);
+
+  private reportService = inject(ReportService);
+
+  private platformReportService = inject(SpenderReportsService);
+
+  private customInputsService = inject(CustomInputsService);
+
+  private customFieldsService = inject(CustomFieldsService);
+
+  private transactionService = inject(TransactionService);
+
+  private policyService = inject(PolicyService);
+
+  private transactionOutboxService = inject(TransactionsOutboxService);
+
+  private router = inject(Router);
+
+  private loaderService = inject(LoaderService);
+
+  private modalController = inject(ModalController);
+
+  private fileService = inject(FileService);
+
+  private spenderFileService = inject(SpenderFileService);
+
+  private popoverController = inject(PopoverController);
+
+  private currencyService = inject(CurrencyService);
+
+  private networkService = inject(NetworkService);
+
+  private navController = inject(NavController);
+
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private trackingService = inject(TrackingService);
+
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private recentlyUsedItemsService = inject(RecentlyUsedItemsService);
+
+  private tokenService = inject(TokenService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private actionSheetController = inject(ActionSheetController);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private sanitizer = inject(DomSanitizer);
+
+  private personalCardsService = inject(PersonalCardsService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  platform = inject(Platform);
+
+  private titleCasePipe = inject(TitleCasePipe);
+
+  private paymentModesService = inject(PaymentModesService);
+
+  private taxGroupService = inject(TaxGroupService);
+
+  private costCentersService = inject(CostCentersService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private storageService = inject(StorageService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private refinerService = inject(RefinerService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private expensesService = inject(ExpensesService);
+
+  private advanceWalletsService = inject(AdvanceWalletsService);
+
+  private expenseCommentService = inject(ExpenseCommentService);
+
   @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;
 
   @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
@@ -478,58 +576,6 @@ export class AddEditExpensePage implements OnInit {
   private sharedExpensesService = inject(SharedExpensesService);
 
   private translocoService = inject(TranslocoService);
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private accountsService: AccountsService,
-    private authService: AuthService,
-    private formBuilder: UntypedFormBuilder,
-    private categoriesService: CategoriesService,
-    private dateService: DateService,
-    private projectsService: ProjectsService,
-    private reportService: ReportService,
-    private platformReportService: SpenderReportsService,
-    private customInputsService: CustomInputsService,
-    private customFieldsService: CustomFieldsService,
-    private transactionService: TransactionService,
-    private policyService: PolicyService,
-    private transactionOutboxService: TransactionsOutboxService,
-    private router: Router,
-    private loaderService: LoaderService,
-    private modalController: ModalController,
-    private fileService: FileService,
-    private spenderFileService: SpenderFileService,
-    private popoverController: PopoverController,
-    private currencyService: CurrencyService,
-    private networkService: NetworkService,
-    private navController: NavController,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private trackingService: TrackingService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private tokenService: TokenService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private modalProperties: ModalPropertiesService,
-    private actionSheetController: ActionSheetController,
-    private orgSettingsService: OrgSettingsService,
-    private sanitizer: DomSanitizer,
-    private personalCardsService: PersonalCardsService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    public platform: Platform,
-    private titleCasePipe: TitleCasePipe,
-    private paymentModesService: PaymentModesService,
-    private taxGroupService: TaxGroupService,
-    private costCentersService: CostCentersService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private storageService: StorageService,
-    private launchDarklyService: LaunchDarklyService,
-    private refinerService: RefinerService,
-    private platformHandlerService: PlatformHandlerService,
-    private expensesService: ExpensesService,
-    private advanceWalletsService: AdvanceWalletsService,
-    private expenseCommentService: ExpenseCommentService,
-  ) {}
 
   get isExpandedView(): boolean {
     return this._isExpandedView;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { SupportDialogPage } from 'src/app/fyle/help/support-dialog/support-dialog.page';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -18,18 +18,21 @@ import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-r
   standalone: false,
 })
 export class HelpPage implements OnInit {
+  private modalController = inject(ModalController);
+
+  private employeesService = inject(EmployeesService);
+
+  private loaderService = inject(LoaderService);
+
+  private trackingService = inject(TrackingService);
+
+  private authService = inject(AuthService);
+
+  private browserHandlerService = inject(BrowserHandlerService);
+
   orgAdmins: PlatformApiResponse<Partial<Employee>[]>;
 
   contactSupportLoading = false;
-
-  constructor(
-    private modalController: ModalController,
-    private employeesService: EmployeesService,
-    private loaderService: LoaderService,
-    private trackingService: TrackingService,
-    private authService: AuthService,
-    private browserHandlerService: BrowserHandlerService,
-  ) {}
 
   openContactSupportDialog(): void {
     this.contactSupportLoading = true;

@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef } from '@angular/core';
+import { Component, Input, ElementRef, inject } from '@angular/core';
 import { ModalController, Platform } from '@ionic/angular';
 
 import { Observable, combineLatest } from 'rxjs';
@@ -25,6 +25,26 @@ import { AmountDetails } from 'src/app/core/models/amount-details.model';
   standalone: false,
 })
 export class FyViewReportInfoComponent {
+  private modalController = inject(ModalController);
+
+  private sharedExpensesService = inject(SharedExpensesService);
+
+  private datePipe = inject(DatePipe);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  platform = inject(Platform);
+
+  private elementRef = inject(ElementRef);
+
+  private trackingService = inject(TrackingService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private authService = inject(AuthService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() report$: Observable<Report>;
 
   @Input() expenses$: Observable<Expense[]>;
@@ -48,19 +68,6 @@ export class FyViewReportInfoComponent {
   employeeDetails = {};
 
   isSwipe = false;
-
-  constructor(
-    private modalController: ModalController,
-    private sharedExpensesService: SharedExpensesService,
-    private datePipe: DatePipe,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    public platform: Platform,
-    private elementRef: ElementRef,
-    private trackingService: TrackingService,
-    private orgSettingsService: OrgSettingsService,
-    private authService: AuthService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get ExpenseView(): typeof ExpenseView {
     return ExpenseView;

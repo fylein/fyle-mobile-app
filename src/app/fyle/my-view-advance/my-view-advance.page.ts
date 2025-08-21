@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { from, Observable } from 'rxjs';
 import { shareReplay, switchMap, map } from 'rxjs/operators';
@@ -17,6 +17,14 @@ import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advan
   standalone: false,
 })
 export class MyViewAdvancePage {
+  private advanceService = inject(AdvanceService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
   advance$: Observable<ExtendedAdvance>;
 
   advanceRequest$: Observable<ExtendedAdvanceRequestPublic>;
@@ -24,13 +32,6 @@ export class MyViewAdvancePage {
   projectFieldName = 'Project';
 
   currencySymbol: string;
-
-  constructor(
-    private advanceService: AdvanceService,
-    private activatedRoute: ActivatedRoute,
-    private expenseFieldsService: ExpenseFieldsService,
-    private advanceRequestService: AdvanceRequestService,
-  ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
     return StatisticTypes;

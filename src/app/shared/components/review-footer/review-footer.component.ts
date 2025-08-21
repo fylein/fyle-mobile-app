@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, inject } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
@@ -9,6 +9,8 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   standalone: false,
 })
 export class ReviewFooterComponent implements OnInit {
+  private trackingService = inject(TrackingService);
+
   @Input() activeIndex: number;
 
   @Input() reviewList: Array<Expense>;
@@ -20,8 +22,6 @@ export class ReviewFooterComponent implements OnInit {
   @Output() saveAndGoToPrev = new EventEmitter();
 
   @Output() saveAndGoToNext = new EventEmitter();
-
-  constructor(private trackingService: TrackingService) {}
 
   ngOnInit() {}
 

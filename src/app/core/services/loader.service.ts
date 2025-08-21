@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { LoadingController } from '@ionic/angular';
 import { noop } from 'rxjs';
 import { TranslocoService } from '@jsverse/transloco';
@@ -7,7 +7,9 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class LoaderService {
-  constructor(private loadingController: LoadingController, private translocoService: TranslocoService) {}
+  private loadingController = inject(LoadingController);
+
+  private translocoService = inject(TranslocoService);
 
   async showLoader(message?: string, duration = 1000, customLoaderUrl?: string): Promise<void> {
     const loadingMessage = message || this.translocoService.translate('services.loader.pleaseWait');

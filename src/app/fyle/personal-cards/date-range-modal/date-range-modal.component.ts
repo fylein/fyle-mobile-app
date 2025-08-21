@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -8,13 +8,13 @@ import { ModalController } from '@ionic/angular';
   standalone: false,
 })
 export class DateRangeModalComponent implements OnInit {
+  private modalController = inject(ModalController);
+
   @ViewChild('dateRangeStart') dateRangeStart: ElementRef;
 
   @ViewChild('dateRangeEnd') dateRangeEnd: ElementRef;
 
   isCalenderVisible = false;
-
-  constructor(private modalController: ModalController) {}
 
   ngOnInit(): void {}
 

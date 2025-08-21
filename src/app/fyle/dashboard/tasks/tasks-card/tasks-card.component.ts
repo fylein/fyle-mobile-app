@@ -1,5 +1,5 @@
 import { getCurrencySymbol } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
@@ -14,6 +14,10 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class TasksCardComponent implements OnInit {
+  private currencyService = inject(CurrencyService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() task: DashboardTask;
 
   @Input() autoSubmissionReportDate: Date;
@@ -27,11 +31,6 @@ export class TasksCardComponent implements OnInit {
   currencySymbol$: Observable<string>;
 
   showReportAutoSubmissionInfo = false;
-
-  constructor(
-    private currencyService: CurrencyService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();

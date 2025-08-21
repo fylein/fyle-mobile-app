@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, Injector, inject } from '@angular/core';
 
 import {
   NG_VALUE_ACCESSOR,
@@ -26,6 +26,14 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   standalone: false,
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
+  private fb = inject(UntypedFormBuilder);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private injector = inject(Injector);
+
   @Input() txnDt: Date;
 
   @Input() homeCurrency: string;
@@ -42,13 +50,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
-
-  constructor(
-    private fb: UntypedFormBuilder,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector,
-  ) {}
 
   get valid() {
     if (this.ngControl.touched) {

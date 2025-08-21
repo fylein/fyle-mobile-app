@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from '../core/services/loader.service';
 import { AdvanceRequestService } from '../core/services/advance-request.service';
@@ -17,18 +17,25 @@ import { ApproverReportsService } from '../core/services/platform/v1/approver/re
   standalone: false,
 })
 export class DeepLinkRedirectionPage {
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private loaderService: LoaderService,
-    private advanceRequestService: AdvanceRequestService,
-    private transactionService: TransactionService,
-    private authService: AuthService,
-    private deepLinkService: DeepLinkService,
-    private expensesService: ExpensesService,
-    private approverReportsService: ApproverReportsService,
-    private spenderReportsService: SpenderReportsService,
-  ) {}
+  private activatedRoute = inject(ActivatedRoute);
+
+  private router = inject(Router);
+
+  private loaderService = inject(LoaderService);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private transactionService = inject(TransactionService);
+
+  private authService = inject(AuthService);
+
+  private deepLinkService = inject(DeepLinkService);
+
+  private expensesService = inject(ExpensesService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private spenderReportsService = inject(SpenderReportsService);
 
   ionViewWillEnter(): void {
     const subModule = this.activatedRoute.snapshot.params.sub_module as string;

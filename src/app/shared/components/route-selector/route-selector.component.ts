@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -46,6 +47,10 @@ import { MileageLocation } from '../route-visualizer/mileage-locations.interface
   standalone: false,
 })
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
+  private fb = inject(UntypedFormBuilder);
+
+  private modalController = inject(ModalController);
+
   @Input() unit: 'KM' | 'MILES';
 
   @Input() mileageConfig: MileageDetails;
@@ -79,11 +84,6 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     distance: [, Validators.required],
     roundTrip: [],
   });
-
-  constructor(
-    private fb: UntypedFormBuilder,
-    private modalController: ModalController,
-  ) {}
 
   get mileageLocations(): UntypedFormArray {
     return this.form.controls.mileageLocations as UntypedFormArray;

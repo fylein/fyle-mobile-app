@@ -1,5 +1,5 @@
 import { getCurrencySymbol } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import dayjs from 'dayjs';
@@ -12,6 +12,10 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class MyAdvancesCardComponent implements OnInit {
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private translocoService = inject(TranslocoService);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() advanceRequest: any;
 
@@ -27,11 +31,6 @@ export class MyAdvancesCardComponent implements OnInit {
   currencySymbol = '';
 
   showDate = false;
-
-  constructor(
-    private advanceRequestService: AdvanceRequestService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     if (this.advanceRequest && this.prevDate) {

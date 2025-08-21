@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild, inject } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -51,6 +51,42 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
   standalone: false,
 })
 export class AddEditAdvanceRequestPage implements OnInit {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private authService = inject(AuthService);
+
+  private router = inject(Router);
+
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private modalController = inject(ModalController);
+
+  private loaderService = inject(LoaderService);
+
+  private projectsService = inject(ProjectsService);
+
+  private popoverController = inject(PopoverController);
+
+  private transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private fileService = inject(FileService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private networkService = inject(NetworkService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private currencyService = inject(CurrencyService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
   @ViewChild('formContainer') formContainer: ElementRef;
 
   isConnected$: Observable<boolean>;
@@ -92,27 +128,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
 
   isCameraPreviewStarted = false;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private authService: AuthService,
-    private router: Router,
-    private formBuilder: UntypedFormBuilder,
-    private advanceRequestService: AdvanceRequestService,
-    private modalController: ModalController,
-    private loaderService: LoaderService,
-    private projectsService: ProjectsService,
-    private popoverController: PopoverController,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private fileService: FileService,
-    private orgSettingsService: OrgSettingsService,
-    private networkService: NetworkService,
-    private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private currencyService: CurrencyService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-  ) {}
 
   @HostListener('keydown')
   scrollInputIntoView(): void {

@@ -239,10 +239,10 @@ describe('ViewMileagePage', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     spenderExpenseCommentService = TestBed.inject(
-      SpenderExpenseCommentService
+      SpenderExpenseCommentService,
     ) as jasmine.SpyObj<SpenderExpenseCommentService>;
     approverExpenseCommentService = TestBed.inject(
-      ApproverExpenseCommentService
+      ApproverExpenseCommentService,
     ) as jasmine.SpyObj<ApproverExpenseCommentService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -303,7 +303,7 @@ describe('ViewMileagePage', () => {
     it('should get policy details for team expenses', () => {
       component.view = ExpenseView.team;
       policyService.getApproverExpensePolicyViolations.and.returnValue(
-        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states)
+        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states),
       );
       component.getPolicyDetails('txRNWeQRXhso');
       expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith('txRNWeQRXhso');
@@ -313,7 +313,7 @@ describe('ViewMileagePage', () => {
     it('should get policy details for individual expenses', () => {
       component.view = ExpenseView.individual;
       policyService.getSpenderExpensePolicyViolations.and.returnValue(
-        of(expensePolicyStatesData.data[0].individual_desired_states)
+        of(expensePolicyStatesData.data[0].individual_desired_states),
       );
       component.getPolicyDetails('txVTmNOp5JEa');
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('txVTmNOp5JEa');
@@ -486,7 +486,7 @@ describe('ViewMileagePage', () => {
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
-          projectIdNumber
+          projectIdNumber,
         );
         done();
       });
@@ -502,7 +502,7 @@ describe('ViewMileagePage', () => {
         expect(expenseFieldsMapResponse4.cost_center_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
-          costCenterIdNumber
+          costCenterIdNumber,
         );
         done();
       });
@@ -733,11 +733,11 @@ describe('ViewMileagePage', () => {
       component.mileageCustomFields$.subscribe((data) => {
         expect(data).toEqual(mockfilledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          mileageExpense.category_id,
-          mileageExpense.custom_fields as Partial<CustomInput>[]
+          mileageExpense.category_id.toString(),
+          mileageExpense.custom_fields as Partial<CustomInput>[],
         );
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
-          mockfilledCustomProperties.length
+          mockfilledCustomProperties.length,
         );
         done();
       });
@@ -834,12 +834,12 @@ describe('ViewMileagePage', () => {
       activateRouteMock.snapshot.params.id = 'tx5fBcPBAxLv';
       activateRouteMock.snapshot.params.view = ExpenseView.team;
       policyService.getApproverExpensePolicyViolations.and.returnValue(
-        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states)
+        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states),
       );
       component.ionViewWillEnter();
       component.policyViloations$.subscribe(() => {
         expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith(
-          activateRouteMock.snapshot.params.id
+          activateRouteMock.snapshot.params.id,
         );
         done();
       });
@@ -849,12 +849,12 @@ describe('ViewMileagePage', () => {
       activateRouteMock.snapshot.params.id = 'tx5fBcPBAxLv';
       activateRouteMock.snapshot.params.view = ExpenseView.individual;
       policyService.getSpenderExpensePolicyViolations.and.returnValue(
-        of(expensePolicyStatesData.data[0].individual_desired_states)
+        of(expensePolicyStatesData.data[0].individual_desired_states),
       );
       component.ionViewWillEnter();
       component.policyViloations$.subscribe(() => {
         expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
-          activateRouteMock.snapshot.params.id
+          activateRouteMock.snapshot.params.id,
         );
         done();
       });
@@ -987,7 +987,7 @@ describe('ViewMileagePage', () => {
         expect(spenderFileService.generateUrls).toHaveBeenCalledOnceWith(mileageExpense.file_ids[0]);
         expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
           generateUrlsBulkData1[0].name,
-          generateUrlsBulkData1[0].download_url
+          generateUrlsBulkData1[0].download_url,
         );
         done();
       });
@@ -1005,7 +1005,7 @@ describe('ViewMileagePage', () => {
         expect(approverFileService.generateUrls).toHaveBeenCalledOnceWith(mileageExpense.file_ids[0]);
         expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
           generateUrlsBulkData1[0].name,
-          generateUrlsBulkData1[0].download_url
+          generateUrlsBulkData1[0].download_url,
         );
         done();
       });

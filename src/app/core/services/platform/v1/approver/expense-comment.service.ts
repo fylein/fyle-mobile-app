@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApproverService } from './approver.service';
 import { ExpenseComment } from 'src/app/core/models/expense-comment.model';
@@ -11,7 +11,9 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
   providedIn: 'root',
 })
 export class ExpenseCommentService {
-  constructor(private approverService: ApproverService, private statusService: StatusService) {}
+  private approverService = inject(ApproverService);
+
+  private statusService = inject(StatusService);
 
   getExpenseCommentsById(id: string): Observable<ExpenseComment[]> {
     const data = {
@@ -27,7 +29,7 @@ export class ExpenseCommentService {
 
   getTransformedComments(expenseId: string): Observable<ExtendedStatus[]> {
     return this.getExpenseCommentsById(expenseId).pipe(
-      map((comments) => comments.map((comment) => this.statusService.transformToExtendedStatus(comment)))
+      map((comments) => comments.map((comment) => this.statusService.transformToExtendedStatus(comment))),
     );
   }
 
@@ -40,7 +42,7 @@ export class ExpenseCommentService {
         if (sortedStatus.length) {
           return sortedStatus[0].st_comment;
         }
-      })
+      }),
     );
   }
 
@@ -59,7 +61,7 @@ export class ExpenseCommentService {
   }
 
   post(
-    commentsWithExpenseId: { expense_id: string; comment: string; notify: boolean }[]
+    commentsWithExpenseId: { expense_id: string; comment: string; notify: boolean }[],
   ): Observable<ExpenseComment[]> {
     return this.approverService
       .post<{ data: ExpenseComment[] }>('/expenses/comments/bulk', {

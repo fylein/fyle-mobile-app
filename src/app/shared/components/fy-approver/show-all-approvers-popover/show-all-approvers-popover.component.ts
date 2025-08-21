@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
@@ -10,11 +10,11 @@ import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.m
   standalone: false,
 })
 export class ShowAllApproversPopoverComponent {
+  private popoverController = inject(PopoverController);
+
   @Input() approvals: ReportApprovals[];
 
   approvalState: typeof ApprovalState = ApprovalState;
-
-  constructor(private popoverController: PopoverController) {}
 
   closePopover(): void {
     this.popoverController.dismiss();

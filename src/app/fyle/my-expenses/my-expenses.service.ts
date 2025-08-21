@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import dayjs from 'dayjs';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
@@ -16,12 +16,11 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
   providedIn: 'root',
 })
 export class MyExpensesService {
-  maskNumber = new MaskNumber();
+  private translocoService = inject(TranslocoService);
 
-  constructor(
-    private translocoService: TranslocoService,
-    private orgSettingsService: OrgSettingsService,
-  ) {}
+  private orgSettingsService = inject(OrgSettingsService);
+
+  maskNumber = new MaskNumber();
 
   generateSortFilterPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
     this.generateSortTxnDatePills(filter, filterPills);

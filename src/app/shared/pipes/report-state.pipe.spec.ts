@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { ReportState } from './report-state.pipe';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -6,7 +7,14 @@ describe('ReportStatePipe', () => {
   let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(() => {
-    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+    });
+
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    pipe = TestBed.runInInjectionContext(() => new ReportState());
 
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
@@ -25,8 +33,6 @@ describe('ReportStatePipe', () => {
       };
       return translations[key] || key;
     });
-
-    pipe = new ReportState(translocoService);
   });
 
   it('transforms "" state to ""', () => {

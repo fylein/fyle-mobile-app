@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DriveStep } from 'driver.js';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -6,11 +6,11 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class WalkthroughService {
+  private translocoService = inject(TranslocoService);
+
   activeWalkthroughIndex = 0;
 
   isOverlayClicked = true;
-
-  constructor(private translocoService: TranslocoService) {}
 
   getDashboardAddExpenseWalkthroughConfig(): DriveStep[] {
     const steps: DriveStep[] = [

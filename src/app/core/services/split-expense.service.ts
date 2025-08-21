@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { FileObject } from '../models/file-obj.model';
 import { PolicyViolation } from '../models/policy-violation.model';
@@ -28,14 +28,17 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class SplitExpenseService {
-  constructor(
-    private policyService: PolicyService,
-    private categoriesService: CategoriesService,
-    private utilityService: UtilityService,
-    private expensesService: ExpensesService,
-    private expenseCommentService: ExpenseCommentService,
-    private translocoService: TranslocoService
-  ) {}
+  private policyService = inject(PolicyService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private utilityService = inject(UtilityService);
+
+  private expensesService = inject(ExpensesService);
+
+  private expenseCommentService = inject(ExpenseCommentService);
+
+  private translocoService = inject(TranslocoService);
 
   formatDisplayName(model: number, categoryList: OrgCategory[]): string {
     const category = this.categoriesService.filterByOrgCategoryId(model, categoryList);
@@ -48,7 +51,7 @@ export class SplitExpenseService {
     totalSplitAmount: number,
     splitExpenses: Transaction[],
     expenseFields: ExpenseField[],
-    homeCurrency: string
+    homeCurrency: string,
   ): Observable<Transaction[]> {
     let splitGroupAmount = sourceTxn.split_group_user_amount || sourceTxn.amount;
     let splitGroupId = sourceTxn.split_group_id || sourceTxn.id;
@@ -69,7 +72,7 @@ export class SplitExpenseService {
       splitGroupId,
       splitExpenses.length,
       expenseFields,
-      homeCurrency
+      homeCurrency,
     );
   }
 
@@ -77,7 +80,7 @@ export class SplitExpenseService {
     splitExpense: Transaction,
     sourceTxn: Transaction,
     customPropertyId: number,
-    expenseFields: ExpenseField[]
+    expenseFields: ExpenseField[],
   ): boolean {
     const categoryId = splitExpense.org_category_id || sourceTxn?.org_category_id;
     if (categoryId && expenseFields?.length > 0) {
@@ -110,7 +113,7 @@ export class SplitExpenseService {
     splitGroupId: string,
     totalSplitExpensesCount: number,
     expenseFields: ExpenseField[],
-    homeCurrency: string
+    homeCurrency: string,
   ): Observable<Transaction[]> {
     const txnsObservables = [];
 
@@ -150,7 +153,7 @@ export class SplitExpenseService {
     });
 
     return forkJoin(txnsObservables).pipe(
-      map((transactions) => this.normalizeForeignCurrencySplitAmounts(sourceTxn, transactions, homeCurrency))
+      map((transactions) => this.normalizeForeignCurrencySplitAmounts(sourceTxn, transactions, homeCurrency)),
     );
   }
 
@@ -158,7 +161,7 @@ export class SplitExpenseService {
     transaction: Transaction,
     splitGroupId: string,
     index: number,
-    totalSplitExpensesCount: number
+    totalSplitExpensesCount: number,
   ): void {
     if (transaction.purpose) {
       let splitIndex = 1;
@@ -184,7 +187,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
   ): Observable<SplitExpensePolicy> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
@@ -225,7 +228,7 @@ export class SplitExpenseService {
     splitTxns: Transaction[],
     transaction: Transaction,
     fileIds: string[],
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
   ): SplitPayload {
     const platformSplitObject: SplitPayload = {
       id: transaction.id,
@@ -288,7 +291,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
   ): Observable<Partial<SplitExpenseMissingFields>> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
@@ -305,14 +308,14 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
   ): Observable<{ policyViolations: SplitExpensePolicy; missingFields: Partial<SplitExpenseMissingFields> }> {
     const splitPolicyChecks$ = this.handleSplitPolicyCheck(splitEtxns, fileObjs, originalTxn, reportAndCategoryParams);
     const splitMissingFieldsCheck$ = this.handleSplitMissingFieldsCheck(
       splitEtxns,
       fileObjs,
       originalTxn,
-      reportAndCategoryParams
+      reportAndCategoryParams,
     );
 
     return forkJoin({ policyViolations: splitPolicyChecks$, missingFields: splitMissingFieldsCheck$ });
@@ -403,7 +406,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
   ): Observable<{ data: Transaction[] }> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
@@ -495,7 +498,7 @@ export class SplitExpenseService {
   private normalizeForeignCurrencySplitAmounts(
     sourceTxn: Transaction,
     transactionsPayload: Transaction[],
-    homeCurrency: string
+    homeCurrency: string,
   ): Transaction[] {
     if (!sourceTxn.orig_currency || transactionsPayload.length === 0) {
       return transactionsPayload;

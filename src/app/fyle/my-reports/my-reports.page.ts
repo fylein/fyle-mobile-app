@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, ViewChild, ElementRef, inject } from '@angular/core';
 import { concat, Observable, Subject, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -37,6 +37,40 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class MyReportsPage {
+  private networkService = inject(NetworkService);
+
+  private loaderService = inject(LoaderService);
+
+  private reportService = inject(ReportService);
+
+  private dateService = inject(DateService);
+
+  private router = inject(Router);
+
+  private currencyService = inject(CurrencyService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private popoverController = inject(PopoverController);
+
+  private trackingService = inject(TrackingService);
+
+  private extendQueryParamsService = inject(ExtendQueryParamsService);
+
+  private tasksService = inject(TasksService);
+
+  private modalController = inject(ModalController);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private reportStatePipe = inject(ReportState);
+
+  private expensesService = inject(ExpensesService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;
@@ -93,26 +127,6 @@ export class MyReportsPage {
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
   nonReimbursableOrg$: Observable<boolean>;
-
-  constructor(
-    private networkService: NetworkService,
-    private loaderService: LoaderService,
-    private reportService: ReportService,
-    private dateService: DateService,
-    private router: Router,
-    private currencyService: CurrencyService,
-    private activatedRoute: ActivatedRoute,
-    private popoverController: PopoverController,
-    private trackingService: TrackingService,
-    private extendQueryParamsService: ExtendQueryParamsService,
-    private tasksService: TasksService,
-    private modalController: ModalController,
-    private orgSettingsService: OrgSettingsService,
-    private reportStatePipe: ReportState,
-    private expensesService: ExpensesService,
-    private spenderReportsService: SpenderReportsService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;

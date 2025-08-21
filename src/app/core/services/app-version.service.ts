@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { forkJoin, noop, of, Observable } from 'rxjs';
@@ -15,12 +15,13 @@ import { AppSupportedDetails } from '../models/app-supported-details.model';
   providedIn: 'root',
 })
 export class AppVersionService {
-  constructor(
-    private apiService: ApiService,
-    private routerApiService: RouterApiService,
-    private loginInfoService: LoginInfoService,
-    private authService: AuthService
-  ) {}
+  private apiService = inject(ApiService);
+
+  private routerApiService = inject(RouterApiService);
+
+  private loginInfoService = inject(LoginInfoService);
+
+  private authService = inject(AuthService);
 
   // not fixing since copied from somewhere
   // not human readable at the moment
@@ -67,7 +68,7 @@ export class AppVersionService {
             return this.post(data);
           }
           return of(noop);
-        })
+        }),
       )
       .subscribe(noop); // because this needs to happen in the background
   }
@@ -88,9 +89,9 @@ export class AppVersionService {
           appSupportDetails: AppSupportedDetails;
           lastLoggedInVersion: string;
           eou: ExtendedOrgUser;
-        }) => !appVersionDetails.appSupportDetails.supported && environment.production
+        }) => !appVersionDetails.appSupportDetails.supported && environment.production,
       ),
-      map((appVersionDetails) => ({ ...appVersionDetails, deviceInfo }))
+      map((appVersionDetails) => ({ ...appVersionDetails, deviceInfo })),
     );
   }
 

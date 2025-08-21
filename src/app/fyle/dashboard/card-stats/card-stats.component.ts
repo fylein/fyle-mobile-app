@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -21,6 +21,20 @@ import { CardStatus } from 'src/app/core/enums/card-status.enum';
   standalone: false,
 })
 export class CardStatsComponent implements OnInit {
+  private currencyService = inject(CurrencyService);
+
+  private dashboardService = inject(DashboardService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private networkService = inject(NetworkService);
+
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private popoverController = inject(PopoverController);
+
+  private virtualCardsService = inject(VirtualCardsService);
+
   @Output() cardAdded = new EventEmitter<void>();
 
   cardDetails$: Observable<PlatformCorporateCardDetail[]>;
@@ -48,16 +62,6 @@ export class CardStatsComponent implements OnInit {
   loadCardDetails$ = new BehaviorSubject<void>(null);
 
   CardStatus: typeof CardStatus = CardStatus;
-
-  constructor(
-    private currencyService: CurrencyService,
-    private dashboardService: DashboardService,
-    private orgSettingsService: OrgSettingsService,
-    private networkService: NetworkService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private popoverController: PopoverController,
-    private virtualCardsService: VirtualCardsService,
-  ) {}
 
   ngOnInit(): void {
     this.setupNetworkWatcher();

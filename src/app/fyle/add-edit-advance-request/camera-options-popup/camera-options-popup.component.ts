@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 
@@ -9,12 +9,11 @@ import { FileService } from 'src/app/core/services/file.service';
   standalone: false,
 })
 export class CameraOptionsPopupComponent implements OnInit {
-  @ViewChild('fileUpload', { static: false }) fileUpload: any;
+  private popoverController = inject(PopoverController);
 
-  constructor(
-    private popoverController: PopoverController,
-    private fileService: FileService,
-  ) {}
+  private fileService = inject(FileService);
+
+  readonly fileUpload = viewChild<ElementRef<HTMLInputElement>>('fileUpload');
 
   ngOnInit() {}
 
@@ -28,7 +27,7 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   async getImageFromImagePicker() {
     const that = this;
-    const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
+    const nativeElement = this.fileUpload().nativeElement;
 
     nativeElement.onchange = async () => {
       const file = nativeElement.files[0];

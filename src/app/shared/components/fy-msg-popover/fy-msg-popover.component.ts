@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -8,9 +8,9 @@ import { PopoverController } from '@ionic/angular';
   standalone: false,
 })
 export class FyMsgPopoverComponent {
-  @Input() msg = '';
+  private popoverController = inject(PopoverController);
 
-  constructor(private popoverController: PopoverController) {}
+  msg: string;
 
   dismiss(): void {
     this.popoverController.dismiss();

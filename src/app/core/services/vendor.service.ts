@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
@@ -10,9 +10,13 @@ import { Vendor } from '../models/vendor.model';
   providedIn: 'root',
 })
 export class VendorService {
+  private httpClient = inject(HttpClient);
+
+  private authService = inject(AuthService);
+
   ROOT_ENDPOINT: string;
 
-  constructor(private httpClient: HttpClient, private authService: AuthService) {
+  constructor() {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
@@ -28,8 +32,8 @@ export class VendorService {
             org_user_id: eou.ou.id,
             q: searchString,
           },
-        })
-      )
+        }),
+      ),
     );
   }
 }

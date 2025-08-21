@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
@@ -8,7 +8,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   standalone: false,
 })
 export class FyMenuIconComponent implements OnInit {
-  constructor(private trackingService: TrackingService) {}
+  private trackingService = inject(TrackingService);
 
   ngOnInit() {}
 

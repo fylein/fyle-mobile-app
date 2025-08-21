@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output, OnInit } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnInit, inject } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
@@ -8,6 +8,8 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyAlertInfoComponent implements OnInit {
+  private translocoService = inject(TranslocoService);
+
   @Input() message: string;
 
   @Input() type: 'information' | 'warning' | 'error' | 'danger';
@@ -17,8 +19,6 @@ export class FyAlertInfoComponent implements OnInit {
   @Input() actionButtonContent: string;
 
   @Output() actionClick = new EventEmitter<void>();
-
-  constructor(private translocoService: TranslocoService) {}
 
   ngOnInit(): void {
     this.actionButtonContent = this.actionButtonContent || this.translocoService.translate('fyAlertInfo.action');

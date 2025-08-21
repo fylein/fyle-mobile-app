@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
@@ -20,10 +20,9 @@ const orgSettingsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class OrgSettingsService {
-  constructor(
-    private apiService: ApiService,
-    private translocoService: TranslocoService,
-  ) {}
+  private apiService = inject(ApiService);
+
+  private translocoService = inject(TranslocoService);
 
   @Cacheable({
     cacheBusterObserver: orgSettingsCacheBuster$,

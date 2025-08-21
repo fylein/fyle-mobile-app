@@ -1,5 +1,5 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
-import { Component, ElementRef, OnDestroy, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, OnDestroy, QueryList, ViewChildren, inject } from '@angular/core';
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
@@ -73,6 +73,54 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
   standalone: false,
 })
 export class SplitExpensePage implements OnDestroy {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private categoriesService = inject(CategoriesService);
+
+  private dateService = inject(DateService);
+
+  private splitExpenseService = inject(SplitExpenseService);
+
+  private currencyService = inject(CurrencyService);
+
+  private navController = inject(NavController);
+
+  private router = inject(Router);
+
+  private transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private policyService = inject(PolicyService);
+
+  private modalController = inject(ModalController);
+
+  private popoverController = inject(PopoverController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private costCentersService = inject(CostCentersService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private dependentFieldsService = inject(DependentFieldsService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private projectsService = inject(ProjectsService);
+
+  private timezoneService = inject(TimezoneService);
+
+  private expensesService = inject(ExpensesService);
+
   @ViewChildren('splitElement') splitElements!: QueryList<ElementRef>;
 
   splitExpensesFormArray = new UntypedFormArray([]);
@@ -150,33 +198,6 @@ export class SplitExpensePage implements OnDestroy {
   categoryDisableMsg = '';
 
   private splitExpenseData: Subscription;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private formBuilder: UntypedFormBuilder,
-    private categoriesService: CategoriesService,
-    private dateService: DateService,
-    private splitExpenseService: SplitExpenseService,
-    private currencyService: CurrencyService,
-    private navController: NavController,
-    private router: Router,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService,
-    private policyService: PolicyService,
-    private modalController: ModalController,
-    private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService,
-    private costCentersService: CostCentersService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService,
-    private launchDarklyService: LaunchDarklyService,
-    private projectsService: ProjectsService,
-    private timezoneService: TimezoneService,
-    private expensesService: ExpensesService,
-  ) {}
 
   ngOnDestroy(): void {
     this.destroy$.next();

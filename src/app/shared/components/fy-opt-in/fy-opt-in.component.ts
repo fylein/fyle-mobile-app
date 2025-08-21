@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Subscription, finalize, from, switchMap } from 'rxjs';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
@@ -27,6 +27,30 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyOptInComponent implements OnInit, AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private orgUserService = inject(OrgUserService);
+
+  private authService = inject(AuthService);
+
+  private mobileNumberVerificationService = inject(MobileNumberVerificationService);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private loaderService = inject(LoaderService);
+
+  private browserHandlerService = inject(BrowserHandlerService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private userEventService = inject(UserEventService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('mobileInput') mobileInputEl: ElementRef<HTMLInputElement>;
 
   @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput: NgOtpInputComponent;
@@ -65,21 +89,6 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
       border: 'none',
     },
   };
-
-  constructor(
-    private modalController: ModalController,
-    private orgUserService: OrgUserService,
-    private authService: AuthService,
-    private mobileNumberVerificationService: MobileNumberVerificationService,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService,
-    private matSnackBar: MatSnackBar,
-    private loaderService: LoaderService,
-    private browserHandlerService: BrowserHandlerService,
-    private platformHandlerService: PlatformHandlerService,
-    private userEventService: UserEventService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get OptInFlowState(): typeof OptInFlowState {
     return OptInFlowState;

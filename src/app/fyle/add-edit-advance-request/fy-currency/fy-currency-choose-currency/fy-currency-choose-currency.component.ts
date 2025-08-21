@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, inject } from '@angular/core';
 import { Observable, from, noop, fromEvent } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ModalController } from '@ionic/angular';
@@ -22,6 +22,14 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
+  private currencyService = inject(CurrencyService);
+
+  private modalController = inject(ModalController);
+
+  private loaderService = inject(LoaderService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   @Input() currentSelection: string;
@@ -31,13 +39,6 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
 
   value;
-
-  constructor(
-    private currencyService: CurrencyService,
-    private modalController: ModalController,
-    private loaderService: LoaderService,
-    private translocoService: TranslocoService,
-  ) {}
 
   clearValue(): void {
     this.value = '';

@@ -1,7 +1,7 @@
 import { map, Observable, of, Subject } from 'rxjs';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { SpenderService } from './spender.service';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { EmailEventsObject } from 'src/app/core/models/email-events.model';
@@ -18,7 +18,7 @@ const employeeSettingsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class PlatformEmployeeSettingsService {
-  constructor(private spenderService: SpenderService) {}
+  private spenderService = inject(SpenderService);
 
   @Cacheable({
     cacheBusterObserver: employeeSettingsCacheBuster$,
@@ -31,7 +31,7 @@ export class PlatformEmployeeSettingsService {
           return employeeSettings;
         }
         return null;
-      })
+      }),
     );
   }
 
@@ -252,7 +252,7 @@ export class PlatformEmployeeSettingsService {
           features: emailEvents.features,
           events,
         };
-      })
+      }),
     );
   }
 }

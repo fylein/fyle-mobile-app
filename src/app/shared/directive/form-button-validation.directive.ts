@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges, inject } from '@angular/core';
 import { LoaderPosition } from './loader-position.enum';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -7,6 +7,10 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FormButtonValidationDirective implements OnChanges {
+  private elementRef = inject(ElementRef);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() loadingText: string;
 
   @Input() buttonType: string;
@@ -41,11 +45,6 @@ export class FormButtonValidationDirective implements OnChanges {
     'directives.formButtonValidation.signUp': 'directives.formButtonValidation.signingUp',
     'directives.formButtonValidation.getStarted': 'directives.formButtonValidation.gettingStarted',
   };
-
-  constructor(
-    private elementRef: ElementRef,
-    private translocoService: TranslocoService,
-  ) {}
 
   get selectedElement(): HTMLElement & { disabled?: boolean } {
     return this.elementRef?.nativeElement as HTMLElement & { disabled?: boolean };

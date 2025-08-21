@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import {
   UntypedFormBuilder,
   UntypedFormControl,
@@ -29,6 +29,18 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChanges {
+  private corporateCreditCardExpensesService = inject(CorporateCreditCardExpenseService);
+
+  private realTimeFeedService = inject(RealTimeFeedService);
+
+  private fb = inject(UntypedFormBuilder);
+
+  private popoverController = inject(PopoverController);
+
+  private trackingService = inject(TrackingService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() orgSettings: OrgSettings;
 
   @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -59,15 +71,6 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
   cardsEnrolling = false;
 
   singularEnrollmentFailure: string;
-
-  constructor(
-    private corporateCreditCardExpensesService: CorporateCreditCardExpenseService,
-    private realTimeFeedService: RealTimeFeedService,
-    private fb: UntypedFormBuilder,
-    private popoverController: PopoverController,
-    private trackingService: TrackingService,
-    private translocoService: TranslocoService,
-  ) {}
 
   setupErrorMessages(error: HttpErrorResponse, cardNumber: string, cardId?: string): void {
     this.cardsList.failedCards.push(`**** ${cardNumber}`);

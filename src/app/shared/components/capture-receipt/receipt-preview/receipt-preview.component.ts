@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, OnDestroy, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
@@ -25,6 +25,22 @@ SwiperCore.use([Pagination]);
   standalone: false,
 })
 export class ReceiptPreviewComponent implements OnInit, OnDestroy {
+  private platform = inject(Platform);
+
+  private modalController = inject(ModalController);
+
+  private popoverController = inject(PopoverController);
+
+  private matBottomSheet = inject(MatBottomSheet);
+
+  private imagePicker = inject(ImagePicker);
+
+  private trackingService = inject(TrackingService);
+
+  private router = inject(Router);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
   @Input() base64ImagesWithSource: Image[];
@@ -44,17 +60,6 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   RotationDirection = RotationDirection;
 
   isSmallScreen: boolean;
-
-  constructor(
-    private platform: Platform,
-    private modalController: ModalController,
-    private popoverController: PopoverController,
-    private matBottomSheet: MatBottomSheet,
-    private imagePicker: ImagePicker,
-    private trackingService: TrackingService,
-    private router: Router,
-    private translocoService: TranslocoService,
-  ) {}
 
   async openCropReceiptModal(): Promise<void> {
     const cropReceiptModal = await this.modalController.create({

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
@@ -14,6 +14,16 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class PopupWithBulletsComponent {
+  private popoverController = inject(PopoverController);
+
+  private clipboardService = inject(ClipboardService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() title: string;
 
   @Input() listHeader: string;
@@ -21,14 +31,6 @@ export class PopupWithBulletsComponent {
   @Input() listItems: ListItem[];
 
   @Input() ctaText: string;
-
-  constructor(
-    private popoverController: PopoverController,
-    private clipboardService: ClipboardService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private translocoService: TranslocoService,
-  ) {}
 
   dismissPopover(): void {
     this.popoverController.dismiss();

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { finalize, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -13,6 +13,14 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
+  private popoverController = inject(PopoverController);
+
+  private authService = inject(AuthService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
   @Input() title: string;
@@ -30,13 +38,6 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
   error: string;
 
   updatingMobileNumber = false;
-
-  constructor(
-    private popoverController: PopoverController,
-    private authService: AuthService,
-    private orgUserService: OrgUserService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.inputValue = this.extendedOrgUser.ou.mobile || '';

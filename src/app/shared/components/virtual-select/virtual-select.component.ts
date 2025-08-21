@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, TemplateRef, Injector } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, TemplateRef, Injector, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -22,6 +22,14 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
+  private modalController = inject(ModalController);
+
+  private injector = inject(Injector);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() options: { label: string; value: VirtualSelectOptions }[] = [];
 
   @Input() disabled = false;
@@ -58,13 +66,6 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: VirtualSelectOptions) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private injector: Injector,
-    private modalProperties: ModalPropertiesService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get valid(): boolean {
     if (this.ngControl.touched) {

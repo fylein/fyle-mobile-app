@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
@@ -7,9 +7,11 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class RouterApiService {
+  private httpClient = inject(HttpClient);
+
   private ROUTER_API_ENDPOINT: string;
 
-  constructor(private httpClient: HttpClient) {
+  constructor() {
     this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
   }
 

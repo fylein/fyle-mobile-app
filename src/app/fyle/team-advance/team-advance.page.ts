@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { Params, Router } from '@angular/router';
@@ -29,6 +29,22 @@ type Filters = Partial<{
   standalone: false,
 })
 export class TeamAdvancePage implements AfterViewChecked {
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private tasksService = inject(TasksService);
+
+  private trackingService = inject(TrackingService);
+
+  private cdRef = inject(ChangeDetectorRef);
+
+  private router = inject(Router);
+
+  private filtersHelperService = inject(FiltersHelperService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private titleCasePipe = inject(TitleCasePipe);
+
   teamAdvancerequests$: Observable<ExtendedAdvanceRequest[]>;
 
   loadData$: BehaviorSubject<{
@@ -60,17 +76,6 @@ export class TeamAdvancePage implements AfterViewChecked {
   projectFieldName = 'Project';
 
   isLoadingDataInInfiniteScroll = false;
-
-  constructor(
-    private advanceRequestService: AdvanceRequestService,
-    private tasksService: TasksService,
-    private trackingService: TrackingService,
-    private cdRef: ChangeDetectorRef,
-    private router: Router,
-    private filtersHelperService: FiltersHelperService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private titleCasePipe: TitleCasePipe,
-  ) {}
 
   ionViewWillEnter(): void {
     this.tasksService.getTotalTaskCount().subscribe((totalTaskCount) => (this.totalTaskCount = totalTaskCount));

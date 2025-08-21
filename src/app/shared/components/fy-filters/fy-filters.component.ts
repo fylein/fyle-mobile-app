@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FilterOptions } from './filter-options.interface';
 import { SelectedFilters } from './selected-filters.interface';
 import { FilterOptionType } from './filter-option-type.enum';
@@ -17,6 +17,8 @@ import { forkJoin, Observable, of } from 'rxjs';
   standalone: false,
 })
 export class FyFiltersComponent implements OnInit {
+  private modalController = inject(ModalController);
+
   @Input() simplifyReportsSettings$: Observable<any> = of({ enabled: false });
 
   @Input() nonReimbursableOrg$: Observable<boolean> = of(false);
@@ -41,8 +43,6 @@ export class FyFiltersComponent implements OnInit {
   startDate: Date;
 
   endDate: Date;
-
-  constructor(private modalController: ModalController) {}
 
   get FilterOptionType() {
     return FilterOptionType;

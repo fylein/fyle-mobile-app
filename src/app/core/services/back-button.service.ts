@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { App } from '@capacitor/app';
 import { PopoverController } from '@ionic/angular';
 import { from, noop } from 'rxjs';
@@ -11,7 +11,9 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class BackButtonService {
-  constructor(private popoverController: PopoverController, private translocoService: TranslocoService) {}
+  private popoverController = inject(PopoverController);
+
+  private translocoService = inject(TranslocoService);
 
   showAppCloseAlert(): void {
     const exitAppPopover = this.popoverController.create({
@@ -39,7 +41,7 @@ export class BackButtonService {
           if (popoverDetails?.data?.action === 'close') {
             return App.exitApp();
           }
-        })
+        }),
       )
       .subscribe(noop);
   }

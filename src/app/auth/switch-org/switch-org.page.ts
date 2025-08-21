@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of, catchError, throwError } from 'rxjs';
 import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
@@ -41,6 +41,58 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
   standalone: false,
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
+  private platform = inject(Platform);
+
+  private loaderService = inject(LoaderService);
+
+  private userService = inject(UserService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private authService = inject(AuthService);
+
+  private secureStorageService = inject(SecureStorageService);
+
+  private storageService = inject(StorageService);
+
+  private router = inject(Router);
+
+  private orgService = inject(OrgService);
+
+  private userEventService = inject(UserEventService);
+
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private cdRef = inject(ChangeDetectorRef);
+
+  private trackingService = inject(TrackingService);
+
+  private deviceService = inject(DeviceService);
+
+  private popoverController = inject(PopoverController);
+
+  private orgUserService = inject(OrgUserService);
+
+  private appVersionService = inject(AppVersionService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private transactionService = inject(TransactionService);
+
+  private deepLinkService = inject(DeepLinkService);
+
+  private expensesService = inject(ExpensesService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
   @ViewChild('search') searchRef: ElementRef<HTMLElement>;
 
   @ViewChild('content') contentRef: ElementRef<HTMLElement>;
@@ -64,35 +116,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   isIos = false;
 
   orgs: Org[];
-
-  constructor(
-    private platform: Platform,
-    private loaderService: LoaderService,
-    private userService: UserService,
-    private activatedRoute: ActivatedRoute,
-    private authService: AuthService,
-    private secureStorageService: SecureStorageService,
-    private storageService: StorageService,
-    private router: Router,
-    private orgService: OrgService,
-    private userEventService: UserEventService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private cdRef: ChangeDetectorRef,
-    private trackingService: TrackingService,
-    private deviceService: DeviceService,
-    private popoverController: PopoverController,
-    private orgUserService: OrgUserService,
-    private appVersionService: AppVersionService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private routerAuthService: RouterAuthService,
-    private transactionService: TransactionService,
-    private deepLinkService: DeepLinkService,
-    private expensesService: ExpensesService,
-    private launchDarklyService: LaunchDarklyService,
-    private orgSettingsService: OrgSettingsService,
-    private spenderOnboardingService: SpenderOnboardingService,
-  ) {}
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
