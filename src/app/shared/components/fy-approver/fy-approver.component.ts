@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { AddApproversPopoverComponent } from './add-approvers-popover/add-approvers-popover.component';
@@ -11,6 +11,8 @@ import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actio
   standalone: false,
 })
 export class FyApproverComponent {
+  private popoverController = inject(PopoverController);
+
   @Input() approverEmailsList;
 
   @Input() id: string;
@@ -24,8 +26,6 @@ export class FyApproverComponent {
   @Output() notify: EventEmitter<string> = new EventEmitter<string>();
 
   approverList$: Observable<any>;
-
-  constructor(private popoverController: PopoverController) {}
 
   async openApproverListDialog() {
     const addApproversPopover = await this.popoverController.create({

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
@@ -13,16 +13,17 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class DashboardOptInComponent {
+  private modalController = inject(ModalController);
+
+  private popoverController = inject(PopoverController);
+
+  private trackingService = inject(TrackingService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() extendedOrgUser: ExtendedOrgUser;
 
   @Output() toggleOptInBanner = new EventEmitter<{ optedIn: boolean }>();
-
-  constructor(
-    private modalController: ModalController,
-    private popoverController: PopoverController,
-    private trackingService: TrackingService,
-    private translocoService: TranslocoService,
-  ) {}
 
   async optInClick(): Promise<void> {
     this.trackingService.clickedOnDashboardBanner();

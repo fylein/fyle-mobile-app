@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable, Subject, distinctUntilKeyChanged, finalize, map, of, takeUntil } from 'rxjs';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
@@ -12,6 +12,10 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
   standalone: false,
 })
 export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
+  private dependentFieldsService = inject(DependentFieldsService);
+
+  private formBuilder = inject(UntypedFormBuilder);
+
   @Input() dependentFieldsFormArray: UntypedFormArray;
 
   @Input() dependentCustomFields: ExpenseField[];
@@ -27,11 +31,6 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   isDependentFieldLoading = false;
 
   onPageExit$: Subject<void>;
-
-  constructor(
-    private dependentFieldsService: DependentFieldsService,
-    private formBuilder: UntypedFormBuilder,
-  ) {}
 
   ngOnInit(): void {
     return;

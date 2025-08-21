@@ -1,7 +1,7 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -119,6 +119,82 @@ import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expe
   standalone: false,
 })
 export class AddEditPerDiemPage implements OnInit {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private fb = inject(UntypedFormBuilder);
+
+  private dateService = inject(DateService);
+
+  private accountsService = inject(AccountsService);
+
+  private customInputsService = inject(CustomInputsService);
+
+  private customFieldsService = inject(CustomFieldsService);
+
+  private currencyService = inject(CurrencyService);
+
+  private reportService = inject(ReportService);
+
+  private platformReportService = inject(SpenderReportsService);
+
+  private projectsService = inject(ProjectsService);
+
+  private transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private transactionService = inject(TransactionService);
+
+  private authService = inject(AuthService);
+
+  private policyService = inject(PolicyService);
+
+  private loaderService = inject(LoaderService);
+
+  private router = inject(Router);
+
+  private modalController = inject(ModalController);
+
+  private networkService = inject(NetworkService);
+
+  private navController = inject(NavController);
+
+  private trackingService = inject(TrackingService);
+
+  private fyCurrencyPipe = inject(FyCurrencyPipe);
+
+  private tokenService = inject(TokenService);
+
+  private recentlyUsedItemsService = inject(RecentlyUsedItemsService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private popoverController = inject(PopoverController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private paymentModesService = inject(PaymentModesService);
+
+  private perDiemService = inject(PerDiemService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private costCentersService = inject(CostCentersService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private platform = inject(Platform);
+
+  private storageService = inject(StorageService);
+
+  private expensesService = inject(ExpensesService);
+
+  private expenseCommentService = inject(ExpenseCommentService);
+
   @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
 
   @ViewChild('formContainer') formContainer: ElementRef;
@@ -258,47 +334,6 @@ export class AddEditPerDiemPage implements OnInit {
   isLoading$ = this.loadingOperations$.pipe(map((count) => count > 0));
 
   isLoading = true;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private fb: UntypedFormBuilder,
-    private dateService: DateService,
-    private accountsService: AccountsService,
-    private customInputsService: CustomInputsService,
-    private customFieldsService: CustomFieldsService,
-    private currencyService: CurrencyService,
-    private reportService: ReportService,
-    private platformReportService: SpenderReportsService,
-    private projectsService: ProjectsService,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private transactionService: TransactionService,
-    private authService: AuthService,
-    private policyService: PolicyService,
-    private loaderService: LoaderService,
-    private router: Router,
-    private modalController: ModalController,
-    private networkService: NetworkService,
-    private navController: NavController,
-    private trackingService: TrackingService,
-    private fyCurrencyPipe: FyCurrencyPipe,
-    private tokenService: TokenService,
-    private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private paymentModesService: PaymentModesService,
-    private perDiemService: PerDiemService,
-    private categoriesService: CategoriesService,
-    private costCentersService: CostCentersService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private orgSettingsService: OrgSettingsService,
-    private platform: Platform,
-    private storageService: StorageService,
-    private expensesService: ExpensesService,
-    private expenseCommentService: ExpenseCommentService,
-  ) {}
 
   get minPerDiemDate(): string {
     return (

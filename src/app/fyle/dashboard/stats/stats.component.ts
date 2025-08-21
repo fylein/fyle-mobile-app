@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
@@ -24,6 +24,22 @@ import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/re
   standalone: false,
 })
 export class StatsComponent implements OnInit {
+  private dashboardService = inject(DashboardService);
+
+  private currencyService = inject(CurrencyService);
+
+  private router = inject(Router);
+
+  private networkService = inject(NetworkService);
+
+  private trackingService = inject(TrackingService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private orgService = inject(OrgService);
+
+  private paymentModeService = inject(PaymentModesService);
+
   draftStats$: Observable<PlatformReportsStatsResponse>;
 
   approvedStats$: Observable<PlatformReportsStatsResponse>;
@@ -61,17 +77,6 @@ export class StatsComponent implements OnInit {
   isUserAnApprover$: Observable<boolean>;
 
   isOrgPrimary$: Observable<boolean>;
-
-  constructor(
-    private dashboardService: DashboardService,
-    private currencyService: CurrencyService,
-    private router: Router,
-    private networkService: NetworkService,
-    private trackingService: TrackingService,
-    private orgSettingsService: OrgSettingsService,
-    private orgService: OrgService,
-    private paymentModeService: PaymentModesService,
-  ) {}
 
   get ReportStates(): typeof ReportStates {
     return ReportStates;

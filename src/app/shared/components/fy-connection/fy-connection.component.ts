@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject } from '@angular/core';
 import { NetworkService } from '../../../core/services/network.service';
 import { concat, from, of } from 'rxjs';
 import { delay, pairwise, shareReplay, startWith, switchMap } from 'rxjs/operators';
@@ -12,11 +12,11 @@ import { ConnectionMessageStatus } from './connection-status.enum';
   standalone: false,
 })
 export class FyConnectionComponent implements OnInit {
+  private networkService = inject(NetworkService);
+
   isConnected$: Observable<boolean>;
 
   state$: Observable<ConnectionMessageStatus>;
-
-  constructor(private networkService: NetworkService) {}
 
   get ConnectionMessageStatus() {
     return ConnectionMessageStatus;

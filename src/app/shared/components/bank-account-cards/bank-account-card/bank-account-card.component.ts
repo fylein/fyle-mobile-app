@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, inject } from '@angular/core';
 import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 import { PopoverController } from '@ionic/angular';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
@@ -19,6 +19,20 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class BankAccountCardComponent implements OnInit {
+  private personalCardsService = inject(PersonalCardsService);
+
+  private loaderService = inject(LoaderService);
+
+  private popoverController = inject(PopoverController);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private dateService = inject(DateService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() accountDetails: PlatformPersonalCard;
 
   @Input() minimal: boolean;
@@ -28,16 +42,6 @@ export class BankAccountCardComponent implements OnInit {
   lastSyncedAt;
 
   deleteCardPopOver;
-
-  constructor(
-    private personalCardsService: PersonalCardsService,
-    private loaderService: LoaderService,
-    private popoverController: PopoverController,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private dateService: DateService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     if (this.accountDetails.yodlee_last_synced_at) {

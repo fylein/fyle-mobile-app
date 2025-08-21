@@ -1,4 +1,13 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  Input,
+  ChangeDetectorRef,
+  inject,
+} from '@angular/core';
 import { Observable, fromEvent, from, of } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime } from 'rxjs/operators';
@@ -15,6 +24,12 @@ import { EmployeeParams } from 'src/app/core/models/employee-params.model';
   standalone: false,
 })
 export class FyUserlistModalComponent implements OnInit, AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  private employeesService = inject(EmployeesService);
+
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() currentSelections: string[] = [];
@@ -48,12 +63,6 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   selectedItemDict = {};
 
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
-
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private employeesService: EmployeesService,
-  ) {}
 
   getSelectedItemDict(): Record<string, boolean> {
     return this.currentSelections.reduce((acc, curr) => {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { switchMap, tap } from 'rxjs/operators';
@@ -13,14 +13,17 @@ import { UserEventService } from 'src/app/core/services/user-event.service';
   standalone: false,
 })
 export class VerifyPage implements OnInit {
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private routerAuthService: RouterAuthService,
-    private authService: AuthService,
-    private router: Router,
-    private trackingService: TrackingService,
-    private userEventService: UserEventService,
-  ) {}
+  private activatedRoute = inject(ActivatedRoute);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private authService = inject(AuthService);
+
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
+  private userEventService = inject(UserEventService);
 
   ngOnInit(): void {
     const verificationCode = this.activatedRoute.snapshot.params.verification_code as string;

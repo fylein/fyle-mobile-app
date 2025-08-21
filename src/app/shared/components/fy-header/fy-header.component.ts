@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output, OnInit } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnInit, inject } from '@angular/core';
 import { HeaderState } from './header-state.enum';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -9,6 +9,8 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyHeaderComponent implements OnInit {
+  private translocoService = inject(TranslocoService);
+
   @Input() currentState: HeaderState;
 
   @Input() navigateBack = false;
@@ -20,8 +22,6 @@ export class FyHeaderComponent implements OnInit {
   @Output() simpleSearchCancel = new EventEmitter();
 
   @Output() multiselectBack = new EventEmitter();
-
-  constructor(private translocoService: TranslocoService) {}
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;

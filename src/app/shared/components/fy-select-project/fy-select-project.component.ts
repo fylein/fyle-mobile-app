@@ -1,4 +1,14 @@
-import { Component, forwardRef, Input, OnDestroy, TemplateRef, ElementRef, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  forwardRef,
+  Input,
+  OnDestroy,
+  TemplateRef,
+  ElementRef,
+  Output,
+  EventEmitter,
+  inject,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -21,6 +31,10 @@ import { ProjectOption } from 'src/app/core/models/project-options.model';
   standalone: false,
 })
 export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
   @Input() mandatory = false;
 
   @Input() label: string;
@@ -58,11 +72,6 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (value: ProjectV2) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {

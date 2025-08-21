@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, ViewChild, inject } from '@angular/core';
 import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -51,6 +51,44 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
   standalone: false,
 })
 export class MyViewReportPage {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private reportService = inject(ReportService);
+
+  private expensesService = inject(ExpensesService);
+
+  private authService = inject(AuthService);
+
+  private loaderService = inject(LoaderService);
+
+  private router = inject(Router);
+
+  private popoverController = inject(PopoverController);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private networkService = inject(NetworkService);
+
+  private trackingService = inject(TrackingService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private statusService = inject(StatusService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private dateWithTimezonePipe = inject(DateWithTimezonePipe);
+
   @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
@@ -128,28 +166,6 @@ export class MyViewReportPage {
   approvals: ReportApprovals[];
 
   approverToShow: ReportApprovals;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private reportService: ReportService,
-    private expensesService: ExpensesService,
-    private authService: AuthService,
-    private loaderService: LoaderService,
-    private router: Router,
-    private popoverController: PopoverController,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private networkService: NetworkService,
-    private trackingService: TrackingService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private statusService: StatusService,
-    private orgSettingsService: OrgSettingsService,
-    private platformHandlerService: PlatformHandlerService,
-    private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService,
-    private dateWithTimezonePipe: DateWithTimezonePipe,
-  ) {}
 
   get Segment(): typeof ReportPageSegment {
     return ReportPageSegment;

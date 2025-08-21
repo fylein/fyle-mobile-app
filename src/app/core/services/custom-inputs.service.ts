@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { map, switchMap } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Cacheable } from 'ts-cacheable';
@@ -20,14 +20,17 @@ const customInputssCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class CustomInputsService {
-  constructor(
-    private decimalPipe: DecimalPipe,
-    private datePipe: DatePipe,
-    private authService: AuthService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private translocoService: TranslocoService
-  ) {}
+  private decimalPipe = inject(DecimalPipe);
+
+  private datePipe = inject(DatePipe);
+
+  private authService = inject(AuthService);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private translocoService = inject(TranslocoService);
 
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$,
@@ -41,18 +44,18 @@ export class CustomInputsService {
             is_custom: 'eq.true',
             ...(active !== undefined && { is_enabled: `eq.${active}` }), // Only add is_enabled if active is specified
           },
-        })
+        }),
       ),
-      map((res) => this.expenseFieldsService.transformFrom(res.data))
+      map((res) => this.expenseFieldsService.transformFrom(res.data)),
     );
   }
 
-  filterByCategory(customInputs: ExpenseField[], orgCategoryId: string | {}): ExpenseField[] {
+  filterByCategory(customInputs: ExpenseField[], orgCategoryId: number): ExpenseField[] {
     return customInputs
       .filter((customInput) =>
         customInput.org_category_ids
           ? customInput.org_category_ids && customInput.org_category_ids.some((id) => id === orgCategoryId)
-          : true
+          : true,
       )
       .sort();
   }
@@ -121,7 +124,7 @@ export class CustomInputsService {
           }
         }
         return filledCustomProperties;
-      })
+      }),
     );
   }
 
@@ -184,7 +187,7 @@ export class CustomInputsService {
       map((allCustomInputs) =>
         allCustomInputs.map((customInput) => {
           const customProperty = etxn.tx_custom_properties.find(
-            (txCustomProperty) => txCustomProperty.name === customInput.field_name
+            (txCustomProperty) => txCustomProperty.name === customInput.field_name,
           );
           return {
             id: customInput.id,
@@ -194,8 +197,8 @@ export class CustomInputsService {
             displayValue: customProperty?.value || '-',
             mandatory: customInput.is_mandatory,
           };
-        })
-      )
+        }),
+      ),
     );
   }
 

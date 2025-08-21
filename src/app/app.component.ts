@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
@@ -34,6 +34,44 @@ import { TasksService } from './core/services/tasks.service';
   standalone: false,
 })
 export class AppComponent implements OnInit, AfterViewInit {
+  private platform = inject(Platform);
+
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private userEventService = inject(UserEventService);
+
+  private menuController = inject(MenuController);
+
+  private deviceService = inject(DeviceService);
+
+  private appVersionService = inject(AppVersionService);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private networkService = inject(NetworkService);
+
+  private freshChatService = inject(FreshChatService);
+
+  private zone = inject(NgZone);
+
+  private deepLinkService = inject(DeepLinkService);
+
+  private trackingService = inject(TrackingService);
+
+  private navController = inject(NavController);
+
+  private backButtonService = inject(BackButtonService);
+
+  private gmapsService = inject(GmapsService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
+  private footerService = inject(FooterService);
+
+  private tasksService = inject(TasksService);
+
   @ViewChild('sidemenuRef') sidemenuRef: SidemenuComponent;
 
   eou$: Observable<ExtendedOrgUser>;
@@ -74,27 +112,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   isLoading = true;
 
-  constructor(
-    private platform: Platform,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private userEventService: UserEventService,
-    private menuController: MenuController,
-    private deviceService: DeviceService,
-    private appVersionService: AppVersionService,
-    private routerAuthService: RouterAuthService,
-    private networkService: NetworkService,
-    private freshChatService: FreshChatService,
-    private zone: NgZone,
-    private deepLinkService: DeepLinkService,
-    private trackingService: TrackingService,
-    private navController: NavController,
-    private backButtonService: BackButtonService,
-    private gmapsService: GmapsService,
-    private spenderOnboardingService: SpenderOnboardingService,
-    private footerService: FooterService,
-    private tasksService: TasksService,
-  ) {
+  constructor() {
     this.initializeApp();
     this.registerBackButtonAction();
   }

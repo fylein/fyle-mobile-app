@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -11,6 +11,12 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   standalone: false,
 })
 export class CardDetailComponent {
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
+  private orgSettingService = inject(OrgSettingsService);
+
   @Input() cardDetail: PlatformCorporateCardDetail;
 
   @Input() homeCurrency: string;
@@ -19,12 +25,6 @@ export class CardDetailComponent {
 
   // To track if the screen is small (320px or below)
   isSmallScreen = window.innerWidth <= 320;
-
-  constructor(
-    private router: Router,
-    private trackingService: TrackingService,
-    private orgSettingService: OrgSettingsService,
-  ) {}
 
   goToExpensesPage(state: string, cardDetail: PlatformCorporateCardDetail): void {
     if (state === 'incompleteExpenses' && cardDetail.stats.totalDraftTxns && cardDetail.stats.totalDraftTxns > 0) {

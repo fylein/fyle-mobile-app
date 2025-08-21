@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit, inject } from '@angular/core';
 import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, NgControl, Validators } from '@angular/forms';
 import { Platform } from '@ionic/angular';
 import { noop } from 'rxjs';
@@ -18,6 +18,12 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
   standalone: false,
 })
 export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterViewInit {
+  private platform = inject(Platform);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private injector = inject(Injector);
+
   @Input() placeholder: string;
 
   @Input() disabled: boolean;
@@ -59,12 +65,6 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
   keysForNegativeExpense = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '.'];
 
   private control: UntypedFormControl;
-
-  constructor(
-    private platform: Platform,
-    private launchDarklyService: LaunchDarklyService,
-    private injector: Injector,
-  ) {}
 
   get value(): number {
     return this.innerValue;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -11,6 +11,12 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class ProfileOptInCardComponent implements OnInit {
+  private clipboardService = inject(ClipboardService);
+
+  private trackingService = inject(TrackingService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() extendedOrgUser: ExtendedOrgUser;
 
   @Output() copiedText = new EventEmitter<string>();
@@ -30,12 +36,6 @@ export class ProfileOptInCardComponent implements OnInit {
   isInvalidUSNumber = false;
 
   mobileNumber: string;
-
-  constructor(
-    private clipboardService: ClipboardService,
-    private trackingService: TrackingService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.isUserOptedIn = this.extendedOrgUser.ou.mobile && this.extendedOrgUser.ou.mobile_verified;

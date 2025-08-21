@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
 import { EMPTY, Subject, forkJoin, from } from 'rxjs';
@@ -35,6 +35,32 @@ import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-request
   standalone: false,
 })
 export class ViewTeamAdvanceRequestPage implements OnInit {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private fileService = inject(FileService);
+
+  private router = inject(Router);
+
+  private popoverController = inject(PopoverController);
+
+  private actionSheetController = inject(ActionSheetController);
+
+  private authService = inject(AuthService);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private humanizeCurrency = inject(HumanizeCurrencyPipe);
+
+  minScreenWidth = inject(MIN_SCREEN_WIDTH);
+
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
 
   actions$: Observable<AdvanceRequestActions>;
@@ -62,22 +88,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
   rejectLoading = false;
 
   projectFieldName: string;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private advanceRequestService: AdvanceRequestService,
-    private fileService: FileService,
-    private router: Router,
-    private popoverController: PopoverController,
-    private actionSheetController: ActionSheetController,
-    private authService: AuthService,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private humanizeCurrency: HumanizeCurrencyPipe,
-    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number,
-  ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
     return StatisticTypes;

@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import dayjs from 'dayjs';
@@ -35,6 +35,38 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class ExpensesCardComponent implements OnInit {
+  private transactionService = inject(TransactionService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private fileService = inject(FileService);
+
+  private popoverController = inject(PopoverController);
+
+  private networkService = inject(NetworkService);
+
+  private transactionOutboxService = inject(TransactionsOutboxService);
+
+  private modalController = inject(ModalController);
+
+  private platform = inject(Platform);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private currencyService = inject(CurrencyService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private expensesService = inject(ExpensesService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
   @Input() expense: Expense;
@@ -119,25 +151,6 @@ export class ExpensesCardComponent implements OnInit {
   showPaymentModeIcon: boolean;
 
   isIos = false;
-
-  constructor(
-    private transactionService: TransactionService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private fileService: FileService,
-    private popoverController: PopoverController,
-    private networkService: NetworkService,
-    private transactionOutboxService: TransactionsOutboxService,
-    private modalController: ModalController,
-    private platform: Platform,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService,
-    private currencyService: CurrencyService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private expensesService: ExpensesService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get isSelected(): boolean {
     if (this.selectedElements) {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
@@ -16,13 +16,13 @@ import { PlatformProjectArgs } from '../models/platform/v1/platform-project-args
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   @Cacheable()
   getByParamsUnformatted(
     projectParams: PlatformProjectArgs,
     isProjectCategoryRestrictionsEnabled: boolean,
-    activeCategoryList?: OrgCategory[]
+    activeCategoryList?: OrgCategory[],
   ): Observable<ProjectV2[]> {
     // eslint-disable-next-line prefer-const
     let { orgId, isEnabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
@@ -59,7 +59,7 @@ export class ProjectsService {
   @Cacheable()
   getProjectCount(
     params: { categoryIds: string[] } = { categoryIds: [] },
-    activeCategoryList?: OrgCategory[]
+    activeCategoryList?: OrgCategory[],
   ): Observable<number> {
     const categoryIds = params.categoryIds?.map((categoryId) => parseInt(categoryId, 10));
     return this.getAllActive(activeCategoryList).pipe(
@@ -72,7 +72,7 @@ export class ProjectsService {
           }
         });
         return filterdProjects.length;
-      })
+      }),
     );
   }
 
@@ -91,7 +91,7 @@ export class ProjectsService {
   addOrgCategoryIdsFilter(
     orgCategoryIds: string[],
     params: PlatformProjectParams,
-    isProjectCategoryRestrictionsEnabled: boolean
+    isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null && isProjectCategoryRestrictionsEnabled) {
       params.or = '(category_ids.is.null, ' + 'category_ids.ov.{' + orgCategoryIds.join(',') + '}' + ')';
@@ -107,7 +107,7 @@ export class ProjectsService {
   getAllowedOrgCategoryIds(
     project: ProjectParams | ProjectV2,
     activeCategoryList: OrgCategory[],
-    isProjectCategoryRestrictionsEnabled: boolean
+    isProjectCategoryRestrictionsEnabled: boolean,
   ): OrgCategory[] {
     let categoryList: OrgCategory[] = [];
     if (project && isProjectCategoryRestrictionsEnabled && project.project_org_category_ids) {

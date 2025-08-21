@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -15,6 +15,18 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   standalone: false,
 })
 export class ResetPasswordPage {
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
   currentPageState: PageState;
 
   isLoading = false;
@@ -28,15 +40,6 @@ export class ResetPasswordPage {
   PageState: typeof PageState = PageState;
 
   isTmpPwdExpired = false;
-
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private routerAuthService: RouterAuthService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-  ) {}
 
   ionViewWillEnter(): void {
     this.currentPageState = PageState.notSent;

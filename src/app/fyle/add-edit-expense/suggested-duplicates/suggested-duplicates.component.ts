@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -17,19 +17,23 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class SuggestedDuplicatesComponent {
+  private modalController = inject(ModalController);
+
+  private expensesService = inject(ExpensesService);
+
+  private router = inject(Router);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() duplicateExpenseIDs: string[];
 
   duplicateExpenses: Expense[] = [];
-
-  constructor(
-    private modalController: ModalController,
-    private expensesService: ExpensesService,
-    private router: Router,
-    private snackbarProperties: SnackbarPropertiesService,
-    private matSnackBar: MatSnackBar,
-    private orgSettingsService: OrgSettingsService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ionViewWillEnter(): void {
     const txnIds = this.duplicateExpenseIDs.join(',');

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { map, switchMap } from 'rxjs/operators';
 import { throwError, of, iif, Observable } from 'rxjs';
@@ -9,6 +9,8 @@ import { ReportAllowedActions } from '../models/allowed-actions.model';
   providedIn: 'root',
 })
 export class PermissionsService {
+  private authService = inject(AuthService);
+
   // can check roleActionMap[role]['company']['view'] for whether he is allowed company view.
   roleActionMap: Record<string, Record<string, Record<string, boolean>>> = {
     owner: {
@@ -1575,12 +1577,10 @@ export class PermissionsService {
     },
   };
 
-  constructor(private authService: AuthService) {}
-
   allowedActions(
     resource: string,
     actions: string[],
-    orgSettings: OrgSettings
+    orgSettings: OrgSettings,
   ): Observable<
     Partial<{
       allowedRouteAccess: boolean;
@@ -1605,7 +1605,7 @@ export class PermissionsService {
         }
 
         return roles;
-      })
+      }),
     );
 
     const allowedActions$ = filteredRoles$.pipe(
@@ -1624,11 +1624,11 @@ export class PermissionsService {
         } else {
           return throwError('no route access');
         }
-      })
+      }),
     );
 
     return filteredRoles$.pipe(
-      switchMap((filteredRoles) => iif(() => filteredRoles.length > 0, allowedActions$, of(null)))
+      switchMap((filteredRoles) => iif(() => filteredRoles.length > 0, allowedActions$, of(null))),
     );
   }
 
@@ -1636,7 +1636,7 @@ export class PermissionsService {
     actions: string[],
     allowedActions: Partial<ReportAllowedActions>,
     role: string,
-    resource: string
+    resource: string,
   ): void {
     for (const action of actions) {
       if (!allowedActions.hasOwnProperty(action) || !allowedActions[action]) {

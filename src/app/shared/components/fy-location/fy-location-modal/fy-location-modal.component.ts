@@ -7,7 +7,7 @@ import {
   AfterViewInit,
   ElementRef,
   Input,
-  Inject,
+  inject,
 } from '@angular/core';
 import {
   map,
@@ -40,6 +40,17 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
+  private gmapsService = inject(GmapsService);
+  private modalController = inject(ModalController);
+  private cdr = inject(ChangeDetectorRef);
+  private locationService = inject(LocationService);
+  private authService = inject(AuthService);
+  private loaderService = inject(LoaderService);
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+  private popoverController = inject(PopoverController);
+  private devicePlatform = inject(DEVICE_PLATFORM);
+  private translocoService = inject(TranslocoService);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() currentSelection: any;
 
@@ -72,19 +83,6 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   currentGeolocationPermissionGranted = false;
 
   isDeviceLocationEnabled: boolean = false;
-
-  constructor(
-    private gmapsService: GmapsService,
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private locationService: LocationService,
-    private authService: AuthService,
-    private loaderService: LoaderService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private popoverController: PopoverController,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.checkPermissionStatus();

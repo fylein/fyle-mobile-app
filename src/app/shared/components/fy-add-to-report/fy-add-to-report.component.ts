@@ -1,4 +1,14 @@
-import { Component, ElementRef, forwardRef, Injector, Input, OnChanges, OnInit, TemplateRef } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  forwardRef,
+  Injector,
+  Input,
+  OnChanges,
+  OnInit,
+  TemplateRef,
+  inject,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
@@ -26,6 +36,20 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAccessor {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private injector = inject(Injector);
+
+  private popoverController = inject(PopoverController);
+
+  private platformReportService = inject(SpenderReportsService);
+
+  private trackingService = inject(TrackingService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() options: { label: string; value: Report }[] = [];
 
   @Input() disabled = false;
@@ -59,16 +83,6 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: Report) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector,
-    private popoverController: PopoverController,
-    private platformReportService: SpenderReportsService,
-    private trackingService: TrackingService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get valid(): boolean {
     if (this.ngControl.touched) {

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from 'src/environments/environment';
 
@@ -7,9 +7,11 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class SpenderPlatformV1ApiService {
+  private httpClient = inject(HttpClient);
+
   ROOT_ENDPOINT: string;
 
-  constructor(private httpClient: HttpClient) {
+  constructor() {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 

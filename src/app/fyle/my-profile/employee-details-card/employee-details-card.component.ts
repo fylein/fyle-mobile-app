@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 
@@ -9,11 +9,11 @@ import { UtilityService } from 'src/app/core/services/utility.service';
   standalone: false,
 })
 export class EmployeeDetailsCardComponent implements OnInit {
+  private utilityService = inject(UtilityService);
+
   @Input() eou: ExtendedOrgUser;
 
   isMobileNumberSectionVisible: boolean;
-
-  constructor(private utilityService: UtilityService) {}
 
   ngOnInit(): void {
     this.utilityService

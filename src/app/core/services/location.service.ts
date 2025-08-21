@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { catchError, map, timeout } from 'rxjs/operators';
@@ -17,9 +17,11 @@ const currentLocationCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class LocationService {
+  private httpClient = inject(HttpClient);
+
   ROOT_ENDPOINT: string;
 
-  constructor(private httpClient: HttpClient) {
+  constructor() {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
@@ -27,25 +29,27 @@ export class LocationService {
     cacheBusterObserver: currentLocationCacheBuster$,
     maxAge: 10 * 60 * 1000, // 10 minutes
   })
-  getCurrentLocation(config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false }): Observable<Position | null> {
+  getCurrentLocation(
+    config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false },
+  ): Observable<Position | null> {
     return from(
       Geolocation.getCurrentPosition({
         timeout: 5000,
         enableHighAccuracy: config.enableHighAccuracy,
       }).catch((err: { message?: string; errorMessage?: string }) => {
         if (
-          err?.message === "Location permission request was denied." ||
-          err?.errorMessage === "Location permission request was denied."
+          err?.message === 'Location permission request was denied.' ||
+          err?.errorMessage === 'Location permission request was denied.'
         ) {
           // Swallow this specific error by returning null
           return null;
         }
         // Re-throw all other errors
         throw err;
-      }) as Promise<Position | null>
+      }) as Promise<Position | null>,
     ).pipe(
       this.timeoutWhen(!config.enableHighAccuracy, 5000),
-      catchError(() => of(null))
+      catchError(() => of(null)),
     );
   }
 
@@ -72,7 +76,7 @@ export class LocationService {
   getDirections(
     origin: google.maps.LatLngLiteral,
     destination: google.maps.LatLngLiteral,
-    waypoints?: google.maps.LatLngLiteral[]
+    waypoints?: google.maps.LatLngLiteral[],
   ): Observable<string> {
     const config = {
       params: {
@@ -83,7 +87,7 @@ export class LocationService {
         waypoints: waypoints.reduce(
           (acc, waypoint, i) =>
             i === 0 ? `${waypoint.lat},${waypoint.lng}` : `${acc}|${waypoint.lat},${waypoint.lng}`,
-          ''
+          '',
         ),
         mode: 'driving',
       },
@@ -96,7 +100,7 @@ export class LocationService {
     text: string,
     userId: string,
     currentLocation?: string,
-    types?: string
+    types?: string,
   ): Observable<PredictedLocation[]> {
     const data: Record<string, Record<string, string>> = {
       params: {
@@ -147,7 +151,7 @@ export class LocationService {
           locationDetails.display = displayName;
         }
         return locationDetails;
-      })
+      }),
     );
   }
 

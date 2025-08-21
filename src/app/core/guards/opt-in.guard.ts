@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable, map, of } from 'rxjs';
 import { UtilityService } from '../services/utility.service';
@@ -7,11 +7,13 @@ import { UtilityService } from '../services/utility.service';
   providedIn: 'root',
 })
 export class OptInGuard {
-  constructor(private utilityService: UtilityService, private router: Router) {}
+  private utilityService = inject(UtilityService);
+
+  private router = inject(Router);
 
   canActivate(
     next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    state: RouterStateSnapshot,
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     const currentRoute = this.router.routerState.snapshot.url;
     const nextRoute = state.url;

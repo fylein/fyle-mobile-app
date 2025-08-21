@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -12,14 +12,15 @@ import { Router } from '@angular/router';
   standalone: false,
 })
 export class DashboardEmailOptInComponent {
-  @Output() toggleEmailOptInBanner = new EventEmitter<{ optedIn: boolean }>();
+  private popoverController = inject(PopoverController);
 
-  constructor(
-    private popoverController: PopoverController,
-    private trackingService: TrackingService,
-    private router: Router,
-    private translocoService: TranslocoService,
-  ) {}
+  private trackingService = inject(TrackingService);
+
+  private router = inject(Router);
+
+  private translocoService = inject(TranslocoService);
+
+  @Output() toggleEmailOptInBanner = new EventEmitter<{ optedIn: boolean }>();
 
   async emailOptInClick(): Promise<void> {
     this.toggleEmailOptInBanner.emit({ optedIn: true });

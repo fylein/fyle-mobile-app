@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
 import { AdvanceApprover } from 'src/app/core/models/advance-approver.model';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { TranslocoService } from '@jsverse/transloco';
@@ -9,6 +9,8 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FySummaryTileComponent implements OnInit, OnChanges {
+  private translocoService = inject(TranslocoService);
+
   @Input() category: string;
 
   @Input() merchant: string;
@@ -36,8 +38,6 @@ export class FySummaryTileComponent implements OnInit, OnChanges {
   @Input() ownerEmail: string;
 
   @Input() approverEmails: string[];
-
-  constructor(private translocoService: TranslocoService) {}
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ngOnChanges(changes: SimpleChanges): void {

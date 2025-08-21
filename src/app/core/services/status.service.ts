@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
 import { ExtendedStatus } from '../models/extended_status.model';
@@ -12,10 +12,9 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class StatusService {
-  constructor(
-    private apiService: ApiService,
-    private translocoService: TranslocoService,
-  ) {}
+  private apiService = inject(ApiService);
+
+  private translocoService = inject(TranslocoService);
 
   find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(

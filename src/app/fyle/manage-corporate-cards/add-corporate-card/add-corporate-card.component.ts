@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { AbstractControl, UntypedFormControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
@@ -16,6 +16,16 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class AddCorporateCardComponent implements OnInit {
+  private popoverController = inject(PopoverController);
+
+  private realTimeFeedService = inject(RealTimeFeedService);
+
+  private trackingService = inject(TrackingService);
+
+  private router = inject(Router);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() isVisaRTFEnabled: boolean;
 
   @Input() isMastercardRTFEnabled: boolean;
@@ -37,14 +47,6 @@ export class AddCorporateCardComponent implements OnInit {
   isEnrollingCard: boolean;
 
   cardNetworkTypes: typeof CardNetworkType = CardNetworkType;
-
-  constructor(
-    private popoverController: PopoverController,
-    private realTimeFeedService: RealTimeFeedService,
-    private trackingService: TrackingService,
-    private router: Router,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.cardForm = new UntypedFormControl('', [

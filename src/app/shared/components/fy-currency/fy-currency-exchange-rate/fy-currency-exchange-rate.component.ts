@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -13,6 +13,14 @@ import { from } from 'rxjs';
   standalone: false,
 })
 export class FyCurrencyExchangeRateComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  private currencyService = inject(CurrencyService);
+
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private loaderService = inject(LoaderService);
+
   @Input() amount;
 
   @Input() currentCurrency;
@@ -24,13 +32,6 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
   @Input() exchangeRate;
 
   fg: UntypedFormGroup;
-
-  constructor(
-    private modalController: ModalController,
-    private currencyService: CurrencyService,
-    private formBuilder: UntypedFormBuilder,
-    private loaderService: LoaderService,
-  ) {}
 
   toFixed(num: number, fixed: number): string {
     const re = new RegExp('^-?\\d+(?:.\\d{0,' + (fixed || -1) + '})?');

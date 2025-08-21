@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, EventEmitter, Output, inject } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -24,6 +24,30 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyViewAttachmentComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  private popoverController = inject(PopoverController);
+
+  private sanitizer = inject(DomSanitizer);
+
+  private loaderService = inject(LoaderService);
+
+  private trackingService = inject(TrackingService);
+
+  private spenderFileService = inject(SpenderFileService);
+
+  private expensesService = inject(ExpensesService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private fileService = inject(FileService);
+
+  private transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private router = inject(Router);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() attachments: FileObject[];
 
   @Input() isMileageExpense: boolean;
@@ -55,23 +79,7 @@ export class FyViewAttachmentComponent implements OnInit {
 
   saveComplete: { [key: number]: boolean } = {};
 
-  RotationDirection = RotationDirection; // Make enum available in template
-
-  // max params shouldnt effect constructors
-  constructor(
-    private modalController: ModalController,
-    private popoverController: PopoverController,
-    private sanitizer: DomSanitizer,
-    private loaderService: LoaderService,
-    private trackingService: TrackingService,
-    private spenderFileService: SpenderFileService,
-    private expensesService: ExpensesService,
-    private activatedRoute: ActivatedRoute,
-    private fileService: FileService,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private router: Router,
-    private translocoService: TranslocoService,
-  ) {}
+  RotationDirection = RotationDirection;
 
   ngOnInit(): void {
     this.attachment = this.attachments[this.activeIndex];

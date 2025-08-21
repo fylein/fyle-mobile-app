@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router, UrlTree } from '@angular/router';
 import { Observable, from, forkJoin, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
@@ -9,11 +9,11 @@ import { map, catchError } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class VerifiedOrgAuthGuard {
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private userService: UserService,
-  ) {}
+  private authService = inject(AuthService);
+
+  private router = inject(Router);
+
+  private userService = inject(UserService);
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     return forkJoin({

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { PlatformFilePostRequestPayload } from 'src/app/core/models/platform/platform-file-post-request-payload.model';
@@ -10,7 +10,7 @@ import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-r
   providedIn: 'root',
 })
 export class SpenderFileService {
-  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   createFile(data: PlatformFilePostRequestPayload): Observable<PlatformFile> {
     const payload = { data };

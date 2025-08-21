@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -8,7 +8,7 @@ import { PopoverController } from '@ionic/angular';
   standalone: false,
 })
 export class DeleteButtonComponent {
-  constructor(private popoverController: PopoverController) {}
+  private popoverController = inject(PopoverController);
 
   confirmDelete() {
     this.popoverController.dismiss('delete');

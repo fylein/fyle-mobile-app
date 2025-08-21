@@ -49,6 +49,52 @@ import { ExpensesService as SharedExpensesService } from 'src/app/core/services/
   standalone: false,
 })
 export class ViewExpensePage {
+  private loaderService = inject(LoaderService);
+
+  private transactionService = inject(TransactionService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private customInputsService = inject(CustomInputsService);
+
+  private fileService = inject(FileService);
+
+  private modalController = inject(ModalController);
+
+  private router = inject(Router);
+
+  private popoverController = inject(PopoverController);
+
+  private networkService = inject(NetworkService);
+
+  private policyService = inject(PolicyService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private dependentFieldsService = inject(DependentFieldsService);
+
+  private spenderExpensesService = inject(SpenderExpensesService);
+
+  private approverExpensesService = inject(ApproverExpensesService);
+
+  private spenderFileService = inject(SpenderFileService);
+
+  private approverFileService = inject(ApproverFileService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private spenderExpenseCommentService = inject(SpenderExpenseCommentService);
+
+  private approverExpenseCommentService = inject(ApproverExpenseCommentService);
+
   @ViewChild('comments') commentsContainer: ElementRef;
 
   expense$: Observable<Expense>;
@@ -140,32 +186,6 @@ export class ViewExpensePage {
   readonly isPendingGasCharge = signal<boolean>(false);
 
   private sharedExpensesService = inject(SharedExpensesService);
-
-  constructor(
-    private loaderService: LoaderService,
-    private transactionService: TransactionService,
-    private activatedRoute: ActivatedRoute,
-    private customInputsService: CustomInputsService,
-    private fileService: FileService,
-    private modalController: ModalController,
-    private router: Router,
-    private popoverController: PopoverController,
-    private networkService: NetworkService,
-    private policyService: PolicyService,
-    private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService,
-    private dependentFieldsService: DependentFieldsService,
-    private spenderExpensesService: SpenderExpensesService,
-    private approverExpensesService: ApproverExpensesService,
-    private spenderFileService: SpenderFileService,
-    private approverFileService: ApproverFileService,
-    private approverReportsService: ApproverReportsService,
-    private spenderExpenseCommentService: SpenderExpenseCommentService,
-    private approverExpenseCommentService: ApproverExpenseCommentService,
-  ) {}
 
   get ExpenseView(): typeof ExpenseView {
     return ExpenseView;

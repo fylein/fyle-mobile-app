@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, forwardRef, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, forwardRef, Input, inject } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { noop } from 'rxjs';
@@ -19,6 +19,12 @@ import { DependentFieldModalComponent } from './dependent-field-modal/dependent-
   standalone: false,
 })
 export class DependentFieldComponent implements ControlValueAccessor {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private cdr = inject(ChangeDetectorRef);
+
   @Input() label = '';
 
   @Input() placeholder: string;
@@ -38,12 +44,6 @@ export class DependentFieldComponent implements ControlValueAccessor {
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (_: unknown) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef,
-  ) {}
 
   async openModal(): Promise<void> {
     const selectionModal = await this.modalController.create({

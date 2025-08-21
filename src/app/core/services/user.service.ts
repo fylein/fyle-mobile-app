@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -13,7 +13,9 @@ import { UserPasswordStatus } from '../models/user-password-status.model';
   providedIn: 'root',
 })
 export class UserService {
-  constructor(private authService: AuthService, private apiService: ApiService) {}
+  private authService = inject(AuthService);
+
+  private apiService = inject(ApiService);
 
   getCurrent(): Observable<User> {
     return this.apiService.get<User>('/users/current').pipe(
@@ -23,7 +25,7 @@ export class UserService {
         updated_at: userRaw.updated_at && new Date(userRaw.updated_at),
         email_verified_at: userRaw.email_verified_at && new Date(userRaw.email_verified_at),
         password_changed_at: userRaw.password_changed_at && new Date(userRaw.password_changed_at),
-      }))
+      })),
     );
   }
 
@@ -39,13 +41,13 @@ export class UserService {
           ...userPropertiesRaw,
           created_at: userPropertiesRaw.created_at && new Date(userPropertiesRaw.created_at),
           updated_at: userPropertiesRaw.updated_at && new Date(userPropertiesRaw.updated_at),
-        }))
+        })),
       );
   }
 
   upsertProperties(userProperties: UserProperty): Observable<UserProperty> {
     return this.getCurrent().pipe(
-      switchMap((user) => this.apiService.post<UserProperty>('/users/' + user.id + '/properties', userProperties))
+      switchMap((user) => this.apiService.post<UserProperty>('/users/' + user.id + '/properties', userProperties)),
     );
   }
 

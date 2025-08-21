@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, TemplateRef } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  TemplateRef,
+  inject,
+} from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
@@ -23,6 +33,10 @@ import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-opt
   standalone: false,
 })
 export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private injector = inject(Injector);
+
   @Input() amountOptionsData: MergeExpensesOptionsData<string>;
 
   @Input() receiptOptions: MergeExpensesOption<string>[];
@@ -78,11 +92,6 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
   costCenterDependentFields: CustomProperty<string>[] = [];
 
   onTouched: () => void = noop;
-
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private injector: Injector,
-  ) {}
 
   isFieldTouched = (fieldName: string): boolean => this.genericFieldsFormGroup.get(fieldName).touched;
 

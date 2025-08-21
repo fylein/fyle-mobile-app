@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { PasswordChecks } from './password-checks.model';
 import { PasswordCriteria } from './password-criteria.model';
@@ -10,6 +10,8 @@ import { PasswordCriteria } from './password-criteria.model';
   standalone: false,
 })
 export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
+  private translocoService = inject(TranslocoService);
+
   @Input() password: string;
 
   @Output() isPasswordValid = new EventEmitter<boolean>();
@@ -23,8 +25,6 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
   };
 
   passwordCriteria: PasswordCriteria[];
-
-  constructor(private translocoService: TranslocoService) {}
 
   updatePasswordCriteria(): void {
     this.passwordCriteria = [

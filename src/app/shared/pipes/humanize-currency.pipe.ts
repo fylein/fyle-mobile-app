@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { FyCurrencyPipe } from './fy-currency.pipe';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -7,10 +7,9 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class HumanizeCurrencyPipe implements PipeTransform {
-  constructor(
-    private fyCurrencyPipe: FyCurrencyPipe,
-    private translocoService: TranslocoService,
-  ) {}
+  private fyCurrencyPipe = inject(FyCurrencyPipe);
+
+  private translocoService = inject(TranslocoService);
 
   transform(value: number, currencyCode: string, skipSymbol = false, fraction?: number): string {
     const sign = value < 0 ? '-' : '';

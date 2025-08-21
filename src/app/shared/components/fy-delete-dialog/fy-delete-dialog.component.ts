@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { PopoverController } from '@ionic/angular';
 import { catchError, finalize, map } from 'rxjs/operators';
@@ -12,6 +12,8 @@ import { LoaderPosition } from '../../directive/loader-position.enum';
   standalone: false,
 })
 export class FyDeleteDialogComponent implements OnInit {
+  private popoverController = inject(PopoverController);
+
   @Input() deleteMethod: () => Observable<any>;
 
   @Input() header: string;
@@ -27,8 +29,6 @@ export class FyDeleteDialogComponent implements OnInit {
   @Input() disableDelete = false;
 
   deleteCallInProgress = false;
-
-  constructor(private popoverController: PopoverController) {}
 
   get LoaderPosition() {
     return LoaderPosition;
