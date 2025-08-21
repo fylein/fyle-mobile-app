@@ -30,17 +30,25 @@ jobs:
 
       - name: Install accessibility tools globally
         run: |
-          # Install tools globally to avoid package.json changes
           npm install -g axe-core @axe-core/cli
           npm install -g eslint-plugin-jsx-a11y
 
       - name: Find files to scan
         id: find-files
         run: |
-          # Find relevant files for accessibility scanning
-          echo "HTML_FILES=$(find . -name "*.html" -not -path "./node_modules/*" -not -path "./dist/*" -not -path "./www/*" -not -path "./build/*" | head -20 | tr '\n' ' ')" >> $GITHUB_OUTPUT
-          echo "TS_FILES=$(find . -name "*.ts" -not -path "./node_modules/*" -not -path "./dist/*" -not -path "./www/*" -not -path "./build/*" -not -name "*.d.ts" -not -path "./e2e/*" | head -15 | tr '\n' ' ')" >> $GITHUB_OUTPUT
-          echo "COMPONENT_FILES=$(find . -name "*.component.ts" -not -path "./node_modules/*" -not -path "./dist/*" -not -path "./www/*" -not -path "./build/*" | head -10 | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          # Use a more robust approach to handle file paths
+          HTML_FILES=$(find . -name "*.html" -not -path "./node_modules/*" -not -path "./dist/*" -not -path "./www/*" -not -path "./build/*" | head -20)
+          TS_FILES=$(find . -name "*.ts" -not -path "./node_modules/*" -not -path "./dist/*" -not -path "./www/*" -not -path "./build/*" -not -name "*.d.ts" -not -path "./e2e/*" | head -15)
+          COMPONENT_FILES=$(find . -name "*.component.ts" -not -path "./node_modules/*" -not -path "./dist/*" -not -path "./www/*" -not -path "./build/*" | head -10)
+          
+          # Write to files instead of environment variables to avoid truncation
+          echo "$HTML_FILES" > html_files.txt
+          echo "$TS_FILES" > ts_files.txt
+          echo "$COMPONENT_FILES" > component_files.txt
+          
+          echo "Found $(echo "$HTML_FILES" | wc -l) HTML files"
+          echo "Found $(echo "$TS_FILES" | wc -l) TypeScript files"
+          echo "Found $(echo "$COMPONENT_FILES" | wc -l) component files"
 
       - name: Run ESLint with accessibility rules
         id: eslint-a11y
@@ -75,11 +83,9 @@ jobs:
           };
           EOF
           
-          # Run eslint with accessibility rules on component files first, then other TS files
-          if [ -n "${{ steps.find-files.outputs.COMPONENT_FILES }}" ]; then
-            npx eslint --config .eslintrc.a11y.js --format json \
-              ${{ steps.find-files.outputs.COMPONENT_FILES }} \
-              > eslint-a11y-report.json 2>/dev/null || true
+          # Read component files from file
+          if [ -s component_files.txt ]; then
+            npx eslint --config .eslintrc.a11y.js --format json $(cat component_files.txt) > eslint-a11y-report.json 2>/dev/null || true
           else
             echo "[]" > eslint-a11y-report.json
           fi
@@ -88,13 +94,14 @@ jobs:
         id: axe-scan
         continue-on-error: true
         run: |
-          if [ -n "${{ steps.find-files.outputs.HTML_FILES }}" ]; then
+          if [ -s html_files.txt ]; then
             # Create a simple axe runner script
             cat > run-axe-scan.js << 'EOF'
             const fs = require('fs');
             const { execSync } = require('child_process');
             
-            const htmlFiles = process.argv.slice(2);
+            // Read HTML files from file
+            const htmlFiles = fs.readFileSync('html_files.txt', 'utf8').split('\n').filter(file => file.trim());
             
             if (htmlFiles.length === 0) {
               console.log('No HTML files to scan');
@@ -106,9 +113,11 @@ jobs:
             
             htmlFiles.forEach(file => {
               try {
+                if (!file.trim()) return;
+                
                 console.log(`Scanning ${file} for accessibility issues...`);
                 // Use axe-core CLI to scan each file
-                const output = execSync(`npx axe ${file} --format json --exit-code 0`, { 
+                const output = execSync(`npx axe "${file}" --format json --exit-code 0`, { 
                   encoding: 'utf8',
                   stdio: ['pipe', 'pipe', 'ignore']
                 });
@@ -131,7 +140,7 @@ jobs:
             console.log(`Found ${results.length} accessibility violations across ${htmlFiles.length} files`);
             EOF
             
-            node run-axe-scan.js ${{ steps.find-files.outputs.HTML_FILES }}
+            node run-axe-scan.js
           else
             echo "[]" > axe-report.json
           fi
@@ -197,20 +206,26 @@ jobs:
             const fs = require('fs');
             
             // Read issues
-            const eslintIssues = JSON.parse(fs.readFileSync('accessibility-reports/eslint-issues.json', 'utf8'));
-            const axeIssues = JSON.parse(fs.readFileSync('accessibility-reports/axe-issues.json', 'utf8'));
+            const eslintIssues = JSON.parse(fs.readFileSync('accessibility-reports/eslint-issues.json', 'utf8') || '[]');
+            const axeIssues = JSON.parse(fs.readFileSync('accessibility-reports/axe-issues.json', 'utf8') || '[]');
+            
+            // Count scanned files
+            const htmlFileCount = fs.existsSync('html_files.txt') ? fs.readFileSync('html_files.txt', 'utf8').split('\\n').filter(f => f.trim()).length : 0;
+            const componentFileCount = fs.existsSync('component_files.txt') ? fs.readFileSync('component_files.txt', 'utf8').split('\\n').filter(f => f.trim()).length : 0;
             
             // Generate summary
             let summary = '# 🔍 WCAG Accessibility Scan Report\\n\\n';
             summary += '## 📊 Summary\\n';
             summary += '- **ESLint accessibility issues**: ' + eslintIssues.length + '\\n';
-            summary += '- **Axe-core HTML violations**: ' + axeIssues.length + '\\n\\n';
+            summary += '- **Axe-core HTML violations**: ' + axeIssues.length + '\\n';
+            summary += '- **HTML files scanned**: ' + htmlFileCount + '\\n';
+            summary += '- **Component files scanned**: ' + componentFileCount + '\\n\\n';
             
             if (eslintIssues.length > 0) {
               summary += '## ⚠️ ESLint Accessibility Issues\\n';
               eslintIssues.slice(0, 8).forEach(issue => {
                 const relativePath = issue.file.replace(process.cwd() + '/', '');
-                summary += '- **`' + relativePath + '`** (line ' + issue.line + '): ' + issue.message + '\\n';
+                summary += '- **' + relativePath + '** (line ' + issue.line + '): ' + issue.message + '\\n';
                 summary += '  - *Rule: ' + issue.rule + ', Severity: ' + issue.severity + '*\\n';
               });
               if (eslintIssues.length > 8) {
@@ -240,7 +255,6 @@ jobs:
             
             if (eslintIssues.length === 0 && axeIssues.length === 0) {
               summary += '🎉 No accessibility issues found in the scanned files!\\n';
-              summary += '\\n*Scanned files: ' + ('${{ steps.find-files.outputs.HTML_FILES }}'.split(' ').filter(f => f).length + ' HTML, ' + '${{ steps.find-files.outputs.COMPONENT_FILES }}'.split(' ').filter(f => f).length + ' components)*';
             }
             
             summary += '\\n---\\n*This report was generated automatically by the WCAG Accessibility Scan workflow.*';
