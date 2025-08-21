@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Observable, Subscription, of } from 'rxjs';
@@ -19,6 +19,18 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class CreateNewReportComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  private trackingService = inject(TrackingService);
+
+  private currencyService = inject(CurrencyService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() selectedExpensesToReport: Expense[];
 
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
@@ -40,15 +52,6 @@ export class CreateNewReportComponent implements OnInit {
   isSelectedAll: boolean;
 
   showReportNameError: boolean;
-
-  constructor(
-    private modalController: ModalController,
-    private trackingService: TrackingService,
-    private currencyService: CurrencyService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private spenderReportsService: SpenderReportsService,
-    private translocoService: TranslocoService,
-  ) {}
 
   getReportTitle(): Subscription {
     const txnIds = this.selectedElements.map((etxn) => etxn.id);

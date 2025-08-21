@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { ModalController } from '@ionic/angular';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
@@ -16,11 +16,11 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class FiltersHelperService {
-  constructor(
-    private titleCasePipe: TitleCasePipe,
-    private modalController: ModalController,
-    private translocoService: TranslocoService
-  ) {}
+  private titleCasePipe = inject(TitleCasePipe);
+
+  private modalController = inject(ModalController);
+
+  private translocoService = inject(TranslocoService);
 
   generateFilterPills(filters: Filters, projectFieldName?: string): FilterPill[] {
     const filterPills: FilterPill[] = [];
@@ -36,10 +36,10 @@ export class FiltersHelperService {
 
     if (projectFieldName) {
       filterPillsMap[SortingValue.projectAsc] = `${this.titleCasePipe.transform(
-        projectFieldName
+        projectFieldName,
       )}${this.translocoService.translate('services.filtersHelper.aToZ')}`;
       filterPillsMap[SortingValue.projectDesc] = `${this.titleCasePipe.transform(
-        projectFieldName
+        projectFieldName,
       )}${this.translocoService.translate('services.filtersHelper.zToA')}`;
     }
 
@@ -71,11 +71,11 @@ export class FiltersHelperService {
 
     const stateFilter = selectedFilters.find(
       (filter): filter is SelectedFilters<AdvancesStates[]> =>
-        filter.name === this.translocoService.translate('services.filtersHelper.state')
+        filter.name === this.translocoService.translate('services.filtersHelper.state'),
     );
     const sortBy = selectedFilters.find<SelectedFilters<string>>(
       (filter): filter is SelectedFilters<string> =>
-        filter.name === this.translocoService.translate('services.filtersHelper.sortBy')
+        filter.name === this.translocoService.translate('services.filtersHelper.sortBy'),
     );
 
     if (stateFilter) {
@@ -118,7 +118,7 @@ export class FiltersHelperService {
   async openFilterModal(
     filters: Filters,
     filterOptions: FilterOptions<string>[],
-    activeFilterInitialName?: string
+    activeFilterInitialName?: string,
   ): Promise<Filters> {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,

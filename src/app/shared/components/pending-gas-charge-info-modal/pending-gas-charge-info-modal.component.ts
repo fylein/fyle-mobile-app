@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -8,7 +8,7 @@ import { ModalController } from '@ionic/angular';
   standalone: false,
 })
 export class PendingGasChargeInfoModalComponent {
-  constructor(private modalController: ModalController) {}
+  private modalController = inject(ModalController);
 
   dismissModal(): void {
     this.modalController.dismiss();

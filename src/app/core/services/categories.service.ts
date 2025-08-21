@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
@@ -15,13 +15,13 @@ const categoriesCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class CategoriesService {
-  skipCategories = ['activity', 'mileage', 'per diem', 'unspecified'];
+  private paginationSize = inject(PAGINATION_SIZE);
 
-  constructor(
-    @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private translocoService: TranslocoService
-  ) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private translocoService = inject(TranslocoService);
+
+  skipCategories = ['activity', 'mileage', 'per diem', 'unspecified'];
 
   @Cacheable()
   getMileageOrPerDiemCategories(): Observable<PlatformCategory[]> {
@@ -46,7 +46,7 @@ export class CategoriesService {
         return range(0, count);
       }),
       concatMap((page) => this.getCategories({ offset: this.paginationSize * page, limit: this.paginationSize })),
-      reduce((acc, curr) => acc.concat(curr), [] as OrgCategory[])
+      reduce((acc, curr) => acc.concat(curr), [] as OrgCategory[]),
     );
   }
 
@@ -61,7 +61,7 @@ export class CategoriesService {
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory[]>>(`/categories`, data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.addDisplayName(res)),
-      map((responses) => responses[0])
+      map((responses) => responses[0]),
     );
   }
 
@@ -89,7 +89,7 @@ export class CategoriesService {
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory[]>>('/categories', data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.sortCategories(res)),
-      map((res) => this.addDisplayName(res))
+      map((res) => this.addDisplayName(res)),
     );
   }
 
@@ -222,7 +222,7 @@ export class CategoriesService {
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory[]>>(`/categories`, data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.addDisplayName(res)),
-      map((responses) => responses.find((response) => response.id === id))
+      map((responses) => responses.find((response) => response.id === id)),
     );
   }
 }

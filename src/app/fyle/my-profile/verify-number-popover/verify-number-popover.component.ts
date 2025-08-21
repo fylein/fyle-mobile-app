@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -13,6 +13,12 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
+  private popoverController = inject(PopoverController);
+
+  private mobileNumberVerificationService = inject(MobileNumberVerificationService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
   @Input() extendedOrgUser: ExtendedOrgUser;
@@ -32,12 +38,6 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   otpTimer: number;
 
   disableResendOtp = false;
-
-  constructor(
-    private popoverController: PopoverController,
-    private mobileNumberVerificationService: MobileNumberVerificationService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.infoBoxText = this.translocoService.translate('verifyNumberPopover.infoBoxText', {

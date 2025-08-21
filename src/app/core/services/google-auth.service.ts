@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
 import { environment } from 'src/environments/environment';
 import { AuthResponse } from '../models/auth-response.model';
@@ -7,7 +7,7 @@ import { AuthResponse } from '../models/auth-response.model';
   providedIn: 'root',
 })
 export class GoogleAuthService {
-  constructor(private googlePlus: GooglePlus) {}
+  private googlePlus = inject(GooglePlus);
 
   async login(): Promise<any> {
     // Need to put ios case here later

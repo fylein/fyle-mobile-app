@@ -8,6 +8,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { InfiniteScrollCustomEvent, SegmentCustomEvent } from '@ionic/core';
 import {
@@ -70,6 +71,38 @@ type Filters = Partial<PersonalCardFilter>;
   standalone: false,
 })
 export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
+  private personalCardsService = inject(PersonalCardsService);
+
+  private networkService = inject(NetworkService);
+
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private inAppBrowserService = inject(InAppBrowserService);
+
+  private loaderService = inject(LoaderService);
+
+  private zone = inject(NgZone);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private modalController = inject(ModalController);
+
+  private extendQueryParamsService = inject(ExtendQueryParamsService);
+
+  private platform = inject(Platform);
+
+  private spinnerDialog = inject(SpinnerDialog);
+
+  private trackingService = inject(TrackingService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private cdr = inject(ChangeDetectorRef);
+
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   headerState: HeaderState = HeaderState.base;
@@ -141,25 +174,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   scrolled = false;
 
   onComponentDestroy$ = new Subject();
-
-  constructor(
-    private personalCardsService: PersonalCardsService,
-    private networkService: NetworkService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private inAppBrowserService: InAppBrowserService,
-    private loaderService: LoaderService,
-    private zone: NgZone,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private modalController: ModalController,
-    private extendQueryParamsService: ExtendQueryParamsService,
-    private platform: Platform,
-    private spinnerDialog: SpinnerDialog,
-    private trackingService: TrackingService,
-    private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef,
-  ) {}
 
   ngOnInit(): void {
     this.setupNetworkWatcher();

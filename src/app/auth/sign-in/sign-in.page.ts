@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { from, throwError, Observable, of, noop, Subscription } from 'rxjs';
@@ -28,6 +28,34 @@ import { BackButtonService } from 'src/app/core/services/back-button.service';
   standalone: false,
 })
 export class SignInPage implements OnInit {
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private popoverController = inject(PopoverController);
+
+  private loaderService = inject(LoaderService);
+
+  private authService = inject(AuthService);
+
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  googleAuthService = inject(GoogleAuthService);
+
+  private trackingService = inject(TrackingService);
+
+  private deviceService = inject(DeviceService);
+
+  private loginInfoService = inject(LoginInfoService);
+
+  private inAppBrowserService = inject(InAppBrowserService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private backButtonService = inject(BackButtonService);
+
   fg: UntypedFormGroup;
 
   emailLoading = false;
@@ -47,23 +75,6 @@ export class SignInPage implements OnInit {
   hardwareBackButtonAction: Subscription;
 
   focusOnPassword = false;
-
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private routerAuthService: RouterAuthService,
-    private popoverController: PopoverController,
-    private loaderService: LoaderService,
-    private authService: AuthService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    public googleAuthService: GoogleAuthService,
-    private trackingService: TrackingService,
-    private deviceService: DeviceService,
-    private loginInfoService: LoginInfoService,
-    private inAppBrowserService: InAppBrowserService,
-    private platformHandlerService: PlatformHandlerService,
-    private backButtonService: BackButtonService,
-  ) {}
 
   async checkSAMLResponseAndSignInUser(data: SamlResponse): Promise<void> {
     if (data && data.error) {

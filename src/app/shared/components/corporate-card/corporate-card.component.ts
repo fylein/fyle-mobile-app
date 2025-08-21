@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -10,6 +10,8 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
   standalone: false,
 })
 export class CorporateCardComponent implements OnInit {
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
   @Input() card: PlatformCorporateCard;
 
   @Input() hideOptionsMenu: boolean;
@@ -29,8 +31,6 @@ export class CorporateCardComponent implements OnInit {
   showCardOptionsMenu: boolean;
 
   dataFeedSourceTypes: typeof DataFeedSource = DataFeedSource;
-
-  constructor(private corporateCreditCardExpenseService: CorporateCreditCardExpenseService) {}
 
   ngOnInit(): void {
     this.isRTFEnabled = this.isVisaRTFEnabled || this.isMastercardRTFEnabled;

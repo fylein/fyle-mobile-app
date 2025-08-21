@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { PlatformFilePostRequestPayload } from 'src/app/core/models/platform/platform-file-post-request-payload.model';
@@ -10,7 +10,7 @@ import { ApproverPlatformApiService } from '../../../approver-platform-api.servi
   providedIn: 'root',
 })
 export class ApproverFileService {
-  constructor(private approverPlatformApiService: ApproverPlatformApiService) {}
+  private approverPlatformApiService = inject(ApproverPlatformApiService);
 
   createFile(payload: PlatformFilePostRequestPayload): Observable<PlatformFile> {
     return this.approverPlatformApiService

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AccountsService } from './accounts.service';
 import { map } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
@@ -17,14 +17,17 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class PaymentModesService {
-  constructor(
-    private accountsService: AccountsService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService,
-    private translocoService: TranslocoService
-  ) {}
+  private accountsService = inject(AccountsService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private translocoService = inject(TranslocoService);
 
   checkIfPaymentModeConfigurationsIsEnabled(): Observable<boolean> {
     return this.platformEmployeeSettingsService
@@ -32,15 +35,15 @@ export class PaymentModesService {
       .pipe(
         map(
           (employeeSettings) =>
-            employeeSettings.payment_mode_settings.allowed && employeeSettings.payment_mode_settings.enabled
-        )
+            employeeSettings.payment_mode_settings.allowed && employeeSettings.payment_mode_settings.enabled,
+        ),
       );
   }
 
   getDefaultAccount(
     orgSettings: OrgSettings,
     accounts: PlatformAccount[],
-    employeeSettings: EmployeeSettings
+    employeeSettings: EmployeeSettings,
   ): Observable<PlatformAccount> {
     return forkJoin({
       allowedPaymentModes: this.platformEmployeeSettingsService.getAllowedPaymentModes(),
@@ -73,7 +76,7 @@ export class PaymentModesService {
           return account.type === mappedAccountType;
         });
         return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
-      })
+      }),
     );
   }
 

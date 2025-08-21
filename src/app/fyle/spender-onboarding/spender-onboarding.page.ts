@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { finalize, forkJoin, from, map, Observable, switchMap } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -20,6 +20,20 @@ import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-cor
   standalone: false,
 })
 export class SpenderOnboardingPage {
+  private loaderService = inject(LoaderService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
   isLoading = true;
 
   userFullName: string;
@@ -41,16 +55,6 @@ export class SpenderOnboardingPage {
   redirectionCount = 3;
 
   areCardsEnrolled = false;
-
-  constructor(
-    private loaderService: LoaderService,
-    private orgUserService: OrgUserService,
-    private spenderOnboardingService: SpenderOnboardingService,
-    private orgSettingsService: OrgSettingsService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private router: Router,
-    private trackingService: TrackingService,
-  ) {}
 
   isMobileVerified(eou: ExtendedOrgUser): boolean {
     return !!(eou.ou.mobile && eou.ou.mobile_verified);

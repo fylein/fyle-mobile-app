@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
@@ -21,12 +21,13 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class PolicyService {
-  constructor(
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private approverPlatformApiService: ApproverPlatformApiService,
-    private categoriesService: CategoriesService,
-    private translocoService: TranslocoService,
-  ) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private approverPlatformApiService = inject(ApproverPlatformApiService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private translocoService = inject(TranslocoService);
 
   transformTo(transaction: PublicPolicyExpense | Partial<Transaction>): PlatformPolicyExpense {
     const txnLocations = transaction.locations as string[];

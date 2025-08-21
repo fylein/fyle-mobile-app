@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -41,6 +41,38 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
   standalone: false,
 })
 export class MergeExpensePage implements OnInit, AfterViewChecked {
+  private router = inject(Router);
+
+  private transcationService = inject(TransactionService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private customInputsService = inject(CustomInputsService);
+
+  private customFieldsService = inject(CustomFieldsService);
+
+  private navController = inject(NavController);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private mergeExpensesService = inject(MergeExpensesService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private trackingService = inject(TrackingService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private dependantFieldsService = inject(DependentFieldsService);
+
+  private cdRef = inject(ChangeDetectorRef);
+
+  private expensesService = inject(ExpensesService);
+
   expenses: Partial<Expense>[];
 
   fg: UntypedFormGroup;
@@ -136,25 +168,6 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
   txnIDs: string[];
 
   showBillable = false;
-
-  constructor(
-    private router: Router,
-    private transcationService: TransactionService,
-    private categoriesService: CategoriesService,
-    private formBuilder: UntypedFormBuilder,
-    private customInputsService: CustomInputsService,
-    private customFieldsService: CustomFieldsService,
-    private navController: NavController,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private mergeExpensesService: MergeExpensesService,
-    private activatedRoute: ActivatedRoute,
-    private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private dependantFieldsService: DependentFieldsService,
-    private cdRef: ChangeDetectorRef,
-    private expensesService: ExpensesService,
-  ) {}
 
   get genericFieldsForm(): AbstractControl {
     return this.fg.controls.genericFields;

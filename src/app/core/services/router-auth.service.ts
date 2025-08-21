@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { RouterApiService } from './router-api.service';
 import { switchMap, map } from 'rxjs/operators';
 import { StorageService } from './storage.service';
@@ -22,21 +22,31 @@ import { TrackingService } from './tracking.service';
   providedIn: 'root',
 })
 export class RouterAuthService {
-  constructor(
-    private routerApiService: RouterApiService,
-    private storageService: StorageService,
-    private tokenService: TokenService,
-    private apiService: ApiService,
-    private locationService: LocationService,
-    private transactionOutboxService: TransactionsOutboxService,
-    private vendorService: VendorService,
-    private approverPlatformApiService: ApproverPlatformApiService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private platformCommonApiService: PlatformCommonApiService,
-    private spenderService: SpenderService,
-    private approverService: ApproverService,
-    private trackingService: TrackingService
-  ) {}
+  private routerApiService = inject(RouterApiService);
+
+  private storageService = inject(StorageService);
+
+  private tokenService = inject(TokenService);
+
+  private apiService = inject(ApiService);
+
+  private locationService = inject(LocationService);
+
+  private transactionOutboxService = inject(TransactionsOutboxService);
+
+  private vendorService = inject(VendorService);
+
+  private approverPlatformApiService = inject(ApproverPlatformApiService);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private platformCommonApiService = inject(PlatformCommonApiService);
+
+  private spenderService = inject(SpenderService);
+
+  private approverService = inject(ApproverService);
+
+  private trackingService = inject(TrackingService);
 
   checkEmailExists(email: string): Observable<EmailExistsResponse> {
     return this.routerApiService.post<EmailExistsResponse>('/auth/basic/email_exists', {

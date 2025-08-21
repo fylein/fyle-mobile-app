@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, inject } from '@angular/core';
 import { Observable, from, Subject, noop, of, forkJoin } from 'rxjs';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -41,6 +41,44 @@ import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/
   standalone: false,
 })
 export class ViewPerDiemPage {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private transactionService = inject(TransactionService);
+
+  private loaderService = inject(LoaderService);
+
+  private customInputsService = inject(CustomInputsService);
+
+  private perDiemService = inject(PerDiemService);
+
+  private policyService = inject(PolicyService);
+
+  private router = inject(Router);
+
+  private popoverController = inject(PopoverController);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private dependentFieldsService = inject(DependentFieldsService);
+
+  private spenderExpensesService = inject(SpenderExpensesService);
+
+  private approverExpensesService = inject(ApproverExpensesService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private spenderExpenseCommentService = inject(SpenderExpenseCommentService);
+
+  private approverExpenseCommentService = inject(ApproverExpenseCommentService);
+
   @ViewChild('comments') commentsContainer: ElementRef;
 
   perDiemExpense$: Observable<Expense>;
@@ -94,28 +132,6 @@ export class ViewPerDiemPage {
   projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
   costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private transactionService: TransactionService,
-    private loaderService: LoaderService,
-    private customInputsService: CustomInputsService,
-    private perDiemService: PerDiemService,
-    private policyService: PolicyService,
-    private router: Router,
-    private popoverController: PopoverController,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService,
-    private spenderExpensesService: SpenderExpensesService,
-    private approverExpensesService: ApproverExpensesService,
-    private approverReportsService: ApproverReportsService,
-    private spenderExpenseCommentService: SpenderExpenseCommentService,
-    private approverExpenseCommentService: ApproverExpenseCommentService,
-  ) {}
 
   get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
@@ -262,7 +278,7 @@ export class ViewPerDiemPage {
     this.perDiemCustomFields$ = this.perDiemExpense$.pipe(
       switchMap((expense) =>
         this.customInputsService.fillCustomProperties(
-          expense.category_id,
+          expense.category_id.toString(),
           expense.custom_fields as Partial<CustomInput>[],
         ),
       ),

@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -9,6 +9,10 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyInputPopoverComponent implements AfterViewInit {
+  private popoverController = inject(PopoverController);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
   @Input() title: string;
@@ -26,11 +30,6 @@ export class FyInputPopoverComponent implements AfterViewInit {
   @Input() placeholder: string;
 
   error: string;
-
-  constructor(
-    private popoverController: PopoverController,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => this.inputEl.nativeElement.focus(), 400);

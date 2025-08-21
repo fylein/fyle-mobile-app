@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { ActivatedRoute } from '@angular/router';
 import { filter, shareReplay } from 'rxjs/operators';
@@ -14,14 +14,15 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
   standalone: false,
 })
 export class AppVersionPage implements OnInit {
-  message: string;
+  private deviceService = inject(DeviceService);
 
-  constructor(
-    private deviceService: DeviceService,
-    private activatedRoute: ActivatedRoute,
-    private browserHandlerService: BrowserHandlerService,
-    private platformHandlerService: PlatformHandlerService,
-  ) {}
+  private activatedRoute = inject(ActivatedRoute);
+
+  private browserHandlerService = inject(BrowserHandlerService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  message: string;
 
   ngOnInit() {
     this.message = this.activatedRoute.snapshot.params.message;

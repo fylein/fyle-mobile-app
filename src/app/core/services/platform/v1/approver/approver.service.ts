@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from 'src/environments/environment';
 import { DateService } from '../shared/date.service';
@@ -9,9 +9,13 @@ import { map } from 'rxjs';
   providedIn: 'root',
 })
 export class ApproverService {
+  private httpClient = inject(HttpClient);
+
+  private dateService = inject(DateService);
+
   ROOT_ENDPOINT: string;
 
-  constructor(private httpClient: HttpClient, private dateService: DateService) {
+  constructor() {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { PopoverController } from '@ionic/angular';
 import { catchError, finalize, map } from 'rxjs/operators';
@@ -11,11 +11,11 @@ import { of } from 'rxjs';
   standalone: false,
 })
 export class DismissDialogComponent implements OnInit {
+  private popoverController = inject(PopoverController);
+
   @Input() dismissMethod: () => Observable<{}>;
 
   dismissCallInProgress: boolean;
-
-  constructor(private popoverController: PopoverController) {}
 
   ngOnInit(): void {
     this.dismissCallInProgress = false;

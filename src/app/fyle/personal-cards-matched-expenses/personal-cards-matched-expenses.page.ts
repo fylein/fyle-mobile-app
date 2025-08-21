@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -14,6 +14,12 @@ import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-pers
   standalone: false,
 })
 export class PersonalCardsMatchedExpensesPage {
+  private router = inject(Router);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
   headerState: HeaderState = HeaderState.base;
 
   navigateBack = true;
@@ -24,11 +30,7 @@ export class PersonalCardsMatchedExpensesPage {
 
   expenseSuggestions: Expense[];
 
-  constructor(
-    private router: Router,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-  ) {
+  constructor() {
     this.personalCard = this.router.getCurrentNavigation().extras.state.personalCard as PlatformPersonalCard;
     this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails as PlatformPersonalCardTxn;
     this.expenseSuggestions = this.router.getCurrentNavigation().extras.state.expenseSuggestions as Expense[];

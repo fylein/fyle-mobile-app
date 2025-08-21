@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Pipe({
@@ -6,7 +6,7 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class ArrayToCommaListPipe implements PipeTransform {
-  constructor(private translocoService: TranslocoService) {}
+  private translocoService = inject(TranslocoService);
 
   // Transforms a string array to a comma separated list
   // For example: ['a', 'b', 'c'] => 'a, b and c'

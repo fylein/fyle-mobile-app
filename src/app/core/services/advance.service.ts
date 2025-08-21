@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
@@ -15,7 +15,7 @@ const advancesCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class AdvanceService {
-  constructor(private spenderService: SpenderService) {}
+  private spenderService = inject(SpenderService);
 
   @Cacheable({
     cacheBusterObserver: advancesCacheBuster$,
@@ -25,7 +25,7 @@ export class AdvanceService {
       offset: 0,
       limit: 200,
       queryParams: {},
-    }
+    },
   ): Observable<ApiV2Response<ExtendedAdvance>> {
     const params = {
       offset: config.offset,
@@ -43,7 +43,7 @@ export class AdvanceService {
             data: this.convertToPublicAdvance(res),
           };
           return response;
-        })
+        }),
       );
   }
 

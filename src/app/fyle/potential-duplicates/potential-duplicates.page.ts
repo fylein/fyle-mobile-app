@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Params, Router } from '@angular/router';
 import { BehaviorSubject, EMPTY, Observable, noop } from 'rxjs';
@@ -19,6 +19,18 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
   standalone: false,
 })
 export class PotentialDuplicatesPage {
+  private expensesService = inject(ExpensesService);
+
+  private router = inject(Router);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private trackingService = inject(TrackingService);
+
+  private popoverController = inject(PopoverController);
+
   duplicateSets$: Observable<Expense[][]>;
 
   loadData$ = new BehaviorSubject<void>(null);
@@ -30,15 +42,6 @@ export class PotentialDuplicatesPage {
   duplicateExpenses: Expense[][];
 
   isLoading = true;
-
-  constructor(
-    private expensesService: ExpensesService,
-    private router: Router,
-    private snackbarProperties: SnackbarPropertiesService,
-    private matSnackBar: MatSnackBar,
-    private trackingService: TrackingService,
-    private popoverController: PopoverController,
-  ) {}
 
   ionViewWillEnter(): void {
     this.selectedSet = 0;

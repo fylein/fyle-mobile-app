@@ -1,4 +1,13 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  Input,
+  ChangeDetectorRef,
+  inject,
+} from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Observable, fromEvent, from, combineLatest } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -16,6 +25,18 @@ import { UtilityService } from 'src/app/core/services/utility.service';
   standalone: false,
 })
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  private vendorService = inject(VendorService);
+
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private utilityService = inject(UtilityService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('searchBar') searchBarRef!: ElementRef<HTMLInputElement>;
 
   @Input() currentSelection: Vendor | null = null;
@@ -29,15 +50,6 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   isLoading = false;
 
   selectableOptions: VendorListItem[] = [];
-
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private vendorService: VendorService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     // Component initialization - no specific logic needed at this time

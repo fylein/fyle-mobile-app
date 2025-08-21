@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   TemplateRef,
+  inject,
 } from '@angular/core';
 import { Observable, from, noop, fromEvent, of } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -23,6 +24,16 @@ import { Currency } from 'src/app/core/models/currency.model';
   standalone: false,
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
+  private currencyService = inject(CurrencyService);
+
+  private modalController = inject(ModalController);
+
+  private loaderService = inject(LoaderService);
+
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private cdr = inject(ChangeDetectorRef);
+
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   @Input() currentSelection: string;
@@ -38,14 +49,6 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   recentlyUsedCurrencies$: Observable<Currency[]>;
 
   value = '';
-
-  constructor(
-    private currencyService: CurrencyService,
-    private modalController: ModalController,
-    private loaderService: LoaderService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private cdr: ChangeDetectorRef,
-  ) {}
 
   clearValue(): void {
     this.value = '';

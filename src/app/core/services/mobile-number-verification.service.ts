@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { HttpHeaders } from '@angular/common/http';
 import { OtpDetails } from '../models/otp-details.model';
@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class MobileNumberVerificationService {
-  constructor(private apiService: ApiService) {}
+  private apiService = inject(ApiService);
 
   sendOtp(): Observable<Partial<OtpDetails>> {
     return this.apiService.post('/orgusers/verify_mobile');

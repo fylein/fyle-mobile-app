@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, OnDestroy, Injector } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, OnDestroy, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -19,6 +19,10 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   standalone: false,
 })
 export class FySelectVendorComponent implements OnInit, OnDestroy {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
   @Input() options: any[];
 
   @Input() label = '';
@@ -38,11 +42,6 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (_: any) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {

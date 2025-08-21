@@ -1,5 +1,5 @@
 import { getCurrencySymbol } from '@angular/common';
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, inject } from '@angular/core';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import dayjs from 'dayjs';
@@ -11,6 +11,8 @@ import dayjs from 'dayjs';
   standalone: false,
 })
 export class TeamAdvCardComponent implements OnInit {
+  private advanceRequestService = inject(AdvanceRequestService);
+
   @Input() advanceRequest: ExtendedAdvanceRequest;
 
   @Input() prevDate: Date;
@@ -24,8 +26,6 @@ export class TeamAdvCardComponent implements OnInit {
   showDate = false;
 
   actionOpened = false;
-
-  constructor(private advanceRequestService: AdvanceRequestService) {}
 
   ngOnInit() {
     if (this.advanceRequest && this.prevDate) {

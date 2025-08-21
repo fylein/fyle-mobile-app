@@ -170,7 +170,7 @@
   "lint-staged": {
     "*.{ts,scss,html}": "npm run format",
     "*.{ts,html}": [
-      "npm run lint:check"
+      "npm run lint"
     ]
   }
 }

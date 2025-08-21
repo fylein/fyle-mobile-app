@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -10,6 +10,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   providers: [MatIconRegistry],
 })
 export class IconModule {
+  private domSanitizer = inject(DomSanitizer);
+
+  private matIconRegistry = inject(MatIconRegistry);
+
   path = '../../assets/svg';
 
   svgImageArray = [
@@ -129,10 +133,7 @@ export class IconModule {
     'stars-filled.svg',
   ];
 
-  constructor(
-    private domSanitizer: DomSanitizer,
-    private matIconRegistry: MatIconRegistry,
-  ) {
+  constructor() {
     this.svgImageArray.forEach((imageName) => {
       this.matIconRegistry.addSvgIcon(imageName.replace('.svg', ''), this.setPath(`${this.path}/${imageName}`));
     });

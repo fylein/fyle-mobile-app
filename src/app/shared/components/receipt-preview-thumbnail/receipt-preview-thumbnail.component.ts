@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck, inject } from '@angular/core';
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -11,6 +11,8 @@ import { SwiperComponent } from 'swiper/angular';
   standalone: false,
 })
 export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
+  private trackingService = inject(TrackingService);
+
   @ViewChild('slides', { static: false }) imageSlides?: SwiperComponent;
 
   @Input() attachments: FileObject[];
@@ -36,8 +38,6 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   previousCount: number;
 
   numLoadedImage = 0;
-
-  constructor(private trackingService: TrackingService) {}
 
   ngOnInit() {
     this.sliderOptions = {

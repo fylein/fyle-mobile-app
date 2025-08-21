@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Redirect } from '../models/redirect.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
@@ -8,10 +8,9 @@ import { TrackingService } from './tracking.service';
   providedIn: 'root',
 })
 export class DeepLinkService {
-  constructor(
-    private router: Router,
-    private trackingService: TrackingService,
-  ) {}
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
 
   getJsonFromUrl(url?: string): Redirect {
     const query = url?.split('?')[1];

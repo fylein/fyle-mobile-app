@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { NavParams } from '@ionic/angular';
 import { TrackingService } from '../../../core/services/tracking.service';
@@ -12,18 +12,19 @@ import { HelpAdminInfo } from 'src/app/core/models/help-admin-info.model';
   standalone: false,
 })
 export class SupportDialogPage {
+  private modalController = inject(ModalController);
+
+  private navParams = inject(NavParams);
+
+  private trackingService = inject(TrackingService);
+
+  private browserHandlerService = inject(BrowserHandlerService);
+
   @Input() adminEous: HelpAdminInfo[] = [];
 
   dialogType = this.navParams.get<string>('type');
 
   adminList = this.navParams.get<HelpAdminInfo[]>('adminEous');
-
-  constructor(
-    private modalController: ModalController,
-    private navParams: NavParams,
-    private trackingService: TrackingService,
-    private browserHandlerService: BrowserHandlerService,
-  ) {}
 
   async openHelpLink(): Promise<void> {
     this.trackingService.engageWithHelpCard();

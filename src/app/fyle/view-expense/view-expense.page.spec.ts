@@ -566,7 +566,7 @@ describe('ViewExpensePage', () => {
       component.customProperties$.subscribe((customProperties) => {
         expect(customProperties).toEqual(filledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          expenseData.category_id,
+          expenseData.category_id.toString(),
           expenseData.custom_fields as Partial<CustomInput>[],
         );
         done();

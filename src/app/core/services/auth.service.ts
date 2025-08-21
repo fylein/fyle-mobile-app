@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
@@ -15,13 +15,15 @@ import { AccessTokenData } from '../models/access-token-data.model';
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(
-    private storageService: StorageService,
-    private tokenService: TokenService,
-    private apiService: ApiService,
-    private dataTransformService: DataTransformService,
-    private jwtHelperService: JwtHelperService
-  ) {}
+  private storageService = inject(StorageService);
+
+  private tokenService = inject(TokenService);
+
+  private apiService = inject(ApiService);
+
+  private dataTransformService = inject(DataTransformService);
+
+  private jwtHelperService = inject(JwtHelperService);
 
   getEou(): Promise<ExtendedOrgUser> {
     return this.storageService.get<ExtendedOrgUser>('user');
@@ -32,7 +34,7 @@ export class AuthService {
       switchMap((data) => {
         const extendedOrgUser = this.dataTransformService.unflatten<ExtendedOrgUser, unknown>(data);
         return from(this.storageService.set('user', extendedOrgUser)).pipe(map(() => extendedOrgUser));
-      })
+      }),
     );
   }
 
@@ -55,9 +57,9 @@ export class AuthService {
           })
           .pipe(
             switchMap((res) => from(that.tokenService.setAccessToken(res.access_token))),
-            switchMap(() => that.refreshEou())
-          )
-      )
+            switchMap(() => that.refreshEou()),
+          ),
+      ),
     );
   }
 
@@ -80,7 +82,7 @@ export class AuthService {
         } else {
           return [];
         }
-      })
+      }),
     );
   }
 
@@ -89,7 +91,7 @@ export class AuthService {
     return iif(
       () => logoutPayload as boolean,
       this.apiService.post('/auth/logout', logoutPayload),
-      this.apiService.post('/auth/logout')
+      this.apiService.post('/auth/logout'),
     ).pipe(
       finalize(async () => {
         await this.storageService.delete('recentlyUsedProjects');
@@ -103,7 +105,7 @@ export class AuthService {
         await this.storageService.delete('lastLoggedInDelegatee');
         await this.storageService.delete('lastLoggedInOrgQueue');
         await this.storageService.delete('isSidenavCollapsed');
-      })
+      }),
     );
   }
 }

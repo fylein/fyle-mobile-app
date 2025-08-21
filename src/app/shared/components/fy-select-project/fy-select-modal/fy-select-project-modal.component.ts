@@ -1,4 +1,13 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  Input,
+  ChangeDetectorRef,
+  TemplateRef,
+  inject,
+} from '@angular/core';
 import { Observable, fromEvent, iif, of, from, forkJoin } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime, shareReplay } from 'rxjs/operators';
@@ -23,6 +32,26 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyProjectSelectModalComponent implements AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  private projectsService = inject(ProjectsService);
+
+  private authService = inject(AuthService);
+
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private utilityService = inject(UtilityService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   @Input() currentSelection: ProjectV2;
@@ -56,19 +85,6 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
   isLoading = false;
 
   activeCategories$: Observable<OrgCategory[]>;
-
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private projectsService: ProjectsService,
-    private authService: AuthService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService,
-    private translocoService: TranslocoService,
-  ) {}
 
   getProjects(searchNameText: string): Observable<ProjectOption[]> {
     // set isLoading to true

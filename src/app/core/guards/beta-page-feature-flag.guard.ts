@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { Observable, map, of } from 'rxjs';
 import { OrgSettingsService } from '../services/org-settings.service';
@@ -7,10 +7,12 @@ import { OrgSettingsService } from '../services/org-settings.service';
   providedIn: 'root',
 })
 export class BetaPageFeatureFlagGuard {
-  constructor(private orgSettingsService: OrgSettingsService, private router: Router) {}
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private router = inject(Router);
 
   canActivate(
-    route: ActivatedRouteSnapshot
+    route: ActivatedRouteSnapshot,
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     const currentPath = route.routeConfig && route.routeConfig.path;
 
@@ -22,7 +24,7 @@ export class BetaPageFeatureFlagGuard {
             return false;
           }
           return true;
-        })
+        }),
       );
     } else {
       return of(true);

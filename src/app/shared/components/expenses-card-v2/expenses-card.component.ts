@@ -40,6 +40,40 @@ import { signal } from '@angular/core';
   standalone: false,
 })
 export class ExpensesCardComponent implements OnInit {
+  private transactionService = inject(TransactionService);
+
+  private sharedExpenseService = inject(SharedExpenseService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private fileService = inject(FileService);
+
+  private popoverController = inject(PopoverController);
+
+  private networkService = inject(NetworkService);
+
+  private transactionOutboxService = inject(TransactionsOutboxService);
+
+  private modalController = inject(ModalController);
+
+  private platform = inject(Platform);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private currencyService = inject(CurrencyService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private expensesService = inject(ExpensesService);
+
+  private translocoService = inject(TranslocoService);
+
   // Cache key for localStorage
   private static readonly CACHE_KEY = 'mandatory_expense_fields_cache';
 
@@ -151,26 +185,6 @@ export class ExpensesCardComponent implements OnInit {
   readonly isPendingGasCharge = signal<boolean>(false);
 
   private sharedExpensesService = inject(SharedExpensesService);
-
-  constructor(
-    private transactionService: TransactionService,
-    private sharedExpenseService: SharedExpenseService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private fileService: FileService,
-    private popoverController: PopoverController,
-    private networkService: NetworkService,
-    private transactionOutboxService: TransactionsOutboxService,
-    private modalController: ModalController,
-    private platform: Platform,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService,
-    private currencyService: CurrencyService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private expensesService: ExpensesService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get isSelected(): boolean {
     if (this.selectedElements) {

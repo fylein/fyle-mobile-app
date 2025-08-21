@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { RouterAuthService } from './router-auth.service';
 import { SecureStorageService } from './secure-storage.service';
 import { StorageService } from './storage.service';
@@ -6,12 +6,13 @@ import { TokenService } from './token.service';
 
 @Injectable()
 export class ConfigService {
-  constructor(
-    private routerAuthService: RouterAuthService,
-    private tokenService: TokenService,
-    private storageService: StorageService,
-    private secureStorageService: SecureStorageService
-  ) {}
+  private routerAuthService = inject(RouterAuthService);
+
+  private tokenService = inject(TokenService);
+
+  private storageService = inject(StorageService);
+
+  private secureStorageService = inject(SecureStorageService);
 
   async loadConfigurationData(): Promise<void> {
     const clusterDomain: string = await this.tokenService.getClusterDomain();

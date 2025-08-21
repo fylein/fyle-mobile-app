@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { TranslocoService } from '@jsverse/transloco';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -10,14 +10,13 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
   standalone: false,
 })
 export class AuditHistoryComponent implements OnInit {
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() estatuses: ExtendedStatus[];
 
   projectFieldName: string;
-
-  constructor(
-    private expenseFieldsService: ExpenseFieldsService,
-    private translocoService: TranslocoService,
-  ) {}
 
   // TODO - replace forEach with find
   getAndUpdateProjectName(): void {

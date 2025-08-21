@@ -1,7 +1,16 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -121,6 +130,90 @@ import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expe
   standalone: false,
 })
 export class AddEditMileagePage implements OnInit {
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private loaderService = inject(LoaderService);
+
+  private transactionService = inject(TransactionService);
+
+  private authService = inject(AuthService);
+
+  private accountsService = inject(AccountsService);
+
+  private customInputsService = inject(CustomInputsService);
+
+  private customFieldsService = inject(CustomFieldsService);
+
+  private reportService = inject(ReportService);
+
+  private platformReportService = inject(SpenderReportsService);
+
+  private fb = inject(UntypedFormBuilder);
+
+  private projectsService = inject(ProjectsService);
+
+  private mileageService = inject(MileageService);
+
+  private mileageRatesService = inject(MileageRatesService);
+
+  private transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private policyService = inject(PolicyService);
+
+  private modalController = inject(ModalController);
+
+  private networkService = inject(NetworkService);
+
+  private navController = inject(NavController);
+
+  private dateService = inject(DateService);
+
+  private trackingService = inject(TrackingService);
+
+  private tokenService = inject(TokenService);
+
+  private recentlyUsedItemsService = inject(RecentlyUsedItemsService);
+
+  private locationService = inject(LocationService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private popoverController = inject(PopoverController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private paymentModesService = inject(PaymentModesService);
+
+  private currencyService = inject(CurrencyService);
+
+  private mileageRateService = inject(MileageRatesService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private costCentersService = inject(CostCentersService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private storageService = inject(StorageService);
+
+  private employeesService = inject(EmployeesService);
+
+  private expensesService = inject(ExpensesService);
+
+  private changeDetectorRef = inject(ChangeDetectorRef);
+
+  private expenseCommentService = inject(ExpenseCommentService);
+
   @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;
 
   @ViewChild(RouteSelectorComponent) routeSelector: RouteSelectorComponent;
@@ -290,51 +383,6 @@ export class AddEditMileagePage implements OnInit {
   existingCommuteDeduction: string;
 
   private _isExpandedView = false;
-
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private loaderService: LoaderService,
-    private transactionService: TransactionService,
-    private authService: AuthService,
-    private accountsService: AccountsService,
-    private customInputsService: CustomInputsService,
-    private customFieldsService: CustomFieldsService,
-    private reportService: ReportService,
-    private platformReportService: SpenderReportsService,
-    private fb: UntypedFormBuilder,
-    private projectsService: ProjectsService,
-    private mileageService: MileageService,
-    private mileageRatesService: MileageRatesService,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private policyService: PolicyService,
-    private modalController: ModalController,
-    private networkService: NetworkService,
-    private navController: NavController,
-    private dateService: DateService,
-    private trackingService: TrackingService,
-    private tokenService: TokenService,
-    private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private locationService: LocationService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private paymentModesService: PaymentModesService,
-    private currencyService: CurrencyService,
-    private mileageRateService: MileageRatesService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private costCentersService: CostCentersService,
-    private categoriesService: CategoriesService,
-    private orgSettingsService: OrgSettingsService,
-    private platformHandlerService: PlatformHandlerService,
-    private storageService: StorageService,
-    private employeesService: EmployeesService,
-    private expensesService: ExpensesService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private expenseCommentService: ExpenseCommentService,
-  ) {}
 
   get showSaveAndNext(): boolean {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;

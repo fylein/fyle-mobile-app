@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
@@ -22,6 +22,28 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
   standalone: false,
 })
 export class InvitedUserPage implements OnInit {
+  private networkService = inject(NetworkService);
+
+  private fb = inject(UntypedFormBuilder);
+
+  private orgUserService = inject(OrgUserService);
+
+  private loaderService = inject(LoaderService);
+
+  private authService = inject(AuthService);
+
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
   isConnected$: Observable<boolean>;
 
   fg: UntypedFormGroup;
@@ -55,20 +77,6 @@ export class InvitedUserPage implements OnInit {
   focusOnPassword = false;
 
   focusOnConfirmPassword = false;
-
-  constructor(
-    private networkService: NetworkService,
-    private fb: UntypedFormBuilder,
-    private orgUserService: OrgUserService,
-    private loaderService: LoaderService,
-    private authService: AuthService,
-    private router: Router,
-    private trackingService: TrackingService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private orgSettingsService: OrgSettingsService,
-    private spenderOnboardingService: SpenderOnboardingService,
-  ) {}
 
   ngOnInit(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());

@@ -1,6 +1,6 @@
 // @Link:  https://stackoverflow.com/a/31162426
 
-import { Directive, ElementRef, OnInit, HostListener, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, OnInit, HostListener, Renderer2, inject } from '@angular/core';
 import dayjs from 'dayjs';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -9,11 +9,11 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FormatDateDirective implements OnInit {
-  constructor(
-    private elementRef: ElementRef,
-    private renderer: Renderer2,
-    private translocoService: TranslocoService,
-  ) {}
+  private elementRef = inject(ElementRef);
+
+  private renderer = inject(Renderer2);
+
+  private translocoService = inject(TranslocoService);
 
   get selectedElement(): HTMLElement & { name?: string } {
     return this.elementRef?.nativeElement as HTMLElement & { name?: string };

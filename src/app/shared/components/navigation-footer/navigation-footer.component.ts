@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -14,6 +14,16 @@ import { Observable } from 'rxjs';
   standalone: false,
 })
 export class NavigationFooterComponent implements OnInit {
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private trackingService = inject(TrackingService);
+
+  private approverExpensesService = inject(ApproverExpensesService);
+
+  private spenderExpensesService = inject(SpenderExpensesService);
+
   @Input() reportExpenseCount: number;
 
   @Input() activeExpenseIndex: number;
@@ -21,14 +31,6 @@ export class NavigationFooterComponent implements OnInit {
   reportExpenseIds: string[];
 
   view: ExpenseView;
-
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private trackingService: TrackingService,
-    private approverExpensesService: ApproverExpensesService,
-    private spenderExpensesService: SpenderExpensesService,
-  ) {}
 
   ngOnInit(): void {
     const expenseIds = this.activatedRoute.snapshot.params.txnIds as string;

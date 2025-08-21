@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -8,6 +8,8 @@ import { PopoverController } from '@ionic/angular';
   standalone: false,
 })
 export class FyPopoverComponent implements AfterViewInit {
+  private popoverController = inject(PopoverController);
+
   @ViewChild('simpleFormInput') simpleFormInput: ElementRef;
 
   @Input() title = '';
@@ -17,8 +19,6 @@ export class FyPopoverComponent implements AfterViewInit {
   @Input() message: string;
 
   formValue = '';
-
-  constructor(private popoverController: PopoverController) {}
 
   ngAfterViewInit(): void {
     const formInput = this.simpleFormInput.nativeElement as HTMLInputElement;

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
@@ -16,13 +16,15 @@ const mileageRateCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class MileageRatesService {
-  constructor(
-    @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private approverPlatformV1ApiService: ApproverPlatformApiService,
-    private currencyPipe: CurrencyPipe,
-    private translocoService: TranslocoService
-  ) {}
+  private paginationSize = inject(PAGINATION_SIZE);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private approverPlatformV1ApiService = inject(ApproverPlatformApiService);
+
+  private currencyPipe = inject(CurrencyPipe);
+
+  private translocoService = inject(TranslocoService);
 
   @Cacheable({
     cacheBusterObserver: mileageRateCacheBuster$,
@@ -34,7 +36,7 @@ export class MileageRatesService {
         return range(0, count);
       }),
       concatMap((page) => this.getMileageRates({ offset: this.paginationSize * page, limit: this.paginationSize })),
-      reduce((acc, curr) => acc.concat(curr), [] as PlatformMileageRates[])
+      reduce((acc, curr) => acc.concat(curr), [] as PlatformMileageRates[]),
     );
   }
 

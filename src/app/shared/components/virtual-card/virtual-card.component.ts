@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -15,6 +15,16 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class VirtualCardComponent implements OnInit {
+  private clipboardService = inject(ClipboardService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private popoverController = inject(PopoverController);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() cardNumber: string;
 
   @Input() cvv: string;
@@ -34,14 +44,6 @@ export class VirtualCardComponent implements OnInit {
   showCvv = false;
 
   showSuccessStatusDot: boolean;
-
-  constructor(
-    private clipboardService: ClipboardService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private popoverController: PopoverController,
-    private translocoService: TranslocoService,
-  ) {}
 
   showToastMessage(message: string): void {
     const successToastProperties = this.snackbarProperties.setSnackbarProperties(

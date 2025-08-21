@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { CurrencyPipeConfig } from 'src/app/core/models/currency-pipe-config.model';
 import { ExactCurrencyPipe } from './exact-currency.pipe';
 import { FyCurrencyPipe } from './fy-currency.pipe';
@@ -8,7 +9,12 @@ describe('ExactCurrencyPipe', () => {
 
   beforeEach(() => {
     fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
-    exactCurrencyPipe = new ExactCurrencyPipe(fyCurrencyPipeSpy);
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy }],
+    });
+
+    exactCurrencyPipe = TestBed.runInInjectionContext(() => new ExactCurrencyPipe());
   });
 
   it('should create the pipe', () => {

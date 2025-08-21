@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -49,6 +49,50 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class TasksComponent implements OnInit {
+  private taskService = inject(TasksService);
+
+  private transactionService = inject(TransactionService);
+
+  private reportService = inject(ReportService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private expensesService = inject(ExpensesService);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private modalController = inject(ModalController);
+
+  private trackingService = inject(TrackingService);
+
+  private loaderService = inject(LoaderService);
+
+  private matBottomSheet = inject(MatBottomSheet);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private networkService = inject(NetworkService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private authService = inject(AuthService);
+
+  private orgService = inject(OrgService);
+
+  private popoverController = inject(PopoverController);
+
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private translocoService = inject(TranslocoService);
+
   @Output() optedIn = new EventEmitter<void>();
 
   tasks$: Observable<DashboardTask[]>;
@@ -78,31 +122,6 @@ export class TasksComponent implements OnInit {
   isMastercardRTFEnabled$: Observable<boolean>;
 
   isYodleeEnabled$: Observable<boolean>;
-
-  constructor(
-    private taskService: TasksService,
-    private transactionService: TransactionService,
-    private reportService: ReportService,
-    private spenderReportsService: SpenderReportsService,
-    private approverReportsService: ApproverReportsService,
-    private expensesService: ExpensesService,
-    private advanceRequestService: AdvanceRequestService,
-    private modalController: ModalController,
-    private trackingService: TrackingService,
-    private loaderService: LoaderService,
-    private matBottomSheet: MatBottomSheet,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService,
-    private authService: AuthService,
-    private orgService: OrgService,
-    private popoverController: PopoverController,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.setupNetworkWatcher();

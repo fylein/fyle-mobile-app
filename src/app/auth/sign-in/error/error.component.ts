@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
@@ -10,15 +10,15 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class ErrorComponent implements OnInit {
+  private popoverController = inject(PopoverController);
+
+  private router = inject(Router);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() header = '';
 
   @Input() error;
-
-  constructor(
-    private popoverController: PopoverController,
-    private router: Router,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.header = this.header || this.translocoService.translate('error.accountDoesNotExist');

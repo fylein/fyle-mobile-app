@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, inject } from '@angular/core';
 import { ImageCropperComponent } from 'ngx-image-cropper';
 import { ModalController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -17,17 +17,17 @@ type Image = Partial<{
   standalone: false,
 })
 export class CropReceiptComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  private loaderService = inject(LoaderService);
+
+  private platform = inject(Platform);
+
   @Input() base64ImageWithSource: Image;
 
   @ViewChild('imageCropper') imageCropper: ImageCropperComponent;
 
   backButtonAction: Subscription;
-
-  constructor(
-    private modalController: ModalController,
-    private loaderService: LoaderService,
-    private platform: Platform,
-  ) {}
 
   ngOnInit() {
     this.loaderService.showLoader();

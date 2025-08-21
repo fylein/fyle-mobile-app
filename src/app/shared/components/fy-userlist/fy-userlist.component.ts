@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -21,6 +21,10 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   standalone: false,
 })
 export class FyUserlistComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
   @Input() options: { label: string; value: any }[];
 
   @Input() disabled = false;
@@ -46,11 +50,6 @@ export class FyUserlistComponent implements OnInit {
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (_: any) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {

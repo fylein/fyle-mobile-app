@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, concatMap, map, range, reduce, switchMap } from 'rxjs';
 import { SpenderService } from '../spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
@@ -10,7 +10,9 @@ import { PAGINATION_SIZE } from 'src/app/constants';
   providedIn: 'root',
 })
 export class AdvanceWalletsService {
-  constructor(@Inject(PAGINATION_SIZE) private paginationSize: number, private spenderService: SpenderService) {}
+  private paginationSize = inject(PAGINATION_SIZE);
+
+  private spenderService = inject(SpenderService);
 
   getAllAdvanceWallets(): Observable<AdvanceWallet[]> {
     return this.getAdvanceWalletsCount({}).pipe(
@@ -23,9 +25,9 @@ export class AdvanceWalletsService {
           offset: this.paginationSize * page,
           limit: this.paginationSize,
           order: 'created_at.desc,id.desc',
-        })
+        }),
       ),
-      reduce((acc, curr) => acc.concat(curr), [] as AdvanceWallet[])
+      reduce((acc, curr) => acc.concat(curr), [] as AdvanceWallet[]),
     );
   }
 

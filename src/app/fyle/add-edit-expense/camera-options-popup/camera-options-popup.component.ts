@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
@@ -15,17 +15,19 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class CameraOptionsPopupComponent implements OnInit {
+  private popoverController = inject(PopoverController);
+
+  private fileService = inject(FileService);
+
+  private trackingService = inject(TrackingService);
+
+  private loaderService = inject(LoaderService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() mode: string;
 
   @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
-
-  constructor(
-    private popoverController: PopoverController,
-    private fileService: FileService,
-    private trackingService: TrackingService,
-    private loaderService: LoaderService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     return;

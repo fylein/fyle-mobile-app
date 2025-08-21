@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, inject } from '@angular/core';
 import * as Sentry from '@sentry/angular';
 import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
@@ -31,6 +31,34 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class SidemenuComponent implements OnInit {
+  private deviceService = inject(DeviceService);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private router = inject(Router);
+
+  private menuController = inject(MenuController);
+
+  private orgUserService = inject(OrgUserService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private networkService = inject(NetworkService);
+
+  private sidemenuService = inject(SidemenuService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private orgService = inject(OrgService);
+
+  private authService = inject(AuthService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
+  private translocoService = inject(TranslocoService);
+
   @Output() switchDelegator = new EventEmitter<boolean>();
 
   appVersion: string;
@@ -56,23 +84,6 @@ export class SidemenuComponent implements OnInit {
   deviceInfo: Observable<ExtendedDeviceInfo>;
 
   primaryOrg: Org;
-
-  constructor(
-    private deviceService: DeviceService,
-    private routerAuthService: RouterAuthService,
-    private router: Router,
-    private menuController: MenuController,
-    private orgUserService: OrgUserService,
-    private orgSettingsService: OrgSettingsService,
-    private networkService: NetworkService,
-    private sidemenuService: SidemenuService,
-    private launchDarklyService: LaunchDarklyService,
-    private orgService: OrgService,
-    private authService: AuthService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private spenderOnboardingService: SpenderOnboardingService,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.setupNetworkWatcher();

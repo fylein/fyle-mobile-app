@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, inject } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -21,6 +21,12 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() options: { label: string; value: unknown }[] = [];
 
   @Input() disabled = false;
@@ -46,12 +52,6 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (_: unknown[]) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {

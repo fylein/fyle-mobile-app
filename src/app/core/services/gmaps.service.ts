@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, from, ignoreElements } from 'rxjs';
 import { MapGeocoder, MapGeocoderResponse } from '@angular/google-maps';
 import { Cacheable } from 'ts-cacheable';
@@ -12,9 +12,11 @@ import { Loader } from '@googlemaps/js-api-loader';
   providedIn: 'root',
 })
 export class GmapsService {
-  private staticMapsApi = 'https://maps.googleapis.com/maps/api/staticmap';
+  private geocoder = inject(MapGeocoder);
 
-  constructor(private geocoder: MapGeocoder, private staticMapPropertiesService: StaticMapPropertiesService) {}
+  private staticMapPropertiesService = inject(StaticMapPropertiesService);
+
+  private staticMapsApi = 'https://maps.googleapis.com/maps/api/staticmap';
 
   @Cacheable()
   getGeocode(latitude: number, longitude: number): Observable<MapGeocoderResponse> {
@@ -33,7 +35,7 @@ export class GmapsService {
 
     // importLibrary will add the specified library to the global namespace window.google.maps
     return forkJoin([from(loader.importLibrary('core')), from(loader.importLibrary('geocoding'))]).pipe(
-      ignoreElements()
+      ignoreElements(),
     );
   }
 
@@ -66,7 +68,7 @@ export class GmapsService {
 
     const { originParams, destinationParams, waypointsParams } = this.generateMarkerParams(
       mileageRoute,
-      properties.markers
+      properties.markers,
     );
 
     staticMapImageUrl.searchParams.append('markers', originParams);

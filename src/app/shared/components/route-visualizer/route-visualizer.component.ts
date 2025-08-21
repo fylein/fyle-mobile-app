@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { GmapsService } from 'src/app/core/services/gmaps.service';
@@ -14,6 +14,12 @@ import { StaticMapPropertiesService } from 'src/app/core/services/static-map-pro
   standalone: false,
 })
 export class RouteVisualizerComponent implements OnChanges, OnInit {
+  private locationService = inject(LocationService);
+
+  private gmapsService = inject(GmapsService);
+
+  private staticMapPropertiesService = inject(StaticMapPropertiesService);
+
   @Input() mileageLocations: MileageLocation[];
 
   @Output() mapClick = new EventEmitter<void>();
@@ -31,12 +37,6 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
   currentLocation: google.maps.LatLngLiteral;
 
   currentLocationMapUrl: string;
-
-  constructor(
-    private locationService: LocationService,
-    private gmapsService: GmapsService,
-    private staticMapPropertiesService: StaticMapPropertiesService,
-  ) {}
 
   ngOnChanges() {
     this.showCurrentLocation = false;

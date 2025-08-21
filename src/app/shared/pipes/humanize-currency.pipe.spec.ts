@@ -1,13 +1,26 @@
+import { TestBed } from '@angular/core/testing';
 import { HumanizeCurrencyPipe } from './humanize-currency.pipe';
 import { FyCurrencyPipe } from './fy-currency.pipe';
 import { TranslocoService } from '@jsverse/transloco';
 
 describe('HumanizeCurrencyPipe', () => {
-  const fyCurrencyPipeSpy: jasmine.SpyObj<FyCurrencyPipe> = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
-  const translocoServiceSpy: jasmine.SpyObj<TranslocoService> = jasmine.createSpyObj('TranslocoService', ['translate']);
-  const humanizeCurrencyPipe = new HumanizeCurrencyPipe(fyCurrencyPipeSpy, translocoServiceSpy);
+  let fyCurrencyPipeSpy: jasmine.SpyObj<FyCurrencyPipe>;
+  let translocoServiceSpy: jasmine.SpyObj<TranslocoService>;
+  let humanizeCurrencyPipe: HumanizeCurrencyPipe;
 
   beforeEach(() => {
+    fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
+    translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
+      ],
+    });
+
+    humanizeCurrencyPipe = TestBed.runInInjectionContext(() => new HumanizeCurrencyPipe());
+
     translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'pipes.humanizeCurrency.kiloSuffix': 'K',

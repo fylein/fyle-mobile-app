@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { switchMap, finalize, concatMap, reduce } from 'rxjs/operators';
 import { from } from 'rxjs';
@@ -18,6 +18,20 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class AddApproversPopoverComponent {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private popoverController = inject(PopoverController);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private loaderService = inject(LoaderService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() approverEmailsList: string[];
 
   @Input() id: string;
@@ -31,16 +45,6 @@ export class AddApproversPopoverComponent {
   displayValue: string;
 
   confirmationMessage = '';
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private popoverController: PopoverController,
-    private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService,
-    private approverReportsService: ApproverReportsService,
-    private translocoService: TranslocoService,
-  ) {}
 
   async openModal(): Promise<void> {
     const approversListModal = await this.modalController.create({

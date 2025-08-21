@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { LocationService } from './location.service';
 import { from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce } from 'rxjs/operators';
@@ -15,12 +15,11 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class MileageService {
-  constructor(
-    private locationService: LocationService,
+  private locationService = inject(LocationService);
 
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private translocoService: TranslocoService
-  ) {}
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private translocoService = inject(TranslocoService);
 
   @Cacheable()
   getEmployeeMileageSettings(): Observable<MileageSettings> {
@@ -41,7 +40,7 @@ export class MileageService {
     } else {
       return from(chunks).pipe(
         concatMap((chunk) => this.getDistanceInternal(chunk[0], chunk[1])),
-        reduce((dist1, dist2) => dist1 + dist2)
+        reduce((dist1, dist2) => dist1 + dist2),
       );
     }
   }

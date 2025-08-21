@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -12,6 +12,12 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
   standalone: false,
 })
 export class AddExpensesToReportComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  private currencyService = inject(CurrencyService);
+
+  private router = inject(Router);
+
   @Input() unreportedExpenses: Expense[];
 
   @Input() reportId: string;
@@ -29,12 +35,6 @@ export class AddExpensesToReportComponent implements OnInit {
   isSelectedAll: boolean;
 
   homeCurrency: string;
-
-  constructor(
-    private modalController: ModalController,
-    private currencyService: CurrencyService,
-    private router: Router,
-  ) {}
 
   close() {
     this.modalController.dismiss();
