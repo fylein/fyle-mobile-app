@@ -55,13 +55,14 @@ describe('ReviewSplitExpenseComponent', () => {
 
   it('should initialize with split expenses input', () => {
     const mockExpenses = [expenseData];
-    fixture.componentRef.setInput('splitExpenses', mockExpenses);
+    component.splitExpenses = mockExpenses;
+    fixture.detectChanges();
 
     expect(component.splitExpenses).toEqual(mockExpenses);
   });
 
   it('should handle empty split expenses array', () => {
-    fixture.componentRef.setInput('splitExpenses', []);
+    component.splitExpenses = [];
     fixture.detectChanges();
 
     expect(component.splitExpenses).toEqual([]);
