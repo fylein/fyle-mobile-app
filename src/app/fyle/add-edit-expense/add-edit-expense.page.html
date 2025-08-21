@@ -1477,7 +1477,7 @@
                 @if (pendingTransactionAllowedToReportAndSplit) {
                   <div class="add-edit-expense--internal-block">
                     <app-fy-add-to-report
-                      [label]="etxn.tx.report_id ? 'Report' : 'Add to report'"
+                      [label]="etxn.tx.report_id ? 'Report' : 'Add to expense report'"
                       [autoSubmissionReportName]="autoSubmissionReportName$ | async"
                       [options]="reports"
                       [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"

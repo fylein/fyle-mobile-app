@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -11,7 +10,6 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { CreateNewReportComponent } from './create-new-report.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { ExpensesCardComponent } from '../expenses-card/expenses-card.component';
 import { of } from 'rxjs';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
@@ -21,6 +19,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { apiExpenses1, nonReimbursableExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
@@ -30,7 +29,6 @@ describe('CreateNewReportComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -46,13 +44,6 @@ describe('CreateNewReportComponent', () => {
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrency', ['transform']);
     const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
       declarations: [CreateNewReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe],
       imports: [
@@ -62,7 +53,7 @@ describe('CreateNewReportComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         MatCheckboxModule,
-        TranslocoModule,
+        getTranslocoModule(),
       ],
       providers: [
         { provide: ModalController, useValue: modalController },
@@ -73,7 +64,6 @@ describe('CreateNewReportComponent', () => {
         { provide: ExactCurrencyPipe, useValue: exactCurrencyPipeSpy },
         { provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy },
         { provide: SpenderReportsService, useValue: spenderReportsService },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -83,36 +73,6 @@ describe('CreateNewReportComponent', () => {
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'createNewReport.title': 'Create new report',
-        'createNewReport.expenseSingular': 'expense',
-        'createNewReport.expensePlural': 'expenses',
-        'createNewReport.reportNameLabel': 'Expense report name',
-        'createNewReport.reportNamePlaceholder': 'Enter expense report name',
-        'createNewReport.reportNameError': 'Please enter expense report name.',
-        'createNewReport.expensesHeading': 'Expenses',
-        'createNewReport.selectAll': 'Select all',
-        'createNewReport.savingReport': 'Saving Report',
-        'createNewReport.saveAsDraft': 'Save as draft',
-        'createNewReport.submittingReport': 'Submitting Report',
-        'createNewReport.submitReport': 'Submit report',
-        'createNewReport.draftSuccessMessage': 'Expenses added to a new report',
-        'createNewReport.submitSuccessMessage': 'Expenses submitted for approval',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
     spenderReportsService.createDraft.and.returnValue(of(expectedReportsSinglePage[0]));
