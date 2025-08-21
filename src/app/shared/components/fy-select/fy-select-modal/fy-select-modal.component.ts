@@ -1,4 +1,13 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  Input,
+  ChangeDetectorRef,
+  TemplateRef,
+  inject,
+} from '@angular/core';
 import { from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, shareReplay } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
@@ -15,6 +24,16 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FySelectModalComponent implements AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private utilityService = inject(UtilityService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() options: Option[] = [];
@@ -50,14 +69,6 @@ export class FySelectModalComponent implements AfterViewInit {
   value: string | ModalOption = '';
 
   recentrecentlyUsedItems$: Observable<ExtendedOption[]>;
-
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService,
-    private translocoService: TranslocoService,
-  ) {}
 
   clearValue(): void {
     this.value = '';

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
@@ -13,6 +13,12 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class SplitExpensePolicyViolationComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  private fb = inject(UntypedFormBuilder);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() policyViolations: { [id: number]: FilteredSplitPolicyViolations };
 
   @Input() isPartOfReport: boolean;
@@ -26,12 +32,6 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
   isSplitBlocked = false;
 
   splitExpenseModalHeader: string;
-
-  constructor(
-    private modalController: ModalController,
-    private fb: UntypedFormBuilder,
-    private translocoService: TranslocoService,
-  ) {}
 
   get formComments(): UntypedFormArray {
     return this.form.controls.comments as UntypedFormArray;

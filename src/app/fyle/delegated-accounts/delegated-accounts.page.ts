@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent } from 'rxjs';
 import { concatMap, distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
@@ -18,6 +18,22 @@ import { NavController } from '@ionic/angular';
   standalone: false,
 })
 export class DelegatedAccountsPage {
+  private orgUserService = inject(OrgUserService);
+
+  private orgService = inject(OrgService);
+
+  private router = inject(Router);
+
+  private loaderService = inject(LoaderService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private authService = inject(AuthService);
+
+  private navController = inject(NavController);
+
   @ViewChild('searchDelegatees') searchDelegatees: ElementRef<HTMLInputElement>;
 
   delegatedAccList = [];
@@ -25,17 +41,6 @@ export class DelegatedAccountsPage {
   currentOrg;
 
   searchInput = '';
-
-  constructor(
-    private orgUserService: OrgUserService,
-    private orgService: OrgService,
-    private router: Router,
-    private loaderService: LoaderService,
-    private activatedRoute: ActivatedRoute,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private authService: AuthService,
-    private navController: NavController,
-  ) {}
 
   goBack(): void {
     this.navController.back();

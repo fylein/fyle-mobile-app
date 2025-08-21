@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { UserEventService } from './user-event.service';
 import { StorageService } from './storage.service';
@@ -10,9 +10,13 @@ import * as LDClient from 'launchdarkly-js-client-sdk';
   providedIn: 'root',
 })
 export class LaunchDarklyService {
+  private userEventService = inject(UserEventService);
+
+  private storageService = inject(StorageService);
+
   ldClient: LDClient.LDClient;
 
-  constructor(private userEventService: UserEventService, private storageService: StorageService) {
+  constructor() {
     this.userEventService.onLogout(() => this.shutDownClient());
   }
 
@@ -20,7 +24,7 @@ export class LaunchDarklyService {
     if (this.ldClient) {
       // Wait for LD client to be initialized before getting flag value
       return from(this.ldClient.waitForInitialization()).pipe(
-        map(() => this.ldClient.variation(key, defaultValue) as boolean)
+        map(() => this.ldClient.variation(key, defaultValue) as boolean),
       );
     }
 
@@ -31,7 +35,7 @@ export class LaunchDarklyService {
         } else {
           return defaultValue;
         }
-      })
+      }),
     );
   }
 

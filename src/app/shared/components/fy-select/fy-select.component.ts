@@ -1,4 +1,4 @@
-import { Component, EventEmitter, forwardRef, Input, Output, TemplateRef } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output, TemplateRef, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -22,6 +22,12 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FySelectComponent implements ControlValueAccessor {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() options: { label: string; value: any }[] = [];
 
   @Input() disabled = false;
@@ -67,12 +73,6 @@ export class FySelectComponent implements ControlValueAccessor {
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (_: any) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {

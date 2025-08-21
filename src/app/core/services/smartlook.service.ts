@@ -1,4 +1,4 @@
-import { Injectable, EventEmitter } from '@angular/core';
+import { Injectable, EventEmitter, inject } from '@angular/core';
 import { forkJoin, from, concat, Observable } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { AuthService } from './auth.service';
@@ -12,15 +12,19 @@ import { NetworkService } from './network.service';
   providedIn: 'root',
 })
 export class SmartlookService {
+  private currencyService = inject(CurrencyService);
+
+  private authService = inject(AuthService);
+
+  private deviceService = inject(DeviceService);
+
+  private networkService = inject(NetworkService);
+
+  private smartlook = inject(Smartlook);
+
   isConnected$: Observable<boolean>;
 
-  constructor(
-    private currencyService: CurrencyService,
-    private authService: AuthService,
-    private deviceService: DeviceService,
-    private networkService: NetworkService,
-    private smartlook: Smartlook
-  ) {
+  constructor() {
     this.setupNetworkWatcher();
   }
 
@@ -41,8 +45,8 @@ export class SmartlookService {
       .pipe(
         filter(
           ({ isConnected, homeCurrency, eou }) =>
-            isConnected && eou && !eou.us.email.includes('fyle') && homeCurrency === 'USD'
-        )
+            isConnected && eou && !eou.us.email.includes('fyle') && homeCurrency === 'USD',
+        ),
       )
       .subscribe(({ eou, deviceInfo }) => {
         this.smartlook.setProjectKey({ key: environment.SMARTLOOK_API_KEY });

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { from } from 'rxjs';
 
@@ -9,9 +9,9 @@ import { from } from 'rxjs';
   standalone: false,
 })
 export class DelegatedAccMessageComponent implements OnInit {
-  delegateeName;
+  private authService = inject(AuthService);
 
-  constructor(private authService: AuthService) {}
+  delegateeName;
 
   ngOnInit() {
     from(this.authService.getEou()).subscribe((res) => {

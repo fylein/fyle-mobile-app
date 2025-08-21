@@ -26,6 +26,14 @@ const reportsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class SpenderReportsService {
+  private paginationSize = inject(PAGINATION_SIZE);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private userEventService = inject(UserEventService);
+
+  private transactionService = inject(TransactionService);
+
   constructor() {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();

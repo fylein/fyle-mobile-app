@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 
 @Component({
@@ -8,11 +8,14 @@ import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar'
   standalone: false,
 })
 export class ToastMessageComponent {
-  constructor(
-    @Inject(MAT_SNACK_BAR_DATA)
-    public data: { icon: string; message: string; redirectionText: string; showCloseButton: boolean },
-    private snackBarRef: MatSnackBarRef<ToastMessageComponent>,
-  ) {}
+  data = inject<{
+    icon: string;
+    message: string;
+    redirectionText: string;
+    showCloseButton: boolean;
+  }>(MAT_SNACK_BAR_DATA);
+
+  private snackBarRef = inject<MatSnackBarRef<ToastMessageComponent>>(MatSnackBarRef);
 
   closeEvent(): void {
     this.snackBarRef.dismiss();

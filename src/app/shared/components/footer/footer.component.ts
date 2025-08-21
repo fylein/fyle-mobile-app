@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FooterState } from './footer-state.enum';
@@ -13,6 +13,12 @@ import { Observable } from 'rxjs/internal/Observable';
   standalone: false,
 })
 export class FooterComponent implements OnInit {
+  private networkService = inject(NetworkService);
+
+  private trackingService = inject(TrackingService);
+
+  private router = inject(Router);
+
   @Output() homeClicked = new EventEmitter();
 
   @Output() cameraClicked = new EventEmitter();
@@ -28,12 +34,6 @@ export class FooterComponent implements OnInit {
   @Input() activeState: FooterState;
 
   connectionState$: Observable<ConnectionMessageStatus>;
-
-  constructor(
-    private networkService: NetworkService,
-    private trackingService: TrackingService,
-    private router: Router,
-  ) {}
 
   get ConnectionMessageStatus(): typeof ConnectionMessageStatus {
     return ConnectionMessageStatus;

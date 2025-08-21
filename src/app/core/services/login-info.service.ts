@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { IonFooter } from '@ionic/angular';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -9,7 +9,7 @@ import { LoginInfo } from '../models/login-info.model';
   providedIn: 'root',
 })
 export class LoginInfoService {
-  constructor(private storageService: StorageService) {}
+  private storageService = inject(StorageService);
 
   async addLoginInfo(version: string, time: Date) {
     // login succeeded on this version at this time
@@ -35,7 +35,7 @@ export class LoginInfoService {
 
   getLastLoggedInVersion(): Observable<string> {
     return from(this.storageService.get<LoginInfo>('loginInfo')).pipe(
-      map((loginInfo) => loginInfo?.lastLoggedInVersion)
+      map((loginInfo) => loginInfo?.lastLoggedInVersion),
     );
   }
 }

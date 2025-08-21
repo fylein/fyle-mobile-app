@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
 import { filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { Expense } from '../models/expense.model';
@@ -33,19 +33,27 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class MergeExpensesService {
-  constructor(
-    private fileService: FileService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private customInputsService: CustomInputsService,
-    private humanizeCurrency: HumanizeCurrencyPipe,
-    private projectsService: ProjectsService,
-    private categoriesService: CategoriesService,
-    private dateService: DateService,
-    private taxGroupService: TaxGroupService,
-    private expensesService: ExpensesService,
-    private spenderFileService: SpenderFileService,
-    private translocoService: TranslocoService
-  ) {}
+  private fileService = inject(FileService);
+
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private customInputsService = inject(CustomInputsService);
+
+  private humanizeCurrency = inject(HumanizeCurrencyPipe);
+
+  private projectsService = inject(ProjectsService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private dateService = inject(DateService);
+
+  private taxGroupService = inject(TaxGroupService);
+
+  private expensesService = inject(ExpensesService);
+
+  private spenderFileService = inject(SpenderFileService);
+
+  private translocoService = inject(TranslocoService);
 
   isAllAdvanceExpenses(expenses: Partial<Expense>[]): boolean {
     return expenses.every((expense) => expense?.source_account_type === AccountType.ADVANCE);
@@ -58,7 +66,7 @@ export class MergeExpensesService {
   setDefaultExpenseToKeep(expenses: Partial<Expense>[]): ExpensesInfo {
     const advanceExpenses = this.checkIfAdvanceExpensePresent(expenses);
     const reportedAndAboveExpenses = expenses.filter((expense) =>
-      ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
+      ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state),
     );
     const expensesInfo: ExpensesInfo = {
       isReportedAndAbove: reportedAndAboveExpenses.length > 0,
@@ -77,7 +85,7 @@ export class MergeExpensesService {
 
   isApprovedAndAbove(expenses: Partial<Expense>[]): Partial<Expense>[] {
     const approvedAndAboveExpenses = expenses.filter((expense) =>
-      ['APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
+      ['APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state),
     );
     return approvedAndAboveExpenses;
   }
@@ -101,7 +109,7 @@ export class MergeExpensesService {
   getAttachements(txnID: string): Observable<FileObject[]> {
     return this.expensesService.getExpenseById(txnID).pipe(
       switchMap((expense: PlatformExpense) =>
-        expense?.file_ids.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
+        expense?.file_ids.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([]),
       ),
       map((response: PlatformFileGenerateUrlsResponse[]) => {
         const fileObjs: FileObject[] = response.map((file) => {
@@ -118,7 +126,7 @@ export class MergeExpensesService {
         });
 
         return fileObjs;
-      })
+      }),
     );
   }
 
@@ -143,7 +151,7 @@ export class MergeExpensesService {
         } else {
           return of([]);
         }
-      })
+      }),
     );
   }
 
@@ -179,7 +187,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -192,7 +200,7 @@ export class MergeExpensesService {
       reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
-      }, [])
+      }, []),
     );
   }
 
@@ -232,7 +240,7 @@ export class MergeExpensesService {
           options,
           areSameValues: this.checkOptionsAreSame(optionLabels),
         };
-      })
+      }),
     );
   }
 
@@ -253,7 +261,7 @@ export class MergeExpensesService {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
         };
-      })
+      }),
     );
   }
 
@@ -268,7 +276,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options)),
     );
   }
 
@@ -283,7 +291,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options)),
     );
   }
 
@@ -299,7 +307,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options)),
     );
   }
 
@@ -320,7 +328,7 @@ export class MergeExpensesService {
           options: this.removeUnspecified(options),
           areSameValues: this.checkOptionsAreSame(optionValues),
         };
-      })
+      }),
     );
   }
 
@@ -336,7 +344,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options)),
     );
   }
 
@@ -351,7 +359,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options)),
     );
   }
 
@@ -366,7 +374,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options)),
     );
   }
 
@@ -381,13 +389,13 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options)),
     );
   }
 
   generateLocationOptions(
     expenses: Partial<Expense>[],
-    locationIndex: number
+    locationIndex: number,
   ): Observable<MergeExpensesOptionsData<Location>> {
     return from(expenses).pipe(
       filter((expense) => !!expense.tx_locations[locationIndex]),
@@ -405,7 +413,7 @@ export class MergeExpensesService {
           options,
           areSameValues: this.checkOptionsAreSame(optionLabels),
         };
-      })
+      }),
     );
   }
 
@@ -426,7 +434,7 @@ export class MergeExpensesService {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
         };
-      })
+      }),
     );
   }
 
@@ -447,7 +455,7 @@ export class MergeExpensesService {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
         };
-      })
+      }),
     );
   }
 
@@ -462,7 +470,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options)),
     );
   }
 
@@ -477,7 +485,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options)),
     );
   }
 
@@ -492,7 +500,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options)),
     );
   }
 
@@ -507,7 +515,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options)),
     );
   }
 
@@ -522,7 +530,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options)),
     );
   }
 
@@ -537,7 +545,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options)),
     );
   }
 
@@ -552,7 +560,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption<boolean>[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<boolean>[]) => this.formatOptions(options)),
     );
   }
 
@@ -561,7 +569,7 @@ export class MergeExpensesService {
       map((categories) => {
         const category = categories.find((category) => category.id?.toString() === categoryId);
         return category?.name;
-      })
+      }),
     );
   }
 
@@ -580,7 +588,7 @@ export class MergeExpensesService {
   getDependentFieldsMapping(
     expenses: Partial<Expense>[],
     dependentFields: TxnCustomProperties[],
-    parentField: 'PROJECT' | 'COST_CENTER'
+    parentField: 'PROJECT' | 'COST_CENTER',
   ): {
     [fieldId: number]: Partial<CustomInput>[];
   } {
@@ -589,8 +597,8 @@ export class MergeExpensesService {
       const txDependentFields: Partial<CustomInput>[] = dependentFields
         ?.map((dependentField: TxnCustomProperties) =>
           expense.tx_custom_properties?.find(
-            (txCustomProperty: Partial<CustomInput>) => dependentField.name === txCustomProperty.name
-          )
+            (txCustomProperty: Partial<CustomInput>) => dependentField.name === txCustomProperty.name,
+          ),
         )
         .filter((txDependentField) => !!txDependentField);
 
@@ -648,7 +656,7 @@ export class MergeExpensesService {
     optionsData: MergeExpensesOptionsData<T>,
     isTouched: boolean,
     selectedExpenseValue: T | string,
-    formValue: T
+    formValue: T,
   ): T | string {
     if (!optionsData?.areSameValues && !isTouched) {
       return selectedExpenseValue;
@@ -663,7 +671,7 @@ export class MergeExpensesService {
   }
 
   private formatCustomInputOptionsByType(
-    combinedCustomProperties: MergeExpensesOptionsData<string>[]
+    combinedCustomProperties: MergeExpensesOptionsData<string>[],
   ): Partial<CustomInput>[] {
     const customProperty: MergeExpensesOptionsData<string>[] = [];
 
@@ -699,7 +707,7 @@ export class MergeExpensesService {
 
   private removeUnspecified<T>(options: MergeExpensesOption<T>[]): MergeExpensesOption<T>[] {
     return options.filter(
-      (option, index, options) => options.findIndex((currentOption) => currentOption.label === option.label) === index
+      (option, index, options) => options.findIndex((currentOption) => currentOption.label === option.label) === index,
     );
   }
 
@@ -722,7 +730,7 @@ export class MergeExpensesService {
       map((taxGroups) => {
         option.label = taxGroups[taxGroups.map((taxGroup) => taxGroup.id).indexOf(option.value)]?.name;
         return option;
-      })
+      }),
     );
   }
 
@@ -737,7 +745,7 @@ export class MergeExpensesService {
           option.label = this.translocoService.translate('services.mergeExpenses.unspecified');
         }
         return option;
-      })
+      }),
     );
   }
 
@@ -748,7 +756,7 @@ export class MergeExpensesService {
         const index = projects.map((project) => project.id).indexOf(option.value);
         option.label = projects[index]?.name;
         return option;
-      })
+      }),
     );
   }
 

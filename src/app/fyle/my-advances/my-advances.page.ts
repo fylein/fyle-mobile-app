@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, inject } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
 
@@ -32,6 +32,32 @@ import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advan
   standalone: false,
 })
 export class MyAdvancesPage implements AfterViewChecked {
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private router = inject(Router);
+
+  private advanceService = inject(AdvanceService);
+
+  private networkService = inject(NetworkService);
+
+  private filtersHelperService = inject(FiltersHelperService);
+
+  private utilityService = inject(UtilityService);
+
+  private titleCasePipe = inject(TitleCasePipe);
+
+  private trackingService = inject(TrackingService);
+
+  private tasksService = inject(TasksService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private cdr = inject(ChangeDetectorRef);
+
   myAdvanceRequests$: Observable<ExtendedAdvanceRequestPublic[]>;
 
   myAdvances$: Observable<ExtendedAdvance[]>;
@@ -59,22 +85,6 @@ export class MyAdvancesPage implements AfterViewChecked {
   advancesTaskCount = 0;
 
   projectFieldName = 'Project';
-
-  constructor(
-    private advanceRequestService: AdvanceRequestService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private advanceService: AdvanceService,
-    private networkService: NetworkService,
-    private filtersHelperService: FiltersHelperService,
-    private utilityService: UtilityService,
-    private titleCasePipe: TitleCasePipe,
-    private trackingService: TrackingService,
-    private tasksService: TasksService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private cdr: ChangeDetectorRef,
-  ) {}
 
   ionViewWillLeave(): void {
     this.onPageExit.next(null);

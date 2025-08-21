@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild, Inject } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild, inject } from '@angular/core';
 import { CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
@@ -39,6 +39,42 @@ type Image = Partial<{
   standalone: false,
 })
 export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private trackingService = inject(TrackingService);
+
+  private router = inject(Router);
+
+  private navController = inject(NavController);
+
+  private transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private imagePicker = inject(ImagePicker);
+
+  private networkService = inject(NetworkService);
+
+  private popoverController = inject(PopoverController);
+
+  private loaderService = inject(LoaderService);
+
+  private orgService = inject(OrgService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private authService = inject(AuthService);
+
+  private cameraService = inject(CameraService);
+
+  private cameraPreviewService = inject(CameraPreviewService);
+
+  private devicePlatform = inject(DEVICE_PLATFORM);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('cameraPreview') cameraPreview: CameraPreviewComponent;
 
   @Input() isModal = false;
@@ -64,27 +100,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   bulkModeToastMessageRef: MatSnackBarRef<ToastMessageComponent>;
 
   nativeSettings = NativeSettings;
-
-  constructor(
-    private modalController: ModalController,
-    private trackingService: TrackingService,
-    private router: Router,
-    private navController: NavController,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private imagePicker: ImagePicker,
-    private networkService: NetworkService,
-    private popoverController: PopoverController,
-    private loaderService: LoaderService,
-    private orgService: OrgService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private authService: AuthService,
-    private cameraService: CameraService,
-    private cameraPreviewService: CameraPreviewService,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
-    private translocoService: TranslocoService,
-  ) {}
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();

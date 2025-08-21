@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
@@ -13,6 +13,10 @@ import { MatChipInputEvent } from '@angular/material/chips';
   standalone: false,
 })
 export class FyMultiselectModalComponent implements AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private cdr = inject(ChangeDetectorRef);
+
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   @Input() options: { label: string; value: unknown; selected?: boolean }[] = [];
@@ -30,11 +34,6 @@ export class FyMultiselectModalComponent implements AfterViewInit {
   addOnBlur = true;
 
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
-
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-  ) {}
 
   clearValue(): void {
     this.value = '';

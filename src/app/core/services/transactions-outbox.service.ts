@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
 import { Observable, from, noop } from 'rxjs';
@@ -22,6 +22,22 @@ import { ExpenseCommentService } from './platform/v1/spender/expense-comment.ser
   providedIn: 'root',
 })
 export class TransactionsOutboxService {
+  private storageService = inject(StorageService);
+
+  private dateService = inject(DateService);
+
+  private transactionService = inject(TransactionService);
+
+  private httpClient = inject(HttpClient);
+
+  private trackingService = inject(TrackingService);
+
+  private currencyService = inject(CurrencyService);
+
+  private spenderFileService = inject(SpenderFileService);
+
+  private expenseCommentService = inject(ExpenseCommentService);
+
   queue: OutboxQueue[] = [];
 
   syncDeferred: Promise<void> = null;
@@ -33,16 +49,7 @@ export class TransactionsOutboxService {
   //Used for showing bulk mode prompt when instafyle is used more than thrice in the same session
   singleCaptureCountInSession = 0;
 
-  constructor(
-    private storageService: StorageService,
-    private dateService: DateService,
-    private transactionService: TransactionService,
-    private httpClient: HttpClient,
-    private trackingService: TrackingService,
-    private currencyService: CurrencyService,
-    private spenderFileService: SpenderFileService,
-    private expenseCommentService: ExpenseCommentService
-  ) {
+  constructor() {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
   }
@@ -121,7 +128,7 @@ export class TransactionsOutboxService {
                 .then(() => resolve(fileObj))
                 .catch((err) => {
                   reject(err);
-                })
+                }),
             );
         })
         .catch((err) => {
@@ -141,7 +148,7 @@ export class TransactionsOutboxService {
   addEntry(
     transaction: Partial<Transaction>,
     dataUrls: { url: string; type: string }[],
-    comments?: string[]
+    comments?: string[],
   ): Promise<void> {
     this.queue.push({
       transaction,
@@ -157,7 +164,7 @@ export class TransactionsOutboxService {
   addEntryAndSync(
     transaction: Partial<Transaction>,
     dataUrls: { url: string; type: string }[],
-    comments: string[]
+    comments: string[],
   ): Promise<OutboxQueue> {
     this.addEntry(transaction, dataUrls, comments);
     return this.syncEntry(this.queue.pop());
@@ -327,7 +334,7 @@ export class TransactionsOutboxService {
             suggested_currency: suggestedCurrency,
           })
           .toPromise()
-          .then((res) => res as ParsedReceipt)
+          .then((res) => res as ParsedReceipt),
       );
   }
 

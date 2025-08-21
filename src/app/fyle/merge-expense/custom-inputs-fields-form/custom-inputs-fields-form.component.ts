@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, inject } from '@angular/core';
 import { Injector } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import {
@@ -34,6 +34,10 @@ interface CombinedOptions {
   standalone: false,
 })
 export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges {
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private injector = inject(Injector);
+
   @Input() customInputs: CustomInputsField[];
 
   @Input() combinedCustomProperties: CombinedOptions;
@@ -47,11 +51,6 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
   customFields: CustomInputsField[];
 
   onTouched: () => void = noop;
-
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private injector: Injector,
-  ) {}
 
   ngOnInit(): void {
     this.customFieldsForm = this.formBuilder.group({

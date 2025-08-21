@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { MileageRateName } from './mileage-rate-name.pipe';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -6,7 +7,14 @@ describe('MileageRateNamePipe', () => {
   let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(() => {
-    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+    });
+
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    mileageRateName = TestBed.runInInjectionContext(() => new MileageRateName());
 
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
@@ -20,8 +28,6 @@ describe('MileageRateNamePipe', () => {
       };
       return translations[key] || key;
     });
-
-    mileageRateName = new MileageRateName(translocoService);
   });
 
   it('create an instance', () => {

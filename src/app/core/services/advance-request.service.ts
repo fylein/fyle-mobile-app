@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { map, switchMap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 
@@ -72,15 +72,19 @@ interface approverParams {
   providedIn: 'root',
 })
 export class AdvanceRequestService {
-  constructor(
-    private authService: AuthService,
-    private dataTransformService: DataTransformService,
-    private dateService: DateService,
-    private fileService: FileService,
-    private approverService: ApproverService,
-    private spenderService: SpenderService,
-    private translocoService: TranslocoService
-  ) {}
+  private authService = inject(AuthService);
+
+  private dataTransformService = inject(DataTransformService);
+
+  private dateService = inject(DateService);
+
+  private fileService = inject(FileService);
+
+  private approverService = inject(ApproverService);
+
+  private spenderService = inject(SpenderService);
+
+  private translocoService = inject(TranslocoService);
 
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
@@ -90,7 +94,7 @@ export class AdvanceRequestService {
       offset: 0,
       limit: 200,
       queryParams: {},
-    }
+    },
   ): Observable<ApiV2Response<ExtendedAdvanceRequestPublic>> {
     const params = {
       offset: config.offset,
@@ -107,7 +111,7 @@ export class AdvanceRequestService {
           count: res.count,
           offset: res.offset,
           data: this.transformToPublicAdvanceRequest(res),
-        }))
+        })),
       );
   }
 
@@ -127,7 +131,7 @@ export class AdvanceRequestService {
   })
   getAdvanceRequestPlatform(id: string): Observable<ExtendedAdvanceRequestPublic> {
     return this.getSpenderAdvanceRequestRaw(id).pipe(
-      map((advanceRequestPlatform) => this.transformSpenderAdvReq(advanceRequestPlatform))
+      map((advanceRequestPlatform) => this.transformSpenderAdvReq(advanceRequestPlatform)),
     );
   }
 
@@ -147,7 +151,7 @@ export class AdvanceRequestService {
   })
   getApproverAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
     return this.getApproverAdvanceRequestRaw(id).pipe(
-      map((advanceRequestPlatform) => this.transformApproverAdvReq(advanceRequestPlatform))
+      map((advanceRequestPlatform) => this.transformApproverAdvReq(advanceRequestPlatform)),
     );
   }
 
@@ -168,7 +172,7 @@ export class AdvanceRequestService {
   })
   pullBackAdvanceRequest(
     advanceRequestId: string,
-    addStatusPayload: StatusPayload
+    addStatusPayload: StatusPayload,
   ): Observable<AdvanceRequestPlatform> {
     const comment = addStatusPayload.status?.comment || '';
     const notify = addStatusPayload.notify || false;
@@ -287,7 +291,7 @@ export class AdvanceRequestService {
       offset: 0,
       limit: 10,
       queryParams: {},
-    }
+    },
   ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => {
@@ -320,7 +324,7 @@ export class AdvanceRequestService {
         count: res.count,
         offset: res.offset,
         data: this.transformToAdvanceRequest(res),
-      }))
+      })),
     );
   }
 
@@ -361,7 +365,7 @@ export class AdvanceRequestService {
         const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
         return eAdvanceRequest;
-      })
+      }),
     );
   }
 
@@ -372,7 +376,7 @@ export class AdvanceRequestService {
         const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
         return eAdvanceRequest;
-      })
+      }),
     );
   }
 
@@ -409,7 +413,7 @@ export class AdvanceRequestService {
           }
         });
         return filteredApprovers;
-      })
+      }),
     );
   }
 
@@ -428,7 +432,7 @@ export class AdvanceRequestService {
           }
         });
         return filteredApprovers;
-      })
+      }),
     );
   }
 
@@ -437,7 +441,7 @@ export class AdvanceRequestService {
       switchMap((advanceRequestPlatform: AdvanceRequestPlatform) => {
         const mockResponse = { data: [advanceRequestPlatform] } as PlatformApiResponse<AdvanceRequestPlatform[]>;
         return this.mapCommentsToExtendedStatus(mockResponse, advanceRequestId);
-      })
+      }),
     );
   }
 
@@ -446,7 +450,7 @@ export class AdvanceRequestService {
       switchMap((advanceRequestPlatform: AdvanceRequestPlatform) => {
         const mockResponse = { data: [advanceRequestPlatform] } as PlatformApiResponse<AdvanceRequestPlatform[]>;
         return this.mapCommentsToExtendedStatus(mockResponse, advanceRequestId);
-      })
+      }),
     );
   }
 
@@ -519,7 +523,7 @@ export class AdvanceRequestService {
   createAdvReqWithFilesAndSubmit(
     advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>,
-    isApprover?: boolean
+    isApprover?: boolean,
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
       files: fileObservables,
@@ -537,23 +541,23 @@ export class AdvanceRequestService {
             map(() => ({
               files: res.files,
               advanceReq: advanceReqPlatform,
-            }))
+            })),
           );
         } else {
           return of(null).pipe(
             map(() => ({
               files: [],
               advanceReq: res.advanceReq,
-            }))
+            })),
           );
         }
-      })
+      }),
     );
   }
 
   saveDraftAdvReqWithFiles(
     advanceRequest: Partial<AdvanceRequests>,
-    fileObservables?: Observable<File[]>
+    fileObservables?: Observable<File[]>,
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
       files: fileObservables,
@@ -571,17 +575,17 @@ export class AdvanceRequestService {
             map(() => ({
               files: res.files,
               advanceReq: advanceReqPlatform,
-            }))
+            })),
           );
         } else {
           return of(null).pipe(
             map(() => ({
               files: [],
               advanceReq: res.advanceReq,
-            }))
+            })),
           );
         }
-      })
+      }),
     );
   }
 
@@ -647,10 +651,10 @@ export class AdvanceRequestService {
   }
 
   transformToAdvanceRequest(
-    advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform[]>
+    advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform[]>,
   ): ExtendedAdvanceRequest[] {
     return advanceReqPlatformResponse.data.map((advanceRequestPlatform) =>
-      this.transformApproverAdvReq(advanceRequestPlatform)
+      this.transformApproverAdvReq(advanceRequestPlatform),
     );
   }
 
@@ -688,10 +692,10 @@ export class AdvanceRequestService {
   }
 
   transformToPublicAdvanceRequest(
-    advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform[]>
+    advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform[]>,
   ): ExtendedAdvanceRequestPublic[] {
     return advanceReqPlatformResponse.data.map((advanceRequestPlatform) =>
-      this.transformSpenderAdvReq(advanceRequestPlatform)
+      this.transformSpenderAdvReq(advanceRequestPlatform),
     );
   }
 
@@ -760,7 +764,7 @@ export class AdvanceRequestService {
 
   private mapCommentsToExtendedStatus(
     res: PlatformApiResponse<AdvanceRequestPlatform[]>,
-    advanceRequestId: string
+    advanceRequestId: string,
   ): Observable<ExtendedStatus[]> {
     if (!res.data || res.data.length === 0) {
       return of([] as ExtendedStatus[]);
@@ -788,9 +792,9 @@ export class AdvanceRequestService {
             isSelfComment: currentUserId ? comment.creator_user_id === currentUserId : false,
             isOthersComment:
               comment.creator_type !== 'SYSTEM' && currentUserId && comment.creator_user_id !== currentUserId,
-          })
+          }),
         );
-      })
+      }),
     );
   }
 
@@ -824,7 +828,7 @@ export class AdvanceRequestService {
   }
 
   private convertCustomFieldValue(
-    value: string | boolean | number | Date | string[] | { display?: string }
+    value: string | boolean | number | Date | string[] | { display?: string },
   ): string | boolean | number {
     if (value instanceof Date) {
       return value.toISOString();

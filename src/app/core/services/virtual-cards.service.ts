@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { Observable, concatMap, forkJoin, from, map, reduce } from 'rxjs';
 import { VirtualCardsRequest } from '../models/virtual-cards-request.model';
@@ -13,7 +13,7 @@ import { VirtualCardsCombinedRequest } from '../models/virtual-cards-combined-re
   providedIn: 'root',
 })
 export class VirtualCardsService {
-  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   getCardDetails(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsResponse> {
     return this.spenderPlatformV1ApiService
@@ -27,13 +27,13 @@ export class VirtualCardsService {
           const cardDetailsResponse = response.data;
           cardDetailsResponse.expiry_date = new Date(cardDetailsResponse.expiry_date);
           return cardDetailsResponse;
-        })
+        }),
       );
   }
 
   getCombinedCardDetails(
     virtualCardId: string,
-    includeCurrentAmount?: boolean
+    includeCurrentAmount?: boolean,
   ): Observable<{
     cardDetails: CardDetailsResponse;
     virtualCard: VirtualCard;
@@ -55,11 +55,11 @@ export class VirtualCardsService {
   }
 
   getCardDetailsMap(
-    virtualCardsCombinedRequestParams: VirtualCardsCombinedRequest
+    virtualCardsCombinedRequestParams: VirtualCardsCombinedRequest,
   ): Observable<{ [id: string]: CardDetailsCombinedResponse }> {
     return from(virtualCardsCombinedRequestParams.virtualCardIds).pipe(
       concatMap((virtualCardId) =>
-        this.getCombinedCardDetails(virtualCardId, virtualCardsCombinedRequestParams.includeCurrentAmount)
+        this.getCombinedCardDetails(virtualCardId, virtualCardsCombinedRequestParams.includeCurrentAmount),
       ),
       reduce((acc: { [id: string]: CardDetailsCombinedResponse }, { cardDetails, virtualCard, currentAmount }) => {
         acc[virtualCard.id] = {
@@ -68,7 +68,7 @@ export class VirtualCardsService {
           nick_name: virtualCard.nick_name,
         };
         return acc;
-      }, {})
+      }, {}),
     );
   }
 

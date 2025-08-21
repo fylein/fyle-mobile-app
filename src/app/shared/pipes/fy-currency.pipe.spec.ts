@@ -1,9 +1,20 @@
+import { TestBed } from '@angular/core/testing';
 import { CurrencyPipe } from '@angular/common';
 import { FyCurrencyPipe } from './fy-currency.pipe';
 
 describe('FyCurrencyPipe', () => {
-  const currencyPipe = new CurrencyPipe('en');
-  const pipe = new FyCurrencyPipe(currencyPipe);
+  let currencyPipe: CurrencyPipe;
+  let pipe: FyCurrencyPipe;
+
+  beforeEach(() => {
+    currencyPipe = new CurrencyPipe('en');
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: CurrencyPipe, useValue: currencyPipe }],
+    });
+
+    pipe = TestBed.runInInjectionContext(() => new FyCurrencyPipe());
+  });
 
   it('create an instance', () => {
     expect(pipe).toBeTruthy();

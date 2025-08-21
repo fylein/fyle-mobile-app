@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Device } from '@capacitor/device';
 import { NetworkService } from './network.service';
@@ -17,6 +17,16 @@ import { TokenService } from './token.service';
   providedIn: 'root',
 })
 export class RefinerService {
+  private currencyService = inject(CurrencyService);
+
+  private authService = inject(AuthService);
+
+  private networkService = inject(NetworkService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private tokenService = inject(TokenService);
+
   isConnected$: Observable<boolean>;
 
   americasCurrencyList = [
@@ -198,13 +208,7 @@ export class RefinerService {
     'ZWL',
   ];
 
-  constructor(
-    private currencyService: CurrencyService,
-    private authService: AuthService,
-    private networkService: NetworkService,
-    private orgUserService: OrgUserService,
-    private tokenService: TokenService
-  ) {
+  constructor() {
     this.setupNetworkWatcher();
   }
 
@@ -274,11 +278,11 @@ export class RefinerService {
             });
             (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
               'setProject',
-              environment.REFINER_NPS_FORM_PROJECT
+              environment.REFINER_NPS_FORM_PROJECT,
             );
             (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
               'showForm',
-              environment.REFINER_NPS_FORM_ID
+              environment.REFINER_NPS_FORM_ID,
             );
           }
         });

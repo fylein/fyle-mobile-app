@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, EventEmitter, inject } from '@angular/core';
 import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -38,6 +38,36 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
   standalone: false,
 })
 export class TeamReportsPage implements OnInit {
+  private networkService = inject(NetworkService);
+
+  private loaderService = inject(LoaderService);
+
+  private modalController = inject(ModalController);
+
+  private dateService = inject(DateService);
+
+  private router = inject(Router);
+
+  private currencyService = inject(CurrencyService);
+
+  private trackingService = inject(TrackingService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private extendQueryParamsService = inject(ExtendQueryParamsService);
+
+  private tasksService = inject(TasksService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private reportStatePipe = inject(ReportState);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private authService = inject(AuthService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   pageTitle = 'Team reports';
@@ -89,24 +119,6 @@ export class TeamReportsPage implements OnInit {
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
   eou$: Observable<ExtendedOrgUser>;
-
-  constructor(
-    private networkService: NetworkService,
-    private loaderService: LoaderService,
-    private modalController: ModalController,
-    private dateService: DateService,
-    private router: Router,
-    private currencyService: CurrencyService,
-    private trackingService: TrackingService,
-    private activatedRoute: ActivatedRoute,
-    private extendQueryParamsService: ExtendQueryParamsService,
-    private tasksService: TasksService,
-    private orgSettingsService: OrgSettingsService,
-    private reportStatePipe: ReportState,
-    private approverReportsService: ApproverReportsService,
-    private authService: AuthService,
-    private launchDarklyService: LaunchDarklyService,
-  ) {}
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;

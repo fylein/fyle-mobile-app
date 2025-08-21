@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { map, switchMap, tap, catchError } from 'rxjs/operators';
@@ -46,25 +46,39 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class TransactionService {
+  private paginationSize = inject(PAGINATION_SIZE);
+
+  private storageService = inject(StorageService);
+
+  private apiService = inject(ApiService);
+
+  private dateService = inject(DateService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private timezoneService = inject(TimezoneService);
+
+  private utilityService = inject(UtilityService);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private userEventService = inject(UserEventService);
+
+  private paymentModesService = inject(PaymentModesService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private accountsService = inject(AccountsService);
+
+  private expensesService = inject(ExpensesService);
+
+  private trackingService = inject(TrackingService);
+
+  private translocoService = inject(TranslocoService);
+
   private clearTaskCache = true;
 
-  constructor(
-    @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private storageService: StorageService,
-    private apiService: ApiService,
-    private dateService: DateService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private timezoneService: TimezoneService,
-    private utilityService: UtilityService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private userEventService: UserEventService,
-    private paymentModesService: PaymentModesService,
-    private orgSettingsService: OrgSettingsService,
-    private accountsService: AccountsService,
-    private expensesService: ExpensesService,
-    private trackingService: TrackingService,
-    private translocoService: TranslocoService,
-  ) {
+  constructor() {
     expensesCacheBuster$.subscribe(() => {
       if (this.clearTaskCache) {
         this.userEventService.clearTaskCache();

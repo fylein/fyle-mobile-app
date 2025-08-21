@@ -1,4 +1,4 @@
-import { Component, EventEmitter, NgZone, ViewChild } from '@angular/core';
+import { Component, EventEmitter, NgZone, ViewChild, inject } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
@@ -50,6 +50,56 @@ SwiperCore.use([Pagination, Autoplay]);
   standalone: false,
 })
 export class DashboardPage {
+  private currencyService = inject(CurrencyService);
+
+  private networkService = inject(NetworkService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
+  private actionSheetController = inject(ActionSheetController);
+
+  private tasksService = inject(TasksService);
+
+  private smartlookService = inject(SmartlookService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private platform = inject(Platform);
+
+  private backButtonService = inject(BackButtonService);
+
+  private navController = inject(NavController);
+
+  private modalController = inject(ModalController);
+
+  private utilityService = inject(UtilityService);
+
+  private featureConfigService = inject(FeatureConfigService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private authService = inject(AuthService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private walkthroughService = inject(WalkthroughService);
+
+  private footerService = inject(FooterService);
+
+  private timezoneService = inject(TimezoneService);
+
+  private ngZone = inject(NgZone);
+
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
 
   @ViewChild(CardStatsComponent) cardStatsComponent: CardStatsComponent;
@@ -119,34 +169,6 @@ export class DashboardPage {
   };
 
   dashboardAddExpenseWalkthroughDriverInstance: Driver;
-
-  constructor(
-    private currencyService: CurrencyService,
-    private networkService: NetworkService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private trackingService: TrackingService,
-    private actionSheetController: ActionSheetController,
-    private tasksService: TasksService,
-    private smartlookService: SmartlookService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService,
-    private platform: Platform,
-    private backButtonService: BackButtonService,
-    private navController: NavController,
-    private modalController: ModalController,
-    private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService,
-    private modalProperties: ModalPropertiesService,
-    private authService: AuthService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private walkthroughService: WalkthroughService,
-    private footerService: FooterService,
-    private timezoneService: TimezoneService,
-    private ngZone: NgZone,
-  ) {}
 
   get displayedTaskCount(): number {
     if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {

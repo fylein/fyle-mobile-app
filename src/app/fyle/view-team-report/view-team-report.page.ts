@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, ViewChild, inject } from '@angular/core';
 import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -47,6 +47,48 @@ import { BrowserHandlerService } from 'src/app/core/services/browser-handler.ser
   standalone: false,
 })
 export class ViewTeamReportPage {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private reportService = inject(ReportService);
+
+  private expensesService = inject(ExpensesService);
+
+  private authService = inject(AuthService);
+
+  private loaderService = inject(LoaderService);
+
+  private router = inject(Router);
+
+  private popoverController = inject(PopoverController);
+
+  private networkService = inject(NetworkService);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private refinerService = inject(RefinerService);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private statusService = inject(StatusService);
+
+  private exactCurrency = inject(ExactCurrencyPipe);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private dateWithTimezonePipe = inject(DateWithTimezonePipe);
+
+  private browserHandlerService = inject(BrowserHandlerService);
+
   @ViewChild('commentInput') commentInput: ElementRef;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
@@ -144,30 +186,6 @@ export class ViewTeamReportPage {
   approvalInfoMessage = '';
 
   canApproveReport = false;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private reportService: ReportService,
-    private expensesService: ExpensesService,
-    private authService: AuthService,
-    private loaderService: LoaderService,
-    private router: Router,
-    private popoverController: PopoverController,
-    private networkService: NetworkService,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService,
-    private matSnackBar: MatSnackBar,
-    private launchDarklyService: LaunchDarklyService,
-    private refinerService: RefinerService,
-    private snackbarProperties: SnackbarPropertiesService,
-    private statusService: StatusService,
-    private exactCurrency: ExactCurrencyPipe,
-    private orgSettingsService: OrgSettingsService,
-    private approverReportsService: ApproverReportsService,
-    private dateWithTimezonePipe: DateWithTimezonePipe,
-    private browserHandlerService: BrowserHandlerService,
-  ) {}
 
   ionViewWillLeave(): void {
     this.onPageExit.next(null);

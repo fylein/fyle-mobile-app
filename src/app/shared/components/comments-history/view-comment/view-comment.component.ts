@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { IonContent, ModalController, Platform, PopoverController } from '@ionic/angular';
 import { from, Observable, Subject } from 'rxjs';
 import { finalize, map, startWith, switchMap } from 'rxjs/operators';
@@ -24,6 +24,32 @@ import { Router } from '@angular/router';
   standalone: false,
 })
 export class ViewCommentComponent implements OnInit {
+  private statusService = inject(StatusService);
+
+  private authService = inject(AuthService);
+
+  private modalController = inject(ModalController);
+
+  private popoverController = inject(PopoverController);
+
+  private trackingService = inject(TrackingService);
+
+  private elementRef = inject(ElementRef);
+
+  platform = inject(Platform);
+
+  private dateWithTimezonePipe = inject(DateWithTimezonePipe);
+
+  private spenderExpenseCommentService = inject(SpenderExpenseCommentService);
+
+  private approverExpenseCommentService = inject(ApproverExpenseCommentService);
+
+  private translocoService = inject(TranslocoService);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private router = inject(Router);
+
   @Input() objectType: string;
 
   @Input() objectId: string;
@@ -57,22 +83,6 @@ export class ViewCommentComponent implements OnInit {
   showDt: boolean;
 
   isSwipe = false;
-
-  constructor(
-    private statusService: StatusService,
-    private authService: AuthService,
-    private modalController: ModalController,
-    private popoverController: PopoverController,
-    private trackingService: TrackingService,
-    private elementRef: ElementRef,
-    public platform: Platform,
-    private dateWithTimezonePipe: DateWithTimezonePipe,
-    private spenderExpenseCommentService: SpenderExpenseCommentService,
-    private approverExpenseCommentService: ApproverExpenseCommentService,
-    private translocoService: TranslocoService,
-    private advanceRequestService: AdvanceRequestService,
-    private router: Router,
-  ) {}
 
   setContentScrollToBottom(): void {
     this.content.scrollToBottom(500);

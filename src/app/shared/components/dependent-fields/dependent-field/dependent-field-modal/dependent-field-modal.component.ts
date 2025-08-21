@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, inject } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
@@ -14,6 +14,14 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class DependentFieldModalComponent implements AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private dependentFieldsService = inject(DependentFieldsService);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   @Input() currentSelection: string;
@@ -33,13 +41,6 @@ export class DependentFieldModalComponent implements AfterViewInit {
   value: string;
 
   isLoading = false;
-
-  constructor(
-    private modalController: ModalController,
-    private dependentFieldsService: DependentFieldsService,
-    private cdr: ChangeDetectorRef,
-    private translocoService: TranslocoService,
-  ) {}
 
   getDependentFieldOptions(searchQuery: string): Observable<DependentFieldOption[]> {
     this.isLoading = true;

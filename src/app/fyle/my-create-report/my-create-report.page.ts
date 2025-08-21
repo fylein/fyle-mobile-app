@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, noop, of } from 'rxjs';
@@ -22,6 +22,26 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
   standalone: false,
 })
 export class MyCreateReportPage implements OnInit {
+  private transactionService = inject(TransactionService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private currencyService = inject(CurrencyService);
+
+  private loaderService = inject(LoaderService);
+
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
+  private storageService = inject(StorageService);
+
+  private expensesService = inject(ExpensesService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
 
   readyToReportExpenses: PlatformExpense[];
@@ -51,19 +71,6 @@ export class MyCreateReportPage implements OnInit {
   emptyInput = false;
 
   isLoading = true;
-
-  constructor(
-    private transactionService: TransactionService,
-    private activatedRoute: ActivatedRoute,
-    private currencyService: CurrencyService,
-    private loaderService: LoaderService,
-    private router: Router,
-    private trackingService: TrackingService,
-    private storageService: StorageService,
-    private expensesService: ExpensesService,
-    private orgSettingsService: OrgSettingsService,
-    private spenderReportsService: SpenderReportsService,
-  ) {}
 
   detectTitleChange(): void {
     if (!this.reportTitle && this.reportTitle === '') {

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { getCurrencySymbol } from '@angular/common';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -14,6 +14,14 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyPolicyViolationComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  private policyService = inject(PolicyService);
+
+  private utilityService = inject(UtilityService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() policyViolationMessages: string[];
 
   @Input() policyAction: FinalExpensePolicyState;
@@ -41,13 +49,6 @@ export class FyPolicyViolationComponent implements OnInit {
   approverEmailsRequiredMsg: string;
 
   cappedAmountString: string;
-
-  constructor(
-    private modalController: ModalController,
-    private policyService: PolicyService,
-    private utilityService: UtilityService,
-    private translocoService: TranslocoService,
-  ) {}
 
   constructAdditionalApproverAction(): void {
     if (this.needAdditionalApproval) {

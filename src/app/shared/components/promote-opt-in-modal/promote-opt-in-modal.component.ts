@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
@@ -12,13 +12,13 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class PromoteOptInModalComponent {
-  @Input() extendedOrgUser: ExtendedOrgUser;
+  private modalController = inject(ModalController);
 
-  constructor(
-    private modalController: ModalController,
-    private popoverController: PopoverController,
-    private translocoService: TranslocoService,
-  ) {}
+  private popoverController = inject(PopoverController);
+
+  private translocoService = inject(TranslocoService);
+
+  readonly extendedOrgUser: ExtendedOrgUser;
 
   async optInClick(): Promise<void> {
     const optInModal = await this.modalController.create({

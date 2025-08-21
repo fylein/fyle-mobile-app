@@ -16,30 +16,20 @@ import { CustomInputsService } from './custom-inputs.service';
 import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
 import { CustomInput } from '../models/custom-input.model';
 import { mockExpenseData } from '../mock-data/expense-field.data';
-import { TranslocoService } from '@jsverse/transloco';
+import { getTranslocoModule } from '../testing/transloco-testing.utils';
+
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
-  const orgCatId = 110351;
+  const orgCatId = '110351';
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
-
-    // Mock translate method to return expected strings
-    translocoServiceSpy.translate.and.callFake((key: string) => {
-      const translations: { [key: string]: string } = {
-        'services.customInputs.deletedSuffix': ' (Deleted)',
-        'services.customInputs.yes': 'Yes',
-        'services.customInputs.no': 'No',
-      };
-      return translations[key] || key;
-    });
 
     TestBed.configureTestingModule({
+      imports: [getTranslocoModule()],
       providers: [
         CustomInputsService,
         {
@@ -52,19 +42,14 @@ describe('CustomInputsService', () => {
           useValue: authServiceSpy,
         },
         DatePipe,
-        {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
-        },
       ],
     });
 
     customInputsService = TestBed.inject(CustomInputsService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -307,7 +292,7 @@ describe('CustomInputsService', () => {
   });
 
   it('should append "(Deleted)" to field name when custom input is disabled', (done) => {
-    const orgCategoryId = 147791;
+    const orgCategoryId = '147791';
 
     const customProperties: CustomInput[] = [];
 
@@ -316,7 +301,7 @@ describe('CustomInputsService', () => {
 
     // Mock filterByCategory to return the mock object as the filtered result
     spyOn(customInputsService, 'filterByCategory').and.callFake((inputs, id) => {
-      return inputs.filter((input) => input.org_category_ids.includes(id as number));
+      return inputs.filter((input) => input.org_category_ids.includes(Number(id)));
     });
 
     // Call fillCustomProperties and verify results

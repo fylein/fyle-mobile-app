@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
 import {
@@ -42,6 +42,32 @@ import { isNumber } from 'lodash';
   standalone: false,
 })
 export class ManageCorporateCardsPage {
+  private router = inject(Router);
+
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private actionSheetController = inject(ActionSheetController);
+
+  private popoverController = inject(PopoverController);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private realTimeFeedService = inject(RealTimeFeedService);
+
+  private trackingService = inject(TrackingService);
+
+  private virtualCardsService = inject(VirtualCardsService);
+
+  private utilityService = inject(UtilityService);
+
+  private featureConfigService = inject(FeatureConfigService);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private authService = inject(AuthService);
+
   corporateCards$: Observable<PlatformCorporateCard[]>;
 
   virtualCardDetails$: Observable<{ [id: string]: CardDetailsCombinedResponse }>;
@@ -67,22 +93,6 @@ export class ManageCorporateCardsPage {
   showSegment = false;
 
   filteredCorporateCards: PlatformCorporateCard[] = [];
-
-  constructor(
-    private router: Router,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private actionSheetController: ActionSheetController,
-    private popoverController: PopoverController,
-    private orgSettingsService: OrgSettingsService,
-    private realTimeFeedService: RealTimeFeedService,
-    private trackingService: TrackingService,
-    private virtualCardsService: VirtualCardsService,
-    private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private authService: AuthService,
-  ) {}
 
   get Segment(): typeof ManageCardsPageSegment {
     return ManageCardsPageSegment;

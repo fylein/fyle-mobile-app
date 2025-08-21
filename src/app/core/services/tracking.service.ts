@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { DeviceService } from '../../core/services/device.service';
 import { environment } from 'src/environments/environment';
@@ -42,11 +42,13 @@ import { ExtendedOrgUser } from '../models/extended-org-user.model';
   providedIn: 'root',
 })
 export class TrackingService {
+  private authService = inject(AuthService);
+
+  private deviceService = inject(DeviceService);
+
   identityId = null;
 
   ROOT_ENDPOINT: string;
-
-  constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
   setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;

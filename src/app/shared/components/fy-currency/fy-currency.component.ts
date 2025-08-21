@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges, inject } from '@angular/core';
 
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { noop, of, from } from 'rxjs';
@@ -28,6 +28,16 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChanges {
+  private fb = inject(UntypedFormBuilder);
+
+  private modalController = inject(ModalController);
+
+  private currencyService = inject(CurrencyService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private translocoService = inject(TranslocoService);
+
   @Input() txnDt: Date;
 
   @Input() homeCurrency: string;
@@ -55,14 +65,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (_: CurrencyObj) => void = noop;
-
-  constructor(
-    private fb: UntypedFormBuilder,
-    private modalController: ModalController,
-    private currencyService: CurrencyService,
-    private modalProperties: ModalPropertiesService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {

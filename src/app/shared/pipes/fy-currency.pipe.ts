@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 
 /**
  * This pipe is a superset of the default CurrencyPipe provided by Angular
@@ -11,7 +11,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: false,
 })
 export class FyCurrencyPipe implements PipeTransform {
-  constructor(private currencyPipe: CurrencyPipe) {}
+  private currencyPipe = inject(CurrencyPipe);
 
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   transform(

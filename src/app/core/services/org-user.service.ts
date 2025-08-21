@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { CacheBuster, Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
@@ -24,15 +24,19 @@ const orgUsersCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class OrgUserService {
-  constructor(
-    private jwtHelperService: JwtHelperService,
-    private tokenService: TokenService,
-    private apiService: ApiService,
-    private authService: AuthService,
-    private dataTransformService: DataTransformService,
-    private trackingService: TrackingService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+  private jwtHelperService = inject(JwtHelperService);
+
+  private tokenService = inject(TokenService);
+
+  private apiService = inject(ApiService);
+
+  private authService = inject(AuthService);
+
+  private dataTransformService = inject(DataTransformService);
+
+  private trackingService = inject(TrackingService);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   @Cacheable()
   getCurrent(): Observable<ExtendedOrgUser> {
@@ -74,7 +78,7 @@ export class OrgUserService {
   markActive(): Observable<ExtendedOrgUser> {
     return this.apiService.post('/orgusers/current/mark_active').pipe(
       switchMap(() => this.authService.refreshEou()),
-      tap(() => this.trackingService.activated())
+      tap(() => this.trackingService.activated()),
     );
   }
 

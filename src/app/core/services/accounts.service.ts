@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
@@ -19,18 +19,18 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class AccountsService {
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private fyCurrencyPipe = inject(FyCurrencyPipe);
+
+  private translocoService = inject(TranslocoService);
+
   private readonly accountDisplayNameMapping: Record<string, string> = {
     PERSONAL_CASH_ACCOUNT: 'services.accounts.personalCardCash',
     PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'services.accounts.corporateCard',
     PERSONAL_ADVANCE_ACCOUNT: 'services.accounts.advanceWallet',
     COMPANY_ACCOUNT: 'services.accounts.paidByCompany',
   };
-
-  constructor(
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private fyCurrencyPipe: FyCurrencyPipe,
-    private translocoService: TranslocoService
-  ) {}
 
   @Cacheable()
   getMyAccounts(): Observable<PlatformAccount[]> {
@@ -48,7 +48,7 @@ export class AccountsService {
     config: {
       etxn: Partial<UnflattenedTransaction>;
       expenseType: ExpenseType;
-    }
+    },
   ): AccountOption[] {
     const { etxn, expenseType } = config;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
@@ -58,7 +58,7 @@ export class AccountsService {
       userAccounts,
       allowedPaymentModes,
       etxn,
-      isMileageOrPerDiemExpense
+      isMileageOrPerDiemExpense,
     );
 
     let allowedAdvanceWallets: AdvanceWallet[] = [];
@@ -66,7 +66,7 @@ export class AccountsService {
       allowedAdvanceWallets = advanceWallets.filter(
         (advanceWallet) =>
           (etxn?.tx?.advance_wallet_id && etxn.tx.advance_wallet_id === advanceWallet.id) ||
-          advanceWallet.balance_amount > 0
+          advanceWallet.balance_amount > 0,
       );
     }
 
@@ -97,7 +97,7 @@ export class AccountsService {
       etxn: Partial<UnflattenedTransaction>;
       orgSettings: OrgSettings;
       expenseType: ExpenseType;
-    }
+    },
   ): AccountOption[] {
     const { etxn, orgSettings, expenseType } = config;
     const isAdvanceEnabled = orgSettings.advances.enabled || orgSettings.advance_requests.enabled;
@@ -111,7 +111,7 @@ export class AccountsService {
       allowedPaymentModes,
       isMultipleAdvanceEnabled,
       etxn,
-      isMileageOrPerDiemExpense
+      isMileageOrPerDiemExpense,
     );
 
     return allowedAccounts.map((account) => ({
@@ -132,7 +132,7 @@ export class AccountsService {
 
   getEtxnSelectedPaymentMode(
     etxn: Partial<UnflattenedTransaction>,
-    paymentModes: AccountOption[]
+    paymentModes: AccountOption[],
   ): PlatformAccount | AdvanceWallet {
     if (etxn.tx.source_account_id) {
       return paymentModes
@@ -150,7 +150,7 @@ export class AccountsService {
   setAccountProperties(
     account: PlatformAccount,
     paymentMode: string,
-    isMultipleAdvanceEnabled?: boolean
+    isMultipleAdvanceEnabled?: boolean,
   ): PlatformAccount {
     const accountCopy = cloneDeep(account);
     if (accountCopy) {
@@ -198,7 +198,7 @@ export class AccountsService {
         account &&
         // Personal Account and CCC account are considered to always have sufficient funds
         ((isAdvanceEnabled && account.tentative_balance_amount > 0) ||
-          [AccountType.PERSONAL, AccountType.CCC].indexOf(account.type) > -1)
+          [AccountType.PERSONAL, AccountType.CCC].indexOf(account.type) > -1),
     );
   }
 
@@ -208,7 +208,7 @@ export class AccountsService {
     allowedPaymentModes: string[],
     isMultipleAdvanceEnabled: boolean,
     etxn?: Partial<UnflattenedTransaction>,
-    isMileageOrPerDiemExpense = false
+    isMileageOrPerDiemExpense = false,
   ): PlatformAccount[] {
     const filteredPaymentModes = this.handlePaymentModeFiltering(allowedPaymentModes, isMileageOrPerDiemExpense, etxn);
 
@@ -220,7 +220,7 @@ export class AccountsService {
     allAccounts: PlatformAccount[],
     allowedPaymentModes: string[],
     etxn?: Partial<UnflattenedTransaction>,
-    isMileageOrPerDiemExpense = false
+    isMileageOrPerDiemExpense = false,
   ): PlatformAccount[] {
     const filteredPaymentModes = this.handlePaymentModeFiltering(allowedPaymentModes, isMileageOrPerDiemExpense, etxn);
 
@@ -230,7 +230,7 @@ export class AccountsService {
   // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
   checkIfEtxnHasSamePaymentMode(
     etxn: Partial<UnflattenedTransaction>,
-    paymentMode: PlatformAccount | AdvanceWallet
+    paymentMode: PlatformAccount | AdvanceWallet,
   ): boolean {
     if (etxn.source.account_type === AccountType.PERSONAL && !etxn.tx.advance_wallet_id) {
       return (
@@ -246,7 +246,7 @@ export class AccountsService {
   private handlePaymentModeFiltering(
     allowedPaymentModes: string[],
     isMileageOrPerDiemExpense: boolean,
-    etxn?: Partial<UnflattenedTransaction>
+    etxn?: Partial<UnflattenedTransaction>,
   ): string[] {
     let updatedModes = [...allowedPaymentModes];
 
@@ -276,7 +276,7 @@ export class AccountsService {
   private processAccountsByPaymentMode(
     allAccounts: PlatformAccount[],
     allowedPaymentModes: string[],
-    isMultipleAdvanceEnabled?: boolean
+    isMultipleAdvanceEnabled?: boolean,
   ): PlatformAccount[] {
     const isOnlyCCCAllowed = allowedPaymentModes.length === 1 && allowedPaymentModes[0] === AccountType.CCC;
 

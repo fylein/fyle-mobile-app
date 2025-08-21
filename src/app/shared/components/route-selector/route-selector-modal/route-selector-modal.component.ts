@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -20,6 +20,12 @@ import { MileageLocation } from '../../route-visualizer/mileage-locations.interf
   standalone: false,
 })
 export class RouteSelectorModalComponent implements OnInit {
+  private fb = inject(UntypedFormBuilder);
+
+  private modalController = inject(ModalController);
+
+  private mileageService = inject(MileageService);
+
   @Input() unit: 'KM' | 'MILES';
 
   @Input() mileageConfig: MileageDetails;
@@ -54,12 +60,6 @@ export class RouteSelectorModalComponent implements OnInit {
   });
 
   calculatedLocationDistance: number;
-
-  constructor(
-    private fb: UntypedFormBuilder,
-    private modalController: ModalController,
-    private mileageService: MileageService,
-  ) {}
 
   get mileageLocations(): UntypedFormArray {
     return this.form.controls.mileageLocations as UntypedFormArray;

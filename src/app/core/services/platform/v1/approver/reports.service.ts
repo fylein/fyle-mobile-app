@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, concatMap, map, range, reduce, switchMap } from 'rxjs';
 import { ApproverPlatformApiService } from '../../../approver-platform-api.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
@@ -15,10 +15,9 @@ import { Comment } from 'src/app/core/models/platform/v1/comment.model';
   providedIn: 'root',
 })
 export class ApproverReportsService {
-  constructor(
-    @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private approverPlatformApiService: ApproverPlatformApiService
-  ) {}
+  private paginationSize = inject(PAGINATION_SIZE);
+
+  private approverPlatformApiService = inject(ApproverPlatformApiService);
 
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
@@ -34,7 +33,7 @@ export class ApproverReportsService {
         };
         return this.getReportsByParams(params);
       }),
-      reduce((acc, curr) => acc.concat(curr.data), [] as Report[])
+      reduce((acc, curr) => acc.concat(curr.data), [] as Report[]),
     );
   }
 

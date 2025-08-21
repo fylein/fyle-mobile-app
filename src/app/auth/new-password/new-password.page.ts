@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { finalize, switchMap, tap } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
@@ -20,6 +20,28 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   standalone: false,
 })
 export class NewPasswordPage implements OnInit {
+  private fb = inject(UntypedFormBuilder);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private loaderService = inject(LoaderService);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private authService = inject(AuthService);
+
+  private trackingService = inject(TrackingService);
+
+  private deviceService = inject(DeviceService);
+
+  private loginInfoService = inject(LoginInfoService);
+
+  private router = inject(Router);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarPropertiesService = inject(SnackbarPropertiesService);
+
   fg: UntypedFormGroup;
 
   lengthValidationDisplay$: Observable<boolean>;
@@ -45,20 +67,6 @@ export class NewPasswordPage implements OnInit {
   focusOnPassword = false;
 
   focusOnConfirmPassword = false;
-
-  constructor(
-    private fb: UntypedFormBuilder,
-    private activatedRoute: ActivatedRoute,
-    private loaderService: LoaderService,
-    private routerAuthService: RouterAuthService,
-    private authService: AuthService,
-    private trackingService: TrackingService,
-    private deviceService: DeviceService,
-    private loginInfoService: LoginInfoService,
-    private router: Router,
-    private matSnackBar: MatSnackBar,
-    private snackbarPropertiesService: SnackbarPropertiesService,
-  ) {}
 
   ngOnInit(): void {
     this.fg = this.fb.group({

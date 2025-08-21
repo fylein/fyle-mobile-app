@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnInit, inject } from '@angular/core';
 import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
@@ -18,6 +18,14 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class ApproverDialogComponent implements AfterViewInit, OnInit {
+  private loaderService = inject(LoaderService);
+
+  private employeesService = inject(EmployeesService);
+
+  private modalController = inject(ModalController);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLElement>;
 
   @Input() approverEmailsList: string[];
@@ -45,13 +53,6 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
   selectedApproversDict = {};
 
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
-
-  constructor(
-    private loaderService: LoaderService,
-    private employeesService: EmployeesService,
-    private modalController: ModalController,
-    private translocoService: TranslocoService,
-  ) {}
 
   ngOnInit(): void {
     this.selectedApproversList = this.initialApproverList;

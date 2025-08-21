@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { cloneDeep } from 'lodash';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { FilterState } from 'src/app/core/enums/filter-state.enum';
@@ -18,10 +18,9 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class ExpensesService {
-  constructor(
-    private dateService: DateService,
-    private translocoService: TranslocoService,
-  ) {}
+  private dateService = inject(DateService);
+
+  private translocoService = inject(TranslocoService);
 
   isExpenseInDraft(expense: Expense): boolean {
     return expense.state && expense.state === ExpenseState.DRAFT;

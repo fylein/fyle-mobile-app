@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -15,20 +15,23 @@ import { HttpErrorResponse } from '@angular/common/http';
   standalone: false,
 })
 export class PendingVerificationPage {
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
   isLoading = false;
 
   isInvitationLinkSent = false;
 
   fg: UntypedFormGroup;
-
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private routerAuthService: RouterAuthService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-  ) {}
 
   ionViewWillEnter(): void {
     this.fg = this.formBuilder.group({

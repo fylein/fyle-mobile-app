@@ -1,9 +1,8 @@
-import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
+import { Component, OnInit, forwardRef, Input, inject } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-location',
@@ -19,6 +18,8 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   standalone: false,
 })
 export class FyLocationComponent implements ControlValueAccessor, OnInit {
+  private modalController = inject(ModalController);
+
   @Input() label = 'location';
 
   @Input() mandatory = false;
@@ -49,11 +50,6 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChangeCallback: (_: any) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-  ) {}
 
   get valid() {
     if (this.touchedInParent) {

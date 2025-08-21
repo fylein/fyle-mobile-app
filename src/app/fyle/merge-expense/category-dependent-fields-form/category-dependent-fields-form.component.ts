@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { EventEmitter, Injector, Output } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import {
@@ -29,6 +29,10 @@ type OptionsData = Partial<{
   standalone: false,
 })
 export class CategoryDependentFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private injector = inject(Injector);
+
   @Output() fieldsTouched = new EventEmitter<string[]>();
 
   @Input() location1OptionsData: OptionsData;
@@ -58,11 +62,6 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
   onChangeSub: Subscription;
 
   onTouched: () => void = noop;
-
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private injector: Injector,
-  ) {}
 
   isFieldTouched = (fieldName: string): boolean => this.categoryDependentFormGroup.get(fieldName).touched;
 

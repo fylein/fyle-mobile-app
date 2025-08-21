@@ -7,6 +7,7 @@ import {
   Input,
   ChangeDetectorRef,
   TemplateRef,
+  inject,
 } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
@@ -22,6 +23,12 @@ import { Option } from 'src/app/core/models/option.model';
   standalone: false,
 })
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  private currencyService = inject(CurrencyService);
+
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() options: Option[] = [];
@@ -45,12 +52,6 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   @Input() isNewReportsFlowEnabled = false;
 
   reportCurrencySymbol: string;
-
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private currencyService: CurrencyService,
-  ) {}
 
   ngOnInit() {
     if (this.currentSelection) {

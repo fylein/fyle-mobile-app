@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 
@@ -6,9 +6,11 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root',
 })
 export class ApiService {
+  private httpClient = inject(HttpClient);
+
   ROOT_ENDPOINT: string;
 
-  constructor(private httpClient: HttpClient) {
+  constructor() {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 

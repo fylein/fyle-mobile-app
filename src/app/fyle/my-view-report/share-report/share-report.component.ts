@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -8,11 +8,11 @@ import { ModalController } from '@ionic/angular';
   standalone: false,
 })
 export class ShareReportComponent implements OnInit, AfterViewInit {
+  private modalController = inject(ModalController);
+
   @ViewChild('simpleEmailInput') simpleEmailInput: ElementRef;
 
   email = '';
-
-  constructor(private modalController: ModalController) {}
 
   async cancel() {
     await this.modalController.dismiss();

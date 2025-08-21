@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { cloneDeep } from 'lodash';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { UtilityService } from './utility.service';
@@ -10,6 +10,10 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class TimezoneService {
+  private utilityService = inject(UtilityService);
+
+  private timezone$ = inject<BehaviorSubject<string>>(TIMEZONE);
+
   timezones = [
     {
       timezone: 'America/Louisville',
@@ -2932,8 +2936,6 @@ export class TimezoneService {
       offset: '-06:00:00',
     },
   ];
-
-  constructor(private utilityService: UtilityService, @Inject(TIMEZONE) private timezone$: BehaviorSubject<string>) {}
 
   //TODO: Add proper types after utility service has been fixed
   convertAllDatesToProperLocale(object: TxnCustomProperties[], offset: string): TxnCustomProperties[] | Date {

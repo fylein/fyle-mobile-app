@@ -9,6 +9,7 @@ import {
   Output,
   SimpleChanges,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -40,6 +41,30 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
+  private fb = inject(UntypedFormBuilder);
+
+  private trackingService = inject(TrackingService);
+
+  private modalController = inject(ModalController);
+
+  private orgUserService = inject(OrgUserService);
+
+  private authService = inject(AuthService);
+
+  private mobileNumberVerificationService = inject(MobileNumberVerificationService);
+
+  private loaderService = inject(LoaderService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private userEventService = inject(UserEventService);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('mobileInput') mobileInputEl: ElementRef<HTMLInputElement>;
 
   @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput: NgOtpInputComponent;
@@ -109,21 +134,6 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
       border: 'none',
     },
   };
-
-  constructor(
-    private fb: UntypedFormBuilder,
-    private trackingService: TrackingService,
-    private modalController: ModalController,
-    private orgUserService: OrgUserService,
-    private authService: AuthService,
-    private mobileNumberVerificationService: MobileNumberVerificationService,
-    private loaderService: LoaderService,
-    private matSnackBar: MatSnackBar,
-    private userEventService: UserEventService,
-    private snackbarProperties: SnackbarPropertiesService,
-    private spenderOnboardingService: SpenderOnboardingService,
-    private translocoService: TranslocoService,
-  ) {}
 
   get OptInFlowState(): typeof OptInFlowState {
     return OptInFlowState;

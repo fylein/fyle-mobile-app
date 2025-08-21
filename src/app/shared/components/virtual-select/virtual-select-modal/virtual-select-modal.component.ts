@@ -1,4 +1,13 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  Input,
+  ChangeDetectorRef,
+  TemplateRef,
+  inject,
+} from '@angular/core';
 import { combineLatest, from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, shareReplay } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
@@ -14,6 +23,16 @@ import { TranslocoService } from '@jsverse/transloco';
   standalone: false,
 })
 export class VirtualSelectModalComponent implements AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private utilityService = inject(UtilityService);
+
+  private translocoService = inject(TranslocoService);
+
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   @Input() options: VirtualSelectOption[] = [];
@@ -45,14 +64,6 @@ export class VirtualSelectModalComponent implements AfterViewInit {
   filteredOptions$: Observable<VirtualSelectOption[]>;
 
   selectableOptions: VirtualSelectOption[] = [];
-
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService,
-    private translocoService: TranslocoService,
-  ) {}
 
   clearValue(): void {
     this.value = '';

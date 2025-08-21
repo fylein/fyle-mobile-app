@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -8,11 +8,11 @@ import { PopoverController } from '@ionic/angular';
   standalone: false,
 })
 export class AdvanceActionsComponent implements OnInit {
+  private popoverController = inject(PopoverController);
+
   @Input() actions;
 
   @Input() areq;
-
-  constructor(private popoverController: PopoverController) {}
 
   ngOnInit() {}
 

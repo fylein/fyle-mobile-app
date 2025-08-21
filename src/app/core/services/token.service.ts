@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SecureStorageService } from './secure-storage.service';
 import { UserEventService } from './user-event.service';
 import { PCacheable, PCacheBuster } from 'ts-cacheable';
@@ -9,7 +9,11 @@ const tokenCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class TokenService {
-  constructor(private secureStorageService: SecureStorageService, private userEventService: UserEventService) {
+  private secureStorageService = inject(SecureStorageService);
+
+  private userEventService = inject(UserEventService);
+
+  constructor() {
     this.userEventService.onLogout(() => {
       this.resetRefreshToken();
       this.resetAccessToken();

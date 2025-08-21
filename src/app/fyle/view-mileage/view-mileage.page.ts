@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, ViewChild, ElementRef, inject } from '@angular/core';
 import { Observable, from, Subject, concat, noop, of, forkJoin } from 'rxjs';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -48,6 +48,50 @@ import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/
   standalone: false,
 })
 export class ViewMileagePage {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private loaderService = inject(LoaderService);
+
+  private customInputsService = inject(CustomInputsService);
+
+  private policyService = inject(PolicyService);
+
+  private popoverController = inject(PopoverController);
+
+  private router = inject(Router);
+
+  private networkService = inject(NetworkService);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private orgSettingsService = inject(OrgSettingsService);
+
+  private dependentFieldsService = inject(DependentFieldsService);
+
+  private fileService = inject(FileService);
+
+  private approverExpensesService = inject(ApproverExpensesService);
+
+  private spenderExpensesService = inject(SpenderExpensesService);
+
+  private mileageRatesService = inject(MileageRatesService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private spenderFileService = inject(SpenderFileService);
+
+  private approverFileService = inject(ApproverFileService);
+
+  private spenderExpenseCommentService = inject(SpenderExpenseCommentService);
+
+  private approverExpenseCommentService = inject(ApproverExpenseCommentService);
+
   @ViewChild('comments') commentsContainer: ElementRef;
 
   mileageExpense$: Observable<Expense>;
@@ -111,31 +155,6 @@ export class ViewMileagePage {
   mileageRate$: Observable<PlatformMileageRates>;
 
   commuteDeduction: string;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private loaderService: LoaderService,
-    private customInputsService: CustomInputsService,
-    private policyService: PolicyService,
-    private popoverController: PopoverController,
-    private router: Router,
-    private networkService: NetworkService,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService,
-    private fileService: FileService,
-    private approverExpensesService: ApproverExpensesService,
-    private spenderExpensesService: SpenderExpensesService,
-    private mileageRatesService: MileageRatesService,
-    private approverReportsService: ApproverReportsService,
-    private spenderFileService: SpenderFileService,
-    private approverFileService: ApproverFileService,
-    private spenderExpenseCommentService: SpenderExpenseCommentService,
-    private approverExpenseCommentService: ApproverExpenseCommentService,
-  ) {}
 
   get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
@@ -381,7 +400,7 @@ export class ViewMileagePage {
     this.mileageCustomFields$ = this.mileageExpense$.pipe(
       switchMap((expense) =>
         this.customInputsService.fillCustomProperties(
-          expense.category_id,
+          expense.category_id.toString(),
           expense.custom_fields as Partial<CustomInput>[],
         ),
       ),
