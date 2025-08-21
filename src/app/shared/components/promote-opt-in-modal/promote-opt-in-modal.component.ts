@@ -18,13 +18,13 @@ export class PromoteOptInModalComponent {
 
   private translocoService = inject(TranslocoService);
 
-  readonly extendedOrgUser = input<ExtendedOrgUser>();
+  readonly extendedOrgUser: ExtendedOrgUser;
 
   async optInClick(): Promise<void> {
     const optInModal = await this.modalController.create({
       component: FyOptInComponent,
       componentProps: {
-        extendedOrgUser: this.extendedOrgUser(),
+        extendedOrgUser: this.extendedOrgUser,
       },
     });
 

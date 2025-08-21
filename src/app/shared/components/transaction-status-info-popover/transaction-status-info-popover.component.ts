@@ -11,7 +11,7 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
 export class TransactionStatusInfoPopoverComponent {
   private popoverController = inject(PopoverController);
 
-  readonly transactionStatus = input<ExpenseTransactionStatus>(ExpenseTransactionStatus.PENDING);
+  transactionStatus: ExpenseTransactionStatus;
 
   get TransactionStatus(): typeof ExpenseTransactionStatus {
     return ExpenseTransactionStatus;
