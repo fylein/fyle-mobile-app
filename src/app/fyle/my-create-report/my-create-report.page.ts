@@ -22,6 +22,8 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
   standalone: false,
 })
 export class MyCreateReportPage implements OnInit {
+  @ViewChild('reportTitleInput') reportTitleInput: NgModel;
+
   readyToReportExpenses: PlatformExpense[];
 
   selectedElements: PlatformExpense[];
@@ -188,7 +190,8 @@ export class MyCreateReportPage implements OnInit {
     const expenseIDs = this.selectedElements.map((ele) => ele.id);
     this.selectedTotalAmount = this.getTotalSelectedExpensesAmount(this.selectedElements);
 
-    if (!this.reportTitle) {
+    // suggest a title if the report title is not dirty or empty (reportTitleInput is not available in the ionViewWillEnter)
+    if ((this.reportTitleInput && !this.reportTitleInput.dirty) || (!this.reportTitleInput && !this.reportTitle)) {
       return this.spenderReportsService.suggestPurpose(expenseIDs).subscribe((res) => {
         this.reportTitle = res;
       });
