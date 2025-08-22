@@ -42,6 +42,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     BrowserModule,
     IonicModule.forRoot({
       innerHTMLTemplatesEnabled: true,
+      useSetInputAPI: true,
     }),
     AppRoutingModule,
     BrowserAnimationsModule,
