@@ -86,6 +86,7 @@ export class DashboardService {
 
         return {
           draft: this.transformStat(statsMap.get('DRAFT')),
+          sent_back: this.transformStat(statsMap.get('APPROVER_INQUIRY')),
           report: this.transformStat(statsMap.get('APPROVER_PENDING')),
           approved: this.transformStat(statsMap.get('APPROVED')),
           paymentPending: this.transformStat(statsMap.get('PAYMENT_PENDING')),
@@ -101,8 +102,8 @@ export class DashboardService {
 
   getReportStateMapping(state: ReportStates): string {
     switch (state) {
-      case ReportStates.DRAFT:
-        return this.translocoService.translate('services.dashboard.draft');
+      case ReportStates.OPEN:
+        return this.translocoService.translate('services.dashboard.open');
       case ReportStates.APPROVER_PENDING:
         return this.translocoService.translate('services.dashboard.reported');
       case ReportStates.APPROVED:

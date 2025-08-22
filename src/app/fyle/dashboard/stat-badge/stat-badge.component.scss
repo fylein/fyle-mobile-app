@@ -50,7 +50,7 @@
     color: colors.$pure-white;
     font-weight: 500;
 
-    &__draft {
+    &__open {
       background-color: map.get(colors.$fdl-state-bg-map, 'draft');
       color: map.get(colors.$fdl-state-color-map, 'draft');
     }

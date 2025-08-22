@@ -40,12 +40,6 @@ export class StatsComponent implements OnInit {
 
   private paymentModeService = inject(PaymentModesService);
 
-  draftStats$: Observable<PlatformReportsStatsResponse>;
-
-  approvedStats$: Observable<PlatformReportsStatsResponse>;
-
-  paymentPendingStats$: Observable<PlatformReportsStatsResponse>;
-
   processingStats$: Observable<PlatformReportsStatsResponse>;
 
   homeCurrency$: Observable<string>;
@@ -116,14 +110,6 @@ export class StatsComponent implements OnInit {
       currencySymbol: this.currencySymbol$,
       isNonReimbursableOrg: isNonReimbursableOrg$,
     });
-
-    this.draftStats$ = reportStats$.pipe(map((stats) => stats.draft));
-
-    this.approvedStats$ = reportStats$.pipe(map((stats) => stats.approved));
-
-    this.paymentPendingStats$ = reportStats$.pipe(map((stats) => stats.paymentPending));
-
-    this.processingStats$ = reportStats$.pipe(map((stats) => stats.processing));
 
     this.redirectToNewPage$ = orgSettings$.pipe(
       map((orgSettings) => (orgSettings.mobile_app_my_expenses_beta_enabled ? true : false)),
@@ -224,10 +210,12 @@ export class StatsComponent implements OnInit {
   }
 
   goToReportsPage(state: ReportStates): void {
+    let queryParams: Params = { filters: JSON.stringify({ state: [state.toString()] }) };
+    if (state === ReportStates.OPEN) {
+      queryParams = { filters: JSON.stringify({ state: ['DRAFT', 'APPROVER_INQUIRY'] }) };
+    }
     this.router.navigate(['/', 'enterprise', 'my_reports'], {
-      queryParams: {
-        filters: JSON.stringify({ state: [state.toString()] }),
-      },
+      queryParams,
     });
 
     const reportState = this.dashboardService.getReportStateMapping(state);

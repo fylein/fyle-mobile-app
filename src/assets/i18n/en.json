@@ -248,7 +248,7 @@
       "permanentDeleteConfirmation": "Are you sure to <b>permanently</b> delete the selected expenses?"
     },
     "dashboard": {
-      "draft": "Draft",
+      "open": "Open",
       "reported": "Reported",
       "approved": "Approved",
       "paymentPending": "Payment Pending",
@@ -1294,7 +1294,7 @@
     "incomplete": "Incomplete",
     "complete": "Complete",
     "myExpenseReports": "My expense reports",
-    "draft": "Draft",
+    "open": "Open",
     "submitted": "Submitted",
     "reported": "Reported",
     "approved": "Approved",
