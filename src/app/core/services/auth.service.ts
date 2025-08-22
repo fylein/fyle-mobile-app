@@ -76,7 +76,7 @@ export class AuthService {
             const roles = JSON.parse(tokenPayload.roles) as string[];
             return roles;
           } catch (e) {
-            // @ts-ignore
+            // @ts-expect-error - roles is a string in the token payload
             return tokenPayload.roles as string[];
           }
         } else {

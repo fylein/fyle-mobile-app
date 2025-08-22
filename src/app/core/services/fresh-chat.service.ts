@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { EventEmitter, Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { StorageService } from './storage.service';

@@ -17,7 +17,7 @@ export interface PlatformAccount {
   advance?: {
     id: string;
     purpose: string;
-    // eslint-disable-next-line id-blacklist
+
     number: string | number;
   };
 }

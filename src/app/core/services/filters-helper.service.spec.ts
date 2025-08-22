@@ -454,16 +454,16 @@ describe('FiltersHelperService', () => {
 
     modalController.create.and.returnValue(
       new Promise((resolve) => {
-        const filterPopoverSpy = jasmine.createSpyObj('filterPopover', ['onWillDismiss', 'present']) as any;
+        const filterPopoverSpy = jasmine.createSpyObj('filterPopover', ['onWillDismiss', 'present']);
         filterPopoverSpy.onWillDismiss.and.returnValue(
           new Promise((resInt) => {
             resInt({
               data: selectedFilters,
             });
-          })
+          }),
         );
         resolve(filterPopoverSpy);
-      })
+      }),
     );
     const result = await filterHelperService.openFilterModal(testFilters, filterOptions);
     expect(result).toEqual(expectedFilters);

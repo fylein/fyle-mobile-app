@@ -77,7 +77,6 @@ export class TransactionsOutboxService {
       this.queue = [];
     }
 
-    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < this.queue.length; i++) {
       const entry = this.queue[i];
       // In localStorage the date objects are stored as string, have to convert them to date instance
@@ -144,7 +143,7 @@ export class TransactionsOutboxService {
   }
 
   // TODO: High impact area. Fix later
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+
   addEntry(
     transaction: Partial<Transaction>,
     dataUrls: { url: string; type: string }[],
@@ -160,7 +159,7 @@ export class TransactionsOutboxService {
   }
 
   // TODO: High impact area. Fix later
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+
   addEntryAndSync(
     transaction: Partial<Transaction>,
     dataUrls: { url: string; type: string }[],

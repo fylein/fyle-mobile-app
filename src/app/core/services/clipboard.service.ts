@@ -9,7 +9,6 @@ export class ClipboardService {
 
   async writeString(textToCopy: string) {
     await Clipboard.write({
-      // eslint-disable-next-line id-blacklist
       string: textToCopy,
     });
   }

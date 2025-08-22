@@ -28,7 +28,7 @@ export interface PublicPolicyExpense {
   exchange_rate_diff_percentage: number;
   expense_number: string;
   external_id: string;
-  extracted_data: Object;
+  extracted_data: object;
   flight_journey_travel_class: string;
   flight_return_travel_class: string;
   from_dt: Date;

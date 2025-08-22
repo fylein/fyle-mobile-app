@@ -51,7 +51,7 @@ describe('VerifyNumberPopoverComponent', () => {
 
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     mobileNumberVerificationService = TestBed.inject(
-      MobileNumberVerificationService
+      MobileNumberVerificationService,
     ) as jasmine.SpyObj<MobileNumberVerificationService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
@@ -166,7 +166,7 @@ describe('VerifyNumberPopoverComponent', () => {
 
       resentOtpCta = getElementBySelector(
         fixture,
-        '.verify-number-popover__input-container__label__resend'
+        '.verify-number-popover__input-container__label__resend',
       ) as HTMLButtonElement;
     });
 
@@ -176,7 +176,7 @@ describe('VerifyNumberPopoverComponent', () => {
       mobileNumberVerificationService.sendOtp.and.returnValue(
         of({
           attempts_left: 3,
-        })
+        }),
       );
       resendOtpSpy.and.callThrough();
       click(resentOtpCta);
@@ -191,7 +191,7 @@ describe('VerifyNumberPopoverComponent', () => {
       mobileNumberVerificationService.sendOtp.and.returnValue(
         of({
           attempts_left: 0,
-        })
+        }),
       );
       resendOtpSpy.and.callThrough();
       click(resentOtpCta);
@@ -208,7 +208,7 @@ describe('VerifyNumberPopoverComponent', () => {
           error: {
             message: 'Out of attempts',
           },
-        }))
+        })),
       );
       resendOtpSpy.and.callThrough();
       click(resentOtpCta);
@@ -225,7 +225,7 @@ describe('VerifyNumberPopoverComponent', () => {
           error: {
             message: 'Max send attempts reached',
           },
-        }))
+        })),
       );
       resendOtpSpy.and.callThrough();
       click(resentOtpCta);
@@ -242,7 +242,7 @@ describe('VerifyNumberPopoverComponent', () => {
           error: {
             message: 'Invalid parameter `To`: +9112345667899',
           },
-        }))
+        })),
       );
       resendOtpSpy.and.callThrough();
       click(resentOtpCta);
@@ -257,7 +257,7 @@ describe('VerifyNumberPopoverComponent', () => {
         throwError(() => ({
           status: 400,
           error: {},
-        }))
+        })),
       );
       resendOtpSpy.and.callThrough();
       click(resentOtpCta);
@@ -286,7 +286,7 @@ describe('VerifyNumberPopoverComponent', () => {
       fixture.detectChanges();
       const errorElement = getElementBySelector(
         fixture,
-        '.verify-number-popover__input-container__error'
+        '.verify-number-popover__input-container__error',
       ) as HTMLSpanElement;
 
       expect(component.verifyOtp).toHaveBeenCalledOnceWith();
@@ -306,7 +306,7 @@ describe('VerifyNumberPopoverComponent', () => {
       fixture.detectChanges();
       const errorElement = getElementBySelector(
         fixture,
-        '.verify-number-popover__input-container__error'
+        '.verify-number-popover__input-container__error',
       ) as HTMLSpanElement;
 
       expect(mobileNumberVerificationService.verifyOtp).toHaveBeenCalledOnceWith(component.value);
@@ -322,7 +322,7 @@ describe('VerifyNumberPopoverComponent', () => {
       fixture.detectChanges();
       const errorElement = getElementBySelector(
         fixture,
-        '.verify-number-popover__input-container__error'
+        '.verify-number-popover__input-container__error',
       ) as HTMLSpanElement;
 
       expect(mobileNumberVerificationService.verifyOtp).not.toHaveBeenCalled();
@@ -333,7 +333,7 @@ describe('VerifyNumberPopoverComponent', () => {
 
   it('setError(): should set correct error messages', () => {
     errorMappings.forEach((errorMapping) => {
-      component.setError(errorMapping.type as ErrorType, errorMapping.value);
+      component.setError(errorMapping.type, errorMapping.value);
       expect(component.error).toEqual(errorMapping.error);
     });
   });

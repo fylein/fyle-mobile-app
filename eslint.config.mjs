@@ -126,8 +126,6 @@ export default defineConfig([
         "selector": "variable",
         "format": ["camelCase"]
       }],
-      // JSDoc rule
-      "jsdoc/newline-after-description": "off",
       // Console and logging rules
       "no-console": ["error", {
         allow: [""],
@@ -191,25 +189,24 @@ export default defineConfig([
       "max-len": "off",
       "space-before-function-paren": "off",
       "@typescript-eslint/quotes": "off",
-      "@typescript-eslint/explicit-function-return-type": "error",
-      "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-empty-function": "off",
-      "@typescript-eslint/no-empty-interface": "off",
-      "@typescript-eslint/no-inferrable-types": "off",
-      "no-unused-expressions": "off",
-      // TypeScript safety rules (turned off for test files)
       "@typescript-eslint/no-unsafe-call": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unsafe-assignment": "off",
       "@typescript-eslint/no-unsafe-return": "off",
       "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/no-unnecessary-type-assertion": "off",
+      "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "off",
-      // JSDoc rule (turned off for test files)
-      "jsdoc/newline-after-description": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-empty-interface": "off",
+      "@typescript-eslint/no-inferrable-types": "off",
+      "no-unused-expressions": "off",
+
+      // custom rules
       "custom-rules/space-before-it-blocks": "error",
       "custom-rules/prefer-jasmine-matchers": "error",
-      "custom-rules/prefer-resolve-to-reject-with": "error",
+      "custom-rules/prefer-resolve-to-reject-with": "error"
     },
   },
 ]);

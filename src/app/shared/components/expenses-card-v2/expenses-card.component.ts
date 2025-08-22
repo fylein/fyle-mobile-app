@@ -594,7 +594,8 @@ export class ExpensesCardComponent implements OnInit {
    * @param maxCharacters - Maximum character count for display (default: 20)
    * @param maxWordLength - Maximum length for individual words before ellipsis (default: 12)
    */
-  private processMissingFieldsForDisplay(maxCharacters: number = 20, maxWordLength: number = 12): void {
+  // eslint-disable-next-line complexity
+  private processMissingFieldsForDisplay(maxCharacters = 20, maxWordLength = 12): void {
     if (!this.missingMandatoryFieldNames.length) {
       this.missingFieldsDisplayText = '';
       this.remainingFieldsCount = 0;

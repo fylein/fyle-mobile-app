@@ -175,7 +175,7 @@ describe('MergeExpensesService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
@@ -195,19 +195,19 @@ describe('MergeExpensesService', () => {
   describe('getDependentFieldsMapping(): ', () => {
     it('should return the correct project dependent fields mapping when projects are different', () => {
       expect(
-        mergeExpensesService.getDependentFieldsMapping(expensesWithDependentFields, projectDependentFields, 'PROJECT')
+        mergeExpensesService.getDependentFieldsMapping(expensesWithDependentFields, projectDependentFields, 'PROJECT'),
       ).toEqual(dependentFieldsMappingForProject);
     });
 
     it('should return the correct project dependent fields mapping when projects are same', () => {
       expect(
-        mergeExpensesService.getDependentFieldsMapping(expensesWithSameProject, projectDependentFields, 'PROJECT')
+        mergeExpensesService.getDependentFieldsMapping(expensesWithSameProject, projectDependentFields, 'PROJECT'),
       ).toEqual(dependentFieldsMappingForSameProject);
     });
 
     it('should return empty array when there are no dependent fields', () => {
       expect(mergeExpensesService.getDependentFieldsMapping(expensesWithSameProject, null, 'PROJECT')).toEqual(
-        dependentFieldsMappingForNoDependentFields
+        dependentFieldsMappingForNoDependentFields,
       );
     });
 
@@ -216,8 +216,8 @@ describe('MergeExpensesService', () => {
         mergeExpensesService.getDependentFieldsMapping(
           expensesWithDependentFields,
           costCenterDependentFields,
-          'COST_CENTER'
-        )
+          'COST_CENTER',
+        ),
       ).toEqual(dependentFieldsMappingForCostCenter);
     });
   });
@@ -275,7 +275,7 @@ describe('MergeExpensesService', () => {
 
     it('should return false if default expenses is not present', () => {
       expect(
-        mergeExpensesService.isReportedOrAbove({ isReportedAndAbove: true, ...expenseInfoWithoutDefaultExpense })
+        mergeExpensesService.isReportedOrAbove({ isReportedAndAbove: true, ...expenseInfoWithoutDefaultExpense }),
       ).toBeFalse();
     });
   });
@@ -284,7 +284,7 @@ describe('MergeExpensesService', () => {
     it('should set the default expense to keep', () => {
       spyOn(mergeExpensesService, 'checkIfAdvanceExpensePresent').and.returnValue([mergeExpenseData1[1]]);
       expect(mergeExpensesService.setDefaultExpenseToKeep(mergeExpenseData1)).toEqual(
-        expensesInfoWithMultipleAdvanceExpenses
+        expensesInfoWithMultipleAdvanceExpenses,
       );
       expect(mergeExpensesService.checkIfAdvanceExpensePresent).toHaveBeenCalledOnceWith(mergeExpenseData1);
     });
@@ -298,7 +298,7 @@ describe('MergeExpensesService', () => {
     it('should set default expenses when advance expense is not present and all expenses are reported and above', () => {
       spyOn(mergeExpensesService, 'checkIfAdvanceExpensePresent').and.returnValue([]);
       expect(mergeExpensesService.setDefaultExpenseToKeep([apiExpenseRes[0], apiExpenseRes[0]])).toEqual(
-        expensesInfoWithReportedExpenseAndNoAdvance
+        expensesInfoWithReportedExpenseAndNoAdvance,
       );
       expect(mergeExpensesService.checkIfAdvanceExpensePresent).toHaveBeenCalledOnceWith([
         apiExpenseRes[0],
@@ -329,14 +329,14 @@ describe('MergeExpensesService', () => {
     it('should return the payment mode options when payment mode is personal cash', () => {
       // @ts-ignore
       expect(mergeExpensesService.formatPaymentModeOptions({ value: AccountType.PERSONAL })).toEqual(
-        paymentModeOptions1
+        paymentModeOptions1,
       );
     });
 
     it('should return the payment mode options when payment mode is advance', () => {
       // @ts-ignore
       expect(mergeExpensesService.formatPaymentModeOptions({ value: AccountType.ADVANCE })).toEqual(
-        paymentModeOptions2
+        paymentModeOptions2,
       );
     });
 
@@ -394,7 +394,7 @@ describe('MergeExpensesService', () => {
       expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData.file_ids);
       expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
         generateUrlsBulkData1[0].name,
-        generateUrlsBulkData1[0].download_url
+        generateUrlsBulkData1[0].download_url,
       );
       done();
     });
@@ -467,7 +467,7 @@ describe('MergeExpensesService', () => {
     it('should return false if more than one advance is not present', () => {
       // @ts-ignore
       expect(
-        mergeExpensesService.isMoreThanOneAdvancePresent(expensesInfoWithMultipleAdvanceExpenses, false)
+        mergeExpensesService.isMoreThanOneAdvancePresent(expensesInfoWithMultipleAdvanceExpenses, false),
       ).toBeFalse();
     });
 
@@ -735,7 +735,7 @@ describe('MergeExpensesService', () => {
 
     it('should return undefined if option is empty array', () => {
       expect(
-        mergeExpensesService.getFieldValue({ ...optionsData13, areSameValues: true, options: [] })
+        mergeExpensesService.getFieldValue({ ...optionsData13, areSameValues: true, options: [] }),
       ).toBeUndefined();
     });
   });
@@ -899,7 +899,7 @@ describe('MergeExpensesService', () => {
         mergeExpensesOptionData4[0],
         null,
         mergeExpensesOptionData4[0].value,
-        mergeExpensesOptionData4[0].value
+        mergeExpensesOptionData4[0].value,
       );
       expect(res).toEqual(mergeExpensesOptionData4[0].value);
     });
@@ -909,7 +909,7 @@ describe('MergeExpensesService', () => {
         undefined,
         null,
         mergeExpensesOptionData4[0].value,
-        mergeExpensesOptionData4[0].value
+        mergeExpensesOptionData4[0].value,
       );
       expect(res).toEqual(mergeExpensesOptionData4[0].value);
     });
@@ -919,7 +919,7 @@ describe('MergeExpensesService', () => {
         mergeExpensesOptionData4[0],
         true,
         null,
-        mergeExpensesOptionData4[1].value
+        mergeExpensesOptionData4[1].value,
       );
       expect(res).toEqual(mergeExpensesOptionData4[1].value);
     });
@@ -1004,7 +1004,6 @@ describe('MergeExpensesService', () => {
       // @ts-ignore
       const res = mergeExpensesService.formatCustomInputOptions(mockOptions);
       const expectedRes = {
-        // eslint-disable-next-line quote-props
         userlist: mockOptions[0],
       };
       expect(res).toEqual(expectedRes);
@@ -1019,7 +1018,6 @@ describe('MergeExpensesService', () => {
       // @ts-ignore
       const res = mergeExpensesService.formatCustomInputOptions(mockOptions);
       const expectedRes = {
-        // eslint-disable-next-line quote-props
         numberfield: {
           options: [],
           ...mockOptions[0],
