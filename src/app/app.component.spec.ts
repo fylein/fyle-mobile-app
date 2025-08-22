@@ -604,7 +604,6 @@ describe('AppComponent', () => {
 
       expect(component.showFooter).toBeTrue();
     });
-
     it('should set isOnline property based on network status', () => {
       const fixture = TestBed.createComponent(AppComponent);
       const component = fixture.debugElement.componentInstance;
