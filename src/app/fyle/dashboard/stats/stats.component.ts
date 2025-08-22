@@ -40,8 +40,6 @@ export class StatsComponent implements OnInit {
 
   private paymentModeService = inject(PaymentModesService);
 
-  processingStats$: Observable<PlatformReportsStatsResponse>;
-
   homeCurrency$: Observable<string>;
 
   isConnected$: Observable<boolean>;

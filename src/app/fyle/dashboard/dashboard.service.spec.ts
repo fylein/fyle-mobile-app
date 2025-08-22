@@ -24,8 +24,8 @@ import { DashboardService } from './dashboard.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportStates } from './stat-badge/report-states.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { TranslocoService } from '@jsverse/transloco';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -34,69 +34,50 @@ describe('DashboardService', () => {
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let approverReportService: jasmine.SpyObj<ApproverReportsService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getGroupedReportsStats']);
     const approverReportServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
-
-    // Mock translate method to return expected strings
-    translocoServiceSpy.translate.and.callFake((key: string) => {
-      const translations: { [key: string]: string } = {
-        'services.dashboard.draft': 'Draft',
-        'services.dashboard.reported': 'Reported',
-        'services.dashboard.approved': 'Approved',
-        'services.dashboard.paymentPending': 'Payment Pending',
-        'services.dashboard.processing': 'Processing',
-      };
-      return translations[key] || key;
-    });
 
     TestBed.configureTestingModule({
-    imports: [],
-    providers: [
+      imports: [getTranslocoModule()],
+      providers: [
         DashboardService,
         CorporateCreditCardExpenseService,
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
-            provide: SpenderReportsService,
-            useValue: spenderReportsServiceSpy,
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
         },
         {
-            provide: ApproverReportsService,
-            useValue: approverReportServiceSpy,
+          provide: ApproverReportsService,
+          useValue: approverReportServiceSpy,
         },
         {
-            provide: SpenderPlatformV1ApiService,
-            useValue: spenderPlatformV1ApiServiceSpy,
-        },
-        {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-});
+      ],
+    });
     dashboardService = TestBed.inject(DashboardService);
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     approverReportService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -180,7 +161,7 @@ describe('DashboardService', () => {
       expect(res).toEqual(expectedAssignedCCCStats);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(
         '/corporate_card_transactions/expenses/stats',
-        config
+        config,
       );
       done();
     });
@@ -205,8 +186,8 @@ describe('DashboardService', () => {
       expect(dashboardService.getReportStateMapping(ReportStates.APPROVED)).toEqual('Approved');
     });
 
-    it('should return "Draft" if report state is DRAFT', () => {
-      expect(dashboardService.getReportStateMapping(ReportStates.DRAFT)).toEqual('Draft');
+    it('should return "Open" if report state is OPEN', () => {
+      expect(dashboardService.getReportStateMapping(ReportStates.OPEN)).toEqual('Open');
     });
 
     it('should return "Payment Pending" if report state is PAYMENT_PENDING', () => {
@@ -235,7 +216,7 @@ describe('DashboardService', () => {
     });
 
     it('should preserve actual values when they are not null', () => {
-      const statWithValues = expectedGroupedReportStats[4]; // PAYMENT_PROCESSING
+      const statWithValues = expectedGroupedReportStats[5]; // PAYMENT_PROCESSING
       const result = (dashboardService as any).transformStat(statWithValues);
       expect(result).toEqual(expectedReportStats.processing);
     });
