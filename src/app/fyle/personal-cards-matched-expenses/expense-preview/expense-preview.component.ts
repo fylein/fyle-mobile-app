@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
 import { finalize, map } from 'rxjs/operators';
@@ -37,11 +37,11 @@ export class ExpensePreviewComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
-  @Input() expenseId: string;
+  expenseId: string;
 
-  @Input() card: string;
+  card: string;
 
-  @Input() cardTxnId: string;
+  cardTxnId: string;
 
   expenseDetails$: Observable<Expense>;
 

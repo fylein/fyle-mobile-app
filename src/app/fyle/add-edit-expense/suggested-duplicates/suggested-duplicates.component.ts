@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
@@ -31,7 +31,7 @@ export class SuggestedDuplicatesComponent {
 
   private translocoService = inject(TranslocoService);
 
-  @Input() duplicateExpenseIDs: string[];
+  duplicateExpenseIDs: string[];
 
   duplicateExpenses: Expense[] = [];
 

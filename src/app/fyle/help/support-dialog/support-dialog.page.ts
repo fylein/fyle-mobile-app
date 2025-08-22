@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { NavParams } from '@ionic/angular';
 import { TrackingService } from '../../../core/services/tracking.service';
@@ -20,7 +20,7 @@ export class SupportDialogPage {
 
   private browserHandlerService = inject(BrowserHandlerService);
 
-  @Input() adminEous: HelpAdminInfo[] = [];
+  adminEous: HelpAdminInfo[] = [];
 
   dialogType = this.navParams.get<string>('type');
 

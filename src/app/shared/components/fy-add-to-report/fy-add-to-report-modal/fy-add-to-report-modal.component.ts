@@ -4,7 +4,6 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
-  Input,
   ChangeDetectorRef,
   TemplateRef,
   inject,
@@ -31,25 +30,25 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() options: Option[] = [];
+  options: Option[] = [];
 
-  @Input() currentSelection: Report;
+  currentSelection: Report;
 
-  @Input() selectionElement: TemplateRef<ElementRef>;
+  selectionElement: TemplateRef<ElementRef>;
 
-  @Input() showNullOption = true;
+  showNullOption = true;
 
-  @Input() cacheName;
+  cacheName;
 
-  @Input() customInput = false;
+  customInput = false;
 
-  @Input() subheader;
+  subheader;
 
-  @Input() enableSearch;
+  enableSearch;
 
-  @Input() autoSubmissionReportName: string;
+  autoSubmissionReportName: string;
 
-  @Input() isNewReportsFlowEnabled = false;
+  isNewReportsFlowEnabled = false;
 
   reportCurrencySymbol: string;
 

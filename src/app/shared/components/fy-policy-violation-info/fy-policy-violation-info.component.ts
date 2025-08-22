@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -18,11 +18,11 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   private modalProperties = inject(ModalPropertiesService);
 
-  @Input() policyDetails: PolicyDetail[] | undefined;
+  policyDetails: PolicyDetail[] | undefined;
 
-  @Input() criticalPolicyViolated: boolean | undefined;
+  criticalPolicyViolated: boolean | undefined;
 
-  @Input() expense: Expense | UnflattenedTransaction;
+  expense: Expense | UnflattenedTransaction;
 
   policyViolations: string[] = [];
 

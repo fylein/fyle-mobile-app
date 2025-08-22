@@ -52,15 +52,15 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   private translocoService = inject(TranslocoService);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() currentSelection: any;
+  currentSelection: any;
 
-  @Input() header = '';
+  header = '';
 
-  @Input() recentLocations: string[];
+  recentLocations: string[];
 
-  @Input() cacheName: any;
+  cacheName: any;
 
-  @Input() disableEnteringManualLocation = false;
+  disableEnteringManualLocation = false;
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 

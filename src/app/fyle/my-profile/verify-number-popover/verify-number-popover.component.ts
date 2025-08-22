@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -21,7 +21,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
-  @Input() extendedOrgUser: ExtendedOrgUser;
+  extendedOrgUser: ExtendedOrgUser;
 
   value: string;
 

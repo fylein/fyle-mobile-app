@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -10,7 +10,7 @@ import { PopoverController } from '@ionic/angular';
 export class EditReportNamePopoverComponent implements OnInit {
   private popoverController = inject(PopoverController);
 
-  @Input() reportName: string;
+  reportName: string;
 
   @ViewChild('reportNameInput') reportNameInput: ElementRef<HTMLInputElement>;
 

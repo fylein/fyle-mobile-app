@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { finalize, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -23,15 +23,15 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
 
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
-  @Input() title: string;
+  title: string;
 
-  @Input() ctaText: string;
+  ctaText: string;
 
-  @Input() inputLabel: string;
+  inputLabel: string;
 
-  @Input() extendedOrgUser: ExtendedOrgUser;
+  extendedOrgUser: ExtendedOrgUser;
 
-  @Input() placeholder: string;
+  placeholder: string;
 
   inputValue: string;
 

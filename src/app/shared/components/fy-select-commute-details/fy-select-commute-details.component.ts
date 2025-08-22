@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController } from '@ionic/angular';
@@ -40,7 +40,7 @@ export class FySelectCommuteDetailsComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
-  @Input() existingCommuteDetails?: CommuteDetails;
+  existingCommuteDetails?: CommuteDetails;
 
   commuteDetails: UntypedFormGroup;
 

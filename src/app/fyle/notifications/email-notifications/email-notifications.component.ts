@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ModalController, Platform } from '@ionic/angular';
 import { finalize, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
@@ -14,13 +14,13 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   standalone: false,
 })
 export class EmailNotificationsComponent implements OnInit {
-  @Input() title: string;
+  title: string;
 
-  @Input() notifications: NotificationEventItem[];
+  notifications: NotificationEventItem[];
 
-  @Input() employeeSettings: EmployeeSettings;
+  employeeSettings: EmployeeSettings;
 
-  @Input() unsubscribedEventsByUser: string[];
+  unsubscribedEventsByUser: string[];
 
   isLongTitle = false;
 

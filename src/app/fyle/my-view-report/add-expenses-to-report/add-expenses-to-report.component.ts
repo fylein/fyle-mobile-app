@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -18,9 +18,9 @@ export class AddExpensesToReportComponent implements OnInit {
 
   private router = inject(Router);
 
-  @Input() unreportedExpenses: Expense[];
+  unreportedExpenses: Expense[];
 
-  @Input() reportId: string;
+  reportId: string;
 
   homeCurrency$: Observable<string>;
 

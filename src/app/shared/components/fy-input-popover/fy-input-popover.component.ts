@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -15,19 +15,19 @@ export class FyInputPopoverComponent implements AfterViewInit {
 
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
-  @Input() title: string;
+  title: string;
 
-  @Input() ctaText: string;
+  ctaText: string;
 
-  @Input() inputLabel: string;
+  inputLabel: string;
 
-  @Input() inputValue = '';
+  inputValue = '';
 
-  @Input() inputType = 'text';
+  inputType = 'text';
 
-  @Input() isRequired = true;
+  isRequired = true;
 
-  @Input() placeholder: string;
+  placeholder: string;
 
   error: string;
 

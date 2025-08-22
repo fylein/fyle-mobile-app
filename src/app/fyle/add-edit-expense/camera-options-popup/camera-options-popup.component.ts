@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
@@ -25,7 +25,7 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
-  @Input() mode: string;
+  mode: string;
 
   @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
 

@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
 @Component({
@@ -10,21 +10,21 @@ import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
 export class PopupAlertComponent {
   private popoverController = inject(PopoverController);
 
-  @Input() title: string;
+  title: string;
 
-  @Input() message: string;
+  message: string;
 
-  @Input() secondaryMsg: string;
+  secondaryMsg: string;
 
-  @Input() leftAlign = false;
+  leftAlign = false;
 
-  @Input() primaryCta: { text: string; action: string; type?: string };
+  primaryCta: { text: string; action: string; type?: string };
 
-  @Input() secondaryCta: { text: string; action: string; type?: string };
+  secondaryCta: { text: string; action: string; type?: string };
 
-  @Input() flaggedExpensesCount = 0;
+  flaggedExpensesCount = 0;
 
-  @Input() cardsList: PopoverCardsList;
+  cardsList: PopoverCardsList;
 
   ctaClickedEvent(action: string): void {
     this.popoverController.dismiss({

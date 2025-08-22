@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -30,13 +30,13 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
 
   private loaderService = inject(LoaderService);
 
-  @Input() amount!: number;
+  amount!: number;
 
-  @Input() currentCurrency!: string;
+  currentCurrency!: string;
 
-  @Input() newCurrency!: string;
+  newCurrency!: string;
 
-  @Input() txnDt!: Date;
+  txnDt!: Date;
 
   fg: UntypedFormGroup;
 
