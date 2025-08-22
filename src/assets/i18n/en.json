@@ -1306,14 +1306,11 @@
     "offlineMessage": "Fear not, you can still add expenses offline."
   },
   "shareReport": {
-    "title": "Share report",
-    "cancel": "Cancel",
-    "details": "Share report via email.",
+    "title": "Share expense report",
     "emailPlaceholder": "Email ID",
-    "invalidEmail": "Please enter a valid email",
-    "ctaButton": "Pull back",
     "share": "Share",
-    "shareWith": "Share report with"
+    "shareWith": "Share report with",
+    "errorMessage": "Please enter a valid email address"
   },
   "advanceActions": {
     "approveAdvance": "Approve advance",
@@ -1494,7 +1491,7 @@
     "addExpenseTitle": "Add expense",
     "reviewExpenseTitle": "Review expense",
     "editExpenseTitle": "Edit expense",
-    "reviewTitle": "Review",
+    "reviewTitle": "Review expense",
     "receiptMandatoryError": "Please upload the receipt.",
     "incompleteExpenseError": "Mandatory field values are missing. Please update the details and save the Expense.",
     "duplicateExpenseWarning": "This expense might be a duplicate of an existing expense.",

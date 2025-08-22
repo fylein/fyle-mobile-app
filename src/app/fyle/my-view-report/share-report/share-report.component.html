@@ -10,11 +10,7 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button
-        [disabled]="!emailInput.value || emailInput.invalid"
-        class="share-report--toolbar__btn-share"
-        (click)="shareReport(emailInput)"
-      >
+      <ion-button class="share-report--toolbar__btn-share" (click)="shareReport(emailInput)">
         {{ 'shareReport.share' | transloco }}
       </ion-button>
     </ion-buttons>
@@ -33,4 +29,9 @@
     #emailInput="ngModel"
     class="share-report--input-container__input smartlook-show"
   />
+  @if (emailInput.invalid && emailInput.control.errors.invalidAfterSubmit) {
+    <div class="share-report--input-container__error-message">
+      {{ 'shareReport.errorMessage' | transloco }}
+    </div>
+  }
 </div>
