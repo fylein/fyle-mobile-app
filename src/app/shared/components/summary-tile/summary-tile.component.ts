@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject, input } from '@angular/core';
 import { AdvanceApprover } from 'src/app/core/models/advance-approver.model';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { TranslocoService } from '@jsverse/transloco';
@@ -11,33 +11,49 @@ import { TranslocoService } from '@jsverse/transloco';
 export class FySummaryTileComponent implements OnInit, OnChanges {
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() category: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() merchant: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() project: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currency: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() amount: number;
 
-  @Input() paymentModeIcon: string;
+  readonly paymentModeIcon = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() purpose: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() status: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() approvals: AdvanceApprover[];
 
-  @Input() orig_currency: string;
+  readonly orig_currency = input<string>(undefined);
 
-  @Input() actions: AdvanceRequestActions;
+  readonly actions = input<AdvanceRequestActions>(undefined);
 
-  @Input() id: string;
+  readonly id = input<string>(undefined);
 
-  @Input() ownerEmail: string;
+  readonly ownerEmail = input<string>(undefined);
 
-  @Input() approverEmails: string[];
+  readonly approverEmails = input<string[]>(undefined);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ngOnChanges(changes: SimpleChanges): void {

@@ -8,6 +8,7 @@ import {
   Output,
   TemplateRef,
   inject,
+  input,
 } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -37,42 +38,58 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   private injector = inject(Injector);
 
-  @Input() amountOptionsData: MergeExpensesOptionsData<string>;
+  readonly amountOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() receiptOptions: MergeExpensesOption<string>[];
 
-  @Input() dateOfSpendOptionsData: MergeExpensesOptionsData<string>;
+  readonly dateOfSpendOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() paymentModeOptionsData: MergeExpensesOptionsData<string>;
+  readonly paymentModeOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() attachments: FileObject[];
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() projectOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() billableOptionsData: MergeExpensesOptionsData<string>;
+  readonly billableOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() categoryOptionsData: MergeExpensesOptionsData<string>;
+  readonly categoryOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() vendorOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() taxGroupOptionsData: MergeExpensesOptionsData<string>;
+  readonly taxGroupOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() taxAmountOptionsData: MergeExpensesOptionsData<string>;
+  readonly taxAmountOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() constCenterOptionsData: MergeExpensesOptionsData<string>;
+  readonly constCenterOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() purposeOptionsData: MergeExpensesOptionsData<string>;
+  readonly purposeOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() categoryDependentTemplate: TemplateRef<string[]>;
+  readonly categoryDependentTemplate = input<TemplateRef<string[]>>(undefined);
 
-  @Input() CCCTxns: corporateCardTransaction[];
+  readonly CCCTxns = input<corporateCardTransaction[]>(undefined);
 
-  @Input() disableFormElements: boolean;
+  readonly disableFormElements = input<boolean>(undefined);
 
-  @Input() showBillable: boolean;
+  readonly showBillable = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() projectDependentFieldsMapping: { [id: number]: CustomProperty<string>[] };
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() costCenterDependentFieldsMapping: { [id: number]: CustomProperty<string>[] };
 
   @Output() fieldsTouched = new EventEmitter<string[]>();

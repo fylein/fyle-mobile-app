@@ -12,6 +12,8 @@ import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.m
 export class ShowAllApproversPopoverComponent {
   private popoverController = inject(PopoverController);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() approvals: ReportApprovals[];
 
   approvalState: typeof ApprovalState = ApprovalState;

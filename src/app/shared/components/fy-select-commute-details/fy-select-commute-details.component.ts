@@ -40,6 +40,8 @@ export class FySelectCommuteDetailsComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() existingCommuteDetails?: CommuteDetails;
 
   commuteDetails: UntypedFormGroup;

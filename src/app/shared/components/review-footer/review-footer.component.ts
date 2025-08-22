@@ -11,12 +11,20 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 export class ReviewFooterComponent implements OnInit {
   private trackingService = inject(TrackingService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeIndex: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() reviewList: Array<Expense>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() saveAndPrevLoader: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() saveAndNextLoader: boolean;
 
   @Output() saveAndGoToPrev = new EventEmitter();

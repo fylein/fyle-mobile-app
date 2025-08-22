@@ -8,6 +8,8 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
   standalone: false,
 })
 export class TransactionStatusComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() transactionStatus: ExpenseTransactionStatus;
 
   @Output() statusClick: EventEmitter<ExpenseTransactionStatus> = new EventEmitter<ExpenseTransactionStatus>();

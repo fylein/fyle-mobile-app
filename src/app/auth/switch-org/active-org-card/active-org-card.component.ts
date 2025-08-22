@@ -8,10 +8,16 @@ import { Org } from 'src/app/core/models/org.model';
   standalone: false,
 })
 export class ActiveOrgCardComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() org: Org;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isPrimaryOrg: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isLoading = false;
 
   @Output() orgSelected = new EventEmitter<void>();

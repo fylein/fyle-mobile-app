@@ -7,6 +7,8 @@ import { Component, OnInit, Input } from '@angular/core';
   standalone: false,
 })
 export class FyLoadingScreenComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isSelectionModeEnabled: boolean;
 
   rows = [1, 2, 3, 4, 5];

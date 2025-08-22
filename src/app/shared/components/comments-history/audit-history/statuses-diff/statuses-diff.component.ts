@@ -7,8 +7,12 @@ import { Component, OnInit, Input } from '@angular/core';
   standalone: false,
 })
 export class StatusesDiffComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() key;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() value;
 
   isValueList: boolean;

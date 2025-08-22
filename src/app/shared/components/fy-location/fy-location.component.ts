@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, inject } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, inject, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -20,27 +20,31 @@ import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.
 export class FyLocationComponent implements ControlValueAccessor, OnInit {
   private modalController = inject(ModalController);
 
-  @Input() label = 'location';
+  readonly label = input('location');
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
-  @Input() disabled = false;
+  readonly disabled = input(false);
 
-  @Input() allowCustom = false;
+  readonly allowCustom = input(false);
 
-  @Input() hideSuffix = false;
+  readonly hideSuffix = input(false);
 
-  @Input() recentLocations: string[] = [];
+  readonly recentLocations = input<string[]>([]);
 
-  @Input() cacheName;
+  readonly cacheName = input<string>(undefined);
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() validInParent: boolean;
 
-  @Input() disableEnteringManualLocation? = false;
+  readonly disableEnteringManualLocation = input<boolean>(false);
 
   displayValue;
 
@@ -82,15 +86,15 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   ngOnInit() {}
 
   async openModal() {
-    if (!this.disabled) {
+    if (!this.disabled()) {
       const selectionModal = await this.modalController.create({
         component: FyLocationModalComponent,
         componentProps: {
           currentSelection: this.value,
-          allowCustom: this.allowCustom,
-          recentLocations: this.recentLocations,
-          cacheName: this.cacheName,
-          disableEnteringManualLocation: this.disableEnteringManualLocation,
+          allowCustom: this.allowCustom(),
+          recentLocations: this.recentLocations(),
+          cacheName: this.cacheName(),
+          disableEnteringManualLocation: this.disableEnteringManualLocation(),
         },
       });
 

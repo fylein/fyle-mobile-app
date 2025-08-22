@@ -23,11 +23,9 @@
                 type="tel"
                 [maxlength]="15"
                 [minlength]="7"
-                />
+              />
               @if (mobileNumberError?.length) {
-                <span class="opt-in-step__mobile-input-container__error">{{
-                  mobileNumberError
-                }}</span>
+                <span class="opt-in-step__mobile-input-container__error">{{ mobileNumberError }}</span>
               }
             </div>
           }
@@ -55,7 +53,7 @@
               <span class="opt-in-step__otp-container__label__otp-timer">
                 {{ 'spenderOnboardingOptInStep.resendCodeTimerPrefix' | transloco }}
                 <span class="opt-in-step__otp-container__label__otp-timer__timer">
-                  0:{{ otpTimer | number : '2.0' }}
+                  0:{{ otpTimer | number: '2.0' }}
                 </span>
                 <span class="opt-in-step__otp-container__label__attempts">
                   ({{ otpAttemptsLeft }} {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})
@@ -70,71 +68,67 @@
                   buttonType="secondary"
                   [loading]="sendCodeLoading"
                   [loadingText]="'spenderOnboardingOptInStep.sendingCodeLoader' | transloco"
-                  >
+                >
                   {{ 'spenderOnboardingOptInStep.resendCode' | transloco }}
                 </button>
                 <span class="opt-in-step__otp-container__label__attempts"
                   >({{ otpAttemptsLeft }} {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})</span
-                  >
-                }
-                @if (disableResendOtp) {
-                  <div class="opt-in-step__otp-container__label__resend__disabled-container">
-                    <span class="opt-in-step__otp-container__label__resend__disabled">
-                      {{ 'spenderOnboardingOptInStep.resendCode' | transloco }}
-                    </span>
-                    <span class="opt-in-step__otp-container__label__attempts"
-                      >(0 {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})</span
-                      >
-                    </div>
-                  }
-                }
+                >
               }
-            </div>
-          }
-          @if (optInFlowState === OptInFlowState.SUCCESS) {
-            <div class="opt-in-step__success">
-              <ion-icon
-                class="fy-icon opt-in-step__success__image-container"
-                src="/assets/svg/check-circle-fill.svg"
-              ></ion-icon>
-              <div class="opt-in-step__success__header">{{ 'spenderOnboardingOptInStep.successHeader' | transloco }}</div>
-              <div class="opt-in-step__success__description">
-                {{ 'spenderOnboardingOptInStep.successDescription' | transloco }}
-              </div>
-            </div>
+              @if (disableResendOtp) {
+                <div class="opt-in-step__otp-container__label__resend__disabled-container">
+                  <span class="opt-in-step__otp-container__label__resend__disabled">
+                    {{ 'spenderOnboardingOptInStep.resendCode' | transloco }}
+                  </span>
+                  <span class="opt-in-step__otp-container__label__attempts"
+                    >(0 {{ 'spenderOnboardingOptInStep.attemptsLeft' | transloco }})</span
+                  >
+                </div>
+              }
+            }
           }
         </div>
-      </div>
-
-      <div
-        class="opt-in-step__cta-container"
-    [ngClass]="{
-      'opt-in-step__without-go-back': !(isConnectCardsSkipped && !areCardsEnrolled),
-      'opt-in-step__with-go-back': isConnectCardsSkipped && !areCardsEnrolled
-    }"
-        >
-        @if (isConnectCardsSkipped && !areCardsEnrolled) {
-          <div
-            fill="clear"
-            class="opt-in-step__cta-secondary"
-            (click)="goBackToConnectCard()"
-            >
-            <ion-icon class="opt-in-step__arrow-icon" [src]="'/assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
-            <span class="opt-in-step__cta-text">{{ 'spenderOnboardingOptInStep.goBack' | transloco }}</span>
+      }
+      @if (optInFlowState === OptInFlowState.SUCCESS) {
+        <div class="opt-in-step__success">
+          <ion-icon
+            class="fy-icon opt-in-step__success__image-container"
+            src="/assets/svg/check-circle-fill.svg"
+          ></ion-icon>
+          <div class="opt-in-step__success__header">{{ 'spenderOnboardingOptInStep.successHeader' | transloco }}</div>
+          <div class="opt-in-step__success__description">
+            {{ 'spenderOnboardingOptInStep.successDescription' | transloco }}
           </div>
-        }
-        @if (optInFlowState === OptInFlowState.MOBILE_INPUT) {
-          <ion-button
-            class="btn-primary opt-in-step__primary-cta"
-            fill="clear"
-            role="button"
-            appFormButtonValidation
-            (click)="saveMobileNumber()"
-            [loading]="savingMobileNumber"
-            [loadingText]="'spenderOnboardingOptInStep.continue' | transloco"
-            >
-            {{ 'spenderOnboardingOptInStep.continue' | transloco }}
-          </ion-button>
-        }
-      </div>
+        </div>
+      }
     </div>
+  </div>
+
+  <div
+    class="opt-in-step__cta-container"
+    [ngClass]="{
+      'opt-in-step__without-go-back': !(isConnectCardsSkipped && !areCardsEnrolled()),
+      'opt-in-step__with-go-back': isConnectCardsSkipped && !areCardsEnrolled(),
+    }"
+  >
+    @if (isConnectCardsSkipped && !areCardsEnrolled()) {
+      <div fill="clear" class="opt-in-step__cta-secondary" (click)="goBackToConnectCard()">
+        <ion-icon class="opt-in-step__arrow-icon" [src]="'/assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
+        <span class="opt-in-step__cta-text">{{ 'spenderOnboardingOptInStep.goBack' | transloco }}</span>
+      </div>
+    }
+    @if (optInFlowState === OptInFlowState.MOBILE_INPUT) {
+      <ion-button
+        class="btn-primary opt-in-step__primary-cta"
+        fill="clear"
+        role="button"
+        appFormButtonValidation
+        (click)="saveMobileNumber()"
+        [loading]="savingMobileNumber"
+        [loadingText]="'spenderOnboardingOptInStep.continue' | transloco"
+      >
+        {{ 'spenderOnboardingOptInStep.continue' | transloco }}
+      </ion-button>
+    }
+  </div>
+</div>

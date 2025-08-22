@@ -10,8 +10,12 @@ import { EventEmitter } from '@angular/core';
   standalone: false,
 })
 export class SidemenuHeaderComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() eou: ExtendedOrgUser;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeOrg: Org;
 
   @Output() profileClicked = new EventEmitter();

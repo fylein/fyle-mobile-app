@@ -8,10 +8,16 @@ import { Component, Input, Output, EventEmitter, ViewEncapsulation } from '@angu
   standalone: false,
 })
 export class FyExpansionInfoMsgComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() infoMsgContent = '';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() showHelpLink = false;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() helpLinkLabel: string;
 
   @Output() helpLinkClick = new EventEmitter<void>();

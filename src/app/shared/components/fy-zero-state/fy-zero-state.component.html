@@ -1,23 +1,23 @@
 <div class="zero-state">
   <img
     class="zero-state--image"
-    [ngClass]="{ 'zero-state--image__unscaled': unscaledImage }"
-    [src]="image"
-    [ngStyle]="taskImageStyle"
+    [ngClass]="{ 'zero-state--image__unscaled': unscaledImage() }"
+    [src]="image()"
+    [ngStyle]="taskImageStyle()"
     [alt]="'fyZeroState.altText' | transloco"
   />
   @if (header) {
-    <div [ngClass]="{ 'zero-state--header__new': useNewStyling }" class="zero-state--header">
+    <div [ngClass]="{ 'zero-state--header__new': useNewStyling() }" class="zero-state--header">
       {{ header }}
     </div>
   }
   @if (message) {
-    <div #messageRef [ngClass]="{ 'zero-state--description__new': useNewStyling }" class="zero-state--description">
+    <div #messageRef [ngClass]="{ 'zero-state--description__new': useNewStyling() }" class="zero-state--description">
       {{ message }}
     </div>
   }
   @if (submessage) {
-    <div [ngClass]="{ 'zero-state--description__new': useNewStyling }" class="zero-state--description">
+    <div [ngClass]="{ 'zero-state--description__new': useNewStyling() }" class="zero-state--description">
       {{ submessage }}
     </div>
   }

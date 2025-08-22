@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, input } from '@angular/core';
 import SwiperCore, { Pagination } from 'swiper';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { PaginationOptions } from 'swiper/types';
@@ -13,12 +13,16 @@ SwiperCore.use([Pagination]);
   standalone: false,
 })
 export class SpentCardsComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() cardDetails: PlatformCorporateCardDetail[];
 
-  @Input() homeCurrency: string;
+  readonly homeCurrency = input<string>(undefined);
 
-  @Input() currencySymbol: string;
+  readonly currencySymbol = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() showAddCardSlide: boolean;
 
   @Output() addCardClick = new EventEmitter<void>();

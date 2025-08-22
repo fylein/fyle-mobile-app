@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, input } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -17,11 +17,13 @@ export class CardDetailComponent {
 
   private orgSettingService = inject(OrgSettingsService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() cardDetail: PlatformCorporateCardDetail;
 
-  @Input() homeCurrency: string;
+  readonly homeCurrency = input<string>(undefined);
 
-  @Input() currencySymbol: string;
+  readonly currencySymbol = input<string>(undefined);
 
   // To track if the screen is small (320px or below)
   isSmallScreen = window.innerWidth <= 320;

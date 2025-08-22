@@ -8,6 +8,7 @@ import {
   Output,
   EventEmitter,
   inject,
+  input,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
@@ -35,33 +36,41 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   private modalProperties = inject(ModalPropertiesService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mandatory = false;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label: string;
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
-  @Input() cacheName: string;
+  readonly cacheName = input<string>(undefined);
 
-  @Input() selectionElement: TemplateRef<ElementRef>;
+  readonly selectionElement = input<TemplateRef<ElementRef>>(undefined);
 
-  @Input() categoryIds: string[];
+  readonly categoryIds = input<string[]>(undefined);
 
-  @Input() defaultValue = false;
+  readonly defaultValue = input(false);
 
-  @Input() recentlyUsed: ProjectOption[];
+  readonly recentlyUsed = input<ProjectOption[]>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() validInParent: boolean;
 
-  @Input() isProjectCategoryRestrictionsEnabled: boolean;
+  readonly isProjectCategoryRestrictionsEnabled = input<boolean>(undefined);
 
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() isSelectedProjectDisabled: boolean;
+  readonly isSelectedProjectDisabled = input<boolean>(undefined);
 
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() selectedDisabledProject: ProjectV2;
+  readonly selectedDisabledProject = input<ProjectV2>(undefined);
 
   @Output() valueChange = new EventEmitter<ProjectV2>();
 
@@ -109,15 +118,15 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
       component: FyProjectSelectModalComponent,
       componentProps: {
         currentSelection: this.value,
-        cacheName: this.cacheName,
-        selectionElement: this.selectionElement,
-        categoryIds: this.categoryIds,
-        defaultValue: this.defaultValue,
-        recentlyUsed: this.recentlyUsed,
+        cacheName: this.cacheName(),
+        selectionElement: this.selectionElement(),
+        categoryIds: this.categoryIds(),
+        defaultValue: this.defaultValue(),
+        recentlyUsed: this.recentlyUsed(),
         label: this.label,
-        isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled,
-        isSelectedProjectDisabled: this.isSelectedProjectDisabled,
-        selectedDisabledProject: this.selectedDisabledProject,
+        isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled(),
+        isSelectedProjectDisabled: this.isSelectedProjectDisabled(),
+        selectedDisabledProject: this.selectedDisabledProject(),
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),

@@ -3,7 +3,7 @@
     <span>
       {{ label }}
     </span>
-    @if (mandatory) {
+    @if (mandatory()) {
       <span class="fy-select--mandatory"> * </span>
     }
   </div>
@@ -15,12 +15,12 @@
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
-      [ngClass]="{ 'fy-select--input-disabled': disabled }"
-      [disabled]="disabled"
-      />
+      [ngClass]="{ 'fy-select--input-disabled': disabled() }"
+      [disabled]="disabled()"
+    />
     <mat-icon
       class="fy-select--icon"
-      [ngClass]="{ 'fy-select--input-disabled': disabled }"
+      [ngClass]="{ 'fy-select--input-disabled': disabled() }"
       svgIcon="arrow-down"
     ></mat-icon>
   </div>

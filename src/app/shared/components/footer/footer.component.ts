@@ -29,8 +29,12 @@ export class FooterComponent implements OnInit {
 
   @Output() reportsClicked = new EventEmitter();
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() taskCount = 0;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeState: FooterState;
 
   connectionState$: Observable<ConnectionMessageStatus>;

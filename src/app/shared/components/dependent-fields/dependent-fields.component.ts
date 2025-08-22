@@ -16,14 +16,24 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
 
   private formBuilder = inject(UntypedFormBuilder);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() dependentFieldsFormArray: UntypedFormArray;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() dependentCustomFields: ExpenseField[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldId: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldValue: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() txnCustomProperties: CustomProperty<string>[];
 
   dependentFields = [];

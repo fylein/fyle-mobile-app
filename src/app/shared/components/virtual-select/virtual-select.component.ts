@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, TemplateRef, Injector, inject } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, TemplateRef, Injector, inject, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -30,32 +30,48 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: { label: string; value: VirtualSelectOptions }[] = [];
 
-  @Input() disabled = false;
+  readonly disabled = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label = '';
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() selectionElement: TemplateRef<any>;
+  readonly selectionElement = input<TemplateRef<any>>(undefined);
 
-  @Input() nullOption = true;
+  readonly nullOption = input(true);
 
-  @Input() cacheName = '';
+  readonly cacheName = input('');
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() subheader: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() enableSearch = true;
 
-  @Input() selectModalHeader = '';
+  readonly selectModalHeader = input('');
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() defaultLabelProp: string;
 
-  @Input() recentlyUsed: { label: string; value: VirtualSelectOptions; selected?: boolean }[];
+  readonly recentlyUsed = input<
+    {
+      label: string;
+      value: VirtualSelectOptions;
+      selected?: boolean;
+    }[]
+  >(undefined);
 
   displayValue: string;
 
@@ -116,15 +132,15 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
       componentProps: {
         options: this.options,
         currentSelection: this.value,
-        selectionElement: this.selectionElement,
-        nullOption: this.nullOption,
-        cacheName: this.cacheName,
+        selectionElement: this.selectionElement(),
+        nullOption: this.nullOption(),
+        cacheName: this.cacheName(),
         subheader: this.subheader,
         enableSearch: this.enableSearch,
-        selectModalHeader: this.selectModalHeader || selectModalHeader,
-        placeholder: this.placeholder,
+        selectModalHeader: this.selectModalHeader() || selectModalHeader,
+        placeholder: this.placeholder(),
         defaultLabelProp: this.defaultLabelProp,
-        recentlyUsed: this.recentlyUsed,
+        recentlyUsed: this.recentlyUsed(),
         label: this.label,
       },
       mode: 'ios',

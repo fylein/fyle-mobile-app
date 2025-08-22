@@ -8,6 +8,7 @@ import {
   OnInit,
   TemplateRef,
   inject,
+  input,
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
@@ -50,29 +51,39 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: { label: string; value: Report }[] = [];
 
-  @Input() disabled = false;
+  readonly disabled = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label = '';
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
-  @Input() selectionElement: TemplateRef<ElementRef>;
+  readonly selectionElement = input<TemplateRef<ElementRef>>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() showNullOption = true;
 
-  @Input() cacheName = '';
+  readonly cacheName = input('');
 
-  @Input() customInput = false;
+  readonly customInput = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() subheader = 'All';
 
-  @Input() enableSearch = false;
+  readonly enableSearch = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() autoSubmissionReportName: string;
 
-  @Input() isNewReportsFlowEnabled = false;
+  readonly isNewReportsFlowEnabled = input(false);
 
   displayValue: string;
 
@@ -125,14 +136,14 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
       componentProps: {
         options: this.options,
         currentSelection: this.value,
-        selectionElement: this.selectionElement,
+        selectionElement: this.selectionElement(),
         showNullOption: this.showNullOption,
-        cacheName: this.cacheName,
-        customInput: this.customInput,
+        cacheName: this.cacheName(),
+        customInput: this.customInput(),
         subheader: this.subheader,
-        enableSearch: this.enableSearch,
+        enableSearch: this.enableSearch(),
         autoSubmissionReportName: this.autoSubmissionReportName,
-        isNewReportsFlowEnabled: this.isNewReportsFlowEnabled,
+        isNewReportsFlowEnabled: this.isNewReportsFlowEnabled(),
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),

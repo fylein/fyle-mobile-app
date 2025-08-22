@@ -9,7 +9,7 @@
     </ion-row>
     <ion-row>
       <ion-col>
-        <div class="fy-delete-dialog--body" [innerHTML]="body"></div>
+        <div class="fy-delete-dialog--body" [innerHTML]="body()"></div>
       </ion-col>
     </ion-row>
     @if (infoMessage) {
@@ -37,7 +37,7 @@
       <ion-col size="6">
         <div
           class="fy-delete-dialog--delete btn-primary"
-          [ngClass]="{ 'fy-delete-dialog--delete-disabled': disableDelete }"
+          [ngClass]="{ 'fy-delete-dialog--delete-disabled': disableDelete() }"
           (click)="delete()"
           appFormButtonValidation
           [loaderPosition]="LoaderPosition.postfix"

@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, inject } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, inject, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -27,22 +27,34 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: { label: string; value: unknown }[] = [];
 
-  @Input() disabled = false;
+  readonly disabled = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label = '';
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() selectModalHeader: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() subheader: string;
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() validInParent: boolean;
 
   displayValue: string;
@@ -62,7 +74,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   }
 
   get computedPlaceholder(): string {
-    return this.placeholder || `${this.translocoService.translate('fyMultiselect.select')} ${this.label}`;
+    return this.placeholder() || `${this.translocoService.translate('fyMultiselect.select')} ${this.label}`;
   }
 
   get value(): unknown[] {

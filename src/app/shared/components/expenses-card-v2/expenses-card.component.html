@@ -319,7 +319,7 @@
           </div>
         </ng-template>
       </div>
-      @if (isDismissable) {
+      @if (isDismissable()) {
         <div (click)="dismiss($event)">
           <ion-icon class="expenses-card--dismiss" [src]="'assets/svg/cross.svg'" slot="icon-only"></ion-icon>
         </div>

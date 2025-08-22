@@ -1,21 +1,21 @@
-@if (showHeader) {
+@if (showHeader()) {
   <div>
-    @if (showDragBar) {
+    @if (showDragBar()) {
       <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
     }
     <div class="text-center policy-violation--toolbar fy-modal-toolbar">
       <div>
         <div class="policy-violation--toolbar__title">
-          @if (showCloseIcon) {
+          @if (showCloseIcon()) {
             <span class="policy-violation--toolbar__close-icon" slot="start">
               <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
             </span>
           }
           {{
-          (policyViolationMessages?.length > 1
-          ? 'fyPolicyViolation.multipleViolationsFound'
-          : 'fyPolicyViolation.singleViolationFound'
-          ) | transloco
+            (policyViolationMessages()?.length > 1
+              ? 'fyPolicyViolation.multipleViolationsFound'
+              : 'fyPolicyViolation.singleViolationFound'
+            ) | transloco
           }}
         </div>
       </div>
@@ -26,7 +26,7 @@
 <div class="policy-violation--content-section">
   <div class="policy-violation--body">
     <div class="inner-content">
-      @for (violation of policyViolationMessages; track violation) {
+      @for (violation of policyViolationMessages(); track violation) {
         <app-policy-violation-rule [message]="violation" [violationType]="'normal'"></app-policy-violation-rule>
       }
     </div>
@@ -65,7 +65,7 @@
       }
     }
 
-    @if (showComment) {
+    @if (showComment()) {
       <form [formGroup]="form">
         <div>
           <p class="policy-violation--additional-details-header">
@@ -84,7 +84,7 @@
   </div>
 </div>
 
-@if (showCTA) {
+@if (showCTA()) {
   <ion-footer>
     <ion-toolbar mode="md">
       <div class="fy-footer-cta-container">

@@ -13,7 +13,7 @@ import {
   yodleeCard,
 } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { bankFeedSourcesData } from 'src/app/core/mock-data/bank-feed-sources.data';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
@@ -23,8 +23,8 @@ import { of } from 'rxjs';
   standalone: false,
 })
 class MockCardNumberComponent {
-  @Input() cardNumber: string;
-  @Input() cardNickname: string;
+  readonly cardNumber = input<string>(undefined);
+  readonly cardNickname = input<string>(undefined);
 }
 
 describe('CorporateCardComponent', () => {

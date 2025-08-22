@@ -7,14 +7,24 @@ import { EventData } from './event-data.model';
   standalone: false,
 })
 export class PreferenceSettingComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() title: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() content: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isEnabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() key: EventData['key'];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() defaultCurrency: string;
 
   @Output() preferenceChanged = new EventEmitter<EventData>();

@@ -1,25 +1,27 @@
-@if (combinedCustomProperties) { @for (customField of customFields; track customField.id) {
-<form [formGroup]="customField.control">
-  @if (combinedCustomProperties[customField.name]?.options) {
-  <div class="merge-expenses--internal-block">
-    <app-fy-select
-      [enableSearch]="false"
-      [label]="customField.name"
-      [nullOption]="false"
-      [nullOption]="combinedCustomProperties[customField.name]?.options?.length === 1"
-      [disabled]="
-        disableFormElements ||
-        combinedCustomProperties[customField.name]?.areSameValues ||
-        combinedCustomProperties[customField.name]?.options?.length === 0
-      "
-      [options]="combinedCustomProperties[customField.name]?.options"
-      [selectModalHeader]="'customInputsFieldsForm.select' | transloco"
-      formControlName="value"
-      [touchedInParent]="customField.control.controls.value.touched"
-      [validInParent]="customField.control.controls.value.valid"
-    >
-    </app-fy-select>
-  </div>
+@if (combinedCustomProperties) {
+  @for (customField of customFields; track customField.id) {
+    <form [formGroup]="customField.control">
+      @if (combinedCustomProperties[customField.name]?.options) {
+        <div class="merge-expenses--internal-block">
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="customField.name"
+            [nullOption]="false"
+            [nullOption]="combinedCustomProperties[customField.name]?.options?.length === 1"
+            [disabled]="
+              disableFormElements() ||
+              combinedCustomProperties[customField.name]?.areSameValues ||
+              combinedCustomProperties[customField.name]?.options?.length === 0
+            "
+            [options]="combinedCustomProperties[customField.name]?.options"
+            [selectModalHeader]="'customInputsFieldsForm.select' | transloco"
+            formControlName="value"
+            [touchedInParent]="customField.control.controls.value.touched"
+            [validInParent]="customField.control.controls.value.valid"
+          >
+          </app-fy-select>
+        </div>
+      }
+    </form>
   }
-</form>
-} }
+}

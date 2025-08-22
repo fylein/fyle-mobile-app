@@ -10,6 +10,8 @@ import { PopoverController } from '@ionic/angular';
 export class EditReportNamePopoverComponent implements OnInit {
   private popoverController = inject(PopoverController);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() reportName: string;
 
   @ViewChild('reportNameInput') reportNameInput: ElementRef<HTMLInputElement>;

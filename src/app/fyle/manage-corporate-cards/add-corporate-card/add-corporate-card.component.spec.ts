@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, input } from '@angular/core';
 
 import { AddCorporateCardComponent } from './add-corporate-card.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
@@ -8,7 +8,7 @@ import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { ArrayToCommaListPipe } from 'src/app/shared/pipes/array-to-comma-list.pipe';
 import { NgxMaskModule } from 'ngx-mask';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { statementUploadedCard, visaRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { of, throwError } from 'rxjs';
@@ -32,9 +32,9 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
   standalone: false,
 })
 export class MockFyAlertInfoComponent {
-  @Input() message: string;
+  readonly message = input<string>(undefined);
 
-  @Input() type: 'information' | 'warning';
+  readonly type = input<'information' | 'warning'>(undefined);
 }
 
 describe('AddCorporateCardComponent', () => {

@@ -45,10 +45,16 @@ export class FyViewReportInfoComponent {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() report$: Observable<Report>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() expenses$: Observable<Expense[]>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() view: ExpenseView;
 
   isReportView = true;

@@ -7,6 +7,8 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
   standalone: false,
 })
 export class AutoSubmissionInfoCardComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() autoSubmissionReportDate: Date;
 
   @Output() cardClicked = new EventEmitter<void>();

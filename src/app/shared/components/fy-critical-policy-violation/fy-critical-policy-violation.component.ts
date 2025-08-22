@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -10,21 +10,25 @@ import { ModalController } from '@ionic/angular';
 export class FyCriticalPolicyViolationComponent {
   private modalController = inject(ModalController);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() criticalViolationMessages = [];
 
-  @Input() showHeader = true;
+  readonly showHeader = input(true);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() showCTA = true;
 
-  @Input() showDragBar = true;
+  readonly showDragBar = input(true);
 
-  @Input() showCloseIcon = false;
+  readonly showCloseIcon = input(false);
 
-  @Input() isSplitBlocked? = false;
+  readonly isSplitBlocked = input<boolean>(false);
 
-  @Input() isSplitMissingFields? = false;
+  readonly isSplitMissingFields = input<boolean>(false);
 
-  @Input() isReceiptMissing? = false;
+  readonly isReceiptMissing = input<boolean>(false);
 
   cancel(): void {
     this.modalController.dismiss(false);

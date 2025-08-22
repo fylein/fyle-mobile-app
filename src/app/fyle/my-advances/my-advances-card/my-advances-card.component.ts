@@ -17,8 +17,12 @@ export class MyAdvancesCardComponent implements OnInit {
   private translocoService = inject(TranslocoService);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() advanceRequest: any;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() prevDate: Date;
 
   @Output() advanceClick = new EventEmitter<{

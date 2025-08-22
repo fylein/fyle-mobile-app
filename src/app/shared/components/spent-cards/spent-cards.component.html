@@ -7,10 +7,14 @@
       [spaceBetween]="16"
       [pagination]="pagination"
       [centeredSlides]="cardDetails.length === 1 && !showAddCardSlide"
-      >
+    >
       @for (cardDetail of cardDetails; track cardDetail) {
         <ng-template swiperSlide>
-          <app-card-detail [cardDetail]="cardDetail" [homeCurrency]="homeCurrency" [currencySymbol]="currencySymbol">
+          <app-card-detail
+            [cardDetail]="cardDetail"
+            [homeCurrency]="homeCurrency()"
+            [currencySymbol]="currencySymbol()"
+          >
           </app-card-detail>
         </ng-template>
       }

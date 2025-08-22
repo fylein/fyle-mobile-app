@@ -55,8 +55,12 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput: NgOtpInputComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() optInFlowState: OptInFlowState = OptInFlowState.MOBILE_INPUT;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() extendedOrgUser: ExtendedOrgUser;
 
   mobileNumberInputValue: string;

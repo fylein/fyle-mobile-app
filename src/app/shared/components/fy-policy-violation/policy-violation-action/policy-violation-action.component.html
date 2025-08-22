@@ -1,16 +1,16 @@
 <div
   class="policy-violation-action--container"
   [ngClass]="{
-    'policy-violation-action--container__single-action': actionsCount === 1,
-    'policy-violation-action--container__multiple-actions': actionsCount > 1
+    'policy-violation-action--container__single-action': actionsCount() === 1,
+    'policy-violation-action--container__multiple-actions': actionsCount() > 1,
   }"
-  >
+>
   <div class="policy-violation-action--content">
     @if (icon) {
       <div class="policy-violation-action--icon">
         <img [src]="icon" />
       </div>
     }
-    <div class="policy-violation-action--message" [innerHTML]="message"></div>
+    <div class="policy-violation-action--message" [innerHTML]="message()"></div>
   </div>
 </div>

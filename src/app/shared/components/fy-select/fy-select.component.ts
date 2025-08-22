@@ -1,4 +1,4 @@
-import { Component, EventEmitter, forwardRef, Input, Output, TemplateRef, inject } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output, TemplateRef, inject, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -28,41 +28,59 @@ export class FySelectComponent implements ControlValueAccessor {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: { label: string; value: any }[] = [];
 
-  @Input() disabled = false;
+  readonly disabled = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label = '';
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
-  @Input() selectionElement: TemplateRef<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly selectionElement = input<TemplateRef<any>>(undefined);
 
-  @Input() nullOption = true;
+  readonly nullOption = input(true);
 
-  @Input() cacheName = '';
+  readonly cacheName = input('');
 
-  @Input() customInput = false;
+  readonly customInput = input(false);
 
-  @Input() subheader = 'All';
+  readonly subheader = input('All');
 
-  @Input() enableSearch = true;
+  readonly enableSearch = input(true);
 
-  @Input() selectModalHeader = '';
+  readonly selectModalHeader = input('');
 
-  @Input() showSaveButton = false;
+  readonly showSaveButton = input(false);
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() defaultLabelProp?: string;
 
-  @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
+  readonly recentlyUsed = input<
+    {
+      label: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      value: any;
+      selected?: boolean;
+    }[]
+  >(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() validInParent: boolean;
 
-  @Input() isCustomSelect?: boolean;
+  readonly isCustomSelect = input<boolean>(undefined);
 
   @Output() valueChange = new EventEmitter<string | Value>();
 
@@ -123,18 +141,18 @@ export class FySelectComponent implements ControlValueAccessor {
       componentProps: {
         options: this.options,
         currentSelection: this.value,
-        selectionElement: this.selectionElement,
-        nullOption: this.nullOption,
-        cacheName: this.cacheName,
-        customInput: this.customInput,
-        subheader: this.subheader,
-        enableSearch: this.enableSearch,
-        selectModalHeader: this.selectModalHeader || this.translocoService.translate('fySelect.selectItem'),
-        placeholder: this.placeholder,
-        showSaveButton: this.showSaveButton,
+        selectionElement: this.selectionElement(),
+        nullOption: this.nullOption(),
+        cacheName: this.cacheName(),
+        customInput: this.customInput(),
+        subheader: this.subheader(),
+        enableSearch: this.enableSearch(),
+        selectModalHeader: this.selectModalHeader() || this.translocoService.translate<string>('fySelect.selectItem'),
+        placeholder: this.placeholder(),
+        showSaveButton: this.showSaveButton(),
         defaultLabelProp: this.defaultLabelProp,
-        recentlyUsed: this.recentlyUsed,
-        isCustomSelect: this.isCustomSelect,
+        recentlyUsed: this.recentlyUsed(),
+        isCustomSelect: this.isCustomSelect(),
         label: this.label,
       },
       mode: 'ios',

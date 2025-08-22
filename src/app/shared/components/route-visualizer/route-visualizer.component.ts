@@ -20,6 +20,8 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
 
   private staticMapPropertiesService = inject(StaticMapPropertiesService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mileageLocations: MileageLocation[];
 
   @Output() mapClick = new EventEmitter<void>();
