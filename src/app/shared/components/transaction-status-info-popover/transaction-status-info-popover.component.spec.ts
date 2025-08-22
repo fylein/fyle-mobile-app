@@ -71,14 +71,10 @@ describe('TransactionStatusInfoComponent', () => {
     expect(popoverController.dismiss).toHaveBeenCalled();
   });
 
-  it('should return ExpenseTransactionStatus enum from TransactionStatus getter', () => {
-    expect(component.TransactionStatus).toBe(ExpenseTransactionStatus);
-  });
-
   describe('template', () => {
     describe('title', () => {
       it('should display the correct title when transaction status is PENDING', () => {
-        component.transactionStatus = ExpenseTransactionStatus.PENDING;
+        fixture.componentRef.setInput('transactionStatus', ExpenseTransactionStatus.PENDING);
 
         fixture.detectChanges();
 
@@ -87,7 +83,7 @@ describe('TransactionStatusInfoComponent', () => {
       });
 
       it('should display the correct title when transaction status is POSTED', () => {
-        component.transactionStatus = ExpenseTransactionStatus.POSTED;
+        fixture.componentRef.setInput('transactionStatus', ExpenseTransactionStatus.POSTED);
 
         fixture.detectChanges();
 
@@ -98,7 +94,7 @@ describe('TransactionStatusInfoComponent', () => {
 
     describe('content', () => {
       it('should display the correct content when transaction status is PENDING', fakeAsync(() => {
-        component.transactionStatus = ExpenseTransactionStatus.PENDING;
+        fixture.componentRef.setInput('transactionStatus', ExpenseTransactionStatus.PENDING);
 
         fixture.detectChanges();
         tick();
@@ -111,7 +107,7 @@ describe('TransactionStatusInfoComponent', () => {
       }));
 
       it('should display the correct content when transaction status is POSTED', () => {
-        component.transactionStatus = ExpenseTransactionStatus.POSTED;
+        fixture.componentRef.setInput('transactionStatus', ExpenseTransactionStatus.POSTED);
 
         fixture.detectChanges();
 
