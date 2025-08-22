@@ -237,13 +237,13 @@ export class SidemenuComponent implements OnInit {
       {
         title: this.translocoService.translate('sidemenu.home'),
         isVisible: !isOnboardingPending,
-        icon: 'dashboard',
+        icon: 'house-outline',
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
         title: this.translocoService.translate('sidemenu.getStarted'),
         isVisible: isOnboardingPending,
-        icon: 'dashboard',
+        icon: 'house-outline',
         route: ['/', 'enterprise', 'spender_onboarding'],
       },
       {
@@ -323,7 +323,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: this.translocoService.translate('sidemenu.home'),
         isVisible: true,
-        icon: 'dashboard',
+        icon: 'house-outline',
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {

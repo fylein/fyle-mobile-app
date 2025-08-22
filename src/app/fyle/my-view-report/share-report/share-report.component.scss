@@ -4,7 +4,6 @@
   &--toolbar {
     &__title {
       color: colors.$black;
-      padding-left: 38px;
     }
 
     &__btn-share {
@@ -39,6 +38,13 @@
 
     &__input:focus {
       border-bottom: 1px solid colors.$blue-black;
+    }
+
+    &__error-message {
+      color: colors.$negative-500;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
     }
   }
 }

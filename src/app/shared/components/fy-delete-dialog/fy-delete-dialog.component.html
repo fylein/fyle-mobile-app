@@ -40,7 +40,7 @@
           [ngClass]="{ 'fy-delete-dialog--delete-disabled': disableDelete }"
           (click)="delete()"
           appFormButtonValidation
-          [loaderPosition]="LoaderPosition.prefix"
+          [loaderPosition]="LoaderPosition.postfix"
           [loading]="deleteCallInProgress"
           [loadingText]="ctaLoadingText ? ctaLoadingText : ('fyDeleteDialog.deleting' | transloco)"
         >

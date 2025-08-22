@@ -6,7 +6,7 @@ export const sidemenuData1 = deepFreeze([
   {
     title: 'Home',
     isVisible: true,
-    icon: 'dashboard',
+    icon: 'house-outline',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -27,7 +27,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = deepFreeze([
   {
     title: 'Home',
     isVisible: true,
-    icon: 'dashboard',
+    icon: 'house-outline',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -93,7 +93,7 @@ export const getPrimarySidemenuOptionsRes1 = deepFreeze([
   {
     title: 'Home',
     isVisible: true,
-    icon: 'dashboard',
+    icon: 'house-outline',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -160,7 +160,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = deepFreeze([
   {
     title: 'Home',
     isVisible: true,
-    icon: 'dashboard',
+    icon: 'house-outline',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
