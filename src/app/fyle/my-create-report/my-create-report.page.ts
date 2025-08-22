@@ -110,7 +110,7 @@ export class MyCreateReportPage implements OnInit {
     }
   }
 
-  ctaClickedEvent(reportActionType): Subscription {
+  ctaClickedEvent(reportActionType: 'create_draft_report' | 'submit_report'): Subscription {
     this.showReportNameError = false;
     if (!this.reportTitle && this.reportTitle.trim().length <= 0 && this.emptyInput) {
       this.showReportNameError = true;
@@ -197,7 +197,8 @@ export class MyCreateReportPage implements OnInit {
     const expenseIDs = this.selectedElements.map((ele) => ele.id);
     this.selectedTotalAmount = this.getTotalSelectedExpensesAmount(this.selectedElements);
 
-    if (this.reportTitleInput && !this.reportTitleInput.dirty) {
+    // suggest a title if the report title is not dirty or empty (reportTitleInput is not available in the ionViewWillEnter)
+    if ((this.reportTitleInput && !this.reportTitleInput.dirty) || (!this.reportTitleInput && !this.reportTitle)) {
       return this.spenderReportsService.suggestPurpose(expenseIDs).subscribe((res) => {
         this.reportTitle = res;
       });

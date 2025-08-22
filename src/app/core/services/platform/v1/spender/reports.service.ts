@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, Subject, range } from 'rxjs';
 import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
@@ -18,6 +18,7 @@ import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ReportPurpose } from 'src/app/core/models/report-purpose.model';
 import { ExportPayload } from 'src/app/core/models/platform/export-payload.model';
 import { GroupedReportStats } from 'src/app/core/models/platform/v1/grouped-report-stats.model';
+import { expensesCacheBuster$ } from 'src/app/core/cache-buster/expense-cache-buster';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -25,19 +26,19 @@ const reportsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class SpenderReportsService {
-  private paginationSize = inject(PAGINATION_SIZE);
-
-  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
-
-  private userEventService = inject(UserEventService);
-
-  private transactionService = inject(TransactionService);
-
   constructor() {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
     });
   }
+
+  private paginationSize: number = inject(PAGINATION_SIZE);
+
+  private transactionService: TransactionService = inject(TransactionService);
+
+  private spenderPlatformV1ApiService: SpenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private userEventService: UserEventService = inject(UserEventService);
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
@@ -128,6 +129,9 @@ export class SpenderReportsService {
       .pipe(map((res) => res.data.purpose));
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: expensesCacheBuster$,
+  })
   delete(id: string): Observable<void> {
     return this.spenderPlatformV1ApiService.post<void>('/reports/delete/bulk', { data: [{ id }] });
   }
