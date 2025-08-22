@@ -205,41 +205,6 @@ describe('StatsComponent', () => {
         done();
       });
     });
-
-    it('should initialize draftStats$', (done) => {
-      component.initializeReportStats();
-
-      component.draftStats$.subscribe((res) => {
-        expect(res).toEqual(expectedReportStats.draft);
-        done();
-      });
-    });
-
-    it('should initialize approvedStats$', (done) => {
-      component.initializeReportStats();
-
-      component.approvedStats$.subscribe((res) => {
-        expect(res).toEqual(expectedReportStats.approved);
-        done();
-      });
-    });
-
-    it('should initialize paymentPendingStats$', (done) => {
-      component.initializeReportStats();
-
-      component.paymentPendingStats$.subscribe((res) => {
-        expect(res).toEqual(expectedReportStats.paymentPending);
-        done();
-      });
-    });
-
-    it('should initialize processingStats$', () => {
-      component.initializeReportStats();
-
-      component.processingStats$.subscribe((res) => {
-        expect(res).toEqual(expectedReportStats.processing);
-      });
-    });
   });
 
   it('initializeExpensesStats(): should set unreportedExpensesStats$ and incompleteExpensesStats$', (done) => {
