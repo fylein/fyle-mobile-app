@@ -1,11 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, switchMap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { PlatformFilePostRequestPayload } from 'src/app/core/models/platform/platform-file-post-request-payload.model';
 import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { ApproverPlatformApiService } from '../../../approver-platform-api.service';
-import { FileObject } from 'src/app/core/models/file-obj.model';
 
 @Injectable({
   providedIn: 'root',

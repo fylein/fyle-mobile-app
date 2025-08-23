@@ -9,7 +9,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { ApproverService } from './platform/v1/approver/approver.service';
 import { ApproverFileService } from './platform/v1/approver/file.service';
 import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
-import { AdvanceRequestPlatformResponse } from '../models/platform/advance-request-platform.model';
+import { AdvanceRequestFiles } from '../models/platform/advance-request-files.model';
 
 @Injectable({
   providedIn: 'root',
@@ -28,14 +28,14 @@ export class FileService {
     service: SpenderService | ApproverService,
     fileService: SpenderFileService | ApproverFileService
   ): Observable<FileObject[]> {
-    return service
-      .get<PlatformApiResponse<AdvanceRequestPlatformResponse[]>>('/advance_requests', {
+    return (service as SpenderService)
+      .get<PlatformApiResponse<AdvanceRequestFiles[]>>('/advance_requests', {
         params: {
           id: `eq.${advanceRequestId}`,
         },
       })
       .pipe(
-        switchMap((response: PlatformApiResponse<AdvanceRequestPlatformResponse[]>) => {
+        switchMap((response: PlatformApiResponse<AdvanceRequestFiles[]>) => {
           const advanceRequest = response.data[0];
           if (!advanceRequest || !advanceRequest.file_ids || advanceRequest.file_ids.length === 0) {
             return of([]);
