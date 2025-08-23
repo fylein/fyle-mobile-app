@@ -38,7 +38,7 @@ export class FileService {
         switchMap((response: PlatformApiResponse<AdvanceRequestFiles[]>) => {
           const advanceRequest = response.data[0];
           if (!advanceRequest || !advanceRequest.file_ids || advanceRequest.file_ids.length === 0) {
-            return of([]);
+            return of<FileObject[]>([]);
           }
 
           return fileService.generateUrlsBulk(advanceRequest.file_ids).pipe(
