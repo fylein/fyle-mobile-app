@@ -326,22 +326,61 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   fileAttachments(): Observable<string[]> {
-    const fileUploadObservables = [];
-
-    this.dataUrls.forEach((dataUrl) => {
-      dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
-
-      if (!dataUrl.id) {
-        // For new files, upload them first and get file IDs
-        fileUploadObservables.push(
-          from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)).pipe(
-            map((fileObj: any) => fileObj.id),
-          ),
-        );
-      }
-    });
-
-    return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of([]));
+    if (this.from === 'TEAM_ADVANCE') {
+      return this.advanceRequestService.getApproverAdvanceRequestRaw(this.id).pipe(
+        switchMap((advanceReqPlatform) => {
+          if (!advanceReqPlatform || !advanceReqPlatform.user?.id) {
+            return of([]);
+          }
+          
+          return from(this.authService.getEou()).pipe(
+            switchMap((eou) => {
+              if (!eou || !eou.ou || !eou.ou.org_id) {
+                return of([]);
+              }
+              
+              const fileUploadObservables = [];
+              
+              this.dataUrls.forEach((dataUrl) => {
+                dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
+                
+                if (!dataUrl.id) {
+                  fileUploadObservables.push(
+                    from(this.transactionsOutboxService.fileUpload(
+                      dataUrl.url, 
+                      dataUrl.type, 
+                      advanceReqPlatform.user.id, 
+                      eou.ou.org_id,
+                      true
+                    )).pipe(
+                      map((fileObj: any) => fileObj.id),
+                    ),
+                  );
+                }
+              });
+              
+              return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of([]));
+            }),
+          );
+        }),
+      );
+    } else {
+      const fileUploadObservables = [];
+      
+      this.dataUrls.forEach((dataUrl) => {
+        dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
+        
+        if (!dataUrl.id) {
+          fileUploadObservables.push(
+            from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)).pipe(
+              map((fileObj: any) => fileObj.id),
+            ),
+          );
+        }
+      });
+      
+      return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of([]));
+    }
   }
 
   async addAttachments(event: Event): Promise<void> {
@@ -404,6 +443,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       componentProps: {
         attachments,
         canEdit: true,
+        isTeamAdvance: this.from === 'TEAM_ADVANCE',
       },
       mode: 'ios',
     });
@@ -451,7 +491,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   getAttachedReceipts(id: string): Observable<FileObject[]> {
-    // Use team advance methods when editing from team advance context
     if (this.from === 'TEAM_ADVANCE') {
       return this.fileService.findByAdvanceRequestIdForTeamAdvance(id).pipe(
         switchMap((fileObjs) => from(fileObjs)),
@@ -469,7 +508,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
         reduce((acc: FileObject[], curr) => acc.concat(curr), []),
       );
     } else {
-      // Use regular methods for personal advance requests
       return this.fileService.findByAdvanceRequestId(id).pipe(
         switchMap((fileObjs) => from(fileObjs)),
         concatMap((fileObj) =>

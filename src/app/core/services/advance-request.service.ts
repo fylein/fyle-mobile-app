@@ -88,6 +88,8 @@ export class AdvanceRequestService {
 
   private spenderFileService = inject(SpenderFileService);
 
+  private approverFileService = inject(ApproverFileService);
+
   private translocoService = inject(TranslocoService);
 
   @Cacheable({
@@ -538,13 +540,21 @@ export class AdvanceRequestService {
           const fileIds: string[] = res.fileIds;
           const advanceReqPlatform = res.advanceReq;
 
-          // Attach files to advance request using bulk attach
-          return this.spenderFileService.attachToAdvance(advanceReqPlatform.id, fileIds).pipe(
-            map(() => ({
-              files: [], // We don't have File objects anymore, just IDs
-              advanceReq: advanceReqPlatform,
-            })),
-          );
+          if (isApprover) {
+            return this.approverFileService.attachToAdvance(advanceReqPlatform.id, fileIds, advanceReqPlatform.user.id).pipe(
+              map(() => ({
+                files: [],
+                advanceReq: advanceReqPlatform,
+              })),
+            );
+          } else {
+            return this.spenderFileService.attachToAdvance(advanceReqPlatform.id, fileIds).pipe(
+              map(() => ({
+                files: [],
+                advanceReq: advanceReqPlatform,
+              })),
+            );
+          }
         } else {
           return of(null).pipe(
             map(() => ({
@@ -570,10 +580,9 @@ export class AdvanceRequestService {
           const fileIds: string[] = res.fileIds;
           const advanceReqPlatform = res.advanceReq;
 
-          // Attach files to advance request using bulk attach
           return this.spenderFileService.attachToAdvance(advanceReqPlatform.id, fileIds).pipe(
             map(() => ({
-              files: [], // We don't have File objects anymore, just IDs
+              files: [],
               advanceReq: advanceReqPlatform,
             })),
           );

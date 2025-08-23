@@ -16,6 +16,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { TranslocoService } from '@jsverse/transloco';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -36,6 +37,8 @@ export class FyViewAttachmentComponent implements OnInit {
 
   private spenderFileService = inject(SpenderFileService);
 
+  private approverFileService = inject(ApproverFileService);
+
   private expensesService = inject(ExpensesService);
 
   private activatedRoute = inject(ActivatedRoute);
@@ -55,6 +58,8 @@ export class FyViewAttachmentComponent implements OnInit {
   @Input() canEdit: boolean;
 
   @Input() expenseId: string;
+
+  @Input() isTeamAdvance: boolean = false;
 
   @Output() addMoreAttachments = new EventEmitter<Event>();
 
@@ -192,7 +197,12 @@ export class FyViewAttachmentComponent implements OnInit {
         .pipe(
           switchMap(() => {
             if (this.attachments[activeIndex].id) {
-              return this.spenderFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
+              // Use appropriate file service based on team advance context
+              if (this.isTeamAdvance) {
+                return this.approverFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
+              } else {
+                return this.spenderFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
+              }
             } else {
               return of(null);
             }
@@ -246,7 +256,9 @@ export class FyViewAttachmentComponent implements OnInit {
             throw new Error('Rotated image content is empty');
           }
 
-          return this.fileService.uploadUrl(attachment.id).pipe(
+          // Use appropriate file service based on team advance context
+          const uploadMethod = this.isTeamAdvance ? 'uploadUrlForTeamAdvance' : 'uploadUrl';
+          return this.fileService[uploadMethod](attachment.id).pipe(
             switchMap((uploadUrl) => this.transactionsOutboxService.uploadData(uploadUrl, blob, 'image/jpeg')),
             tap(() => {
               this.attachments[this.activeIndex] = {
@@ -256,7 +268,7 @@ export class FyViewAttachmentComponent implements OnInit {
               };
               this.isImageDirty[this.activeIndex] = false;
               this.saveComplete[this.activeIndex] = true;
-              // auto-hide “Saved” chip
+              // auto-hide "Saved" chip
               setTimeout(() => (this.saveComplete[this.activeIndex] = false), 5000);
               this.trackingService.eventTrack('Saved rotated receipt', {
                 ReceiptId: attachment.id,

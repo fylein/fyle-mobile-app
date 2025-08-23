@@ -67,13 +67,4 @@ export class SpenderFileService {
 
     return this.spenderPlatformV1ApiService.post<void>('/advance_requests/attach_files/bulk', payload);
   }
-
-  attachFileToAdvance(advanceRequestId: string, fileObj: File | Record<string, string> | FileObject): Observable<void> {
-    return this.spenderPlatformV1ApiService.post<PlatformApiResponse<any>>('/files', { data: fileObj }).pipe(
-      switchMap((response: any) => {
-        const fileId = response.data.id;
-        return this.attachToAdvance(advanceRequestId, [fileId]);
-      }),
-    );
-  }
 }

@@ -4,5 +4,4 @@ export interface PlatformFilePostRequestPayload {
   type: string;
   password?: string;
   user_id?: string;
-  org_id?: string;
 }

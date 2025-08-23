@@ -401,6 +401,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
       component: FyViewAttachmentComponent,
       componentProps: {
         attachments,
+        isTeamAdvance: true,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),

@@ -54,25 +54,17 @@ export class ApproverFileService {
     return this.approverPlatformApiService.post('/files/delete/bulk', payload);
   }
 
-  attachToAdvance(advanceRequestId: string, fileIds: string[]): Observable<void> {
+  attachToAdvance(advanceRequestId: string, fileIds: string[], userId: string): Observable<void> {
     const payload = {
       data: [
         {
           id: advanceRequestId,
           file_ids: fileIds,
+          user_id: userId,
         },
       ],
     };
 
     return this.approverPlatformApiService.post<void>('/advance_requests/attach_files/bulk', payload);
-  }
-
-  attachFileToAdvance(advanceRequestId: string, fileObj: File | Record<string, string> | FileObject): Observable<void> {
-    return this.approverPlatformApiService.post<PlatformApiResponse<any>>('/files', { data: fileObj }).pipe(
-      switchMap((response: any) => {
-        const fileId = response.data.id;
-        return this.attachToAdvance(advanceRequestId, [fileId]);
-      }),
-    );
   }
 }
