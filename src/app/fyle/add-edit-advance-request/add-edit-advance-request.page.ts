@@ -325,16 +325,23 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return this.customFieldValues;
   }
 
-  fileAttachments(): Observable<File[]> {
-    const fileObjs = [];
-    this.dataUrls.map((dataUrl) => {
+  fileAttachments(): Observable<string[]> {
+    const fileUploadObservables = [];
+
+    this.dataUrls.forEach((dataUrl) => {
       dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
+
       if (!dataUrl.id) {
-        fileObjs.push(from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)));
+        // For new files, upload them first and get file IDs
+        fileUploadObservables.push(
+          from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)).pipe(
+            map((fileObj: any) => fileObj.id),
+          ),
+        );
       }
     });
 
-    return iif(() => fileObjs.length !== 0, forkJoin(fileObjs), of(null));
+    return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of([]));
   }
 
   async addAttachments(event: Event): Promise<void> {
@@ -444,21 +451,41 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   getAttachedReceipts(id: string): Observable<FileObject[]> {
-    return this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          }),
+    // Use team advance methods when editing from team advance context
+    if (this.from === 'TEAM_ADVANCE') {
+      return this.fileService.findByAdvanceRequestIdForTeamAdvance(id).pipe(
+        switchMap((fileObjs) => from(fileObjs)),
+        concatMap((fileObj) =>
+          this.fileService.downloadUrlForTeamAdvance(fileObj.id).pipe(
+            map((downloadUrl) => {
+              fileObj.url = downloadUrl;
+              const details = this.getReceiptDetails(fileObj);
+              fileObj.type = details.type;
+              fileObj.thumbnail = details.thumbnail;
+              return fileObj;
+            }),
+          ),
         ),
-      ),
-      reduce((acc: FileObject[], curr) => acc.concat(curr), []),
-    );
+        reduce((acc: FileObject[], curr) => acc.concat(curr), []),
+      );
+    } else {
+      // Use regular methods for personal advance requests
+      return this.fileService.findByAdvanceRequestId(id).pipe(
+        switchMap((fileObjs) => from(fileObjs)),
+        concatMap((fileObj) =>
+          this.fileService.downloadUrl(fileObj.id).pipe(
+            map((downloadUrl) => {
+              fileObj.url = downloadUrl;
+              const details = this.getReceiptDetails(fileObj);
+              fileObj.type = details.type;
+              fileObj.thumbnail = details.thumbnail;
+              return fileObj;
+            }),
+          ),
+        ),
+        reduce((acc: FileObject[], curr) => acc.concat(curr), []),
+      );
+    }
   }
 
   async openCommentsModal(): Promise<void> {

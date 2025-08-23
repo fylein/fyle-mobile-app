@@ -22,4 +22,5 @@ export interface AdvanceRequests {
   updated_by?: string;
   is_sent_back: boolean;
   is_pulled_back: boolean;
+  user_id?: string;
 }

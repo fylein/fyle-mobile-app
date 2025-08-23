@@ -34,6 +34,8 @@ import { ExtendedStatus } from '../models/extended_status.model';
 import { Comment } from '../models/platform/v1/comment.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { AdvanceRequestsCustomFields } from '../models/advance-requests-custom-fields.model';
+import { SpenderFileService } from './platform/v1/spender/file.service';
+import { ApproverFileService } from './platform/v1/approver/file.service';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -83,6 +85,8 @@ export class AdvanceRequestService {
   private approverService = inject(ApproverService);
 
   private spenderService = inject(SpenderService);
+
+  private spenderFileService = inject(SpenderFileService);
 
   private translocoService = inject(TranslocoService);
 
@@ -522,24 +526,22 @@ export class AdvanceRequestService {
 
   createAdvReqWithFilesAndSubmit(
     advanceRequest: Partial<AdvanceRequests>,
-    fileObservables?: Observable<File[]>,
+    fileIdsObservable?: Observable<string[]>,
     isApprover?: boolean,
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
-      files: fileObservables,
+      fileIds: fileIdsObservable || of([]),
       advanceReq: this.submit(advanceRequest, isApprover || false),
     }).pipe(
       switchMap((res) => {
-        if (res.files && res.files.length > 0) {
-          const fileObjs: File[] = res.files;
+        if (res.fileIds && res.fileIds.length > 0) {
+          const fileIds: string[] = res.fileIds;
           const advanceReqPlatform = res.advanceReq;
-          const newFileObjs = fileObjs.map((obj: File) => {
-            obj.advance_request_id = advanceReqPlatform.id;
-            return this.fileService.post(obj);
-          });
-          return forkJoin(newFileObjs).pipe(
+
+          // Attach files to advance request using bulk attach
+          return this.spenderFileService.attachToAdvance(advanceReqPlatform.id, fileIds).pipe(
             map(() => ({
-              files: res.files,
+              files: [], // We don't have File objects anymore, just IDs
               advanceReq: advanceReqPlatform,
             })),
           );
@@ -557,23 +559,21 @@ export class AdvanceRequestService {
 
   saveDraftAdvReqWithFiles(
     advanceRequest: Partial<AdvanceRequests>,
-    fileObservables?: Observable<File[]>,
+    fileIdsObservable?: Observable<string[]>,
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
-      files: fileObservables,
+      fileIds: fileIdsObservable || of([]),
       advanceReq: this.post(advanceRequest),
     }).pipe(
       switchMap((res) => {
-        if (res.files && res.files.length > 0) {
-          const fileObjs: File[] = res.files;
+        if (res.fileIds && res.fileIds.length > 0) {
+          const fileIds: string[] = res.fileIds;
           const advanceReqPlatform = res.advanceReq;
-          const newFileObjs = fileObjs.map((obj: File) => {
-            obj.advance_request_id = advanceReqPlatform.id;
-            return this.fileService.post(obj);
-          });
-          return forkJoin(newFileObjs).pipe(
+
+          // Attach files to advance request using bulk attach
+          return this.spenderFileService.attachToAdvance(advanceReqPlatform.id, fileIds).pipe(
             map(() => ({
-              files: res.files,
+              files: [], // We don't have File objects anymore, just IDs
               advanceReq: advanceReqPlatform,
             })),
           );
