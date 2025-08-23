@@ -8,6 +8,8 @@ import { SpenderService } from './platform/v1/spender/spender.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { ApproverService } from './platform/v1/approver/approver.service';
 import { ApproverFileService } from './platform/v1/approver/file.service';
+import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
+import { AdvanceRequestPlatformResponse } from '../models/platform/advance-request-platform.model';
 
 @Injectable({
   providedIn: 'root',
@@ -27,31 +29,31 @@ export class FileService {
     fileService: SpenderFileService | ApproverFileService
   ): Observable<FileObject[]> {
     return service
-      .get<PlatformApiResponse<any>>('/advance_requests', {
+      .get<PlatformApiResponse<AdvanceRequestPlatformResponse[]>>('/advance_requests', {
         params: {
           id: `eq.${advanceRequestId}`,
         },
       })
       .pipe(
-        switchMap((response) => {
+        switchMap((response: PlatformApiResponse<AdvanceRequestPlatformResponse[]>) => {
           const advanceRequest = response.data[0];
           if (!advanceRequest || !advanceRequest.file_ids || advanceRequest.file_ids.length === 0) {
             return of([]);
           }
 
           return fileService.generateUrlsBulk(advanceRequest.file_ids).pipe(
-            map((urlResponses) => urlResponses.map((urlResponse) => this.createFileObjectFromUrlResponse(urlResponse))),
+            map((urlResponses: PlatformFileGenerateUrlsResponse[]) => urlResponses.map((urlResponse) => this.createFileObjectFromUrlResponse(urlResponse))),
           );
         }),
       );
   }
 
   downloadUrl(fileId: string): Observable<string> {
-    return this.spenderFileService.generateUrlsBulk([fileId]).pipe(map((response) => response[0].download_url));
+    return this.spenderFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].download_url));
   }
 
   downloadUrlForTeamAdvance(fileId: string): Observable<string> {
-    return this.approverFileService.generateUrlsBulk([fileId]).pipe(map((response) => response[0].download_url));
+    return this.approverFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].download_url));
   }
 
   base64Download(fileId: string): Observable<{ content: string }> {
@@ -78,7 +80,7 @@ export class FileService {
     return this.findByAdvanceRequestIdWithService(advanceRequestId, this.approverService, this.approverFileService);
   }
 
-  createFileObjectFromUrlResponse(urlResponse: any): FileObject {
+  createFileObjectFromUrlResponse(urlResponse: PlatformFileGenerateUrlsResponse): FileObject {
     const fileObj: FileObject = {
       id: urlResponse.id,
       name: urlResponse.name,
@@ -130,16 +132,12 @@ export class FileService {
     return this.spenderService.post('/files', { data: fileObj });
   }
 
-  postForTeamAdvance(fileObj: File | Record<string, string> | FileObject): Observable<unknown> {
-    return this.approverService.post('/files/bulk', { data: fileObj });
-  }
-
   uploadUrl(fileId: string): Observable<string> {
-    return this.spenderFileService.generateUrlsBulk([fileId]).pipe(map((response) => response[0].upload_url));
+    return this.spenderFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].upload_url));
   }
 
   uploadUrlForTeamAdvance(fileId: string): Observable<string> {
-    return this.approverFileService.generateUrlsBulk([fileId]).pipe(map((response) => response[0].upload_url));
+    return this.approverFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].upload_url));
   }
 
   getBlobFromDataUrl(dataUrl: string): Blob {

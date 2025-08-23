@@ -34,3 +34,7 @@ export interface AdvanceRequestPlatform {
   user: User;
   user_id: string;
 }
+
+export interface AdvanceRequestPlatformResponse {
+  file_ids: string[];
+}
