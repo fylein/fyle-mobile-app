@@ -532,7 +532,7 @@ export class AdvanceRequestService {
     isApprover?: boolean,
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
-      fileIds: fileIdsObservable || of([]),
+      fileIds: fileIdsObservable || of([] as string[]),
       advanceReq: this.submit(advanceRequest, isApprover || false),
     }).pipe(
       switchMap((res) => {
@@ -572,7 +572,7 @@ export class AdvanceRequestService {
     fileIdsObservable?: Observable<string[]>,
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
-      fileIds: fileIdsObservable || of([]),
+      fileIds: fileIdsObservable || of([] as string[]),
       advanceReq: this.post(advanceRequest),
     }).pipe(
       switchMap((res) => {

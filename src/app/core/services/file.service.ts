@@ -21,6 +21,31 @@ export class FileService {
 
   private approverService = inject(ApproverService);
 
+  private findByAdvanceRequestIdWithService(
+    advanceRequestId: string,
+    service: SpenderService | ApproverService,
+    fileService: SpenderFileService | ApproverFileService
+  ): Observable<FileObject[]> {
+    return service
+      .get<PlatformApiResponse<any>>('/advance_requests', {
+        params: {
+          id: `eq.${advanceRequestId}`,
+        },
+      })
+      .pipe(
+        switchMap((response) => {
+          const advanceRequest = response.data[0];
+          if (!advanceRequest || !advanceRequest.file_ids || advanceRequest.file_ids.length === 0) {
+            return of([]);
+          }
+
+          return fileService.generateUrlsBulk(advanceRequest.file_ids).pipe(
+            map((urlResponses) => urlResponses.map((urlResponse) => this.createFileObjectFromUrlResponse(urlResponse))),
+          );
+        }),
+      );
+  }
+
   downloadUrl(fileId: string): Observable<string> {
     return this.spenderFileService.generateUrlsBulk([fileId]).pipe(map((response) => response[0].download_url));
   }
@@ -46,89 +71,31 @@ export class FileService {
   }
 
   findByAdvanceRequestId(advanceRequestId: string): Observable<FileObject[]> {
-    // Get the advance request to extract file IDs, then generate URLs
-    return this.spenderService
-      .get<PlatformApiResponse<any>>('/advance_requests', {
-        params: {
-          id: `eq.${advanceRequestId}`,
-        },
-      })
-      .pipe(
-        switchMap((response) => {
-          const advanceRequest = response.data[0]; // Get first item from array
-          if (!advanceRequest || !advanceRequest.file_ids || advanceRequest.file_ids.length === 0) {
-            return of([]);
-          }
-
-          // Generate URLs for all files in bulk
-          return this.spenderFileService.generateUrlsBulk(advanceRequest.file_ids).pipe(
-            map((urlResponses) => {
-              return urlResponses.map((urlResponse) => {
-                const fileObj: FileObject = {
-                  id: urlResponse.id,
-                  name: urlResponse.name,
-                  url: urlResponse.download_url,
-                  type: this.getAttachmentType(urlResponse.content_type),
-                  thumbnail: urlResponse.download_url,
-                  created_at: new Date(),
-                  org_user_id: '',
-                  s3url: '',
-                  purpose: '',
-                  password: '',
-                  email_meta_data: '',
-                  fyle_sub_url: '',
-                  file_download_url: urlResponse.download_url,
-                  file_type: this.getAttachmentType(urlResponse.content_type),
-                };
-                return fileObj;
-              });
-            }),
-          );
-        }),
-      );
+    return this.findByAdvanceRequestIdWithService(advanceRequestId, this.spenderService, this.spenderFileService);
   }
 
   findByAdvanceRequestIdForTeamAdvance(advanceRequestId: string): Observable<FileObject[]> {
-    // Get the advance request to extract file IDs using approver service for team advance context
-    return this.approverService
-      .get<PlatformApiResponse<any>>('/advance_requests', {
-        params: {
-          id: `eq.${advanceRequestId}`,
-        },
-      })
-      .pipe(
-        switchMap((response) => {
-          const advanceRequest = response.data[0]; // Get first item from array
-          if (!advanceRequest || !advanceRequest.file_ids || advanceRequest.file_ids.length === 0) {
-            return of([]);
-          }
+    return this.findByAdvanceRequestIdWithService(advanceRequestId, this.approverService, this.approverFileService);
+  }
 
-          // Generate URLs for all files in bulk using approver service for team advances
-          return this.approverFileService.generateUrlsBulk(advanceRequest.file_ids).pipe(
-            map((urlResponses) => {
-              return urlResponses.map((urlResponse) => {
-                const fileObj: FileObject = {
-                  id: urlResponse.id,
-                  name: urlResponse.name,
-                  url: urlResponse.download_url,
-                  type: this.getAttachmentType(urlResponse.content_type),
-                  thumbnail: urlResponse.download_url,
-                  created_at: new Date(),
-                  org_user_id: '',
-                  s3url: '',
-                  purpose: '',
-                  password: '',
-                  email_meta_data: '',
-                  fyle_sub_url: '',
-                  file_download_url: urlResponse.download_url,
-                  file_type: this.getAttachmentType(urlResponse.content_type),
-                };
-                return fileObj;
-              });
-            }),
-          );
-        }),
-      );
+  createFileObjectFromUrlResponse(urlResponse: any): FileObject {
+    const fileObj: FileObject = {
+      id: urlResponse.id,
+      name: urlResponse.name,
+      url: urlResponse.download_url,
+      type: this.getAttachmentType(urlResponse.content_type),
+      thumbnail: urlResponse.download_url,
+      created_at: new Date(),
+      org_user_id: '',
+      s3url: '',
+      purpose: '',
+      password: '',
+      email_meta_data: '',
+      fyle_sub_url: '',
+      file_download_url: urlResponse.download_url,
+      file_type: this.getAttachmentType(urlResponse.content_type),
+    };
+    return fileObj;
   }
 
   getFileExtension(fileName: string): string {
