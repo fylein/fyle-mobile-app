@@ -43,11 +43,11 @@ export class ApproverFileService {
       .pipe(map((response) => response.data));
   }
 
-  downloadFile(id: string): Observable<{}> {
+  downloadFile(id: string): Observable<void> {
     return this.approverPlatformApiService.get('/files/download?id=' + id);
   }
 
-  deleteFilesBulk(fileIds: string[]): Observable<{}> {
+  deleteFilesBulk(fileIds: string[]): Observable<void> {
     const data = fileIds.map((id) => ({ id }));
     const payload = { data };
     return this.approverPlatformApiService.post('/files/delete/bulk', payload);

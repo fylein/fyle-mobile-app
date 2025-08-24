@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output, inject } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, EventEmitter, Output, inject, input } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -59,7 +59,7 @@ export class FyViewAttachmentComponent implements OnInit {
 
   @Input() expenseId: string;
 
-  @Input() isTeamAdvance: boolean = false;
+  isTeamAdvance = input<boolean>(false);
 
   @Output() addMoreAttachments = new EventEmitter<Event>();
 
@@ -198,7 +198,7 @@ export class FyViewAttachmentComponent implements OnInit {
           switchMap(() => {
             if (this.attachments[activeIndex].id) {
               // Use appropriate file service based on team advance context
-              if (this.isTeamAdvance) {
+              if (this.isTeamAdvance()) {
                 return this.approverFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
               } else {
                 return this.spenderFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
@@ -257,7 +257,7 @@ export class FyViewAttachmentComponent implements OnInit {
           }
 
           // Use appropriate file service based on team advance context
-          const uploadMethod = this.isTeamAdvance ? 'uploadUrlForTeamAdvance' : 'uploadUrl';
+          const uploadMethod = this.isTeamAdvance() ? 'uploadUrlForTeamAdvance' : 'uploadUrl';
           return this.fileService[uploadMethod](attachment.id).pipe(
             switchMap((uploadUrl) => this.transactionsOutboxService.uploadData(uploadUrl, blob, 'image/jpeg')),
             tap(() => {
