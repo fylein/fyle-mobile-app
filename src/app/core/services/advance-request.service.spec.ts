@@ -752,14 +752,13 @@ describe('AdvanceRequestService', () => {
 
   describe('createAdvReqWithFilesAndSubmit():', () => {
     it('should create advanced request and submit it with the file', (done) => {
-      fileService.post.and.returnValue(of(fileObjectData3));
       const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
       spenderService.post.and.returnValue(of(mockPlatformResponse));
 
-      const mockFileObject = cloneDeep(fileData1);
-      advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(mockFileObject)).subscribe((res) => {
+      const mockFileIds = ['file1', 'file2'];
+      advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(mockFileIds)).subscribe((res) => {
         // The result should have the transformed advance request data
-        expect(res.files[0].advance_request_id).toBe(advanceRequestPlatform.data[0].id);
+        expect(res.files).toEqual([]);
         expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
         expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', {
           data: {
@@ -770,7 +769,6 @@ describe('AdvanceRequestService', () => {
             })),
           },
         });
-        expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
@@ -799,13 +797,12 @@ describe('AdvanceRequestService', () => {
 
   describe('saveDraftAdvReqWithFiles():', () => {
     it('should save draft advance request along with the file', (done) => {
-      fileService.post.and.returnValue(of(fileObjectData4));
       const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
       spenderService.post.and.returnValue(of(mockPlatformResponse));
 
-      const mockFileObject = cloneDeep(fileData2);
-      advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(mockFileObject)).subscribe((res) => {
-        expect(res.files[0].advance_request_id).toBe(advanceRequestPlatform.data[0].id);
+      const mockFileIds = ['file1', 'file2'];
+      advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(mockFileIds)).subscribe((res) => {
+        expect(res.files).toEqual([]);
         expect(res.advanceReq.id).toBe(advanceRequestPlatform.data[0].id);
         expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests', {
           data: {
@@ -816,7 +813,6 @@ describe('AdvanceRequestService', () => {
             })),
           },
         });
-        expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
