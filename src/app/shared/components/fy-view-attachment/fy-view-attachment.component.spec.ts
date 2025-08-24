@@ -609,11 +609,11 @@ describe('FyViewAttachmentComponent', () => {
 
     it('should return early if canvas context is null', (done) => {
       const mockImage = {
-        set onload(fn) {
+        set onload(fn: () => void) {
           setTimeout(fn, 0);
         },
-        set src(val) {},
-        get src() {
+        set src(val: string) {},
+        get src(): string {
           return '';
         },
       };
@@ -631,11 +631,11 @@ describe('FyViewAttachmentComponent', () => {
 
     it('should update attachment and flags on successful rotation', (done) => {
       const mockImage = {
-        set onload(fn) {
+        set onload(fn: () => void) {
           setTimeout(fn, 0);
         },
-        set src(val) {},
-        get src() {
+        set src(val: string) {},
+        get src(): string {
           return '';
         },
       };
@@ -667,7 +667,7 @@ describe('FyViewAttachmentComponent', () => {
     it('should handle image onerror', () => {
       const mockImage: any = {};
       Object.defineProperty(mockImage, 'onerror', {
-        set(fn) {
+        set(fn: () => void): void {
           fn();
         },
       });
@@ -731,11 +731,11 @@ describe('FyViewAttachmentComponent', () => {
 
   it('rotateImage(): should rotate image LEFT', (done) => {
     const mockImage = {
-      set onload(fn) {
+      set onload(fn: () => void) {
         setTimeout(fn, 0);
       },
-      set src(val) {},
-      get src() {
+      set src(val: string) {},
+      get src(): string {
         return '';
       },
     };
@@ -764,11 +764,11 @@ describe('FyViewAttachmentComponent', () => {
 
   it('rotateImage(): should rotate image RIGHT', (done) => {
     const mockImage = {
-      set onload(fn) {
+      set onload(fn: () => void) {
         setTimeout(fn, 0);
       },
-      set src(val) {},
-      get src() {
+      set src(val: string) {},
+      get src(): string {
         return '';
       },
     };
@@ -797,11 +797,11 @@ describe('FyViewAttachmentComponent', () => {
 
   it('should track events when rotating and saving images', (done) => {
     const mockImage = {
-      set onload(fn) {
+      set onload(fn: () => void) {
         setTimeout(fn, 0);
       },
-      set src(val) {},
-      get src() {
+      set src(val: string) {},
+      get src(): string {
         return '';
       },
     };

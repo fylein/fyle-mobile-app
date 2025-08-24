@@ -68,14 +68,12 @@ describe('FileService', () => {
     const mockDataUrl = 'data:image/jpeg;base64,dGVzdCBjb250ZW50';
     
     // Mock the fetch API
-    spyOn(globalThis, 'fetch').and.returnValue(
-      Promise.resolve({
-        blob: () => Promise.resolve(mockBlob)
-      } as Response)
-    );
+    spyOn(globalThis, 'fetch').and.resolveTo({
+      blob: () => Promise.resolve(mockBlob)
+    } as Response);
 
     // Mock the getDataUrlFromBlob method to return a predictable data URL
-    spyOn(fileService, 'getDataUrlFromBlob').and.returnValue(Promise.resolve(mockDataUrl));
+    spyOn(fileService, 'getDataUrlFromBlob').and.resolveTo(mockDataUrl);
 
     spenderFileService.generateUrlsBulk.and.returnValue(of([{ id: 'test', name: 'test.jpg', download_url: mockDownloadUrl, content_type: 'image/jpeg', upload_url: 'https://example.com/upload' }]));
 
