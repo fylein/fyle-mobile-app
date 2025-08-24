@@ -95,7 +95,7 @@ export function TestCases2(getTestBed) {
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       transactionsOutboxService = TestBed.inject(
-        TransactionsOutboxService
+        TransactionsOutboxService,
       ) as jasmine.SpyObj<TransactionsOutboxService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
@@ -105,7 +105,7 @@ export function TestCases2(getTestBed) {
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -135,7 +135,7 @@ export function TestCases2(getTestBed) {
       component.dataUrls = mockFileObjects;
       component.fileAttachments().subscribe((res) => {
         expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(undefined, 'image');
-        expect(res).toEqual(fileData3);
+        expect(res).toEqual(['file1', 'file2']);
         done();
       });
     });
@@ -172,7 +172,7 @@ export function TestCases2(getTestBed) {
       expect(captureReceiptModalSpy.present).toHaveBeenCalledTimes(1);
       expect(captureReceiptModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith(
-        '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf'
+        '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
       );
       expect(component.dataUrls).toEqual(expectedFileData2);
     }));
@@ -432,7 +432,7 @@ export function TestCases2(getTestBed) {
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
           expect(component.fg.value.project).toEqual(projects[0]);
           expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-            mockAdvanceRequest.areq.custom_field_values
+            mockAdvanceRequest.areq.custom_field_values,
           );
           expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.dataUrls).toEqual(fileObject4);
@@ -461,7 +461,7 @@ export function TestCases2(getTestBed) {
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
           expect(component.fg.value.project).toEqual(projects[0]);
           expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-            mockAdvanceRequest.areq.custom_field_values
+            mockAdvanceRequest.areq.custom_field_values,
           );
           expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.dataUrls).toEqual(fileObject4);

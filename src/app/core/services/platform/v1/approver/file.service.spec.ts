@@ -20,7 +20,7 @@ describe('ApproverFileService', () => {
     });
     service = TestBed.inject(ApproverFileService);
     approverPlatformApiService = TestBed.inject(
-      ApproverPlatformApiService
+      ApproverPlatformApiService,
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
   });
 
@@ -47,10 +47,10 @@ describe('ApproverFileService', () => {
   });
 
   it('downloadFile(): should download file', (done) => {
-    approverPlatformApiService.get.and.returnValue(of({}));
+    approverPlatformApiService.get.and.returnValue(of(undefined));
 
     service.downloadFile('fi').subscribe((response) => {
-      expect(response).toEqual({});
+      expect(response).toBeUndefined();
       done();
     });
   });
