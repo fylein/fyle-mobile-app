@@ -339,7 +339,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
                 return of([]);
               }
               
-              const fileUploadObservables = [];
+              const fileUploadObservables: Observable<string>[] = [];
               
               this.dataUrls.forEach((dataUrl) => {
                 dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
@@ -352,7 +352,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
                       { userId: advanceReqPlatform.user.id, orgId: eou.ou.org_id },
                       true
                     )).pipe(
-                      map((fileObj: any) => fileObj.id),
+                      map((fileObj: FileObject) => fileObj.id || ''),
                     ),
                   );
                 }
@@ -364,7 +364,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         }),
       );
     } else {
-      const fileUploadObservables = [];
+      const fileUploadObservables: Observable<string>[] = [];
       
       this.dataUrls.forEach((dataUrl) => {
         dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
@@ -372,7 +372,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         if (!dataUrl.id) {
           fileUploadObservables.push(
             from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)).pipe(
-              map((fileObj: any) => fileObj.id),
+              map((fileObj: FileObject) => fileObj.id || ''),
             ),
           );
         }
