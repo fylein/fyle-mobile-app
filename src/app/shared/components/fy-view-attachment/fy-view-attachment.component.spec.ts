@@ -812,8 +812,8 @@ describe('FyViewAttachmentComponent', () => {
       drawImage: jasmine.createSpy(),
     };
     const mockCanvas = {
-      getContext: () => mockCtx,
-      toDataURL: () => 'data:image/jpeg;base64,rotated',
+      getContext: (): any => mockCtx,
+      toDataURL: (): string => 'data:image/jpeg;base64,rotated',
       width: 0,
       height: 0,
     };
