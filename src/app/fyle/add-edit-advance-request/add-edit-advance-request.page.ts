@@ -330,13 +330,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
       return this.advanceRequestService.getApproverAdvanceRequestRaw(this.id).pipe(
         switchMap((advanceReqPlatform) => {
           if (!advanceReqPlatform || !advanceReqPlatform.user?.id) {
-            return of([]);
+            return of<string[]>([]);
           }
           
           return from(this.authService.getEou()).pipe(
             switchMap((eou) => {
               if (!eou || !eou.ou || !eou.ou.org_id) {
-                return of([]);
+                return of<string[]>([]);
               }
               
               const fileUploadObservables: Observable<string>[] = [];
@@ -358,7 +358,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
                 }
               });
               
-              return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of([])) as Observable<string[]>;
+              return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of<string[]>([]));
             }),
           );
         }),
@@ -378,7 +378,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         }
       });
       
-      return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of([])) as Observable<string[]>;
+      return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of<string[]>([]));
     }
   }
 
