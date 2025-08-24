@@ -358,7 +358,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
                 }
               });
               
-              return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of([]));
+              return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of([])) as Observable<string[]>;
             }),
           );
         }),
@@ -378,7 +378,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         }
       });
       
-      return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of([]));
+      return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of([])) as Observable<string[]>;
     }
   }
 
