@@ -18,6 +18,8 @@ import { SpenderFileService } from './platform/v1/spender/file.service';
 import { ApproverFileService } from './platform/v1/approver/file.service';
 import { PlatformFile } from '../models/platform/platform-file.model';
 import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
+import { PlatformFilePostRequestPayload } from '../models/platform/platform-file-post-request-payload.model';
+import { UserContext } from '../models/user-context.model';
 
 @Injectable({
   providedIn: 'root',
@@ -104,7 +106,7 @@ export class TransactionsOutboxService {
     });
   }
 
-  async fileUpload(dataUrl: string, fileType: string, userId?: string, orgId?: string, useApproverService: boolean = false): Promise<FileObject> {
+  async fileUpload(dataUrl: string, fileType: string, userContext?: UserContext, useApproverService = false): Promise<FileObject> {
     return new Promise((resolve, reject) => {
       let fileExtension = fileType;
       let contentType = 'application/pdf';
@@ -114,17 +116,17 @@ export class TransactionsOutboxService {
         contentType = 'image/jpeg';
       }
 
-      const filePayload: any = {
+      const filePayload: PlatformFilePostRequestPayload = {
         name: '000.' + fileExtension,
         type: 'RECEIPT',
       };
 
-      // Add user_id and org_id if provided (required for approver API)
-      if (userId) {
-        filePayload.user_id = userId;
+      if (userContext?.userId) {
+        filePayload.user_id = userContext.userId;
       }
-      if (orgId) {
-        filePayload.org_id = orgId;
+
+      if (userContext?.orgId) {
+        filePayload.org_id = userContext.orgId;
       }
       
       // Use approver service for team advances, spender service for regular advances

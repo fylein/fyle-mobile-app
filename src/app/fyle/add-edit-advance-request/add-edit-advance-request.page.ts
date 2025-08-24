@@ -349,8 +349,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
                     from(this.transactionsOutboxService.fileUpload(
                       dataUrl.url, 
                       dataUrl.type, 
-                      advanceReqPlatform.user.id, 
-                      eou.ou.org_id,
+                      { userId: advanceReqPlatform.user.id, orgId: eou.ou.org_id },
                       true
                     )).pipe(
                       map((fileObj: any) => fileObj.id),

@@ -59,7 +59,7 @@ export class FyViewAttachmentComponent implements OnInit {
 
   @Input() expenseId: string;
 
-  isTeamAdvance = input<boolean>(false);
+  readonly isTeamAdvance = input<boolean>(false);
 
   @Output() addMoreAttachments = new EventEmitter<Event>();
 
