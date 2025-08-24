@@ -130,11 +130,25 @@ export function TestCases2(getTestBed) {
     });
 
     it('fileAttachments(): should return file attachments if ids are absent in fileObject', (done) => {
-      transactionsOutboxService.fileUpload.and.resolveTo(cloneDeep(fileObject9[0]));
-      const mockFileObjects = cloneDeep(advanceRequestFileUrlData);
+      const mockFileObjects = cloneDeep(advanceRequestFileUrlData2);
       component.dataUrls = mockFileObjects;
+      
+      // Mock the fileUpload service to return different results for each call
+      const mockFile1 = { ...cloneDeep(fileObject9[0]), id: 'file1' };
+      const mockFile2 = { ...cloneDeep(fileObject9[0]), id: 'file2' };
+      
+      let callCount = 0;
+      transactionsOutboxService.fileUpload.and.callFake(() => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve(mockFile1);
+        } else {
+          return Promise.resolve(mockFile2);
+        }
+      });
+      
       component.fileAttachments().subscribe((res) => {
-        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(undefined, 'image');
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledTimes(2);
         expect(res).toEqual(['file1', 'file2']);
         done();
       });
@@ -185,7 +199,13 @@ export function TestCases2(getTestBed) {
 
       component.viewAttachments();
       tick(100);
-      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams4);
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        ...modalControllerParams4,
+        componentProps: {
+          ...modalControllerParams4.componentProps,
+          isTeamAdvance: false,
+        },
+      });
       expect(attachmentModalSpy.present).toHaveBeenCalledTimes(1);
       expect(attachmentModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(component.dataUrls).toEqual(expectedFileData2);

@@ -11,8 +11,10 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
 describe('FyViewAttachmentComponent', () => {
   let component: FyViewAttachmentComponent;
@@ -21,32 +23,39 @@ describe('FyViewAttachmentComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let spenderFileService: jasmine.SpyObj<SpenderFileService>;
+  let approverFileService: jasmine.SpyObj<ApproverFileService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let fileService: jasmine.SpyObj<FileService>;
   let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
+  let router: jasmine.SpyObj<Router>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+  
   beforeEach(waitForAsync(() => {
     const domSantizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
-    const trackingServiceSpy = jasmine.createSpyObj('TracingService', [
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'deleteFileClicked',
       'fileDeleted',
       'eventTrack',
     ]);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['deleteFilesBulk']);
+    const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['deleteFilesBulk']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptToExpense']);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile', 'uploadUrl']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile', 'uploadUrl', 'uploadUrlForTeamAdvance']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['uploadData']);
     const activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [], {
       snapshot: {
         params: {},
         queryParams: {},
       },
+    });
+    const routerSpy = jasmine.createSpyObj('Router', [], {
+      url: '/test-url',
     });
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
@@ -55,8 +64,9 @@ describe('FyViewAttachmentComponent', () => {
       langChanges$: of('en'),
       _loadDependencies: () => Promise.resolve(),
     });
+    
     TestBed.configureTestingModule({
-      declarations: [FyViewAttachmentComponent],
+      declarations: [FyViewAttachmentComponent, PopupAlertComponent],
       providers: [
         {
           provide: DomSanitizer,
@@ -73,6 +83,10 @@ describe('FyViewAttachmentComponent', () => {
         {
           provide: SpenderFileService,
           useValue: spenderFileServiceSpy,
+        },
+        {
+          provide: ApproverFileService,
+          useValue: approverFileServiceSpy,
         },
         {
           provide: LoaderService,
@@ -102,7 +116,14 @@ describe('FyViewAttachmentComponent', () => {
           provide: ActivatedRoute,
           useValue: activatedRouteSpy,
         },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
+        {
+          provide: Router,
+          useValue: routerSpy,
+        },
+        { 
+          provide: TranslocoService, 
+          useValue: translocoServiceSpy 
+        },
       ],
       imports: [IonicModule.forRoot(), TranslocoModule],
       schemas: [NO_ERRORS_SCHEMA],
@@ -114,13 +135,16 @@ describe('FyViewAttachmentComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
+    approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'fyViewAttachment.mapPreview': 'Map preview',
@@ -128,7 +152,7 @@ describe('FyViewAttachmentComponent', () => {
         'fyViewAttachment.saving': 'Saving',
         'fyViewAttachment.saveChanges': 'Save changes',
         'fyViewAttachment.saved': 'Saved',
-        'fyViewAttachment.removeReceiptTitle': 'Remove Receipt',
+        'fyViewAttachment.removeReceiptTitle': 'Remove receipt',
         'fyViewAttachment.removeReceiptMessage': 'Are you sure you want to remove this receipt?',
         'fyViewAttachment.remove': 'Remove',
         'fyViewAttachment.cancel': 'Cancel',
@@ -141,6 +165,7 @@ describe('FyViewAttachmentComponent', () => {
       }
       return translation;
     });
+    
     // Global fetch and fileService.readFile mocks
     spyOn(window, 'fetch').and.callFake(() =>
       Promise.resolve({
@@ -148,6 +173,8 @@ describe('FyViewAttachmentComponent', () => {
       } as any)
     );
     fileService.readFile.and.resolveTo('data:image/jpeg;base64,mocked');
+    fileService.uploadUrl.and.returnValue(of('upload-url'));
+    fileService.uploadUrlForTeamAdvance.and.returnValue(of('upload-url-team-advance'));
 
     const mockAttachments = [
       {
@@ -170,6 +197,11 @@ describe('FyViewAttachmentComponent', () => {
     loaderService.showLoader.and.resolveTo();
 
     component.attachments = mockAttachments;
+    // Mock the isTeamAdvance signal input
+    Object.defineProperty(component, 'isTeamAdvance', {
+      value: () => false,
+      writable: true,
+    });
     fixture.detectChanges();
   }));
 
@@ -177,21 +209,26 @@ describe('FyViewAttachmentComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnInit(): should update ', () => {
+  it('ngOnInit(): should update ', fakeAsync(() => {
+    // Reset the spy to ensure clean state
+    domSantizer.bypassSecurityTrustUrl.calls.reset();
+    
     const expectedSliderOptions = {
       zoom: {
         maxRatio: 1,
       },
     };
-    spyOn(component, 'ngOnInit');
     component.ngOnInit();
+    tick();
     fixture.detectChanges();
     expect(component.zoomScale).toBe(1);
     expect(component.sliderOptions).toEqual(expectedSliderOptions);
+    // The component calls bypassSecurityTrustUrl for each PDF attachment
+    // Since we have 2 PDF attachments (indices 0 and 2), it should be called 2 times
     expect(domSantizer.bypassSecurityTrustUrl).toHaveBeenCalledTimes(2);
     expect(domSantizer.bypassSecurityTrustUrl).toHaveBeenCalledWith(component.attachments[0].url);
     expect(domSantizer.bypassSecurityTrustUrl).toHaveBeenCalledWith(component.attachments[2].url);
-  });
+  }));
 
   it('ionViewWillEnter(): should update the swiper', () => {
     component.imageSlides = {
@@ -251,10 +288,12 @@ describe('FyViewAttachmentComponent', () => {
     expect(component.activeIndex).toBe(6);
   });
 
-  it('deleteAttachment(): should be able to show delete attachment popover and perform deletion', fakeAsync(() => {
+  it('deleteAttachment(): should be able to show delete attachment popover and perform deletion', fakeAsync(async () => {
     component.imageSlides = {
       swiperRef: {
-        activeIndex: 1,
+        activeIndex: Promise.resolve(1),
+        slideNext: jasmine.createSpy('slideNext'),
+        slidePrev: jasmine.createSpy('slidePrev'),
       },
     } as any;
 
@@ -273,7 +312,8 @@ describe('FyViewAttachmentComponent', () => {
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
-    component.deleteAttachment();
+    
+    await component.deleteAttachment();
     tick(1000);
 
     expect(component.goToPrevSlide).toHaveBeenCalledTimes(1);
@@ -286,10 +326,12 @@ describe('FyViewAttachmentComponent', () => {
     expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': '2' });
   }));
 
-  it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion', fakeAsync(() => {
+  it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion', fakeAsync(async () => {
     component.imageSlides = {
       swiperRef: {
-        activeIndex: 0,
+        activeIndex: Promise.resolve(0),
+        slideNext: jasmine.createSpy('slideNext'),
+        slidePrev: jasmine.createSpy('slidePrev'),
       },
     } as any;
 
@@ -308,7 +350,8 @@ describe('FyViewAttachmentComponent', () => {
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
-    component.deleteAttachment();
+    
+    await component.deleteAttachment();
     tick(1000);
 
     expect(component.goToNextSlide).toHaveBeenCalledTimes(1);
@@ -321,10 +364,12 @@ describe('FyViewAttachmentComponent', () => {
     expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': '1' });
   }));
 
-  it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion and dismiss the modal', fakeAsync(() => {
+  it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion and dismiss the modal', fakeAsync(async () => {
     component.imageSlides = {
       swiperRef: {
-        activeIndex: 0,
+        activeIndex: Promise.resolve(0),
+        slideNext: jasmine.createSpy('slideNext'),
+        slidePrev: jasmine.createSpy('slidePrev'),
       },
     } as any;
 
@@ -351,7 +396,8 @@ describe('FyViewAttachmentComponent', () => {
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
-    component.deleteAttachment();
+    
+    await component.deleteAttachment();
     tick(1000);
 
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({ attachments: component.attachments });
@@ -361,7 +407,7 @@ describe('FyViewAttachmentComponent', () => {
     expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': '1' });
   }));
 
-  it('deleteAttachment(): should not make api calls for attachments which have not been persisted yet', fakeAsync(() => {
+  it('deleteAttachment(): should not make api calls for attachments which have not been persisted yet', fakeAsync(async () => {
     component.attachments = [
       {
         id: '1',
@@ -382,7 +428,9 @@ describe('FyViewAttachmentComponent', () => {
 
     component.imageSlides = {
       swiperRef: {
-        activeIndex: 1,
+        activeIndex: Promise.resolve(1),
+        slideNext: jasmine.createSpy('slideNext'),
+        slidePrev: jasmine.createSpy('slidePrev'),
       },
     } as any;
 
@@ -402,7 +450,7 @@ describe('FyViewAttachmentComponent', () => {
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
 
-    component.deleteAttachment();
+    await component.deleteAttachment();
     tick(1000);
 
     expect(component.goToPrevSlide).toHaveBeenCalledTimes(1);
@@ -418,9 +466,43 @@ describe('FyViewAttachmentComponent', () => {
         url: 'http://example.com/attachment3.pdf',
       },
     ]);
-    expect(spenderFileService.deleteFilesBulk).not.toHaveBeenCalledOnceWith(['2']);
+    expect(spenderFileService.deleteFilesBulk).not.toHaveBeenCalled();
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': null });
     expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': null });
+  }));
+
+  it('deleteAttachment(): should use approverFileService when isTeamAdvance is true', fakeAsync(async () => {
+    // Mock the isTeamAdvance signal input to return true
+    Object.defineProperty(component, 'isTeamAdvance', {
+      value: () => true,
+      writable: true,
+    });
+    component.imageSlides = {
+      swiperRef: {
+        activeIndex: Promise.resolve(0),
+        slideNext: jasmine.createSpy('slideNext'),
+        slidePrev: jasmine.createSpy('slidePrev'),
+      },
+    } as any;
+
+    popoverController.create.and.returnValue(
+      Promise.resolve({
+        present: () => Promise.resolve(),
+        onWillDismiss: () =>
+          Promise.resolve({
+            data: {
+              action: 'remove',
+            },
+          }),
+      }) as any
+    );
+
+    approverFileService.deleteFilesBulk.and.returnValue(of(void 0));
+    
+    await component.deleteAttachment();
+    tick(1000);
+
+    expect(approverFileService.deleteFilesBulk).toHaveBeenCalledOnceWith(['1']);
   }));
 
   describe('rotation and save logic', () => {
@@ -437,17 +519,16 @@ describe('FyViewAttachmentComponent', () => {
       expect(component.rotatingDirection).toBeNull();
 
       component.loading = false;
-      component.rotatingDirection = 1 as any;
-      await component.rotateAttachment(1 as any);
-      //@ts-ignore
-      expect(component.rotatingDirection).toBe(1);
+      component.rotatingDirection = RotationDirection.RIGHT;
+      await component.rotateAttachment(RotationDirection.RIGHT);
+      expect(component.rotatingDirection).toBe(RotationDirection.RIGHT);
       component.rotatingDirection = null;
     });
 
     it('should return early if currentAttachment is falsy', async () => {
       component.attachments = [];
       component.activeIndex = 0;
-      await component.rotateAttachment(1 as any);
+      await component.rotateAttachment(RotationDirection.RIGHT);
       expect(component.rotatingDirection).toBeNull();
     });
 
@@ -457,7 +538,7 @@ describe('FyViewAttachmentComponent', () => {
       component.activeIndex = 0;
       component.loading = false;
       component.rotatingDirection = null;
-      component.rotateAttachment(1 as any);
+      component.rotateAttachment(RotationDirection.RIGHT);
       tick(401);
       expect((component as any).rotateImage).toHaveBeenCalled();
     }));
@@ -488,6 +569,24 @@ describe('FyViewAttachmentComponent', () => {
       expect(component.saveComplete[0]).toBeTrue();
       tick(5001);
       expect(component.saveComplete[0]).toBeFalse();
+    }));
+
+    it('should use uploadUrlForTeamAdvance when isTeamAdvance is true', fakeAsync(() => {
+      // Mock the isTeamAdvance signal input to return true
+      Object.defineProperty(component, 'isTeamAdvance', {
+        value: () => true,
+        writable: true,
+      });
+      const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
+      (window.fetch as jasmine.Spy).and.callFake(() =>
+        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any)
+      );
+      fileService.uploadUrlForTeamAdvance.and.returnValue(of('upload-url-team-advance'));
+      transactionsOutboxService.uploadData.and.returnValue(of(null));
+      component.saveRotatedImage();
+      tick();
+      expect(fileService.uploadUrlForTeamAdvance).toHaveBeenCalled();
+      expect(fileService.uploadUrl).not.toHaveBeenCalled();
     }));
 
     it('should handle error in observable chain', (done) => {
@@ -695,4 +794,58 @@ describe('FyViewAttachmentComponent', () => {
       done();
     }, 10);
   });
+
+  it('should track events when rotating and saving images', (done) => {
+    const mockImage = {
+      set onload(fn) {
+        setTimeout(fn, 0);
+      },
+      set src(val) {},
+      get src() {
+        return '';
+      },
+    };
+    spyOn(window as any, 'Image').and.returnValue(mockImage);
+    const mockCtx = {
+      translate: jasmine.createSpy(),
+      rotate: jasmine.createSpy(),
+      drawImage: jasmine.createSpy(),
+    };
+    const mockCanvas = {
+      getContext: () => mockCtx,
+      toDataURL: () => 'data:image/jpeg;base64,rotated',
+      width: 0,
+      height: 0,
+    };
+    spyOn(document, 'createElement').and.returnValue(mockCanvas as any);
+    component.attachments = [{ url: 'test', id: '1', type: 'image' }];
+    component.activeIndex = 0;
+    component.rotatingDirection = RotationDirection.LEFT;
+    (component as any).rotateImage(component.attachments[0], RotationDirection.LEFT);
+    setTimeout(() => {
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('Rotated receipt', {
+        ExpenseId: '1',
+        Direction: RotationDirection.LEFT,
+        Source: '/test-url',
+      });
+      done();
+    }, 10);
+  });
+
+  it('should track events when saving rotated images', fakeAsync(() => {
+    const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
+    (window.fetch as jasmine.Spy).and.callFake(() =>
+      Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any)
+    );
+    fileService.uploadUrl.and.returnValue(of('upload-url'));
+    transactionsOutboxService.uploadData.and.returnValue(of(null));
+    component.rotatingDirection = RotationDirection.RIGHT;
+    component.saveRotatedImage();
+    tick();
+    expect(trackingService.eventTrack).toHaveBeenCalledWith('Saved rotated receipt', {
+      ReceiptId: '1',
+      Direction: RotationDirection.RIGHT,
+      Source: '/test-url',
+    });
+  }));
 });

@@ -64,12 +64,27 @@ describe('FileService', () => {
 
   it('base64Download(): should return the base64 encoded file content', (done) => {
     const mockDownloadUrl = 'https://example.com/file.jpg';
+    const mockBlob = new Blob(['test content'], { type: 'image/jpeg' });
+    const mockDataUrl = 'data:image/jpeg;base64,dGVzdCBjb250ZW50';
+    
+    // Mock the fetch API
+    spyOn(globalThis, 'fetch').and.returnValue(
+      Promise.resolve({
+        blob: () => Promise.resolve(mockBlob)
+      } as Response)
+    );
+
+    // Mock the getDataUrlFromBlob method to return a predictable data URL
+    spyOn(fileService, 'getDataUrlFromBlob').and.returnValue(Promise.resolve(mockDataUrl));
+
     spenderFileService.generateUrlsBulk.and.returnValue(of([{ id: 'test', name: 'test.jpg', download_url: mockDownloadUrl, content_type: 'image/jpeg', upload_url: 'https://example.com/upload' }]));
 
     const fileId = 'fiAfXtUj24rJ';
     fileService.base64Download(fileId).subscribe((res) => {
       expect(res.content).toBeDefined();
+      expect(res.content).toBe('dGVzdCBjb250ZW50');
       expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith([fileId]);
+      expect(globalThis.fetch).toHaveBeenCalledOnceWith(mockDownloadUrl);
       done();
     });
   });
@@ -184,12 +199,12 @@ describe('FileService', () => {
     });
   });
 
-  it('uploadUrl(): should upload the file url', (done) => {
+  it('uploadUrl(): should return the file upload url', (done) => {
     const fileId = 'fiHv71XQgoZp';
     spenderFileService.generateUrlsBulk.and.returnValue(of([{ id: fileId, name: 'test.jpg', download_url: 'url', content_type: 'image/jpeg', upload_url: 'upload' }]));
 
     fileService.uploadUrl(fileId).subscribe((res) => {
-      expect(res).toEqual('url');
+      expect(res).toEqual('upload');
       expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith([fileId]);
       done();
     });
