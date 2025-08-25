@@ -592,7 +592,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       });
     }
 
-    const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests> & { ou?: { org_id: string } }> = of(
+    const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = of(
       this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE',
     ).pipe(
       switchMap((isEditFromTeamView) => {
@@ -630,7 +630,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         this.getAttachedReceipts(requestId).subscribe((files) => {
           this.dataUrls = files;
         });
-        return { ...res.areq, ou: res.ou };
+        return res.areq;
       }),
       shareReplay(1),
     );

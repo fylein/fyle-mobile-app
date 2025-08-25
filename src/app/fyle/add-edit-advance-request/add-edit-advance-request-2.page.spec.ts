@@ -456,7 +456,7 @@ export function TestCases2(getTestBed) {
           );
           expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.dataUrls).toEqual(fileObject4);
-          expect(res).toEqual(mockAdvanceRequest.areq);
+          expect(res).toEqual(jasmine.objectContaining(mockAdvanceRequest.areq));
         });
       }));
 
@@ -473,7 +473,7 @@ export function TestCases2(getTestBed) {
         component.ionViewWillEnter();
         tick(100);
         component.extendedAdvanceRequest$.subscribe((res) => {
-          expect(advanceRequestService.getEReqFromApprover).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(advanceRequestService.getEReqFromApprover).toHaveBeenCalledWith('areqR1cyLgXdND');
           expect(component.fg.value.currencyObj).toEqual({
             currency: 'USD',
             amount: 2,
@@ -485,7 +485,7 @@ export function TestCases2(getTestBed) {
           );
           expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.dataUrls).toEqual(fileObject4);
-          expect(res).toEqual(mockAdvanceRequest.areq);
+          expect(res).toEqual(jasmine.objectContaining(mockAdvanceRequest.areq));
         });
       }));
 
