@@ -1156,6 +1156,29 @@ export class AddEditExpensePage implements OnInit {
   ngOnInit(): void {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    
+    // Handle initial receipt loading from route parameters
+    this.handleInitialReceipts();
+  }
+
+  private handleInitialReceipts(): void {
+    const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
+    
+    if (dataUrl && Array.isArray(dataUrl)) {
+      // Multiple receipts from route params - update UI immediately
+      this.attachedReceiptsCount = dataUrl.length;
+      this.canAttachReceipts = false; // Disable attachment button since we have receipts
+      
+      // Also update the newExpenseDataUrls array to reflect the current state
+      this.newExpenseDataUrls = dataUrl.map((receiptUrl: string) => ({
+        url: receiptUrl,
+        type: 'image',
+        thumbnail: receiptUrl,
+      }));
+      
+      // Trigger UI update
+      this.loadAttachments$.next();
+    }
   }
 
   setupCostCenters(): void {
@@ -1258,8 +1281,93 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getInstaFyleImageData(): Observable<Partial<InstaFyleImageData>> {
-    if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
-      const dataUrl = this.activatedRoute.snapshot.params.dataUrl as string;
+    const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
+    
+    if (!dataUrl) {
+      return of(null);
+    }
+
+    // Handle multiple receipts
+    if (Array.isArray(dataUrl)) {
+      // Multiple receipts - attach all of them
+      dataUrl.forEach((receiptUrl: string) => {
+        this.attachReceipts({
+          type: 'image',
+          dataUrl: receiptUrl,
+          actionSource: 'MOBILE_INSTA'
+        });
+      });
+      
+      // Return the first receipt for parsing (if enabled)
+      const firstReceiptUrl = dataUrl[0];
+      if (this.activatedRoute.snapshot.params.canExtractData !== 'false') {
+        const b64Image = firstReceiptUrl.replace('data:image/jpeg;base64,', '');
+        const scanStartTime = Date.now();
+        return from(this.transactionOutboxService.parseReceipt(b64Image)).pipe(
+          timeout(15000),
+          map((parsedResponse) => {
+            const scanEndTime = Date.now();
+            const scanDuration = (scanEndTime - scanStartTime) / 1000; // in seconds
+            this.trackingService.receiptScanTimeInstaFyle({ duration: scanDuration, fileType: 'image' });
+            return {
+              parsedResponse: parsedResponse.data,
+            };
+          }),
+          catchError(() =>
+            of({
+              error: true,
+              parsedResponse: {
+                source: 'MOBILE_INSTA',
+              },
+            }),
+          ),
+          switchMap((extractedDetails) => {
+            const instaFyleImageData = {
+              thumbnail: firstReceiptUrl,
+              type: 'image',
+              url: firstReceiptUrl,
+              ...extractedDetails,
+            };
+
+            const details = extractedDetails.parsedResponse as ParsedResponse;
+            if (details) {
+              this.autoCodedData = details;
+            }
+
+            if (details) {
+              return this.currencyService.getHomeCurrency().pipe(
+                switchMap((homeCurrency) => {
+                  if (homeCurrency !== details.currency) {
+                    return this.currencyService
+                      .getExchangeRate(details.currency, homeCurrency, details.date ? new Date(details.date) : new Date())
+                      .pipe(
+                        catchError(() => of(null)),
+                        map((exchangeRate) => ({
+                          ...instaFyleImageData,
+                          exchangeRate,
+                        })),
+                      );
+                  } else {
+                    return of(instaFyleImageData);
+                  }
+                }),
+              );
+            } else {
+              return of(instaFyleImageData);
+            }
+          }),
+        );
+      } else {
+        return of({
+          thumbnail: firstReceiptUrl,
+          type: 'image',
+          url: firstReceiptUrl,
+        });
+      }
+    }
+
+    // Handle single receipt (existing logic)
+    if (this.activatedRoute.snapshot.params.canExtractData !== 'false') {
       const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
       const scanStartTime = Date.now();
       return from(this.transactionOutboxService.parseReceipt(b64Image)).pipe(
@@ -1282,9 +1390,9 @@ export class AddEditExpensePage implements OnInit {
         ),
         switchMap((extractedDetails) => {
           const instaFyleImageData = {
-            thumbnail: this.activatedRoute.snapshot.params.dataUrl as string,
+            thumbnail: dataUrl,
             type: 'image',
-            url: this.activatedRoute.snapshot.params.dataUrl as string,
+            url: dataUrl,
             ...extractedDetails,
           };
 
@@ -1316,15 +1424,13 @@ export class AddEditExpensePage implements OnInit {
           }
         }),
       );
-    } else if (this.activatedRoute.snapshot.params.dataUrl) {
+    } else {
       const instaFyleImageData = {
-        thumbnail: this.activatedRoute.snapshot.params.dataUrl as string,
+        thumbnail: dataUrl,
         type: 'image',
-        url: this.activatedRoute.snapshot.params.dataUrl as string,
+        url: dataUrl,
       };
       return of(instaFyleImageData);
-    } else {
-      return of(null);
     }
   }
 
@@ -1398,7 +1504,9 @@ export class AddEditExpensePage implements OnInit {
                 policy_amount: null,
                 locations: [],
                 custom_properties: [],
-                num_files: this.activatedRoute.snapshot.params.dataUrl ? 1 : 0,
+                num_files: this.activatedRoute.snapshot.params.dataUrl ? 
+                  (Array.isArray(this.activatedRoute.snapshot.params.dataUrl) ? 
+                    this.activatedRoute.snapshot.params.dataUrl.length : 1) : 0,
                 org_user_id: eou.ou.id,
               },
               dataUrls: [],
@@ -1515,13 +1623,28 @@ export class AddEditExpensePage implements OnInit {
           this.source = 'MOBILE';
 
           if (imageData && imageData.url) {
-            etxn.dataUrls.push({
-              url: imageData.url,
-              type: 'image',
-              thumbnail: imageData.url,
-            });
+            // Handle multiple receipts from route params
+            const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
+            if (Array.isArray(dataUrl)) {
+              // Multiple receipts - add all of them
+              dataUrl.forEach((receiptUrl: string) => {
+                etxn.dataUrls.push({
+                  url: receiptUrl,
+                  type: 'image',
+                  thumbnail: receiptUrl,
+                });
+              });
+              this.source = 'MOBILE_DASHCAM_BULK';
+            } else {
+              // Single receipt
+              etxn.dataUrls.push({
+                url: imageData.url,
+                type: 'image',
+                thumbnail: imageData.url,
+              });
+              this.source = 'MOBILE_DASHCAM_SINGLE';
+            }
             etxn.tx.num_files = etxn.dataUrls.length;
-            this.source = 'MOBILE_DASHCAM_SINGLE';
           }
 
           return etxn;
@@ -2076,6 +2199,7 @@ export class AddEditExpensePage implements OnInit {
           if (etxn.dataUrls && etxn.dataUrls.length) {
             this.newExpenseDataUrls = etxn.dataUrls;
             this.attachedReceiptsCount = this.newExpenseDataUrls.length;
+            this.canAttachReceipts = this.attachedReceiptsCount === 0;
           }
 
           this.setCategoryOnValueChange();
@@ -4806,6 +4930,7 @@ export class AddEditExpensePage implements OnInit {
         }
 
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
+        this.canAttachReceipts = this.attachedReceiptsCount === 0;
         this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
           if (isConnected && this.attachedReceiptsCount === 1) {
             this.parseFile(
@@ -4860,6 +4985,7 @@ export class AddEditExpensePage implements OnInit {
           )
           .subscribe(({ attachments, isConnected, expenseObj }) => {
             this.attachedReceiptsCount = attachments;
+            this.canAttachReceipts = this.attachedReceiptsCount === 0;
 
             // checking if extraction is needed or not
             const isDataExtractionNeeded = !(
@@ -5069,6 +5195,7 @@ export class AddEditExpensePage implements OnInit {
             if (data && data.attachments) {
               this.newExpenseDataUrls = data.attachments;
               this.attachedReceiptsCount = data.attachments.length;
+              this.canAttachReceipts = this.attachedReceiptsCount === 0;
             }
           } else {
             // Always trigger a refresh of attachments when modal is dismissed
@@ -5077,6 +5204,7 @@ export class AddEditExpensePage implements OnInit {
             // Update the count if attachments were modified
             if (data && data.attachments) {
               this.attachedReceiptsCount = data.attachments.length;
+              this.canAttachReceipts = this.attachedReceiptsCount === 0;
             }
           }
         });
