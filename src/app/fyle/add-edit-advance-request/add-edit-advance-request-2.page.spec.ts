@@ -60,7 +60,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
 export function TestCases2(getTestBed) {
-  return fdescribe('test cases 2', () => {
+  return describe('test cases 2', () => {
     let component: AddEditAdvanceRequestPage;
     let fixture: ComponentFixture<AddEditAdvanceRequestPage>;
     let authService: jasmine.SpyObj<AuthService>;
