@@ -178,7 +178,7 @@ export function TestCases1(getTestBed) {
 
     it('submitAdvanceRequest(): should get file attachments and call advanceRequestService.createAdvReqWithFilesAndSubmit once', () => {
       advanceRequestService.createAdvReqWithFilesAndSubmit.and.returnValue(of(advRequestFile));
-      const mockFileData = of(fileData1);
+      const mockFileData = of(['file1', 'file2']);
       spyOn(component, 'fileAttachments').and.returnValue(mockFileData);
 
       const result = component.submitAdvanceRequest(advanceRequests);
@@ -196,7 +196,7 @@ export function TestCases1(getTestBed) {
 
     it('saveDraftAdvanceRequest(): should get file attachments and call advanceRequestService.saveDraftAdvReqWithFiles once', () => {
       advanceRequestService.saveDraftAdvReqWithFiles.and.returnValue(of(advRequestFile));
-      const mockFileData = of(fileData1);
+      const mockFileData = of(['file1', 'file2']);
       spyOn(component, 'fileAttachments').and.returnValue(mockFileData);
 
       const result = component.saveDraftAdvanceRequest(advanceRequests);

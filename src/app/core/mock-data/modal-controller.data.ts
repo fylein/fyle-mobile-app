@@ -503,6 +503,7 @@ export const modalControllerParams7 = {
   component: FyViewAttachmentComponent,
   componentProps: {
     attachments: fileObject4[0],
+    isTeamAdvance: true,
   },
   mode: 'ios' as Mode,
   presentingElement: undefined,
