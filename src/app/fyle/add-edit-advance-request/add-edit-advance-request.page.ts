@@ -43,6 +43,8 @@ import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';
 import { AdvanceRequestDeleteParams } from 'src/app/core/models/advance-request-delete-params.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -87,6 +89,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
+  private spenderFileService = inject(SpenderFileService);
+  private approverFileService = inject(ApproverFileService);
+
   @ViewChild('formContainer') formContainer: ElementRef;
 
   isConnected$: Observable<boolean>;
@@ -128,6 +133,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
 
   isCameraPreviewStarted = false;
+
+  attachmentUploadInProgress = false;
 
   @HostListener('keydown')
   scrollInputIntoView(): void {
@@ -429,14 +436,49 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   async viewAttachments(): Promise<void> {
-    let attachments = this.dataUrls;
+    this.attachmentUploadInProgress = true;
+    
+    const fileIds = await this.fileAttachments().toPromise();
+    
+    if (fileIds && fileIds.length > 0) {
+      let fileIdIndex = 0;
+      this.dataUrls = this.dataUrls.map(attachment => {
+        if (!attachment.id && fileIdIndex < fileIds.length) {
+          return {
+            ...attachment,
+            id: fileIds[fileIdIndex++],
+            type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image'
+          };
+        }
+        return attachment;
+      });
 
-    attachments = attachments.map((attachment) => {
+      // Attach the uploaded files to the advance request
+      if (this.id) {
+        if (this.from === 'TEAM_ADVANCE') {
+          // For team advances, use approver service
+          await this.advanceRequestService.getApproverAdvanceRequestRaw(this.id).pipe(
+            switchMap((advanceReqPlatform) => {
+              if (advanceReqPlatform?.user?.id) {
+                return this.approverFileService.attachToAdvance(this.id, fileIds, advanceReqPlatform.user.id);
+              }
+              return of(null);
+            })
+          ).toPromise();
+        } else {
+          // For regular advances, use spender service
+          await this.spenderFileService.attachToAdvance(this.id, fileIds).toPromise();
+        }
+      }
+    }
+
+    const attachments = this.dataUrls.map((attachment) => {
       if (!attachment.id) {
         attachment.type = attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image';
       }
       return attachment;
     });
+
     const attachmentsModal = await this.modalController.create({
       component: FyViewAttachmentComponent,
       componentProps: {
@@ -454,6 +496,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     if (data) {
       this.dataUrls = data.attachments;
     }
+
+    this.attachmentUploadInProgress = false;
   }
 
   getReceiptExtension(name: string): string {
