@@ -51,7 +51,6 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   private devicePlatform = inject(DEVICE_PLATFORM);
   private translocoService = inject(TranslocoService);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() currentSelection: any;
 
   @Input() header = '';
@@ -74,10 +73,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   geoLocation = Geolocation;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filteredList$: Observable<any[]>;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   recentItemsFilteredList$: Observable<any[]>;
 
   currentGeolocationPermissionGranted = false;

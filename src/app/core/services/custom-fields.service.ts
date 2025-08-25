@@ -47,7 +47,6 @@ export class CustomFieldsService {
     if (customInput.hasOwnProperty('is_mandatory')) {
       customInputMandatory = customInput.is_mandatory;
     } else {
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       customInputMandatory = customInput['mandatory'] as boolean;
     }
 
@@ -85,7 +84,7 @@ export class CustomFieldsService {
   standardizeCustomFields(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     customProperties: CustomProperty<any>[],
-    customInputs: ExpenseField[]
+    customInputs: ExpenseField[],
   ): TxnCustomProperties[] {
     let prefix = '';
 

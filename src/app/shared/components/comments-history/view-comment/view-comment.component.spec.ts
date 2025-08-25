@@ -79,13 +79,9 @@ describe('ViewCommentComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    declarations: [ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
-    imports: [IonicModule.forRoot(),
-        MatIconModule,
-        MatIconTestingModule,
-        FormsModule,
-        TranslocoModule],
-    providers: [
+      declarations: [ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
+      providers: [
         { provide: StatusService, useValue: statusService },
         { provide: AuthService, useValue: authService },
         { provide: ModalController, useValue: modalController },
@@ -102,8 +98,8 @@ describe('ViewCommentComponent', () => {
         { provide: AdvanceRequestService, useValue: advanceRequestService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     authService.getEou.and.resolveTo(apiEouRes);
     const mockCommentResponse = cloneDeep(apiCommentsResponse);
@@ -266,7 +262,7 @@ describe('ViewCommentComponent', () => {
     const mockBtn = {
       click: jasmine.createSpy('click'),
     };
-    // eslint-disable-next-line @typescript-eslint/dot-notation
+
     spyOn(component['elementRef'].nativeElement, 'getElementsByClassName').and.returnValue([null, mockBtn] as any);
 
     const event = {
@@ -290,7 +286,7 @@ describe('ViewCommentComponent', () => {
     const mockBtn = {
       click: jasmine.createSpy('click'),
     };
-    // eslint-disable-next-line @typescript-eslint/dot-notation
+
     spyOn(component['elementRef'].nativeElement, 'getElementsByClassName').and.returnValue([mockBtn, null] as any);
 
     const event = {

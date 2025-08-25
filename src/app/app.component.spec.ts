@@ -54,7 +54,7 @@ describe('AppComponent', () => {
     const backButtonSpy = jasmine.createSpyObj('backButton', ['subscribeWithPriority']);
     backButtonSpy.subscribeWithPriority.and.callFake((priority: number, callback: () => void) => {
       // Store the callback for later use in tests
-      (backButtonSpy as any).lastCallback = callback;
+      backButtonSpy.lastCallback = callback;
       return { unsubscribe: jasmine.createSpy('unsubscribe') };
     });
     platformSpy.backButton = backButtonSpy;
@@ -539,7 +539,7 @@ describe('AppComponent', () => {
     const component = fixture.debugElement.componentInstance;
     // When not connected, our pipe should return 0.
     component.isConnected$ = of(false);
-    (component as any).getTotalTasksCount();
+    component.getTotalTasksCount();
     expect(component.totalTasksCount).toBe(0);
   });
 

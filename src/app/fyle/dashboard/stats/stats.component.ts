@@ -156,7 +156,6 @@ export class StatsComponent implements OnInit {
 
       const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
 
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
 
       // Converting the duration to seconds and fix it to 3 decimal places

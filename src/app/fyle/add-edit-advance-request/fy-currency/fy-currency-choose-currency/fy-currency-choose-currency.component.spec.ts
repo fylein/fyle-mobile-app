@@ -134,7 +134,7 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
 
   it('ngAfterViewInit(): should update the filteredCurrencies$', fakeAsync(() => {
     component.searchBarRef = getElementRef(fixture, '.selection-modal--search-input');
-    const inputElement = component.searchBarRef.nativeElement as HTMLInputElement;
+    const inputElement = component.searchBarRef.nativeElement;
     const mockCurrencies = [
       { shortCode: 'IRR', longName: 'Iranian Rial' },
       { shortCode: 'INR', longName: 'Indian National Rupees' },

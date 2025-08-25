@@ -16,7 +16,7 @@ dayjs.extend(timezone);
 export class DateWithTimezonePipe implements PipeTransform {
   private timezone$ = inject<BehaviorSubject<string>>(TIMEZONE);
 
-  transform(value: string | Date, format: string = 'MMM DD, YYYY'): string {
+  transform(value: string | Date, format = 'MMM DD, YYYY'): string {
     if (!value) {
       return '';
     }

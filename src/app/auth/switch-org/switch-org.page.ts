@@ -184,7 +184,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       this.trackSwitchOrgLaunchTime();
     });
 
-    // eslint-disable-next-line
     this.filteredOrgs$ = fromEvent<{ srcElement: { value: string } }>(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event) => event.srcElement.value),
       startWith(''),
