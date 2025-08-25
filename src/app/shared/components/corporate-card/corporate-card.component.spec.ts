@@ -106,7 +106,7 @@ describe('CorporateCardComponent', () => {
     const cardNumberComponent = fixture.debugElement.query(By.directive(MockCardNumberComponent));
 
     expect(cardNumberComponent).toBeTruthy();
-    expect(cardNumberComponent.componentInstance.cardNumber).toBe(mastercardRTFCard.card_number);
+    expect(cardNumberComponent.componentInstance.cardNumber()).toBe(mastercardRTFCard.card_number);
   });
 
   describe('card logo', () => {
