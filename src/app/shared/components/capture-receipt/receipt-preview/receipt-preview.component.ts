@@ -43,7 +43,16 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
-  @Input() base64ImagesWithSource: Image[];
+  // Add setter to validate and log input changes
+  @Input() set base64ImagesWithSource(value: Image[]) {
+    this._base64ImagesWithSource = value || [];
+  }
+
+  get base64ImagesWithSource(): Image[] {
+    return this._base64ImagesWithSource;
+  }
+
+  private _base64ImagesWithSource: Image[] = [];
 
   @Input() mode: string;
 
@@ -125,6 +134,10 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     this.activeIndex = 0;
     this.checkScreenSize();
     window.addEventListener('resize', this.checkScreenSize);
+    
+    // Debug logging
+    console.log('ReceiptPreviewComponent initialized with base64ImagesWithSource:', this.base64ImagesWithSource);
+    console.log('base64ImagesWithSource length:', this.base64ImagesWithSource?.length);
   }
 
   ngOnDestroy(): void {
@@ -147,15 +160,19 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   saveReceipt(): void {
     this.modalController.dismiss({
-      base64ImagesWithSource: this.base64ImagesWithSource,
+      data: {
+        base64ImagesWithSource: this.base64ImagesWithSource,
+      },
     });
   }
 
   saveReceiptForLater(): void {
     this.trackingService.saveReceiptForLater();
     this.modalController.dismiss({
-      base64ImagesWithSource: this.base64ImagesWithSource,
-      isSaveReceiptForLater: true,
+      data: {
+        base64ImagesWithSource: this.base64ImagesWithSource,
+        isSaveReceiptForLater: true,
+      },
     });
   }
 
@@ -241,8 +258,10 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   captureReceipts(): void {
     this.modalController.dismiss({
-      base64ImagesWithSource: this.base64ImagesWithSource,
-      continueCaptureReceipt: true,
+      data: {
+        base64ImagesWithSource: this.base64ImagesWithSource,
+        continueCaptureReceipt: true,
+      },
     });
   }
 
@@ -285,7 +304,9 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   retake(): void {
     this.base64ImagesWithSource = [];
     this.modalController.dismiss({
-      base64ImagesWithSource: this.base64ImagesWithSource,
+      data: {
+        base64ImagesWithSource: this.base64ImagesWithSource,
+      },
     });
   }
 
