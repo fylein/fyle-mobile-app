@@ -204,13 +204,17 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       );
 
     isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
+      // Pass all receipts, not just the first one
+      const allReceipts = this.base64ImagesWithSource.map(receipt => receipt.base64Image);
+      
       this.router.navigate([
         '/',
         'enterprise',
         'add_edit_expense',
         {
-          dataUrl: this.base64ImagesWithSource[0]?.base64Image,
+          dataUrl: allReceipts.length === 1 ? allReceipts[0] : allReceipts,
           canExtractData: isInstafyleEnabled,
+          receiptCount: allReceipts.length,
         },
       ]);
     });
@@ -269,8 +273,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       )
       .subscribe(() => {
         setTimeout(() => {
+          // Pass all receipts, not just the first one
+          const allReceipts = this.base64ImagesWithSource.map(receipt => receipt.base64Image);
           this.modalController.dismiss({
-            dataUrl: this.base64ImagesWithSource[0]?.base64Image,
+            dataUrl: allReceipts.length === 1 ? allReceipts[0] : allReceipts,
           });
         }, 0);
       });
@@ -385,7 +391,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   onBulkCapture(): void {
-    this.noOfReceipts += 1;
+    // The addReceiptToCollection method already handles updating the count
+    // This method is kept for backward compatibility but no longer needed
   }
 
   showLimitReachedPopover(): Observable<HTMLIonPopoverElement> {
