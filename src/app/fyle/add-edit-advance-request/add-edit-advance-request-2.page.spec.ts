@@ -60,7 +60,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
 export function TestCases2(getTestBed) {
-  return describe('test cases 2', () => {
+  return fdescribe('test cases 2', () => {
     let component: AddEditAdvanceRequestPage;
     let fixture: ComponentFixture<AddEditAdvanceRequestPage>;
     let authService: jasmine.SpyObj<AuthService>;
@@ -193,16 +193,33 @@ export function TestCases2(getTestBed) {
 
     it('viewAttachments(): should show the attachments as preview', fakeAsync(() => {
       component.dataUrls = cloneDeep(advanceRequestFileUrlData2);
+      
+      let callCount = 0;
+      transactionsOutboxService.fileUpload.and.callFake(() => {
+        callCount++;
+        const mockFile = { ...cloneDeep(fileObject9[0]), id: `file${callCount}` };
+        return Promise.resolve(mockFile);
+      });
+
       const attachmentModalSpy = jasmine.createSpyObj('attachmentsModal', ['present', 'onWillDismiss']);
       attachmentModalSpy.onWillDismiss.and.resolveTo({ data: { attachments: expectedFileData2 } });
       modalController.create.and.resolveTo(attachmentModalSpy);
 
       component.viewAttachments();
       tick(100);
+
+      const expectedAttachmentsWithIds = cloneDeep(advanceRequestFileUrlData2).map((attachment, index) => ({
+        ...attachment,
+        id: `file${index + 1}`,
+        type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image'
+      }));
+      
+      // Check that the modal was created with the correct parameters
       expect(modalController.create).toHaveBeenCalledOnceWith({
         ...modalControllerParams4,
         componentProps: {
           ...modalControllerParams4.componentProps,
+          attachments: expectedAttachmentsWithIds,
           isTeamAdvance: false,
         },
       });
