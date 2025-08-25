@@ -198,7 +198,8 @@ export class FyViewAttachmentComponent implements OnInit {
           switchMap(() => {
             if (this.attachments[activeIndex].id) {
               // Use appropriate file service based on team advance context
-              if (this.isTeamAdvance()) {
+              // eslint-disable-next-line @angular-eslint/no-uncalled-signals
+              if (this.isTeamAdvance) {
                 return this.approverFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
               } else {
                 return this.spenderFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
@@ -257,7 +258,8 @@ export class FyViewAttachmentComponent implements OnInit {
           }
 
           // Use appropriate file service based on team advance context
-          const uploadMethod = this.isTeamAdvance() ? 'uploadUrlForTeamAdvance' : 'uploadUrl';
+          // eslint-disable-next-line @angular-eslint/no-uncalled-signals
+          const uploadMethod = this.isTeamAdvance ? 'uploadUrlForTeamAdvance' : 'uploadUrl';
           return this.fileService[uploadMethod](attachment.id).pipe(
             switchMap((uploadUrl) => this.transactionsOutboxService.uploadData(uploadUrl, blob, 'image/jpeg')),
             tap(() => {
