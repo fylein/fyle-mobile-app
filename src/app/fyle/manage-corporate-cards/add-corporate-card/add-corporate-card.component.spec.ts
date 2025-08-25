@@ -508,8 +508,8 @@ describe('AddCorporateCardComponent', () => {
       const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
 
       expect(alertMessageComponent).toBeTruthy();
-      expect(alertMessageComponent.componentInstance.type).toBe('information');
-      expect(alertMessageComponent.componentInstance.message).toBe(
+      expect(alertMessageComponent.componentInstance.type()).toBe('information');
+      expect(alertMessageComponent.componentInstance.message()).toBe(
         'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.',
       );
       expect(addCorporateCardBtn.disabled).toBeTrue();
