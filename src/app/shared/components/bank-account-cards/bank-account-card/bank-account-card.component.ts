@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter, inject, input } from '@angular/core';
+import { Component, Input, OnInit, inject, input, output } from '@angular/core';
 import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 import { PopoverController } from '@ionic/angular';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
@@ -39,7 +39,7 @@ export class BankAccountCardComponent implements OnInit {
 
   readonly minimal = input<boolean>(undefined);
 
-  @Output() deleted = new EventEmitter();
+  readonly deleted = output();
 
   lastSyncedAt;
 

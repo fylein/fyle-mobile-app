@@ -1,5 +1,5 @@
 import { getCurrencySymbol } from '@angular/common';
-import { Component, OnInit, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, OnInit, Input, inject, output } from '@angular/core';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import dayjs from 'dayjs';
@@ -21,7 +21,7 @@ export class TeamAdvCardComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() prevDate: Date;
 
-  @Output() gotoAdvance: EventEmitter<ExtendedAdvanceRequest> = new EventEmitter();
+  readonly gotoAdvance = output<ExtendedAdvanceRequest>();
 
   internalState: { name: string; state: string };
 

@@ -2,15 +2,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   ElementRef,
-  EventEmitter,
   Input,
   OnChanges,
   OnInit,
-  Output,
   SimpleChanges,
   ViewChild,
   inject,
   input,
+  output,
 } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -76,9 +75,9 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   readonly areCardsEnrolled = input<boolean>(undefined);
 
-  @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
+  readonly isStepComplete = output<boolean>();
 
-  @Output() goToConnectCard: EventEmitter<boolean> = new EventEmitter<boolean>();
+  readonly goToConnectCard = output<boolean>();
 
   cardForm: UntypedFormControl;
 

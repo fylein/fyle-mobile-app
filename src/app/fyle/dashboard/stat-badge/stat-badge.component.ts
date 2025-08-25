@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, output } from '@angular/core';
 import { ReportStates } from './report-states.enum';
 
 @Component({
@@ -40,7 +40,7 @@ export class StatBadgeComponent {
   //  Your application code writes to the input. This prevents migration.
   @Input() expenseState: string;
 
-  @Output() badgeClicked = new EventEmitter();
+  readonly badgeClicked = output<ReportStates | string>();
 
   screenWidth: number = window.innerWidth;
 

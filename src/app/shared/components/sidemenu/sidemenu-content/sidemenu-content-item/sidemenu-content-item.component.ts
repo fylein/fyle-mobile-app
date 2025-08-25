@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, input } from '@angular/core';
+import { Component, OnInit, Input, input, output } from '@angular/core';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 
 @Component({
@@ -14,7 +14,7 @@ export class SidemenuContentItemComponent implements OnInit {
 
   readonly showDivider = input<boolean>(undefined);
 
-  @Output() redirect = new EventEmitter<Partial<SidemenuItem>>();
+  readonly redirect = output<Partial<SidemenuItem>>();
 
   isRoute = true;
 

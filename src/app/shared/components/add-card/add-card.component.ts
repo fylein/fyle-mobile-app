@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input, output } from '@angular/core';
 
 @Component({
   selector: 'app-add-card',
@@ -11,5 +11,5 @@ export class AddCardComponent {
   //  Your application code writes to the input. This prevents migration.
   @Input() showZeroStateMessage: boolean;
 
-  @Output() addCardClick: EventEmitter<Event> = new EventEmitter<Event>();
+  readonly addCardClick = output<Event>();
 }

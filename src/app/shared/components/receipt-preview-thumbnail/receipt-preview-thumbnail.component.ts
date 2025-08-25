@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck, inject, input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, DoCheck, inject, input, output } from '@angular/core';
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -34,9 +34,9 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   readonly isMileageExpense = input<boolean>(undefined);
 
-  @Output() addMoreAttachments: EventEmitter<void> = new EventEmitter();
+  readonly addMoreAttachments = output<void>();
 
-  @Output() viewAttachments: EventEmitter<void> = new EventEmitter();
+  readonly viewAttachments = output<void>();
 
   sliderOptions;
 

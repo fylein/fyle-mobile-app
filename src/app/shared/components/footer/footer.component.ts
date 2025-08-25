@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { Router } from '@angular/router';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FooterState } from './footer-state.enum';
@@ -19,15 +19,15 @@ export class FooterComponent implements OnInit {
 
   private router = inject(Router);
 
-  @Output() homeClicked = new EventEmitter();
+  readonly homeClicked = output();
 
-  @Output() cameraClicked = new EventEmitter();
+  readonly cameraClicked = output();
 
-  @Output() taskClicked = new EventEmitter();
+  readonly taskClicked = output();
 
-  @Output() expensesClicked = new EventEmitter();
+  readonly expensesClicked = output();
 
-  @Output() reportsClicked = new EventEmitter();
+  readonly reportsClicked = output();
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.

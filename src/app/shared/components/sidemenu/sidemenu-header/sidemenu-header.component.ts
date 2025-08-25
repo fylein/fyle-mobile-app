@@ -1,7 +1,6 @@
-import { Component, OnInit, Input, Output } from '@angular/core';
+import { Component, OnInit, Input, output } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
-import { EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-sidemenu-header',
@@ -18,7 +17,7 @@ export class SidemenuHeaderComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() activeOrg: Org;
 
-  @Output() profileClicked = new EventEmitter();
+  readonly profileClicked = output<Event>();
 
   constructor() {}
 

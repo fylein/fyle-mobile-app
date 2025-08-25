@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject, input } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, ViewChild, inject, input, output } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import dayjs from 'dayjs';
@@ -121,18 +121,18 @@ export class ExpensesCardComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() showDt = true;
 
-  @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter<{
+  readonly goToTransaction = output<{
     etxn: Expense;
     etxnIndex: number;
   }>();
 
-  @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter<Expense>();
+  readonly cardClickedForSelection = output<Expense>();
 
-  @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter<Expense>();
+  readonly setMultiselectMode = output<Expense>();
 
-  @Output() dismissed: EventEmitter<Expense> = new EventEmitter<Expense>();
+  readonly dismissed = output<Expense>();
 
-  @Output() showCamera = new EventEmitter<boolean>();
+  readonly showCamera = output<boolean>();
 
   inlineReceiptDataUrl: string;
 

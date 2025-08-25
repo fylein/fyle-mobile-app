@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, output } from '@angular/core';
 import { EventData } from './event-data.model';
 @Component({
   selector: 'app-preference-setting',
@@ -27,7 +27,7 @@ export class PreferenceSettingComponent {
   //  Your application code writes to the input. This prevents migration.
   @Input() defaultCurrency: string;
 
-  @Output() preferenceChanged = new EventEmitter<EventData>();
+  readonly preferenceChanged = output<EventData>();
 
   onChange(): void {
     this.preferenceChanged.emit({ key: this.key, isEnabled: this.isEnabled });

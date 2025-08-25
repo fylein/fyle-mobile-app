@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject, output } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -35,7 +35,7 @@ export class CardStatsComponent implements OnInit {
 
   private virtualCardsService = inject(VirtualCardsService);
 
-  @Output() cardAdded = new EventEmitter<void>();
+  readonly cardAdded = output<void>();
 
   cardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
@@ -202,6 +202,7 @@ export class CardStatsComponent implements OnInit {
       await cardAddedModal.present();
       await cardAddedModal.onDidDismiss();
 
+      // TODO: The 'emit' function requires a mandatory void argument
       this.cardAdded.emit();
 
       this.loadCardDetails$.next();

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, output } from '@angular/core';
 import { Org } from 'src/app/core/models/org.model';
 
 @Component({
@@ -20,7 +20,7 @@ export class OrgCardComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() isLoading = false;
 
-  @Output() selectOrg = new EventEmitter();
+  readonly selectOrg = output();
 
   constructor() {}
 

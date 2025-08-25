@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, inject, input } from '@angular/core';
+import { Component, Input, inject, input, output } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { AddApproversPopoverComponent } from './add-approvers-popover/add-approvers-popover.component';
@@ -31,7 +31,7 @@ export class FyApproverComponent {
 
   readonly actions = input<AdvanceRequestActions>(undefined);
 
-  @Output() notify: EventEmitter<string> = new EventEmitter<string>();
+  readonly notify = output<string>();
 
   approverList$: Observable<any>;
 

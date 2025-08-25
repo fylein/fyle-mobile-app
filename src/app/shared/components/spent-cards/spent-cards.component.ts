@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, input } from '@angular/core';
+import { Component, Input, input, output } from '@angular/core';
 import SwiperCore, { Pagination } from 'swiper';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { PaginationOptions } from 'swiper/types';
@@ -25,7 +25,7 @@ export class SpentCardsComponent {
   //  Your application code writes to the input. This prevents migration.
   @Input() showAddCardSlide: boolean;
 
-  @Output() addCardClick = new EventEmitter<void>();
+  readonly addCardClick = output<void>();
 
   pagination: PaginationOptions = {
     dynamicBullets: true,

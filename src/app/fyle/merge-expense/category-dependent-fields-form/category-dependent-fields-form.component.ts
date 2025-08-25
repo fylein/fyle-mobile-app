@@ -1,5 +1,5 @@
-import { Component, Input, OnDestroy, OnInit, inject, input } from '@angular/core';
-import { EventEmitter, Injector, Output } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject, input, output } from '@angular/core';
+import { Injector } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import {
   UntypedFormGroup,
@@ -33,7 +33,7 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
 
   private injector = inject(Injector);
 
-  @Output() fieldsTouched = new EventEmitter<string[]>();
+  readonly fieldsTouched = output<string[]>();
 
   // TODO: Skipped for migration because:
   //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)

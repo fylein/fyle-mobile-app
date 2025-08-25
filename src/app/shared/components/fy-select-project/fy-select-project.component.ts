@@ -1,15 +1,4 @@
-import {
-  Component,
-  forwardRef,
-  Input,
-  OnDestroy,
-  TemplateRef,
-  ElementRef,
-  Output,
-  EventEmitter,
-  inject,
-  input,
-} from '@angular/core';
+import { Component, forwardRef, Input, OnDestroy, TemplateRef, ElementRef, inject, input, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -72,7 +61,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
   // eslint-disable-next-line @angular-eslint/prefer-signals
   readonly selectedDisabledProject = input<ProjectV2>(undefined);
 
-  @Output() valueChange = new EventEmitter<ProjectV2>();
+  readonly valueChange = output<ProjectV2>();
 
   displayValue: string;
 

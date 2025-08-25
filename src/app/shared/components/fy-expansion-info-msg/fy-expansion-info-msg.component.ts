@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, Input, ViewEncapsulation, output } from '@angular/core';
 
 @Component({
   selector: 'app-fy-expansion-info-msg',
@@ -20,9 +20,10 @@ export class FyExpansionInfoMsgComponent {
   //  Your application code writes to the input. This prevents migration.
   @Input() helpLinkLabel: string;
 
-  @Output() helpLinkClick = new EventEmitter<void>();
+  readonly helpLinkClick = output<void>();
 
   onHelpLinkClick(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.helpLinkClick.emit();
   }
 }
