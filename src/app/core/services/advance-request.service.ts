@@ -618,9 +618,9 @@ export class AdvanceRequestService {
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
-  getCustomFieldsForApprover(): Observable<AdvanceRequestsCustomFields[]> {
+  getCustomFieldsForApprover(orgId: string): Observable<AdvanceRequestsCustomFields[]> {
     return this.approverService
-      .get<PlatformApiResponse<AdvanceRequestsCustomFields[]>>('/advance_requests/custom_fields')
+      .get<PlatformApiResponse<AdvanceRequestsCustomFields[]>>(`/advance_requests/custom_fields?org_id=eq.${orgId}`)
       .pipe(map((res) => this.transformCustomFields(res.data)));
   }
 

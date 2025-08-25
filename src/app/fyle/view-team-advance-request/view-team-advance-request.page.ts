@@ -140,7 +140,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     this.attachedFiles$ = this.getAttachedReceipts(id);
 
-    this.customFields$ = this.advanceRequestService.getCustomFieldsForApprover();
+    this.customFields$ = this.advanceRequestService.getCustomFieldsForApprover(this.activatedRoute.snapshot.params.id as string);
 
     this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$.pipe(take(1)),
