@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit, output } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 @Component({
@@ -12,11 +12,11 @@ export class MobileNumberCardComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() extendedOrgUser: ExtendedOrgUser;
 
-  @Output() addMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
+  readonly addMobileNumberClicked = output<ExtendedOrgUser>();
 
-  @Output() deleteMobileNumberClicked = new EventEmitter<void>();
+  readonly deleteMobileNumberClicked = output<void>();
 
-  @Output() editMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
+  readonly editMobileNumberClicked = output<ExtendedOrgUser>();
 
   mobileNumber: string;
 
@@ -33,6 +33,7 @@ export class MobileNumberCardComponent implements OnInit {
   }
 
   deleteMobileNumber(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.deleteMobileNumberClicked.emit();
   }
 }

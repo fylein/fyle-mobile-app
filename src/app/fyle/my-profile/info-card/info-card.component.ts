@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, Input, inject, output } from '@angular/core';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 
 @Component({
@@ -26,7 +26,7 @@ export class InfoCardComponent {
   //  Your application code writes to the input. This prevents migration.
   @Input() toastMessageContent: string;
 
-  @Output() copiedText = new EventEmitter<string>();
+  readonly copiedText = output<string>();
 
   async copyToClipboard(contentToCopy: string) {
     await this.clipboardService.writeString(contentToCopy);

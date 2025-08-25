@@ -1,5 +1,5 @@
 import { getCurrencySymbol } from '@angular/common';
-import { Component, OnInit, Input, Output, EventEmitter, input } from '@angular/core';
+import { Component, OnInit, Input, input, output } from '@angular/core';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 
 @Component({
@@ -20,10 +20,10 @@ export class ReportsCardComponent implements OnInit {
   readonly simplifyReportsEnabled = input<boolean>(undefined);
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  @Output() gotoReport: EventEmitter<Report> = new EventEmitter();
+  readonly gotoReport = output<Report>();
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  @Output() viewComments: EventEmitter<Report> = new EventEmitter();
+  readonly viewComments = output<Report>();
 
   creationFullDate: string;
 

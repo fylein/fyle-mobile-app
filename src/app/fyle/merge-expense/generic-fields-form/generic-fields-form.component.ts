@@ -1,15 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  TemplateRef,
-  inject,
-  input,
-} from '@angular/core';
+import { Component, Injector, Input, OnDestroy, OnInit, TemplateRef, inject, input, output } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
@@ -92,13 +81,13 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
   //  Your application code writes to the input. This prevents migration.
   @Input() costCenterDependentFieldsMapping: { [id: number]: CustomProperty<string>[] };
 
-  @Output() fieldsTouched = new EventEmitter<string[]>();
+  readonly fieldsTouched = output<string[]>();
 
-  @Output() categoryChanged = new EventEmitter<number>();
+  readonly categoryChanged = output<number>();
 
-  @Output() receiptChanged = new EventEmitter<string>();
+  readonly receiptChanged = output<string>();
 
-  @Output() paymentModeChanged = new EventEmitter<AllowedPaymentModes>();
+  readonly paymentModeChanged = output<AllowedPaymentModes>();
 
   genericFieldsFormGroup: UntypedFormGroup;
 

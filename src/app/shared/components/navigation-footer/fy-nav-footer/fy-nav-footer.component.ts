@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, output } from '@angular/core';
 
 @Component({
   selector: 'app-fy-nav-footer',
@@ -15,15 +15,17 @@ export class FyNavFooterComponent {
   //  Your application code writes to the input. This prevents migration.
   @Input() reportExpenseCount: number;
 
-  @Output() nextClicked = new EventEmitter<void>();
+  readonly nextClicked = output<void>();
 
-  @Output() prevClicked = new EventEmitter<void>();
+  readonly prevClicked = output<void>();
 
   goToNext(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.nextClicked.emit();
   }
 
   goToPrev(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.prevClicked.emit();
   }
 }

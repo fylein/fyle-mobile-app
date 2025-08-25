@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Input, OnInit, output } from '@angular/core';
 import { FilterPill } from './filter-pill.interface';
 
 @Component({
@@ -12,15 +12,15 @@ export class FyFilterPillsComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() filterPills: FilterPill[];
 
-  @Output() clearAll = new EventEmitter();
+  readonly clearAll = output();
 
-  @Output() filterClicked = new EventEmitter();
+  readonly filterClicked = output<string>();
 
-  @Output() filterClose = new EventEmitter();
+  readonly filterClose = output<string>();
 
-  @Output() filterClicked2 = new EventEmitter();
+  readonly filterClicked2 = output<string>();
 
-  @Output() filterClose2 = new EventEmitter();
+  readonly filterClose2 = output<string>();
 
   constructor() {}
 

@@ -1,5 +1,5 @@
 import { getCurrencySymbol } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, input } from '@angular/core';
+import { Component, Input, OnInit, input, output } from '@angular/core';
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 
 @Component({
@@ -31,9 +31,9 @@ export class PersonalCardTransactionComponent implements OnInit {
 
   readonly isMatchedCountLoading = input<boolean>(undefined);
 
-  @Output() setMultiselectMode = new EventEmitter<string>();
+  readonly setMultiselectMode = output<string>();
 
-  @Output() cardClickedForSelection = new EventEmitter<string>();
+  readonly cardClickedForSelection = output<string>();
 
   showDt = true;
 

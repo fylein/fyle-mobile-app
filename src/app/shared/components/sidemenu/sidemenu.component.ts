@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject, output } from '@angular/core';
 import * as Sentry from '@sentry/angular';
 import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
@@ -59,7 +59,7 @@ export class SidemenuComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
-  @Output() switchDelegator = new EventEmitter<boolean>();
+  readonly switchDelegator = output<boolean>();
 
   appVersion: string;
 

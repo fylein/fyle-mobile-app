@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output, inject, input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, inject, input, output } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -58,7 +58,7 @@ export class FyViewAttachmentComponent implements OnInit {
 
   readonly expenseId = input<string>(undefined);
 
-  @Output() addMoreAttachments = new EventEmitter<Event>();
+  readonly addMoreAttachments = output<Event>();
 
   @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
 
