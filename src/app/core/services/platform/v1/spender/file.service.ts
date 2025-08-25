@@ -53,4 +53,17 @@ export class SpenderFileService {
   downloadFile(id: string): Observable<{}> {
     return this.spenderPlatformV1ApiService.get('/files/download?id=' + id);
   }
+
+  attachToAdvance(advanceRequestId: string, fileIds: string[]): Observable<void> {
+    const payload = {
+      data: [
+        {
+          id: advanceRequestId,
+          file_ids: fileIds,
+        },
+      ],
+    };
+
+    return this.spenderPlatformV1ApiService.post<void>('/advance_requests/attach_files/bulk', payload);
+  }
 }

@@ -325,16 +325,61 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return this.customFieldValues;
   }
 
-  fileAttachments(): Observable<File[]> {
-    const fileObjs = [];
-    this.dataUrls.map((dataUrl) => {
-      dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
-      if (!dataUrl.id) {
-        fileObjs.push(from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)));
-      }
-    });
-
-    return iif(() => fileObjs.length !== 0, forkJoin(fileObjs), of(null));
+  fileAttachments(): Observable<string[]> {
+    if (this.from === 'TEAM_ADVANCE') {
+      return this.advanceRequestService.getApproverAdvanceRequestRaw(this.id).pipe(
+        switchMap((advanceReqPlatform) => {
+          if (!advanceReqPlatform || !advanceReqPlatform.user?.id) {
+            return of<string[]>([]);
+          }
+          
+          return from(this.authService.getEou()).pipe(
+            switchMap((eou) => {
+              if (!eou || !eou.ou || !eou.ou.org_id) {
+                return of<string[]>([]);
+              }
+              
+              const fileUploadObservables: Observable<string>[] = [];
+              
+              this.dataUrls.forEach((dataUrl) => {
+                dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
+                
+                if (!dataUrl.id) {
+                  fileUploadObservables.push(
+                    from(this.transactionsOutboxService.fileUpload(
+                      dataUrl.url, 
+                      dataUrl.type, 
+                      { userId: advanceReqPlatform.user.id, orgId: eou.ou.org_id },
+                      true
+                    )).pipe(
+                      map((fileObj: FileObject) => fileObj.id || ''),
+                    ),
+                  );
+                }
+              });
+              
+              return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of<string[]>([]));
+            }),
+          );
+        }),
+      );
+    } else {
+      const fileUploadObservables: Observable<string>[] = [];
+      
+      this.dataUrls.forEach((dataUrl) => {
+        dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
+        
+        if (!dataUrl.id) {
+          fileUploadObservables.push(
+            from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)).pipe(
+              map((fileObj: FileObject) => fileObj.id || ''),
+            ),
+          );
+        }
+      });
+      
+      return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of<string[]>([]));
+    }
   }
 
   async addAttachments(event: Event): Promise<void> {
@@ -397,6 +442,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       componentProps: {
         attachments,
         canEdit: true,
+        isTeamAdvance: this.from === 'TEAM_ADVANCE',
       },
       mode: 'ios',
     });
@@ -444,21 +490,39 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   getAttachedReceipts(id: string): Observable<FileObject[]> {
-    return this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          }),
+    if (this.from === 'TEAM_ADVANCE') {
+      return this.fileService.findByAdvanceRequestIdForTeamAdvance(id).pipe(
+        switchMap((fileObjs) => from(fileObjs)),
+        concatMap((fileObj) =>
+          this.fileService.downloadUrlForTeamAdvance(fileObj.id).pipe(
+            map((downloadUrl) => {
+              fileObj.url = downloadUrl;
+              const details = this.getReceiptDetails(fileObj);
+              fileObj.type = details.type;
+              fileObj.thumbnail = details.thumbnail;
+              return fileObj;
+            }),
+          ),
         ),
-      ),
-      reduce((acc: FileObject[], curr) => acc.concat(curr), []),
-    );
+        reduce((acc: FileObject[], curr) => acc.concat(curr), []),
+      );
+    } else {
+      return this.fileService.findByAdvanceRequestId(id).pipe(
+        switchMap((fileObjs) => from(fileObjs)),
+        concatMap((fileObj) =>
+          this.fileService.downloadUrl(fileObj.id).pipe(
+            map((downloadUrl) => {
+              fileObj.url = downloadUrl;
+              const details = this.getReceiptDetails(fileObj);
+              fileObj.type = details.type;
+              fileObj.thumbnail = details.thumbnail;
+              return fileObj;
+            }),
+          ),
+        ),
+        reduce((acc: FileObject[], curr) => acc.concat(curr), []),
+      );
+    }
   }
 
   async openCommentsModal(): Promise<void> {

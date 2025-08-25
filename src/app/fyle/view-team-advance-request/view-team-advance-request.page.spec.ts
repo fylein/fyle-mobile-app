@@ -68,9 +68,10 @@ describe('ViewTeamAdvanceRequestPage', () => {
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
       'findByAdvanceRequestId',
+      'findByAdvanceRequestIdForTeamAdvance',
       'downloadUrl',
+      'downloadUrlForTeamAdvance',
       'getReceiptsDetails',
-      '',
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -267,12 +268,12 @@ describe('ViewTeamAdvanceRequestPage', () => {
       type: 'pdf',
       thumbnail: 'src/assets/images/pdf-receipt-placeholder.png',
     });
-    fileService.downloadUrl.and.returnValue(of('mockdownloadurl.png'));
-    fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
+    fileService.downloadUrlForTeamAdvance.and.returnValue(of('mockdownloadurl.png'));
+    fileService.findByAdvanceRequestIdForTeamAdvance.and.returnValue(of([mockFileObject]));
     component.getAttachedReceipts('areqR1cyLgXdND').subscribe((res) => {
       expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(mockFileObject.name, 'mockdownloadurl.png');
-      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiSSsy2Bf4Se');
-      expect(fileService.findByAdvanceRequestId).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+      expect(fileService.downloadUrlForTeamAdvance).toHaveBeenCalledOnceWith('fiSSsy2Bf4Se');
+      expect(fileService.findByAdvanceRequestIdForTeamAdvance).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
       expect(res).toEqual(fileObject10);
     });
   });
