@@ -39,7 +39,7 @@ export class MyAdvancesCardComponent implements OnInit {
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     this.currencySymbol = getCurrencySymbol(this.advanceRequest.currency, 'wide');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
     this.internalState =
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       this.advanceRequest.type === 'request'

@@ -40,7 +40,7 @@ export class AccountsService {
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+
   getPaymentModesWithAdvanceWallets(
     accounts: PlatformAccount[],
     advanceWallets: AdvanceWallet[],
@@ -89,7 +89,7 @@ export class AccountsService {
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+
   getPaymentModes(
     accounts: PlatformAccount[],
     allowedPaymentModes: string[],
@@ -215,7 +215,6 @@ export class AccountsService {
     return this.processAccountsByPaymentMode(allAccounts, filteredPaymentModes, isMultipleAdvanceEnabled);
   }
 
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getAllowedAccountsWithAdvanceWallets(
     allAccounts: PlatformAccount[],
     allowedPaymentModes: string[],

@@ -147,7 +147,7 @@ describe('CameraOptionsPopupComponent', () => {
 
     component.mode = 'edit';
 
-    const nativeElement = component.fileUpload.nativeElement as HTMLInputElement;
+    const nativeElement = component.fileUpload.nativeElement;
     spyOn(nativeElement, 'click').and.callThrough();
 
     component.getImageFromImagePicker();

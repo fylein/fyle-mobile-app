@@ -5053,7 +5053,7 @@ export class AddEditExpensePage implements OnInit {
           const { data } = (await attachmentsModal.onWillDismiss()) as {
             data: {
               attachments: FileObject[];
-              action?: String;
+              action?: string;
               event?: Event;
             };
           };
@@ -5085,7 +5085,7 @@ export class AddEditExpensePage implements OnInit {
 
   getDeleteReportParams(
     config: { header: string; body: string; ctaText: string; ctaLoadingText: string },
-    removeExpenseFromReport: boolean = false,
+    removeExpenseFromReport = false,
     reportId?: string,
   ): {
     component: typeof FyDeleteDialogComponent;

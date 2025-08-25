@@ -221,7 +221,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     if ((window as any) && (window as any).localStorage) {
       // eslint-disable-next-line
       const lstorage = (window as any).localStorage as { removeItem: (key: string) => void };
-      // eslint-disable-next-line
+
       Object.keys(lstorage)
         .filter((key) => key.match(/^fyle/))
         .forEach((key) => lstorage.removeItem(key));

@@ -137,7 +137,7 @@ describe('CameraOptionsPopupComponent', () => {
     });
 
     it('should set up file input change handler and click the input', fakeAsync(() => {
-      const nativeElement = component.fileUpload().nativeElement as HTMLInputElement;
+      const nativeElement = component.fileUpload().nativeElement;
       spyOn(nativeElement, 'click').and.callThrough();
 
       component.getImageFromImagePicker();
@@ -152,7 +152,7 @@ describe('CameraOptionsPopupComponent', () => {
       const mockDataUrl = 'data:image/png;base64,test-data';
       fileService.readFile.and.resolveTo(mockDataUrl);
 
-      const nativeElement = component.fileUpload().nativeElement as HTMLInputElement;
+      const nativeElement = component.fileUpload().nativeElement;
       spyOn(nativeElement, 'click').and.callThrough();
 
       component.getImageFromImagePicker();
@@ -178,7 +178,7 @@ describe('CameraOptionsPopupComponent', () => {
     it('should call closeClicked when no file is selected', fakeAsync(() => {
       spyOn(component, 'closeClicked');
 
-      const nativeElement = component.fileUpload().nativeElement as HTMLInputElement;
+      const nativeElement = component.fileUpload().nativeElement;
       spyOn(nativeElement, 'click').and.callThrough();
 
       component.getImageFromImagePicker();
@@ -212,7 +212,7 @@ describe('CameraOptionsPopupComponent', () => {
       const mockDataUrl = 'data:application/pdf;base64,pdf-data';
       fileService.readFile.and.resolveTo(mockDataUrl);
 
-      const nativeElement = component.fileUpload().nativeElement as HTMLInputElement;
+      const nativeElement = component.fileUpload().nativeElement;
       spyOn(nativeElement, 'click').and.callThrough();
 
       component.getImageFromImagePicker();

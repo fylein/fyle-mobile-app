@@ -207,7 +207,7 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  submit(advanceRequest: Partial<AdvanceRequests>, isApprover: Boolean): Observable<AdvanceRequestPlatform> {
+  submit(advanceRequest: Partial<AdvanceRequests>, isApprover: boolean): Observable<AdvanceRequestPlatform> {
     const payload = this.buildPlatformPayload(advanceRequest);
     const service = isApprover ? this.approverService : this.spenderService;
 
@@ -361,7 +361,6 @@ export class AdvanceRequestService {
   getEReq(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
     return this.getAdvanceRequestPlatform(advanceRequestId).pipe(
       map((res) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
         return eAdvanceRequest;
@@ -372,7 +371,6 @@ export class AdvanceRequestService {
   getEReqFromApprover(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
     return this.getApproverAdvanceRequest(advanceRequestId).pipe(
       map((res) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
         return eAdvanceRequest;

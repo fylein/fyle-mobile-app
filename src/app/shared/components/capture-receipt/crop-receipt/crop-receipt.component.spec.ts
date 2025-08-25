@@ -19,7 +19,6 @@ describe('CropReceiptComponent', () => {
   let platform: Platform;
 
   @Component({
-    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'image-cropper',
     template: '',
     providers: [{ provide: ImageCropperComponent, useClass: ImageCropperStubComponent }],

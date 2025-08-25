@@ -28,7 +28,6 @@ describe('ReceiptPreviewComponent', () => {
   let translocoService: jasmine.SpyObj<TranslocoService>;
 
   @Component({
-    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'swiper',
     template: '',
     providers: [{ provide: SwiperComponent, useClass: SwiperStubComponent }],
@@ -156,7 +155,7 @@ describe('ReceiptPreviewComponent', () => {
   });
 
   it('openCropReceiptModal(): should open the crop receipt modal', async () => {
-    const cropReceiptModalSpy = jasmine.createSpyObj('cropReceiptModal', ['present', 'onWillDismiss']) as any;
+    const cropReceiptModalSpy = jasmine.createSpyObj('cropReceiptModal', ['present', 'onWillDismiss']);
     cropReceiptModalSpy.onWillDismiss.and.resolveTo({
       data: {
         base64ImageWithSource: images[0],

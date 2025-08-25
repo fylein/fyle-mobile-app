@@ -17,6 +17,6 @@ export class JwtHelperService {
   }
 
   getExpirationDate(rawToken: string): Date {
-    return this.helper.getTokenExpirationDate(rawToken) as Date;
+    return this.helper.getTokenExpirationDate(rawToken);
   }
 }

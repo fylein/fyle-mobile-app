@@ -1,4 +1,3 @@
-/* eslint-disable id-blacklist */
 import deepFreeze from 'deep-freeze-strict';
 
 import { AccountType } from '../enums/account-type.enum';
