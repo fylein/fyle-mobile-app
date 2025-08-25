@@ -129,7 +129,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.noOfReceipts = 0;
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]): Observable<void[]> {
     return from(base64ImagesWithSource).pipe(
       concatMap((res: Image) => this.addExpenseToQueue(res)),
@@ -310,7 +309,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
         const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
         const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
 
         // Converting the duration to seconds and fix it to 3 decimal places

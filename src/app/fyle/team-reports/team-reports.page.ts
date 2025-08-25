@@ -417,11 +417,11 @@ export class TeamReportsPage implements OnInit {
 
   clearText(isFromCancel: string): void {
     this.simpleSearchText = '';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     const searchInput = this.simpleSearchInput.nativeElement;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
     searchInput.value = '';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+
     searchInput.dispatchEvent(new Event('keyup'));
     if (isFromCancel === 'onSimpleSearchCancel') {
       this.isSearchBarFocused = !this.isSearchBarFocused;

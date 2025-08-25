@@ -114,7 +114,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     fixture.detectChanges();
     modalController.create.and.returnValue(
       new Promise((resolve) => {
-        const expenseDetailsModalSpy = jasmine.createSpyObj('expenseDetailsModal', ['present']) as any;
+        const expenseDetailsModalSpy = jasmine.createSpyObj('expenseDetailsModal', ['present']);
         expenseDetailsModalSpy.present.and.callThrough();
         resolve(expenseDetailsModalSpy);
       }),

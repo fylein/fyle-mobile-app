@@ -95,7 +95,7 @@ export class TransactionService {
     cacheBusterNotifier: expensesCacheBuster$,
     isInstant: true,
   })
-  clearCache(clearTaskCache: boolean = true): Observable<null> {
+  clearCache(clearTaskCache = true): Observable<null> {
     return of(null).pipe(
       tap(() => {
         this.clearTaskCache = clearTaskCache;

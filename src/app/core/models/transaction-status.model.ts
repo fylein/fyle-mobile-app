@@ -3,7 +3,7 @@ export interface TransactionStatus {
   created_at: Date;
   org_user_id: string;
   comment: string;
-  diff: { [key: string]: [value: Object] };
+  diff: { [key: string]: [value: object] };
   state: string;
   transaction_id: string;
   report_id: string;

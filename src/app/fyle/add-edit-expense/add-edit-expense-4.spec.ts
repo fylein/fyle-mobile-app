@@ -296,7 +296,7 @@ export function TestCases4(getTestBed) {
           nativeElement: dummyNativeElement,
         } as DebugElement;
 
-        const nativeElement = component.fileUpload.nativeElement as HTMLInputElement;
+        const nativeElement = component.fileUpload.nativeElement;
         spyOn(nativeElement, 'click').and.callThrough();
 
         component.addAttachments(new Event('click'));
@@ -377,8 +377,8 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData4));
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-        component.presetCategoryId = expectedUnflattendedTxnData4.tx.org_category_id as number;
-        component.presetProjectId = expectedUnflattendedTxnData4.tx.project_id as number;
+        component.presetCategoryId = expectedUnflattendedTxnData4.tx.org_category_id;
+        component.presetProjectId = expectedUnflattendedTxnData4.tx.project_id;
         component.presetCostCenterId = expectedUnflattendedTxnData4.tx.cost_center_id;
         component.presetCurrency = expectedUnflattendedTxnData4.tx.currency;
         fixture.detectChanges();
@@ -395,7 +395,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(trackAddExpenseWoCurrency));
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
         component.presetCategoryId = trackAddExpenseWoCurrency.tx.org_category_id;
-        component.presetProjectId = trackAddExpenseWoCurrency.tx.project_id as number;
+        component.presetProjectId = trackAddExpenseWoCurrency.tx.project_id;
         component.presetCostCenterId = trackAddExpenseWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackAddExpenseWoCurrency.tx.orig_currency;
         fixture.detectChanges();

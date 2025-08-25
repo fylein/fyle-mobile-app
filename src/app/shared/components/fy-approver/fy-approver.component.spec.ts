@@ -73,16 +73,16 @@ describe('FyApproverComponent', () => {
     fixture.detectChanges();
     popoverController.create.and.returnValue(
       new Promise((resolve) => {
-        const addApproversPopoverSpy = jasmine.createSpyObj('addApproversPopover', ['onWillDismiss', 'present']) as any;
+        const addApproversPopoverSpy = jasmine.createSpyObj('addApproversPopover', ['onWillDismiss', 'present']);
         addApproversPopoverSpy.onWillDismiss.and.returnValue(
           new Promise((resInt) => {
             resInt({
               data: 'ajain@fyle.in',
             });
-          })
+          }),
         );
         resolve(addApproversPopoverSpy);
-      })
+      }),
     );
 
     await component.openApproverListDialog();
