@@ -53,10 +53,12 @@
             <app-stat-badge
               [currency]="reportStatsData.homeCurrency"
               [currencySymbol]="reportStatsData.currencySymbol"
-              [name]="'stats.draft' | transloco"
-              [reportState]="ReportStates.DRAFT"
-              [count]="reportStatsData.reportStats?.draft?.count"
-              [value]="reportStatsData.reportStats?.draft?.total_amount"
+              [name]="'stats.open' | transloco"
+              [reportState]="ReportStates.OPEN"
+              [count]="reportStatsData.reportStats?.draft?.count + reportStatsData.reportStats?.sent_back?.count"
+              [value]="
+                reportStatsData.reportStats?.draft?.total_amount + reportStatsData.reportStats?.sent_back?.total_amount
+              "
               (badgeClicked)="goToReportsPage($event)"
             ></app-stat-badge>
           </ion-col>
