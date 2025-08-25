@@ -125,9 +125,9 @@ describe('FyLocationComponent', () => {
       component: FyLocationModalComponent,
       componentProps: {
         currentSelection: component.value,
-        allowCustom: component.allowCustom,
-        recentLocations: component.recentLocations,
-        cacheName: component.cacheName,
+        allowCustom: component.allowCustom(),
+        recentLocations: component.recentLocations(),
+        cacheName: component.cacheName(),
         disableEnteringManualLocation: false,
       },
     });

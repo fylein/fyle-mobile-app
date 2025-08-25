@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, inject } from '@angular/core';
+import { Component, OnInit, inject, input } from '@angular/core';
 import { MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
@@ -27,9 +27,9 @@ export class SidemenuContentComponent implements OnInit {
 
   private trackingService = inject(TrackingService);
 
-  @Input() sideMenuList: Partial<SidemenuItem>[];
+  readonly sideMenuList = input<Partial<SidemenuItem>[]>(undefined);
 
-  @Input() primaryOptionsCount: number;
+  readonly primaryOptionsCount = input<number>(undefined);
 
   ngOnInit(): void {}
 

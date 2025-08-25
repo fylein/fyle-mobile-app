@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, forwardRef, Input, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, forwardRef, Input, inject, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { noop } from 'rxjs';
@@ -25,18 +25,28 @@ export class DependentFieldComponent implements ControlValueAccessor {
 
   private cdr = inject(ChangeDetectorRef);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label = '';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() placeholder: string;
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
-  @Input() valid = true;
+  readonly valid = input(true);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() fieldId: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldId: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldValue: string;
 
   displayValue: string;

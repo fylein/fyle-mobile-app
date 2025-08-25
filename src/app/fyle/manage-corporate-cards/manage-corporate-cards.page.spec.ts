@@ -26,7 +26,7 @@ import {
   virtualCard,
   visaRTFCard,
 } from 'src/app/core/mock-data/platform-corporate-card.data';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { By } from '@angular/platform-browser';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -54,11 +54,11 @@ import { properties } from 'src/app/core/mock-data/modal-properties.data';
   standalone: false,
 })
 class MockCorporateCardComponent {
-  @Input() card: PlatformCorporateCard;
+  readonly card = input<PlatformCorporateCard>(undefined);
 
-  @Input() isVisaRTFEnabled: boolean;
+  readonly isVisaRTFEnabled = input<boolean>(undefined);
 
-  @Input() isMastercardRTFEnabled: boolean;
+  readonly isMastercardRTFEnabled = input<boolean>(undefined);
 }
 
 describe('ManageCorporateCardsPage', () => {
@@ -233,10 +233,10 @@ describe('ManageCorporateCardsPage', () => {
 
       cards.forEach((card, i) => {
         const cardComponent = card.componentInstance as MockCorporateCardComponent;
-        expect(cardComponent.card).toEqual(cardsResponse[i]);
+        expect(cardComponent.card()).toEqual(cardsResponse[i]);
 
-        expect(cardComponent.isVisaRTFEnabled).toBeTrue();
-        expect(cardComponent.isMastercardRTFEnabled).toBeTrue();
+        expect(cardComponent.isVisaRTFEnabled()).toBeTrue();
+        expect(cardComponent.isMastercardRTFEnabled()).toBeTrue();
       });
     });
 

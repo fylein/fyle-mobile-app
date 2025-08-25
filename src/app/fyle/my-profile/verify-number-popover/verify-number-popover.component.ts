@@ -21,6 +21,8 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() extendedOrgUser: ExtendedOrgUser;
 
   value: string;

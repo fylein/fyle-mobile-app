@@ -11,6 +11,8 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 export class EmployeeDetailsCardComponent implements OnInit {
   private utilityService = inject(UtilityService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() eou: ExtendedOrgUser;
 
   isMobileNumberSectionVisible: boolean;

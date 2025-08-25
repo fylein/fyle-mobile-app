@@ -18,8 +18,12 @@ export class TasksCardComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() task: DashboardTask;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() autoSubmissionReportDate: Date;
 
   @Output() ctaClicked = new EventEmitter<TaskCta>();

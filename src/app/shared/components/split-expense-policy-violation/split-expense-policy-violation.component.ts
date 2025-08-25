@@ -19,8 +19,12 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() policyViolations: { [id: number]: FilteredSplitPolicyViolations };
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isPartOfReport: boolean;
 
   transactionIDs: string[];

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { getCurrencySymbol } from '@angular/common';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -22,19 +22,21 @@ export class FyPolicyViolationComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
-  @Input() policyViolationMessages: string[];
+  readonly policyViolationMessages = input<string[]>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() policyAction: FinalExpensePolicyState;
 
-  @Input() showComment = true;
+  readonly showComment = input(true);
 
-  @Input() showCTA = true;
+  readonly showCTA = input(true);
 
-  @Input() showHeader = true;
+  readonly showHeader = input(true);
 
-  @Input() showDragBar = true;
+  readonly showDragBar = input(true);
 
-  @Input() showCloseIcon = false;
+  readonly showCloseIcon = input(false);
 
   form: UntypedFormGroup;
 

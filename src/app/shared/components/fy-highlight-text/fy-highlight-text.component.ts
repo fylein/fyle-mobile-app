@@ -9,8 +9,12 @@ import { Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
   standalone: false,
 })
 export class FyHighlightTextComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() fullText: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() queryText: string;
 
   constructor() {}

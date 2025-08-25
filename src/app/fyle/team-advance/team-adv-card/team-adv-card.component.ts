@@ -13,8 +13,12 @@ import dayjs from 'dayjs';
 export class TeamAdvCardComponent implements OnInit {
   private advanceRequestService = inject(AdvanceRequestService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() advanceRequest: ExtendedAdvanceRequest;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() prevDate: Date;
 
   @Output() gotoAdvance: EventEmitter<ExtendedAdvanceRequest> = new EventEmitter();

@@ -13,8 +13,12 @@ SwiperCore.use([Pagination]);
   standalone: false,
 })
 export class BankAccountCardsComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() linkedAccounts: PlatformPersonalCard[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() minimal: boolean;
 
   @Output() deleted = new EventEmitter();

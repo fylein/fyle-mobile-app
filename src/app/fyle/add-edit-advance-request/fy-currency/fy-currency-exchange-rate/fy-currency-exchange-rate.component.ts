@@ -30,12 +30,20 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
 
   private loaderService = inject(LoaderService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() amount!: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentCurrency!: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() newCurrency!: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() txnDt!: Date;
 
   fg: UntypedFormGroup;

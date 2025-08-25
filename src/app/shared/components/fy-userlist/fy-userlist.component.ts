@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, inject } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, inject, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -25,20 +25,32 @@ export class FyUserlistComponent implements OnInit {
 
   private modalProperties = inject(ModalPropertiesService);
 
-  @Input() options: { label: string; value: any }[];
+  readonly options = input<
+    {
+      label: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      value: any;
+    }[]
+  >(undefined);
 
-  @Input() disabled = false;
+  readonly disabled = input(false);
 
-  @Input() label = '';
+  readonly label = input('');
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() allowCustomValues: boolean;
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() validInParent: boolean;
 
   eouc$: Observable<Employee[]>;

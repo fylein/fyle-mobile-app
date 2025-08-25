@@ -8,6 +8,7 @@ import {
   ChangeDetectorRef,
   TemplateRef,
   inject,
+  input,
 } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
@@ -31,25 +32,31 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: Option[] = [];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelection: Report;
 
-  @Input() selectionElement: TemplateRef<ElementRef>;
+  readonly selectionElement = input<TemplateRef<ElementRef>>(undefined);
 
-  @Input() showNullOption = true;
+  readonly showNullOption = input(true);
 
-  @Input() cacheName;
+  readonly cacheName = input(undefined);
 
-  @Input() customInput = false;
+  readonly customInput = input(false);
 
-  @Input() subheader;
+  readonly subheader = input(undefined);
 
-  @Input() enableSearch;
+  readonly enableSearch = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() autoSubmissionReportName: string;
 
-  @Input() isNewReportsFlowEnabled = false;
+  readonly isNewReportsFlowEnabled = input(false);
 
   reportCurrencySymbol: string;
 

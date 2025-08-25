@@ -8,6 +8,7 @@ import {
   ElementRef,
   Input,
   inject,
+  input,
 } from '@angular/core';
 import {
   map,
@@ -51,15 +52,25 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   private devicePlatform = inject(DEVICE_PLATFORM);
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() currentSelection: any;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() header = '';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() recentLocations: string[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() cacheName: any;
 
-  @Input() disableEnteringManualLocation = false;
+  readonly disableEnteringManualLocation = input(false);
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 

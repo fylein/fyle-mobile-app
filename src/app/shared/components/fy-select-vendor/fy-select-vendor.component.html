@@ -3,7 +3,7 @@
     <span data-testid="label">
       {{ label }}
     </span>
-    @if (mandatory) {
+    @if (mandatory()) {
       <span class="fy-select-vendor--mandatory"> * </span>
     }
   </div>
@@ -11,11 +11,11 @@
     <input
       class="fy-select-vendor--input smartlook-show"
       type="text"
-      [placeholder]="placeholder || ('fySelectVendor.select' | transloco) + ' ' + label"
+      [placeholder]="placeholder() || ('fySelectVendor.select' | transloco) + ' ' + label"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
-      />
+    />
     <mat-icon class="fy-select-vendor--icon" svgIcon="arrow-down"></mat-icon>
   </div>
 </label>

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit, inject, input } from '@angular/core';
 import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, NgControl, Validators } from '@angular/forms';
 import { Platform } from '@ionic/angular';
 import { noop } from 'rxjs';
@@ -24,14 +24,16 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
   private injector = inject(Injector);
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
-  @Input() disabled: boolean;
+  readonly disabled = input<boolean>(undefined);
 
-  @Input() min: number;
+  readonly min = input<number>(undefined);
 
-  @Input() isAmount: boolean;
+  readonly isAmount = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isDistance = false;
 
   isDisabled = false;

@@ -14,12 +14,20 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   standalone: false,
 })
 export class EmailNotificationsComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() title: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() notifications: NotificationEventItem[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() employeeSettings: EmployeeSettings;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() unsubscribedEventsByUser: string[];
 
   isLongTitle = false;

@@ -13,6 +13,8 @@ import { of } from 'rxjs';
 export class DismissDialogComponent implements OnInit {
   private popoverController = inject(PopoverController);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() dismissMethod: () => Observable<{}>;
 
   dismissCallInProgress: boolean;

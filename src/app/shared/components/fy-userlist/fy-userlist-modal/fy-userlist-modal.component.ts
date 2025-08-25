@@ -7,6 +7,7 @@ import {
   Input,
   ChangeDetectorRef,
   inject,
+  input,
 } from '@angular/core';
 import { Observable, fromEvent, from, of } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -32,12 +33,18 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelections: string[] = [];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() filteredOptions$: Observable<Partial<Employee>[]>;
 
-  @Input() placeholder;
+  readonly placeholder = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() allowCustomValues: boolean;
 
   value = '';

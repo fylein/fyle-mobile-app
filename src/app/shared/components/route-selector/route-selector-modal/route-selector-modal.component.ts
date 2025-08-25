@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, input } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -26,31 +26,39 @@ export class RouteSelectorModalComponent implements OnInit {
 
   private mileageService = inject(MileageService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() unit: 'KM' | 'MILES';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mileageConfig: MileageDetails;
 
-  @Input() isDistanceMandatory;
+  readonly isDistanceMandatory = input(undefined);
 
-  @Input() isAmountDisabled;
+  readonly isAmountDisabled = input(undefined);
 
-  @Input() txnFields;
+  readonly txnFields = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() formInitialized;
 
-  @Input() isConnected;
+  readonly isConnected = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() value: {
     distance: number;
     mileageLocations?: MileageLocation[];
     roundTrip: number;
   };
 
-  @Input() recentlyUsedMileageLocations: {
+  readonly recentlyUsedMileageLocations = input<{
     start_locations?: string[];
     end_locations?: string[];
     locations?: string[];
-  };
+  }>(undefined);
 
   distance: string;
 

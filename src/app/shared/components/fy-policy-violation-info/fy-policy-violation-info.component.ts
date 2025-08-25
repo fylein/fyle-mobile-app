@@ -18,10 +18,16 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   private modalProperties = inject(ModalPropertiesService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() policyDetails: PolicyDetail[] | undefined;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() criticalPolicyViolated: boolean | undefined;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() expense: Expense | UnflattenedTransaction;
 
   policyViolations: string[] = [];

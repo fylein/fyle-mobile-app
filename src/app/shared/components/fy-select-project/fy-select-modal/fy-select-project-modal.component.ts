@@ -7,6 +7,7 @@ import {
   ChangeDetectorRef,
   TemplateRef,
   inject,
+  input,
 } from '@angular/core';
 import { Observable, fromEvent, iif, of, from, forkJoin } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -54,29 +55,48 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelection: ProjectV2;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() filteredOptions$: Observable<ProjectOption[]>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() cacheName: string;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() selectionElement: TemplateRef<ElementRef>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() categoryIds: string[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() defaultValue = false;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() recentlyUsed: ProjectOption[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isProjectCategoryRestrictionsEnabled: boolean;
 
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() isSelectedProjectDisabled: boolean;
+  readonly isSelectedProjectDisabled = input<boolean>(undefined);
 
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() selectedDisabledProject: ProjectV2;
+  readonly selectedDisabledProject = input<ProjectV2>(undefined);
 
   recentrecentlyUsedItems$: Observable<ProjectOption[]>;
 
@@ -230,8 +250,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
         }),
       ),
       map((projects) => {
-        if (this.isSelectedProjectDisabled && this.selectedDisabledProject) {
-          return projects.filter((project) => project.value?.project_id !== this.selectedDisabledProject?.project_id);
+        if (this.isSelectedProjectDisabled() && this.selectedDisabledProject()) {
+          return projects.filter((project) => project.value?.project_id !== this.selectedDisabledProject()?.project_id);
         }
         return projects;
       }),

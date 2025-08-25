@@ -39,8 +39,12 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef!: ElementRef<HTMLInputElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelection: Vendor | null = null;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() filteredOptions$!: Observable<VendorListItem[]>;
 
   recentrecentlyUsedItems$!: Observable<VendorListItem[]>;

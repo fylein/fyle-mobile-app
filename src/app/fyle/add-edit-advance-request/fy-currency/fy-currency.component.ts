@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, Injector, inject } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, Injector, inject, input } from '@angular/core';
 
 import {
   NG_VALUE_ACCESSOR,
@@ -34,8 +34,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
   private injector = inject(Injector);
 
-  @Input() txnDt: Date;
+  readonly txnDt = input<Date>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() homeCurrency: string;
 
   fg: UntypedFormGroup;

@@ -1,9 +1,6 @@
 <div class="stats--ccc-card-details" [ngClass]="{ 'stats--ccc-virtual-card-details': cardDetail.card.virtual_card_id }">
   @if (!cardDetail.card.virtual_card_id) {
-    <app-corporate-card
-      [card]="cardDetail.card"
-      [hideOptionsMenu]="true"
-    ></app-corporate-card>
+    <app-corporate-card [card]="cardDetail.card" [hideOptionsMenu]="true"></app-corporate-card>
   }
   @if (cardDetail.card.virtual_card_id) {
     <app-virtual-card
@@ -24,60 +21,59 @@
           {{ cardDetail.stats.totalDraftTxns }}
         </div>
         <div class="stats--ccc-classified-amount">
-          {{ currencySymbol
-          }}@if (
-          !isSmallScreen &&
-          cardDetail.stats.totalDraftAmount > -1000000000 &&
-          cardDetail.stats.totalDraftAmount < 1000000000) {
-          {{
-          { value: cardDetail.stats.totalDraftAmount, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency
-          }}
-        } @else {
-          {{
-          cardDetail.stats.totalDraftAmount | humanizeCurrency : homeCurrency : true
-          }}
-        }
+          {{ currencySymbol() }}
+          @if (
+            !isSmallScreen &&
+            cardDetail.stats.totalDraftAmount > -1000000000 &&
+            cardDetail.stats.totalDraftAmount < 1000000000
+          ) {
+            {{
+              { value: cardDetail.stats.totalDraftAmount, currencyCode: homeCurrency(), skipSymbol: true }
+                | exactCurrency
+            }}
+          } @else {
+            {{ cardDetail.stats.totalDraftAmount | humanizeCurrency: homeCurrency() : true }}
+          }
+        </div>
+      </div>
+      <div class="stats--ccc-stats-title">
+        {{
+          cardDetail.stats.totalDraftTxns < 1
+            ? ('cardDetail.incompleteCardExpenseSingular' | transloco)
+            : ('cardDetail.incompleteCardExpensePlural' | transloco)
+        }}
       </div>
     </div>
-    <div class="stats--ccc-stats-title">
-      {{
-      cardDetail.stats.totalDraftTxns < 1
-      ? ('cardDetail.incompleteCardExpenseSingular' | transloco)
-      : ('cardDetail.incompleteCardExpensePlural' | transloco)
-      }}
-    </div>
-  </div>
 
-  <hr class="stats--ccc-stats-divider" />
-  <div (click)="goToExpensesPage('completeExpenses', cardDetail)">
-    <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
-      <div class="stats--ccc-classified-count">
-        {{ cardDetail.stats.totalCompleteTxns }}
+    <hr class="stats--ccc-stats-divider" />
+    <div (click)="goToExpensesPage('completeExpenses', cardDetail)">
+      <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
+        <div class="stats--ccc-classified-count">
+          {{ cardDetail.stats.totalCompleteTxns }}
+        </div>
+        <div class="stats--ccc-classified-amount">
+          {{ currencySymbol() }}
+          @if (
+            !isSmallScreen &&
+            cardDetail.stats.totalCompleteExpensesAmount > -1000000000 &&
+            cardDetail.stats.totalCompleteExpensesAmount < 1000000000
+          ) {
+            {{
+              { value: cardDetail.stats.totalCompleteExpensesAmount, currencyCode: homeCurrency(), skipSymbol: true }
+                | exactCurrency
+            }}
+          } @else {
+            {{ cardDetail.stats.totalCompleteExpensesAmount | humanizeCurrency: homeCurrency() : true }}
+          }
+        </div>
       </div>
-      <div class="stats--ccc-classified-amount">
-        {{ currencySymbol
-        }}@if (
-        !isSmallScreen &&
-        cardDetail.stats.totalCompleteExpensesAmount > -1000000000 &&
-        cardDetail.stats.totalCompleteExpensesAmount < 1000000000) {
+      <div class="stats--ccc-stats-title">
         {{
-        { value: cardDetail.stats.totalCompleteExpensesAmount, currencyCode: homeCurrency, skipSymbol: true }
-        | exactCurrency
+          cardDetail.stats.totalCompleteTxns < 1
+            ? ('cardDetail.completeCardExpenseSingular' | transloco)
+            : ('cardDetail.completeCardExpensePlural' | transloco)
         }}
-      } @else {
-        {{
-        cardDetail.stats.totalCompleteExpensesAmount | humanizeCurrency : homeCurrency : true
-        }}
-      }
+      </div>
     </div>
   </div>
-  <div class="stats--ccc-stats-title">
-    {{
-    cardDetail.stats.totalCompleteTxns < 1
-    ? ('cardDetail.completeCardExpenseSingular' | transloco)
-    : ('cardDetail.completeCardExpensePlural' | transloco)
-    }}
-  </div>
-</div>
-</div>
 </div>

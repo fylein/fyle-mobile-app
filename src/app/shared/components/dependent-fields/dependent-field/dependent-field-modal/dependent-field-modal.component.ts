@@ -1,4 +1,13 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, inject } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  Input,
+  ChangeDetectorRef,
+  inject,
+  input,
+} from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
@@ -24,16 +33,24 @@ export class DependentFieldModalComponent implements AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelection: string;
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
-  @Input() label: string;
+  readonly label = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() fieldId: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldId: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldValue: string;
 
   filteredOptions$: Observable<DependentFieldOption[]>;

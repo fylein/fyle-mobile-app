@@ -7,6 +7,7 @@ import {
   ChangeDetectorRef,
   TemplateRef,
   inject,
+  input,
 } from '@angular/core';
 import { combineLatest, from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, shareReplay } from 'rxjs/operators';
@@ -35,27 +36,44 @@ export class VirtualSelectModalComponent implements AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: VirtualSelectOption[] = [];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelection: VirtualSelectOption;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() selectionElement: TemplateRef<ElementRef>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() nullOption = true;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() cacheName: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() enableSearch;
 
-  @Input() selectModalHeader = '';
+  readonly selectModalHeader = input('');
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() defaultLabelProp: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() recentlyUsed: VirtualSelectOption[];
 
-  @Input() label;
+  readonly label = input(undefined);
 
   value = '';
 

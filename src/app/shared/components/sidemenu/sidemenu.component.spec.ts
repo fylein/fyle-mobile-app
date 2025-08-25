@@ -16,7 +16,7 @@ import { MenuController } from '@ionic/angular';
 import { SidemenuComponent } from './sidemenu.component';
 import { of, take } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, NO_ERRORS_SCHEMA, Output } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, NO_ERRORS_SCHEMA, Output, input } from '@angular/core';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { currentEouRes } from 'src/app/core/test-data/org-user.service.spec.data';
@@ -59,13 +59,13 @@ describe('SidemenuComponent', () => {
     standalone: false,
   })
   class MockIonMenuComponent {
-    @Input() side: string;
+    readonly side = input<string>(undefined);
 
-    @Input() class: string;
+    readonly class = input<string>(undefined);
 
-    @Input() contentId: string;
+    readonly contentId = input<string>(undefined);
 
-    @Input() swipeGesture: boolean;
+    readonly swipeGesture = input<boolean>(undefined);
   }
   beforeEach(waitForAsync(() => {
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);

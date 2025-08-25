@@ -41,6 +41,8 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() orgSettings: OrgSettings;
 
   @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();

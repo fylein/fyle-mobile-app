@@ -8,6 +8,8 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
   standalone: false,
 })
 export class MobileNumberCardComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() extendedOrgUser: ExtendedOrgUser;
 
   @Output() addMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();

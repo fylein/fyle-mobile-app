@@ -1,5 +1,5 @@
 import { getCurrencySymbol } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, input } from '@angular/core';
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 
 @Component({
@@ -9,17 +9,27 @@ import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-p
   standalone: false,
 })
 export class PersonalCardTransactionComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() transaction: PlatformPersonalCardTxn;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() previousTxnDate: Date;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() status;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isSelectionModeEnabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() selectedElements: string[];
 
-  @Input() isMatchedCountLoading: boolean;
+  readonly isMatchedCountLoading = input<boolean>(undefined);
 
   @Output() setMultiselectMode = new EventEmitter<string>();
 

@@ -51,13 +51,15 @@ export class FyViewAttachmentComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() attachments: FileObject[];
 
-  @Input() isMileageExpense: boolean;
+  readonly isMileageExpense = input<boolean>(undefined);
 
-  @Input() canEdit: boolean;
+  readonly canEdit = input<boolean>(undefined);
 
-  @Input() expenseId: string;
+  readonly expenseId = input<string>(undefined);
 
   readonly isTeamAdvance = input<boolean>(false);
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject, input } from '@angular/core';
 import { EventEmitter, Injector, Output } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import {
@@ -35,27 +35,57 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
 
   @Output() fieldsTouched = new EventEmitter<string[]>();
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() location1OptionsData: OptionsData;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() location2OptionsData: OptionsData;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() onwardDateOptionsData: OptionsData;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() returnDateOptionsData: OptionsData;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() flightJourneyTravelClassOptionsData: OptionsData;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() flightReturnTravelClassOptionsData: OptionsData;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() trainTravelClassOptionsData: OptionsData;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() busTravelClassOptionsData: OptionsData;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() distanceOptionsData: OptionsData;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() distanceUnitOptionsData: OptionsData;
 
-  @Input() disableFormElements: boolean;
+  readonly disableFormElements = input<boolean>(undefined);
 
   categoryDependentFormGroup: UntypedFormGroup;
 

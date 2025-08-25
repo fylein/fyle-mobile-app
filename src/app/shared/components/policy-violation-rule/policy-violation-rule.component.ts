@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 
 @Component({
   selector: 'app-policy-violation-rule',
@@ -7,9 +7,9 @@ import { Component, Input, OnInit } from '@angular/core';
   standalone: false,
 })
 export class PolicyViolationRuleComponent implements OnInit {
-  @Input() message: string;
+  readonly message = input<string>(undefined);
 
-  @Input() violationType: string;
+  readonly violationType = input<string>(undefined);
 
   constructor() {}
 

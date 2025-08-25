@@ -1,55 +1,52 @@
-@if (isIos && isAmount && isNegativeExpensePluginEnabled) {
+@if (isIos && isAmount() && isNegativeExpensePluginEnabled) {
   <input
     class="fy-number--input smartlook-show"
-    [min]="min"
-    [disabled]="disabled"
+    [min]="min()"
+    [disabled]="disabled()"
     [formControl]="fc"
-    [placeholder]="placeholder || ''"
+    [placeholder]="placeholder() || ''"
     (blur)="(onBlur)"
     type="number"
     [(ngModel)]="negativeExpense"
     (keydown)="handleNegativeExpenseChange($event)"
-    />
+  />
 } @else {
-  @if (isAndroid && isAmount && isAndroidNegativeExpensePluginEnabled) {
+  @if (isAndroid && isAmount() && isAndroidNegativeExpensePluginEnabled) {
     <input
       class="fy-number--input smartlook-show"
-      [min]="min"
-      [disabled]="disabled"
+      [min]="min()"
+      [disabled]="disabled()"
       [formControl]="fc"
-      [placeholder]="placeholder || ''"
+      [placeholder]="placeholder() || ''"
       (blur)="(onBlur)"
       type="text"
       inputmode="numeric"
       [(ngModel)]="negativeExpense"
-      />
+    />
   } @else {
     @if (isIos && isKeyboardPluginEnabled) {
       <input
         class="fy-number--input smartlook-show"
-        [min]="min"
-        [disabled]="disabled"
+        [min]="min()"
+        [disabled]="disabled()"
         [formControl]="fc"
-        [placeholder]="placeholder || ''"
+        [placeholder]="placeholder() || ''"
         (blur)="(onBlur)"
         type="number"
         inputmode="decimal"
         (keyup)="handleChange($event)"
-        />
+      />
     } @else {
       <input
         class="fy-number--input smartlook-show"
-        [min]="min"
-        [disabled]="disabled"
+        [min]="min()"
+        [disabled]="disabled()"
         [formControl]="fc"
-        [placeholder]="placeholder || ''"
+        [placeholder]="placeholder() || ''"
         (blur)="(onBlur)"
         type="number"
         inputmode="decimal"
-        />
+      />
     }
   }
 }
-
-
-

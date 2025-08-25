@@ -25,6 +25,8 @@ export class PendingGasChargeInfoComponent {
 
   // Input setter to update signal
   // eslint-disable-next-line @angular-eslint/prefer-signals
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() set isExpenseListView(value: boolean | undefined) {
     this._isExpenseListView.set(value);
   }

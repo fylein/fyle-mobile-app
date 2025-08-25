@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, OnDestroy, inject, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -23,16 +23,23 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
 
   private modalProperties = inject(ModalPropertiesService);
 
-  @Input() options: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly options = input<any[]>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label = '';
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() validInParent: boolean;
 
   displayValue;

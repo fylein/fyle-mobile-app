@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild, input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import dayjs from 'dayjs';
@@ -79,32 +79,56 @@ export class ExpensesCardComponent implements OnInit {
 
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() expense: Expense;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() previousExpenseTxnDate: string | Date;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() previousExpenseCreatedAt: string | Date;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isSelectionModeEnabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() selectedElements: Expense[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFirstOfflineExpense: boolean;
 
-  @Input() attachments;
+  readonly attachments = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isOutboxExpense: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFromReports: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFromViewReports: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFromPotentialDuplicates: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() expenseIndex: number;
 
-  @Input() isDismissable: boolean;
+  readonly isDismissable = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() showDt = true;
 
   @Output() goToTransaction: EventEmitter<{ expense: Expense; expenseIndex: number }> = new EventEmitter<{

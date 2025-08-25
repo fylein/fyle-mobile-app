@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -10,7 +10,7 @@ import { PopoverController } from '@ionic/angular';
 export class FyMsgPopoverComponent {
   private popoverController = inject(PopoverController);
 
-  msg: string;
+  readonly msg = input<string>('');
 
   dismiss(): void {
     this.popoverController.dismiss();

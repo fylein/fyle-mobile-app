@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, OnDestroy, inject } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, OnDestroy, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
@@ -43,9 +43,11 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() base64ImagesWithSource: Image[];
 
-  @Input() mode: string;
+  readonly mode = input<string>(undefined);
 
   sliderOptions: { zoom: { maxRatio: number } };
 

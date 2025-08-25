@@ -31,7 +31,7 @@
     <div class="ion-text-right summary-tile--card-container__block">
       <div
         class="ion-text-right"
-        [ngClass]="{ 'summary-tile--card-container__no-exchange': !orig_currency && project }"
+        [ngClass]="{ 'summary-tile--card-container__no-exchange': !orig_currency() && project }"
       >
         <div class="summary-tile--card-container__state-pill state-pill state-{{ status | lowercase }}">
           {{ status | snakeCaseToSpaceCase | titlecase }}
@@ -47,11 +47,11 @@
       <div class="summary-tile--approval-state-block-header">
         <div class="summary-tile--approvers">{{ 'summaryTile.approvers' | transloco }}</div>
         <div class="summary-tile--approvers-add-approver">
-          @if (actions?.can_add_approver) {
+          @if (actions()?.can_add_approver) {
             <app-fy-approver
-              [approverEmailsList]="approverEmails"
-              [id]="id"
-              [ownerEmail]="ownerEmail"
+              [approverEmailsList]="approverEmails()"
+              [id]="id()"
+              [ownerEmail]="ownerEmail()"
               [type]="'ADVANCE_REQUEST'"
             ></app-fy-approver>
           }

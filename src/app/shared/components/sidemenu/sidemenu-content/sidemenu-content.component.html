@@ -1,9 +1,9 @@
 <div class="sidemenu-content">
   <ion-list>
-    @for (sidemenuItem of sideMenuList; track sidemenuItem; let i = $index) {
+    @for (sidemenuItem of sideMenuList(); track sidemenuItem; let i = $index) {
       <app-sidemenu-content-item
         [sidemenuItem]="sidemenuItem"
-        [showDivider]="i === primaryOptionsCount"
+        [showDivider]="i === primaryOptionsCount()"
         (redirect)="goToRoute($event)"
       ></app-sidemenu-content-item>
     }

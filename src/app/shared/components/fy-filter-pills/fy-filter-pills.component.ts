@@ -8,6 +8,8 @@ import { FilterPill } from './filter-pill.interface';
   standalone: false,
 })
 export class FyFilterPillsComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() filterPills: FilterPill[];
 
   @Output() clearAll = new EventEmitter();

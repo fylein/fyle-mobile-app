@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject, input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -12,10 +12,13 @@ export class FyPopoverComponent implements AfterViewInit {
 
   @ViewChild('simpleFormInput') simpleFormInput: ElementRef;
 
-  @Input() title = '';
+  readonly title = input('');
 
-  @Input() formLabel = '';
+  readonly formLabel = input('');
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() message: string;
 
   formValue = '';

@@ -7,8 +7,12 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   standalone: false,
 })
 export class FyNavFooterComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeExpenseIndex: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() reportExpenseCount: number;
 
   @Output() nextClicked = new EventEmitter<void>();

@@ -9,6 +9,7 @@ import {
   Output,
   SimpleChanges,
   inject,
+  input,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -51,29 +52,42 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   private modalController = inject(ModalController);
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() unit: 'KM' | 'MILES';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mileageConfig: MileageDetails;
 
-  @Input() isDistanceMandatory: boolean;
+  readonly isDistanceMandatory = input<boolean>(undefined);
 
-  @Input() isAmountDisabled: boolean;
+  readonly isAmountDisabled = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() txnFields;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() formInitialized;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isConnected;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent = false;
 
-  @Input() validInParent = true;
+  readonly validInParent = input(true);
 
-  @Input() recentlyUsedMileageLocations: {
+  readonly recentlyUsedMileageLocations = input<{
     start_locations?: string[];
     end_locations?: string[];
     locations?: string[];
-  };
+  }>(undefined);
 
   @Output() distanceChange = new EventEmitter<number>();
 
@@ -90,7 +104,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   get isRoundTripDisabled(): boolean {
-    return this.isAmountDisabled;
+    return this.isAmountDisabled();
   }
 
   // eslint-disable-next-line
@@ -226,8 +240,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
       componentProps: {
         unit: this.unit,
         mileageConfig: this.mileageConfig,
-        isDistanceMandatory: this.isDistanceMandatory,
-        isAmountDisabled: this.isAmountDisabled,
+        isDistanceMandatory: this.isDistanceMandatory(),
+        isAmountDisabled: this.isAmountDisabled(),
         // eslint-disable-next-line
         txnFields: this.txnFields,
         value: this.form.value as {
@@ -235,7 +249,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
           mileageLocations: [];
           roundTrip: boolean;
         },
-        recentlyUsedMileageLocations: this.recentlyUsedMileageLocations,
+        recentlyUsedMileageLocations: this.recentlyUsedMileageLocations(),
       },
     });
 

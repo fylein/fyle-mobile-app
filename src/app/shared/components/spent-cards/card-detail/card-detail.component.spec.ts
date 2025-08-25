@@ -11,7 +11,7 @@ import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { CardDetailComponent } from './card-detail.component';
 import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { By } from '@angular/platform-browser';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -24,9 +24,9 @@ import { orgSettingsWithV2ExpensesPage, orgSettingsWoV2ExpensesPage } from 'src/
   standalone: false,
 })
 class MockCorporateCardComponent {
-  @Input() card: PlatformCorporateCard;
+  readonly card = input<PlatformCorporateCard>(undefined);
 
-  @Input() hideOptionsMenu: boolean;
+  readonly hideOptionsMenu = input<boolean>(undefined);
 }
 
 describe('CardDetailComponent', () => {

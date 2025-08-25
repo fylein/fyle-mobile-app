@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnChanges, inject } from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges, inject, input } from '@angular/core';
 import { LoaderPosition } from './loader-position.enum';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -11,12 +11,18 @@ export class FormButtonValidationDirective implements OnChanges {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() loadingText: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() buttonType: string;
 
-  @Input() loading: boolean;
+  readonly loading = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() loaderPosition: LoaderPosition = LoaderPosition.postfix;
 
   defaultText: string;
@@ -51,7 +57,7 @@ export class FormButtonValidationDirective implements OnChanges {
   }
 
   ngOnChanges(): void {
-    this.onLoading(this.loading);
+    this.onLoading(this.loading());
   }
 
   disableButton(): void {

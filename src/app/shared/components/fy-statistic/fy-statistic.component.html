@@ -3,12 +3,12 @@
     <ion-row>
       <ion-col class="statistic--icon-container">
         <div class="statistic--icon-container__background">
-          <ion-icon class="statistic--icon-container__icon" [src]="icon"></ion-icon>
+          <ion-icon class="statistic--icon-container__icon" [src]="icon()"></ion-icon>
         </div>
       </ion-col>
       <ion-col class="statistic--content-container">
-        <div class="statistic--label">{{ label }}</div>
-        <div class="statistic--value">{{ value }}</div>
+        <div class="statistic--label">{{ label() }}</div>
+        <div class="statistic--value">{{ value() }}</div>
       </ion-col>
     </ion-row>
   </ion-grid>

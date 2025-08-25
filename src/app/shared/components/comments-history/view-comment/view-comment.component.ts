@@ -50,10 +50,16 @@ export class ViewCommentComponent implements OnInit {
 
   private router = inject(Router);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() objectType: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() objectId: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() view: ExpenseView;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;

@@ -10,6 +10,7 @@ import {
   SimpleChanges,
   ViewChild,
   inject,
+  input,
 } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -69,9 +70,11 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput: NgOtpInputComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() eou: ExtendedOrgUser;
 
-  @Input() areCardsEnrolled: boolean;
+  readonly areCardsEnrolled = input<boolean>(undefined);
 
   @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
 

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, input } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { AddApproversPopoverComponent } from './add-approvers-popover/add-approvers-popover.component';
@@ -13,15 +13,23 @@ import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actio
 export class FyApproverComponent {
   private popoverController = inject(PopoverController);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() approverEmailsList;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() id: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() ownerEmail: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() type;
 
-  @Input() actions: AdvanceRequestActions;
+  readonly actions = input<AdvanceRequestActions>(undefined);
 
   @Output() notify: EventEmitter<string> = new EventEmitter<string>();
 

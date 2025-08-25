@@ -20,7 +20,7 @@
 <ion-content>
   @if (options.length) {
     <div class="report-list--container">
-      @if (showNullOption) {
+      @if (showNullOption()) {
         <div matRipple (click)="dismissModal($event)" class="report-list--list">
           <div class="report-list--purpose report-list--none">{{ 'fyAddToReportModal.none' | transloco }}</div>
         </div>
