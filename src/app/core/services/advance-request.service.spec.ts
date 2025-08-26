@@ -1217,9 +1217,9 @@ describe('AdvanceRequestService', () => {
 
       approverService.get.and.returnValue(of({ data: mockCustomFields }));
 
-      advanceRequestService.getCustomFieldsForApprover().subscribe((res) => {
+      advanceRequestService.getCustomFieldsForApprover('org123').subscribe((res) => {
         expect(res).toEqual(mockCustomFields);
-        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests/custom_fields');
+        expect(approverService.get).toHaveBeenCalledOnceWith('/advance_requests/custom_fields?org_id=eq.org123');
         done();
       });
     });
