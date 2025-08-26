@@ -3,6 +3,7 @@ import { ApiService } from './api.service';
 import { HttpHeaders } from '@angular/common/http';
 import { OtpDetails } from '../models/otp-details.model';
 import { Observable } from 'rxjs';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,8 +11,10 @@ import { Observable } from 'rxjs';
 export class MobileNumberVerificationService {
   private apiService = inject(ApiService);
 
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
   sendOtp(): Observable<Partial<OtpDetails>> {
-    return this.apiService.post('/orgusers/verify_mobile');
+    return this.spenderPlatformV1ApiService.post('/employees/send_mobile_verification_code');
   }
 
   verifyOtp(otp: string): Observable<{ message: string }> {

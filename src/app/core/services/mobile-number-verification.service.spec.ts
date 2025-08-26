@@ -3,25 +3,35 @@ import { of } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
 import { MobileNumberVerificationService } from './mobile-number-verification.service';
 import { ApiService } from './api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 describe('MobileNumberVerificationService', () => {
   let mobileNumberVerificationService: MobileNumberVerificationService;
   let apiService: jasmine.SpyObj<ApiService>;
-
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
     TestBed.configureTestingModule({
       providers: [
         {
           provide: ApiService,
           useValue: apiServiceSpy,
         },
+        {
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
+        },
       ],
     });
     mobileNumberVerificationService = TestBed.inject(MobileNumberVerificationService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService,
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
     apiService.post.and.returnValue(of({}));
+    spenderPlatformV1ApiService.post.and.returnValue(of({}));
   });
 
   it('should be created', () => {
@@ -30,7 +40,7 @@ describe('MobileNumberVerificationService', () => {
 
   it('sendOtp(): should send otp', () => {
     mobileNumberVerificationService.sendOtp().subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith('/orgusers/verify_mobile');
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/employees/send_mobile_verification_code');
     });
   });
 
@@ -40,7 +50,7 @@ describe('MobileNumberVerificationService', () => {
       expect(apiService.post).toHaveBeenCalledOnceWith(
         '/orgusers/check_mobile_verification_code',
         otp,
-        jasmine.any(Object)
+        jasmine.any(Object),
       );
 
       //Check if the 3rd argument is an object with Content-Type header set to desired value
