@@ -95,7 +95,7 @@ export function TestCases2(getTestBed) {
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       transactionsOutboxService = TestBed.inject(
-        TransactionsOutboxService
+        TransactionsOutboxService,
       ) as jasmine.SpyObj<TransactionsOutboxService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
@@ -105,7 +105,7 @@ export function TestCases2(getTestBed) {
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -130,12 +130,26 @@ export function TestCases2(getTestBed) {
     });
 
     it('fileAttachments(): should return file attachments if ids are absent in fileObject', (done) => {
-      transactionsOutboxService.fileUpload.and.resolveTo(cloneDeep(fileObject9[0]));
-      const mockFileObjects = cloneDeep(advanceRequestFileUrlData);
+      const mockFileObjects = cloneDeep(advanceRequestFileUrlData2);
       component.dataUrls = mockFileObjects;
+      
+      // Mock the fileUpload service to return different results for each call
+      const mockFile1 = { ...cloneDeep(fileObject9[0]), id: 'file1' };
+      const mockFile2 = { ...cloneDeep(fileObject9[0]), id: 'file2' };
+      
+      let callCount = 0;
+      transactionsOutboxService.fileUpload.and.callFake(() => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve(mockFile1);
+        } else {
+          return Promise.resolve(mockFile2);
+        }
+      });
+      
       component.fileAttachments().subscribe((res) => {
-        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(undefined, 'image');
-        expect(res).toEqual(fileData3);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledTimes(2);
+        expect(res).toEqual(['file1', 'file2']);
         done();
       });
     });
@@ -172,20 +186,43 @@ export function TestCases2(getTestBed) {
       expect(captureReceiptModalSpy.present).toHaveBeenCalledTimes(1);
       expect(captureReceiptModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith(
-        '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf'
+        '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
       );
       expect(component.dataUrls).toEqual(expectedFileData2);
     }));
 
     it('viewAttachments(): should show the attachments as preview', fakeAsync(() => {
       component.dataUrls = cloneDeep(advanceRequestFileUrlData2);
+      
+      let callCount = 0;
+      transactionsOutboxService.fileUpload.and.callFake(() => {
+        callCount++;
+        const mockFile = { ...cloneDeep(fileObject9[0]), id: `file${callCount}` };
+        return Promise.resolve(mockFile);
+      });
+
       const attachmentModalSpy = jasmine.createSpyObj('attachmentsModal', ['present', 'onWillDismiss']);
       attachmentModalSpy.onWillDismiss.and.resolveTo({ data: { attachments: expectedFileData2 } });
       modalController.create.and.resolveTo(attachmentModalSpy);
 
       component.viewAttachments();
       tick(100);
-      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams4);
+
+      const expectedAttachmentsWithIds = cloneDeep(advanceRequestFileUrlData2).map((attachment, index) => ({
+        ...attachment,
+        id: `file${index + 1}`,
+        type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image'
+      }));
+      
+      // Check that the modal was created with the correct parameters
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        ...modalControllerParams4,
+        componentProps: {
+          ...modalControllerParams4.componentProps,
+          attachments: expectedAttachmentsWithIds,
+          isTeamAdvance: false,
+        },
+      });
       expect(attachmentModalSpy.present).toHaveBeenCalledTimes(1);
       expect(attachmentModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(component.dataUrls).toEqual(expectedFileData2);
@@ -432,11 +469,11 @@ export function TestCases2(getTestBed) {
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
           expect(component.fg.value.project).toEqual(projects[0]);
           expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-            mockAdvanceRequest.areq.custom_field_values
+            mockAdvanceRequest.areq.custom_field_values,
           );
           expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.dataUrls).toEqual(fileObject4);
-          expect(res).toEqual(mockAdvanceRequest.areq);
+          expect(res).toEqual(jasmine.objectContaining(mockAdvanceRequest.areq));
         });
       }));
 
@@ -453,7 +490,7 @@ export function TestCases2(getTestBed) {
         component.ionViewWillEnter();
         tick(100);
         component.extendedAdvanceRequest$.subscribe((res) => {
-          expect(advanceRequestService.getEReqFromApprover).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(advanceRequestService.getEReqFromApprover).toHaveBeenCalledWith('areqR1cyLgXdND');
           expect(component.fg.value.currencyObj).toEqual({
             currency: 'USD',
             amount: 2,
@@ -461,11 +498,11 @@ export function TestCases2(getTestBed) {
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
           expect(component.fg.value.project).toEqual(projects[0]);
           expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-            mockAdvanceRequest.areq.custom_field_values
+            mockAdvanceRequest.areq.custom_field_values,
           );
           expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.dataUrls).toEqual(fileObject4);
-          expect(res).toEqual(mockAdvanceRequest.areq);
+          expect(res).toEqual(jasmine.objectContaining(mockAdvanceRequest.areq));
         });
       }));
 

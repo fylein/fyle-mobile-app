@@ -34,6 +34,8 @@ import { ExtendedStatus } from '../models/extended_status.model';
 import { Comment } from '../models/platform/v1/comment.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { AdvanceRequestsCustomFields } from '../models/advance-requests-custom-fields.model';
+import { SpenderFileService } from './platform/v1/spender/file.service';
+import { ApproverFileService } from './platform/v1/approver/file.service';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -83,6 +85,10 @@ export class AdvanceRequestService {
   private approverService = inject(ApproverService);
 
   private spenderService = inject(SpenderService);
+
+  private spenderFileService = inject(SpenderFileService);
+
+  private approverFileService = inject(ApproverFileService);
 
   private translocoService = inject(TranslocoService);
 
@@ -520,27 +526,33 @@ export class AdvanceRequestService {
 
   createAdvReqWithFilesAndSubmit(
     advanceRequest: Partial<AdvanceRequests>,
-    fileObservables?: Observable<File[]>,
+    fileIdsObservable?: Observable<string[]>,
     isApprover?: boolean,
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
-      files: fileObservables,
+      fileIds: fileIdsObservable || of([] as string[]),
       advanceReq: this.submit(advanceRequest, isApprover || false),
     }).pipe(
       switchMap((res) => {
-        if (res.files && res.files.length > 0) {
-          const fileObjs: File[] = res.files;
+        if (res.fileIds && res.fileIds.length > 0) {
+          const fileIds: string[] = res.fileIds;
           const advanceReqPlatform = res.advanceReq;
-          const newFileObjs = fileObjs.map((obj: File) => {
-            obj.advance_request_id = advanceReqPlatform.id;
-            return this.fileService.post(obj);
-          });
-          return forkJoin(newFileObjs).pipe(
-            map(() => ({
-              files: res.files,
-              advanceReq: advanceReqPlatform,
-            })),
-          );
+
+          if (isApprover) {
+            return this.approverFileService.attachToAdvance(advanceReqPlatform.id, fileIds, advanceReqPlatform.user.id).pipe(
+              map(() => ({
+                files: [],
+                advanceReq: advanceReqPlatform,
+              })),
+            );
+          } else {
+            return this.spenderFileService.attachToAdvance(advanceReqPlatform.id, fileIds).pipe(
+              map(() => ({
+                files: [],
+                advanceReq: advanceReqPlatform,
+              })),
+            );
+          }
         } else {
           return of(null).pipe(
             map(() => ({
@@ -555,23 +567,20 @@ export class AdvanceRequestService {
 
   saveDraftAdvReqWithFiles(
     advanceRequest: Partial<AdvanceRequests>,
-    fileObservables?: Observable<File[]>,
+    fileIdsObservable?: Observable<string[]>,
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
-      files: fileObservables,
+      fileIds: fileIdsObservable || of([] as string[]),
       advanceReq: this.post(advanceRequest),
     }).pipe(
       switchMap((res) => {
-        if (res.files && res.files.length > 0) {
-          const fileObjs: File[] = res.files;
+        if (res.fileIds && res.fileIds.length > 0) {
+          const fileIds: string[] = res.fileIds;
           const advanceReqPlatform = res.advanceReq;
-          const newFileObjs = fileObjs.map((obj: File) => {
-            obj.advance_request_id = advanceReqPlatform.id;
-            return this.fileService.post(obj);
-          });
-          return forkJoin(newFileObjs).pipe(
+
+          return this.spenderFileService.attachToAdvance(advanceReqPlatform.id, fileIds).pipe(
             map(() => ({
-              files: res.files,
+              files: [],
               advanceReq: advanceReqPlatform,
             })),
           );
@@ -609,9 +618,9 @@ export class AdvanceRequestService {
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
-  getCustomFieldsForApprover(): Observable<AdvanceRequestsCustomFields[]> {
+  getCustomFieldsForApprover(orgId: string): Observable<AdvanceRequestsCustomFields[]> {
     return this.approverService
-      .get<PlatformApiResponse<AdvanceRequestsCustomFields[]>>('/advance_requests/custom_fields')
+      .get<PlatformApiResponse<AdvanceRequestsCustomFields[]>>(`/advance_requests/custom_fields?org_id=eq.${orgId}`)
       .pipe(map((res) => this.transformCustomFields(res.data)));
   }
 

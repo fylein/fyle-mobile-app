@@ -1679,7 +1679,7 @@ export function TestCases5(getTestBed) {
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
-        fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
+        spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
         fileService.downloadUrl.and.returnValue(of('url'));
         spyOn(component, 'getReceiptDetails').and.returnValue({
           type: 'jpeg',
@@ -1759,7 +1759,7 @@ export function TestCases5(getTestBed) {
         transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[0]);
         transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[1]);
         const mockFileObject = cloneDeep(expectedFileData1);
-        fileService.findByTransactionId.and.returnValue(of(mockFileObject));
+        spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
         fileService.downloadUrl.and.returnValue(of('url'));
         activatedRoute.snapshot.params.activeIndex = JSON.stringify(1);
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['id_1', 'id_2']);
@@ -1879,7 +1879,7 @@ export function TestCases5(getTestBed) {
           expect(res).toEqual([]);
         });
 
-        expect(fileService.findByTransactionId).not.toHaveBeenCalled();
+        expect(spenderFileService.generateUrlsBulk).not.toHaveBeenCalled();
         expect(spenderFileService.generateUrlsBulk).not.toHaveBeenCalled();
         expect(fileService.getReceiptsDetails).not.toHaveBeenCalled();
 

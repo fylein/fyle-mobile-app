@@ -23,6 +23,8 @@ import { TestCases1 } from './add-edit-advance-request-1.page.spec';
 import { UntypedFormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TestCases2 } from './add-edit-advance-request-2.page.spec';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 
 describe('AddEditAdvanceRequestPage', () => {
   const getTestBed = () => {
@@ -60,6 +62,24 @@ describe('AddEditAdvanceRequestPage', () => {
     const currencyServiceSpyObj = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const platformEmployeeSettingsServiceSpyObj = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
+    const spenderFileServiceSpyObj = jasmine.createSpyObj('SpenderFileService', [
+      'createFile',
+      'createFilesBulk',
+      'deleteFilesBulk',
+      'generateUrls',
+      'generateUrlsBulk',
+      'downloadFile',
+      'attachToAdvance'
+    ]);
+    const approverFileServiceSpyObj = jasmine.createSpyObj('ApproverFileService', [
+      'createFile',
+      'createFilesBulk',
+      'generateUrls',
+      'generateUrlsBulk',
+      'downloadFile',
+      'deleteFilesBulk',
+      'attachToAdvance'
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [AddEditAdvanceRequestPage],
@@ -83,6 +103,8 @@ describe('AddEditAdvanceRequestPage', () => {
         { provide: CurrencyService, useValue: currencyServiceSpyObj },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpyObj },
         { provide: Router, useValue: routerSpyObj },
+        { provide: SpenderFileService, useValue: spenderFileServiceSpyObj },
+        { provide: ApproverFileService, useValue: approverFileServiceSpyObj },
         {
           provide: ActivatedRoute,
           useValue: {

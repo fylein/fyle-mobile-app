@@ -1,46 +1,103 @@
 import { Injectable, inject } from '@angular/core';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { File } from '../models/file.model';
-import { ApiService } from './api.service';
+import { Observable, of, switchMap, map, from } from 'rxjs';
 import { FileObject } from '../models/file-obj.model';
 import { ReceiptInfo } from '../models/receipt-info.model';
 import heic2any from 'heic2any';
-import { DateService } from './date.service';
+import { SpenderFileService } from './platform/v1/spender/file.service';
+import { SpenderService } from './platform/v1/spender/spender.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { ApproverService } from './platform/v1/approver/approver.service';
+import { ApproverFileService } from './platform/v1/approver/file.service';
+import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
+import { AdvanceRequestFiles } from '../models/platform/advance-request-files.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FileService {
-  private apiService = inject(ApiService);
+  private spenderFileService = inject(SpenderFileService);
 
-  private dateService = inject(DateService);
+  private spenderService = inject(SpenderService);
+
+  private approverFileService = inject(ApproverFileService);
+
+  private approverService = inject(ApproverService);
+
+  private findByAdvanceRequestIdWithService(
+    advanceRequestId: string,
+    service: SpenderService | ApproverService,
+    fileService: SpenderFileService | ApproverFileService
+  ): Observable<FileObject[]> {
+    return (service as SpenderService)
+      .get<PlatformApiResponse<AdvanceRequestFiles[]>>('/advance_requests', {
+        params: {
+          id: `eq.${advanceRequestId}`,
+        },
+      })
+      .pipe(
+        switchMap((response: PlatformApiResponse<AdvanceRequestFiles[]>) => {
+          const advanceRequest = response.data[0];
+          if (!advanceRequest || !advanceRequest.file_ids || advanceRequest.file_ids.length === 0) {
+            return of<FileObject[]>([]);
+          }
+
+          return fileService.generateUrlsBulk(advanceRequest.file_ids).pipe(
+            map((urlResponses: PlatformFileGenerateUrlsResponse[]) => urlResponses.map((urlResponse) => this.createFileObjectFromUrlResponse(urlResponse))),
+          );
+        }),
+      );
+  }
 
   downloadUrl(fileId: string): Observable<string> {
-    return this.apiService.post<File>('/files/' + fileId + '/download_url').pipe(map((res) => res.url));
+    return this.spenderFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].download_url));
+  }
+
+  downloadUrlForTeamAdvance(fileId: string): Observable<string> {
+    return this.approverFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].download_url));
   }
 
   base64Download(fileId: string): Observable<{ content: string }> {
-    return this.apiService.get('/files/' + fileId + '/download_b64');
+    return this.downloadUrl(fileId).pipe(
+      switchMap((downloadUrl) => {
+        return from(fetch(downloadUrl).then((response) => response.blob()));
+      }),
+      switchMap((blob) => {
+        return from(this.getDataUrlFromBlob(blob));
+      }),
+      map((dataUrl) => {
+        // Extract base64 content from data URL (remove "data:image/jpeg;base64," prefix)
+        const base64Content = dataUrl.split(',')[1];
+        return { content: base64Content };
+      }),
+    );
   }
 
   findByAdvanceRequestId(advanceRequestId: string): Observable<FileObject[]> {
-    return from(
-      this.apiService.get<File[] | FileObject[]>('/files', {
-        params: {
-          advance_request_id: advanceRequestId,
-          skip_html: 'true',
-        },
-      }),
-    ).pipe(
-      map((files) => {
-        files.map((file) => {
-          this.dateService.fixDates(file);
-          this.setFileType(file as FileObject);
-        });
-        return files as unknown as FileObject[];
-      }),
-    );
+    return this.findByAdvanceRequestIdWithService(advanceRequestId, this.spenderService, this.spenderFileService);
+  }
+
+  findByAdvanceRequestIdForTeamAdvance(advanceRequestId: string): Observable<FileObject[]> {
+    return this.findByAdvanceRequestIdWithService(advanceRequestId, this.approverService, this.approverFileService);
+  }
+
+  createFileObjectFromUrlResponse(urlResponse: PlatformFileGenerateUrlsResponse): FileObject {
+    const fileObj: FileObject = {
+      id: urlResponse.id,
+      name: urlResponse.name,
+      url: urlResponse.download_url,
+      type: this.getAttachmentType(urlResponse.content_type),
+      thumbnail: urlResponse.download_url,
+      created_at: new Date(),
+      org_user_id: '',
+      s3url: '',
+      purpose: '',
+      password: '',
+      email_meta_data: '',
+      fyle_sub_url: '',
+      file_download_url: urlResponse.download_url,
+      file_type: this.getAttachmentType(urlResponse.content_type),
+    };
+    return fileObj;
   }
 
   getFileExtension(fileName: string): string {
@@ -72,20 +129,15 @@ export class FileService {
   }
 
   post(fileObj: File | Record<string, string> | FileObject): Observable<unknown> {
-    return this.apiService.post('/files', fileObj);
+    return this.spenderService.post('/files', { data: fileObj });
   }
 
   uploadUrl(fileId: string): Observable<string> {
-    return this.apiService.post<File>('/files/' + fileId + '/upload_url').pipe(map((data) => data.url));
+    return this.spenderFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].upload_url));
   }
 
-  findByTransactionId(txnId: string): Observable<FileObject[]> {
-    return this.apiService.get('/files', {
-      params: {
-        transaction_id: txnId,
-        skip_html: 'true',
-      },
-    });
+  uploadUrlForTeamAdvance(fileId: string): Observable<string> {
+    return this.approverFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].upload_url));
   }
 
   getBlobFromDataUrl(dataUrl: string): Blob {
@@ -138,7 +190,11 @@ export class FileService {
   }
 
   delete(fileId: string): Observable<unknown> {
-    return this.apiService.delete('/files/' + fileId);
+    return this.spenderService.post('/files/delete/bulk', { data: [{ id: fileId }] });
+  }
+
+  deleteForTeamAdvance(fileId: string): Observable<unknown> {
+    return this.approverService.post('/files/delete/bulk', { data: [{ id: fileId }] });
   }
 
   getAttachmentType(type: string): string {
