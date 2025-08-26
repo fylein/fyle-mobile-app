@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject, output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -93,7 +93,7 @@ export class TasksComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
-  @Output() optedIn = new EventEmitter<void>();
+  readonly optedIn = output<void>();
 
   tasks$: Observable<DashboardTask[]>;
 
@@ -466,6 +466,7 @@ export class TasksComponent implements OnInit {
       if (data && data.action === 'SUCCESS') {
         this.trackingService.optedInFromTasks();
         this.doRefresh();
+        // TODO: The 'emit' function requires a mandatory void argument
         this.optedIn.emit();
       }
     });

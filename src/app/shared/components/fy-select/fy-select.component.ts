@@ -1,4 +1,4 @@
-import { Component, EventEmitter, forwardRef, Input, Output, TemplateRef, inject, input } from '@angular/core';
+import { Component, forwardRef, Input, TemplateRef, inject, input, output } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -82,7 +82,7 @@ export class FySelectComponent implements ControlValueAccessor {
 
   readonly isCustomSelect = input<boolean>(undefined);
 
-  @Output() valueChange = new EventEmitter<string | Value>();
+  readonly valueChange = output<string | Value>();
 
   displayValue: string | number | boolean;
 

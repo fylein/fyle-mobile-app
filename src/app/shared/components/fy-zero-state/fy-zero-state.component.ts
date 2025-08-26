@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, ViewChild, ElementRef, AfterViewInit, input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, input, output } from '@angular/core';
 import { EventEmitter } from 'events';
 
 @Component({
@@ -33,7 +33,7 @@ export class FyZeroStateComponent implements OnInit, AfterViewInit {
 
   readonly taskImageStyle = input<object>(undefined);
 
-  @Output() linkClicked = new EventEmitter();
+  readonly linkClicked = output();
 
   constructor() {}
 

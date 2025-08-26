@@ -1,15 +1,14 @@
 import {
   Component,
   DoCheck,
-  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
   SimpleChanges,
   inject,
   input,
+  output,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -89,7 +88,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     locations?: string[];
   }>(undefined);
 
-  @Output() distanceChange = new EventEmitter<number>();
+  readonly distanceChange = output<number>();
 
   onChangeSub: Subscription;
 

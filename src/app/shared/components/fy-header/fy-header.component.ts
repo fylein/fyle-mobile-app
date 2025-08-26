@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output, OnInit, inject, input } from '@angular/core';
+import { Component, Input, OnInit, inject, input, output } from '@angular/core';
 import { HeaderState } from './header-state.enum';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -23,9 +23,9 @@ export class FyHeaderComponent implements OnInit {
 
   readonly isHiddenBorder = input(false);
 
-  @Output() simpleSearchCancel = new EventEmitter();
+  readonly simpleSearchCancel = output();
 
-  @Output() multiselectBack = new EventEmitter();
+  readonly multiselectBack = output();
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
@@ -27,9 +27,9 @@ export class ReviewFooterComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() saveAndNextLoader: boolean;
 
-  @Output() saveAndGoToPrev = new EventEmitter();
+  readonly saveAndGoToPrev = output();
 
-  @Output() saveAndGoToNext = new EventEmitter();
+  readonly saveAndGoToNext = output();
 
   ngOnInit() {}
 

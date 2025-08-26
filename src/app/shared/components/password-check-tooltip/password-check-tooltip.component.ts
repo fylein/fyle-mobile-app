@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject, output } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { PasswordChecks } from './password-checks.model';
 import { PasswordCriteria } from './password-criteria.model';
@@ -16,7 +16,7 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() password: string;
 
-  @Output() isPasswordValid = new EventEmitter<boolean>();
+  readonly isPasswordValid = output<boolean>();
 
   passwordChecks: PasswordChecks = {
     lengthValid: false,
