@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output, inject, input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, inject, input, output } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -51,17 +51,19 @@ export class FyViewAttachmentComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() attachments: FileObject[];
 
-  @Input() isMileageExpense: boolean;
+  readonly isMileageExpense = input<boolean>(undefined);
 
-  @Input() canEdit: boolean;
+  readonly canEdit = input<boolean>(undefined);
 
-  @Input() expenseId: string;
+  readonly expenseId = input<string>(undefined);
+
+  readonly addMoreAttachments = output<Event>();
 
   readonly isTeamAdvance = input<boolean>(false);
-
-  @Output() addMoreAttachments = new EventEmitter<Event>();
 
   @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
 

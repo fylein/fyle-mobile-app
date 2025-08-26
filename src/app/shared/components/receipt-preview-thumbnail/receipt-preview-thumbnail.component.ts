@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck, inject } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, DoCheck, inject, input, output } from '@angular/core';
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -15,21 +15,28 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   @ViewChild('slides', { static: false }) imageSlides?: SwiperComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() attachments: FileObject[];
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() isUploading: boolean;
 
-  @Input() canEdit: boolean;
+  readonly canEdit = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mode: string;
 
-  @Input() hideLabel: boolean;
+  readonly hideLabel = input<boolean>(undefined);
 
-  @Input() isMileageExpense: boolean;
+  readonly isMileageExpense = input<boolean>(undefined);
 
-  @Output() addMoreAttachments: EventEmitter<void> = new EventEmitter();
+  readonly addMoreAttachments = output<void>();
 
-  @Output() viewAttachments: EventEmitter<void> = new EventEmitter();
+  readonly viewAttachments = output<void>();
 
   sliderOptions;
 

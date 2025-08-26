@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, inject, output } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { GmapsService } from 'src/app/core/services/gmaps.service';
@@ -20,9 +20,11 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
 
   private staticMapPropertiesService = inject(StaticMapPropertiesService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mileageLocations: MileageLocation[];
 
-  @Output() mapClick = new EventEmitter<void>();
+  readonly mapClick = output<void>();
 
   showCurrentLocation = false;
 
@@ -77,6 +79,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
   }
 
   mapClicked(event) {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.mapClick.emit();
   }
 

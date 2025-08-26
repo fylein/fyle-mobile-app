@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ModalController } from '@ionic/angular';
 @Component({
@@ -10,7 +10,7 @@ import { ModalController } from '@ionic/angular';
 export class ReviewSplitExpenseComponent {
   private modalController = inject(ModalController);
 
-  splitExpenses: Expense[];
+  readonly splitExpenses = input<Expense[]>([]);
 
   goToExpense(event: { expense: Expense; expenseIndex: number }): void {
     this.modalController.dismiss({

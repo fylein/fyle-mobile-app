@@ -8,6 +8,8 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
   standalone: false,
 })
 export class ExpenseCardLiteComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() expense: Expense;
 
   isReceiptPresent: boolean;

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, input, output } from '@angular/core';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 
 @Component({
@@ -8,11 +8,13 @@ import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
   standalone: false,
 })
 export class SidemenuContentItemComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() sidemenuItem: Partial<SidemenuItem>;
 
-  @Input() showDivider: boolean;
+  readonly showDivider = input<boolean>(undefined);
 
-  @Output() redirect = new EventEmitter<Partial<SidemenuItem>>();
+  readonly redirect = output<Partial<SidemenuItem>>();
 
   isRoute = true;
 

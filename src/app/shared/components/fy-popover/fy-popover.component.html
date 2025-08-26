@@ -9,8 +9,8 @@
       <div
         class="fy-popover--toolbar__title"
         [ngStyle]="message ? { 'padding-left': '0px', 'padding-right': '40px' } : {}"
-        >
-        {{ title }}
+      >
+        {{ title() }}
       </div>
     </ion-title>
     @if (!message) {
@@ -32,7 +32,7 @@
 @if (!message) {
   <div class="fy-popover--input-container">
     <div class="fy-popover--input-container__label">
-      <span> {{ formLabel }} </span>
+      <span> {{ formLabel() }} </span>
       <span class="fy-popover--input-container__mandatory"> * </span>
     </div>
     <textarea

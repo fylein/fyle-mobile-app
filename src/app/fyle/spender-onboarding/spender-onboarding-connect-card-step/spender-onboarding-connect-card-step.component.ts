@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject, output } from '@angular/core';
 import {
   UntypedFormBuilder,
   UntypedFormControl,
@@ -41,11 +41,13 @@ export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChan
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() orgSettings: OrgSettings;
 
-  @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
+  readonly isStepComplete = output<boolean>();
 
-  @Output() isStepSkipped: EventEmitter<boolean> = new EventEmitter<boolean>();
+  readonly isStepSkipped = output<boolean>();
 
   cardForm: UntypedFormControl;
 

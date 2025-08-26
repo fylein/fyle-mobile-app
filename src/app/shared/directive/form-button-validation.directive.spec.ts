@@ -80,7 +80,7 @@ describe('FormButtonValidationDirective', () => {
 
     directive.ngOnChanges();
 
-    expect(directive.onLoading).toHaveBeenCalledOnceWith(directive.loading);
+    expect(directive.onLoading).toHaveBeenCalledOnceWith(directive.loading());
   });
 
   it('disableButton(): should disabled the button', () => {

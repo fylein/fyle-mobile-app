@@ -28,9 +28,9 @@ describe('FyMsgPopoverComponent', () => {
   });
 
   it('should set message input', () => {
-    component.msg = 'No category is available for the selected project.';
+    fixture.componentRef.setInput('msg', 'No category is available for the selected project.');
     fixture.detectChanges();
-    expect(component.msg).toBe('No category is available for the selected project.');
+    expect(component.msg()).toBe('No category is available for the selected project.');
   });
 
   it('should call popoverController.dismiss() when dismiss() is called', () => {

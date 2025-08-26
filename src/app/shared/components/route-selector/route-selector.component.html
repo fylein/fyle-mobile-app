@@ -16,9 +16,9 @@
               class="timeline--timeline-item timeline--timeline-item__first"
               [ngClass]="{
                 'timeline--timeline-item__invalid':
-                  mileageLocations.controls[0].touched && !mileageLocations.controls[0].valid
+                  mileageLocations.controls[0].touched && !mileageLocations.controls[0].valid,
               }"
-              >
+            >
               <div class="timeline--timeline-item-internal timeline--timeline-item-internal__first">
                 <app-fy-location
                   [label]="'routeSelector.startLabel' | transloco"
@@ -30,12 +30,10 @@
                   [hideSuffix]="true"
                   [touchedInParent]="mileageLocations.controls[0].touched"
                   [validInParent]="mileageLocations.controls[0].valid"
-                  >
+                >
                 </app-fy-location>
                 @if (mileageLocations.controls[0].touched && !mileageLocations.controls[0].valid) {
-                  <div
-                    class="timeline--error timeline--error__first"
-                    >
+                  <div class="timeline--error timeline--error__first">
                     {{ 'routeSelector.selectLocationError' | transloco }}
                   </div>
                 }
@@ -45,7 +43,7 @@
           @if (mileageLocations.controls.length > 2) {
             <div
               class="timeline--timeline-item timeline--timeline-item__text-content timeline--timeline-item__internal-item timeline--timeline-item__middle"
-              >
+            >
               <div class="timeline--timeline-item-internal">
                 {{ mileageLocations.controls.length - 2 }} {{ 'routeSelector.intermediateStop' | transloco }}
               </div>
@@ -53,15 +51,15 @@
           }
           @if (
             mileageLocations.controls.length > 1 && mileageLocations.controls[mileageLocations.controls.length - 1]
-            ) {
+          ) {
             <div
               class="timeline--timeline-item timeline--timeline-item__last"
               [ngClass]="{
                 'timeline--timeline-item__invalid':
                   mileageLocations.controls[mileageLocations.controls.length - 1].touched &&
-                  !mileageLocations.controls[mileageLocations.controls.length - 1].valid
+                  !mileageLocations.controls[mileageLocations.controls.length - 1].valid,
               }"
-              >
+            >
               <div class="timeline--timeline-item-internal timeline--timeline-item-internal__last">
                 <app-fy-location
                   [label]="'routeSelector.stopLabel' | transloco"
@@ -73,16 +71,14 @@
                   [hideSuffix]="true"
                   [touchedInParent]="mileageLocations.controls[mileageLocations.controls.length - 1].touched"
                   [validInParent]="mileageLocations.controls[mileageLocations.controls.length - 1].valid"
-                  >
+                >
                 </app-fy-location>
               </div>
               @if (
                 mileageLocations.controls[mileageLocations.controls.length - 1].touched &&
                 !mileageLocations.controls[mileageLocations.controls.length - 1].valid
-                ) {
-                <div
-                  class="timeline--error timeline--error__last"
-                  >
+              ) {
+                <div class="timeline--error timeline--error__last">
                   {{ 'routeSelector.selectLocationError' | transloco }}
                 </div>
               }
@@ -103,9 +99,9 @@
             class="route-selector--input-container"
             [ngClass]="{
               'route-selector--input-invalid':
-                form.controls.mileageLocations.touched && !form.controls.mileageLocations.valid
+                form.controls.mileageLocations.touched && !form.controls.mileageLocations.valid,
             }"
-            >
+          >
             <input
               class="route-selector--input smartlook-show"
               type="text"
@@ -113,32 +109,26 @@
               (click)="openModal()"
               [ngClass]="{ 'route-selector--input-disabled': form.controls.mileageLocations.disabled }"
               [disabled]="form.controls.mileageLocations.disabled"
-              />
+            />
             <mat-icon
               class="route-selector--icon"
               [ngClass]="{ 'route-selector--input-disabled': form.controls.mileageLocations.disabled }"
               svgIcon="arrow-right"
-              >
+            >
             </mat-icon>
           </div>
         </label>
       </div>
       @if (form.controls.mileageLocations.touched && !form.controls.mileageLocations.valid) {
-        <div
-          class="route-selector--error"
-          >
+        <div class="route-selector--error">
           {{ 'routeSelector.selectLocationError' | transloco }}
         </div>
       }
     }
-
   </div>
 
   @if (mileageLocations.controls.length < 3) {
-    <div
-      class="route-selector--internal-block"
-      [ngClass]="{ 'route-selector--input-disabled': isRoundTripDisabled }"
-      >
+    <div class="route-selector--internal-block" [ngClass]="{ 'route-selector--input-disabled': isRoundTripDisabled }">
       <mat-checkbox [disabled]="isRoundTripDisabled" formControlName="roundTrip">
         <span class="route-selector--checkbox"> {{ 'routeSelector.roundTripLabel' | transloco }} </span>
       </mat-checkbox>
@@ -151,7 +141,7 @@
     <div
       class="route-selector--text route-selector--internal-distance-block"
       [ngClass]="{ 'route-selector--text__invalid': form.controls.distance.touched && !form.controls.distance.valid }"
-      >
+    >
       <div class="route-selector--text-label">
         {{ 'routeSelector.distanceLabel' | transloco }}
         @if (unit) {
@@ -159,25 +149,23 @@
         } @else {
           <span class="route-selector--text-label__unit"> ({{ mileageConfig.unit | titlecase }})</span>
         }
-        @if (isDistanceMandatory) {
+        @if (isDistanceMandatory()) {
           <div class="route-selector--mandatory">*</div>
         }
       </div>
       <app-fy-number
-        [disabled]="isAmountDisabled"
+        [disabled]="isAmountDisabled()"
         [min]="0"
         [isDistance]="true"
         formControlName="distance"
         [placeholder]="'routeSelector.enterDistance' | transloco"
-        >
+      >
       </app-fy-number>
     </div>
     @if (
       form.controls.distance.touched && (!form.controls.distance.valid || form.controls.distance.hasError('invalid'))
-      ) {
-      <div
-        class="route-selector--error route-selector--text-error"
-        >
+    ) {
+      <div class="route-selector--error route-selector--text-error">
         {{ 'routeSelector.invalidDistance' | transloco }}
       </div>
     }

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { IonicModule, PopoverController } from '@ionic/angular';
 
 import { CardStatsComponent } from './card-stats.component';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
@@ -34,13 +34,13 @@ import { tap } from 'rxjs/operators';
   standalone: false,
 })
 class MockSpentCardsComponent {
-  @Input() cardDetails: PlatformCorporateCardDetail[];
+  readonly cardDetails = input<PlatformCorporateCardDetail[]>(undefined);
 
-  @Input() homeCurrency: string;
+  readonly homeCurrency = input<string>(undefined);
 
-  @Input() currencySymbol: string;
+  readonly currencySymbol = input<string>(undefined);
 
-  @Input() showAddCardSlide: boolean;
+  readonly showAddCardSlide = input<boolean>(undefined);
 }
 
 @Component({
@@ -49,7 +49,7 @@ class MockSpentCardsComponent {
   standalone: false,
 })
 class MockAddCardComponent {
-  @Input() showZeroStateMessage: boolean;
+  readonly showZeroStateMessage = input<boolean>(undefined);
 }
 
 describe('CardStatsComponent', () => {
@@ -220,10 +220,10 @@ describe('CardStatsComponent', () => {
       expect(spentCardsComponent).toBeTruthy();
 
       const spentCardsComponentInstance = spentCardsComponent.componentInstance as MockSpentCardsComponent;
-      expect(spentCardsComponentInstance.cardDetails).toEqual(cardDetails);
-      expect(spentCardsComponentInstance.homeCurrency).toEqual('USD');
-      expect(spentCardsComponentInstance.currencySymbol).toEqual('$');
-      expect(spentCardsComponentInstance.showAddCardSlide).toBeTrue();
+      expect(spentCardsComponentInstance.cardDetails()).toEqual(cardDetails);
+      expect(spentCardsComponentInstance.homeCurrency()).toEqual('USD');
+      expect(spentCardsComponentInstance.currencySymbol()).toEqual('$');
+      expect(spentCardsComponentInstance.showAddCardSlide()).toBeTrue();
 
       expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledTimes(1);
       expect(corporateCreditCardExpenseService.getPlatformCorporateCardDetails).toHaveBeenCalledOnceWith(
@@ -265,7 +265,7 @@ describe('CardStatsComponent', () => {
         expect(addCardComponent).toBeTruthy();
 
         const addCardComponentInstance = addCardComponent.componentInstance as MockAddCardComponent;
-        expect(addCardComponentInstance.showZeroStateMessage).toBeTrue();
+        expect(addCardComponentInstance.showZeroStateMessage()).toBeTrue();
       });
 
       it('should not be visible if RTF enrollment is disabled', fakeAsync(() => {

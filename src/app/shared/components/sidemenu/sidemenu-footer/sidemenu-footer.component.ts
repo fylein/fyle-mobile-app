@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 
 @Component({
   selector: 'app-sidemenu-footer',
@@ -7,7 +7,7 @@ import { Component, OnInit, Input } from '@angular/core';
   standalone: false,
 })
 export class SidemenuFooterComponent implements OnInit {
-  @Input() appVersion: string;
+  readonly appVersion = input<string>(undefined);
 
   constructor() {}
 

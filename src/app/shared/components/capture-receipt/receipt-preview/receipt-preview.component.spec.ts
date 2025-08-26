@@ -13,7 +13,7 @@ import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { Subscription, of } from 'rxjs';
 
 describe('ReceiptPreviewComponent', () => {
@@ -34,9 +34,9 @@ describe('ReceiptPreviewComponent', () => {
     standalone: false,
   })
   class SwiperStubComponent {
-    @Input() pagination;
+    readonly pagination = input(undefined);
 
-    @Input() centeredSlides;
+    readonly centeredSlides = input(undefined);
 
     swiperRef = {
       update: () => {},

@@ -1,12 +1,12 @@
-@if (showHeader) {
+@if (showHeader()) {
   <div>
-    @if (showDragBar) {
+    @if (showDragBar()) {
       <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
     }
     <div class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
       <div>
         <div class="critical-policy-violation--toolbar__title">
-          @if (showCloseIcon) {
+          @if (showCloseIcon()) {
             <span class="critical-policy-violation--toolbar__close-icon" slot="start">
               <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
             </span>
@@ -18,16 +18,18 @@
   </div>
 }
 
-@if (!isSplitBlocked) {
+@if (!isSplitBlocked()) {
   <div class="critical-policy-violation--content-section">
     <div class="critical-policy-violation--content">
-      <div class="critical-policy-violation--info">{{ 'fyCriticalPolicyViolation.cannotReportWarning' | transloco }}</div>
+      <div class="critical-policy-violation--info">
+        {{ 'fyCriticalPolicyViolation.cannotReportWarning' | transloco }}
+      </div>
       <div class="inner-content">
         @if (criticalViolationMessages) {
           @for (violation of criticalViolationMessages; track violation) {
             <app-policy-violation-rule [message]="violation" [violationType]="'critical'"></app-policy-violation-rule>
           }
-          @if (isReceiptMissing) {
+          @if (isReceiptMissing()) {
             <app-fy-alert-info
               type="information"
               [message]="'fyCriticalPolicyViolation.splitIncompleteMissingReceipt' | transloco"
@@ -39,9 +41,9 @@
   </div>
 }
 
-@if (isSplitBlocked) {
+@if (isSplitBlocked()) {
   <div class="critical-policy-violation--content-section">
-    @if (isSplitMissingFields) {
+    @if (isSplitMissingFields()) {
       <div class="critical-policy-violation--content-split-info">
         <app-fy-alert-info
           type="danger"

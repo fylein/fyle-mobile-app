@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, output } from '@angular/core';
 import { ReportStates } from './report-states.enum';
 
 @Component({
@@ -8,23 +8,39 @@ import { ReportStates } from './report-states.enum';
   standalone: false,
 })
 export class StatBadgeComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() reportState: ReportStates;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() name: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() count = 0;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() value = 0;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currency: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currencySymbol: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() loading = false;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() expenseState: string;
 
-  @Output() badgeClicked = new EventEmitter();
+  readonly badgeClicked = output<ReportStates | string>();
 
   screenWidth: number = window.innerWidth;
 

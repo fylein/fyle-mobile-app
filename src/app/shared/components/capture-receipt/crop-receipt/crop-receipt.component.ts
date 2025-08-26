@@ -23,6 +23,8 @@ export class CropReceiptComponent implements OnInit {
 
   private platform = inject(Platform);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() base64ImageWithSource: Image;
 
   @ViewChild('imageCropper') imageCropper: ImageCropperComponent;

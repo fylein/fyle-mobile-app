@@ -1,4 +1,14 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Input,
+  AfterViewInit,
+  ViewChild,
+  inject,
+  input,
+} from '@angular/core';
 import { CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
@@ -77,11 +87,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   @ViewChild('cameraPreview') cameraPreview: CameraPreviewComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isModal = false;
 
-  @Input() allowGalleryUploads = true;
+  readonly allowGalleryUploads = input(true);
 
-  @Input() allowBulkFyle = true;
+  readonly allowBulkFyle = input(true);
 
   isBulkMode: boolean;
 

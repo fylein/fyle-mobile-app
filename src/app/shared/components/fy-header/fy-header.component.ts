@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, input, output } from '@angular/core';
 import { HeaderState } from './header-state.enum';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -11,17 +11,21 @@ import { TranslocoService } from '@jsverse/transloco';
 export class FyHeaderComponent implements OnInit {
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentState: HeaderState;
 
-  @Input() navigateBack = false;
+  readonly navigateBack = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() title: string;
 
-  @Input() isHiddenBorder = false;
+  readonly isHiddenBorder = input(false);
 
-  @Output() simpleSearchCancel = new EventEmitter();
+  readonly simpleSearchCancel = output();
 
-  @Output() multiselectBack = new EventEmitter();
+  readonly multiselectBack = output();
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, inject } from '@angular/core';
+import { Component, OnInit, Input, inject, input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -10,9 +10,11 @@ import { PopoverController } from '@ionic/angular';
 export class AdvanceActionsComponent implements OnInit {
   private popoverController = inject(PopoverController);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() actions;
 
-  @Input() areq;
+  readonly areq = input(undefined);
 
   ngOnInit() {}
 

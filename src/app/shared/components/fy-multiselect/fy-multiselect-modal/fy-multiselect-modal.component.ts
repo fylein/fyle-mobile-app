@@ -1,4 +1,13 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
+  ViewChild,
+  inject,
+  input,
+} from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
@@ -19,15 +28,23 @@ export class FyMultiselectModalComponent implements AfterViewInit {
 
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: { label: string; value: unknown; selected?: boolean }[] = [];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelections: unknown[] = [];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() filteredOptions$: Observable<{ label: string; value: unknown; selected?: boolean }[]>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() selectModalHeader: string;
 
-  @Input() subheader: string;
+  readonly subheader = input<string>(undefined);
 
   value = '';
 

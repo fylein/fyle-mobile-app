@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -12,15 +12,23 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 export class CorporateCardComponent implements OnInit {
   private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() card: PlatformCorporateCard;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() hideOptionsMenu: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isVisaRTFEnabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isMastercardRTFEnabled: boolean;
 
-  @Output() cardOptionsClick: EventEmitter<PlatformCorporateCard> = new EventEmitter<PlatformCorporateCard>();
+  readonly cardOptionsClick = output<PlatformCorporateCard>();
 
   isRTFEnabled: boolean;
 

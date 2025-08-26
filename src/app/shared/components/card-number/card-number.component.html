@@ -1,27 +1,24 @@
 <div>
-  <div class="card-nickname">{{ cardNickname }}</div>
+  <div class="card-nickname">{{ cardNickname() }}</div>
   <div class="card-number">
     <div class="card-number__masked-digits" data-testid="masked-digits">
       @for (item of maskedAsterisks; track $index; let index = $index) {
         <div
           class="card-number__masked-digits__asterisk"
           [ngClass]="{ 'card-number__masked-digits__fourth-asterisk': index % 4 === 3 }"
-          >
+        >
           *
         </div>
       }
     </div>
-    @if (cardNickname) {
+    @if (cardNickname()) {
       <div class="card-number__unmasked-digits__with-nickname" data-testid="unmasked-digits">
-        {{ cardNumber | slice : -4 }}
+        {{ cardNumber | slice: -4 }}
       </div>
     }
-    @if (!cardNickname) {
-      <div
-        class="card-number__unmasked-digits__without-nickname smartlook-hide"
-        data-testid="unmasked-digits"
-        >
-        {{ cardNumber | slice : -4 }}
+    @if (!cardNickname()) {
+      <div class="card-number__unmasked-digits__without-nickname smartlook-hide" data-testid="unmasked-digits">
+        {{ cardNumber | slice: -4 }}
       </div>
     }
   </div>

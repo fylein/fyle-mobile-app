@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, inject, input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { finalize, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -23,15 +23,17 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
 
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
-  @Input() title: string;
+  readonly title = input<string>(undefined);
 
-  @Input() ctaText: string;
+  readonly ctaText = input<string>(undefined);
 
-  @Input() inputLabel: string;
+  readonly inputLabel = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() extendedOrgUser: ExtendedOrgUser;
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
   inputValue: string;
 

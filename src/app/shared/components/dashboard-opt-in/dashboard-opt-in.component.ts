@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
@@ -21,9 +21,11 @@ export class DashboardOptInComponent {
 
   private translocoService = inject(TranslocoService);
 
-  @Input() extendedOrgUser: ExtendedOrgUser;
+  readonly extendedOrgUser = input<ExtendedOrgUser>(undefined);
 
-  @Output() toggleOptInBanner = new EventEmitter<{ optedIn: boolean }>();
+  readonly toggleOptInBanner = output<{
+    optedIn: boolean;
+  }>();
 
   async optInClick(): Promise<void> {
     this.trackingService.clickedOnDashboardBanner();
@@ -31,7 +33,7 @@ export class DashboardOptInComponent {
     const optInModal = await this.modalController.create({
       component: FyOptInComponent,
       componentProps: {
-        extendedOrgUser: this.extendedOrgUser,
+        extendedOrgUser: this.extendedOrgUser(),
       },
     });
 

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild, output } from '@angular/core';
 import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
@@ -13,13 +13,17 @@ SwiperCore.use([Pagination]);
   standalone: false,
 })
 export class BankAccountCardsComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() linkedAccounts: PlatformPersonalCard[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() minimal: boolean;
 
-  @Output() deleted = new EventEmitter();
+  readonly deleted = output();
 
-  @Output() changed = new EventEmitter<PlatformPersonalCard>();
+  readonly changed = output<PlatformPersonalCard>();
 
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 

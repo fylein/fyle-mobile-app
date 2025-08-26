@@ -22,6 +22,8 @@ export class AddTxnToReportDialogComponent implements OnInit {
 
   private router = inject(Router);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() openReports;
 
   reportCurrencySymbol: string;
