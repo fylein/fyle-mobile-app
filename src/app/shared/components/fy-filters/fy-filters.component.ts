@@ -35,7 +35,8 @@ export class FyFiltersComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() activeFilterInitialName;
 
-  filterOptions: FilterOptions<any>[];
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() filterOptions: FilterOptions<any>[];
 
   currentFilterValueMap: { [key: string]: any | any[] } = {};
 
