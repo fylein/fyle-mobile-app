@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { FilterOptions } from './filter-options.interface';
 import { SelectedFilters } from './selected-filters.interface';
 import { FilterOptionType } from './filter-option-type.enum';
@@ -35,7 +35,7 @@ export class FyFiltersComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() activeFilterInitialName;
 
-  filterOptions: FilterOptions<any>[];
+  readonly filterOptions = signal<FilterOptions<any>[]>([]);
 
   currentFilterValueMap: { [key: string]: any | any[] } = {};
 
