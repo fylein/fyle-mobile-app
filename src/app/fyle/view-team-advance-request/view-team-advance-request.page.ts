@@ -99,10 +99,10 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
   }
 
   getAttachedReceipts(id: string): Observable<FileObject[]> {
-    return this.fileService.findByAdvanceRequestId(id).pipe(
+    return this.fileService.findByAdvanceRequestIdForTeamAdvance(id).pipe(
       switchMap((res) => from(res)),
       concatMap((fileObj: FileObject) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
+        this.fileService.downloadUrlForTeamAdvance(fileObj.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
             const details = this.fileService.getReceiptsDetails(fileObj.name, fileObj.url);
@@ -140,7 +140,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     this.attachedFiles$ = this.getAttachedReceipts(id);
 
-    this.customFields$ = this.advanceRequestService.getCustomFieldsForApprover();
+    this.customFields$ = this.advanceRequestService.getCustomFieldsForApprover(this.activatedRoute.snapshot.params.id as string);
 
     this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$.pipe(take(1)),
@@ -401,6 +401,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
       component: FyViewAttachmentComponent,
       componentProps: {
         attachments,
+        isTeamAdvance: true,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),

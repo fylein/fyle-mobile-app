@@ -15,8 +15,11 @@ import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
 import { ParsedResponse } from '../models/parsed_response.model';
 import { SpenderFileService } from './platform/v1/spender/file.service';
+import { ApproverFileService } from './platform/v1/approver/file.service';
 import { PlatformFile } from '../models/platform/platform-file.model';
 import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
+import { PlatformFilePostRequestPayload } from '../models/platform/platform-file-post-request-payload.model';
+import { UserContext } from '../models/user-context.model';
 
 @Injectable({
   providedIn: 'root',
@@ -35,6 +38,8 @@ export class TransactionsOutboxService {
   private currencyService = inject(CurrencyService);
 
   private spenderFileService = inject(SpenderFileService);
+
+  private approverFileService = inject(ApproverFileService);
 
   private expenseCommentService = inject(ExpenseCommentService);
 
@@ -100,7 +105,7 @@ export class TransactionsOutboxService {
     });
   }
 
-  async fileUpload(dataUrl: string, fileType: string): Promise<FileObject> {
+  async fileUpload(dataUrl: string, fileType: string, userContext?: UserContext, useApproverService = false): Promise<FileObject> {
     return new Promise((resolve, reject) => {
       let fileExtension = fileType;
       let contentType = 'application/pdf';
@@ -110,25 +115,43 @@ export class TransactionsOutboxService {
         contentType = 'image/jpeg';
       }
 
-      this.spenderFileService
-        .createFile({
-          name: '000.' + fileExtension,
-          type: 'RECEIPT',
-        })
+      const filePayload: PlatformFilePostRequestPayload = {
+        name: '000.' + fileExtension,
+        type: 'RECEIPT',
+      };
+
+      if (userContext?.userId) {
+        filePayload.user_id = userContext.userId;
+      }
+
+      if (userContext?.orgId) {
+        filePayload.org_id = userContext.orgId;
+      }
+      
+      // Use approver service for team advances, spender service for regular advances
+      const fileService = useApproverService ? this.approverFileService : this.spenderFileService;
+
+      fileService
+        .createFilesBulk([filePayload])
         .toPromise()
-        .then((fileObj: PlatformFile) => {
-          const uploadUrl = fileObj.upload_url;
+        .then((fileObj: PlatformFile[]) => {
+          const uploadUrl = fileObj[0].upload_url;
+          
           // check from here
           return fetch(dataUrl)
-            .then((res) => res.blob())
-            .then((blob) =>
-              this.uploadData(uploadUrl, blob, contentType)
+            .then((res) => {
+              return res.blob();
+            })
+            .then((blob) => {
+              return this.uploadData(uploadUrl, blob, contentType)
                 .toPromise()
-                .then(() => resolve(fileObj))
+                .then(() => {
+                  resolve(fileObj[0]);
+                })
                 .catch((err) => {
                   reject(err);
-                }),
-            );
+                });
+            });
         })
         .catch((err) => {
           reject(err);

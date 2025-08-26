@@ -109,8 +109,8 @@ describe('CardDetailComponent', () => {
     const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
     expect(card).toBeTruthy();
 
-    expect(card.componentInstance.card).toEqual(component.cardDetail.card);
-    expect(card.componentInstance.hideOptionsMenu).toBeTrue();
+    expect(card.componentInstance.card()).toEqual(component.cardDetail.card);
+    expect(card.componentInstance.hideOptionsMenu()).toBeTrue();
   });
 
   describe('goToExpensesPage():', () => {

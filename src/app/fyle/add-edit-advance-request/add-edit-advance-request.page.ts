@@ -43,6 +43,8 @@ import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';
 import { AdvanceRequestDeleteParams } from 'src/app/core/models/advance-request-delete-params.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -87,6 +89,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
+  private spenderFileService = inject(SpenderFileService);
+
+  private approverFileService = inject(ApproverFileService);
+
   @ViewChild('formContainer') formContainer: ElementRef;
 
   isConnected$: Observable<boolean>;
@@ -128,6 +134,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
 
   isCameraPreviewStarted = false;
+
+  attachmentUploadInProgress = false;
 
   @HostListener('keydown')
   scrollInputIntoView(): void {
@@ -325,16 +333,61 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return this.customFieldValues;
   }
 
-  fileAttachments(): Observable<File[]> {
-    const fileObjs = [];
-    this.dataUrls.map((dataUrl) => {
-      dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
-      if (!dataUrl.id) {
-        fileObjs.push(from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)));
-      }
-    });
-
-    return iif(() => fileObjs.length !== 0, forkJoin(fileObjs), of(null));
+  fileAttachments(): Observable<string[]> {
+    if (this.from === 'TEAM_ADVANCE') {
+      return this.advanceRequestService.getApproverAdvanceRequestRaw(this.id).pipe(
+        switchMap((advanceReqPlatform) => {
+          if (!advanceReqPlatform || !advanceReqPlatform.user?.id) {
+            return of<string[]>([]);
+          }
+          
+          return from(this.authService.getEou()).pipe(
+            switchMap((eou) => {
+              if (!eou || !eou.ou || !eou.ou.org_id) {
+                return of<string[]>([]);
+              }
+              
+              const fileUploadObservables: Observable<string>[] = [];
+              
+              this.dataUrls.forEach((dataUrl) => {
+                dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
+                
+                if (!dataUrl.id) {
+                  fileUploadObservables.push(
+                    from(this.transactionsOutboxService.fileUpload(
+                      dataUrl.url, 
+                      dataUrl.type, 
+                      { userId: advanceReqPlatform.user.id, orgId: advanceReqPlatform.org_id },
+                      true
+                    )).pipe(
+                      map((fileObj: FileObject) => fileObj.id || ''),
+                    ),
+                  );
+                }
+              });
+              
+              return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of<string[]>([]));
+            }),
+          );
+        }),
+      );
+    } else {
+      const fileUploadObservables: Observable<string>[] = [];
+      
+      this.dataUrls.forEach((dataUrl) => {
+        dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
+        
+        if (!dataUrl.id) {
+          fileUploadObservables.push(
+            from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)).pipe(
+              map((fileObj: FileObject) => fileObj.id || ''),
+            ),
+          );
+        }
+      });
+      
+      return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of<string[]>([]));
+    }
   }
 
   async addAttachments(event: Event): Promise<void> {
@@ -384,19 +437,55 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   async viewAttachments(): Promise<void> {
-    let attachments = this.dataUrls;
+    this.attachmentUploadInProgress = true;
+    
+    const fileIds = await this.fileAttachments().toPromise();
+    
+    if (fileIds && fileIds.length > 0) {
+      let fileIdIndex = 0;
+      this.dataUrls = this.dataUrls.map(attachment => {
+        if (!attachment.id && fileIdIndex < fileIds.length) {
+          return {
+            ...attachment,
+            id: fileIds[fileIdIndex++],
+            type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image'
+          };
+        }
+        return attachment;
+      });
 
-    attachments = attachments.map((attachment) => {
+      // Attach the uploaded files to the advance request
+      if (this.id) {
+        if (this.from === 'TEAM_ADVANCE') {
+          // For team advances, use approver service
+          await this.advanceRequestService.getApproverAdvanceRequestRaw(this.id).pipe(
+            switchMap((advanceReqPlatform) => {
+              if (advanceReqPlatform?.user?.id) {
+                return this.approverFileService.attachToAdvance(this.id, fileIds, advanceReqPlatform.user.id);
+              }
+              return of(null);
+            })
+          ).toPromise();
+        } else {
+          // For regular advances, use spender service
+          await this.spenderFileService.attachToAdvance(this.id, fileIds).toPromise();
+        }
+      }
+    }
+
+    const attachments = this.dataUrls.map((attachment) => {
       if (!attachment.id) {
         attachment.type = attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image';
       }
       return attachment;
     });
+
     const attachmentsModal = await this.modalController.create({
       component: FyViewAttachmentComponent,
       componentProps: {
         attachments,
         canEdit: true,
+        isTeamAdvance: this.from === 'TEAM_ADVANCE',
       },
       mode: 'ios',
     });
@@ -408,6 +497,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     if (data) {
       this.dataUrls = data.attachments;
     }
+
+    this.attachmentUploadInProgress = false;
   }
 
   getReceiptExtension(name: string): string {
@@ -444,21 +535,39 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   getAttachedReceipts(id: string): Observable<FileObject[]> {
-    return this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          }),
+    if (this.from === 'TEAM_ADVANCE') {
+      return this.fileService.findByAdvanceRequestIdForTeamAdvance(id).pipe(
+        switchMap((fileObjs) => from(fileObjs)),
+        concatMap((fileObj) =>
+          this.fileService.downloadUrlForTeamAdvance(fileObj.id).pipe(
+            map((downloadUrl) => {
+              fileObj.url = downloadUrl;
+              const details = this.getReceiptDetails(fileObj);
+              fileObj.type = details.type;
+              fileObj.thumbnail = details.thumbnail;
+              return fileObj;
+            }),
+          ),
         ),
-      ),
-      reduce((acc: FileObject[], curr) => acc.concat(curr), []),
-    );
+        reduce((acc: FileObject[], curr) => acc.concat(curr), []),
+      );
+    } else {
+      return this.fileService.findByAdvanceRequestId(id).pipe(
+        switchMap((fileObjs) => from(fileObjs)),
+        concatMap((fileObj) =>
+          this.fileService.downloadUrl(fileObj.id).pipe(
+            map((downloadUrl) => {
+              fileObj.url = downloadUrl;
+              const details = this.getReceiptDetails(fileObj);
+              fileObj.type = details.type;
+              fileObj.thumbnail = details.thumbnail;
+              return fileObj;
+            }),
+          ),
+        ),
+        reduce((acc: FileObject[], curr) => acc.concat(curr), []),
+      );
+    }
   }
 
   async openCommentsModal(): Promise<void> {
@@ -613,7 +722,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     this.customFields$ = (
       this.from === 'TEAM_ADVANCE'
-        ? this.advanceRequestService.getCustomFieldsForApprover()
+        ? this.advanceRequestService.getEReqFromApprover(this.activatedRoute.snapshot.params.id as string).pipe(
+            switchMap((advanceReqPlatform) => {
+              const orgId = advanceReqPlatform.ou.org_id;
+              return this.advanceRequestService.getCustomFieldsForApprover(orgId);
+            })
+          )
         : this.advanceRequestService.getCustomFieldsForSpender()
     ).pipe(
       map((customFields) => {
