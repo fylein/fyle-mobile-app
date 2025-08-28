@@ -34,7 +34,7 @@ describe('OrgUserService', () => {
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
-    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('spenderPlatformV1ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('spenderPlatformV1ApiService', ['get', 'post']);
     const jwtHelperServiceSpy = jasmine.createSpyObj('JwtHelperService', ['decodeToken']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getAccessToken']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['newRefreshToken', 'refreshEou']);
@@ -72,7 +72,7 @@ describe('OrgUserService', () => {
     orgUserService = TestBed.inject(OrgUserService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     jwtHelperService = TestBed.inject(JwtHelperService) as jasmine.SpyObj<JwtHelperService>;
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -152,7 +152,7 @@ describe('OrgUserService', () => {
   });
 
   it('should be able to mark active', (done) => {
-    apiService.post.and.returnValue(of(extendedOrgUserResponse));
+    spenderPlatformV1ApiService.post.and.returnValue(of(extendedOrgUserResponse));
     authService.refreshEou.and.returnValue(of(extendedOrgUserResponse));
     orgUserService.markActive().subscribe((res) => {
       expect(res).toEqual(extendedOrgUserResponse);
