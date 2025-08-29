@@ -8,6 +8,8 @@ import { CaptureReceiptComponent } from 'src/app/shared/components/capture-recei
   standalone: false,
 })
 export class CameraOverlayPage implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('captureReceipt') captureReceipt: CaptureReceiptComponent;
 
   constructor() {}

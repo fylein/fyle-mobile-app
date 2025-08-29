@@ -1,7 +1,7 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild, inject, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -195,14 +195,16 @@ export class AddEditPerDiemPage implements OnInit {
 
   private expenseCommentService = inject(ExpenseCommentService);
 
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  readonly duplicateInputContainer = viewChild<ElementRef>('duplicateInputContainer');
 
-  @ViewChild('formContainer') formContainer: ElementRef;
+  readonly formContainer = viewChild<ElementRef>('formContainer');
 
-  @ViewChild('comments') commentsContainer: ElementRef;
-
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
   title: string;
@@ -2163,8 +2165,9 @@ export class AddEditPerDiemPage implements OnInit {
 
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
-    if (this.formContainer?.nativeElement) {
-      const formContainer = this.formContainer.nativeElement as HTMLElement;
+    const formContainerValue = this.formContainer();
+    if (formContainerValue?.nativeElement) {
+      const formContainer = formContainerValue.nativeElement as HTMLElement;
       const invalidElement = formContainer.querySelector('.ng-invalid');
       if (invalidElement) {
         invalidElement.scrollIntoView({

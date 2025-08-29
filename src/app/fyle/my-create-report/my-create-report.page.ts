@@ -1,12 +1,10 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, inject, viewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, noop, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { Expense as PlatformExpense } from '../../core/models/platform/v1/expense.model';
@@ -22,13 +20,9 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
   standalone: false,
 })
 export class MyCreateReportPage implements OnInit {
-  private transactionService = inject(TransactionService);
-
   private activatedRoute = inject(ActivatedRoute);
 
   private currencyService = inject(CurrencyService);
-
-  private loaderService = inject(LoaderService);
 
   private router = inject(Router);
 
@@ -42,7 +36,7 @@ export class MyCreateReportPage implements OnInit {
 
   private spenderReportsService = inject(SpenderReportsService);
 
-  @ViewChild('reportTitleInput') reportTitleInput: NgModel;
+  readonly reportTitleInput = viewChild<NgModel>('reportTitleInput');
 
   readyToReportExpenses: PlatformExpense[];
 
@@ -198,7 +192,8 @@ export class MyCreateReportPage implements OnInit {
     this.selectedTotalAmount = this.getTotalSelectedExpensesAmount(this.selectedElements);
 
     // suggest a title if the report title is not dirty or empty (reportTitleInput is not available in the ionViewWillEnter)
-    if ((this.reportTitleInput && !this.reportTitleInput.dirty) || (!this.reportTitleInput && !this.reportTitle)) {
+    const reportTitleInput = this.reportTitleInput();
+    if ((reportTitleInput && !reportTitleInput.dirty) || (!reportTitleInput && !this.reportTitle)) {
       return this.spenderReportsService.suggestPurpose(expenseIDs).subscribe((res) => {
         this.reportTitle = res;
       });

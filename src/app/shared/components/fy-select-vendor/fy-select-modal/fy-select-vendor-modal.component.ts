@@ -37,6 +37,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchBar') searchBarRef!: ElementRef<HTMLInputElement>;
 
   // TODO: Skipped for migration because:

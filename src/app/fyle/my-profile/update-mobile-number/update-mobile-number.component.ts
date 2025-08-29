@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, inject, input } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, AfterViewInit, inject, input, viewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { finalize, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -21,7 +21,7 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
 
   private translocoService = inject(TranslocoService);
 
-  @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
+  readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
 
   readonly title = input<string>(undefined);
 
@@ -46,7 +46,7 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.inputEl.nativeElement.focus(), 400);
+    setTimeout(() => this.inputEl().nativeElement.focus(), 400);
   }
 
   closePopover(): void {

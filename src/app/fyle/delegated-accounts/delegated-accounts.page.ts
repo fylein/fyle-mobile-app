@@ -34,6 +34,8 @@ export class DelegatedAccountsPage {
 
   private navController = inject(NavController);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchDelegatees') searchDelegatees: ElementRef<HTMLInputElement>;
 
   delegatedAccList = [];

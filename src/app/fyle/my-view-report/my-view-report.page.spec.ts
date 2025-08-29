@@ -944,7 +944,7 @@ describe('MyViewReportPage', () => {
     fixture.detectChanges();
 
     spenderReportsService.postComment.and.returnValue(of(allReportsPaginated1.data[0].comments[0]));
-    spyOn(component.content, 'scrollToBottom');
+    spyOn(component.content(), 'scrollToBottom');
     component.newComment = 'comment';
     component.segmentValue = ReportPageSegment.COMMENTS;
     component.commentInput = fixture.debugElement.query(By.css('.view-comment--text-area'));

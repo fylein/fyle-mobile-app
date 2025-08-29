@@ -72,6 +72,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   readonly disableEnteringManualLocation = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   loader = false;

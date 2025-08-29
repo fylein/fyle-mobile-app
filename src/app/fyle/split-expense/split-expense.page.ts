@@ -1,5 +1,5 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
-import { Component, ElementRef, OnDestroy, QueryList, ViewChildren, inject } from '@angular/core';
+import { Component, ElementRef, OnDestroy, inject, viewChildren } from '@angular/core';
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
@@ -121,7 +121,7 @@ export class SplitExpensePage implements OnDestroy {
 
   private expensesService = inject(ExpensesService);
 
-  @ViewChildren('splitElement') splitElements!: QueryList<ElementRef>;
+  readonly splitElements = viewChildren<ElementRef>('splitElement');
 
   splitExpensesFormArray = new UntypedFormArray([]);
 
@@ -942,7 +942,7 @@ export class SplitExpensePage implements OnDestroy {
     const invalidIndex = formArray.controls.findIndex((formGroup) => formGroup.invalid);
 
     if (invalidIndex !== -1) {
-      const invalidElement = this.splitElements.toArray()[invalidIndex]?.nativeElement as HTMLElement;
+      const invalidElement = this.splitElements()[invalidIndex]?.nativeElement as HTMLElement;
 
       if (invalidElement instanceof HTMLElement) {
         invalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1366,7 +1366,7 @@ export class SplitExpensePage implements OnDestroy {
 
   scrollToLastElement(): void {
     const newIndex = this.splitExpensesFormArray.length - 1;
-    const newSplitElement = this.splitElements.toArray()[newIndex]?.nativeElement as HTMLElement;
+    const newSplitElement = this.splitElements()[newIndex]?.nativeElement as HTMLElement;
 
     if (newSplitElement instanceof HTMLElement) {
       newSplitElement.scrollIntoView({ behavior: 'smooth', block: 'start' });

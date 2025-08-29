@@ -85,6 +85,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('cameraPreview') cameraPreview: CameraPreviewComponent;
 
   // TODO: Skipped for migration because:

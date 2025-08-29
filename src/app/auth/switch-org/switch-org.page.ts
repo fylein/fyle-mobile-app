@@ -31,7 +31,6 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 @Component({
@@ -89,14 +88,18 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   private launchDarklyService = inject(LaunchDarklyService);
 
-  private orgSettingsService = inject(OrgSettingsService);
-
   private spenderOnboardingService = inject(SpenderOnboardingService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('search') searchRef: ElementRef<HTMLElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('content') contentRef: ElementRef<HTMLElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef<HTMLInputElement>;
 
   orgs$: Observable<Org[]>;

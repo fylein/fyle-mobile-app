@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, inject, viewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Subscription, finalize, from, switchMap } from 'rxjs';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
@@ -51,8 +51,10 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   private translocoService = inject(TranslocoService);
 
-  @ViewChild('mobileInput') mobileInputEl: ElementRef<HTMLInputElement>;
+  readonly mobileInputEl = viewChild<ElementRef<HTMLInputElement>>('mobileInput');
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput: NgOtpInputComponent;
 
   // TODO: Skipped for migration because:
@@ -104,7 +106,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.mobileInputEl.nativeElement.focus();
+      this.mobileInputEl().nativeElement.focus();
     }, 400);
   }
 

@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnInit, inject, input } from '@angular/core';
+import { Component, Input, ElementRef, AfterViewInit, OnInit, inject, input, viewChild } from '@angular/core';
 import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
@@ -26,7 +26,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   private translocoService = inject(TranslocoService);
 
-  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLElement>;
+  readonly searchBarRef = viewChild<ElementRef<HTMLElement>>('searchBar');
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -72,7 +72,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef().nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
     this.getSearchedUsersList();
@@ -191,7 +191,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit(): void {
     this.searchedApprovers$ = fromEvent<{ srcElement: { value: string } }>(
-      this.searchBarRef.nativeElement,
+      this.searchBarRef().nativeElement,
       'keyup',
     ).pipe(
       map((event) => event.srcElement.value),

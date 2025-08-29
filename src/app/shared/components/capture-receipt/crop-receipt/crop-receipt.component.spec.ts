@@ -75,10 +75,10 @@ describe('CropReceiptComponent', () => {
 
   it('cropReceipt', () => {
     modalController.dismiss.and.callThrough();
-    spyOn(component.imageCropper, 'crop').and.callThrough();
+    spyOn(component.imageCropper(), 'crop').and.callThrough();
 
     component.cropReceipt();
-    expect(component.imageCropper.crop).toHaveBeenCalledTimes(1);
+    expect(component.imageCropper().crop).toHaveBeenCalledTimes(1);
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
       base64ImageWithSource: component.base64ImageWithSource,
     });

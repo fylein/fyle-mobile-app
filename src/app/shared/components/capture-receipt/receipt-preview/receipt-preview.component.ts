@@ -41,6 +41,8 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
   // TODO: Skipped for migration because:

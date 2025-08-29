@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, EventEmitter, inject } from '@angular/core';
 import { Observable, from, Subject, concat, noop, of, forkJoin } from 'rxjs';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -91,8 +91,6 @@ export class ViewMileagePage {
   private spenderExpenseCommentService = inject(SpenderExpenseCommentService);
 
   private approverExpenseCommentService = inject(ApproverExpenseCommentService);
-
-  @ViewChild('comments') commentsContainer: ElementRef;
 
   mileageExpense$: Observable<Expense>;
 

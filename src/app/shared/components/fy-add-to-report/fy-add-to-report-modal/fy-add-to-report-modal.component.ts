@@ -1,7 +1,6 @@
 import {
   Component,
   OnInit,
-  ViewChild,
   ElementRef,
   AfterViewInit,
   Input,
@@ -29,8 +28,6 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
 
   private currencyService = inject(CurrencyService);
-
-  @ViewChild('searchBar') searchBarRef: ElementRef;
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.

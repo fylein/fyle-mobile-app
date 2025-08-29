@@ -103,6 +103,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
 
   private cdr = inject(ChangeDetectorRef);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   headerState: HeaderState = HeaderState.base;

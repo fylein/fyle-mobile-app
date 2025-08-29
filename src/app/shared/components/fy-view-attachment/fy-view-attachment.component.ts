@@ -10,8 +10,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { OverlayEventDetail } from '@ionic/core';
-import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FileService } from 'src/app/core/services/file.service';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -39,10 +38,6 @@ export class FyViewAttachmentComponent implements OnInit {
 
   private approverFileService = inject(ApproverFileService);
 
-  private expensesService = inject(ExpensesService);
-
-  private activatedRoute = inject(ActivatedRoute);
-
   private fileService = inject(FileService);
 
   private transactionsOutboxService = inject(TransactionsOutboxService);
@@ -65,6 +60,8 @@ export class FyViewAttachmentComponent implements OnInit {
 
   readonly isTeamAdvance = input<boolean>(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, inject, viewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -14,11 +14,11 @@ export class EditReportNamePopoverComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() reportName: string;
 
-  @ViewChild('reportNameInput') reportNameInput: ElementRef<HTMLInputElement>;
+  readonly reportNameInput = viewChild<ElementRef<HTMLInputElement>>('reportNameInput');
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.reportNameInput.nativeElement.focus();
+      this.reportNameInput().nativeElement.focus();
     }, 100);
   }
 
