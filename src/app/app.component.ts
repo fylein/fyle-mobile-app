@@ -74,8 +74,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the query. This prevents migration.
   @ViewChild('sidemenuRef') sidemenuRef: SidemenuComponent;
 
   eou$: Observable<ExtendedOrgUser>;
