@@ -308,7 +308,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
     this.loadTransactionCount();
     this.loadInfiniteScroll();
 
-    this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event) => event.srcElement.value),

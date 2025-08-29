@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter, inject } from '@angular/core';
 import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -29,7 +28,6 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -39,8 +37,6 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 })
 export class TeamReportsPage implements OnInit {
   private networkService = inject(NetworkService);
-
-  private loaderService = inject(LoaderService);
 
   private modalController = inject(ModalController);
 
@@ -65,8 +61,6 @@ export class TeamReportsPage implements OnInit {
   private approverReportsService = inject(ApproverReportsService);
 
   private authService = inject(AuthService);
-
-  private launchDarklyService = inject(LaunchDarklyService);
 
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
@@ -164,7 +158,6 @@ export class TeamReportsPage implements OnInit {
 
       this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
-      this.simpleSearchInput.nativeElement.value = '';
       fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
         .pipe(
           map((event: Event) => {

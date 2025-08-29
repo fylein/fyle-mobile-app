@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, output } from '@angular/core';
+import { Component, Input, output, viewChild } from '@angular/core';
 import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
@@ -25,7 +25,7 @@ export class BankAccountCardsComponent {
 
   readonly changed = output<PlatformPersonalCard>();
 
-  @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
+  readonly swiper = viewChild<SwiperComponent>('swiper');
 
   pagination = {
     renderBullet(index, className): string {

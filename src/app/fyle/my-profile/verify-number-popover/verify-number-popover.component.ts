@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, AfterViewInit, inject, viewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -19,7 +19,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   private translocoService = inject(TranslocoService);
 
-  @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
+  readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -52,7 +52,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       if (!this.error) {
-        this.inputEl.nativeElement.focus();
+        this.inputEl().nativeElement.focus();
       }
     }, 200);
   }

@@ -10,6 +10,7 @@ import {
   OnInit,
   ViewChild,
   inject,
+  viewChild,
 } from '@angular/core';
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -214,12 +215,18 @@ export class AddEditMileagePage implements OnInit {
 
   private expenseCommentService = inject(ExpenseCommentService);
 
-  @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;
+  readonly formContainer = viewChild<ElementRef<HTMLFormElement>>('formContainer');
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(RouteSelectorComponent) routeSelector: RouteSelectorComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
   mode = 'add';
@@ -2102,7 +2109,7 @@ export class AddEditMileagePage implements OnInit {
 
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
-    const formContainer = this.formContainer.nativeElement;
+    const formContainer = this.formContainer().nativeElement;
     if (formContainer) {
       const invalidElement = formContainer.querySelector('.ng-invalid');
       if (invalidElement) {

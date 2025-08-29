@@ -610,7 +610,6 @@ export class MyExpensesPage implements OnInit {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
 
-    this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event) => event.srcElement.value),

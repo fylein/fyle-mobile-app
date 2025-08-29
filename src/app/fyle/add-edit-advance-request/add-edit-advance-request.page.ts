@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, inject, viewChild } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -93,7 +93,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   private approverFileService = inject(ApproverFileService);
 
-  @ViewChild('formContainer') formContainer: ElementRef;
+  readonly formContainer = viewChild<ElementRef>('formContainer');
 
   isConnected$: Observable<boolean>;
 
@@ -217,8 +217,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
 
-    if (this.formContainer?.nativeElement) {
-      const formContainer = this.formContainer.nativeElement as HTMLElement;
+    const formContainerValue = this.formContainer();
+    if (formContainerValue?.nativeElement) {
+      const formContainer = formContainerValue.nativeElement as HTMLElement;
       const invalidElement = formContainer.querySelector('.ng-invalid');
       if (invalidElement) {
         invalidElement.scrollIntoView({
@@ -340,32 +341,32 @@ export class AddEditAdvanceRequestPage implements OnInit {
           if (!advanceReqPlatform || !advanceReqPlatform.user?.id) {
             return of<string[]>([]);
           }
-          
+
           return from(this.authService.getEou()).pipe(
             switchMap((eou) => {
               if (!eou || !eou.ou || !eou.ou.org_id) {
                 return of<string[]>([]);
               }
-              
+
               const fileUploadObservables: Observable<string>[] = [];
-              
+
               this.dataUrls.forEach((dataUrl) => {
                 dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
-                
+
                 if (!dataUrl.id) {
                   fileUploadObservables.push(
-                    from(this.transactionsOutboxService.fileUpload(
-                      dataUrl.url, 
-                      dataUrl.type, 
-                      { userId: advanceReqPlatform.user.id, orgId: advanceReqPlatform.org_id },
-                      true
-                    )).pipe(
-                      map((fileObj: FileObject) => fileObj.id || ''),
-                    ),
+                    from(
+                      this.transactionsOutboxService.fileUpload(
+                        dataUrl.url,
+                        dataUrl.type,
+                        { userId: advanceReqPlatform.user.id, orgId: advanceReqPlatform.org_id },
+                        true,
+                      ),
+                    ).pipe(map((fileObj: FileObject) => fileObj.id || '')),
                   );
                 }
               });
-              
+
               return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of<string[]>([]));
             }),
           );
@@ -373,10 +374,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
       );
     } else {
       const fileUploadObservables: Observable<string>[] = [];
-      
+
       this.dataUrls.forEach((dataUrl) => {
         dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
-        
+
         if (!dataUrl.id) {
           fileUploadObservables.push(
             from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)).pipe(
@@ -385,7 +386,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
           );
         }
       });
-      
+
       return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of<string[]>([]));
     }
   }
@@ -438,17 +439,17 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   async viewAttachments(): Promise<void> {
     this.attachmentUploadInProgress = true;
-    
+
     const fileIds = await this.fileAttachments().toPromise();
-    
+
     if (fileIds && fileIds.length > 0) {
       let fileIdIndex = 0;
-      this.dataUrls = this.dataUrls.map(attachment => {
+      this.dataUrls = this.dataUrls.map((attachment) => {
         if (!attachment.id && fileIdIndex < fileIds.length) {
           return {
             ...attachment,
             id: fileIds[fileIdIndex++],
-            type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image'
+            type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image',
           };
         }
         return attachment;
@@ -458,14 +459,17 @@ export class AddEditAdvanceRequestPage implements OnInit {
       if (this.id) {
         if (this.from === 'TEAM_ADVANCE') {
           // For team advances, use approver service
-          await this.advanceRequestService.getApproverAdvanceRequestRaw(this.id).pipe(
-            switchMap((advanceReqPlatform) => {
-              if (advanceReqPlatform?.user?.id) {
-                return this.approverFileService.attachToAdvance(this.id, fileIds, advanceReqPlatform.user.id);
-              }
-              return of(null);
-            })
-          ).toPromise();
+          await this.advanceRequestService
+            .getApproverAdvanceRequestRaw(this.id)
+            .pipe(
+              switchMap((advanceReqPlatform) => {
+                if (advanceReqPlatform?.user?.id) {
+                  return this.approverFileService.attachToAdvance(this.id, fileIds, advanceReqPlatform.user.id);
+                }
+                return of(null);
+              }),
+            )
+            .toPromise();
         } else {
           // For regular advances, use spender service
           await this.spenderFileService.attachToAdvance(this.id, fileIds).toPromise();
@@ -726,7 +730,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
             switchMap((advanceReqPlatform) => {
               const orgId = advanceReqPlatform.ou.org_id;
               return this.advanceRequestService.getCustomFieldsForApprover(orgId);
-            })
+            }),
           )
         : this.advanceRequestService.getCustomFieldsForSpender()
     ).pipe(
