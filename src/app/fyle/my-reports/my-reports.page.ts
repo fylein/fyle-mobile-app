@@ -66,6 +66,8 @@ export class MyReportsPage {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;
@@ -153,6 +155,7 @@ export class MyReportsPage {
     });
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
+    this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event) => event.srcElement.value),

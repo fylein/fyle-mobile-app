@@ -97,6 +97,8 @@ import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
   standalone: false,
 })
 export class MyExpensesPage implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;
@@ -610,6 +612,7 @@ export class MyExpensesPage implements OnInit {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
 
+    this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event) => event.srcElement.value),

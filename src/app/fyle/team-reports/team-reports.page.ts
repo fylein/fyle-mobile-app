@@ -62,6 +62,8 @@ export class TeamReportsPage implements OnInit {
 
   private authService = inject(AuthService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   pageTitle = 'Team reports';
@@ -158,6 +160,7 @@ export class TeamReportsPage implements OnInit {
 
       this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
+      this.simpleSearchInput.nativeElement.value = '';
       fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
         .pipe(
           map((event: Event) => {

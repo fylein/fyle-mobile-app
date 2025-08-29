@@ -103,6 +103,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
 
   private cdr = inject(ChangeDetectorRef);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   headerState: HeaderState = HeaderState.base;
@@ -308,6 +310,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
     this.loadTransactionCount();
     this.loadInfiniteScroll();
 
+    this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event) => event.srcElement.value),
