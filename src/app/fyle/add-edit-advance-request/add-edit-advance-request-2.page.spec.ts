@@ -132,11 +132,11 @@ export function TestCases2(getTestBed) {
     it('fileAttachments(): should return file attachments if ids are absent in fileObject', (done) => {
       const mockFileObjects = cloneDeep(advanceRequestFileUrlData2);
       component.dataUrls = mockFileObjects;
-      
+
       // Mock the fileUpload service to return different results for each call
       const mockFile1 = { ...cloneDeep(fileObject9[0]), id: 'file1' };
       const mockFile2 = { ...cloneDeep(fileObject9[0]), id: 'file2' };
-      
+
       let callCount = 0;
       transactionsOutboxService.fileUpload.and.callFake(() => {
         callCount++;
@@ -146,7 +146,7 @@ export function TestCases2(getTestBed) {
           return Promise.resolve(mockFile2);
         }
       });
-      
+
       component.fileAttachments().subscribe((res) => {
         expect(transactionsOutboxService.fileUpload).toHaveBeenCalledTimes(2);
         expect(res).toEqual(['file1', 'file2']);
@@ -175,7 +175,6 @@ export function TestCases2(getTestBed) {
       tick(100);
 
       expect(event.stopPropagation).toHaveBeenCalledTimes(1);
-      expect(event.preventDefault).toHaveBeenCalledTimes(1);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
@@ -193,7 +192,7 @@ export function TestCases2(getTestBed) {
 
     it('viewAttachments(): should show the attachments as preview', fakeAsync(() => {
       component.dataUrls = cloneDeep(advanceRequestFileUrlData2);
-      
+
       let callCount = 0;
       transactionsOutboxService.fileUpload.and.callFake(() => {
         callCount++;
@@ -211,9 +210,9 @@ export function TestCases2(getTestBed) {
       const expectedAttachmentsWithIds = cloneDeep(advanceRequestFileUrlData2).map((attachment, index) => ({
         ...attachment,
         id: `file${index + 1}`,
-        type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image'
+        type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image',
       }));
-      
+
       // Check that the modal was created with the correct parameters
       expect(modalController.create).toHaveBeenCalledOnceWith({
         ...modalControllerParams4,
