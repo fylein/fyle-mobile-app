@@ -50,6 +50,9 @@
           @if (dataUrls && dataUrls.length === 0) {
             <div class="add-edit-advance-request--receipt text-center">
               <div class="add-edit-advance-request--receipt-image" (click)="addAttachments($event)">
+                @if (isIos) {
+                  <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+                }
                 <img class="add-edit-advance-request--receipt-image-icon" src="../../../assets/svg/list-plus.svg" />
               </div>
             </div>
@@ -78,6 +81,9 @@
             (viewAttachments)="viewAttachments()"
             [canEdit]="true"
           >
+            @if (isIos) {
+              <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+            }
           </app-receipt-preview-thumbnail>
         }
 
@@ -337,7 +343,7 @@
             [loading]="saveAdvanceLoading"
             [disabled]="saveDraftAdvanceLoading || saveAdvanceLoading"
           >
-            {{ (from === 'TEAM_ADVANCE' && mode === 'edit') ? 'Save request' : 'Submit request' }}
+            {{ from === 'TEAM_ADVANCE' && mode === 'edit' ? 'Save request' : 'Submit request' }}
           </ion-button>
         }
       </ion-buttons>
