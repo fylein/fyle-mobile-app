@@ -125,8 +125,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   ngOnInit(): void {
     this.setupNetworkWatcher();
     this.isBulkMode = false;
-    this.base64ImagesWithSource = [];
-    this.noOfReceipts = 0;
+    this.resetReceipts();
   }
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]): Observable<void[]> {
@@ -217,13 +216,17 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       );
 
     isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
+      // Pass all receipts, not just the first one
+      const allReceipts = this.base64ImagesWithSource.map(receipt => receipt.base64Image);
+      
       this.router.navigate([
         '/',
         'enterprise',
         'add_edit_expense',
         {
-          dataUrl: this.base64ImagesWithSource[0]?.base64Image,
+          dataUrl: allReceipts.length === 1 ? allReceipts[0] : allReceipts,
           canExtractData: isInstafyleEnabled,
+          receiptCount: allReceipts.length,
         },
       ]);
     });
@@ -257,7 +260,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     receiptPreviewDetails$
       .pipe(filter((receiptPreviewDetails) => !receiptPreviewDetails.base64ImagesWithSource.length))
       .subscribe(() => {
-        this.base64ImagesWithSource = [];
+        // Don't reset the array here - just continue with camera
         this.setUpAndStartCamera();
       });
 
@@ -282,8 +285,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       )
       .subscribe(() => {
         setTimeout(() => {
+          // Pass all receipts, not just the first one
+          const allReceipts = this.base64ImagesWithSource.map(receipt => receipt.base64Image);
           this.modalController.dismiss({
-            dataUrl: this.base64ImagesWithSource[0]?.base64Image,
+            dataUrl: allReceipts.length === 1 ? allReceipts[0] : allReceipts,
           });
         }, 0);
       });
@@ -335,8 +340,27 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       )
       .subscribe((receiptPreviewDetails) => {
         this.isBulkMode = true;
-        this.base64ImagesWithSource = receiptPreviewDetails.base64ImagesWithSource;
-        this.noOfReceipts = receiptPreviewDetails.base64ImagesWithSource.length;
+        // Preserve existing receipts and merge with any new ones from preview
+        if (receiptPreviewDetails.base64ImagesWithSource.length > 0) {
+          // Merge receipts, avoiding duplicates
+          const existingReceipts = this.base64ImagesWithSource || [];
+          const newReceipts = receiptPreviewDetails.base64ImagesWithSource;
+          
+          // Create a map of existing receipts to avoid duplicates
+          const existingMap = new Map();
+          existingReceipts.forEach((receipt, index) => {
+            existingMap.set(receipt.base64Image, index);
+          });
+          
+          // Add new receipts that don't already exist
+          newReceipts.forEach(receipt => {
+            if (!existingMap.has(receipt.base64Image)) {
+              this.base64ImagesWithSource.push(receipt);
+            }
+          });
+        }
+        
+        this.noOfReceipts = this.base64ImagesWithSource.length;
         this.lastCapturedReceipt = this.noOfReceipts
           ? this.base64ImagesWithSource[this.noOfReceipts - 1]?.base64Image
           : null;
@@ -379,7 +403,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   onBulkCapture(): void {
-    this.noOfReceipts += 1;
+    // The addReceiptToCollection method already handles updating the count
+    // This method is kept for backward compatibility but no longer needed
   }
 
   showLimitReachedPopover(): Observable<HTMLIonPopoverElement> {
@@ -413,16 +438,16 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
       from(this.cameraPreviewService.capture(cameraPreviewPictureOptions)).subscribe((receiptData) => {
         const base64PictureData = 'data:image/jpeg;base64,' + receiptData.value;
-        this.lastCapturedReceipt = base64PictureData;
+        
         if (!this.isBulkMode) {
           this.stopCamera();
-          this.base64ImagesWithSource.push({
+          this.addReceiptToCollection({
             source: 'MOBILE_DASHCAM_SINGLE',
             base64Image: base64PictureData,
           });
           this.onSingleCapture();
         } else {
-          this.base64ImagesWithSource.push({
+          this.addReceiptToCollection({
             source: 'MOBILE_DASHCAM_BULK',
             base64Image: base64PictureData,
           });
@@ -513,7 +538,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .subscribe((receiptsFromGallery) => {
         receiptsFromGallery.forEach((receiptBase64) => {
           const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
-          this.base64ImagesWithSource.push({
+          this.addReceiptToCollection({
             source: 'MOBILE_DASHCAM_GALLERY',
             base64Image: receiptBase64Data,
           });
@@ -549,5 +574,32 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   stopCamera(): void {
     this.cameraPreview.stopCamera();
+  }
+
+  resetReceipts(): void {
+    this.base64ImagesWithSource = [];
+    this.noOfReceipts = 0;
+    this.lastCapturedReceipt = null;
+  }
+
+  addReceiptToCollection(receipt: Image): void {
+    // Check if receipt already exists to avoid duplicates
+    const isDuplicate = this.base64ImagesWithSource.some(
+      existing => existing.base64Image === receipt.base64Image
+    );
+    
+    if (!isDuplicate) {
+      this.base64ImagesWithSource.push(receipt);
+      this.noOfReceipts = this.base64ImagesWithSource.length;
+      this.lastCapturedReceipt = receipt.base64Image;
+    }
+  }
+
+  getReceiptCount(): number {
+    return this.base64ImagesWithSource?.length || 0;
+  }
+
+  getReceiptsBySource(source: string): Image[] {
+    return this.base64ImagesWithSource?.filter(receipt => receipt.source === source) || [];
   }
 }
