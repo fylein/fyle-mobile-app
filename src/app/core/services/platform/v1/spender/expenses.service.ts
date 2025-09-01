@@ -314,7 +314,7 @@ export class ExpensesService {
     const expense: Partial<Expense> = {
       id: transaction.id,
       spent_at: transaction.spent_at,
-      category_id: transaction.org_category_id,
+      category_id: transaction.category_id,
       purpose: transaction.purpose,
       source_account_id: transaction.source_account_id,
       claim_amount: transaction.amount,

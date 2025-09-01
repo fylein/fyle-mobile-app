@@ -376,7 +376,7 @@ export class SplitExpensePage implements OnDestroy {
 
         return of({
           ...this.transaction,
-          org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
+          category_id: splitExpenseValue.category && splitExpenseValue.category.id,
           project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
           cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
           currency: splitExpenseValue.currency,
@@ -440,15 +440,14 @@ export class SplitExpensePage implements OnDestroy {
   ): void {
     splitTxn.project_id = project.project_id;
     splitTxn.project_name = project.project_name;
-    splitTxn.org_category_id = null;
+    splitTxn.category_id = null;
     splitTxn.org_category = null;
     if (
-      this.transaction.org_category_id &&
+      this.transaction.category_id &&
       (!isProjectCategoryRestrictionsEnabled ||
-        (project.project_org_category_ids &&
-          project.project_org_category_ids.includes(this.transaction.org_category_id)))
+        (project.project_org_category_ids && project.project_org_category_ids.includes(this.transaction.category_id)))
     ) {
-      splitTxn.org_category_id = this.transaction.org_category_id;
+      splitTxn.category_id = this.transaction.category_id;
       splitTxn.org_category = this.transaction.org_category;
     }
   }
@@ -465,7 +464,7 @@ export class SplitExpensePage implements OnDestroy {
     if (splitFormValue.project?.project_id) {
       this.setSplitExpenseValuesBasedOnProject(splitTxn, project, isProjectCategoryRestrictionsEnabled);
     } else if (splitFormValue.category?.id) {
-      splitTxn.org_category_id = splitFormValue.category.id;
+      splitTxn.category_id = splitFormValue.category.id;
       splitTxn.org_category = splitFormValue.category.name;
       splitTxn.project_id = null;
       splitTxn.project_name = null;
@@ -492,11 +491,11 @@ export class SplitExpensePage implements OnDestroy {
     isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     splitTxn.cost_center_id = splitFormValue.cost_center?.id || this.transaction.cost_center_id;
-    if (this.transaction.project_id || this.transaction.org_category_id) {
+    if (this.transaction.project_id || this.transaction.category_id) {
       this.setSplitExpenseProjectHelper(splitFormValue, splitTxn, expenseDetails, isProjectCategoryRestrictionsEnabled);
     } else {
       //if no project or category id exists in source txn, set them from splitExpense object
-      splitTxn.org_category_id = splitFormValue.category?.id || this.transaction.org_category_id;
+      splitTxn.category_id = splitFormValue.category?.id || this.transaction.category_id;
       splitTxn.project_id = splitFormValue.project?.id || this.transaction.project_id;
     }
   }
@@ -717,7 +716,7 @@ export class SplitExpensePage implements OnDestroy {
     for (const txn of splitEtxns) {
       delete txn.id;
 
-      const categoryId = txn.org_category_id || this.unspecifiedCategory?.id;
+      const categoryId = txn.category_id || this.unspecifiedCategory?.id;
 
       if (txn.custom_properties?.length > 0 && this.expenseFields?.length > 0) {
         txn.custom_properties = txn.custom_properties.filter((customProperty) => {

@@ -969,7 +969,7 @@ export class AddEditMileagePage implements OnInit {
               source: 'MOBILE',
               state: 'COMPLETE',
               txn_dt: new Date(),
-              org_category_id: mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.id,
+              category_id: mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.id,
               org_category: mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.name,
               sub_category:
                 mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.sub_category,
@@ -1025,7 +1025,7 @@ export class AddEditMileagePage implements OnInit {
         map((subCategories) =>
           subCategories
             .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory.name?.toLowerCase())
-            .find((subCategory) => subCategory.id === etxn.tx.org_category_id),
+            .find((subCategory) => subCategory.id === etxn.tx.category_id),
         ),
       );
   }
@@ -1770,7 +1770,7 @@ export class AddEditMileagePage implements OnInit {
 
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap((etxn: Partial<UnflattenedTransaction>) =>
-        iif(() => !!etxn.tx.org_category_id, this.getCategories(etxn), of(null)),
+        iif(() => !!etxn.tx.category_id, this.getCategories(etxn), of(null)),
       ),
     );
 
@@ -1862,7 +1862,7 @@ export class AddEditMileagePage implements OnInit {
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
-            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id),
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.category_id),
           );
 
           const customInputValues = customInputs
@@ -2387,7 +2387,7 @@ export class AddEditMileagePage implements OnInit {
             skip_reimbursement: skipReimbursement,
             billable: formValue.billable,
             distance: +formValue.route.distance,
-            org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
+            category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.category_id,
             txn_dt: this.dateService.getUTCDate(new Date(formValue.dateOfSpend)),
             source: 'MOBILE',
             currency: res.homeCurrency,
