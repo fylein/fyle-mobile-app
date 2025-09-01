@@ -311,8 +311,8 @@ export class SplitExpensePage implements OnDestroy {
 
     if (splitExpenseValue.txn_dt) {
       txnDate = this.dateService.getUTCDate(new Date(splitExpenseValue.txn_dt));
-    } else if (this.transaction.txn_dt) {
-      txnDate = this.dateService.getUTCDate(new Date(this.transaction.txn_dt));
+    } else if (this.transaction.spent_at) {
+      txnDate = this.dateService.getUTCDate(new Date(this.transaction.spent_at));
     } else {
       txnDate = this.dateService.getUTCDate(new Date());
     }
@@ -1304,7 +1304,7 @@ export class SplitExpensePage implements OnDestroy {
   // eslint-disable-next-line complexity
   add(amount?: number, currency?: string, percentage?: number, txnDt?: string | Date | dayjs.Dayjs): void {
     if (!txnDt) {
-      const dateOfTxn = this.transaction?.txn_dt;
+      const dateOfTxn = this.transaction?.spent_at;
       const today = new Date();
       txnDt = dateOfTxn ? new Date(dateOfTxn) : today;
       txnDt = dayjs(txnDt).format('YYYY-MM-DD');

@@ -2004,7 +2004,7 @@ export class AddEditMileagePage implements OnInit {
           }
           this.fg.patchValue({
             mileage_rate_name,
-            dateOfSpend: etxn.tx.txn_dt && dayjs(etxn.tx.txn_dt).format('YYYY-MM-DD'),
+            dateOfSpend: etxn.tx.spent_at && dayjs(etxn.tx.spent_at).format('YYYY-MM-DD'),
             paymentMode: paymentMode || defaultPaymentMode,
             purpose: etxn.tx.purpose,
             route: {

@@ -136,8 +136,8 @@ export class SplitExpenseService {
       transaction.id = null;
       transaction.source = transaction.source || 'MOBILE_SPLIT';
 
-      transaction.txn_dt = splitExpense.txn_dt || sourceTxn.txn_dt;
-      transaction.txn_dt = new Date(transaction.txn_dt);
+      transaction.spent_at = splitExpense.spent_at || sourceTxn.spent_at;
+      transaction.spent_at = new Date(transaction.spent_at);
       transaction.project_id = splitExpense.project_id || sourceTxn.project_id;
       transaction.cost_center_id = splitExpense.cost_center_id || sourceTxn.cost_center_id;
       transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
@@ -236,7 +236,7 @@ export class SplitExpenseService {
       // Platform will throw error if category_id is null in form, therefore adding unspecified category
       category_id: transaction.org_category_id || reportAndCategoryParams.unspecifiedCategory?.id,
       source: transaction.source,
-      spent_at: transaction.txn_dt,
+      spent_at: transaction.spent_at,
       is_reimbursable: transaction.skip_reimbursement === null ? null : !transaction.skip_reimbursement,
       travel_classes: [],
       locations: transaction.locations,
@@ -271,7 +271,7 @@ export class SplitExpenseService {
 
     for (const splitEtxn of splitEtxns) {
       const splitObject = {
-        spent_at: splitEtxn.txn_dt,
+        spent_at: splitEtxn.spent_at,
         category_id: splitEtxn.org_category_id || unspecifiedCategory?.id,
         project_id: splitEtxn.project_id,
         cost_center_id: splitEtxn.cost_center_id,

@@ -1398,7 +1398,7 @@ export class AddEditExpensePage implements OnInit {
               tx: {
                 skip_reimbursement: false,
                 source: 'MOBILE',
-                txn_dt: new Date(),
+                spent_at: new Date(),
                 currency: homeCurrency,
                 amount: null,
                 orig_currency: null,
@@ -1437,7 +1437,7 @@ export class AddEditExpensePage implements OnInit {
           } else if (personalCardTxn) {
             etxn = {
               tx: {
-                txn_dt: new Date(personalCardTxn.spent_at),
+                spent_at: new Date(personalCardTxn.spent_at),
                 source: 'MOBILE',
                 currency: personalCardTxn.currency,
                 amount: personalCardTxn.amount,
@@ -1452,7 +1452,7 @@ export class AddEditExpensePage implements OnInit {
           } else {
             etxn = {
               tx: {
-                txn_dt: new Date(bankTxn.ccce.txn_dt),
+                spent_at: new Date(bankTxn.ccce.txn_dt),
                 source: 'MOBILE',
                 currency: bankTxn.ccce.currency,
                 org_category_id: bankTxn.org_category_id,
@@ -1502,11 +1502,11 @@ export class AddEditExpensePage implements OnInit {
             }
 
             if (extractedData.date) {
-              etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.date));
+              etxn.tx.spent_at = this.dateService.getUTCDate(new Date(extractedData.date));
             }
 
             if (extractedData.invoice_dt) {
-              etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.invoice_dt));
+              etxn.tx.spent_at = this.dateService.getUTCDate(new Date(extractedData.invoice_dt));
             }
 
             if (extractedData.vendor) {
@@ -2036,7 +2036,7 @@ export class AddEditExpensePage implements OnInit {
             {
               project,
               category: expenseCategory,
-              dateOfSpend: etxn.tx.txn_dt && dayjs(etxn.tx.txn_dt).format('YYYY-MM-DD'),
+              dateOfSpend: etxn.tx.spent_at && dayjs(etxn.tx.spent_at).format('YYYY-MM-DD'),
               vendor_id: etxn.tx.vendor
                 ? {
                     display_name: etxn.tx.vendor,
@@ -2416,7 +2416,7 @@ export class AddEditExpensePage implements OnInit {
           [id: string]: AbstractControl;
         } = {
           purpose: this.fg.controls.purpose,
-          txn_dt: this.fg.controls.dateOfSpend,
+          spent_at: this.fg.controls.dateOfSpend,
           vendor_id: this.fg.controls.vendor_id,
           cost_center_id: this.fg.controls.costCenter,
           from_dt: this.fg.controls.from_dt,
@@ -2576,7 +2576,7 @@ export class AddEditExpensePage implements OnInit {
           [id: string]: AbstractControl;
         } = {
           purpose: this.fg.controls.purpose,
-          txn_dt: this.fg.controls.dateOfSpend,
+          spent_at: this.fg.controls.dateOfSpend,
           vendor_id: this.fg.controls.vendor_id,
           from_dt: this.fg.controls.from_dt,
           to_dt: this.fg.controls.to_dt,
@@ -2643,7 +2643,7 @@ export class AddEditExpensePage implements OnInit {
               ) {
                 control.setValidators(Validators.required);
               }
-            } else if (txnFieldKey === 'txn_dt') {
+            } else if (txnFieldKey === 'spent_at') {
               control.setValidators(
                 isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null,
               );
@@ -2658,7 +2658,7 @@ export class AddEditExpensePage implements OnInit {
             }
           } else {
             // set back the customDateValidator for spent_at field
-            if (txnFieldKey === 'txn_dt' && isConnected) {
+            if (txnFieldKey === 'spent_at' && isConnected) {
               control.setValidators(this.customDateValidator);
             }
           }
@@ -2796,12 +2796,12 @@ export class AddEditExpensePage implements OnInit {
             etxn.tx.currency = etxn.tx.extracted_data.currency;
           }
 
-          if (etxn.tx.extracted_data.date && !etxn.tx.txn_dt) {
-            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.date));
+          if (etxn.tx.extracted_data.date && !etxn.tx.spent_at) {
+            etxn.tx.spent_at = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.date));
           }
 
-          if (etxn.tx.extracted_data.invoice_dt && !etxn.tx.txn_dt) {
-            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
+          if (etxn.tx.extracted_data.invoice_dt && !etxn.tx.spent_at) {
+            etxn.tx.spent_at = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
           }
 
           if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
@@ -3052,7 +3052,7 @@ export class AddEditExpensePage implements OnInit {
           ({ orgSettings, etxn }) =>
             this.getCCCSettings(orgSettings) || !!etxn.tx.corporate_credit_card_expense_group_id,
         ),
-        filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && !!etxn.tx.txn_dt),
+        filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && !!etxn.tx.spent_at),
         switchMap(({ etxn }) =>
           forkJoin({
             splitExpenses: this.expensesService.getSplitExpenses(etxn.tx.split_group_id),
@@ -3700,7 +3700,7 @@ export class AddEditExpensePage implements OnInit {
             advance_wallet_id: this.getAdvanceWalletId(isAdvanceWalletEnabled),
             billable: this.getBillable(),
             skip_reimbursement: this.getSkipRemibursement(),
-            txn_dt: this.getTxnDate(),
+            spent_at: this.getTxnDate(),
             currency: this.getCurrency(),
             amount,
             orig_currency: this.getOriginalCurrency(),

@@ -33,7 +33,7 @@ export class PolicyService {
     const txnLocations = transaction.locations as string[];
     const platformPolicyExpense: PlatformPolicyExpense = {
       id: transaction.id,
-      spent_at: transaction.txn_dt,
+      spent_at: transaction.spent_at,
       merchant: transaction.vendor,
       foreign_currency: transaction.orig_currency,
       foreign_amount: transaction.orig_amount,

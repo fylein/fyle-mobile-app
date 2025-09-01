@@ -76,7 +76,7 @@ export interface PublicPolicyExpense {
   taxi_travel_class: string;
   to_dt: Date;
   train_travel_class: string;
-  txn_dt: Date;
+  spent_at: Date;
   updated_at: Date;
   user_amount: number;
   user_reason_for_duplicate_expenses: string;

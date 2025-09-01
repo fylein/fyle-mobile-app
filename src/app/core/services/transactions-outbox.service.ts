@@ -90,8 +90,8 @@ export class TransactionsOutboxService {
   }
 
   getExpenseDate(entry: OutboxQueue, extractedData: ParsedResponse): Date {
-    if (entry.transaction.txn_dt) {
-      return new Date(entry.transaction.txn_dt);
+    if (entry.transaction.spent_at) {
+      return new Date(entry.transaction.spent_at);
     } else if (extractedData.date) {
       return new Date(extractedData.date);
     } else {
@@ -105,7 +105,12 @@ export class TransactionsOutboxService {
     });
   }
 
-  async fileUpload(dataUrl: string, fileType: string, userContext?: UserContext, useApproverService = false): Promise<FileObject> {
+  async fileUpload(
+    dataUrl: string,
+    fileType: string,
+    userContext?: UserContext,
+    useApproverService = false,
+  ): Promise<FileObject> {
     return new Promise((resolve, reject) => {
       let fileExtension = fileType;
       let contentType = 'application/pdf';
@@ -127,7 +132,7 @@ export class TransactionsOutboxService {
       if (userContext?.orgId) {
         filePayload.org_id = userContext.orgId;
       }
-      
+
       // Use approver service for team advances, spender service for regular advances
       const fileService = useApproverService ? this.approverFileService : this.spenderFileService;
 
@@ -136,7 +141,7 @@ export class TransactionsOutboxService {
         .toPromise()
         .then((fileObj: PlatformFile[]) => {
           const uploadUrl = fileObj[0].upload_url;
-          
+
           // check from here
           return fetch(dataUrl)
             .then((res) => {
