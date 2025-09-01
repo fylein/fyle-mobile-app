@@ -89,16 +89,6 @@ export class TransactionsOutboxService {
     }
   }
 
-  getExpenseDate(entry: OutboxQueue, extractedData: ParsedResponse): Date {
-    if (entry.transaction.spent_at) {
-      return new Date(entry.transaction.spent_at);
-    } else if (extractedData.date) {
-      return new Date(extractedData.date);
-    } else {
-      return new Date();
-    }
-  }
-
   uploadData(uploadUrl: string, blob, contentType: string): Observable<null> {
     return this.httpClient.put<null>(uploadUrl, blob, {
       headers: new HttpHeaders({ 'Content-Type': contentType }),

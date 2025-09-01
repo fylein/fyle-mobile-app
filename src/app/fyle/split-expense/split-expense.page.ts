@@ -384,7 +384,7 @@ export class SplitExpensePage implements OnDestroy {
           source: 'MOBILE',
           billable: this.setUpSplitExpenseBillable(splitExpenseValue),
           tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
-          txn_dt: this.setTransactionDate(splitExpenseValue, offset),
+          spent_at: this.setTransactionDate(splitExpenseValue, offset),
           custom_properties: this.timezoneService.convertAllDatesToProperLocale(
             txnCustomProperties,
             offset,

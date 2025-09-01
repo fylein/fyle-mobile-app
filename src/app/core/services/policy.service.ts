@@ -211,7 +211,7 @@ export class PolicyService {
       transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
         map((category) => ({
           ...transactionCopy,
-          org_category_id: category.id,
+          category_id: category.id,
         })),
       );
     }

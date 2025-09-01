@@ -377,7 +377,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData4));
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-        component.presetCategoryId = expectedUnflattendedTxnData4.tx.org_category_id;
+        component.presetCategoryId = expectedUnflattendedTxnData4.tx.category_id;
         component.presetProjectId = expectedUnflattendedTxnData4.tx.project_id;
         component.presetCostCenterId = expectedUnflattendedTxnData4.tx.cost_center_id;
         component.presetCurrency = expectedUnflattendedTxnData4.tx.currency;
@@ -394,7 +394,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(trackAddExpenseWoCurrency));
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-        component.presetCategoryId = trackAddExpenseWoCurrency.tx.org_category_id;
+        component.presetCategoryId = trackAddExpenseWoCurrency.tx.category_id;
         component.presetProjectId = trackAddExpenseWoCurrency.tx.project_id;
         component.presetCostCenterId = trackAddExpenseWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackAddExpenseWoCurrency.tx.orig_currency;
@@ -865,7 +865,7 @@ export function TestCases4(getTestBed) {
     describe('trackEditExpense():', () => {
       it('should track edit expense event', () => {
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.category_id;
         component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
         component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
@@ -887,7 +887,7 @@ export function TestCases4(getTestBed) {
       });
 
       it('should track edit expense event for an expense where the original currency is same as preset currency', () => {
-        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.category_id;
         component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
         component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;

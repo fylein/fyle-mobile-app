@@ -151,7 +151,7 @@ export function TestCases3(getTestBed) {
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -192,7 +192,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
+          new Date('2023-08-03T17:00:00.000Z'),
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -217,7 +217,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
+          new Date('2023-08-03T17:00:00.000Z'),
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -241,7 +241,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
+          new Date('2023-08-03T17:00:00.000Z'),
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -251,7 +251,7 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction, org_category_id: 16577 });
+          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction, category_id: 16577 });
           expect(res.ou).toEqual(unflattenedTxnData.ou);
           expect(res.dataUrls).toEqual([]);
           done();
@@ -273,7 +273,7 @@ export function TestCases3(getTestBed) {
               value: null,
             },
           ],
-          expenseFieldResponse
+          expenseFieldResponse,
         );
 
         expect(res).toEqual(txnCustomPropertiesData5);
@@ -299,7 +299,7 @@ export function TestCases3(getTestBed) {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const fyCriticalPolicyViolationPopOverSpy: jasmine.SpyObj<HTMLIonModalElement> = jasmine.createSpyObj(
         'fyCriticalPolicyViolationPopOver',
-        ['present', 'onWillDismiss']
+        ['present', 'onWillDismiss'],
       );
       fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
         data: {
@@ -345,7 +345,7 @@ export function TestCases3(getTestBed) {
 
       const result = component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state
+        splitPolicyExp4.data.final_desired_state,
       );
       tick(100);
 
@@ -425,7 +425,7 @@ export function TestCases3(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'comment' });
             done();
@@ -450,7 +450,7 @@ export function TestCases3(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explanation provided' });
             done();
@@ -497,10 +497,10 @@ export function TestCases3(getTestBed) {
         policyService.getCriticalPolicyRules.and.returnValue(['The expense will be flagged']);
         policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
         spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(
-          of({ etxn: cloneDeep(unflattenedTxnData) })
+          of({ etxn: cloneDeep(unflattenedTxnData) }),
         );
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
-          of({ etxn: cloneDeep(unflattenedTxnData), comment: 'comment' })
+          of({ etxn: cloneDeep(unflattenedTxnData), comment: 'comment' }),
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
@@ -522,7 +522,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -548,7 +548,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               undefined,
-              []
+              [],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -564,7 +564,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -590,7 +590,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               undefined,
-              ['comment']
+              ['comment'],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -609,7 +609,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -635,7 +635,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               undefined,
-              ['comment']
+              ['comment'],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -652,7 +652,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -678,7 +678,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               undefined,
-              ['comment']
+              ['comment'],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -695,7 +695,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe({
             next: (res) => {
@@ -717,7 +717,7 @@ export function TestCases3(getTestBed) {
               expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
                 expectedEtxnDataWithReportId.tx,
                 undefined,
-                ['comment']
+                ['comment'],
               );
               expect(res).toEqual(outboxQueueData1[0]);
             },
@@ -739,7 +739,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -761,7 +761,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               [],
-              []
+              [],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -777,7 +777,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -795,7 +795,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               [],
-              []
+              [],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -818,7 +818,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();

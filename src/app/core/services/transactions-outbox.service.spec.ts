@@ -279,31 +279,4 @@ describe('TransactionsOutboxService', () => {
       expect(dateService.fixDates).not.toHaveBeenCalled();
     }));
   });
-
-  describe('getExpenseDate():', () => {
-    it('should return transaction date if txn_dt is present', () => {
-      const txnDate = new Date('2023-02-15T06:30:00.000Z');
-      const mockQueue = cloneDeep(outboxQueueData1[0]);
-      mockQueue.transaction.txn_dt = txnDate;
-      const res = transactionsOutboxService.getExpenseDate(mockQueue, parsedResponseData1);
-      expect(res).toEqual(txnDate);
-    });
-
-    it('should return extracted date if txn_dt is not present', () => {
-      const mockQueue = cloneDeep(outboxQueueData1[0]);
-      mockQueue.transaction.txn_dt = null;
-      const res = transactionsOutboxService.getExpenseDate(mockQueue, parsedResponseData1);
-      expect(res).toEqual(parsedResponseData1.date);
-    });
-
-    it('should return today date if txn_dt and extracted date is not present', () => {
-      const mockQueue = cloneDeep(outboxQueueData1[0]);
-      mockQueue.transaction.txn_dt = null;
-      const mockParsedResponse = cloneDeep(parsedResponseData1);
-      mockParsedResponse.date = null;
-      const res = transactionsOutboxService.getExpenseDate(mockQueue, mockParsedResponse);
-      const expectedDate = new Date();
-      expect(res.getTime()).toEqual(expectedDate.getTime());
-    });
-  });
 });

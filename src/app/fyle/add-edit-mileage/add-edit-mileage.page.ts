@@ -968,7 +968,7 @@ export class AddEditMileagePage implements OnInit {
               skip_reimbursement: false,
               source: 'MOBILE',
               state: 'COMPLETE',
-              txn_dt: new Date(),
+              spent_at: new Date(),
               category_id: mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.id,
               org_category: mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.name,
               sub_category:
@@ -2388,7 +2388,7 @@ export class AddEditMileagePage implements OnInit {
             billable: formValue.billable,
             distance: +formValue.route.distance,
             category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.category_id,
-            txn_dt: this.dateService.getUTCDate(new Date(formValue.dateOfSpend)),
+            spent_at: this.dateService.getUTCDate(new Date(formValue.dateOfSpend)),
             source: 'MOBILE',
             currency: res.homeCurrency,
             locations: formValue.route?.mileageLocations,
