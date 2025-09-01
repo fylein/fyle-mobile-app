@@ -76,7 +76,9 @@ export class OrgUserService {
       id: orgUser.id,
       mobile: orgUser.mobile,
     };
-    return this.spenderPlatformV1ApiService.post('/employees', payload);
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<Partial<OrgUser>>>('/employees', { data: payload })
+      .pipe(map((res) => res.data));
   }
 
   markActive(): Observable<ExtendedOrgUser> {
