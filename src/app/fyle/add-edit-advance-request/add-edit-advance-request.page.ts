@@ -8,9 +8,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
-import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { concat, forkJoin, from, iif, noop, Observable, of, timer } from 'rxjs';
+import { concatMap, finalize, map, raceWith, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -39,7 +39,6 @@ import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actio
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { AdvanceRequestFile } from 'src/app/core/models/advance-request-file.model';
 import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
-import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';
 import { AdvanceRequestDeleteParams } from 'src/app/core/models/advance-request-delete-params.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
@@ -95,6 +94,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   readonly formContainer = viewChild<ElementRef>('formContainer');
 
+  private platform = inject(Platform);
+
+  readonly fileUpload = viewChild<ElementRef<HTMLInputElement>>('fileUpload');
+
   isConnected$: Observable<boolean>;
 
   isProjectsEnabled$: Observable<boolean>;
@@ -112,6 +115,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   customFields$: Observable<AdvanceRequestsCustomFields[]>;
 
   dataUrls: FileObject[];
+
+  isIos = false;
 
   customFieldValues: AdvanceRequestCustomFieldValues[];
 
@@ -391,49 +396,87 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
+  async uploadFileCallback(file: Blob): Promise<void> {
+    let fileData: { type: string; url: string; thumbnail: string };
+    if (file) {
+      const fileRead$ = from(this.fileService.readFile(file));
+      const delayedLoader$ = timer(300).pipe(
+        switchMap(() => from(this.loaderService.showLoader('Please wait...', 5000))),
+        switchMap(() => fileRead$), // switch to fileRead$ after showing loader
+      );
+      // Use race to show loader only if fileRead$ takes more than 300ms.
+      fileRead$
+        .pipe(
+          raceWith(delayedLoader$),
+          map((dataUrl) => {
+            fileData = {
+              type: file.type,
+              url: dataUrl,
+              thumbnail: dataUrl,
+            };
+            this.dataUrls.push(fileData);
+          }),
+          finalize(() => this.loaderService.hideLoader()),
+        )
+        .subscribe();
+    }
+  }
+
+  async onChangeCallback(nativeElement: HTMLInputElement): Promise<void> {
+    const file = nativeElement.files[0];
+    this.uploadFileCallback(file);
+  }
+
   async addAttachments(event: Event): Promise<void> {
     event.stopPropagation();
-    event.preventDefault();
 
-    const cameraOptionsPopup = await this.popoverController.create({
-      component: CameraOptionsPopupComponent,
-      cssClass: 'camera-options-popover',
-    });
-
-    await cameraOptionsPopup.present();
-
-    let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss<{
-      dataUrl: string;
-      type: string;
-      option?: string;
-    }>();
-
-    if (receiptDetails && receiptDetails.option === 'camera') {
-      const captureReceiptModal = await this.modalController.create({
-        component: CaptureReceiptComponent,
-        componentProps: {
-          isModal: true,
-          allowGalleryUploads: false,
-          allowBulkFyle: false,
-        },
-        cssClass: 'hide-modal',
+    if (this.platform.is('ios')) {
+      const nativeElement = this.fileUpload().nativeElement;
+      nativeElement.onchange = async (): Promise<void> => {
+        this.onChangeCallback(nativeElement);
+      };
+      nativeElement.click();
+    } else {
+      const cameraOptionsPopup = await this.popoverController.create({
+        component: CameraOptionsPopupComponent,
+        cssClass: 'camera-options-popover',
       });
-      await captureReceiptModal.present();
-      this.isCameraPreviewStarted = true;
 
-      const { data } = await captureReceiptModal.onWillDismiss<{ dataUrl: string }>();
-      this.isCameraPreviewStarted = false;
+      await cameraOptionsPopup.present();
 
-      if (data && data.dataUrl) {
-        receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };
+      let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss<{
+        dataUrl: string;
+        type: string;
+        option?: string;
+      }>();
+
+      if (receiptDetails && receiptDetails.option === 'camera') {
+        const captureReceiptModal = await this.modalController.create({
+          component: CaptureReceiptComponent,
+          componentProps: {
+            isModal: true,
+            allowGalleryUploads: false,
+            allowBulkFyle: false,
+          },
+          cssClass: 'hide-modal',
+        });
+        await captureReceiptModal.present();
+        this.isCameraPreviewStarted = true;
+
+        const { data } = await captureReceiptModal.onWillDismiss<{ dataUrl: string }>();
+        this.isCameraPreviewStarted = false;
+
+        if (data && data.dataUrl) {
+          receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };
+        }
       }
-    }
-    if (receiptDetails && receiptDetails.dataUrl) {
-      this.dataUrls.push({
-        type: receiptDetails.type,
-        url: receiptDetails.dataUrl,
-        thumbnail: receiptDetails.dataUrl,
-      });
+      if (receiptDetails && receiptDetails.dataUrl) {
+        this.dataUrls.push({
+          type: receiptDetails.type,
+          url: receiptDetails.dataUrl,
+          thumbnail: receiptDetails.dataUrl,
+        });
+      }
     }
   }
 
@@ -621,6 +664,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.isIos = this.platform.is('ios');
     this.mode = (this.activatedRoute.snapshot.params.id as string) ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
