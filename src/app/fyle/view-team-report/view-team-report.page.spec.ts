@@ -938,7 +938,8 @@ describe('ViewTeamReportPageV2', () => {
     });
 
     it('should show comments tab', fakeAsync(() => {
-      spyOn(component.content, 'scrollToBottom');
+      const content = component.content();
+      spyOn(content, 'scrollToBottom');
       component.segmentChanged({
         detail: {
           value: 'comments',
@@ -949,7 +950,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.isExpensesView).toBeFalse();
       expect(component.isCommentsView).toBeTrue();
       expect(component.isHistoryView).toBeFalse();
-      expect(component.content.scrollToBottom).toHaveBeenCalledOnceWith(500);
+      expect(content.scrollToBottom).toHaveBeenCalledOnceWith(500);
 
       const commentTab = fixture.debugElement.query(By.css('.view-comment--container'));
       expect(commentTab).toBeDefined();
@@ -973,7 +974,7 @@ describe('ViewTeamReportPageV2', () => {
 
   it('addComment(): should add a comment', () => {
     approverReportsService.postComment.and.returnValue(of(allReportsPaginated1.data[0].comments[0]));
-    spyOn(component.content, 'scrollToBottom');
+    spyOn(component.content(), 'scrollToBottom');
     spyOn(component.refreshApprovals$, 'next');
     component.isCommentsView = true;
     component.newComment = 'comment';

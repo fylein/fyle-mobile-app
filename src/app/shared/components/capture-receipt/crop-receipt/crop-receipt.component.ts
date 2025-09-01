@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, Input, inject, viewChild } from '@angular/core';
 import { ImageCropperComponent } from 'ngx-image-cropper';
 import { ModalController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -27,7 +27,7 @@ export class CropReceiptComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() base64ImageWithSource: Image;
 
-  @ViewChild('imageCropper') imageCropper: ImageCropperComponent;
+  readonly imageCropper = viewChild<ImageCropperComponent>('imageCropper');
 
   backButtonAction: Subscription;
 
@@ -36,7 +36,7 @@ export class CropReceiptComponent implements OnInit {
   }
 
   cropReceipt() {
-    this.base64ImageWithSource.base64Image = this.imageCropper.crop().base64;
+    this.base64ImageWithSource.base64Image = this.imageCropper().crop().base64;
     this.modalController.dismiss({
       base64ImageWithSource: this.base64ImageWithSource,
     });

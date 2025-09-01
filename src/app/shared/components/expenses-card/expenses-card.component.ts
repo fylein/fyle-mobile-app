@@ -67,6 +67,8 @@ export class ExpensesCardComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
   // TODO: Skipped for migration because:

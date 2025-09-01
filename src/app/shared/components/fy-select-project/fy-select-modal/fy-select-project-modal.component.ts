@@ -53,6 +53,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   // TODO: Skipped for migration because:
@@ -92,10 +94,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() isProjectCategoryRestrictionsEnabled: boolean;
 
-  // eslint-disable-next-line @angular-eslint/prefer-signals
   readonly isSelectedProjectDisabled = input<boolean>(undefined);
 
-  // eslint-disable-next-line @angular-eslint/prefer-signals
   readonly selectedDisabledProject = input<ProjectV2>(undefined);
 
   recentrecentlyUsedItems$: Observable<ProjectOption[]>;
