@@ -40,7 +40,9 @@ describe('MobileNumberVerificationService', () => {
 
   it('sendOtp(): should send otp', () => {
     mobileNumberVerificationService.sendOtp().subscribe(() => {
-      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/employees/send_mobile_verification_code');
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/employees/send_mobile_verification_code', {
+        data: {},
+      });
     });
   });
 
