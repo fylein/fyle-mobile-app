@@ -144,9 +144,13 @@ describe('OrgUserService', () => {
   });
 
   it('should be able to post org user', (done) => {
-    spenderPlatformV1ApiService.post.and.returnValue(of(postOrgUser));
+    const platformResponse = { data: postOrgUser };
+    spenderPlatformV1ApiService.post.and.returnValue(of(platformResponse));
     orgUserService.postOrgUser(postOrgUser).subscribe((res) => {
       expect(res).toEqual(postOrgUser);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/employees', {
+        data: { id: postOrgUser.id, mobile: postOrgUser.mobile },
+      });
       done();
     });
   });
