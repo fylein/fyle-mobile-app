@@ -53,6 +53,7 @@ describe('AddEditAdvanceRequestPage', () => {
       'getImageTypeFromDataUrl',
       'downloadUrl',
       'findByAdvanceRequestId',
+      'readFile',
     ]);
     const orgSettingsServiceSpyObj = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
