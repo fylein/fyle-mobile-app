@@ -373,7 +373,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(120),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -381,7 +381,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(800),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       Object.defineProperty(splitExpenseForm1.controls.amount, '_pendingChange', { value: true });
@@ -402,7 +402,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(1200),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -410,7 +410,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(80),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       Object.defineProperty(otherSplitExpenseForm.controls.amount, '_pendingChange', { value: true });
@@ -519,7 +519,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(473.4),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -528,7 +528,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(315.6),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -549,7 +549,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -559,7 +559,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -569,7 +569,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(null),
         currency: new UntypedFormControl(null),
         percentage: new UntypedFormControl(null),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -1105,7 +1105,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl('Test Project'),
         cost_center: new UntypedFormControl(''),
@@ -1116,7 +1116,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(null),
         cost_center: new UntypedFormControl(''),
@@ -1221,7 +1221,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -1232,7 +1232,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -1264,7 +1264,7 @@ describe('SplitExpensePage', () => {
 
       const formGroup = component.splitExpensesFormArray.at(0);
       const expectedDate = dayjs(new Date()).format('YYYY-MM-DD');
-      expect(formGroup.get('txn_dt').value).toBe(expectedDate);
+      expect(formGroup.get('spent_at').value).toBe(expectedDate);
     });
 
     it('should set default date to transaction date if available', () => {
@@ -1275,7 +1275,7 @@ describe('SplitExpensePage', () => {
       component.add(50, 'USD', 50);
 
       const formGroup = component.splitExpensesFormArray.at(0);
-      expect(formGroup.get('txn_dt').value).toBe('2023-02-08');
+      expect(formGroup.get('spent_at').value).toBe('2023-02-08');
     });
 
     it('should add category control if category is visible in splitConfig', () => {
@@ -1405,7 +1405,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl('Test Project'),
         cost_center: new UntypedFormControl(''),
@@ -1416,7 +1416,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(null),
         cost_center: new UntypedFormControl(''),
@@ -1468,7 +1468,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(testProjectV2),
         cost_center: new UntypedFormControl(''),
@@ -1479,7 +1479,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(null),
         cost_center: new UntypedFormControl(''),
@@ -1588,7 +1588,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(null),
         project: new UntypedFormControl(null),
         cost_center: new UntypedFormControl(null),
@@ -1607,7 +1607,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(null),
         project: new UntypedFormControl(null),
         cost_center: new UntypedFormControl(null),
@@ -1781,7 +1781,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -1792,7 +1792,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -1846,7 +1846,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -1854,7 +1854,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       const mockOrgCategory1: OrgCategory = {
@@ -1904,7 +1904,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(9000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -1912,7 +1912,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(4000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(26.667),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -1920,7 +1920,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(2000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(13.333),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -1948,14 +1948,14 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(327.5),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       const splitExpenseForm2 = new UntypedFormGroup({
         amount: new UntypedFormControl(327.5),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -1986,14 +1986,14 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(327.5),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       const splitExpenseForm2 = new UntypedFormGroup({
         amount: new UntypedFormControl(327.5),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2016,14 +2016,14 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(218.333),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(33.333),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       const splitExpenseForm2 = new UntypedFormGroup({
         amount: new UntypedFormControl(218.333),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(33.333),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2031,7 +2031,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(218.333),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(33.334),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2061,7 +2061,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(500),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2069,7 +2069,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(500),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
@@ -2084,7 +2084,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(800),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(80),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2092,7 +2092,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(200),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(20),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
@@ -2107,14 +2107,14 @@ describe('SplitExpensePage', () => {
           amount: new UntypedFormControl(10.0),
           currency: new UntypedFormControl('INR'),
           percentage: new UntypedFormControl(20),
-          txn_dt: new UntypedFormControl('2023-01-11'),
+          spent_at: new UntypedFormControl('2023-01-11'),
           category: new UntypedFormControl(''),
         }),
         new UntypedFormGroup({
           amount: new UntypedFormControl(10.01),
           currency: new UntypedFormControl('INR'),
           percentage: new UntypedFormControl(20),
-          txn_dt: new UntypedFormControl('2023-01-11'),
+          spent_at: new UntypedFormControl('2023-01-11'),
           category: new UntypedFormControl(''),
         }),
       ]);
@@ -2218,26 +2218,26 @@ describe('SplitExpensePage', () => {
       timezoneService.convertToUtc.and.returnValue(mockUTCDate);
     });
 
-    it('should set txn_dt to the date provided in split expense form', () => {
+    it('should set spent_at to the date provided in split expense form', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpense1);
       const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
       expect(txnDateRes).toEqual(mockUTCDate);
-      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date(mockSplitExpenseForm.txn_dt));
+      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date(mockSplitExpenseForm.spent_at));
       expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(mockDate, '-05:00:00');
     });
 
-    it('should set txn_dt to transaction date if split expense form date is empty', () => {
+    it('should set spent_at to transaction date if split expense form date is empty', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpense1);
-      mockSplitExpenseForm.txn_dt = '';
+      mockSplitExpenseForm.spent_at = '';
       const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
       expect(txnDateRes).toEqual(mockUTCDate);
       expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(txnData4.spent_at);
       expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(mockDate, '-05:00:00');
     });
 
-    it('should set txn_dt to today if transaction date is also not provided', () => {
+    it('should set spent_at to today if transaction date is also not provided', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpense1);
-      mockSplitExpenseForm.txn_dt = '';
+      mockSplitExpenseForm.spent_at = '';
       const mockTxn = cloneDeep(txnData4);
       mockTxn.spent_at = null;
       component.transaction = mockTxn;
@@ -2517,7 +2517,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(120),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2525,7 +2525,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(800),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2553,7 +2553,7 @@ describe('SplitExpensePage', () => {
         amount: [23, Validators.required],
         currency: ['USD'],
         percentage: [50],
-        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+        spent_at: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
       });
       component.splitExpensesFormArray = new UntypedFormArray([mockSplitExpForm]);
       spyOn(component, 'generateSplitEtxnFromFg').and.returnValue(of(txnList[0]));
@@ -2597,7 +2597,7 @@ describe('SplitExpensePage', () => {
         amount: [-23, Validators.required],
         currency: ['USD'],
         percentage: [50],
-        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+        spent_at: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
       });
       component.splitExpensesFormArray = new UntypedFormArray([mockSplitExpForm]);
 
@@ -2666,7 +2666,7 @@ describe('SplitExpensePage', () => {
         amount: [, Validators.required],
         currency: ['USD'],
         percentage: [50],
-        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+        spent_at: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
       });
       component.splitExpensesFormArray = new UntypedFormArray([mockSplitExpForm]);
       spyOn(component.splitExpensesFormArray, 'markAllAsTouched');

@@ -307,23 +307,23 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   setTransactionDate(splitExpenseValue: SplitExpense, offset: string): Date {
-    let txnDate: Date;
+    let spentAtDate: Date;
 
-    if (splitExpenseValue.txn_dt) {
-      txnDate = this.dateService.getUTCDate(new Date(splitExpenseValue.txn_dt));
+    if (splitExpenseValue.spent_at) {
+      spentAtDate = this.dateService.getUTCDate(new Date(splitExpenseValue.spent_at));
     } else if (this.transaction.spent_at) {
-      txnDate = this.dateService.getUTCDate(new Date(this.transaction.spent_at));
+      spentAtDate = this.dateService.getUTCDate(new Date(this.transaction.spent_at));
     } else {
-      txnDate = this.dateService.getUTCDate(new Date());
+      spentAtDate = this.dateService.getUTCDate(new Date());
     }
 
-    txnDate.setHours(12);
-    txnDate.setMinutes(0);
-    txnDate.setSeconds(0);
-    txnDate.setMilliseconds(0);
-    txnDate = this.timezoneService.convertToUtc(txnDate, offset);
+    spentAtDate.setHours(12);
+    spentAtDate.setMinutes(0);
+    spentAtDate.setSeconds(0);
+    spentAtDate.setMilliseconds(0);
+    spentAtDate = this.timezoneService.convertToUtc(spentAtDate, offset);
 
-    return txnDate;
+    return spentAtDate;
   }
 
   correctDates(transaction: Transaction, offset: string): void {
@@ -1301,18 +1301,18 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   // eslint-disable-next-line complexity
-  add(amount?: number, currency?: string, percentage?: number, txnDt?: string | Date | dayjs.Dayjs): void {
-    if (!txnDt) {
+  add(amount?: number, currency?: string, percentage?: number, spentAt?: string | Date | dayjs.Dayjs): void {
+    if (!spentAt) {
       const dateOfTxn = this.transaction?.spent_at;
       const today = new Date();
-      txnDt = dateOfTxn ? new Date(dateOfTxn) : today;
-      txnDt = dayjs(txnDt).format('YYYY-MM-DD');
+      spentAt = dateOfTxn ? new Date(dateOfTxn) : today;
+      spentAt = dayjs(spentAt).format('YYYY-MM-DD');
     }
     const fg = this.formBuilder.group({
       amount: [amount, Validators.required],
       currency: [currency],
       percentage: [percentage],
-      txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])],
+      spent_at: [spentAt, Validators.compose([Validators.required, this.customDateValidator])],
     });
 
     const isFirstSplit = this.splitExpensesFormArray.length === 0;
