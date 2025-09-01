@@ -35,6 +35,8 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   private cdr = inject(ChangeDetectorRef);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   readonly currentSelection = input<string>(undefined);

@@ -3,9 +3,8 @@ import { concat, Observable, Subject, noop, BehaviorSubject, fromEvent, of } fro
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { switchMap, map, shareReplay, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -39,8 +38,6 @@ import { TranslocoService } from '@jsverse/transloco';
 export class MyReportsPage {
   private networkService = inject(NetworkService);
 
-  private loaderService = inject(LoaderService);
-
   private reportService = inject(ReportService);
 
   private dateService = inject(DateService);
@@ -50,8 +47,6 @@ export class MyReportsPage {
   private currencyService = inject(CurrencyService);
 
   private activatedRoute = inject(ActivatedRoute);
-
-  private popoverController = inject(PopoverController);
 
   private trackingService = inject(TrackingService);
 
@@ -71,6 +66,8 @@ export class MyReportsPage {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;

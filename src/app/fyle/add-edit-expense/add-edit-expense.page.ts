@@ -296,12 +296,20 @@ export class AddEditExpensePage implements OnInit {
 
   private expenseCommentService = inject(ExpenseCommentService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
   etxn$: Observable<Partial<UnflattenedTransaction>>;

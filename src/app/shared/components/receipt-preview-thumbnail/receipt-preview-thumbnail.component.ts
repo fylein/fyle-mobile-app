@@ -2,7 +2,6 @@ import { Component, OnInit, Input, ViewChild, DoCheck, inject, input, output } f
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { Swiper } from 'swiper';
 import { SwiperComponent } from 'swiper/angular';
 @Component({
   selector: 'app-receipt-preview-thumbnail',
@@ -13,6 +12,8 @@ import { SwiperComponent } from 'swiper/angular';
 export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   private trackingService = inject(TrackingService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('slides', { static: false }) imageSlides?: SwiperComponent;
 
   // TODO: Skipped for migration because:

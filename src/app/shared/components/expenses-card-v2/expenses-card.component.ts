@@ -77,6 +77,8 @@ export class ExpensesCardComponent implements OnInit {
   // Cache key for localStorage
   private static readonly CACHE_KEY = 'mandatory_expense_fields_cache';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
   // TODO: Skipped for migration because:

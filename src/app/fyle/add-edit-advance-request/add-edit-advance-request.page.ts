@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild, inject, viewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, inject, viewChild } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -92,9 +92,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   private approverFileService = inject(ApproverFileService);
 
-  private platform = inject(Platform);
+  readonly formContainer = viewChild<ElementRef>('formContainer');
 
-  @ViewChild('formContainer') formContainer: ElementRef;
+  private platform = inject(Platform);
 
   readonly fileUpload = viewChild<ElementRef<HTMLInputElement>>('fileUpload');
 
@@ -222,8 +222,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
 
-    if (this.formContainer?.nativeElement) {
-      const formContainer = this.formContainer.nativeElement as HTMLElement;
+    const formContainerValue = this.formContainer();
+    if (formContainerValue?.nativeElement) {
+      const formContainer = formContainerValue.nativeElement as HTMLElement;
       const invalidElement = formContainer.querySelector('.ng-invalid');
       if (invalidElement) {
         invalidElement.scrollIntoView({
