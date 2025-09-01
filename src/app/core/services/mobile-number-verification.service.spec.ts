@@ -38,7 +38,7 @@ describe('MobileNumberVerificationService', () => {
     const otp = '123456';
     mobileNumberVerificationService.verifyOtp(otp).subscribe(() => {
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/employees/check_mobile_verification_code', {
-        otp,
+        data: { otp },
       });
     });
   });

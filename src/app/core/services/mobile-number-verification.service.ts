@@ -15,6 +15,6 @@ export class MobileNumberVerificationService {
   }
 
   verifyOtp(otp: string): Observable<{ message: string }> {
-    return this.spenderPlatformV1ApiService.post('/employees/check_mobile_verification_code', { otp });
+    return this.spenderPlatformV1ApiService.post('/employees/check_mobile_verification_code', { data: { otp } });
   }
 }
