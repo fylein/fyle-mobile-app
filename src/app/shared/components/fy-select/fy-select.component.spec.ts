@@ -173,7 +173,6 @@ describe('FySelectComponent', () => {
         nullOption: nullOptionInput,
         cacheName: cacheNameInput,
         customInput: customInputInput,
-        subheader: subheaderInput,
         enableSearch: enableSearchInput,
         selectModalHeader: selectModalHeaderInput,
         placeholder: placeholderInput,
@@ -186,7 +185,6 @@ describe('FySelectComponent', () => {
       const nullOption = nullOptionInput();
       const cacheName = cacheNameInput();
       const customInput = customInputInput();
-      const subheader = subheaderInput();
       const enableSearch = enableSearchInput();
       const selectModalHeader = selectModalHeaderInput();
       const placeholder = placeholderInput();
@@ -205,7 +203,6 @@ describe('FySelectComponent', () => {
           nullOption,
           cacheName,
           customInput,
-          subheader,
           enableSearch,
           selectModalHeader: selectModalHeader || 'Select item',
           placeholder,
@@ -244,7 +241,6 @@ describe('FySelectComponent', () => {
         nullOption: nullOptionInput,
         cacheName: cacheNameInput,
         customInput: customInputInput,
-        subheader: subheaderInput,
         enableSearch: enableSearchInput,
         selectModalHeader: selectModalHeaderInput,
         placeholder: placeholderInput,
@@ -257,7 +253,6 @@ describe('FySelectComponent', () => {
       const nullOption = nullOptionInput();
       const cacheName = cacheNameInput();
       const customInput = customInputInput();
-      const subheader = subheaderInput();
       const enableSearch = enableSearchInput();
       const selectModalHeader = selectModalHeaderInput();
       const placeholder = placeholderInput();
@@ -276,7 +271,6 @@ describe('FySelectComponent', () => {
           nullOption,
           cacheName,
           customInput,
-          subheader,
           enableSearch,
           selectModalHeader: selectModalHeader || 'Select item',
           placeholder,
