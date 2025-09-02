@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ElementRef, AfterViewInit, inject, input } from '@angular/core';
+import { Component, Input, ElementRef, AfterViewInit, inject, input, viewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -13,7 +13,7 @@ export class FyInputPopoverComponent implements AfterViewInit {
 
   private translocoService = inject(TranslocoService);
 
-  @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
+  readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -44,7 +44,7 @@ export class FyInputPopoverComponent implements AfterViewInit {
   error: string;
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.inputEl.nativeElement.focus(), 400);
+    setTimeout(() => this.inputEl().nativeElement.focus(), 400);
   }
 
   closePopover(): void {

@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, inject, viewChild } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -8,9 +8,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
-import { concat, forkJoin, from, iif, noop, Observable, of } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { concat, forkJoin, from, iif, noop, Observable, of, timer } from 'rxjs';
+import { concatMap, finalize, map, raceWith, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -39,7 +39,6 @@ import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actio
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { AdvanceRequestFile } from 'src/app/core/models/advance-request-file.model';
 import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
-import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';
 import { AdvanceRequestDeleteParams } from 'src/app/core/models/advance-request-delete-params.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
@@ -93,7 +92,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   private approverFileService = inject(ApproverFileService);
 
-  @ViewChild('formContainer') formContainer: ElementRef;
+  readonly formContainer = viewChild<ElementRef>('formContainer');
+
+  private platform = inject(Platform);
+
+  readonly fileUpload = viewChild<ElementRef<HTMLInputElement>>('fileUpload');
 
   isConnected$: Observable<boolean>;
 
@@ -112,6 +115,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   customFields$: Observable<AdvanceRequestsCustomFields[]>;
 
   dataUrls: FileObject[];
+
+  isIos = false;
 
   customFieldValues: AdvanceRequestCustomFieldValues[];
 
@@ -217,8 +222,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
 
-    if (this.formContainer?.nativeElement) {
-      const formContainer = this.formContainer.nativeElement as HTMLElement;
+    const formContainerValue = this.formContainer();
+    if (formContainerValue?.nativeElement) {
+      const formContainer = formContainerValue.nativeElement as HTMLElement;
       const invalidElement = formContainer.querySelector('.ng-invalid');
       if (invalidElement) {
         invalidElement.scrollIntoView({
@@ -340,32 +346,32 @@ export class AddEditAdvanceRequestPage implements OnInit {
           if (!advanceReqPlatform || !advanceReqPlatform.user?.id) {
             return of<string[]>([]);
           }
-          
+
           return from(this.authService.getEou()).pipe(
             switchMap((eou) => {
               if (!eou || !eou.ou || !eou.ou.org_id) {
                 return of<string[]>([]);
               }
-              
+
               const fileUploadObservables: Observable<string>[] = [];
-              
+
               this.dataUrls.forEach((dataUrl) => {
                 dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
-                
+
                 if (!dataUrl.id) {
                   fileUploadObservables.push(
-                    from(this.transactionsOutboxService.fileUpload(
-                      dataUrl.url, 
-                      dataUrl.type, 
-                      { userId: advanceReqPlatform.user.id, orgId: advanceReqPlatform.org_id },
-                      true
-                    )).pipe(
-                      map((fileObj: FileObject) => fileObj.id || ''),
-                    ),
+                    from(
+                      this.transactionsOutboxService.fileUpload(
+                        dataUrl.url,
+                        dataUrl.type,
+                        { userId: advanceReqPlatform.user.id, orgId: advanceReqPlatform.org_id },
+                        true,
+                      ),
+                    ).pipe(map((fileObj: FileObject) => fileObj.id || '')),
                   );
                 }
               });
-              
+
               return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of<string[]>([]));
             }),
           );
@@ -373,10 +379,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
       );
     } else {
       const fileUploadObservables: Observable<string>[] = [];
-      
+
       this.dataUrls.forEach((dataUrl) => {
         dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
-        
+
         if (!dataUrl.id) {
           fileUploadObservables.push(
             from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)).pipe(
@@ -385,70 +391,108 @@ export class AddEditAdvanceRequestPage implements OnInit {
           );
         }
       });
-      
+
       return iif(() => fileUploadObservables.length !== 0, forkJoin(fileUploadObservables), of<string[]>([]));
     }
   }
 
+  async uploadFileCallback(file: Blob): Promise<void> {
+    let fileData: { type: string; url: string; thumbnail: string };
+    if (file) {
+      const fileRead$ = from(this.fileService.readFile(file));
+      const delayedLoader$ = timer(300).pipe(
+        switchMap(() => from(this.loaderService.showLoader('Please wait...', 5000))),
+        switchMap(() => fileRead$), // switch to fileRead$ after showing loader
+      );
+      // Use race to show loader only if fileRead$ takes more than 300ms.
+      fileRead$
+        .pipe(
+          raceWith(delayedLoader$),
+          map((dataUrl) => {
+            fileData = {
+              type: file.type,
+              url: dataUrl,
+              thumbnail: dataUrl,
+            };
+            this.dataUrls.push(fileData);
+          }),
+          finalize(() => this.loaderService.hideLoader()),
+        )
+        .subscribe();
+    }
+  }
+
+  async onChangeCallback(nativeElement: HTMLInputElement): Promise<void> {
+    const file = nativeElement.files[0];
+    this.uploadFileCallback(file);
+  }
+
   async addAttachments(event: Event): Promise<void> {
     event.stopPropagation();
-    event.preventDefault();
 
-    const cameraOptionsPopup = await this.popoverController.create({
-      component: CameraOptionsPopupComponent,
-      cssClass: 'camera-options-popover',
-    });
-
-    await cameraOptionsPopup.present();
-
-    let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss<{
-      dataUrl: string;
-      type: string;
-      option?: string;
-    }>();
-
-    if (receiptDetails && receiptDetails.option === 'camera') {
-      const captureReceiptModal = await this.modalController.create({
-        component: CaptureReceiptComponent,
-        componentProps: {
-          isModal: true,
-          allowGalleryUploads: false,
-          allowBulkFyle: false,
-        },
-        cssClass: 'hide-modal',
+    if (this.platform.is('ios')) {
+      const nativeElement = this.fileUpload().nativeElement;
+      nativeElement.onchange = async (): Promise<void> => {
+        this.onChangeCallback(nativeElement);
+      };
+      nativeElement.click();
+    } else {
+      const cameraOptionsPopup = await this.popoverController.create({
+        component: CameraOptionsPopupComponent,
+        cssClass: 'camera-options-popover',
       });
-      await captureReceiptModal.present();
-      this.isCameraPreviewStarted = true;
 
-      const { data } = await captureReceiptModal.onWillDismiss<{ dataUrl: string }>();
-      this.isCameraPreviewStarted = false;
+      await cameraOptionsPopup.present();
 
-      if (data && data.dataUrl) {
-        receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };
+      let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss<{
+        dataUrl: string;
+        type: string;
+        option?: string;
+      }>();
+
+      if (receiptDetails && receiptDetails.option === 'camera') {
+        const captureReceiptModal = await this.modalController.create({
+          component: CaptureReceiptComponent,
+          componentProps: {
+            isModal: true,
+            allowGalleryUploads: false,
+            allowBulkFyle: false,
+          },
+          cssClass: 'hide-modal',
+        });
+        await captureReceiptModal.present();
+        this.isCameraPreviewStarted = true;
+
+        const { data } = await captureReceiptModal.onWillDismiss<{ dataUrl: string }>();
+        this.isCameraPreviewStarted = false;
+
+        if (data && data.dataUrl) {
+          receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };
+        }
       }
-    }
-    if (receiptDetails && receiptDetails.dataUrl) {
-      this.dataUrls.push({
-        type: receiptDetails.type,
-        url: receiptDetails.dataUrl,
-        thumbnail: receiptDetails.dataUrl,
-      });
+      if (receiptDetails && receiptDetails.dataUrl) {
+        this.dataUrls.push({
+          type: receiptDetails.type,
+          url: receiptDetails.dataUrl,
+          thumbnail: receiptDetails.dataUrl,
+        });
+      }
     }
   }
 
   async viewAttachments(): Promise<void> {
     this.attachmentUploadInProgress = true;
-    
+
     const fileIds = await this.fileAttachments().toPromise();
-    
+
     if (fileIds && fileIds.length > 0) {
       let fileIdIndex = 0;
-      this.dataUrls = this.dataUrls.map(attachment => {
+      this.dataUrls = this.dataUrls.map((attachment) => {
         if (!attachment.id && fileIdIndex < fileIds.length) {
           return {
             ...attachment,
             id: fileIds[fileIdIndex++],
-            type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image'
+            type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image',
           };
         }
         return attachment;
@@ -458,14 +502,17 @@ export class AddEditAdvanceRequestPage implements OnInit {
       if (this.id) {
         if (this.from === 'TEAM_ADVANCE') {
           // For team advances, use approver service
-          await this.advanceRequestService.getApproverAdvanceRequestRaw(this.id).pipe(
-            switchMap((advanceReqPlatform) => {
-              if (advanceReqPlatform?.user?.id) {
-                return this.approverFileService.attachToAdvance(this.id, fileIds, advanceReqPlatform.user.id);
-              }
-              return of(null);
-            })
-          ).toPromise();
+          await this.advanceRequestService
+            .getApproverAdvanceRequestRaw(this.id)
+            .pipe(
+              switchMap((advanceReqPlatform) => {
+                if (advanceReqPlatform?.user?.id) {
+                  return this.approverFileService.attachToAdvance(this.id, fileIds, advanceReqPlatform.user.id);
+                }
+                return of(null);
+              }),
+            )
+            .toPromise();
         } else {
           // For regular advances, use spender service
           await this.spenderFileService.attachToAdvance(this.id, fileIds).toPromise();
@@ -617,6 +664,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.isIos = this.platform.is('ios');
     this.mode = (this.activatedRoute.snapshot.params.id as string) ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
@@ -726,7 +774,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
             switchMap((advanceReqPlatform) => {
               const orgId = advanceReqPlatform.ou.org_id;
               return this.advanceRequestService.getCustomFieldsForApprover(orgId);
-            })
+            }),
           )
         : this.advanceRequestService.getCustomFieldsForSpender()
     ).pipe(

@@ -4,9 +4,9 @@ import {
   Component,
   ElementRef,
   Input,
-  ViewChild,
   inject,
   input,
+  viewChild,
 } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -26,7 +26,7 @@ export class FyMultiselectModalComponent implements AfterViewInit {
 
   private cdr = inject(ChangeDetectorRef);
 
-  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
+  readonly searchBarRef = viewChild<ElementRef<HTMLInputElement>>('searchBar');
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -54,7 +54,7 @@ export class FyMultiselectModalComponent implements AfterViewInit {
 
   clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement;
+    const searchInput = this.searchBarRef().nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
@@ -79,7 +79,7 @@ export class FyMultiselectModalComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.filteredOptions$ = fromEvent<Event>(this.searchBarRef.nativeElement, 'keyup').pipe(
+    this.filteredOptions$ = fromEvent<Event>(this.searchBarRef().nativeElement, 'keyup').pipe(
       map((event: Event) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),

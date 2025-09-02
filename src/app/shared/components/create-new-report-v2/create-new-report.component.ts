@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, viewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Observable, Subscription, of } from 'rxjs';
@@ -35,7 +35,7 @@ export class CreateNewReportComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() selectedExpensesToReport: Expense[];
 
-  @ViewChild('reportTitleInput') reportTitleInput: NgModel;
+  readonly reportTitleInput = viewChild<NgModel>('reportTitleInput');
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
 
@@ -59,7 +59,8 @@ export class CreateNewReportComponent implements OnInit {
     const txnIds = this.selectedElements.map((etxn) => etxn.id);
     this.selectedTotalAmount = this.selectedElements.reduce((acc, obj) => acc + obj.amount, 0);
 
-    if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
+    const reportTitleInput = this.reportTitleInput();
+    if (reportTitleInput && !reportTitleInput.dirty && txnIds.length > 0) {
       return this.spenderReportsService.suggestPurpose(txnIds).subscribe((res) => {
         this.reportTitle = res;
       });

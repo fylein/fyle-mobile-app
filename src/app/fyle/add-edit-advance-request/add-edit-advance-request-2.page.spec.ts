@@ -14,10 +14,10 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
-import { ComponentFixture, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormBuilder, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { clone, cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { advanceRequests, advanceRequests2, advanceRequests3 } from 'src/app/core/mock-data/advance-requests.data';
 import {
   addEditAdvanceRequestFormValueData,
@@ -55,7 +55,6 @@ import {
   advanceRequestCustomFieldData,
   advanceRequestCustomFieldData2,
 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
-import { EventEmitter } from '@angular/core';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
@@ -111,9 +110,6 @@ export function TestCases2(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     });
 
-    const policyViolationActionDescription =
-      'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit.';
-
     it('generateAdvanceRequestFromFg(): should generate advance request from form', () => {
       const mockAdvanceRequest = cloneDeep(advanceRequests);
       component.fg = new UntypedFormBuilder().group(addEditAdvanceRequestFormValueData3);
@@ -132,11 +128,11 @@ export function TestCases2(getTestBed) {
     it('fileAttachments(): should return file attachments if ids are absent in fileObject', (done) => {
       const mockFileObjects = cloneDeep(advanceRequestFileUrlData2);
       component.dataUrls = mockFileObjects;
-      
+
       // Mock the fileUpload service to return different results for each call
       const mockFile1 = { ...cloneDeep(fileObject9[0]), id: 'file1' };
       const mockFile2 = { ...cloneDeep(fileObject9[0]), id: 'file2' };
-      
+
       let callCount = 0;
       transactionsOutboxService.fileUpload.and.callFake(() => {
         callCount++;
@@ -146,13 +142,81 @@ export function TestCases2(getTestBed) {
           return Promise.resolve(mockFile2);
         }
       });
-      
+
       component.fileAttachments().subscribe((res) => {
         expect(transactionsOutboxService.fileUpload).toHaveBeenCalledTimes(2);
         expect(res).toEqual(['file1', 'file2']);
         done();
       });
     });
+
+    describe('uploadFileCallback():', () => {
+      it('should upload provided files', fakeAsync(() => {
+        fileService.readFile.and.resolveTo('data:image/png;base64,test');
+        component.dataUrls = [];
+
+        const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'image/png' });
+        const file = new File([myBlob], 'test.png', { type: 'image/png' });
+
+        component.uploadFileCallback(file);
+        tick(500);
+
+        expect(fileService.readFile).toHaveBeenCalledOnceWith(file);
+        expect(component.dataUrls).toEqual([
+          {
+            type: 'image/png',
+            url: 'data:image/png;base64,test',
+            thumbnail: 'data:image/png;base64,test',
+          },
+        ]);
+      }));
+
+      it('should not process file if file is null', fakeAsync(() => {
+        component.dataUrls = [];
+
+        component.uploadFileCallback(null);
+        tick(500);
+
+        expect(fileService.readFile).not.toHaveBeenCalled();
+        expect(component.dataUrls).toEqual([]);
+      }));
+
+      it('should handle file upload with loader service', fakeAsync(() => {
+        fileService.readFile.and.resolveTo('data:image/jpeg;base64,test');
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        component.dataUrls = [];
+
+        const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'image/jpeg' });
+        const file = new File([myBlob], 'test.jpg', { type: 'image/jpeg' });
+
+        component.uploadFileCallback(file);
+        tick(500);
+
+        expect(fileService.readFile).toHaveBeenCalledOnceWith(file);
+        expect(component.dataUrls).toEqual([
+          {
+            type: 'image/jpeg',
+            url: 'data:image/jpeg;base64,test',
+            thumbnail: 'data:image/jpeg;base64,test',
+          },
+        ]);
+      }));
+    });
+
+    it('onChangeCallback(): should call upload file callback', fakeAsync(() => {
+      spyOn(component, 'uploadFileCallback');
+
+      const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
+      const mockNativeElement = {
+        files: [mockFile],
+      } as unknown as HTMLInputElement;
+
+      component.onChangeCallback(mockNativeElement);
+      tick(500);
+
+      expect(component.uploadFileCallback).toHaveBeenCalledOnceWith(mockFile);
+    }));
 
     it('addAttachments(): should open camera option popup and add receipt details', fakeAsync(() => {
       component.dataUrls = [];
@@ -175,7 +239,6 @@ export function TestCases2(getTestBed) {
       tick(100);
 
       expect(event.stopPropagation).toHaveBeenCalledTimes(1);
-      expect(event.preventDefault).toHaveBeenCalledTimes(1);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
@@ -193,7 +256,7 @@ export function TestCases2(getTestBed) {
 
     it('viewAttachments(): should show the attachments as preview', fakeAsync(() => {
       component.dataUrls = cloneDeep(advanceRequestFileUrlData2);
-      
+
       let callCount = 0;
       transactionsOutboxService.fileUpload.and.callFake(() => {
         callCount++;
@@ -211,9 +274,9 @@ export function TestCases2(getTestBed) {
       const expectedAttachmentsWithIds = cloneDeep(advanceRequestFileUrlData2).map((attachment, index) => ({
         ...attachment,
         id: `file${index + 1}`,
-        type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image'
+        type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image',
       }));
-      
+
       // Check that the modal was created with the correct parameters
       expect(modalController.create).toHaveBeenCalledOnceWith({
         ...modalControllerParams4,
