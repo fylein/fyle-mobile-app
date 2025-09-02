@@ -156,7 +156,7 @@ describe('OrgUserService', () => {
   });
 
   it('should be able to mark active', (done) => {
-    apiService.post.and.returnValue(of(extendedOrgUserResponse));
+    spenderPlatformV1ApiService.post.and.returnValue(of(extendedOrgUserResponse));
     authService.refreshEou.and.returnValue(of(extendedOrgUserResponse));
     orgUserService.markActive().subscribe((res) => {
       expect(res).toEqual(extendedOrgUserResponse);

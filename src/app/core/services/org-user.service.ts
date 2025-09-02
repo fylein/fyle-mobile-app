@@ -82,7 +82,7 @@ export class OrgUserService {
   }
 
   markActive(): Observable<ExtendedOrgUser> {
-    return this.apiService.post('/orgusers/current/mark_active').pipe(
+    return this.spenderPlatformV1ApiService.post('/employees/mark_active', { data: {} }).pipe(
       switchMap(() => this.authService.refreshEou()),
       tap(() => this.trackingService.activated()),
     );
