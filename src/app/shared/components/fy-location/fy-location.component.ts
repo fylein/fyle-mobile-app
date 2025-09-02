@@ -26,8 +26,6 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   readonly disabled = input(false);
 
-  readonly allowCustom = input(false);
-
   readonly hideSuffix = input(false);
 
   readonly recentLocations = input<string[]>([]);
@@ -91,7 +89,6 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
         component: FyLocationModalComponent,
         componentProps: {
           currentSelection: this.value,
-          allowCustom: this.allowCustom(),
           recentLocations: this.recentLocations(),
           cacheName: this.cacheName(),
           disableEnteringManualLocation: this.disableEnteringManualLocation(),
