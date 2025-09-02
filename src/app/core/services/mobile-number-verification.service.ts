@@ -16,8 +16,8 @@ export class MobileNumberVerificationService {
 
   sendOtp(): Observable<Partial<OtpDetails>> {
     return this.spenderPlatformV1ApiService
-      .post('/employees/send_mobile_verification_code', { data: {} })
-      .pipe(map((response: PlatformApiResponse<OtpDetails>) => response.data));
+      .post<PlatformApiResponse<OtpDetails>>('/employees/send_mobile_verification_code', { data: {} })
+      .pipe(map((res) => res.data));
   }
 
   verifyOtp(otp: string): Observable<{ message: string }> {
