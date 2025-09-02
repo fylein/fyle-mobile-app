@@ -1113,11 +1113,11 @@ describe('TasksService', () => {
   });
 
   describe('mapMobileNumberVerificationTask(): ', () => {
-    it('should return correct task object with CTA as Opt in if user not opted-in', () => {
+    it('should return correct task object with CTA as Opt-in if user not opted-in', () => {
       expect(tasksService.mapMobileNumberVerificationTask(false)).toEqual([verifyMobileNumberTask]);
     });
 
-    it('should return correct task object with CTA as Update and Opt in if user added non +1 mobile number', () => {
+    it('should return correct task object with CTA as Update and Opt-in if user added non +1 mobile number', () => {
       expect(tasksService.mapMobileNumberVerificationTask(true)).toEqual([verifyMobileNumberTask2]);
     });
   });
@@ -1149,7 +1149,7 @@ describe('TasksService', () => {
       });
     });
 
-    it('should return opt in task if user has not added mobile number and currency is CAD', (done) => {
+    it('should return opt-in task if user has not added mobile number and currency is CAD', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
       eou.ou.mobile = null;
@@ -1166,7 +1166,7 @@ describe('TasksService', () => {
       });
     });
 
-    it('should return opt in task if user has not verified mobile number', (done) => {
+    it('should return opt-in task if user has not verified mobile number', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
       eou.org.currency = 'USD';
