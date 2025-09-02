@@ -72,7 +72,13 @@ export class OrgUserService {
   postOrgUser(orgUser: Partial<OrgUser>): Observable<Partial<OrgUser>> {
     globalCacheBusterNotifier.next();
     delete orgUser.mobile_verification_attempts_left;
-    return this.apiService.post('/orgusers', orgUser);
+    const payload = {
+      id: orgUser.id,
+      mobile: orgUser.mobile,
+    };
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<Partial<OrgUser>>>('/employees', { data: payload })
+      .pipe(map((res) => res.data));
   }
 
   markActive(): Observable<ExtendedOrgUser> {

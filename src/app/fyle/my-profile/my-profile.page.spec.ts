@@ -232,7 +232,7 @@ describe('MyProfilePage', () => {
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     secureStorageService = TestBed.inject(SecureStorageService) as jasmine.SpyObj<SecureStorageService>;
@@ -375,7 +375,7 @@ describe('MyProfilePage', () => {
       expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
         'success',
         { message },
-        'check-circle-outline'
+        'check-circle-outline',
       );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
@@ -409,7 +409,7 @@ describe('MyProfilePage', () => {
         isShown?: boolean;
         isFinished?: boolean;
         overlayClickCount?: number;
-      }>)
+      }>),
     );
     walkthroughService.getProfileEmailOptInWalkthroughConfig.and.returnValue([
       {
@@ -445,7 +445,7 @@ describe('MyProfilePage', () => {
     expect(component.employeeSettings).toEqual(employeeSettingsData);
     expect(component.orgSettings).toEqual(orgSettingsData);
     expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
-      orgSettingsData.payment_mode_settings.payment_modes_order[0]
+      orgSettingsData.payment_mode_settings.payment_modes_order[0],
     );
     expect(component.defaultPaymentMode).toEqual('Personal Cash/Card');
   }));
@@ -877,7 +877,7 @@ describe('MyProfilePage', () => {
 
       expect(component.showToastMessage).toHaveBeenCalledOnceWith(
         'Something went wrong. Please try again later.',
-        'failure'
+        'failure',
       );
       expect(authService.getEou).toHaveBeenCalledTimes(1);
     }));
@@ -920,7 +920,7 @@ describe('MyProfilePage', () => {
   it('optOut(): should delete mobile number', fakeAsync(() => {
     const mockEou = cloneDeep(eouRes2);
     authService.getEou.and.resolveTo(mockEou);
-    authService.refreshEou.and.returnValue(of({ ...mockEou, ou: { ...mockEou.ou, mobile: '' } }));
+    authService.refreshEou.and.returnValue(of({ ...mockEou, ou: { ...mockEou.ou, mobile: null } }));
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     orgUserService.postOrgUser.and.returnValue(of(apiEouRes.us));
@@ -932,12 +932,12 @@ describe('MyProfilePage', () => {
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
-    expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith({ ...mockEou.ou, mobile: '' });
+    expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith({ ...mockEou.ou, mobile: null });
     expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     expect(trackingService.optedOut).toHaveBeenCalledTimes(1);
     expect(component.showToastMessage).toHaveBeenCalledOnceWith('Opted out of text messages successfully', 'success');
     component.eou$.subscribe((eou) => {
-      expect(eou.ou.mobile).toBe('');
+      expect(eou.ou.mobile).toBeNull();
     });
   }));
 
@@ -978,7 +978,7 @@ describe('MyProfilePage', () => {
   it('deleteMobileNumber(): should delete the mobile number and show toast message', fakeAsync(() => {
     const mockEou = cloneDeep(eouRes2);
     authService.getEou.and.resolveTo(mockEou);
-    authService.refreshEou.and.returnValue(of({ ...mockEou, ou: { ...mockEou.ou, mobile: '' } }));
+    authService.refreshEou.and.returnValue(of({ ...mockEou, ou: { ...mockEou.ou, mobile: null } }));
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     orgUserService.postOrgUser.and.returnValue(of(apiEouRes.us));
@@ -990,12 +990,12 @@ describe('MyProfilePage', () => {
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
-    expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith({ ...mockEou.ou, mobile: '' });
+    expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith({ ...mockEou.ou, mobile: null });
     expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     expect(trackingService.deleteMobileNumber).toHaveBeenCalledTimes(1);
     expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile number deleted successfully.', 'success');
     component.eou$.subscribe((eou) => {
-      expect(eou.ou.mobile).toBe('');
+      expect(eou.ou.mobile).toBeNull();
     });
   }));
 
