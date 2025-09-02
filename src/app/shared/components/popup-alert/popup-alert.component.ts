@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
 @Component({
@@ -10,20 +10,33 @@ import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
 export class PopupAlertComponent {
   private popoverController = inject(PopoverController);
 
-  @Input() title: string;
+  readonly title = input<string>(undefined);
 
-  @Input() message: string;
+  readonly message = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() secondaryMsg: string;
 
-  @Input() leftAlign = false;
+  readonly leftAlign = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() primaryCta: { text: string; action: string; type?: string };
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() secondaryCta: { text: string; action: string; type?: string };
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() flaggedExpensesCount = 0;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() cardsList: PopoverCardsList;
 
   ctaClickedEvent(action: string): void {

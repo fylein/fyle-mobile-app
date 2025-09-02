@@ -2,11 +2,12 @@ import {
   Component,
   OnInit,
   AfterViewInit,
-  ViewChild,
   ElementRef,
   Input,
   ChangeDetectorRef,
   inject,
+  input,
+  viewChild,
 } from '@angular/core';
 import { Observable, fromEvent, from, of } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -30,14 +31,20 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   private employeesService = inject(EmployeesService);
 
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  readonly searchBarRef = viewChild<ElementRef>('searchBar');
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelections: string[] = [];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() filteredOptions$: Observable<Partial<Employee>[]>;
 
-  @Input() placeholder;
+  readonly placeholder = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() allowCustomValues: boolean;
 
   value = '';
@@ -100,7 +107,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef().nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
@@ -171,7 +178,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
               // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
               this.cdr.detectChanges();
               // set focus on input once data is loaded
-              const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+              const searchInput = this.searchBarRef().nativeElement as HTMLInputElement;
               searchInput.focus();
             }),
           ),
@@ -237,7 +244,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    const searchElement = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchElement = this.searchBarRef().nativeElement as HTMLInputElement;
 
     this.filteredOptions$ = fromEvent<KeyboardEvent>(searchElement, 'keyup').pipe(
       map((event) => (event.target as HTMLInputElement).value),

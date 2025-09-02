@@ -104,13 +104,12 @@ describe('VerifyNumberPopoverComponent', () => {
   });
 
   it('ngAfterViewInit(): should focus on input element on init', fakeAsync(() => {
-    const inputElement = getElementBySelector(fixture, 'input') as HTMLInputElement;
-    component.inputEl.nativeElement = inputElement;
     component.error = null;
+    spyOn(component.inputEl.nativeElement, 'focus');
     component.ngAfterViewInit();
     tick(200);
 
-    expect(document.activeElement).toEqual(inputElement);
+    expect(component.inputEl.nativeElement.focus).toHaveBeenCalledOnceWith();
   }));
 
   it('validateInput(): should set error message if input is invalid', () => {

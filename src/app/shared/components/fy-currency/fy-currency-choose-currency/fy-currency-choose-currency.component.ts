@@ -8,6 +8,7 @@ import {
   ChangeDetectorRef,
   TemplateRef,
   inject,
+  input,
 } from '@angular/core';
 import { Observable, from, noop, fromEvent, of } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -34,12 +35,19 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   private cdr = inject(ChangeDetectorRef);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
-  @Input() currentSelection: string;
+  readonly currentSelection = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() recentlyUsed: Currency[];
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() selectionElement: TemplateRef<ElementRef>;
 
   currencies$: Observable<Currency[]>;

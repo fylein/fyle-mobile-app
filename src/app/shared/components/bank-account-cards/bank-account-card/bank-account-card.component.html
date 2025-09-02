@@ -1,4 +1,4 @@
-@if (!minimal) {
+@if (!minimal()) {
   <div class="personal-card--card-details">
     <ion-grid class="personal-card--container">
       <div class="personal-card--header">
@@ -20,12 +20,12 @@
       </ion-row>
     </ion-grid>
     <div class="personal-card--sync-detail">
-      {{ 'bankAccountCard.lastFetch' | transloco }} {{ lastSyncedAt | date : 'MMM d, y | h:mm a' }}
+      {{ 'bankAccountCard.lastFetch' | transloco }} {{ lastSyncedAt | date: 'MMM d, y | h:mm a' }}
     </div>
   </div>
 }
 
-@if (minimal) {
+@if (minimal()) {
   <div class="personal-card--card-details-minimal">
     <ion-grid class="personal-card--container">
       <div class="personal-card--header-minimal">

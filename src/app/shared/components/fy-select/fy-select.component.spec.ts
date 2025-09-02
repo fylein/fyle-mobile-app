@@ -169,19 +169,29 @@ describe('FySelectComponent', () => {
       const {
         options,
         value,
-        selectionElement,
-        nullOption,
-        cacheName,
-        customInput,
-        subheader,
-        enableSearch,
-        selectModalHeader,
-        placeholder,
-        showSaveButton,
+        selectionElement: selectionElementInput,
+        nullOption: nullOptionInput,
+        cacheName: cacheNameInput,
+        customInput: customInputInput,
+        subheader: subheaderInput,
+        enableSearch: enableSearchInput,
+        selectModalHeader: selectModalHeaderInput,
+        placeholder: placeholderInput,
+        showSaveButton: showSaveButtonInput,
         defaultLabelProp,
-        recentlyUsed,
+        recentlyUsed: recentlyUsedInput,
         label,
       } = component;
+      const selectionElement = selectionElementInput();
+      const nullOption = nullOptionInput();
+      const cacheName = cacheNameInput();
+      const customInput = customInputInput();
+      const subheader = subheaderInput();
+      const enableSearch = enableSearchInput();
+      const selectModalHeader = selectModalHeaderInput();
+      const placeholder = placeholderInput();
+      const showSaveButton = showSaveButtonInput();
+      const recentlyUsed = recentlyUsedInput();
       const mockInput = fixture.debugElement.query(By.css('input'));
       mockInput.nativeElement.click();
       tick(1000);
@@ -230,19 +240,29 @@ describe('FySelectComponent', () => {
       const {
         options,
         value,
-        selectionElement,
-        nullOption,
-        cacheName,
-        customInput,
-        subheader,
-        enableSearch,
-        selectModalHeader,
-        placeholder,
-        showSaveButton,
+        selectionElement: selectionElementInput,
+        nullOption: nullOptionInput,
+        cacheName: cacheNameInput,
+        customInput: customInputInput,
+        subheader: subheaderInput,
+        enableSearch: enableSearchInput,
+        selectModalHeader: selectModalHeaderInput,
+        placeholder: placeholderInput,
+        showSaveButton: showSaveButtonInput,
         defaultLabelProp,
-        recentlyUsed,
+        recentlyUsed: recentlyUsedInput,
         label,
       } = component;
+      const selectionElement = selectionElementInput();
+      const nullOption = nullOptionInput();
+      const cacheName = cacheNameInput();
+      const customInput = customInputInput();
+      const subheader = subheaderInput();
+      const enableSearch = enableSearchInput();
+      const selectModalHeader = selectModalHeaderInput();
+      const placeholder = placeholderInput();
+      const showSaveButton = showSaveButtonInput();
+      const recentlyUsed = recentlyUsedInput();
       const mockInput = fixture.debugElement.query(By.css('input'));
       mockInput.nativeElement.click();
       tick(1000);

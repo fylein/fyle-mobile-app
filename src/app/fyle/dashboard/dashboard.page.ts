@@ -1,4 +1,4 @@
-import { Component, EventEmitter, NgZone, ViewChild, inject } from '@angular/core';
+import { Component, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
@@ -98,15 +98,19 @@ export class DashboardPage {
 
   private timezoneService = inject(TimezoneService);
 
-  private ngZone = inject(NgZone);
-
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(CardStatsComponent) cardStatsComponent: CardStatsComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
 
-  @ViewChild('optInSwiper', { static: false }) swiperComponent: SwiperComponent;
+  readonly swiperComponent = viewChild<SwiperComponent>('optInSwiper');
 
   employeeSettings$: Observable<EmployeeSettings>;
 
@@ -187,7 +191,7 @@ export class DashboardPage {
   }
 
   private get swiperInstance(): Swiper | undefined {
-    return this.swiperComponent?.swiperRef;
+    return this.swiperComponent()?.swiperRef;
   }
 
   startDashboardAddExpenseWalkthrough(): void {

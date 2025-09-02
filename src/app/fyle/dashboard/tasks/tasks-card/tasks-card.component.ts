@@ -1,5 +1,5 @@
 import { getCurrencySymbol } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
@@ -18,13 +18,17 @@ export class TasksCardComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() task: DashboardTask;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() autoSubmissionReportDate: Date;
 
-  @Output() ctaClicked = new EventEmitter<TaskCta>();
+  readonly ctaClicked = output<TaskCta>();
 
-  @Output() infoCardClicked = new EventEmitter<void>();
+  readonly infoCardClicked = output<void>();
 
   homeCurrency$: Observable<string>;
 
@@ -47,6 +51,7 @@ export class TasksCardComponent implements OnInit {
   }
 
   onInfoCardClicked(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.infoCardClicked.emit();
   }
 }

@@ -24,8 +24,12 @@ export class NavigationFooterComponent implements OnInit {
 
   private spenderExpensesService = inject(SpenderExpensesService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() reportExpenseCount: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeExpenseIndex: number;
 
   reportExpenseIds: string[];

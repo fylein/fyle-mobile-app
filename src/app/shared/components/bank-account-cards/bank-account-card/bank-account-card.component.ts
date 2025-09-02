@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, input, output } from '@angular/core';
 import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
 import { PopoverController } from '@ionic/angular';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
@@ -33,11 +33,13 @@ export class BankAccountCardComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() accountDetails: PlatformPersonalCard;
 
-  @Input() minimal: boolean;
+  readonly minimal = input<boolean>(undefined);
 
-  @Output() deleted = new EventEmitter();
+  readonly deleted = output();
 
   lastSyncedAt;
 

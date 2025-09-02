@@ -3,7 +3,7 @@
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="selection-modal--title">
-        {{ selectModalHeader }}
+        {{ selectModalHeader() }}
       </div>
     </ion-title>
     <ion-buttons slot="start">
@@ -22,7 +22,7 @@
           class="selection-modal--search-input smartlook-show"
           id="election-modal--search-input"
           matInput
-          [placeholder]="placeholder || ('fySelectModal.search' | transloco)"
+          [placeholder]="placeholder() || ('fySelectModal.search' | transloco)"
         />
         @if (value) {
           <button
@@ -45,8 +45,8 @@
       @if (filteredOptions.length === 0) {
         <div>
           <app-fy-zero-state
-            [header]="'fySelectModal.noResultsHeader' | transloco: { label: label }"
-            [submessage]="'fySelectModal.noResultsSubmessage' | transloco: { label: label }"
+            [header]="'fySelectModal.noResultsHeader' | transloco: { label: label() }"
+            [submessage]="'fySelectModal.noResultsSubmessage' | transloco: { label: label() }"
             [image]="'../../../../assets/svg/zero-states/search.svg'"
             [unscaledImage]="true"
             [useNewStyling]="true"
@@ -136,7 +136,7 @@
   </div>
 </ion-content>
 
-@if (showSaveButton) {
+@if (showSaveButton()) {
   <ion-footer>
     <ion-toolbar>
       <div class="selection-modal--cta-container">

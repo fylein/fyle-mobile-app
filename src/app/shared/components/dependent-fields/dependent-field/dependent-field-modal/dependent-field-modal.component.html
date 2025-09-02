@@ -3,7 +3,7 @@
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="dependent-field-modal__title">
-        {{ 'dependentFieldModal.selectLabel' | transloco: { label: label } }}
+        {{ 'dependentFieldModal.selectLabel' | transloco: { label: label() } }}
       </div>
     </ion-title>
     <ion-buttons slot="start">
@@ -20,7 +20,7 @@
         [(ngModel)]="value"
         class="dependent-field-modal__search-input smartlook-show"
         matInput
-        [placeholder]="placeholder || ('dependentFieldModal.search' | transloco)"
+        [placeholder]="placeholder() || ('dependentFieldModal.search' | transloco)"
       />
       @if (isLoading) {
         <mat-icon class="dependent-field-modal__autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
@@ -47,8 +47,8 @@
         @if (filteredOptions.length === 0) {
           <div>
             <app-fy-zero-state
-              [header]="'dependentFieldModal.noResultFound' | transloco: { label: label }"
-              [submessage]="'dependentFieldModal.searchOrSelect' | transloco: { label: label }"
+              [header]="'dependentFieldModal.noResultFound' | transloco: { label: label() }"
+              [submessage]="'dependentFieldModal.searchOrSelect' | transloco: { label: label() }"
               [image]="'../../../../assets/svg/zero-states/search.svg'"
               [unscaledImage]="true"
               [useNewStyling]="true"

@@ -8,7 +8,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { ImageCropperComponent } from 'ngx-image-cropper';
 import { Subscription } from 'rxjs';
 import { HammerModule } from '@angular/platform-browser';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 
 describe('CropReceiptComponent', () => {
@@ -25,9 +25,9 @@ describe('CropReceiptComponent', () => {
     standalone: false,
   })
   class ImageCropperStubComponent {
-    @Input() imageBase64;
+    readonly imageBase64 = input(undefined);
 
-    @Input() maintainAspectRatio;
+    readonly maintainAspectRatio = input(undefined);
 
     crop() {
       return {
@@ -75,10 +75,10 @@ describe('CropReceiptComponent', () => {
 
   it('cropReceipt', () => {
     modalController.dismiss.and.callThrough();
-    spyOn(component.imageCropper, 'crop').and.callThrough();
+    spyOn(component.imageCropper(), 'crop').and.callThrough();
 
     component.cropReceipt();
-    expect(component.imageCropper.crop).toHaveBeenCalledTimes(1);
+    expect(component.imageCropper().crop).toHaveBeenCalledTimes(1);
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
       base64ImageWithSource: component.base64ImageWithSource,
     });

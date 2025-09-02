@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, inject, input } from '@angular/core';
 import { Injector } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import {
@@ -38,11 +38,16 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
 
   private injector = inject(Injector);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() customInputs: CustomInputsField[];
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() combinedCustomProperties: CombinedOptions;
 
-  @Input() disableFormElements: boolean;
+  readonly disableFormElements = input<boolean>(undefined);
 
   onChangeSub: Subscription;
 

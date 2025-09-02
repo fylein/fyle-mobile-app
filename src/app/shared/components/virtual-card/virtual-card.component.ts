@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -25,17 +25,24 @@ export class VirtualCardComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() cardNumber: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() cvv: string;
 
-  @Input() expiry: string;
+  readonly expiry = input<string>(undefined);
 
-  @Input() cardStatus: CardStatus;
+  readonly cardStatus = input<CardStatus>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() availableAmount?: number;
 
-  @Input() cardNickname: string;
+  readonly cardNickname = input<string>(undefined);
 
   CardStatus: typeof CardStatus = CardStatus;
 
@@ -63,7 +70,7 @@ export class VirtualCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.showSuccessStatusDot = [CardStatus.ACTIVE, CardStatus.PREACTIVE].some((a) => a === this.cardStatus);
+    this.showSuccessStatusDot = [CardStatus.ACTIVE, CardStatus.PREACTIVE].some((a) => a === this.cardStatus());
   }
 
   openInfoPopup(): void {

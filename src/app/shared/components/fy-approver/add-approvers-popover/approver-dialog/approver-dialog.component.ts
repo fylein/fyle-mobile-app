@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnInit, inject } from '@angular/core';
+import { Component, Input, ElementRef, AfterViewInit, OnInit, inject, input, viewChild } from '@angular/core';
 import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
@@ -26,16 +26,20 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   private translocoService = inject(TranslocoService);
 
-  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLElement>;
+  readonly searchBarRef = viewChild<ElementRef<HTMLElement>>('searchBar');
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() approverEmailsList: string[];
 
-  @Input() id: string;
+  readonly id = input<string>(undefined);
 
-  @Input() ownerEmail: string;
+  readonly ownerEmail = input<string>(undefined);
 
-  @Input() type;
+  readonly type = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() initialApproverList: Approver[];
 
   value: string;
@@ -68,7 +72,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef().nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
     this.getSearchedUsersList();
@@ -155,7 +159,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
             eou.is_selected = this.approverEmailsList.indexOf(eou.email) > -1;
             return eou;
           })
-          .filter((employee) => employee.email !== this.ownerEmail),
+          .filter((employee) => employee.email !== this.ownerEmail()),
       ),
     );
   }
@@ -187,7 +191,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit(): void {
     this.searchedApprovers$ = fromEvent<{ srcElement: { value: string } }>(
-      this.searchBarRef.nativeElement,
+      this.searchBarRef().nativeElement,
       'keyup',
     ).pipe(
       map((event) => event.srcElement.value),

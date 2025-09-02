@@ -31,8 +31,8 @@
     [ngClass]="{ 'input-popover--input-container__input--error': error?.length }"
     (focus)="onFocus()"
     [placeholder]="
-      placeholder?.length
-        ? placeholder
+      placeholder()?.length
+        ? placeholder()
         : ('fyInputPopover.enterLabelPlaceholder' | transloco: { inputLabel: inputLabel })
     "
     [type]="inputType"

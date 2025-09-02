@@ -2,14 +2,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   ElementRef,
-  EventEmitter,
   Input,
   OnChanges,
   OnInit,
-  Output,
   SimpleChanges,
   ViewChild,
   inject,
+  input,
+  output,
+  viewChild,
 } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -45,8 +46,6 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   private trackingService = inject(TrackingService);
 
-  private modalController = inject(ModalController);
-
   private orgUserService = inject(OrgUserService);
 
   private authService = inject(AuthService);
@@ -65,17 +64,21 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
 
   private translocoService = inject(TranslocoService);
 
-  @ViewChild('mobileInput') mobileInputEl: ElementRef<HTMLInputElement>;
+  readonly mobileInputEl = viewChild<ElementRef<HTMLInputElement>>('mobileInput');
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput: NgOtpInputComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() eou: ExtendedOrgUser;
 
-  @Input() areCardsEnrolled: boolean;
+  readonly areCardsEnrolled = input<boolean>(undefined);
 
-  @Output() isStepComplete: EventEmitter<boolean> = new EventEmitter<boolean>();
+  readonly isStepComplete = output<boolean>();
 
-  @Output() goToConnectCard: EventEmitter<boolean> = new EventEmitter<boolean>();
+  readonly goToConnectCard = output<boolean>();
 
   cardForm: UntypedFormControl;
 

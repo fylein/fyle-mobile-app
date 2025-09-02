@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -17,17 +17,19 @@ export class ProfileOptInCardComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() extendedOrgUser: ExtendedOrgUser;
 
-  @Output() copiedText = new EventEmitter<string>();
+  readonly copiedText = output<string>();
 
-  @Output() optInClicked = new EventEmitter<ExtendedOrgUser>();
+  readonly optInClicked = output<ExtendedOrgUser>();
 
-  @Output() optOutClicked = new EventEmitter<void>();
+  readonly optOutClicked = output<void>();
 
-  @Output() editMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
+  readonly editMobileNumberClicked = output<ExtendedOrgUser>();
 
-  @Output() deleteMobileNumberClicked = new EventEmitter<void>();
+  readonly deleteMobileNumberClicked = output<void>();
 
   isUserOptedIn = false;
 
@@ -53,6 +55,7 @@ export class ProfileOptInCardComponent implements OnInit {
 
   clickedOnOptOut(): void {
     this.trackingService.clickedOnOptOut();
+    // TODO: The 'emit' function requires a mandatory void argument
     this.optOutClicked.emit();
   }
 
@@ -63,6 +66,7 @@ export class ProfileOptInCardComponent implements OnInit {
 
   deleteMobileNumber(): void {
     this.trackingService.clickedOnDeleteNumber();
+    // TODO: The 'emit' function requires a mandatory void argument
     this.deleteMobileNumberClicked.emit();
   }
 

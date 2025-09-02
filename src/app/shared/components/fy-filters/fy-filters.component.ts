@@ -19,15 +19,24 @@ import { forkJoin, Observable, of } from 'rxjs';
 export class FyFiltersComponent implements OnInit {
   private modalController = inject(ModalController);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() simplifyReportsSettings$: Observable<any> = of({ enabled: false });
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() nonReimbursableOrg$: Observable<boolean> = of(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() selectedFilterValues: SelectedFilters<any>[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeFilterInitialName;
 
-  filterOptions: FilterOptions<any>[];
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() filterOptions: FilterOptions<any>[];
 
   currentFilterValueMap: { [key: string]: any | any[] } = {};
 

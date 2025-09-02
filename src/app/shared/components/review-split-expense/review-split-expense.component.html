@@ -13,7 +13,7 @@
 
 <ion-content>
   <ng-container>
-    @for (expense of splitExpenses; track expense; let i = $index) {
+    @for (expense of splitExpenses(); track expense; let i = $index) {
       <div class="review-split-expense-modal--expense-container">
         <app-expense-card-v2
           [expense]="expense"

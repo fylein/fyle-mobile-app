@@ -15,9 +15,9 @@
               </div>
             </ion-col>
             <ion-col class="view-expense--content-container">
-              <div class="view-expense--label">{{ parentFieldName | titlecase }}</div>
+              <div class="view-expense--label">{{ parentFieldName() | titlecase }}</div>
               <div class="view-expense--value">
-                {{ parentFieldValue || ('viewDependentFields.unspecified' | transloco) }}
+                {{ parentFieldValue() || ('viewDependentFields.unspecified' | transloco) }}
               </div>
             </ion-col>
           </ion-row>

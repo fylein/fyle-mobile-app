@@ -1,7 +1,6 @@
-import { Component, EventEmitter, ViewChild, ElementRef, signal, inject } from '@angular/core';
+import { Component, EventEmitter, signal, inject } from '@angular/core';
 import { Observable, from, Subject, concat, noop, forkJoin, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, takeUntil, take, filter } from 'rxjs/operators';
@@ -51,8 +50,6 @@ import { ExpensesService as SharedExpensesService } from 'src/app/core/services/
 export class ViewExpensePage {
   private loaderService = inject(LoaderService);
 
-  private transactionService = inject(TransactionService);
-
   private activatedRoute = inject(ActivatedRoute);
 
   private customInputsService = inject(CustomInputsService);
@@ -94,8 +91,6 @@ export class ViewExpensePage {
   private spenderExpenseCommentService = inject(SpenderExpenseCommentService);
 
   private approverExpenseCommentService = inject(ApproverExpenseCommentService);
-
-  @ViewChild('comments') commentsContainer: ElementRef;
 
   expense$: Observable<Expense>;
 

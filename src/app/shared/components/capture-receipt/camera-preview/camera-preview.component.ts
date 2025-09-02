@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges, inject, input, output } from '@angular/core';
 import { CameraPreviewOptions } from '@capacitor-community/camera-preview';
 import { from } from 'rxjs';
 import { DEVICE_PLATFORM } from 'src/app/constants';
@@ -20,33 +20,33 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   private cameraPreviewService = inject(CameraPreviewService);
 
-  @Input() isBulkMode = false;
+  readonly isBulkMode = input(false);
 
-  @Input() isOffline = false;
+  readonly isOffline = input(false);
 
-  @Input() allowGalleryUploads = true;
+  readonly allowGalleryUploads = input(true);
 
-  @Input() allowBulkFyle = true;
+  readonly allowBulkFyle = input(true);
 
-  @Input() lastCapturedReceipt: string;
+  readonly lastCapturedReceipt = input<string>(undefined);
 
-  @Input() noOfReceipts = 0;
+  readonly noOfReceipts = input(0);
 
-  @Input() isBulkModePromptShown = false;
+  readonly isBulkModePromptShown = input(false);
 
-  @Output() galleryUpload = new EventEmitter();
+  readonly galleryUpload = output();
 
-  @Output() switchMode = new EventEmitter();
+  readonly switchMode = output();
 
-  @Output() captureReceipt = new EventEmitter();
+  readonly captureReceipt = output();
 
-  @Output() receiptPreview = new EventEmitter();
+  readonly receiptPreview = output();
 
-  @Output() toggleFlashMode = new EventEmitter();
+  readonly toggleFlashMode = output<string>();
 
-  @Output() dismissCameraPreview = new EventEmitter();
+  readonly dismissCameraPreview = output();
 
-  @Output() permissionDenied = new EventEmitter<'CAMERA' | 'GALLERY'>();
+  readonly permissionDenied = output<'CAMERA' | 'GALLERY'>();
 
   cameraState: CameraState = CameraState.STOPPED;
 

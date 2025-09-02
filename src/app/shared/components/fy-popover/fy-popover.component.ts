@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, inject, input, viewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -10,18 +10,21 @@ import { PopoverController } from '@ionic/angular';
 export class FyPopoverComponent implements AfterViewInit {
   private popoverController = inject(PopoverController);
 
-  @ViewChild('simpleFormInput') simpleFormInput: ElementRef;
+  readonly simpleFormInput = viewChild<ElementRef>('simpleFormInput');
 
-  @Input() title = '';
+  readonly title = input('');
 
-  @Input() formLabel = '';
+  readonly formLabel = input('');
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() message: string;
 
   formValue = '';
 
   ngAfterViewInit(): void {
-    const formInput = this.simpleFormInput.nativeElement as HTMLInputElement;
+    const formInput = this.simpleFormInput().nativeElement as HTMLInputElement;
     setTimeout(() => {
       formInput.focus();
     }, 400);

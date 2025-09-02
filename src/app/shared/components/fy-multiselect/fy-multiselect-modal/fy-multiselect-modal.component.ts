@@ -1,4 +1,13 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
@@ -17,17 +26,25 @@ export class FyMultiselectModalComponent implements AfterViewInit {
 
   private cdr = inject(ChangeDetectorRef);
 
-  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
+  readonly searchBarRef = viewChild<ElementRef<HTMLInputElement>>('searchBar');
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: { label: string; value: unknown; selected?: boolean }[] = [];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelections: unknown[] = [];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() filteredOptions$: Observable<{ label: string; value: unknown; selected?: boolean }[]>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() selectModalHeader: string;
 
-  @Input() subheader: string;
+  readonly subheader = input<string>(undefined);
 
   value = '';
 
@@ -37,7 +54,7 @@ export class FyMultiselectModalComponent implements AfterViewInit {
 
   clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement;
+    const searchInput = this.searchBarRef().nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
@@ -62,7 +79,7 @@ export class FyMultiselectModalComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.filteredOptions$ = fromEvent<Event>(this.searchBarRef.nativeElement, 'keyup').pipe(
+    this.filteredOptions$ = fromEvent<Event>(this.searchBarRef().nativeElement, 'keyup').pipe(
       map((event: Event) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),

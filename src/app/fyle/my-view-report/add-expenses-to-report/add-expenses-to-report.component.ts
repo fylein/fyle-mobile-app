@@ -18,8 +18,12 @@ export class AddExpensesToReportComponent implements OnInit {
 
   private router = inject(Router);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() unreportedExpenses: Expense[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() reportId: string;
 
   homeCurrency$: Observable<string>;

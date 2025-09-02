@@ -1,9 +1,9 @@
 <label class="fy-select--label">
   <div class="fy-select--label-content">
     <span>
-      {{ label }}
+      {{ label() }}
     </span>
-    @if (mandatory) {
+    @if (mandatory()) {
       <span class="fy-select--mandatory"> * </span>
     }
   </div>
@@ -11,16 +11,16 @@
     <input
       class="fy-select--input smartlook-show"
       type="text"
-      [placeholder]="placeholder || ('fyUserlist.select' | transloco) + ' ' + label"
+      [placeholder]="placeholder() || ('fyUserlist.select' | transloco) + ' ' + label()"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
-      [ngClass]="{ 'fy-select--input-disabled': disabled }"
-      [disabled]="disabled"
-      />
+      [ngClass]="{ 'fy-select--input-disabled': disabled() }"
+      [disabled]="disabled()"
+    />
     <mat-icon
       class="fy-select--icon"
-      [ngClass]="{ 'fy-select--input-disabled': disabled }"
+      [ngClass]="{ 'fy-select--input-disabled': disabled() }"
       svgIcon="arrow-down"
     ></mat-icon>
   </div>

@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, OnInit } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 
 @Component({
   selector: 'app-fy-statistic',
@@ -7,13 +7,14 @@ import { Component, forwardRef, Input, OnInit } from '@angular/core';
   standalone: false,
 })
 export class FyStatisticComponent implements OnInit {
-  @Input() icon: string;
+  readonly icon = input<string>(undefined);
 
-  @Input() label: string;
+  readonly label = input<string>(undefined);
 
-  @Input() value: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly value = input<any>(undefined);
 
-  @Input() type: string;
+  readonly type = input<string>(undefined);
 
   constructor() {}
 

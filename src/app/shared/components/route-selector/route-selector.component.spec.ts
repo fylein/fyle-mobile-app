@@ -235,11 +235,11 @@ describe('RouteSelectorComponent', () => {
         componentProps: {
           unit: component.unit,
           mileageConfig: component.mileageConfig,
-          isDistanceMandatory: component.isDistanceMandatory,
-          isAmountDisabled: component.isAmountDisabled,
+          isDistanceMandatory: component.isDistanceMandatory(),
+          isAmountDisabled: component.isAmountDisabled(),
           txnFields: component.txnFields,
           value: component.form.value,
-          recentlyUsedMileageLocations: component.recentlyUsedMileageLocations,
+          recentlyUsedMileageLocations: component.recentlyUsedMileageLocations(),
         },
       });
     });
@@ -263,11 +263,11 @@ describe('RouteSelectorComponent', () => {
         componentProps: {
           unit: component.unit,
           mileageConfig: component.mileageConfig,
-          isDistanceMandatory: component.isDistanceMandatory,
-          isAmountDisabled: component.isAmountDisabled,
+          isDistanceMandatory: component.isDistanceMandatory(),
+          isAmountDisabled: component.isAmountDisabled(),
           txnFields: component.txnFields,
           value: component.form.value,
-          recentlyUsedMileageLocations: component.recentlyUsedMileageLocations,
+          recentlyUsedMileageLocations: component.recentlyUsedMileageLocations(),
         },
       });
     });

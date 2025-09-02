@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, inject, input } from '@angular/core';
 import { Observable, from, noop, fromEvent } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ModalController } from '@ionic/angular';
@@ -30,9 +30,11 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
-  @Input() currentSelection: string;
+  readonly currentSelection = input<string>(undefined);
 
   currencies$: Observable<{ shortCode: string; longName: string }[]>;
 

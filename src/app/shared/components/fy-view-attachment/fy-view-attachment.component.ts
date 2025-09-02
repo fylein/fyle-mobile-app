@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output, inject, input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, inject, input, output } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -10,8 +10,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { OverlayEventDetail } from '@ionic/core';
-import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FileService } from 'src/app/core/services/file.service';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -39,10 +38,6 @@ export class FyViewAttachmentComponent implements OnInit {
 
   private approverFileService = inject(ApproverFileService);
 
-  private expensesService = inject(ExpensesService);
-
-  private activatedRoute = inject(ActivatedRoute);
-
   private fileService = inject(FileService);
 
   private transactionsOutboxService = inject(TransactionsOutboxService);
@@ -51,18 +46,22 @@ export class FyViewAttachmentComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() attachments: FileObject[];
 
-  @Input() isMileageExpense: boolean;
+  readonly isMileageExpense = input<boolean>(undefined);
 
-  @Input() canEdit: boolean;
+  readonly canEdit = input<boolean>(undefined);
 
-  @Input() expenseId: string;
+  readonly expenseId = input<string>(undefined);
+
+  readonly addMoreAttachments = output<Event>();
 
   readonly isTeamAdvance = input<boolean>(false);
 
-  @Output() addMoreAttachments = new EventEmitter<Event>();
-
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

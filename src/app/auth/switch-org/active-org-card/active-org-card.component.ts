@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, output } from '@angular/core';
 import { Org } from 'src/app/core/models/org.model';
 
 @Component({
@@ -8,19 +8,26 @@ import { Org } from 'src/app/core/models/org.model';
   standalone: false,
 })
 export class ActiveOrgCardComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() org: Org;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isPrimaryOrg: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isLoading = false;
 
-  @Output() orgSelected = new EventEmitter<void>();
+  readonly orgSelected = output<void>();
 
   constructor() {}
 
   ngOnInit(): void {}
 
   switchOrg() {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.orgSelected.emit();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, input } from '@angular/core';
 
 @Component({
   selector: 'app-fy-select-disabled',
@@ -7,10 +7,14 @@ import { Component, Input, OnInit } from '@angular/core';
   standalone: false,
 })
 export class FySelectDisabledComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label = '';
 
-  @Input() value = '';
+  readonly value = input('');
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mandatory = false;
 
   constructor() {}
