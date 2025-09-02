@@ -1113,7 +1113,7 @@ describe('TasksService', () => {
   });
 
   describe('mapMobileNumberVerificationTask(): ', () => {
-    it('should return correct task object with CTA as Opt in if user not opted in', () => {
+    it('should return correct task object with CTA as Opt in if user not opted-in', () => {
       expect(tasksService.mapMobileNumberVerificationTask(false)).toEqual([verifyMobileNumberTask]);
     });
 

@@ -93,7 +93,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     mobileNumberVerificationService = TestBed.inject(
-      MobileNumberVerificationService
+      MobileNumberVerificationService,
     ) as jasmine.SpyObj<MobileNumberVerificationService>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -105,7 +105,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'spenderOnboardingOptInStep.title': 'Opt in to send text receipts',
+        'spenderOnboardingOptInStep.title': 'Opt-in to send text receipts',
         'spenderOnboardingOptInStep.subTitle': 'This will help you send receipts via text message.',
         'spenderOnboardingOptInStep.mobileNumberLabel': 'Mobile number',
         'spenderOnboardingOptInStep.mobileNumberPlaceholder': 'Enter mobile number with country code e.g +155512345..',
@@ -152,7 +152,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     beforeEach(() => {
       component.eou = cloneDeep(eouRes2);
       spenderOnboardingService.getOnboardingStatus.and.returnValue(
-        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true })
+        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true }),
       );
     });
 
@@ -186,7 +186,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       component.mobileNumberInputValue = '1234567890';
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe(
-        'Please enter a valid number with +1 country code. Try re-entering your number.'
+        'Please enter a valid number with +1 country code. Try re-entering your number.',
       );
     });
 
@@ -200,7 +200,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       component.mobileNumberInputValue = '+911234567890';
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe(
-        'Please enter a valid number with +1 country code. Try re-entering your number.'
+        'Please enter a valid number with +1 country code. Try re-entering your number.',
       );
     });
   });
@@ -278,7 +278,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code sent successfully',
         ToastType.SUCCESS,
-        'msb-success-with-camera-icon'
+        'msb-success-with-camera-icon',
       );
       expect(component.sendCodeLoading).toBeFalse();
     });
@@ -289,7 +289,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.sendCodeLoading).toBeFalse();
       expect(component.disableResendOtp).toBeTrue();
@@ -308,7 +308,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.disableResendOtp).toBeTrue();
     });
@@ -326,7 +326,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.disableResendOtp).toBeTrue();
     });
@@ -343,7 +343,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Invalid mobile number. Please try again.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -359,7 +359,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'The code has expired. Please request a new one.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -376,7 +376,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'The code has expired. Please request a new one.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -392,7 +392,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -407,7 +407,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
   });
@@ -448,7 +448,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.optInFlowState).toBe(OptInFlowState.OTP_VERIFICATION);
     }));
