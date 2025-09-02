@@ -576,7 +576,7 @@ export class MyProfilePage {
         switchMap((eou) => {
           const updatedOrgUserDetails: OrgUser = {
             ...eou.ou,
-            mobile: '',
+            mobile: null,
           };
 
           return this.orgUserService.postOrgUser(updatedOrgUserDetails);
@@ -626,7 +626,7 @@ export class MyProfilePage {
         switchMap((eou) => {
           const updatedOrgUserDetails: OrgUser = {
             ...eou.ou,
-            mobile: '',
+            mobile: null,
           };
 
           return this.orgUserService.postOrgUser(updatedOrgUserDetails);
