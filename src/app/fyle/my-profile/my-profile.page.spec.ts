@@ -935,7 +935,7 @@ describe('MyProfilePage', () => {
     expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith({ ...mockEou.ou, mobile: null });
     expect(authService.refreshEou).toHaveBeenCalledTimes(1);
     expect(trackingService.optedOut).toHaveBeenCalledTimes(1);
-    expect(component.showToastMessage).toHaveBeenCalledOnceWith('Opted out of text messages successfully', 'success');
+    expect(component.showToastMessage).toHaveBeenCalledOnceWith('Opted-out of text messages successfully', 'success');
     component.eou$.subscribe((eou) => {
       expect(eou.ou.mobile).toBeNull();
     });

@@ -509,7 +509,7 @@ export class MyProfilePage {
     if (data) {
       if (data.action === 'SUCCESS') {
         this.eou$ = from(this.authService.refreshEou());
-        this.showToastMessage('Opted in successfully', 'success');
+        this.showToastMessage('Opted-in successfully', 'success');
         this.trackingService.optedInFromProfile();
       } else if (data.action === 'ERROR') {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
@@ -557,7 +557,7 @@ export class MyProfilePage {
 
   getOptOutMessageBody(): string {
     return `<div>
-              <p>Once you opt out, you can't send receipts and expense details via text message. Your mobile number will be deleted</p>
+              <p>Once you opt-out, you can't send receipts and expense details via text message. Your mobile number will be deleted</p>
               <p>Would you like to continue?<p>  
             </div>`;
   }
@@ -586,7 +586,7 @@ export class MyProfilePage {
       .subscribe(() => {
         this.trackingService.optedOut();
         this.eou$ = from(this.authService.refreshEou());
-        this.showToastMessage('Opted out of text messages successfully', 'success');
+        this.showToastMessage('Opted-out of text messages successfully', 'success');
       });
   }
 
@@ -594,10 +594,10 @@ export class MyProfilePage {
     const optOutPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Opt out of text messages',
+        title: 'Opt-out of text messages',
         message: this.getOptOutMessageBody(),
         primaryCta: {
-          text: 'Yes, opt out',
+          text: 'Yes, opt-out',
           action: 'continue',
         },
         secondaryCta: {
