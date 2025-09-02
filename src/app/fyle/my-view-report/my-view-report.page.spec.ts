@@ -509,7 +509,7 @@ describe('MyViewReportPage', () => {
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
-  fdescribe('editReportName(): ', () => {
+  describe('editReportName(): ', () => {
     it('should edit report name', fakeAsync(() => {
       component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
       component.canEdit$ = of(true);
