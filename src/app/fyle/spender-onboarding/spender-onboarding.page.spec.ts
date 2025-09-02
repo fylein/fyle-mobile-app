@@ -70,7 +70,7 @@ describe('SpenderOnboardingPage', () => {
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -101,7 +101,7 @@ describe('SpenderOnboardingPage', () => {
       });
     });
 
-    it('should go to Opt in step when RTF is disabled', (done) => {
+    it('should go to Opt-in step when RTF is disabled', (done) => {
       loaderService.showLoader.and.resolveTo();
       orgUserService.getCurrent.and.returnValue(of(apiEouRes));
       orgSettingsService.get.and.returnValue(of(orgSettingsWoTaxAndRtf));
@@ -121,12 +121,12 @@ describe('SpenderOnboardingPage', () => {
       });
     });
 
-    it('should go to Opt in step when connect card is skipped', (done) => {
+    it('should go to Opt-in step when connect card is skipped', (done) => {
       loaderService.showLoader.and.resolveTo();
       orgUserService.getCurrent.and.returnValue(of(extendedOrgUserResponse));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       spenderOnboardingService.getOnboardingStatus.and.returnValue(
-        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true })
+        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true }),
       );
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
 
@@ -153,10 +153,10 @@ describe('SpenderOnboardingPage', () => {
       orgUserService.getCurrent.and.returnValue(of(apiEouRes));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       spenderOnboardingService.getOnboardingStatus.and.returnValue(
-        of({ ...onboardingStatusData, step_connect_cards_is_skipped: false })
+        of({ ...onboardingStatusData, step_connect_cards_is_skipped: false }),
       );
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(
-        of([{ ...statementUploadedCard, is_mastercard_enrolled: true }])
+        of([{ ...statementUploadedCard, is_mastercard_enrolled: true }]),
       );
       spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
 
@@ -181,7 +181,7 @@ describe('SpenderOnboardingPage', () => {
   });
 
   describe('skipOnboardingStep(): ', () => {
-    it('should set onboarding as complete if mobile number is verified before navigating to opt in', fakeAsync(() => {
+    it('should set onboarding as complete if mobile number is verified before navigating to opt-in', fakeAsync(() => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
       fixture.detectChanges();
 
@@ -202,7 +202,7 @@ describe('SpenderOnboardingPage', () => {
       expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalledTimes(1);
     }));
 
-    it('should move from Opt in to connect card step if mobile number is not verified', fakeAsync(() => {
+    it('should move from Opt-in to connect card step if mobile number is not verified', fakeAsync(() => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
       component.eou = apiEouRes;
       fixture.detectChanges();
@@ -261,7 +261,7 @@ describe('SpenderOnboardingPage', () => {
       expect(spenderOnboardingService.markConnectCardsStepAsComplete).toHaveBeenCalled();
     }));
 
-    it('should mark the current step as complete - Opt in', fakeAsync(() => {
+    it('should mark the current step as complete - Opt-in', fakeAsync(() => {
       const onboardingRequestResponse: OnboardingStepStatus = {
         is_configured: true,
         is_skipped: false,

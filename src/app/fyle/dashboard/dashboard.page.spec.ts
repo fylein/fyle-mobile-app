@@ -753,7 +753,7 @@ describe('DashboardPage', () => {
       expect(component.tasksComponent.doRefresh).not.toHaveBeenCalled();
     }));
 
-    it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
+    it('should show promote opt-in modal and track opt-in event if user opted-in', fakeAsync(() => {
       const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
       modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: false } });
       modalController.create.and.resolveTo(modal);
@@ -967,7 +967,7 @@ describe('DashboardPage', () => {
       });
     });
 
-    it('should refresh eou and track opt in event if user opted in', () => {
+    it('should refresh eou and track opt-in event if user opted-in', () => {
       component.toggleOptInBanner({ isOptedIn: true });
 
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
@@ -975,7 +975,7 @@ describe('DashboardPage', () => {
       expect(component.tasksComponent.doRefresh).toHaveBeenCalledTimes(1);
     });
 
-    it('should not refresh eou and track skip opt in event if user skipped opt in', () => {
+    it('should not refresh eou and track skip opt-in event if user skipped opt-in', () => {
       component.toggleOptInBanner({ isOptedIn: false });
 
       expect(authService.refreshEou).not.toHaveBeenCalled();
@@ -1048,14 +1048,14 @@ describe('DashboardPage', () => {
       });
     });
 
-    it('should track opt in event if user opted in', () => {
+    it('should track opt-in event if user opted-in', () => {
       component.toggleEmailOptInBanner({ optedIn: true });
 
       expect(trackingService.optedInFromDashboardEmailOptInBanner).toHaveBeenCalledTimes(1);
       expect(trackingService.skipOptInFromDashboardEmailOptInBanner).not.toHaveBeenCalled();
     });
 
-    it('should track skip opt in event if user skipped opt in', () => {
+    it('should track skip opt-in event if user skipped opt-in', () => {
       component.toggleEmailOptInBanner({ optedIn: false });
 
       expect(trackingService.skipOptInFromDashboardEmailOptInBanner).toHaveBeenCalledTimes(1);

@@ -97,7 +97,7 @@ describe('FyOptInComponent', () => {
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     mobileNumberVerificationService = TestBed.inject(
-      MobileNumberVerificationService
+      MobileNumberVerificationService,
     ) as jasmine.SpyObj<MobileNumberVerificationService>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -200,7 +200,7 @@ describe('FyOptInComponent', () => {
       expect(component.hardwareBackButtonAction).toEqual(mockSubscription);
       expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
         BackButtonActionPriority.MEDIUM,
-        component.goBack
+        component.goBack,
       );
     });
   });
@@ -245,7 +245,7 @@ describe('FyOptInComponent', () => {
       component.mobileNumberInputValue = '1234567890';
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe(
-        'Please enter a valid number with +1 country code. Try re-entering your number.'
+        'Please enter a valid number with +1 country code. Try re-entering your number.',
       );
     });
 
@@ -259,7 +259,7 @@ describe('FyOptInComponent', () => {
       component.mobileNumberInputValue = '+911234567890';
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe(
-        'Please enter a valid number with +1 country code. Try re-entering your number.'
+        'Please enter a valid number with +1 country code. Try re-entering your number.',
       );
     });
   });
@@ -337,7 +337,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code sent successfully',
         ToastType.SUCCESS,
-        'msb-success-with-camera-icon'
+        'msb-success-with-camera-icon',
       );
       expect(component.sendCodeLoading).toBeFalse();
     });
@@ -348,7 +348,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.sendCodeLoading).toBeFalse();
       expect(component.disableResendOtp).toBeTrue();
@@ -369,7 +369,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.disableResendOtp).toBeTrue();
     });
@@ -390,7 +390,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.disableResendOtp).toBeTrue();
     });
@@ -407,7 +407,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Invalid mobile number. Please try again.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -423,7 +423,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'The code has expired. Please request a new one.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -440,7 +440,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'The code has expired. Please request a new one.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -456,7 +456,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -471,7 +471,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
   });
@@ -512,7 +512,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.optInFlowState).toBe(OptInFlowState.OTP_VERIFICATION);
     }));
@@ -559,11 +559,11 @@ describe('FyOptInComponent', () => {
     expect(trackingService.clickedOnHelpArticle).toHaveBeenCalledTimes(1);
     expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
       '#280a31',
-      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message'
+      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message',
     );
   });
 
-  it('onGotItClicked(): should dismiss the modal and track opt in event', () => {
+  it('onGotItClicked(): should dismiss the modal and track opt-in event', () => {
     component.onGotItClicked();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
       action: 'SUCCESS',
