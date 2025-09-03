@@ -495,7 +495,6 @@ export class ExpensesCardComponent implements OnInit {
     from(this.transactionOutboxService.fileUpload(receiptDetails.dataUrl, attachmentType))
       .pipe(
         switchMap((fileObj: FileObject) => {
-          // this.matchReceiptWithEtxn(fileObj);
           return this.expensesService.attachReceiptToExpense(this.expense().id, fileObj.id);
         }),
         finalize(() => {
