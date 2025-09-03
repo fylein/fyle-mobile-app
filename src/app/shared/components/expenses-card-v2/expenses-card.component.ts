@@ -355,8 +355,6 @@ export class ExpensesCardComponent implements OnInit {
 
     this.setExpenseDetails();
 
-    // this.handleScanStatus();
-
     this.isIos = this.platform.is('ios');
 
     this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(this.expense()));
