@@ -4,7 +4,7 @@ export interface SplitExpense {
   amount: number;
   currency: string;
   percentage: number;
-  txn_dt: string;
+  spent_at: string;
   category?: {
     code?: string;
     created_at: string;

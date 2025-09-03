@@ -471,7 +471,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -516,7 +516,7 @@ export function TestCases3(getTestBed) {
             expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
             expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+            expect(component.getSpendDate).toHaveBeenCalledTimes(1);
             expect(component.getCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -548,7 +548,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -593,7 +593,7 @@ export function TestCases3(getTestBed) {
             expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
             expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+            expect(component.getSpendDate).toHaveBeenCalledTimes(1);
             expect(component.getCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -625,7 +625,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue('areq1234');
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -670,7 +670,7 @@ export function TestCases3(getTestBed) {
             expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
             expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+            expect(component.getSpendDate).toHaveBeenCalledTimes(1);
             expect(component.getCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -702,7 +702,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -742,7 +742,7 @@ export function TestCases3(getTestBed) {
           expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
           expect(component.getBillable).toHaveBeenCalledTimes(1);
           expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+          expect(component.getSpendDate).toHaveBeenCalledTimes(1);
           expect(component.getCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -774,7 +774,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -814,7 +814,7 @@ export function TestCases3(getTestBed) {
           expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
           expect(component.getBillable).toHaveBeenCalledTimes(1);
           expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+          expect(component.getSpendDate).toHaveBeenCalledTimes(1);
           expect(component.getCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -845,7 +845,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -882,7 +882,7 @@ export function TestCases3(getTestBed) {
           expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
           expect(component.getBillable).toHaveBeenCalledTimes(1);
           expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+          expect(component.getSpendDate).toHaveBeenCalledTimes(1);
           expect(component.getCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -1008,7 +1008,7 @@ export function TestCases3(getTestBed) {
 
     describe('trackCreateExpense(): ', () => {
       it('should track create expense event', () => {
-        component.presetCategoryId = trackCreateExpData.tx.org_category_id;
+        component.presetCategoryId = trackCreateExpData.tx.category_id;
         component.presetCostCenterId = trackCreateExpData.tx.cost_center_id;
         component.presetCurrency = trackCreateExpData.tx.orig_currency;
         component.presetProjectId = trackCreateExpData.tx.project_id;
@@ -1031,7 +1031,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should track create expense event for an expense with only original currency', () => {
-        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.category_id;
         component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
         component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;

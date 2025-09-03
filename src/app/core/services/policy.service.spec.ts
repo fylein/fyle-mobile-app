@@ -76,10 +76,10 @@ describe('PolicyService', () => {
     });
     policyService = TestBed.inject(PolicyService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     approverPlatformApiService = TestBed.inject(
-      ApproverPlatformApiService
+      ApproverPlatformApiService,
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
@@ -274,15 +274,15 @@ describe('PolicyService', () => {
       });
     });
 
-    it('should set org_category_id to unspecified if no category is present in the expense', (done) => {
+    it('should set category_id to unspecified if no category is present in the expense', (done) => {
       categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
       const etxn = {
-        tx: { ...publicPolicyExpenseData1, org_category_id: null },
+        tx: { ...publicPolicyExpenseData1, category_id: null },
         dataUrls: fileObject4,
       };
 
       policyService.prepareEtxnForPolicyCheck(etxn, null).subscribe((res) => {
-        expect(res.org_category_id).toEqual(unspecifiedCategory.id);
+        expect(res.category_id).toEqual(unspecifiedCategory.id);
         expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('Unspecified');
         done();
       });

@@ -124,7 +124,7 @@
               class="split-expense--item split-expense--date"
               [ngClass]="{
                 'split-expense--date-invalid':
-                  splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid,
+                  splitExpenseForm.controls.spent_at.touched && !splitExpenseForm.controls.spent_at.valid,
               }"
             >
               <div class="split-expense--label split-expense--date-label">Date of spend</div>
@@ -133,12 +133,12 @@
                 appFormatDate
                 class="split-expense--date-input date-input__format smartlook-show"
                 type="date"
-                formControlName="txn_dt"
+                formControlName="spent_at"
                 [min]="minDate"
                 [max]="maxDate"
               />
             </div>
-            @if (splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid) {
+            @if (splitExpenseForm.controls.spent_at.touched && !splitExpenseForm.controls.spent_at.valid) {
               <div class="split-expense--error">Please select a valid date.</div>
             }
           </div>
