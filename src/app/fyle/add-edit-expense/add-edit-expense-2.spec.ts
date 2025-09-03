@@ -534,7 +534,7 @@ export function TestCases2(getTestBed) {
         const mockedTxn = cloneDeep(transformedExpenseWithExtractedData2);
         const extractedDate = new Date('2023-01-24');
 
-        mockedTxn.tx.txn_dt = null;
+        mockedTxn.tx.spent_at = null;
         mockedTxn.tx.extracted_data.invoice_dt = null;
         mockedTxn.tx.extracted_data.date = extractedDate;
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData2));
@@ -544,7 +544,7 @@ export function TestCases2(getTestBed) {
         component.getEditExpenseObservable().subscribe((res) => {
           expect(res).toEqual(mockedTxn);
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(mockedTxn.tx.extracted_data.date);
-          expect(mockedTxn.tx.txn_dt).toEqual(extractedDate);
+          expect(mockedTxn.tx.spent_at).toEqual(extractedDate);
           done();
         });
       });
@@ -553,7 +553,7 @@ export function TestCases2(getTestBed) {
         const mockedTxn = cloneDeep(transformedExpenseWithExtractedData2);
         const extractedDate = new Date('2023-01-24');
 
-        mockedTxn.tx.txn_dt = new Date('2023-01-23');
+        mockedTxn.tx.spent_at = new Date('2023-01-23');
         mockedTxn.tx.extracted_data.invoice_dt = new Date('2023-01-23');
         mockedTxn.tx.extracted_data.date = extractedDate;
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData2));
@@ -562,7 +562,7 @@ export function TestCases2(getTestBed) {
 
         component.getEditExpenseObservable().subscribe((res) => {
           expect(res).toEqual(mockedTxn);
-          expect(mockedTxn.tx.txn_dt).toEqual(mockedTxn.tx.extracted_data.invoice_dt);
+          expect(mockedTxn.tx.spent_at).toEqual(mockedTxn.tx.extracted_data.invoice_dt);
           done();
         });
       });

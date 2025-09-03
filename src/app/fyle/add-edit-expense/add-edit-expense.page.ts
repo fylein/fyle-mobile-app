@@ -1455,7 +1455,7 @@ export class AddEditExpensePage implements OnInit {
                 spent_at: new Date(bankTxn.ccce.txn_dt),
                 source: 'MOBILE',
                 currency: bankTxn.ccce.currency,
-                org_category_id: bankTxn.org_category_id,
+                category_id: bankTxn.org_category_id,
                 amount: bankTxn.ccce.amount,
                 vendor: bankTxn.ccce.vendor,
                 purpose: bankTxn.ccce.description,
@@ -1515,7 +1515,7 @@ export class AddEditExpensePage implements OnInit {
             }
 
             if (extractedCategory) {
-              etxn.tx.org_category_id = extractedCategory.id;
+              etxn.tx.category_id = extractedCategory.id;
               etxn.tx.fyle_category = extractedCategory.fyle_category;
             }
           }
@@ -1573,8 +1573,8 @@ export class AddEditExpensePage implements OnInit {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         // filter out unspecified category as it is not a valid category
-        if (etxn.tx.org_category_id && etxn.tx.fyle_category?.toLowerCase() !== 'unspecified') {
-          return this.categoriesService.getCategoryById(etxn.tx.org_category_id);
+        if (etxn.tx.category_id && etxn.tx.fyle_category?.toLowerCase() !== 'unspecified') {
+          return this.categoriesService.getCategoryById(etxn.tx.category_id);
         } else {
           return of(null);
         }
@@ -1666,7 +1666,7 @@ export class AddEditExpensePage implements OnInit {
       eou: this.authService.getEou(),
       activeCategories: this.activeCategories$,
       isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled$,
-      selectedCategoryId: this.etxn$.pipe(map((etxn) => etxn.tx.org_category_id)),
+      selectedCategoryId: this.etxn$.pipe(map((etxn) => etxn.tx.category_id)),
     }).pipe(
       switchMap(({ recentValues, eou, activeCategories, isProjectCategoryRestrictionsEnabled, selectedCategoryId }) => {
         const categoryIds = selectedCategoryId ? [`${selectedCategoryId}`] : null;
@@ -1856,7 +1856,7 @@ export class AddEditExpensePage implements OnInit {
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
-            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id),
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.category_id),
           );
 
           const customInputValues: {
@@ -2118,7 +2118,7 @@ export class AddEditExpensePage implements OnInit {
       this.recentCategories = recentCategories;
     }
 
-    const isCategoryEmpty = !etxn.tx.org_category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
+    const isCategoryEmpty = !etxn.tx.category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
 
     /*
      * Autofill should be applied if:
@@ -2175,7 +2175,7 @@ export class AddEditExpensePage implements OnInit {
           etxn: Partial<UnflattenedTransaction>;
         }) => {
           const isExpenseCategoryUnspecified = etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
-          if (this.initialFetch && etxn.tx.org_category_id && !isExpenseCategoryUnspecified) {
+          if (this.initialFetch && etxn.tx.category_id && !isExpenseCategoryUnspecified) {
             return this.selectedCategory$.pipe(
               map((selectedCategory) => ({
                 employeeSettings,
@@ -2205,7 +2205,7 @@ export class AddEditExpensePage implements OnInit {
           employeeSettings?.expense_form_autofills?.enabled;
         const isCategoryExtracted = etxn.tx?.extracted_data?.category;
         if (this.initialFetch) {
-          if (etxn.tx.org_category_id) {
+          if (etxn.tx.category_id) {
             if (etxn.tx.state === 'DRAFT' && etxn.tx.fyle_category?.toLowerCase() === 'unspecified') {
               return this.getAutofillCategory({
                 isAutofillsEnabled,
@@ -2217,7 +2217,7 @@ export class AddEditExpensePage implements OnInit {
             } else {
               return selectedCategory;
             }
-          } else if (etxn.tx.state === 'DRAFT' && !isCategoryExtracted && !etxn.tx.org_category_id) {
+          } else if (etxn.tx.state === 'DRAFT' && !isCategoryExtracted && !etxn.tx.category_id) {
             return this.getAutofillCategory({
               isAutofillsEnabled,
               recentValue: recentValues,
@@ -2255,8 +2255,7 @@ export class AddEditExpensePage implements OnInit {
           const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
           if (
             !isCategoryExtracted &&
-            (!etxn.tx.org_category_id ||
-              (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))
+            (!etxn.tx.category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))
           ) {
             return this.getAutofillCategory({
               isAutofillsEnabled,
@@ -2416,7 +2415,7 @@ export class AddEditExpensePage implements OnInit {
           [id: string]: AbstractControl;
         } = {
           purpose: this.fg.controls.purpose,
-          spent_at: this.fg.controls.dateOfSpend,
+          txn_dt: this.fg.controls.dateOfSpend,
           vendor_id: this.fg.controls.vendor_id,
           cost_center_id: this.fg.controls.costCenter,
           from_dt: this.fg.controls.from_dt,
@@ -2576,7 +2575,7 @@ export class AddEditExpensePage implements OnInit {
           [id: string]: AbstractControl;
         } = {
           purpose: this.fg.controls.purpose,
-          spent_at: this.fg.controls.dateOfSpend,
+          txn_dt: this.fg.controls.dateOfSpend,
           vendor_id: this.fg.controls.vendor_id,
           from_dt: this.fg.controls.from_dt,
           to_dt: this.fg.controls.to_dt,
@@ -2817,7 +2816,7 @@ export class AddEditExpensePage implements OnInit {
             const categoryName = etxn.tx.extracted_data.category || 'unspecified';
             return this.categoriesService.getCategoryByName(categoryName).pipe(
               map((selectedCategory) => {
-                etxn.tx.org_category_id = selectedCategory && selectedCategory.id;
+                etxn.tx.category_id = selectedCategory && selectedCategory.id;
                 return etxn;
               }),
             );
@@ -3545,7 +3544,7 @@ export class AddEditExpensePage implements OnInit {
     return paymentMode?.type === AccountType.PERSONAL && !paymentMode.isReimbursable;
   }
 
-  getTxnDate(): Date {
+  getSpendDate(): Date {
     const formValue = this.getFormValues();
     return !!formValue?.dateOfSpend ? this.dateService.getUTCDate(new Date(formValue.dateOfSpend)) : null;
   }
@@ -3700,7 +3699,7 @@ export class AddEditExpensePage implements OnInit {
             advance_wallet_id: this.getAdvanceWalletId(isAdvanceWalletEnabled),
             billable: this.getBillable(),
             skip_reimbursement: this.getSkipRemibursement(),
-            spent_at: this.getTxnDate(),
+            spent_at: this.getSpendDate(),
             currency: this.getCurrency(),
             amount,
             orig_currency: this.getOriginalCurrency(),
@@ -3708,7 +3707,7 @@ export class AddEditExpensePage implements OnInit {
             project_id: this.getProjectID(),
             tax_amount: this.getTaxAmount(),
             tax_group_id: this.getTaxGroupID(),
-            org_category_id: category_id,
+            category_id: category_id,
             fyle_category: this.getFyleCategory(),
             policy_amount: null,
             vendor: this.getDisplayName(),
@@ -4092,7 +4091,7 @@ export class AddEditExpensePage implements OnInit {
       Category: etxn.tx.org_category,
       Time_Spent: this.getTimeSpentOnPage() + ' secs',
       Used_Autofilled_Category:
-        etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
+        etxn.tx.category_id && this.presetCategoryId && etxn.tx.category_id === this.presetCategoryId,
       Used_Autofilled_Project:
         etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
       Used_Autofilled_CostCenter:
@@ -4341,7 +4340,7 @@ export class AddEditExpensePage implements OnInit {
         Category: etxn.tx.org_category,
         Time_Spent: this.getTimeSpentOnPage() + ' secs',
         Used_Autofilled_Category:
-          etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
+          etxn.tx.category_id && this.presetCategoryId && etxn.tx.category_id === this.presetCategoryId,
         Used_Autofilled_Project:
           etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
         Used_Autofilled_CostCenter:
@@ -4422,7 +4421,7 @@ export class AddEditExpensePage implements OnInit {
       Category: etxn.tx.org_category,
       Time_Spent: this.getTimeSpentOnPage() + ' secs',
       Used_Autofilled_Category:
-        etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
+        etxn.tx.category_id && this.presetCategoryId && etxn.tx.category_id === this.presetCategoryId,
       Used_Autofilled_Project:
         etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
       Used_Autofilled_CostCenter:

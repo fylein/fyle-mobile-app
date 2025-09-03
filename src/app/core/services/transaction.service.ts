@@ -654,7 +654,7 @@ export class TransactionService {
         creator_id: expense.creator_user_id,
         request_id: expense.is_receipt_mandatory,
         report_id: expense.report_id,
-        org_category_id: expense.category_id,
+        category_id: expense.category_id,
         cost_center_id: expense.cost_center_id,
         cost_center_name: expense.cost_center?.name,
         cost_center_code: expense.cost_center?.code,

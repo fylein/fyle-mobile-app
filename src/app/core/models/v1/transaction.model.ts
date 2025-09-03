@@ -49,7 +49,7 @@ export interface Transaction {
   mileage_vehicle_type?: string;
   num_days?: number;
   num_files?: number;
-  org_category_id?: number;
+  category_id?: number;
   org_user_id?: string;
   orig_amount?: number;
   orig_currency?: string;

@@ -646,13 +646,13 @@ export function TestCases5(getTestBed) {
 
         component.getSelectedCategory().subscribe((res) => {
           expect(res).toEqual(orgCategoryData);
-          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.org_category_id);
+          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.category_id);
           done();
         });
       });
 
       it('should return null if category is not present in expense', (done) => {
-        component.etxn$ = of({ ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category_id: null } });
+        component.etxn$ = of({ ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, category_id: null } });
         fixture.detectChanges();
 
         component.getSelectedCategory().subscribe((res) => {
@@ -821,7 +821,7 @@ export function TestCases5(getTestBed) {
         expect(recentlyUsedItemsService.getRecentlyUsedProjects).toHaveBeenCalledOnceWith({
           recentValues: recentlyUsedRes,
           eou: apiEouRes,
-          categoryIds: [`${unflattenedTxnWithCategory.tx.org_category_id}`],
+          categoryIds: [`${unflattenedTxnWithCategory.tx.category_id}`],
           isProjectCategoryRestrictionsEnabled: true,
           activeCategoryList: sortedCategory,
         });
