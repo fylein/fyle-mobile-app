@@ -1,21 +1,26 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { IonicModule } from '@ionic/angular';
+import { cloneDeep } from 'lodash';
+import { of } from 'rxjs';
 
 import { ProfileOptInCardComponent } from './profile-opt-in-card.component';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { eouRes2 } from 'src/app/core/mock-data/extended-org-user.data';
-import { cloneDeep } from 'lodash';
-import { of } from 'rxjs';
+import { platformEmployeeResponse } from 'src/app/core/mock-data/platform/v1/platform-employee.data';
 
 describe('ProfileOptInCardComponent', () => {
   let component: ProfileOptInCardComponent;
   let fixture: ComponentFixture<ProfileOptInCardComponent>;
   let clipboardService: jasmine.SpyObj<ClipboardService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let employeesService: jasmine.SpyObj<EmployeesService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+
   beforeEach(waitForAsync(() => {
     const clipboardServiceSpy = jasmine.createSpyObj('ClipboardService', ['writeString']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -24,6 +29,7 @@ describe('ProfileOptInCardComponent', () => {
       'clickedOnEditNumber',
       'clickedOnDeleteNumber',
     ]);
+    const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getByParams']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
         reRenderOnLangChange: true,
@@ -33,10 +39,11 @@ describe('ProfileOptInCardComponent', () => {
     });
     TestBed.configureTestingModule({
       declarations: [ProfileOptInCardComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [IonicModule.forRoot(), HttpClientTestingModule, TranslocoModule],
       providers: [
         { provide: ClipboardService, useValue: clipboardServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
+        { provide: EmployeesService, useValue: employeesServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -47,6 +54,8 @@ describe('ProfileOptInCardComponent', () => {
     clipboardService = TestBed.inject(ClipboardService) as jasmine.SpyObj<ClipboardService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
+    employeesService.getByParams.and.returnValue(of(platformEmployeeResponse));
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'profileOptInCard.copySuccess': 'Phone Number Copied Successfully',

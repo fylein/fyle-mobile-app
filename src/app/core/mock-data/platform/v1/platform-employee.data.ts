@@ -21,6 +21,8 @@ export const platformEmployeeData: PlatformEmployee = deepFreeze({
     id: 'usJZ9bgfNB5n',
   },
   user_id: 'usJZ9bgfNB5n',
+  is_mobile_verified: true,
+  sms_opt_out_source: null,
   delegatees: [
     {
       id: 100,
