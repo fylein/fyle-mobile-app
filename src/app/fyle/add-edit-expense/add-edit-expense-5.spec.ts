@@ -12,10 +12,8 @@ import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/m
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
 import { projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { splitExpTransformedData } from 'src/app/core/mock-data/expense.data';
 import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { expectedFileData1 } from 'src/app/core/mock-data/file-object.data';
 import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 
 import {
@@ -1756,9 +1754,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
-        transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[0]);
-        transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[1]);
-        const mockFileObject = cloneDeep(expectedFileData1);
         spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
         fileService.downloadUrl.and.returnValue(of('url'));
         activatedRoute.snapshot.params.activeIndex = JSON.stringify(1);
