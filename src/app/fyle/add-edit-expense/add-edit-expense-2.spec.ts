@@ -9,7 +9,6 @@ import { Observable, Subscription, finalize, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1, duplicateSetData6 } from 'src/app/core/mock-data/duplicate-sets.data';
-import { expenseData1, expenseData2, transformedPlatformedExpense } from 'src/app/core/mock-data/expense.data';
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { orgCategoryData } from 'src/app/core/mock-data/org-category.data';
@@ -90,10 +89,7 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import {
-  expenseDuplicateSet2,
-  expenseDuplicateSet3,
-} from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
+import { expenseDuplicateSet3 } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 import { cloneDeep } from 'lodash';
 import {
   platformExpenseData,
@@ -107,7 +103,7 @@ import {
   transformedExpenseWithExtractedData,
   transformedExpenseWithExtractedData2,
 } from 'src/app/core/mock-data/transformed-expense.data';
-import { apiExpenses1, apiExpenses2, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { apiExpenses1, apiExpenses2 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
@@ -174,7 +170,6 @@ export function TestCases2(getTestBed) {
 
     beforeEach(() => {
       const TestBed = getTestBed();
-      const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
       TestBed.compileComponents();
 
       fixture = TestBed.createComponent(AddEditExpensePage);
@@ -1541,8 +1536,7 @@ export function TestCases2(getTestBed) {
 
         expensesService.getDuplicatesByExpense.and.returnValue(of([expenseDuplicateSet3]));
         expensesService.getAllExpenses.and.returnValue(of(apiExpenses2));
-        transactionService.transformRawExpense.and.returnValue(transformedPlatformedExpense);
-        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([transformedPlatformedExpense]);
+        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([apiExpenses2[0]]);
 
         component.getDuplicateExpenses();
 
@@ -1554,10 +1548,7 @@ export function TestCases2(getTestBed) {
             id: 'in.(txal5xGjbZ1R)',
           },
         });
-        expect(transactionService.transformRawExpense).toHaveBeenCalledOnceWith(apiExpenses2[0]);
-        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData6, [
-          transformedPlatformedExpense,
-        ]);
+        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData6, apiExpenses2);
       });
 
       it('should return empty array if no duplicate is found in platform', () => {
@@ -1573,8 +1564,8 @@ export function TestCases2(getTestBed) {
     });
 
     it('addExpenseDetailsToDuplicateSets(): should add expense to duplicate sets if there exists a duplicate expense', () => {
-      const result = component.addExpenseDetailsToDuplicateSets(duplicateSetData1, [expenseData1, expenseData2]);
-      expect(result).toEqual([expenseData1]);
+      const result = component.addExpenseDetailsToDuplicateSets(duplicateSetData1, [apiExpenses1[0], apiExpenses2[0]]);
+      expect(result).toEqual([apiExpenses1[0]]);
     });
 
     describe('showSuggestedDuplicates():', () => {
@@ -1588,14 +1579,14 @@ export function TestCases2(getTestBed) {
 
         modalController.create.and.resolveTo(currencyModalSpy);
 
-        component.showSuggestedDuplicates([expenseData1]);
+        component.showSuggestedDuplicates([apiExpenses1[0]]);
         tick(500);
 
         expect(trackingService.showSuggestedDuplicates).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: SuggestedDuplicatesComponent,
           componentProps: {
-            duplicateExpenseIDs: ['tx5fBcPBAxLv'],
+            duplicateExpenseIDs: [apiExpenses1[0].id],
           },
           mode: 'ios',
           ...properties,
@@ -1614,14 +1605,14 @@ export function TestCases2(getTestBed) {
 
         modalController.create.and.resolveTo(currencyModalSpy);
 
-        component.showSuggestedDuplicates([expenseData1]);
+        component.showSuggestedDuplicates([apiExpenses1[0]]);
         tick(500);
 
         expect(trackingService.showSuggestedDuplicates).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: SuggestedDuplicatesComponent,
           componentProps: {
-            duplicateExpenseIDs: ['tx5fBcPBAxLv'],
+            duplicateExpenseIDs: [apiExpenses1[0].id],
           },
           mode: 'ios',
           ...properties,

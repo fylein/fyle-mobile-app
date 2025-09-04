@@ -1,10 +1,11 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { DuplicateSet } from '../models/v2/duplicate-sets.model';
+import { apiExpenses1 } from './platform/v1/expense.data';
 
 export const duplicateSetData1: DuplicateSet = deepFreeze({
   fields: ['field1', 'field2'],
-  transaction_ids: ['tx5fBcPBAxLv'],
+  transaction_ids: [apiExpenses1[0].id],
 });
 
 export const duplicateSetData2: DuplicateSet = deepFreeze({

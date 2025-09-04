@@ -4,8 +4,8 @@ import { optionsData15, optionsData33 } from './merge-expenses-options-data.data
 
 export const mergeExpenseFormData1 = deepFreeze({
   genericFields: {
-    paymentMode: 'CORPORATE_CARD',
-    amount: '1024',
+    paymentMode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+    amount: '4.8',
     project: 13795,
     costCenter: 13796,
   },
@@ -29,8 +29,8 @@ export const mergeExpenseFormData1 = deepFreeze({
 
 export const mergeExpenseFormData2 = deepFreeze({
   genericFields: {
-    paymentMode: 'CORPORATE_CARD',
-    amount: '1024',
+    paymentMode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+    amount: '4.8',
     project: 13795,
     costCenter: 13796,
   },
@@ -53,8 +53,8 @@ export const mergeExpenseFormData2 = deepFreeze({
 
 export const mergeExpenseFormData3 = deepFreeze({
   genericFields: {
-    paymentMode: 'CORPORATE_CARD',
-    amount: '1024',
+    paymentMode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+    amount: '4.8',
     project: 13795,
     costCenter: 13796,
   },
@@ -75,8 +75,8 @@ export const mergeExpenseFormData3 = deepFreeze({
 
 export const mergeExpenseFormData4 = deepFreeze({
   genericFields: {
-    paymentMode: 'CORPORATE_CARD',
-    amount: '3',
+    paymentMode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+    amount: '4.8',
   },
   custom_inputs: {
     fields: [
@@ -98,8 +98,8 @@ export const mergeExpenseFormData4 = deepFreeze({
 
 export const mergeExpenseFormData5 = deepFreeze({
   genericFields: {
-    paymentMode: 'CORPORATE_CARD',
-    amount: '1024',
+    paymentMode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+    amount: '4.8',
   },
   custom_inputs: {
     fields: [
