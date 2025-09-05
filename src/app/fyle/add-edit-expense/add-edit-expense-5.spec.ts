@@ -932,20 +932,6 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    it('setCategoryOnValueChange(): should change category value if vendor changes', fakeAsync(() => {
-      component.setCategoryOnValueChange();
-      spyOn(component, 'setCategoryFromVendor');
-      tick(500);
-
-      component.fg.controls.vendor_id.setValue({
-        name: 'vendor',
-      });
-      fixture.detectChanges();
-      tick(500);
-
-      expect(component.setCategoryFromVendor).toHaveBeenCalledOnceWith('TAXI');
-    }));
-
     describe('setupFormInit():', () => {
       it('should setup form', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
@@ -970,7 +956,7 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
+
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1000,7 +986,6 @@ export function TestCases5(getTestBed) {
           etxn: unflattenedTxnData,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
       //TODO: Reduce the number of test by moving it to beforeEach
@@ -1027,7 +1012,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1045,7 +1029,6 @@ export function TestCases5(getTestBed) {
           etxn: unflattenedTxnData,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
         expect(component.fg.value.paymentMode).toEqual(accountOptionData1[1].value);
       }));
 
@@ -1083,7 +1066,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue([
           ...txnCustomProperties,
@@ -1118,7 +1100,6 @@ export function TestCases5(getTestBed) {
           },
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
       it('should setup up form for a draft expense with policy violation', fakeAsync(() => {
@@ -1144,7 +1125,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         customFieldsService.standardizeCustomFields.and.returnValue(filledCustomProperties);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
         activatedRoute.snapshot.params.extractData = true;
@@ -1169,7 +1149,6 @@ export function TestCases5(getTestBed) {
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
         expect(component.parseFile).toHaveBeenCalledTimes(1);
         expect(component.attachedReceiptsCount).toEqual(1);
       }));
@@ -1197,7 +1176,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of([]);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1227,7 +1205,6 @@ export function TestCases5(getTestBed) {
           etxn: setupFormExpenseWoCurrency,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
       it('setup form without amount and same currency as home currency', fakeAsync(() => {
@@ -1253,7 +1230,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of([]);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1283,7 +1259,6 @@ export function TestCases5(getTestBed) {
           etxn: setupFormExpenseWoCurrency2,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
       it('setup form for an expense with different currencies and DRAFT state', fakeAsync(() => {
@@ -1309,7 +1284,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of([]);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1339,7 +1313,6 @@ export function TestCases5(getTestBed) {
           etxn: setupFormExpenseWoCurrency3,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
       it('setup form for an expense with different currencies and DRAFT state if recently used categories are undefined', fakeAsync(() => {
@@ -1365,7 +1338,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(undefined);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1383,7 +1355,6 @@ export function TestCases5(getTestBed) {
           etxn: setupFormExpenseWoCurrency3,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
     });
 
