@@ -2,7 +2,7 @@ import { CustomField } from './custom_field.model';
 
 export interface OrgUser {
   id: string;
-  created_at?: Date;
+  created_at?: Date | string;
   org_id: string;
   user_id?: string;
   employee_id?: number | string;
@@ -18,27 +18,20 @@ export interface OrgUser {
   approver1_id?: string;
   approver2_id?: string;
   approver3_id?: string;
-  delegatee_id?: string;
-  delegation_start_at?: Date;
-  delegation_end_at?: Date;
   title?: string;
   status: string;
   branch_ifsc?: string;
   branch_account?: string;
   mobile: string;
-  mobile_verified?: boolean;
+  mobile_verified?: boolean | string;
   mobile_verified_at?: Date;
   is_primary?: boolean;
   owner?: boolean;
-  joining_dt?: Date;
+  joining_dt?: Date | string;
   special_email?: string;
   custom_field_values?: CustomField[];
-  org_name: string;
+  org_name?: string;
   settings_id?: string;
-  default_cost_center_id?: number;
-  default_cost_center_name?: string;
-  default_cost_center_code?: string;
-  rank?: number;
   cost_center_ids?: number[];
-  mobile_verification_attempts_left?: number;
+  mobile_verification_attempts_left?: number | string;
 }
