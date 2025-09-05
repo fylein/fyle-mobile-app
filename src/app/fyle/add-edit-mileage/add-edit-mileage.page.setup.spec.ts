@@ -169,7 +169,6 @@ describe('AddEditMileagePage', () => {
       'deleteExpense',
       'unlinkCorporateCardExpense',
       'showToastMessage',
-      'setCategoryFromVendor',
       'saveReceiptWithInvalidForm',
       'clickSaveAddNew',
       'policyCorrection',

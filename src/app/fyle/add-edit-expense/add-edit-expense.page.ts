@@ -1752,14 +1752,6 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  setCategoryOnValueChange(): void {
-    this.fg.controls.vendor_id.valueChanges.subscribe((vendor: { default_category: string }) => {
-      if (this.fg.controls.category.pristine && !this.fg.controls.category.value && vendor && vendor.default_category) {
-        this.setCategoryFromVendor(vendor.default_category);
-      }
-    });
-  }
-
   setupFormInit(): void {
     // Set loading state when form initialization starts
     this.isLoading = true;
@@ -2086,8 +2078,6 @@ export class AddEditExpensePage implements OnInit {
             this.attachedReceiptsCount = this.newExpenseDataUrls.length;
           }
 
-          this.setCategoryOnValueChange();
-
           if (this.activatedRoute.snapshot.params.extractData && this.activatedRoute.snapshot.params.image) {
             this.parseFile(
               JSON.parse(this.activatedRoute.snapshot.params.image as string) as {
@@ -2141,15 +2131,6 @@ export class AddEditExpensePage implements OnInit {
       }
     }
     return category;
-  }
-
-  setCategoryFromVendor(defaultCategory: string): void {
-    this.categoriesService.getCategoryByName(defaultCategory).subscribe((category) => {
-      if (category) {
-        this.trackingService.setCategoryFromVendor(category);
-        this.fg.controls.category.patchValue(category);
-      }
-    });
   }
 
   getCategoryOnEdit(category: OrgCategory): Observable<OrgCategory | null> {

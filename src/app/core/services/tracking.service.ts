@@ -677,10 +677,6 @@ export class TrackingService {
     this.eventTrack('Menu Item Clicked', properties);
   }
 
-  setCategoryFromVendor(properties = {} as OrgCategory): void {
-    this.eventTrack('Category Updated By Vendor', properties);
-  }
-
   receiptLimitReached(properties = {}): void {
     this.eventTrack('Popover shown since receipt limit exceeded', properties);
   }
