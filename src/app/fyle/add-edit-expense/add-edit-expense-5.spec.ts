@@ -939,7 +939,6 @@ export function TestCases5(getTestBed) {
 
       component.fg.controls.vendor_id.setValue({
         name: 'vendor',
-        default_category: 'TAXI',
       });
       fixture.detectChanges();
       tick(500);

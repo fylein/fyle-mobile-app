@@ -89,7 +89,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
           // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
           // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
           this.cdr.detectChanges();
-          return this.vendorService.get(searchText).pipe(
+          return this.vendorService.getMerchants(searchText).pipe(
             map((vendors) =>
               vendors.map((vendor) => ({
                 label: vendor.display_name,
