@@ -80,6 +80,14 @@
                 }
               ]
             },
+            "bw": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.bw.ts"
+                }
+              ]
+            },
             "ci": {
               "progress": false
             }
@@ -89,7 +97,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "app:build"
+            "buildTarget": "app:build",
+            "port": 8100
           },
           "configurations": {
             "production": {
@@ -97,6 +106,9 @@
             },
             "staging": {
               "buildTarget": "app:build:staging"
+            },
+            "bw": {
+              "buildTarget": "app:build:bw"
             },
             "ci": {}
           }
@@ -182,6 +194,9 @@
           "configurations": {
             "production": {
               "devServerTarget": "app:serve:production"
+            },
+            "bw": {
+              "devServerTarget": "app:serve:bw"
             }
           }
         }

@@ -4,7 +4,9 @@ import { defineConfig, devices } from '@playwright/test';
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// require('dotenv').config();
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env-e2e' });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -12,7 +14,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env['CI'],
   /* Retry on CI only */
@@ -24,10 +26,20 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env['PLAYWRIGHT_TEST_BASE_URL'] ?? 'http://localhost:4200',
+    baseURL: process.env['PLAYWRIGHT_TEST_BASE_URL'] ?? 'http://localhost:8100',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
+    ignoreHTTPSErrors: !process.env.CI, // for local dev
+    headless: process.env.CI ? true : false,
+  },
+
+  timeout: 75_000,
+  globalSetup: './e2e/global-setup.ts',
+
+  reportSlowTests: {
+    max: 10,
+    threshold: 1000 * 60,
   },
 
   /* Configure projects for major browsers */

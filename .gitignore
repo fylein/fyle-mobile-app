@@ -44,6 +44,7 @@ android/app/google-services.json
 ios/App/App/GoogleService-Info.plist
 setup.sh
 .env
+.env-e2e
 .angular
 
 # Sentry Config File

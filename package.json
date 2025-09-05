@@ -111,6 +111,7 @@
     "@capacitor/cli": "^7.0.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.31.0",
+    "@faker-js/faker": "^10.0.0",
     "@fyle/eslint-plugin": "github:fylein/fyle-eslint-plugin#v1.0.1",
     "@ionic/angular-toolkit": "^10.1.1",
     "@playwright/test": "1.55.0",
