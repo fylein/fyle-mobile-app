@@ -50,3 +50,7 @@ setup.sh
 .sentryclirc
 dependency-check-report.csv
 repo_vulns.csv
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
