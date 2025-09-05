@@ -44,9 +44,14 @@ android/app/google-services.json
 ios/App/App/GoogleService-Info.plist
 setup.sh
 .env
+.env-e2e
 .angular
 
 # Sentry Config File
 .sentryclirc
 dependency-check-report.csv
 repo_vulns.csv
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
