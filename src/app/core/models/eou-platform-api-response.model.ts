@@ -1,0 +1,43 @@
+import { CommuteDetails } from './platform/v1/commute-details.model';
+import { User } from './user.model';
+import { Level } from './platform/v1/level.model';
+import { Department } from './department.model';
+import { Delegatees } from './delegatees.model';
+import { Locale } from './locale.model';
+import { CustomField } from './custom_field.model';
+
+export interface EouPlatformApiResponse {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  joined_at: string;
+  org_id: string;
+  user_id: string;
+  user: User;
+  code: string;
+  location: string;
+  level_id: string;
+  level: Level;
+  business_unit: string;
+  department_id: string;
+  department: Department;
+  roles: string[];
+  approver_user_ids: string[];
+  approver_users: User[];
+  delegatees: Delegatees[];
+  title: string;
+  special_email: string;
+  is_enabled: boolean;
+  has_accepted_invite: boolean;
+  branch_ifsc: string;
+  branch_account: string;
+  locale: Locale;
+  mobile: string;
+  is_mobile_verified: string;
+  custom_fields: CustomField[];
+  flattened_custom_field: Record<string, unknown>;
+  commute_details_id: string;
+  commute_details: CommuteDetails;
+  mobile_verification_attempts_left: string;
+  is_primary: boolean;
+}
