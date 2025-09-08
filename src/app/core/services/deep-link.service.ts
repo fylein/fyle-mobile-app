@@ -133,7 +133,7 @@ export class DeepLinkService {
   }
 
   getExpenseRoute(etxn: Partial<UnflattenedTransaction>): string[] {
-    const category = etxn.tx.org_category?.toLowerCase();
+    const category = etxn.tx.category?.name?.toLowerCase();
     const canEditTxn = ['DRAFT', 'COMPLETE', 'APPROVER_PENDING'].includes(etxn.tx.state);
 
     let route: string[] = [];
