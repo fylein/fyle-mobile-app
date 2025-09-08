@@ -1,4 +1,4 @@
-export interface Delegatees {
+export interface Delegatee {
   id: number;
   type: string;
   user_id: string;

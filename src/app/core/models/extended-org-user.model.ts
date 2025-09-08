@@ -2,7 +2,7 @@ import { OrgUser } from './org-user.model';
 import { User } from './user.model';
 import { Approver } from './approver.model';
 import { CommuteDetails } from './platform/v1/commute-details.model';
-import { Delegatees } from './delegatees.model';
+import { Delegatee } from './delegatees.model';
 import { Department } from './department.model';
 import { Locale } from './locale.model';
 
@@ -14,7 +14,7 @@ export interface ExtendedOrgUser {
   ap3: Approver;
   department: Department;
   approver_users: User[];
-  delegatees: Delegatees[];
+  delegatees: Delegatee[];
   locale: Locale;
   commute_details: CommuteDetails;
   approver_user_ids: string[];

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CustomField } from '../models/custom_field.model';
+import { CustomProperty } from '../models/custom-properties.model';
 import { EouPlatformApiResponse } from '../models/eou-platform-api-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
@@ -35,7 +36,7 @@ export class DataTransformService {
     return 'ACTIVE';
   }
 
-  transformCustomFields(customFields: CustomField[]): { name: string; value: number | string }[] {
+  transformCustomFields(customFields: CustomField[]): CustomProperty<number | string>[] {
     return (
       customFields.map((field) => ({
         name: field.name,
@@ -45,7 +46,7 @@ export class DataTransformService {
   }
 
   transformExtOrgUserResponse(platformRes: EouPlatformApiResponse): ExtendedOrgUser {
-    const transformedResponse = {
+    const transformedResponse: ExtendedOrgUser = {
       ou: {
         id: platformRes.id,
         created_at: platformRes.created_at,

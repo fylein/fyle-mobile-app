@@ -2,7 +2,7 @@ import { CommuteDetails } from './platform/v1/commute-details.model';
 import { User } from './user.model';
 import { Level } from './platform/v1/level.model';
 import { Department } from './department.model';
-import { Delegatees } from './delegatees.model';
+import { Delegatee } from './delegatees.model';
 import { Locale } from './locale.model';
 import { CustomField } from './custom_field.model';
 
@@ -24,7 +24,7 @@ export interface EouPlatformApiResponse {
   roles: string[];
   approver_user_ids: string[];
   approver_users: User[];
-  delegatees: Delegatees[];
+  delegatees: Delegatee[];
   title: string;
   special_email: string;
   is_enabled: boolean;

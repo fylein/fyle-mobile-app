@@ -3,6 +3,7 @@ import { CustomField } from './custom_field.model';
 export interface OrgUser {
   id: string;
   created_at?: Date | string;
+  updated_at?: Date | string;
   org_id: string;
   user_id?: string;
   employee_id?: number | string;
