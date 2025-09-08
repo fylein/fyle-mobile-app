@@ -1,5 +1,6 @@
 import { ExpenseTransactionStatus } from '../../enums/platform/v1/expense-transaction-status.enum';
 import { Destination } from '../destination.model';
+import { PlatformCategory } from '../platform/platform-category.model';
 import { File } from '../platform/v1/file.model';
 import { TxnCustomProperties } from '../txn-custom-properties.model';
 
@@ -12,7 +13,6 @@ export interface Transaction {
   amount?: number;
   billable?: boolean;
   bus_travel_class?: string;
-  category?: string;
   cost_center_id?: number;
   created_at?: Date;
   creator_id?: string;
@@ -98,7 +98,7 @@ export interface Transaction {
   cost_center_code?: string;
   transcription_state?: string;
   verification_state?: string;
-  org_category?: string;
+  category?: Pick<PlatformCategory, 'code' | 'id' | 'display_name' | 'name' | 'sub_category' | 'system_category'>;
   sub_category?: string;
   org_category_code?: string;
   user_review_needed?: boolean;

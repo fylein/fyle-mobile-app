@@ -554,8 +554,8 @@ export class TasksComponent implements OnInit {
       .subscribe(({ initial, allExpenseIds }) => {
         let category;
 
-        if (initial.tx.org_category) {
-          category = initial.tx.org_category.toLowerCase();
+        if (initial.tx.category?.name) {
+          category = initial.tx.category.name.toLowerCase();
         }
 
         if (category === 'mileage') {

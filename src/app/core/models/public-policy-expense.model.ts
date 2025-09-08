@@ -94,7 +94,6 @@ export interface PublicPolicyExpense {
   cost_center_code?: string;
   transcription_state?: string;
   verification_state?: string;
-  org_category?: string;
   sub_category?: string;
   org_category_code?: string;
   corporate_credit_card_expense_group_id?: string;
