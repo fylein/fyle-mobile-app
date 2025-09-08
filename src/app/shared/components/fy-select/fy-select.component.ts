@@ -49,8 +49,6 @@ export class FySelectComponent implements ControlValueAccessor {
 
   readonly customInput = input(false);
 
-  readonly subheader = input('All');
-
   readonly enableSearch = input(true);
 
   readonly selectModalHeader = input('');
@@ -145,7 +143,6 @@ export class FySelectComponent implements ControlValueAccessor {
         nullOption: this.nullOption(),
         cacheName: this.cacheName(),
         customInput: this.customInput(),
-        subheader: this.subheader(),
         enableSearch: this.enableSearch(),
         selectModalHeader: this.selectModalHeader() || this.translocoService.translate<string>('fySelect.selectItem'),
         placeholder: this.placeholder(),
