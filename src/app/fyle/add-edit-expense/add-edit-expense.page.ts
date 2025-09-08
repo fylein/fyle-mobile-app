@@ -1406,7 +1406,6 @@ export class AddEditExpensePage implements OnInit {
                 policy_amount: null,
                 locations: [],
                 custom_properties: [],
-                num_files: this.activatedRoute.snapshot.params.dataUrl ? 1 : 0,
                 org_user_id: eou.ou.id,
               },
               dataUrls: [],
@@ -1444,7 +1443,6 @@ export class AddEditExpensePage implements OnInit {
                 vendor: personalCardTxn.merchant,
                 skip_reimbursement: false,
                 locations: [],
-                num_files: 0,
                 org_user_id: eou.ou.id,
               },
               dataUrls: [],
@@ -1462,7 +1460,6 @@ export class AddEditExpensePage implements OnInit {
                 skip_reimbursement: false,
                 locations: [],
                 hotel_is_breakfast_provided: false,
-                num_files: 0,
                 org_user_id: eou.ou.id,
               },
               dataUrls: [],
@@ -1528,7 +1525,6 @@ export class AddEditExpensePage implements OnInit {
               type: 'image',
               thumbnail: imageData.url,
             });
-            etxn.tx.num_files = etxn.dataUrls.length;
             this.source = 'MOBILE_DASHCAM_SINGLE';
           }
 
@@ -3633,11 +3629,9 @@ export class AddEditExpensePage implements OnInit {
     etxn$: Observable<Partial<UnflattenedTransaction>>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
   ): Observable<Partial<UnflattenedTransaction>> {
-    const attachements$ = this.getExpenseAttachments(this.mode);
     return forkJoin({
       etxn: etxn$,
       customProperties: standardisedCustomProperties$,
-      attachments: attachements$,
       orgSettings: this.orgSettingsService.get(),
       allCategories: this.allCategories$,
     }).pipe(
@@ -3714,7 +3708,6 @@ export class AddEditExpensePage implements OnInit {
             purpose: this.getPurpose(),
             locations: locations || [],
             custom_properties: customProperties || [],
-            num_files: res.attachments?.length,
             org_user_id: etxn.tx.org_user_id,
             from_dt: this.getFromDt(),
             to_dt: this.getToDt(),
@@ -3795,11 +3788,16 @@ export class AddEditExpensePage implements OnInit {
   }
 
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
-    return this.policyService.getPlatformPolicyExpense(etxn, this.selectedCCCTransaction).pipe(
-      switchMap((platformPolicyExpense) => this.transactionService.checkPolicy(platformPolicyExpense)),
-      catchError((err: Error) => {
-        this.trackingService.checkPolicyError({ label: err });
-        return throwError(() => err);
+    return this.platformExpense$.pipe(
+      switchMap((expense) => {
+        etxn.tx.files = expense.files;
+        return this.policyService.getPlatformPolicyExpense(etxn, this.selectedCCCTransaction).pipe(
+          switchMap((platformPolicyExpense) => this.transactionService.checkPolicy(platformPolicyExpense)),
+          catchError((err: Error) => {
+            this.trackingService.checkPolicyError({ label: err });
+            return throwError(() => err);
+          }),
+        );
       }),
     );
   }
