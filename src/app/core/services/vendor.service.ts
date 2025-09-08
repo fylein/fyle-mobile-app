@@ -1,18 +1,15 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { AuthService } from './auth.service';
-import { from } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
-import { Vendor } from '../models/vendor.model';
+import { map, Observable } from 'rxjs';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { Merchant } from '../models/platform/platform-merchants.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VendorService {
-  private httpClient = inject(HttpClient);
-
-  private authService = inject(AuthService);
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   ROOT_ENDPOINT: string;
 
@@ -20,20 +17,20 @@ export class VendorService {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
-  setRoot(rootUrl: string) {
+  setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
   }
 
-  get(searchString: string) {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.httpClient.get<Vendor[]>(this.ROOT_ENDPOINT + '/vendors/all', {
-          params: {
-            org_user_id: eou.ou.id,
-            q: searchString,
-          },
-        }),
-      ),
-    );
+  getMerchants(searchString: string): Observable<Merchant[]> {
+    const data = {
+      params: {
+        q: searchString,
+        limit: 4, // Retrieving only 4 merchants while searching - retaining public API behaviour
+      },
+    };
+
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<Merchant[]>>('/merchants', data)
+      .pipe(map((response: PlatformApiResponse<Merchant[]>) => response.data));
   }
 }
