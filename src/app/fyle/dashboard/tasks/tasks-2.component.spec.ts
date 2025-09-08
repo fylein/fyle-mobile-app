@@ -114,10 +114,10 @@ export function TestCases2(getTestBed) {
       orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
       popoverController.create.and.returnValues(Promise.resolve(addCardPopoverSpy));
@@ -303,7 +303,7 @@ export function TestCases2(getTestBed) {
       expect(mockPopover.present).toHaveBeenCalled();
     }));
 
-    it('onMobileNumberVerificationTaskClick(): should open opt in modal', fakeAsync(() => {
+    it('onMobileNumberVerificationTaskClick(): should open opt-in modal', fakeAsync(() => {
       authService.getEou.and.resolveTo(apiEouRes);
       const optInModalSpy = jasmine.createSpyObj('optInModal', ['present', 'onWillDismiss']);
       optInModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });

@@ -163,11 +163,11 @@
       "sentBack": "Sent Back",
       "unapproved": "Unapproved",
       "updatePhoneNumberHeader": "Update phone number",
-      "optInToTextReceiptsHeader": "Opt in to text receipts",
+      "optInToTextReceiptsHeader": "Opt-in to text receipts",
       "updatePhoneNumberSubheader": "Update your number to receive reminders for receipts through text messaging.",
       "optInToTextReceiptsSubheader": "Enable texting your receipts and instantly submit expenses",
       "updateAndOptIn": "Update",
-      "optIn": "Opt in",
+      "optIn": "Opt-in",
       "addCorporateCard": "Add corporate card",
       "addCorporateCardSubheader": "Link your corporate card to sync expenses from your card.",
       "addCard": "Add Card",
@@ -444,12 +444,12 @@
     "primaryLabel": "Primary"
   },
   "promoteOptInModal": {
-    "skipMessageBody": "<div>\n <p>You can't send receipts and expense details via text message if you don't opt in.</p>\n <p>Are you sure you want to skip?<p>  \n  </div>",
+    "skipMessageBody": "<div>\n <p>You can't send receipts and expense details via text message if you don't opt-in.</p>\n <p>Are you sure you want to skip?<p>  \n  </div>",
     "areYouSure": "Are you sure?",
-    "yesSkipOptIn": "Yes, skip opt in",
+    "yesSkipOptIn": "Yes, skip opt-in",
     "noGoBack": "No, go back",
     "skip": "Skip",
-    "altOptInGif": "Opt in to text receipts",
+    "altOptInGif": "Opt-in to text receipts",
     "tryAI": " Try AI ",
     "description": "Text receipts for <span class=\"promote-opt-in-modal__instant-text-decoration\">instant</span> <span class=\"promote-opt-in-modal__underline\"></span> expense submission"
   },
@@ -782,15 +782,15 @@
     "copySuccess": "Phone Number Copied Successfully",
     "title": "Opt-in to text receipts",
     "description": "Opt-in to activate text messages for instant expense submission.",
-    "optIn": "Opt in",
+    "optIn": "Opt-in",
     "status": "Status",
-    "optOut": "Opt out",
-    "optedIn": "Opted in",
+    "optOut": "Opt-out",
+    "optedIn": "Opted-in",
     "mobileNumber": "Mobile number",
     "usageDescription": "You can now text your receipts to Fyle at 302-440-2921",
-    "notOptedIn": "Not opted in",
+    "notOptedIn": "Not opted-in",
     "nonUSNumberInfo": "Add a +1 country code to your mobile number to receive text message receipts.",
-    "updateAndOptIn": "Update and opt in"
+    "updateAndOptIn": "Update and opt-in"
   },
   "fyDeleteDialog": {
     "cancel": "Cancel",
@@ -1059,18 +1059,18 @@
     "expenses": " Expenses"
   },
   "dashboardOptIn": {
-    "skipOptInMessage": "<div> <p>You can't send receipts and expense details via text message if you don't opt in.</p> <p>Are you sure you want to skip?</p>  </div>",
+    "skipOptInMessage": "<div> <p>You can't send receipts and expense details via text message if you don't opt-in.</p> <p>Are you sure you want to skip?</p>  </div>",
     "areYouSure": "Are you sure?",
-    "yesSkipOptIn": "Yes, skip opt in",
+    "yesSkipOptIn": "Yes, skip opt-in",
     "noGoBack": "No, go back",
     "skip": "Skip",
-    "altOptInToTextReceipts": "Opt in to text receipts",
+    "altOptInToTextReceipts": "Opt-in to text receipts",
     "tryAI": "Try AI",
     "description": "Text receipts for <span class=\"dashboard-opt-in__instant-text-decoration\">instant</span> <span class=\"dashboard-opt-in__underline\"></span> expense submission"
   },
   "dashboardEmailOptIn": {
     "skip": "Skip",
-    "altOptInToEmailReceipts": "Opt in to email receipts",
+    "altOptInToEmailReceipts": "Opt-in to email receipts",
     "dashboardEmailOptInDescription": "Forward your email receipts for <span class=\"dashboard-opt-in__instant-text-decoration\">instant</span> <span class=\"dashboard-opt-in__underline\"></span> expense creation",
     "skipEmailOptInMessage": "<div> <p>Forwarding receipts to your unique email ID makes expense creation quick and hassle free.</p> <p>Are you sure you want to skip?</p>  </div>",
     "areYouSure": "Are you sure?",
@@ -1218,7 +1218,7 @@
     "confirm": "Yes, dismiss"
   },
   "spenderOnboardingOptInStep": {
-    "title": "Opt in to send text receipts",
+    "title": "Opt-in to send text receipts",
     "subTitle": "This will help you send receipts via text message.",
     "mobileNumberLabel": "Mobile number",
     "mobileNumberPlaceholder": "Enter mobile number with country code e.g +155512345..",

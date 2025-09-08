@@ -62,9 +62,9 @@ describe('DashboardEmailOptInComponent', () => {
     translocoService.translate.and.callFake((key: any) => {
       const translations: { [key: string]: string } = {
         'dashboardEmailOptIn.skipEmailOptInMessage':
-          "<div>\n              <p>You won't receive email updates about your expense status if you don't opt in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
+          "<div>\n              <p>You won't receive email updates about your expense status if you don't opt-in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
         'dashboardEmailOptIn.areYouSure': 'Are you sure?',
-        'dashboardEmailOptIn.yesSkipEmailOptIn': 'Yes, skip opt in',
+        'dashboardEmailOptIn.yesSkipEmailOptIn': 'Yes, skip opt-in',
         'dashboardEmailOptIn.noGoBack': 'No, go back',
       };
       return translations[key] || key;
@@ -99,12 +99,12 @@ describe('DashboardEmailOptInComponent', () => {
   });
 
   describe('getSkipEmailOptInMessageBody()', () => {
-    it('should return translated skip email opt in message', () => {
+    it('should return translated skip email opt-in message', () => {
       const result = component.getSkipEmailOptInMessageBody();
 
       expect(translocoService.translate).toHaveBeenCalledWith('dashboardEmailOptIn.skipEmailOptInMessage');
       expect(result).toBe(
-        "<div>\n              <p>You won't receive email updates about your expense status if you don't opt in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>"
+        "<div>\n              <p>You won't receive email updates about your expense status if you don't opt-in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
       );
     });
   });
@@ -130,9 +130,9 @@ describe('DashboardEmailOptInComponent', () => {
         componentProps: {
           title: 'Are you sure?',
           message:
-            "<div>\n              <p>You won't receive email updates about your expense status if you don't opt in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
+            "<div>\n              <p>You won't receive email updates about your expense status if you don't opt-in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
           primaryCta: {
-            text: 'Yes, skip opt in',
+            text: 'Yes, skip opt-in',
             action: 'continue',
           },
           secondaryCta: {

@@ -32,7 +32,6 @@ import {
   take,
   takeUntil,
   takeWhile,
-  timeout,
 } from 'rxjs/operators';
 import { TranslocoService } from '@jsverse/transloco';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';

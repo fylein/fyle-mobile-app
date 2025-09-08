@@ -52,16 +52,16 @@ describe('ProfileOptInCardComponent', () => {
         'profileOptInCard.copySuccess': 'Phone Number Copied Successfully',
         'profileOptInCard.title': 'Opt-in to text receipts',
         'profileOptInCard.description': 'Opt-in to activate text messages for instant expense submission.',
-        'profileOptInCard.optIn': 'Opt in',
+        'profileOptInCard.optIn': 'Opt-in',
         'profileOptInCard.status': 'Status',
-        'profileOptInCard.optOut': 'Opt out',
-        'profileOptInCard.optedIn': 'Opted in',
+        'profileOptInCard.optOut': 'Opt-out',
+        'profileOptInCard.optedIn': 'Opted-in',
         'profileOptInCard.mobileNumber': 'Mobile number',
         'profileOptInCard.usageDescription': 'You can now text your receipts to Fyle at 302-440-2921',
-        'profileOptInCard.notOptedIn': 'Not opted in',
+        'profileOptInCard.notOptedIn': 'Not opted-in',
         'profileOptInCard.nonUSNumberInfo':
           'Add a +1 country code to your mobile number to receive text message receipts.',
-        'profileOptInCard.updateAndOptIn': 'Update and opt in',
+        'profileOptInCard.updateAndOptIn': 'Update and opt-in',
       };
       let translation = translations[key] || key;
       if (params) {
@@ -113,7 +113,7 @@ describe('ProfileOptInCardComponent', () => {
       expect(component.optInClicked.emit).toHaveBeenCalledOnceWith(component.extendedOrgUser);
     });
 
-    it('should not emit optInClicked if user is already opted in', () => {
+    it('should not emit optInClicked if user is already opted-in', () => {
       spyOn(component.optInClicked, 'emit');
       component.isUserOptedIn = true;
       component.clickedOnOptIn();

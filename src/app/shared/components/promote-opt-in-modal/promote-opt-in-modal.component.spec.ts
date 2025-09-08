@@ -47,12 +47,12 @@ describe('PromoteOptInModalComponent', () => {
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'promoteOptInModal.skipMessageBody':
-          "<div>\n              <p>You can't send receipts and expense details via text message if you don't opt in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
+          "<div>\n              <p>You can't send receipts and expense details via text message if you don't opt-in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
         'promoteOptInModal.areYouSure': 'Are you sure?',
-        'promoteOptInModal.yesSkipOptIn': 'Yes, skip opt in',
+        'promoteOptInModal.yesSkipOptIn': 'Yes, skip opt-in',
         'promoteOptInModal.noGoBack': 'No, go back',
         'promoteOptInModal.skip': 'Skip',
-        'promoteOptInModal.altOptInGif': 'Opt in to text receipts',
+        'promoteOptInModal.altOptInGif': 'Opt-in to text receipts',
         'promoteOptInModal.tryAI': ' Try AI ',
         'promoteOptInModal.description':
           'Text receipts for <span class="promote-opt-in-modal__instant-text-decoration">instant</span>\n      <span class="promote-opt-in-modal__underline"></span> expense submission',
