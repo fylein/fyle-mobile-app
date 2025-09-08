@@ -7,6 +7,7 @@ import {
   Input,
   ChangeDetectorRef,
   inject,
+  input,
 } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Observable, fromEvent, from, combineLatest } from 'rxjs';
@@ -15,7 +16,8 @@ import { map, startWith, distinctUntilChanged, switchMap, catchError, finalize }
 import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
-import { Vendor, VendorListItem } from 'src/app/core/models/vendor.model';
+import { VendorListItem } from 'src/app/core/models/vendor.model';
+import { Merchant } from 'src/app/core/models/platform/platform-merchants.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 
 @Component({
@@ -41,13 +43,9 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchBar') searchBarRef!: ElementRef<HTMLInputElement>;
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() currentSelection: Vendor | null = null;
-
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
   @Input() filteredOptions$!: Observable<VendorListItem[]>;
+
+  readonly currentSelection = input<Merchant | null>(null);
 
   recentrecentlyUsedItems$!: Observable<VendorListItem[]>;
 
@@ -72,7 +70,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     return from(this.recentLocalStorageItemsService.get('recentVendorList')).pipe(
       map((options: VendorListItem[]) =>
         options.map((option) => {
-          option.selected = isEqual(option.value, this.currentSelection);
+          option.selected = isEqual(option.value, this.currentSelection());
           return option;
         }),
       ),
@@ -91,7 +89,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
           // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
           // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
           this.cdr.detectChanges();
-          return this.vendorService.get(searchText).pipe(
+          return this.vendorService.getMerchants(searchText).pipe(
             map((vendors) =>
               vendors.map((vendor) => ({
                 label: vendor.display_name,
@@ -102,7 +100,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
             map((vendors: VendorListItem[]) => {
               const noneOption: VendorListItem = {
                 label: this.translocoService.translate('fySelectVendorModal.none'),
-                value: null as unknown as Vendor,
+                value: null as unknown as Merchant,
               };
               return [noneOption, ...vendors];
             }),
@@ -121,20 +119,20 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       startWith([
         {
           label: this.translocoService.translate('fySelectVendorModal.none'),
-          value: null as unknown as Vendor,
+          value: null as unknown as Merchant,
         },
       ]),
       map((vendors: VendorListItem[]) => {
-        if (this.currentSelection && !vendors.some((vendor) => isEqual(vendor.value, this.currentSelection))) {
+        if (this.currentSelection() && !vendors.some((vendor) => isEqual(vendor.value, this.currentSelection()))) {
           const currentSelectionItem: VendorListItem = {
-            label: this.currentSelection.display_name,
-            value: this.currentSelection,
+            label: this.currentSelection().display_name,
+            value: this.currentSelection(),
           };
           vendors = [...vendors, currentSelectionItem];
         }
 
         return vendors.map((vendor) => {
-          if (isEqual(vendor.value, this.currentSelection)) {
+          if (isEqual(vendor.value, this.currentSelection())) {
             vendor.selected = true;
           }
           return vendor;
@@ -184,7 +182,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     this.value = this.value.trim();
     const newOption: VendorListItem = {
       label: this.value,
-      value: { display_name: this.value } as Vendor,
+      value: { display_name: this.value } as Merchant,
     };
     this.recentLocalStorageItemsService.post('recentVendorList', newOption, 'label');
     this.modalController.dismiss(newOption);

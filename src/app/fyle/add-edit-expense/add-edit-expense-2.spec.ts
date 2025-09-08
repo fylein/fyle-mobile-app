@@ -473,14 +473,6 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('setCategoryFromVendor(): should set category in the form', () => {
-      categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
-
-      component.setCategoryFromVendor(orgCategoryData.displayName);
-      expect(trackingService.setCategoryFromVendor).toHaveBeenCalledOnceWith(orgCategoryData);
-      expect(component.fg.controls.category.value).toEqual(orgCategoryData);
-    });
-
     describe('getEditExpenseObservable(): ', () => {
       it('should get editable expense observable if the txn is in DRAFT state', (done) => {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
