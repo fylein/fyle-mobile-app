@@ -1,4 +1,5 @@
 import { Destination } from './destination.model';
+import { PlatformCategory } from './platform/platform-category.model';
 import { File } from './platform/v1/file.model';
 
 export interface PublicPolicyExpense {
@@ -8,7 +9,7 @@ export interface PublicPolicyExpense {
   amount: number;
   billable: boolean;
   bus_travel_class: string;
-  category: string;
+  category: Pick<PlatformCategory, 'code' | 'id' | 'display_name' | 'name' | 'sub_category' | 'system_category'>;
   cost_center_id: number;
   created_at: Date;
   creator_id: string;
@@ -33,7 +34,6 @@ export interface PublicPolicyExpense {
   flight_journey_travel_class: string;
   flight_return_travel_class: string;
   from_dt: Date;
-  fyle_category: string;
   hotel_is_breakfast_provided: boolean;
   id: string;
   is_matching_ccc_expense: boolean;

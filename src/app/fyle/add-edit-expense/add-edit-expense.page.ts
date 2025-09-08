@@ -1513,7 +1513,10 @@ export class AddEditExpensePage implements OnInit {
 
             if (extractedCategory) {
               etxn.tx.category_id = extractedCategory.id;
-              etxn.tx.fyle_category = extractedCategory.fyle_category;
+              etxn.tx.category = {
+                ...etxn.tx.category,
+                system_category: extractedCategory.fyle_category,
+              }
             }
           }
 
@@ -1569,7 +1572,7 @@ export class AddEditExpensePage implements OnInit {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         // filter out unspecified category as it is not a valid category
-        if (etxn.tx.category_id && etxn.tx.fyle_category?.toLowerCase() !== 'unspecified') {
+        if (etxn.tx.category_id && etxn.tx.category?.system_category?.toLowerCase() !== 'unspecified') {
           return this.categoriesService.getCategoryById(etxn.tx.category_id);
         } else {
           return of(null);
@@ -2104,7 +2107,7 @@ export class AddEditExpensePage implements OnInit {
       this.recentCategories = recentCategories;
     }
 
-    const isCategoryEmpty = !etxn.tx.category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
+    const isCategoryEmpty = !etxn.tx.category_id || etxn.tx.category?.system_category?.toLowerCase() === 'unspecified';
 
     /*
      * Autofill should be applied if:
@@ -2151,7 +2154,7 @@ export class AddEditExpensePage implements OnInit {
           recentCategories: OrgCategoryListItem[];
           etxn: Partial<UnflattenedTransaction>;
         }) => {
-          const isExpenseCategoryUnspecified = etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
+          const isExpenseCategoryUnspecified = etxn.tx.category?.system_category?.toLowerCase() === 'unspecified';
           if (this.initialFetch && etxn.tx.category_id && !isExpenseCategoryUnspecified) {
             return this.selectedCategory$.pipe(
               map((selectedCategory) => ({
@@ -2183,7 +2186,7 @@ export class AddEditExpensePage implements OnInit {
         const isCategoryExtracted = etxn.tx?.extracted_data?.category;
         if (this.initialFetch) {
           if (etxn.tx.category_id) {
-            if (etxn.tx.state === 'DRAFT' && etxn.tx.fyle_category?.toLowerCase() === 'unspecified') {
+            if (etxn.tx.state === 'DRAFT' && etxn.tx.category?.system_category?.toLowerCase() === 'unspecified') {
               return this.getAutofillCategory({
                 isAutofillsEnabled,
                 recentValue: recentValues,
@@ -2232,7 +2235,7 @@ export class AddEditExpensePage implements OnInit {
           const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
           if (
             !isCategoryExtracted &&
-            (!etxn.tx.category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))
+            (!etxn.tx.category_id || (etxn.tx.category?.system_category && etxn.tx.category?.system_category.toLowerCase() === 'unspecified'))
           ) {
             return this.getAutofillCategory({
               isAutofillsEnabled,
@@ -2787,8 +2790,8 @@ export class AddEditExpensePage implements OnInit {
 
           if (
             etxn.tx.extracted_data.category &&
-            etxn.tx.fyle_category &&
-            etxn.tx.fyle_category.toLowerCase() === 'unspecified'
+            etxn.tx.category?.system_category &&
+            etxn.tx.category.system_category.toLowerCase() === 'unspecified'
           ) {
             const categoryName = etxn.tx.extracted_data.category || 'unspecified';
             return this.categoriesService.getCategoryByName(categoryName).pipe(
@@ -3644,14 +3647,6 @@ export class AddEditExpensePage implements OnInit {
           locations = [formValues.location_1 as Destination];
         }
 
-        const costCenter: { cost_center_id?: number; cost_center_name?: string; cost_center_code?: string } = {};
-
-        if (formValues.costCenter) {
-          costCenter.cost_center_id = formValues.costCenter.id;
-          costCenter.cost_center_name = formValues.costCenter.name;
-          costCenter.cost_center_code = formValues.costCenter.code;
-        }
-
         if (this.inpageExtractedData) {
           etxn.tx.extracted_data = this.inpageExtractedData;
           this.autoCodedData = this.inpageExtractedData;
@@ -3683,7 +3678,6 @@ export class AddEditExpensePage implements OnInit {
             tax_amount: this.getTaxAmount(),
             tax_group_id: this.getTaxGroupID(),
             category_id: category_id,
-            fyle_category: this.getFyleCategory(),
             policy_amount: null,
             vendor: this.getDisplayName(),
             purpose: this.getPurpose(),
@@ -3699,7 +3693,7 @@ export class AddEditExpensePage implements OnInit {
             distance: this.getDistance(),
             distance_unit: this.getDistanceUnit(),
             hotel_is_breakfast_provided: this.getBreakfastProvided(),
-            ...costCenter,
+            cost_center_id: formValues.costCenter?.id,
           },
           ou: etxn.ou,
           dataUrls: [].concat(this.newExpenseDataUrls),

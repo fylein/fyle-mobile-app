@@ -196,7 +196,7 @@ export class SplitExpenseService {
   }
 
   transformSplitFlightClasses(transaction: Transaction, platformSplitObject: SplitPayload): void {
-    if (transaction.fyle_category?.toLowerCase() === 'airlines') {
+    if (transaction.category?.system_category.toLowerCase() === 'airlines') {
       if (transaction.flight_journey_travel_class) {
         platformSplitObject.travel_classes.push(transaction.flight_journey_travel_class);
       }
@@ -207,13 +207,13 @@ export class SplitExpenseService {
   }
 
   tranformSplitBusClasses(transaction: Transaction, platformSplitObject: SplitPayload): void {
-    if (transaction.fyle_category?.toLowerCase() === 'bus' && transaction.bus_travel_class) {
+    if (transaction.category?.system_category.toLowerCase() === 'bus' && transaction.bus_travel_class) {
       platformSplitObject.travel_classes.push(transaction.bus_travel_class);
     }
   }
 
   transformSplitTrainClasses(transaction: Transaction, platformSplitObject: SplitPayload): void {
-    if (transaction.fyle_category?.toLowerCase() === 'train' && transaction.train_travel_class) {
+    if (transaction.category?.system_category.toLowerCase() === 'train' && transaction.train_travel_class) {
       platformSplitObject.travel_classes.push(transaction.train_travel_class);
     }
   }

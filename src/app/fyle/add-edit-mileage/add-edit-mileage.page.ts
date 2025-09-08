@@ -982,7 +982,6 @@ export class AddEditMileagePage implements OnInit {
               mileage_rate: defaultMileageRate?.rate,
               distance_unit: distanceUnit,
               mileage_is_round_trip: false,
-              fyle_category: 'Mileage',
               org_user_id: currentEou.ou.id,
               locations,
               custom_properties: [],
@@ -2409,8 +2408,6 @@ export class AddEditMileagePage implements OnInit {
             org_user_id: etxn.tx.org_user_id,
             category: null,
             cost_center_id: formValue.costCenter && formValue.costCenter.id,
-            cost_center_name: formValue.costCenter && formValue.costCenter.name,
-            cost_center_code: formValue.costCenter && formValue.costCenter.code,
             commute_deduction: this.showCommuteDeductionField ? formValue.commuteDeduction : null,
             commute_details_id:
               this.showCommuteDeductionField && formValue.commuteDeduction ? this.commuteDetails?.id : null,

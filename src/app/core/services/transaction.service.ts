@@ -476,19 +476,6 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateTypeFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
-    const newQueryParamsCopy = cloneDeep(newQueryParams);
-    const typeOrFilter = this.generateTypeOrFilter(filters);
-
-    if (typeOrFilter.length > 0) {
-      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
-      (newQueryParamsCopy.or as string[]).push(combinedTypeOrFilter);
-    }
-
-    return newQueryParamsCopy;
-  }
-
   getPaymentModeWiseSummary(etxns: Expense[]): PaymentModeSummary {
     const paymentModes = [
       {
@@ -607,7 +594,6 @@ export class TransactionService {
         categoryDisplayName: expense.category?.display_name,
         files: expense.files,
         category: expense.category,
-        fyle_category: expense.category?.system_category,
         state: expense.state,
         admin_amount: expense.admin_amount,
         policy_amount: expense.policy_amount,
@@ -767,26 +753,6 @@ export class TransactionService {
     }
 
     return stateOrFilter;
-  }
-
-  private generateTypeOrFilter(filters: Partial<ExpenseFilters>): string[] {
-    const typeOrFilter: string[] = [];
-    if (filters.type) {
-      if (filters.type.includes('Mileage')) {
-        typeOrFilter.push('tx_fyle_category.eq.Mileage');
-      }
-
-      if (filters.type.includes('PerDiem')) {
-        // The space encoding is done by angular into %20 so no worries here
-        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
-      }
-
-      if (filters.type.includes('RegularExpenses')) {
-        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
-      }
-    }
-
-    return typeOrFilter;
   }
 
   // to be used only when updating created expense with form values during capture recept flow
