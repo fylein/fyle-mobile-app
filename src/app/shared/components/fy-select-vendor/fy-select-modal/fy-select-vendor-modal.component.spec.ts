@@ -15,6 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
+import { Merchant } from 'src/app/core/models/platform/platform-merchants.model';
 
 describe('FySelectVendorModalComponent', () => {
   let component: FySelectVendorModalComponent;
@@ -25,54 +26,34 @@ describe('FySelectVendorModalComponent', () => {
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
-  const vendors = [
+  const vendors: Merchant[] = [
     {
       id: 309,
-      cin: null,
-      tin: null,
       display_name: 'Fuel',
-      other_names: null,
-      creator_id: 'SYSTEM',
       created_at: new Date('2017-06-18T15:52:26.857075Z'),
       updated_at: new Date('2020-06-09T19:16:44.618140Z'),
-      default_category: null,
-      verified: true,
+      org_id: 'orh7SigX1sfN',
     },
     {
       id: 437,
-      cin: null,
-      tin: null,
       display_name: 'Fedex',
-      other_names: null,
-      creator_id: 'SYSTEM',
       created_at: new Date('2017-06-18T15:52:26.857075Z'),
       updated_at: new Date('2019-07-10T12:07:59.158939Z'),
-      default_category: null,
-      verified: true,
+      org_id: 'orh7SigX1sfN',
     },
     {
       id: 314,
-      cin: null,
-      tin: null,
       display_name: 'Fastrak',
-      other_names: null,
-      creator_id: 'SYSTEM',
       created_at: new Date('2017-06-18T15:52:26.857075Z'),
       updated_at: new Date('2020-10-14T07:19:18.958436Z'),
-      default_category: null,
-      verified: true,
+      org_id: 'orh7SigX1sfN',
     },
     {
       id: 101,
-      cin: null,
-      tin: null,
       display_name: 'fyle.in',
-      other_names: null,
-      creator_id: 'ouD8bcoymzv3',
       created_at: new Date('2017-01-30T08:09:24.393267Z'),
       updated_at: new Date('2020-11-03T17:12:50.250702Z'),
-      default_category: 'Unspecified',
-      verified: true,
+      org_id: 'orh7SigX1sfN',
     },
   ];
 
@@ -89,7 +70,7 @@ describe('FySelectVendorModalComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-    const vendorServiceSpy = jasmine.createSpyObj('VendorService', ['get']);
+    const vendorServiceSpy = jasmine.createSpyObj('VendorService', ['getMerchants']);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
     const changeDetectionRefSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
@@ -146,7 +127,7 @@ describe('FySelectVendorModalComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     vendorService = TestBed.inject(VendorService) as jasmine.SpyObj<VendorService>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
@@ -168,12 +149,12 @@ describe('FySelectVendorModalComponent', () => {
       }
       return translation;
     });
-    vendorService.get.and.returnValue(of(vendors));
+    vendorService.getMerchants.and.returnValue(of(vendors));
     recentLocalStorageItemsService.get.and.resolveTo(vendorsList);
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
     component.filteredOptions$ = of(vendorsList);
 
-    component.currentSelection = vendors[0];
+    fixture.componentRef.setInput('currentSelection', vendors[0]);
 
     fixture.detectChanges();
   }));
@@ -236,7 +217,7 @@ describe('FySelectVendorModalComponent', () => {
   });
 
   it('ngAfterViewInit(): should get vendors if search text is available', fakeAsync(() => {
-    vendorService.get.and.returnValue(of(vendors));
+    vendorService.getMerchants.and.returnValue(of(vendors));
     const dummyHtmlInputElement = document.createElement('input');
     component.searchBarRef = {
       nativeElement: dummyHtmlInputElement,
@@ -249,7 +230,7 @@ describe('FySelectVendorModalComponent', () => {
 
     tick(500);
     component.filteredOptions$.subscribe(() => {
-      expect(vendorService.get).toHaveBeenCalledOnceWith('US');
+      expect(vendorService.getMerchants).toHaveBeenCalledOnceWith('US');
       expect(component.isLoading).toBeFalse();
     });
   }));
