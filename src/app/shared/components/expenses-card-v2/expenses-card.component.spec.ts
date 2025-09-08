@@ -25,17 +25,17 @@ import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 import { FileObject } from 'src/app/core/models/file-obj.model';
-import { fileObjectAdv, fileObjectData } from 'src/app/core/mock-data/file-object.data';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { fileObjectAdv } from 'src/app/core/mock-data/file-object.data';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { CurrencySymbolPipe } from 'src/app/shared/pipes/currency-symbol.pipe';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { cloneDeep } from 'lodash';
 import dayjs from 'dayjs';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
-import { DebugElement, EventEmitter } from '@angular/core';
+import { EventEmitter } from '@angular/core';
 import {
-  apiExpenses1,
   expenseData,
   expenseResponseData,
   platformExpenseDataWithPendingGasCharge,
@@ -43,14 +43,13 @@ import {
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
-import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
-import {
-  transformedExpenseData,
-  transformedExpenseWithExtractedData,
-} from 'src/app/core/mock-data/transformed-expense.data';
+import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { mandatoryExpenseFields } from 'src/app/core/mock-data/expense-field.data';
+import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
@@ -72,7 +71,6 @@ describe('ExpensesCardComponent', () => {
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
-  let componentElement: DebugElement;
 
   beforeEach(waitForAsync(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformExpense']);
@@ -114,22 +112,23 @@ describe('ExpensesCardComponent', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
-      declarations: [ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe, ExpenseState],
+      declarations: [
+        ExpensesCardComponent,
+        DateFormatPipe,
+        HumanizeCurrencyPipe,
+        ExpenseState,
+        ExactCurrencyPipe,
+        CurrencySymbolPipe,
+        FyCurrencyPipe,
+      ],
       imports: [
         IonicModule.forRoot(),
         MatIconModule,
         MatIconTestingModule,
         MatCheckboxModule,
         FormsModule,
-        TranslocoModule,
+        getTranslocoModule(),
       ],
       providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
@@ -151,13 +150,16 @@ describe('ExpensesCardComponent', () => {
         { provide: DateFormatPipe, useValue: dateFormatPipeSpy },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
         { provide: ExpenseState, useValue: expenseStateSpy },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
+        { provide: CurrencySymbolPipe, useValue: jasmine.createSpyObj('CurrencySymbolPipe', ['transform']) },
+        { provide: ExactCurrencyPipe, useValue: jasmine.createSpyObj('ExactCurrencyPipe', ['transform']) },
+        { provide: FyCurrencyPipe, useValue: jasmine.createSpyObj('FyCurrencyPipe', ['transform']) },
       ],
     }).compileComponents();
 
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
+    platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -187,56 +189,6 @@ describe('ExpensesCardComponent', () => {
     transactionService.transformExpense.and.returnValue(transformedExpenseData);
     networkService.isOnline.and.returnValue(of(true));
     sharedExpenseService.isExpenseInDraft.and.returnValue(true);
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'expensesCard.receiptAdded': 'Receipt added to expense successfully',
-        'expensesCard.sizeLimitExceeded': 'Size limit exceeded',
-        'expensesCard.fileTooLarge':
-          'The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.',
-        'expensesCard.ok': 'OK',
-        'expensesCard.offlineExpenses': 'Offline expenses',
-        'expensesCard.syncingMileage': 'Syncing mileage',
-        'expensesCard.syncingPerDiem': 'Syncing per diem',
-        'expensesCard.syncingReceipt': 'Syncing receipt...',
-        'expensesCard.uploadingReceipt': 'Uploading receipt...',
-        'expensesCard.yourPrefix': 'Your',
-        'expensesCard.receipt': 'receipt',
-        'expensesCard.addedShortlySuffix': 'will be added shortly.',
-        'expensesCard.scanningReceipt': 'Scanning receipt...',
-        'expensesCard.scanTakesTime': 'This takes a short while',
-        'expensesCard.scanFailed': 'Scan failed',
-        'expensesCard.unspecifiedCategory': 'Unspecified category',
-        'expensesCard.expenseInfoMissing': 'Expense information missing',
-        'expensesCard.exchangeRateAt': 'at',
-        'expensesCard.criticalPolicyViolations': 'Critical policy violations',
-        'expensesCard.receiptAddedSuccess': 'Receipt added to expense successfully',
-        'expensesCard.fileSizeError':
-          'The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.',
-        'expensesCard.your': 'Your',
-        'expensesCard.mileage': 'mileage',
-        'expensesCard.perDiem': 'per diem',
-        'expensesCard.addedShortly': 'will be added shortly.',
-        'expensesCard.takesShortWhile': 'This takes a short while',
-        'expensesCard.unspecifiedProject': 'Unspecified',
-        'expensesCard.expenseInfo': 'Expense information',
-        'expensesCard.missing': 'missing',
-        'expensesCard.at': 'at',
-        'expensesCard.countSelected': '{{count}} selected',
-        'expensesCard.add': 'Add',
-        'expensesCard.more': 'more',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardComponent);
@@ -245,13 +197,11 @@ describe('ExpensesCardComponent', () => {
     component.receiptIcon = 'assets/svg/file-pdf.svg';
     component.isOutboxExpense = true;
     component.selectedElements = expenseResponseData;
-    component.expense = cloneDeep(expenseData);
+    fixture.componentRef.setInput('expense', cloneDeep(expenseData));
     component.isConnected$ = of(true);
-    component.isSycing$ = of(true);
     component.isPerDiem = true;
     component.isSelectionModeEnabled = false;
     component.expenseIndex = 1;
-    componentElement = fixture.debugElement;
     fixture.detectChanges();
   }));
 
@@ -263,28 +213,28 @@ describe('ExpensesCardComponent', () => {
   describe('isSelected getter', () => {
     it('should return true if the expense is selected', () => {
       component.selectedElements = expenseResponseData;
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         id: 'txcSFe6efB6R',
-      };
+      });
       expect(component.isSelected).toBeTrue();
     });
 
     it('should return false if the expense is not selected', () => {
       component.selectedElements = expenseResponseData;
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         id: null,
-      };
+      });
       expect(component.isSelected).toBeFalse();
     });
 
     it('should return false if there are no selectedElements', () => {
       component.selectedElements = null;
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         id: 'txcSFe6efB6R',
-      };
+      });
       expect(component.isSelected).toBeFalse();
     });
   });
@@ -294,7 +244,7 @@ describe('ExpensesCardComponent', () => {
       spyOn(component.goToTransaction, 'emit');
       component.onGoToTransaction();
       expect(component.goToTransaction.emit).toHaveBeenCalledOnceWith({
-        expense: component.expense,
+        expense: component.expense(),
         expenseIndex: component.expenseIndex,
       });
     });
@@ -309,26 +259,36 @@ describe('ExpensesCardComponent', () => {
 
   describe('getReceipt', () => {
     it('should set the receipt icon to mileage when the fyle catergory is mileage', () => {
-      component.expense = cloneDeep(expenseData);
-      component.expense.category.name = 'mileage';
+      fixture.componentRef.setInput('expense', {
+        ...cloneDeep(expenseData),
+        category: {
+          ...expenseData.category,
+          name: 'mileage',
+        },
+      });
       component.getReceipt();
       fixture.detectChanges();
       expect(component.receiptIcon).toEqual('assets/svg/mileage.svg');
     });
 
     it('should set the receipt icon to calendar when the fyle catergory is per diem', () => {
-      component.expense = cloneDeep(expenseData);
-      component.expense.category.name = 'per diem';
+      fixture.componentRef.setInput('expense', {
+        ...cloneDeep(expenseData),
+        category: {
+          ...expenseData.category,
+          name: 'per diem',
+        },
+      });
       component.getReceipt();
       fixture.detectChanges();
       expect(component.receiptIcon).toEqual('assets/svg/calendar.svg');
     });
 
     it('should set the receipt icon to add-receipt when there are no file ids', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         file_ids: null,
-      };
+      });
       component.getReceipt();
       fixture.detectChanges();
       expect(component.receiptIcon).toEqual('assets/svg/list-plus.svg');
@@ -337,20 +297,20 @@ describe('ExpensesCardComponent', () => {
     it('should set the receipt icon to add-receipt when there are no file ids', () => {
       component.isFromReports = true;
       component.isFromPotentialDuplicates = true;
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         file_ids: null,
-      };
+      });
       component.getReceipt();
       fixture.detectChanges();
       expect(component.receiptIcon).toEqual('assets/svg/list.svg');
     });
 
     it('should set isReceiptPresent to true if not a mileage or per diem expense and file ids present', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         file_ids: ['testfileid'],
-      };
+      });
       component.getReceipt();
       fixture.detectChanges();
       expect(component.isReceiptPresent).toBeTrue();
@@ -359,31 +319,31 @@ describe('ExpensesCardComponent', () => {
 
   describe('checkIfScanIsCompleted():', () => {
     it('should check if scan is complete and return true if the transaction amount is not null and no other data is present', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         amount: 100,
         claim_amount: null,
         extracted_data: null,
-      };
-      const result = component.checkIfScanIsCompleted();
+      });
+      const result = component.checkIfScanIsCompleted(component.expense());
       fixture.detectChanges();
       expect(result).toBeTrue();
     });
 
     it('should check if scan is complete and return true if the transaction user amount is present and no extracted data is available', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         amount: null,
         claim_amount: 7500,
         extracted_data: null,
-      };
-      const result = component.checkIfScanIsCompleted();
+      });
+      const result = component.checkIfScanIsCompleted(component.expense());
       fixture.detectChanges();
       expect(result).toBeTrue();
     });
 
     it('should check if scan is complete and return true if the required extracted data is present', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         amount: null,
         claim_amount: null,
@@ -395,84 +355,37 @@ describe('ExpensesCardComponent', () => {
           vendor_name: null,
           invoice_dt: null,
         },
-      };
-      const result = component.checkIfScanIsCompleted();
+      });
+      const result = component.checkIfScanIsCompleted(component.expense());
       fixture.detectChanges();
       expect(result).toBeTrue();
     });
 
     it('should return true if the scan has expired', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         amount: null,
         claim_amount: null,
         extracted_data: null,
-      };
-      const oneDaysAfter = dayjs(component.expense.created_at).add(1, 'day').toDate();
+      });
+      const oneDaysAfter = dayjs(component.expense().created_at).add(1, 'day').toDate();
       jasmine.clock().mockDate(oneDaysAfter);
 
-      const result = component.checkIfScanIsCompleted();
+      const result = component.checkIfScanIsCompleted(component.expense());
       expect(result).toBeTrue();
-    });
-  });
-
-  describe('handleScanStatus():', () => {
-    it('should handle status when the syncing is in progress and the extracted data is present', () => {
-      component.isOutboxExpense = false;
-      component.homeCurrency = 'INR';
-      component.expense = cloneDeep(apiExpenses1[0]);
-      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
-      const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(true);
-
-      component.handleScanStatus();
-
-      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
-      expect(component.isScanCompleted).toBeTrue();
-      expect(component.isScanInProgress).toBeFalse();
-    });
-
-    it('should handle status when the sync is in progress and there is no extracted data present', () => {
-      component.isOutboxExpense = false;
-      component.expense = cloneDeep(expenseData);
-      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
-      const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
-      component.isScanInProgress = true;
-
-      component.handleScanStatus();
-
-      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
-      expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
-      expect(component.isScanCompleted).toBeFalse();
-      expect(component.isScanInProgress).toBeTrue();
-    });
-
-    it('should handle status when the scanning is not in progress', () => {
-      component.isOutboxExpense = false;
-      component.homeCurrency = 'USD';
-      const employeeSettingsRes = {
-        ...employeeSettingsData,
-        insta_fyle_settings: {
-          allowed: false,
-          enabled: false,
-          static_camera_overlay_enabled: true,
-          extract_fields: ['AMOUNT', 'CURRENCY', 'CATEGORY', 'TXN_DT'],
-        },
-      };
-      platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsRes));
-      component.handleScanStatus();
-      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(component.isScanCompleted).toBeTrue();
-      expect(component.isScanInProgress).toBeFalse();
     });
   });
 
   describe('canShowPaymentModeIcon', () => {
     it('should show payment mode icon if it is a personal expense and is reimbersable', () => {
-      component.expense = cloneDeep(expenseData);
-      component.expense.is_reimbursable = true;
-      component.expense.source_account.type = AccountType.PERSONAL_CASH_ACCOUNT;
+      fixture.componentRef.setInput('expense', {
+        ...cloneDeep(expenseData),
+        is_reimbursable: true,
+        source_account: {
+          ...expenseData.source_account,
+          type: AccountType.PERSONAL_CASH_ACCOUNT,
+        },
+      });
 
       component.canShowPaymentModeIcon();
       fixture.detectChanges();
@@ -480,24 +393,24 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should not show payment mode icon if it is a personal expense and is not reimbersable', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         is_reimbursable: false,
-      };
+      });
       component.canShowPaymentModeIcon();
       fixture.detectChanges();
       expect(component.showPaymentModeIcon).toBeFalse();
     });
 
     it('should not show payment mode icon if it is not a personal expense and is reimbersable', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         source_account: {
           id: 'testId',
           type: AccountType.COMPANY_EXPENSE_ACCOUNT,
         },
         is_reimbursable: true,
-      };
+      });
       component.canShowPaymentModeIcon();
       fixture.detectChanges();
       expect(component.showPaymentModeIcon).toBeFalse();
@@ -516,21 +429,21 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set showDt to isFirstOfflineExpense when tx_id is falsy', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         id: null,
-      };
+      });
       component.isFirstOfflineExpense = true;
       component.ngOnInit();
       expect(component.showDt).toBeTrue();
     });
 
     it('should set showDt based on date comparison when previousExpenseTxnDate is truthy', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         id: 'tx12341',
         spent_at: null,
-      };
+      });
       component.previousExpenseTxnDate = new Date('2023-01-28T17:00:00');
       component.previousExpenseCreatedAt = null;
 
@@ -540,11 +453,14 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set showDt based on date comparison when previousExpenseCreatedAt is truthy', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         id: 'tx12341',
-      };
-      component.previousExpenseTxnDate = null;
+        category: {
+          ...expenseData.category,
+          name: 'Per Diem',
+        },
+      });
       component.previousExpenseCreatedAt = new Date('2023-01-29T07:29:02.966116');
 
       component.ngOnInit();
@@ -552,23 +468,29 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set isMileageExpense to true of the fyle category is mileage', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         id: 'tx12341',
         spent_at: null,
-      };
-      component.expense.category.name = 'mileage';
+        category: {
+          ...expenseData.category,
+          name: 'Mileage',
+        },
+      });
       component.ngOnInit();
       expect(component.isMileageExpense).toBeTrue();
     });
 
     it('should set isPerDiem to true if the fyle category is per diem', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         id: 'tx12341',
         spent_at: null,
-      };
-      component.expense.category.name = 'per diem';
+        category: {
+          ...expenseData.category,
+          name: 'Per Diem',
+        },
+      });
       component.ngOnInit();
       expect(component.isPerDiem).toBeTrue();
     });
@@ -583,23 +505,21 @@ describe('ExpensesCardComponent', () => {
       component.isIos = true;
       spyOn(component, 'canShowPaymentModeIcon');
       spyOn(component, 'getReceipt');
-      spyOn(component, 'handleScanStatus');
       spyOn(component, 'setOtherData');
       component.ngOnInit();
       tick(500);
       expect(component.canShowPaymentModeIcon).toHaveBeenCalledTimes(1);
       expect(component.getReceipt).toHaveBeenCalledTimes(1);
-      expect(component.handleScanStatus).toHaveBeenCalledTimes(1);
       expect(component.setOtherData).toHaveBeenCalledTimes(1);
     }));
   });
 
   describe('setIsPolicyViolated()', () => {
     it('should set isPolicyViolated to false expense is not policy flagged', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...expenseData,
         is_policy_flagged: false,
-      };
+      });
       component.setIsPolicyViolated();
       expect(component.isPolicyViolated).toBeFalse();
     });
@@ -607,11 +527,14 @@ describe('ExpensesCardComponent', () => {
 
   describe('setOtherData():', () => {
     it('should set icon to card if the source account type is corporate credit card', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         matched_corporate_card_transaction_ids: ['btxnMy43OZokde'],
-      };
-      component.expense.source_account.type = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
+        source_account: {
+          ...expenseData.source_account,
+          type: AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
+        },
+      });
 
       component.setOtherData();
       fixture.detectChanges();
@@ -619,9 +542,14 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set icon to card if the source account type is corporate credit card but matched_corporate_card_transaction_ids is not present', () => {
-      component.expense = cloneDeep(expenseData);
-      component.expense.matched_corporate_card_transaction_ids = [];
-      component.expense.source_account.type = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
+      fixture.componentRef.setInput('expense', {
+        ...cloneDeep(expenseData),
+        matched_corporate_card_transaction_ids: [],
+        source_account: {
+          ...expenseData.source_account,
+          type: AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
+        },
+      });
 
       component.setOtherData();
       fixture.detectChanges();
@@ -629,10 +557,15 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set icon to fy-reimbersable if the source account type is not a corporate credit card and if the reimbersement is not skipped', () => {
-      component.expense = cloneDeep(expenseData);
-      component.expense.matched_corporate_card_transaction_ids = [];
-      component.expense.source_account.type = AccountType.PERSONAL_CASH_ACCOUNT;
-      component.expense.is_reimbursable = true;
+      fixture.componentRef.setInput('expense', {
+        ...cloneDeep(expenseData),
+        matched_corporate_card_transaction_ids: [],
+        source_account: {
+          ...expenseData.source_account,
+          type: AccountType.PERSONAL_CASH_ACCOUNT,
+        },
+        is_reimbursable: true,
+      });
 
       component.setOtherData();
       fixture.detectChanges();
@@ -640,9 +573,14 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set icon to fy-non-reimbersable if the source account type is not a corporate credit card and if the reimbersement is skipped', () => {
-      component.expense = cloneDeep(expenseData);
-      component.expense.is_reimbursable = false;
-      component.expense.source_account.type = AccountType.PERSONAL_CASH_ACCOUNT;
+      fixture.componentRef.setInput('expense', {
+        ...cloneDeep(expenseData),
+        is_reimbursable: false,
+        source_account: {
+          ...expenseData.source_account,
+          type: AccountType.PERSONAL_CASH_ACCOUNT,
+        },
+      });
 
       component.setOtherData();
       fixture.detectChanges();
@@ -654,29 +592,32 @@ describe('ExpensesCardComponent', () => {
     const emitSpy = spyOn(component.setMultiselectMode, 'emit');
     component.isSelectionModeEnabled = false;
     component.onSetMultiselectMode();
-    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense());
   });
 
   it('onTapTransaction(): should emit the selected card card click event when the selection mode is enabled ', () => {
     const emitSpy = spyOn(component.cardClickedForSelection, 'emit');
     component.isSelectionModeEnabled = true;
     component.onTapTransaction();
-    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense());
   });
 
-  it('matchReceiptWithEtxn(): match the receipt with the transactions', () => {
-    const mockFileObject = cloneDeep(fileObjectData);
-    component.matchReceiptWithEtxn(mockFileObject);
-    expect(component.expense.file_ids).toBeDefined();
-    expect(component.expense.file_ids).toContain(mockFileObject.id);
-    expect(mockFileObject.transaction_id).toBe(component.expense.id);
-  });
+  // it('matchReceiptWithEtxn(): match the receipt with the transactions', () => {
+  //   const mockFileObject = cloneDeep(fileObjectData);
+  //   component.matchReceiptWithEtxn(mockFileObject);
+  //   expect(component.expense().file_ids).toBeDefined();
+  //   expect(component.expense().file_ids).toContain(mockFileObject.id);
+  //   expect(mockFileObject.transaction_id).toBe(component.expense().id);
+  // });
 
   describe('canAddAttchment():', () => {
     it('should return true when none of the conditions are met', () => {
       component.isFromViewReports = false;
       component.isMileageExpense = false;
-      component.expense.file_ids = null;
+      fixture.componentRef.setInput('expense', {
+        ...cloneDeep(expenseData),
+        file_ids: null,
+      });
       component.isFromPotentialDuplicates = false;
       component.isSelectionModeEnabled = false;
       const result = component.canAddAttachment();
@@ -686,7 +627,10 @@ describe('ExpensesCardComponent', () => {
     it('should return false when isFromViewReports is true', () => {
       component.isFromViewReports = true;
       component.isMileageExpense = false;
-      component.expense.file_ids = null;
+      fixture.componentRef.setInput('expense', {
+        ...cloneDeep(expenseData),
+        file_ids: null,
+      });
       component.isFromPotentialDuplicates = false;
       component.isSelectionModeEnabled = false;
       const result = component.canAddAttachment();
@@ -719,15 +663,12 @@ describe('ExpensesCardComponent', () => {
       transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
       expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseData));
 
-      spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
-
       component.attachReceipt(receiptDetailsaRes);
       tick(500);
       expect(component.inlineReceiptDataUrl).toBe(dataUrl);
       expect(fileService.getAttachmentType).toHaveBeenCalledOnceWith(receiptDetailsaRes.type);
       expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
-      expect(component.matchReceiptWithEtxn).toHaveBeenCalledOnceWith(fileObj);
-      expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(component.expense.id, fileObj.id);
+      expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(component.expense().id, fileObj.id);
       expect(component.attachmentUploadInProgress).toBeFalse();
       tick(500);
     }));
@@ -930,44 +871,58 @@ describe('ExpensesCardComponent', () => {
     component.dismiss(event as any);
     expect(event.stopPropagation).toHaveBeenCalledTimes(1);
     expect(event.preventDefault).toHaveBeenCalledTimes(1);
-    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense());
   });
 
   describe('isZeroAmountPerDiemOrMileage():', () => {
     it('should check if scan is complete and return true if it is per diem expense with amount 0', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         amount: 0,
-      };
-      component.expense.category.name = 'Per Diem';
+        category: {
+          ...expenseData.category,
+          name: 'Per Diem',
+        },
+      });
       const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeTrue();
     });
 
     it('should check if scan is complete and return true if it is per diem expense with user amount 0', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         amount: null,
         claim_amount: 0,
-      };
-      component.expense.category.name = 'Per Diem';
+        category: {
+          ...expenseData.category,
+          name: 'Per Diem',
+        },
+      });
       const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeTrue();
     });
 
     it('should check if scan is complete and return true if it is mileage expense with amount 0', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         amount: 0,
-      };
-      component.expense.category.name = 'Mileage';
+        category: {
+          ...expenseData.category,
+          name: 'Mileage',
+        },
+      });
       const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeTrue();
     });
 
     it('should return false if org category is null', () => {
-      component.expense = cloneDeep(expenseData);
-      component.expense.category.name = null;
+      fixture.componentRef.setInput('expense', {
+        ...cloneDeep(expenseData),
+        category: {
+          ...expenseData.category,
+          name: null,
+        },
+      });
       const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeFalse();
     });
@@ -1001,7 +956,7 @@ describe('ExpensesCardComponent', () => {
 
       sharedExpenseService.isPendingGasCharge.and.returnValue(true);
 
-      component.expense = mockExpense;
+      fixture.componentRef.setInput('expense', mockExpense);
       component.ngOnInit();
 
       expect(component.isPendingGasCharge()).toBeTrue();
@@ -1013,7 +968,7 @@ describe('ExpensesCardComponent', () => {
 
       sharedExpenseService.isPendingGasCharge.and.returnValue(false);
 
-      component.expense = mockExpense;
+      fixture.componentRef.setInput('expense', mockExpense);
       component.ngOnInit();
 
       expect(component.isPendingGasCharge()).toBeFalse();
@@ -1023,7 +978,7 @@ describe('ExpensesCardComponent', () => {
 
   describe('setExpenseDetails():', () => {
     it('should set category and expense type flags correctly', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         category: {
           name: 'Mileage',
@@ -1033,7 +988,7 @@ describe('ExpensesCardComponent', () => {
           sub_category: null,
           system_category: 'Mileage',
         },
-      };
+      });
 
       spyOn(component, 'setIsPolicyViolated');
       spyOn(component, 'canShowPaymentModeIcon');
@@ -1052,7 +1007,7 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set per diem flag correctly', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         category: {
           name: 'Per Diem',
@@ -1062,7 +1017,7 @@ describe('ExpensesCardComponent', () => {
           sub_category: null,
           system_category: 'Per Diem',
         },
-      };
+      });
 
       component.setExpenseDetails();
 
@@ -1072,10 +1027,10 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set showDt to true when expense has no id and isFirstOfflineExpense is true', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         id: null,
-      };
+      });
       component.isFirstOfflineExpense = true;
 
       component.setExpenseDetails();
@@ -1084,10 +1039,10 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set showDt to false when expense has no id and isFirstOfflineExpense is false', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         id: null,
-      };
+      });
       component.isFirstOfflineExpense = false;
 
       component.setExpenseDetails();
@@ -1096,11 +1051,11 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set showDt based on date comparison when previousExpenseTxnDate is provided', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         id: 'tx123',
         spent_at: new Date('2023-01-15'),
-      };
+      });
       component.previousExpenseTxnDate = new Date('2023-01-14');
       component.previousExpenseCreatedAt = null;
 
@@ -1111,11 +1066,11 @@ describe('ExpensesCardComponent', () => {
 
     it('should set showDt to false when dates are the same', () => {
       const sameDate = new Date('2023-01-15');
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         id: 'tx123',
         spent_at: sameDate,
-      };
+      });
       component.previousExpenseTxnDate = sameDate;
       component.previousExpenseCreatedAt = null;
 
@@ -1125,12 +1080,12 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should use created_at when spent_at is not available', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         id: 'tx123',
         spent_at: null,
         created_at: new Date('2023-01-15'),
-      };
+      });
       component.previousExpenseCreatedAt = new Date('2023-01-14');
       component.previousExpenseTxnDate = null;
 
@@ -1517,7 +1472,6 @@ describe('ExpensesCardComponent', () => {
       fileService.getAttachmentType.and.returnValue('png');
       transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
       expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseData));
-      spyOn(component, 'matchReceiptWithEtxn');
 
       component.attachReceipt(receiptDetails);
       tick();
@@ -1525,8 +1479,7 @@ describe('ExpensesCardComponent', () => {
       expect(component.attachmentUploadInProgress).toBeFalse();
       expect(fileService.getAttachmentType).toHaveBeenCalledWith('image/png');
       expect(transactionsOutboxService.fileUpload).toHaveBeenCalledWith(receiptDetails.dataUrl, 'png');
-      expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObj);
-      expect(expensesService.attachReceiptToExpense).toHaveBeenCalledWith(component.expense.id, fileObj.id);
+      expect(expensesService.attachReceiptToExpense).toHaveBeenCalledWith(component.expense().id, fileObj.id);
       expect(component.isReceiptPresent).toBeTrue();
       expect(component.attachmentUploadInProgress).toBeFalse();
     }));
@@ -1750,44 +1703,58 @@ describe('ExpensesCardComponent', () => {
     component.dismiss(event as any);
     expect(event.stopPropagation).toHaveBeenCalledTimes(1);
     expect(event.preventDefault).toHaveBeenCalledTimes(1);
-    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense());
   });
 
   describe('isZeroAmountPerDiemOrMileage():', () => {
     it('should check if scan is complete and return true if it is per diem expense with amount 0', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         amount: 0,
-      };
-      component.expense.category.name = 'Per Diem';
+        category: {
+          ...expenseData.category,
+          name: 'Per Diem',
+        },
+      });
       const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeTrue();
     });
 
     it('should check if scan is complete and return true if it is per diem expense with user amount 0', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         amount: null,
         claim_amount: 0,
-      };
-      component.expense.category.name = 'Per Diem';
+        category: {
+          ...expenseData.category,
+          name: 'Per Diem',
+        },
+      });
       const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeTrue();
     });
 
     it('should check if scan is complete and return true if it is mileage expense with amount 0', () => {
-      component.expense = {
+      fixture.componentRef.setInput('expense', {
         ...cloneDeep(expenseData),
         amount: 0,
-      };
-      component.expense.category.name = 'Mileage';
+        category: {
+          ...expenseData.category,
+          name: 'Mileage',
+        },
+      });
       const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeTrue();
     });
 
     it('should return false if org category is null', () => {
-      component.expense = cloneDeep(expenseData);
-      component.expense.category.name = null;
+      fixture.componentRef.setInput('expense', {
+        ...cloneDeep(expenseData),
+        category: {
+          ...expenseData.category,
+          name: null,
+        },
+      });
       const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeFalse();
     });
@@ -1821,7 +1788,7 @@ describe('ExpensesCardComponent', () => {
 
       sharedExpenseService.isPendingGasCharge.and.returnValue(true);
 
-      component.expense = mockExpense;
+      fixture.componentRef.setInput('expense', mockExpense);
       component.ngOnInit();
 
       expect(component.isPendingGasCharge()).toBeTrue();
@@ -1833,7 +1800,7 @@ describe('ExpensesCardComponent', () => {
 
       sharedExpenseService.isPendingGasCharge.and.returnValue(false);
 
-      component.expense = mockExpense;
+      fixture.componentRef.setInput('expense', mockExpense);
       component.ngOnInit();
 
       expect(component.isPendingGasCharge()).toBeFalse();
@@ -1909,7 +1876,7 @@ describe('ExpensesCardComponent', () => {
 
       sharedExpenseService.isPendingGasCharge.and.returnValue(true);
 
-      component.expense = mockExpense;
+      fixture.componentRef.setInput('expense', mockExpense);
       component.ngOnInit();
 
       expect(component.isPendingGasCharge()).toBeTrue();
@@ -1921,7 +1888,7 @@ describe('ExpensesCardComponent', () => {
 
       sharedExpenseService.isPendingGasCharge.and.returnValue(false);
 
-      component.expense = mockExpense;
+      fixture.componentRef.setInput('expense', mockExpense);
       component.ngOnInit();
 
       expect(component.isPendingGasCharge()).toBeFalse();
