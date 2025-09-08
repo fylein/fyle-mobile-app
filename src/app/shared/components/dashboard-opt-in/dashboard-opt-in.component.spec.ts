@@ -58,12 +58,12 @@ describe('DashboardOptInComponent', () => {
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'dashboardOptIn.skipOptInMessage':
-          "<div>\n              <p>You can't send receipts and expense details via text message if you don't opt in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
+          "<div>\n              <p>You can't send receipts and expense details via text message if you don't opt-in.</p>\n              <p>Are you sure you want to skip?<p>  \n            </div>",
         'dashboardOptIn.areYouSure': 'Are you sure?',
-        'dashboardOptIn.yesSkipOptIn': 'Yes, skip opt in',
+        'dashboardOptIn.yesSkipOptIn': 'Yes, skip opt-in',
         'dashboardOptIn.noGoBack': 'No, go back',
         'dashboardOptIn.skip': 'Skip',
-        'dashboardOptIn.altOptInToTextReceipts': 'Opt in to text receipts',
+        'dashboardOptIn.altOptInToTextReceipts': 'Opt-in to text receipts',
         'dashboardOptIn.tryAI': 'Try AI',
         'dashboardOptIn.description':
           'Text receipts for <span class="dashboard-opt-in__instant-text-decoration">instant</span>\n      <span class="dashboard-opt-in__underline"></span> expense submission',

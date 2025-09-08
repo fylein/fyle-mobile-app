@@ -1,8 +1,7 @@
-import { Component, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Observable, from, Subject, noop, of, forkJoin } from 'rxjs';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
@@ -43,8 +42,6 @@ import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/
 export class ViewPerDiemPage {
   private activatedRoute = inject(ActivatedRoute);
 
-  private transactionService = inject(TransactionService);
-
   private loaderService = inject(LoaderService);
 
   private customInputsService = inject(CustomInputsService);
@@ -78,8 +75,6 @@ export class ViewPerDiemPage {
   private spenderExpenseCommentService = inject(SpenderExpenseCommentService);
 
   private approverExpenseCommentService = inject(ApproverExpenseCommentService);
-
-  @ViewChild('comments') commentsContainer: ElementRef;
 
   perDiemExpense$: Observable<Expense>;
 

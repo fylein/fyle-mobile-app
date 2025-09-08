@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -10,9 +10,9 @@ import { ModalController } from '@ionic/angular';
 export class DateRangeModalComponent implements OnInit {
   private modalController = inject(ModalController);
 
-  @ViewChild('dateRangeStart') dateRangeStart: ElementRef;
+  readonly dateRangeStart = viewChild<ElementRef<HTMLInputElement>>('dateRangeStart');
 
-  @ViewChild('dateRangeEnd') dateRangeEnd: ElementRef;
+  readonly dateRangeEnd = viewChild<ElementRef<HTMLInputElement>>('dateRangeEnd');
 
   isCalenderVisible = false;
 
@@ -27,8 +27,8 @@ export class DateRangeModalComponent implements OnInit {
   datePicked() {
     this.modalController.dismiss({
       range: 'Custom Range',
-      startDate: this.dateRangeStart.nativeElement.value,
-      endDate: this.dateRangeEnd.nativeElement.value,
+      startDate: this.dateRangeStart().nativeElement.value,
+      endDate: this.dateRangeEnd().nativeElement.value,
     });
   }
 

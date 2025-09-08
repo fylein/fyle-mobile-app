@@ -1,10 +1,9 @@
-import { Component, ElementRef, EventEmitter, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
 import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from '../../core/services/network.service';
@@ -37,7 +36,6 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import * as Sentry from '@sentry/angular';
@@ -58,8 +56,6 @@ export class MyViewReportPage {
   private expensesService = inject(ExpensesService);
 
   private authService = inject(AuthService);
-
-  private loaderService = inject(LoaderService);
 
   private router = inject(Router);
 
@@ -85,13 +81,13 @@ export class MyViewReportPage {
 
   private spenderReportsService = inject(SpenderReportsService);
 
-  private launchDarklyService = inject(LaunchDarklyService);
-
   private dateWithTimezonePipe = inject(DateWithTimezonePipe);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
 
-  @ViewChild(IonContent, { static: false }) content: IonContent;
+  readonly content = viewChild(IonContent);
 
   report$: Observable<Report>;
 
@@ -679,7 +675,7 @@ export class MyViewReportPage {
         .subscribe(() => {
           this.loadReportDetails$.next();
           setTimeout(() => {
-            this.content.scrollToBottom(500);
+            this.content().scrollToBottom(500);
           }, 500);
         });
     }

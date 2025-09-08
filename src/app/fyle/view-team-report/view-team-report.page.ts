@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
 import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -89,9 +89,11 @@ export class ViewTeamReportPage {
 
   private browserHandlerService = inject(BrowserHandlerService);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('commentInput') commentInput: ElementRef;
 
-  @ViewChild(IonContent, { static: false }) content: IonContent;
+  readonly content = viewChild(IonContent);
 
   report$: Observable<Report>;
 
@@ -555,7 +557,7 @@ export class ViewTeamReportPage {
         this.isExpensesView = false;
         this.isHistoryView = false;
         setTimeout(() => {
-          this.content.scrollToBottom(500);
+          this.content().scrollToBottom(500);
         }, 500);
       } else if (event.detail.value === 'history') {
         this.isHistoryView = true;
@@ -576,7 +578,7 @@ export class ViewTeamReportPage {
       this.approverReportsService.postComment(this.objectId, comment).subscribe(() => {
         this.refreshApprovals$.next(null);
         setTimeout(() => {
-          this.content.scrollToBottom(500);
+          this.content().scrollToBottom(500);
         }, 500);
       });
     }

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { IonicModule, ModalController, Platform, PopoverController } from '@ionic/angular';
 
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -53,6 +53,7 @@ describe('AddEditAdvanceRequestPage', () => {
       'getImageTypeFromDataUrl',
       'downloadUrl',
       'findByAdvanceRequestId',
+      'readFile',
     ]);
     const orgSettingsServiceSpyObj = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -69,7 +70,7 @@ describe('AddEditAdvanceRequestPage', () => {
       'generateUrls',
       'generateUrlsBulk',
       'downloadFile',
-      'attachToAdvance'
+      'attachToAdvance',
     ]);
     const approverFileServiceSpyObj = jasmine.createSpyObj('ApproverFileService', [
       'createFile',
@@ -78,8 +79,10 @@ describe('AddEditAdvanceRequestPage', () => {
       'generateUrlsBulk',
       'downloadFile',
       'deleteFilesBulk',
-      'attachToAdvance'
+      'attachToAdvance',
     ]);
+
+    const platformSpyObj = jasmine.createSpyObj('Platform', ['is']);
 
     TestBed.configureTestingModule({
       declarations: [AddEditAdvanceRequestPage],
@@ -105,6 +108,7 @@ describe('AddEditAdvanceRequestPage', () => {
         { provide: Router, useValue: routerSpyObj },
         { provide: SpenderFileService, useValue: spenderFileServiceSpyObj },
         { provide: ApproverFileService, useValue: approverFileServiceSpyObj },
+        { provide: Platform, useValue: platformSpyObj },
         {
           provide: ActivatedRoute,
           useValue: {

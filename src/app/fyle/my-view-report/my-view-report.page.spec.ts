@@ -65,8 +65,6 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { TIMEZONE } from 'src/app/constants';
 
 describe('MyViewReportPage', () => {
-  // Increase timeout due to chunk loading erroror in Ionic components
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -516,7 +514,6 @@ describe('MyViewReportPage', () => {
       component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
       component.canEdit$ = of(true);
       component.isLoading = false;
-      fixture.detectChanges();
       tick(100);
 
       spyOn(component, 'updateReportName').and.returnValue(null);
@@ -526,8 +523,7 @@ describe('MyViewReportPage', () => {
 
       popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
-      const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
-      click(editReportButton);
+      component.editReportName();
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -544,7 +540,6 @@ describe('MyViewReportPage', () => {
       component.report$ = of(cloneDeep({ ...expectedReportsSinglePage[0], state: 'DRAFT' }));
       component.canEdit$ = of(true);
       component.isLoading = false;
-      fixture.detectChanges();
       tick(100);
 
       spyOn(component, 'updateReportName').and.returnValue(null);
@@ -554,8 +549,7 @@ describe('MyViewReportPage', () => {
 
       popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
-      const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
-      click(editReportButton);
+      component.editReportName();
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -944,7 +938,7 @@ describe('MyViewReportPage', () => {
     fixture.detectChanges();
 
     spenderReportsService.postComment.and.returnValue(of(allReportsPaginated1.data[0].comments[0]));
-    spyOn(component.content, 'scrollToBottom');
+    spyOn(component.content(), 'scrollToBottom');
     component.newComment = 'comment';
     component.segmentValue = ReportPageSegment.COMMENTS;
     component.commentInput = fixture.debugElement.query(By.css('.view-comment--text-area'));

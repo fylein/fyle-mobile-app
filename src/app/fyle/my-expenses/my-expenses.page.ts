@@ -32,7 +32,6 @@ import {
   take,
   takeUntil,
   takeWhile,
-  timeout,
 } from 'rxjs/operators';
 import { TranslocoService } from '@jsverse/transloco';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
@@ -97,6 +96,8 @@ import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
   standalone: false,
 })
 export class MyExpensesPage implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;
