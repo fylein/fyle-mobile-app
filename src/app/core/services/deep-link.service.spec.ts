@@ -223,7 +223,7 @@ describe('DeepLinkService', () => {
         tx: {
           ...unflattenedTxnData.tx,
           state: item.state,
-          org_category: item.category,
+          category: { name: item.category, ...unflattenedTxnData.tx.category },
         },
       });
       expect(result).toEqual(item.route);

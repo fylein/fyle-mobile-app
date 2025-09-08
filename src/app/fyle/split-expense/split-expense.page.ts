@@ -441,14 +441,12 @@ export class SplitExpensePage implements OnDestroy {
     splitTxn.project_id = project.project_id;
     splitTxn.project_name = project.project_name;
     splitTxn.category_id = null;
-    splitTxn.org_category = null;
     if (
       this.transaction.category_id &&
       (!isProjectCategoryRestrictionsEnabled ||
         (project.project_org_category_ids && project.project_org_category_ids.includes(this.transaction.category_id)))
     ) {
       splitTxn.category_id = this.transaction.category_id;
-      splitTxn.org_category = this.transaction.org_category;
     }
   }
 
@@ -465,7 +463,6 @@ export class SplitExpensePage implements OnDestroy {
       this.setSplitExpenseValuesBasedOnProject(splitTxn, project, isProjectCategoryRestrictionsEnabled);
     } else if (splitFormValue.category?.id) {
       splitTxn.category_id = splitFormValue.category.id;
-      splitTxn.org_category = splitFormValue.category.name;
       splitTxn.project_id = null;
       splitTxn.project_name = null;
       if (

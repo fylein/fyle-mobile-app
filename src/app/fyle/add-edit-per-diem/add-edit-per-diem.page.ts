@@ -459,8 +459,8 @@ export class AddEditPerDiemPage implements OnInit {
   goToTransaction(expense: Partial<UnflattenedTransaction>, reviewList: string[], activeIndex: number): void {
     let category: string;
 
-    if (expense.tx.org_category) {
-      category = expense.tx.org_category.toLowerCase();
+    if (expense.tx.category?.name) {
+      category = expense.tx.category.name.toLowerCase();
     }
 
     if (category === 'mileage') {
@@ -675,7 +675,6 @@ export class AddEditPerDiemPage implements OnInit {
           skip_reimbursement: false,
           source: 'MOBILE',
           category_id: categoryContainer.defaultPerDiemCategory && categoryContainer.defaultPerDiemCategory.id,
-          org_category: categoryContainer.defaultPerDiemCategory && categoryContainer.defaultPerDiemCategory.name,
           sub_category:
             categoryContainer.defaultPerDiemCategory && categoryContainer.defaultPerDiemCategory.sub_category,
           amount: 0,
@@ -1892,7 +1891,7 @@ export class AddEditPerDiemPage implements OnInit {
               Type: 'Receipt',
               Amount: etxn.tx.amount,
               Currency: etxn.tx.currency,
-              Category: etxn.tx.org_category,
+              Category: etxn.tx.category?.name,
               Time_Spent: this.getTimeSpentOnPage() + ' secs',
               Used_Autofilled_Project:
                 etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
@@ -2062,7 +2061,7 @@ export class AddEditPerDiemPage implements OnInit {
                 Type: 'Per Diem',
                 Amount: etxn.tx.amount,
                 Currency: etxn.tx.currency,
-                Category: etxn.tx.org_category,
+                Category: etxn.tx.category?.name,
                 Time_Spent: this.getTimeSpentOnPage() + ' secs',
                 Used_Autofilled_Project:
                   etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,

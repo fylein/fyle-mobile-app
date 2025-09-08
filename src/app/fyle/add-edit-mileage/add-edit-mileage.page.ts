@@ -468,8 +468,8 @@ export class AddEditMileagePage implements OnInit {
   goToTransaction(expense: Partial<UnflattenedTransaction>, reviewList, activeIndex: number): void {
     let category: string;
 
-    if (expense.tx.org_category) {
-      category = expense.tx.org_category.toLowerCase();
+    if (expense.tx.category?.name) {
+      category = expense.tx.category.name.toLowerCase();
     }
 
     if (category === 'mileage') {
@@ -970,7 +970,6 @@ export class AddEditMileagePage implements OnInit {
               state: 'COMPLETE',
               spent_at: new Date(),
               category_id: mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.id,
-              org_category: mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.name,
               sub_category:
                 mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.sub_category,
               currency: homeCurrency,
@@ -2458,7 +2457,7 @@ export class AddEditMileagePage implements OnInit {
       Type: 'Mileage',
       Amount: etxn.tx.amount,
       Currency: etxn.tx.currency,
-      Category: etxn.tx.org_category,
+      Category: etxn.tx.category?.name,
       Time_Spent: this.getTimeSpentOnPage() + ' secs',
       Used_Autofilled_Project:
         etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
@@ -2725,7 +2724,7 @@ export class AddEditMileagePage implements OnInit {
       Type: 'Mileage',
       Amount: etxn.tx.amount,
       Currency: etxn.tx.currency,
-      Category: etxn.tx.org_category,
+      Category: etxn.tx.category?.name,
       Time_Spent: this.getTimeSpentOnPage() + ' secs',
       Used_Autofilled_Project:
         etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,

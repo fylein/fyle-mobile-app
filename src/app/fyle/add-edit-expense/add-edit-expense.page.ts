@@ -2857,8 +2857,8 @@ export class AddEditExpensePage implements OnInit {
   goToTransaction(expense: Partial<UnflattenedTransaction>, reviewList: string[], activeIndex: number): void {
     let category: string;
 
-    if (expense.tx.org_category) {
-      category = expense.tx.org_category.toLowerCase();
+    if (expense.tx.category?.name) {
+      category = expense.tx.category.name.toLowerCase();
     }
 
     if (category === 'mileage') {
@@ -4068,7 +4068,7 @@ export class AddEditExpensePage implements OnInit {
       Type: 'Receipt',
       Amount: etxn.tx.amount,
       Currency: etxn.tx.currency,
-      Category: etxn.tx.org_category,
+      Category: etxn.tx.category?.name,
       Time_Spent: this.getTimeSpentOnPage() + ' secs',
       Used_Autofilled_Category:
         etxn.tx.category_id && this.presetCategoryId && etxn.tx.category_id === this.presetCategoryId,
@@ -4317,7 +4317,7 @@ export class AddEditExpensePage implements OnInit {
         Type: 'Receipt',
         Amount: etxn.tx.amount,
         Currency: etxn.tx.currency,
-        Category: etxn.tx.org_category,
+        Category: etxn.tx.category?.name,
         Time_Spent: this.getTimeSpentOnPage() + ' secs',
         Used_Autofilled_Category:
           etxn.tx.category_id && this.presetCategoryId && etxn.tx.category_id === this.presetCategoryId,
@@ -4398,7 +4398,7 @@ export class AddEditExpensePage implements OnInit {
       Type: 'Receipt',
       Amount: etxn.tx.amount,
       Currency: etxn.tx.currency,
-      Category: etxn.tx.org_category,
+      Category: etxn.tx.category?.name,
       Time_Spent: this.getTimeSpentOnPage() + ' secs',
       Used_Autofilled_Category:
         etxn.tx.category_id && this.presetCategoryId && etxn.tx.category_id === this.presetCategoryId,

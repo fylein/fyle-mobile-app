@@ -606,7 +606,7 @@ export class TransactionService {
         spent_at: expense.spent_at,
         categoryDisplayName: expense.category?.display_name,
         files: expense.files,
-        org_category: expense.category?.name,
+        category: expense.category,
         fyle_category: expense.category?.system_category,
         state: expense.state,
         admin_amount: expense.admin_amount,
