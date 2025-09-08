@@ -271,16 +271,6 @@ describe('CustomInputsService', () => {
     expect(result).toEqual(expectedProperty);
   });
 
-  it('should fill dependent field properties', (done) => {
-    authService.getEou.and.resolveTo(authRespone);
-    spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
-    const result = customInputsService.fillDependantFieldProperties(expensesWithDependentFields[0]);
-    result.subscribe((res) => {
-      expect(res).toEqual(filledDependentFields);
-      done();
-    });
-  });
-
   it('should fill custom properties', (done) => {
     authService.getEou.and.resolveTo(authRespone);
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));

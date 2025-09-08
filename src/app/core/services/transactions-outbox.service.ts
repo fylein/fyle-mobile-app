@@ -13,7 +13,6 @@ import { CurrencyService } from './currency.service';
 import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
-import { ParsedResponse } from '../models/parsed_response.model';
 import { SpenderFileService } from './platform/v1/spender/file.service';
 import { ApproverFileService } from './platform/v1/approver/file.service';
 import { PlatformFile } from '../models/platform/platform-file.model';

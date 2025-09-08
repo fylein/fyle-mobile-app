@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { StorageService } from './storage.service';
@@ -12,8 +11,6 @@ import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 
 import { cloneDeep } from 'lodash';
-import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
 import { AccountsService } from './accounts.service';
@@ -25,7 +22,6 @@ import { FileObject } from '../models/file-obj.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
-import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { PlatformMissingMandatoryFields } from '../models/platform/platform-missing-mandatory-fields.model';
@@ -46,11 +42,7 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class TransactionService {
-  private paginationSize = inject(PAGINATION_SIZE);
-
   private storageService = inject(StorageService);
-
-  private apiService = inject(ApiService);
 
   private dateService = inject(DateService);
 
@@ -476,19 +468,6 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateTypeFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
-    const newQueryParamsCopy = cloneDeep(newQueryParams);
-    const typeOrFilter = this.generateTypeOrFilter(filters);
-
-    if (typeOrFilter.length > 0) {
-      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
-      (newQueryParamsCopy.or as string[]).push(combinedTypeOrFilter);
-    }
-
-    return newQueryParamsCopy;
-  }
-
   getPaymentModeWiseSummary(etxns: Expense[]): PaymentModeSummary {
     const paymentModes = [
       {
@@ -607,7 +586,6 @@ export class TransactionService {
         categoryDisplayName: expense.category?.display_name,
         files: expense.files,
         category: expense.category,
-        fyle_category: expense.category?.system_category,
         state: expense.state,
         admin_amount: expense.admin_amount,
         policy_amount: expense.policy_amount,
@@ -767,26 +745,6 @@ export class TransactionService {
     }
 
     return stateOrFilter;
-  }
-
-  private generateTypeOrFilter(filters: Partial<ExpenseFilters>): string[] {
-    const typeOrFilter: string[] = [];
-    if (filters.type) {
-      if (filters.type.includes('Mileage')) {
-        typeOrFilter.push('tx_fyle_category.eq.Mileage');
-      }
-
-      if (filters.type.includes('PerDiem')) {
-        // The space encoding is done by angular into %20 so no worries here
-        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
-      }
-
-      if (filters.type.includes('RegularExpenses')) {
-        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
-      }
-    }
-
-    return typeOrFilter;
   }
 
   // to be used only when updating created expense with form values during capture recept flow

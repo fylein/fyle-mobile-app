@@ -1,5 +1,4 @@
-import { Component, Input, OnInit, inject, output } from '@angular/core';
-import { Expense } from 'src/app/core/models/expense.model';
+import { Component, Input, OnInit, inject, input, output } from '@angular/core';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
@@ -17,7 +16,7 @@ export class ReviewFooterComponent implements OnInit {
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
-  @Input() reviewList: Array<Expense>;
+  readonly reviewList = input<Array<string>>();
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.

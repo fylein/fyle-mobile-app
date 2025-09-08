@@ -37,7 +37,6 @@ export interface Transaction {
   flight_journey_travel_class?: string;
   flight_return_travel_class?: string;
   from_dt?: Date;
-  fyle_category?: string;
   hotel_is_breakfast_provided?: boolean;
   id?: string;
   invoice_number?: number;

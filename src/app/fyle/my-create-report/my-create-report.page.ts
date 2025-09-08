@@ -3,7 +3,6 @@ import { NgModel } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, noop, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -198,11 +197,6 @@ export class MyCreateReportPage implements OnInit {
         this.reportTitle = res;
       });
     }
-  }
-
-  toggleTransaction(etxn: Expense): void {
-    etxn.isSelected = !etxn.isSelected;
-    this.getReportTitle();
   }
 
   checkTxnIds(): void {

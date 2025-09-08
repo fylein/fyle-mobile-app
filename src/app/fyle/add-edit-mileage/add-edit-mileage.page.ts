@@ -52,7 +52,6 @@ import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model';
 import { Destination } from 'src/app/core/models/destination.model';
-import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { Location } from 'src/app/core/models/location.model';
@@ -982,7 +981,6 @@ export class AddEditMileagePage implements OnInit {
               mileage_rate: defaultMileageRate?.rate,
               distance_unit: distanceUnit,
               mileage_is_round_trip: false,
-              fyle_category: 'Mileage',
               org_user_id: currentEou.ou.id,
               locations,
               custom_properties: [],
@@ -2409,8 +2407,6 @@ export class AddEditMileagePage implements OnInit {
             org_user_id: etxn.tx.org_user_id,
             category: null,
             cost_center_id: formValue.costCenter && formValue.costCenter.id,
-            cost_center_name: formValue.costCenter && formValue.costCenter.name,
-            cost_center_code: formValue.costCenter && formValue.costCenter.code,
             commute_deduction: this.showCommuteDeductionField ? formValue.commuteDeduction : null,
             commute_details_id:
               this.showCommuteDeductionField && formValue.commuteDeduction ? this.commuteDetails?.id : null,
@@ -2447,8 +2443,8 @@ export class AddEditMileagePage implements OnInit {
       });
   }
 
-  getIsPolicyExpense(etxn: Expense): boolean {
-    return isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
+  getIsPolicyExpense(tx: Partial<Transaction>): boolean {
+    return isNumber(tx.policy_amount) && tx.policy_amount < 0.0001;
   }
 
   trackEditExpense(etxn: Partial<UnflattenedTransaction>): void {
@@ -2604,7 +2600,7 @@ export class AddEditMileagePage implements OnInit {
               switchMap((tx) => {
                 const formValue = this.getFormValues();
                 const selectedReportId = formValue.report?.id;
-                const criticalPolicyViolated = this.getIsPolicyExpense(tx as unknown as Expense);
+                const criticalPolicyViolated = this.getIsPolicyExpense(tx);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.platformReportService.addExpenses(selectedReportId, [tx.id]).pipe(
@@ -2915,7 +2911,7 @@ export class AddEditMileagePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<Expense | void>;
+      deleteMethod: () => Observable<void>;
     };
   } {
     return {
@@ -2927,7 +2923,7 @@ export class AddEditMileagePage implements OnInit {
         body: config.body,
         ctaText: config.ctaText,
         ctaLoadingText: config.ctaLoadingText,
-        deleteMethod: (): Observable<Expense | void> => {
+        deleteMethod: (): Observable<void> => {
           if (config.removeMileageFromReport) {
             return this.platformReportService.ejectExpenses(config.reportId, config.id);
           }

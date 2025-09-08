@@ -67,8 +67,8 @@ export class PolicyService {
     };
 
     if (
-      transaction.fyle_category?.toLowerCase() === 'flight' ||
-      transaction.fyle_category?.toLowerCase() === 'airlines'
+      transaction.category?.system_category.toLowerCase() === 'flight' ||
+      transaction.category?.system_category.toLowerCase() === 'airlines'
     ) {
       if (transaction.flight_journey_travel_class) {
         platformPolicyExpense.travel_classes.push(transaction.flight_journey_travel_class);
@@ -76,9 +76,9 @@ export class PolicyService {
       if (transaction.flight_return_travel_class) {
         platformPolicyExpense.travel_classes.push(transaction.flight_return_travel_class);
       }
-    } else if (transaction.fyle_category?.toLowerCase() === 'bus' && transaction.bus_travel_class) {
+    } else if (transaction.category?.system_category.toLowerCase() === 'bus' && transaction.bus_travel_class) {
       platformPolicyExpense.travel_classes.push(transaction.bus_travel_class);
-    } else if (transaction.fyle_category?.toLowerCase() === 'train' && transaction.train_travel_class) {
+    } else if (transaction.category?.system_category.toLowerCase() === 'train' && transaction.train_travel_class) {
       platformPolicyExpense.travel_classes.push(transaction.train_travel_class);
     }
 

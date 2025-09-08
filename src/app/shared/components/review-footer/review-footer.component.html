@@ -1,14 +1,14 @@
 <ion-footer mode="md" class="review-footer--footer-container">
   <ion-toolbar mode="md" class="review-footer--footer-toolbar__shadow review-footer--footer-toolbar__spacing">
     <div class="fy-footer-cta-container">
-      @if (activeIndex !== 0 && reviewList?.length > 0) {
+      @if (activeIndex !== 0 && reviewList()?.length > 0) {
         <ion-button
           (click)="onSaveAndGoToPrev()"
           [loadingText]="'reviewFooter.saving' | transloco"
           [loading]="saveAndPrevLoader"
           appFormButtonValidation
           class="fy-footer-cta fy-footer-cta--tertiary-secondary"
-          >
+        >
           {{ 'reviewFooter.saveAndPrevious' | transloco }}
         </ion-button>
       }
@@ -18,12 +18,12 @@
         [loading]="saveAndNextLoader"
         appFormButtonValidation
         class="fy-footer-cta fy-footer-cta--primary"
-        >
+      >
         {{
-        (reviewList.length > 0 && !(activeIndex === reviewList.length - 1)
-        ? 'reviewFooter.saveAndNext'
-        : 'reviewFooter.save'
-        ) | transloco
+          (reviewList().length > 0 && !(activeIndex === reviewList().length - 1)
+            ? 'reviewFooter.saveAndNext'
+            : 'reviewFooter.save'
+          ) | transloco
         }}
       </ion-button>
     </div>
