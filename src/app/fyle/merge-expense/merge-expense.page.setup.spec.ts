@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -19,6 +19,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { TestCases1 } from './merge-expense-1.page.spec';
 import { TestCases2 } from './merge-expense-2.page.spec';
 import { TestCases3 } from './merge-expense-3.page.spec';
+import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 describe('MergeExpensePage', () => {
@@ -82,6 +83,7 @@ describe('MergeExpensePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldsForBaseField',
     ]);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformRawExpense']);
 
     TestBed.configureTestingModule({
       declarations: [MergeExpensePage],
@@ -108,6 +110,10 @@ describe('MergeExpensePage', () => {
         {
           provide: DependentFieldsService,
           useValue: dependentFieldsServiceSpy,
+        },
+        {
+          provide: TransactionService,
+          useValue: transactionServiceSpy,
         },
         {
           provide: ExpensesService,

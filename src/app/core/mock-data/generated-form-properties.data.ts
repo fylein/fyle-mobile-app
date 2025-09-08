@@ -3,7 +3,6 @@ import deepFreeze from 'deep-freeze-strict';
 import { GeneratedFormProperties } from '../models/generated-form-properties.model';
 import { dependentCustomProperties } from './custom-property.data';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
-import { apiExpenses3 } from './platform/v1/expense.data';
 
 export const generatedFormPropertiesData1: GeneratedFormProperties = deepFreeze({
   source_account_id: '1234',
@@ -39,9 +38,9 @@ export const generatedFormPropertiesData1: GeneratedFormProperties = deepFreeze(
 });
 
 export const generatedFormPropertiesData2: GeneratedFormProperties = deepFreeze({
-  source_account_id: 'acc7F6bwRa52p',
+  source_account_id: 'accDDeaVIs6p6',
   is_billable: undefined,
-  amount: apiExpenses3[1].amount,
+  amount: 1024,
   project_id: 13795,
   cost_center_id: 13796,
   tax_amount: undefined,
@@ -71,9 +70,9 @@ export const generatedFormPropertiesData2: GeneratedFormProperties = deepFreeze(
 });
 
 export const generatedFormPropertiesData3: GeneratedFormProperties = deepFreeze({
-  source_account_id: apiExpenses3[1].source_account_id,
+  source_account_id: 'accDDeaVIs6p6',
   is_billable: undefined,
-  amount: apiExpenses3[1].amount,
+  amount: 3,
   project_id: undefined,
   cost_center_id: undefined,
   tax_amount: undefined,
@@ -103,14 +102,14 @@ export const generatedFormPropertiesData3: GeneratedFormProperties = deepFreeze(
 
 export const generatedFormPropertiesData4: GeneratedFormProperties = deepFreeze({
   ...generatedFormPropertiesData3,
-  source_account_id: apiExpenses3[1].source_account_id,
-  amount: apiExpenses3[1].amount,
+  source_account_id: undefined,
+  amount: 1024,
 });
 
 export const generatedFormPropertiesData5: GeneratedFormProperties = deepFreeze({
-  source_account_id: 'acc7F6bwRa52p',
+  source_account_id: 'accDDeaVIs6p6',
   is_billable: undefined,
-  amount: apiExpenses3[1].amount,
+  amount: 1024,
   project_id: 13795,
   cost_center_id: 13796,
   tax_amount: undefined,

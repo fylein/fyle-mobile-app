@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
 import { filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
-import { Expense } from '../models/platform/v1/expense.model';
+import { Expense } from '../models/expense.model';
+import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
 import { ExpensesInfo } from '../models/expenses-info.model';
 import { FileService } from './file.service';
 import { SpenderFileService } from './platform/v1/spender/file.service';
@@ -13,7 +14,7 @@ import { CategoriesService } from './categories.service';
 import { FileObject } from '../models/file-obj.model';
 import { corporateCardTransaction } from '../models/platform/v1/cc-transaction.model';
 import { DateService } from './date.service';
-import { AccountType } from '../models/platform/v1/account.model';
+import { AccountType } from '../enums/account-type.enum';
 import { TaxGroupService } from './tax-group.service';
 import { CustomInputsService } from './custom-inputs.service';
 import { cloneDeep } from 'lodash';
@@ -54,27 +55,18 @@ export class MergeExpensesService {
 
   private translocoService = inject(TranslocoService);
 
-  isAllAdvanceExpenses(expenses: Expense[]): boolean {
-    return expenses.every((expense) => expense?.source_account?.type === AccountType.PERSONAL_ADVANCE_ACCOUNT);
+  isAllAdvanceExpenses(expenses: Partial<Expense>[]): boolean {
+    return expenses.every((expense) => expense?.source_account_type === AccountType.ADVANCE);
   }
 
-  checkIfAdvanceExpensePresent(expenses: Expense[]): Expense[] {
-    return expenses.filter((expense) => expense?.source_account?.type === AccountType.PERSONAL_ADVANCE_ACCOUNT);
+  checkIfAdvanceExpensePresent(expenses: Partial<Expense>[]): Partial<Expense>[] {
+    return expenses.filter((expense) => expense?.source_account_type === AccountType.ADVANCE);
   }
 
-  /**
-   * Set the default expense to keep based on the expenses
-   * @param expenses - The expenses to set the default expense to keep
-   * @returns The expenses info
-   *
-   * 1. If the there are reported and above expenses, set the default expense to keep to the reported and above expenses
-   * 2. If the there are advance expenses, set the default expense to keep to the advance expenses
-   * 3. If the there are no reported and above and no advance expenses, set the default expense to keep to null
-   */
-  setDefaultExpenseToKeep(expenses: Expense[]): ExpensesInfo {
+  setDefaultExpenseToKeep(expenses: Partial<Expense>[]): ExpensesInfo {
     const advanceExpenses = this.checkIfAdvanceExpensePresent(expenses);
     const reportedAndAboveExpenses = expenses.filter((expense) =>
-      ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.state),
+      ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state),
     );
     const expensesInfo: ExpensesInfo = {
       isReportedAndAbove: reportedAndAboveExpenses.length > 0,
@@ -91,9 +83,9 @@ export class MergeExpensesService {
     return expensesInfo;
   }
 
-  isApprovedAndAbove(expenses: Expense[]): Expense[] {
+  isApprovedAndAbove(expenses: Partial<Expense>[]): Partial<Expense>[] {
     const approvedAndAboveExpenses = expenses.filter((expense) =>
-      ['APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.state),
+      ['APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state),
     );
     return approvedAndAboveExpenses;
   }
@@ -102,8 +94,8 @@ export class MergeExpensesService {
     return expensesInfo.defaultExpenses?.length === 1 && expensesInfo.isAdvancePresent;
   }
 
-  isReportedPresent(expenses: Expense[]): Expense[] {
-    return expenses.filter((expense) => expense.state === 'APPROVER_PENDING');
+  isReportedPresent(expenses: Partial<Expense>[]): Partial<Expense>[] {
+    return expenses.filter((expense) => expense.tx_state === 'APPROVER_PENDING');
   }
 
   isMoreThanOneAdvancePresent(expensesInfo: ExpensesInfo, isAllAdvanceExpenses: boolean): boolean {
@@ -116,7 +108,7 @@ export class MergeExpensesService {
 
   getAttachements(txnID: string): Observable<FileObject[]> {
     return this.expensesService.getExpenseById(txnID).pipe(
-      switchMap((expense: Expense) =>
+      switchMap((expense: PlatformExpense) =>
         expense?.file_ids.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([]),
       ),
       map((response: PlatformFileGenerateUrlsResponse[]) => {
@@ -138,12 +130,12 @@ export class MergeExpensesService {
     );
   }
 
-  getCorporateCardTransactions(expenses: Expense[]): Observable<corporateCardTransaction[] | []> {
+  getCorporateCardTransactions(expenses: Partial<Expense>[]): Observable<corporateCardTransaction[] | []> {
     return this.customInputsService.getAll(true).pipe(
       switchMap(() => {
         const CCCGroupIds = expenses
-          .filter((expense) => expense.matched_corporate_card_transaction_ids?.[0])
-          .map((expense) => expense.matched_corporate_card_transaction_ids?.[0]);
+          .filter((expense) => expense.tx_corporate_credit_card_expense_group_id !== null)
+          .map((expense) => expense.tx_corporate_credit_card_expense_group_id);
 
         if (CCCGroupIds.length > 0) {
           const config: PlatformConfig = {
@@ -163,32 +155,32 @@ export class MergeExpensesService {
     );
   }
 
-  generateExpenseToKeepOptions(expenses: Expense[]): Observable<MergeExpensesOption<string>[]> {
+  generateExpenseToKeepOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOption<string>[]> {
     return from(expenses).pipe(
       map((expense) => {
         let vendorOrCategory = '';
-        if (expense.category?.name) {
-          vendorOrCategory = expense.category?.name;
+        if (expense.tx_org_category) {
+          vendorOrCategory = expense.tx_org_category;
         }
-        if (expense.merchant) {
-          vendorOrCategory = expense.merchant;
+        if (expense.tx_vendor) {
+          vendorOrCategory = expense.tx_vendor;
         }
         let projectName = '';
-        if (expense.project?.name) {
-          projectName = `- ${expense.project?.name}`;
+        if (expense.tx_project_name) {
+          projectName = `- ${expense.tx_project_name}`;
         }
 
         let date = '';
-        if (expense.spent_at) {
-          date = dayjs(expense.spent_at).format('MMM DD');
+        if (expense.tx_txn_dt) {
+          date = dayjs(expense.tx_txn_dt).format('MMM DD');
         }
-        let amount = this.humanizeCurrency.transform(expense.amount, expense.currency);
+        let amount = this.humanizeCurrency.transform(expense.tx_amount, expense.tx_currency);
         if (!date) {
           amount = '';
         }
         return {
           label: `${date} ${amount} ${vendorOrCategory} ${projectName}`,
-          value: expense.id,
+          value: expense.tx_id,
         };
       }),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -199,11 +191,11 @@ export class MergeExpensesService {
     );
   }
 
-  generateReceiptOptions(expenses: Expense[]): Observable<MergeExpensesOption<string>[]> {
+  generateReceiptOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOption<string>[]> {
     return from(expenses).pipe(
       map((expense, index) => ({
         label: `${this.translocoService.translate('services.mergeExpenses.receiptFromExpense')} ${index + 1} `,
-        value: expense.id,
+        value: expense.tx_id,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
@@ -212,30 +204,30 @@ export class MergeExpensesService {
     );
   }
 
-  generateAmountOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateAmountOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       map((expense) => {
-        const isForeignAmountPresent = expense.foreign_currency && expense.foreign_amount;
+        const isForeignAmountPresent = expense.tx_orig_currency && expense.tx_orig_amount;
         let formatedlabel: string;
         if (isForeignAmountPresent) {
           formatedlabel =
-            expense.foreign_currency +
+            expense.tx_orig_currency +
             ' ' +
-            expense.foreign_amount +
+            expense.tx_orig_amount +
             '  (' +
-            expense.currency +
+            expense.tx_currency +
             ' ' +
-            expense.amount +
+            expense.tx_amount +
             ')';
         } else {
-          formatedlabel = expense.currency + ' ' + expense.amount;
+          formatedlabel = expense.tx_currency + ' ' + expense.tx_amount;
         }
-        if (!expense.amount) {
+        if (!expense.tx_amount) {
           formatedlabel = '0';
         }
         return {
           label: formatedlabel,
-          value: expense.id,
+          value: expense.tx_id,
         };
       }),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -252,12 +244,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateDateOfSpendOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<Date>> {
+  generateDateOfSpendOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<Date>> {
     return from(expenses).pipe(
-      filter((expense) => expense.spent_at !== null),
+      filter((expense) => expense.tx_txn_dt !== null),
       map((expense) => ({
-        label: dayjs(expense.spent_at).format('MMM DD, YYYY'),
-        value: expense.spent_at,
+        label: dayjs(expense.tx_txn_dt).format('MMM DD, YYYY'),
+        value: expense.tx_txn_dt,
       })),
       reduce((acc: MergeExpensesOption<Date>[], curr) => {
         acc.push(curr);
@@ -273,11 +265,11 @@ export class MergeExpensesService {
     );
   }
 
-  generatePaymentModeOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generatePaymentModeOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       map((expense) => ({
-        label: expense.source_account.type,
-        value: expense.source_account.type,
+        label: expense.source_account_type,
+        value: expense.source_account_type,
       })),
       map((option) => this.formatPaymentModeOptions(option)),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -288,12 +280,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateVendorOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateVendorOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
-      filter((expense) => !!expense.merchant),
+      filter((expense) => !!expense.tx_vendor),
       map((expense) => ({
-        label: expense.merchant?.toString(),
-        value: expense.merchant,
+        label: expense.tx_vendor?.toString(),
+        value: expense.tx_vendor,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
@@ -303,12 +295,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateProjectOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
+  generateProjectOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
-      filter((expense) => !!expense.project_id),
+      filter((expense) => !!expense.tx_project_id),
       map((expense) => ({
-        label: expense.project_id?.toString(),
-        value: expense.project_id,
+        label: expense.tx_project_id?.toString(),
+        value: expense.tx_project_id,
       })),
       mergeMap((option) => this.formatProjectOptions(option)),
       reduce((acc: MergeExpensesOption<number>[], curr) => {
@@ -319,11 +311,11 @@ export class MergeExpensesService {
     );
   }
 
-  generateCategoryOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
+  generateCategoryOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
       map((expense) => ({
         label: '',
-        value: expense.category_id,
+        value: expense.tx_org_category_id,
       })),
       mergeMap((option) => this.formatCategoryOption(option)),
       reduce((acc: MergeExpensesOption<number>[], curr) => {
@@ -340,12 +332,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateTaxGroupOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateTaxGroupOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
-      filter((expense) => expense.tax_group_id !== null),
+      filter((expense) => expense.tx_tax_group_id !== null),
       map((expense) => ({
-        label: expense.tax_group_id,
-        value: expense.tax_group_id,
+        label: expense.tx_tax_group_id,
+        value: expense.tx_tax_group_id,
       })),
       mergeMap((option) => this.formatTaxGroupOption(option)),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -356,12 +348,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateTaxAmountOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
+  generateTaxAmountOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
-      filter((expense) => expense.tax_amount !== null),
+      filter((expense) => expense.tx_tax !== null),
       map((expense) => ({
-        label: expense.tax_amount?.toString(),
-        value: expense.tax_amount,
+        label: expense.tx_tax?.toString(),
+        value: expense.tx_tax,
       })),
       reduce((acc: MergeExpensesOption<number>[], curr) => {
         acc.push(curr);
@@ -371,12 +363,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateCostCenterOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
+  generateCostCenterOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
-      filter((expense) => !!expense.cost_center?.name),
+      filter((expense) => expense.tx_cost_center_name !== null),
       map((expense) => ({
-        label: expense.cost_center?.name?.toString(),
-        value: expense.cost_center_id,
+        label: expense.tx_cost_center_name?.toString(),
+        value: expense.tx_cost_center_id,
       })),
       reduce((acc: MergeExpensesOption<number>[], curr) => {
         acc.push(curr);
@@ -386,12 +378,12 @@ export class MergeExpensesService {
     );
   }
 
-  generatePurposeOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generatePurposeOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
-      filter((expense) => expense.purpose !== null),
+      filter((expense) => expense.tx_purpose !== null),
       map((expense) => ({
-        label: expense.purpose?.toString(),
-        value: expense.purpose,
+        label: expense.tx_purpose?.toString(),
+        value: expense.tx_purpose,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
@@ -401,12 +393,15 @@ export class MergeExpensesService {
     );
   }
 
-  generateLocationOptions(expenses: Expense[], locationIndex: number): Observable<MergeExpensesOptionsData<Location>> {
+  generateLocationOptions(
+    expenses: Partial<Expense>[],
+    locationIndex: number,
+  ): Observable<MergeExpensesOptionsData<Location>> {
     return from(expenses).pipe(
-      filter((expense) => !!expense.locations[locationIndex]),
+      filter((expense) => !!expense.tx_locations[locationIndex]),
       map((expense) => ({
-        label: expense.locations[locationIndex].formatted_address,
-        value: expense.locations[locationIndex],
+        label: expense.tx_locations[locationIndex].formatted_address,
+        value: expense.tx_locations[locationIndex],
       })),
       reduce((acc: MergeExpensesOption<Location>[], curr) => {
         acc.push(curr);
@@ -422,12 +417,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateOnwardDateOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<Date>> {
+  generateOnwardDateOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<Date>> {
     return from(expenses).pipe(
-      filter((expense) => expense.started_at !== null),
+      filter((expense) => expense.tx_from_dt !== null),
       map((expense) => ({
-        label: dayjs(expense.started_at).format('MMM DD, YYYY'),
-        value: expense.started_at,
+        label: dayjs(expense.tx_from_dt).format('MMM DD, YYYY'),
+        value: expense.tx_from_dt,
       })),
       reduce((acc: MergeExpensesOption<Date>[], curr) => {
         acc.push(curr);
@@ -443,12 +438,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateReturnDateOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<Date>> {
+  generateReturnDateOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<Date>> {
     return from(expenses).pipe(
-      filter((expense) => expense.ended_at !== null),
+      filter((expense) => expense.tx_to_dt !== null),
       map((expense) => ({
-        label: dayjs(expense.ended_at).format('MMM DD, YYYY'),
-        value: expense.ended_at,
+        label: dayjs(expense.tx_to_dt).format('MMM DD, YYYY'),
+        value: expense.tx_to_dt,
       })),
       reduce((acc: MergeExpensesOption<Date>[], curr) => {
         acc.push(curr);
@@ -464,12 +459,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateFlightJourneyTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateFlightJourneyTravelClassOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
-      filter((expense) => !!expense.travel_classes?.[0]),
+      filter((expense) => expense.tx_flight_journey_travel_class !== null),
       map((expense) => ({
-        label: expense.travel_classes?.[0]?.toString(),
-        value: expense.travel_classes?.[0],
+        label: expense.tx_flight_journey_travel_class?.toString(),
+        value: expense.tx_flight_journey_travel_class,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
@@ -479,12 +474,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateFlightReturnTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateFlightReturnTravelClassOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
-      filter((expense) => !!expense.travel_classes?.[1]),
+      filter((expense) => expense.tx_flight_return_travel_class !== null),
       map((expense) => ({
-        label: expense.travel_classes?.[1]?.toString(),
-        value: expense.travel_classes?.[1],
+        label: expense.tx_flight_return_travel_class?.toString(),
+        value: expense.tx_flight_return_travel_class,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
@@ -494,12 +489,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateTrainTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateTrainTravelClassOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
-      filter((expense) => !!expense.travel_classes?.[0]),
+      filter((expense) => expense.tx_train_travel_class !== null),
       map((expense) => ({
-        label: expense.travel_classes?.[0]?.toString(),
-        value: expense.travel_classes?.[0],
+        label: expense.tx_train_travel_class?.toString(),
+        value: expense.tx_train_travel_class,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
@@ -509,12 +504,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateBusTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateBusTravelClassOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
-      filter((expense) => !!expense.travel_classes?.[0]),
+      filter((expense) => expense.tx_bus_travel_class !== null),
       map((expense) => ({
-        label: expense.travel_classes?.[0]?.toString(),
-        value: expense.travel_classes?.[0],
+        label: expense.tx_bus_travel_class?.toString(),
+        value: expense.tx_bus_travel_class,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
@@ -524,12 +519,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateDistanceOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
+  generateDistanceOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
-      filter((expense) => expense.distance !== null),
+      filter((expense) => expense.tx_distance !== null),
       map((expense) => ({
-        label: expense.distance?.toString(),
-        value: expense.distance,
+        label: expense.tx_distance?.toString(),
+        value: expense.tx_distance,
       })),
       reduce((acc: MergeExpensesOption<number>[], curr) => {
         acc.push(curr);
@@ -539,12 +534,12 @@ export class MergeExpensesService {
     );
   }
 
-  generateDistanceUnitOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateDistanceUnitOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
-      filter((expense) => expense.distance_unit !== null),
+      filter((expense) => expense.tx_distance_unit !== null),
       map((expense) => ({
-        label: expense.distance_unit?.toString(),
-        value: expense.distance_unit,
+        label: expense.tx_distance_unit?.toString(),
+        value: expense.tx_distance_unit,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
@@ -554,11 +549,11 @@ export class MergeExpensesService {
     );
   }
 
-  generateBillableOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<boolean>> {
+  generateBillableOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<boolean>> {
     return from(expenses).pipe(
       map((expense) => ({
-        label: expense.is_billable?.toString(),
-        value: expense.is_billable,
+        label: expense.tx_billable?.toString(),
+        value: expense.tx_billable,
       })),
       map((option) => this.formatBillableOptions(option)),
       reduce((acc: MergeExpensesOption<boolean>[], curr) => {
@@ -578,20 +573,20 @@ export class MergeExpensesService {
     );
   }
 
-  getCustomInputValues(expenses: Expense[]): Partial<CustomInput>[][] {
+  getCustomInputValues(expenses: Partial<Expense>[]): Partial<CustomInput>[][] {
     //Create a copy so that we don't modify the expense object
     const expensesCopy = cloneDeep(expenses);
     return expensesCopy
       .map((expense) => {
-        if (expense.custom_fields !== null && expense.custom_fields.length > 0) {
-          return expense.custom_fields;
+        if (expense.tx_custom_properties !== null && expense.tx_custom_properties.length > 0) {
+          return expense.tx_custom_properties;
         }
       })
       .filter((element) => element !== undefined);
   }
 
   getDependentFieldsMapping(
-    expenses: Expense[],
+    expenses: Partial<Expense>[],
     dependentFields: TxnCustomProperties[],
     parentField: 'PROJECT' | 'COST_CENTER',
   ): {
@@ -599,17 +594,19 @@ export class MergeExpensesService {
   } {
     const dependentFieldsMapping: DependentFieldsMapping = {};
     expenses?.forEach((expense) => {
-      const expenseDependentFields: Partial<CustomInput>[] = dependentFields
+      const txDependentFields: Partial<CustomInput>[] = dependentFields
         ?.map((dependentField: TxnCustomProperties) =>
-          expense.custom_fields?.find((customField: Partial<CustomInput>) => dependentField.name === customField.name),
+          expense.tx_custom_properties?.find(
+            (txCustomProperty: Partial<CustomInput>) => dependentField.name === txCustomProperty.name,
+          ),
         )
-        .filter((expenseDependentFields) => !!expenseDependentFields);
+        .filter((txDependentField) => !!txDependentField);
 
       let parentFieldValueId: number;
       if (parentField === 'PROJECT') {
-        parentFieldValueId = expense.project_id;
+        parentFieldValueId = expense.tx_project_id;
       } else if (parentField === 'COST_CENTER') {
-        parentFieldValueId = expense.cost_center_id;
+        parentFieldValueId = expense.tx_cost_center_id;
       }
 
       const dependentFieldsWithValue = dependentFieldsMapping[parentFieldValueId];
@@ -617,7 +614,7 @@ export class MergeExpensesService {
       //If both the expenses have same project id but first one does not have any dependent field
       //then use the dependent fields from the second expense, else use fields from first expense
       if (!dependentFieldsWithValue || dependentFieldsWithValue.length === 0) {
-        dependentFieldsMapping[parentFieldValueId] = expenseDependentFields || [];
+        dependentFieldsMapping[parentFieldValueId] = txDependentFields || [];
       }
     });
     return dependentFieldsMapping;
@@ -773,11 +770,11 @@ export class MergeExpensesService {
   }
 
   private formatPaymentModeOptions(option: MergeExpensesOption<string>): MergeExpensesOption<string> {
-    if (option.value === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
+    if (option.value === AccountType.CCC) {
       option.label = this.translocoService.translate('services.mergeExpenses.corporateCard');
-    } else if (option.value === AccountType.PERSONAL_CASH_ACCOUNT) {
+    } else if (option.value === AccountType.PERSONAL) {
       option.label = this.translocoService.translate('services.mergeExpenses.personalCardCash');
-    } else if (option.value === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
+    } else if (option.value === AccountType.ADVANCE) {
       option.label = this.translocoService.translate('services.mergeExpenses.advance');
     }
     return option;

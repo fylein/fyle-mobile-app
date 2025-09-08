@@ -1,11 +1,14 @@
-import { ComponentFixture, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MergeExpensePage } from './merge-expense.page';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { NavController } from '@ionic/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import {
+  MatSnackBar,
+  MatSnackBarRef,
+} from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -13,7 +16,8 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
-import { BehaviorSubject, of, skip } from 'rxjs';
+import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
+import { BehaviorSubject, Observable, Subscription, of, skip, take } from 'rxjs';
 import {
   optionsData15,
   optionsData16,
@@ -37,16 +41,13 @@ import {
 } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { filterTestData } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { responseAfterAppliedFilter } from 'src/app/core/test-data/custom-inputs.spec.data';
-import { expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
+import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { dependentFieldsMappingForProject } from 'src/app/core/mock-data/dependent-field-mapping.data';
 import { expectedCustomInputFields } from 'src/app/core/mock-data/custom-field.data';
 import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
-import { expenseInfoWithoutDefaultExpense } from 'src/app/core/mock-data/expenses-info.data';
-import { customInputsData4 } from 'src/app/core/mock-data/custom-input.data';
+import { expenseInfoWithoutDefaultExpense, expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
+import { customInputData1, customInputsData4 } from 'src/app/core/mock-data/custom-input.data';
 import { mergeExpenesesCustomInputsData } from 'src/app/core/mock-data/merge-expenses-custom-inputs.data';
-import { apiExpenses3 } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-rates.model';
-import { expensesInfo } from 'src/app/core/mock-data/platform/v1/expenses-info.data';
 
 export function TestCases3(getTestBed) {
   return describe('test cases set 3', () => {
@@ -84,7 +85,7 @@ export function TestCases3(getTestBed) {
       dependantFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
       formBuilder = TestBed.inject(UntypedFormBuilder);
       component.fg = formBuilder.group({
-        target_expense_id: [, Validators.required],
+        target_txn_id: [, Validators.required],
         genericFields: [],
         categoryDependent: [],
         custom_inputs: [],
@@ -100,7 +101,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'patchCustomInputsValues');
         spyOn(component, 'getDependentFieldsMapping').and.returnValues(
           of(projectDependentFieldsMappingData1),
-          of(CostCenterDependentFieldsMappingData1),
+          of(CostCenterDependentFieldsMappingData1)
         );
       });
 
@@ -134,7 +135,7 @@ export function TestCases3(getTestBed) {
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(2);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledWith(
             mergeExpenseFormData1.custom_inputs.fields,
-            responseAfterAppliedFilter,
+            responseAfterAppliedFilter
           );
           expect(customInputsService.filterByCategory).toHaveBeenCalledTimes(2);
           const firstFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(0);
@@ -220,23 +221,23 @@ export function TestCases3(getTestBed) {
       });
 
       it('should call mergeExpensesService.getDependentFieldsMapping() once with expense, dependentField and parentField if parentField is PROJECT', () => {
-        component.expenses = apiExpenses3;
+        component.expenses = expenseList2;
         component.getDependentFieldsMapping('PROJECT').subscribe((res) => {
           expect(mergeExpensesService.getDependentFieldsMapping).toHaveBeenCalledOnceWith(
-            apiExpenses3,
+            expenseList2,
             expectedTxnCustomProperties,
-            'PROJECT',
+            'PROJECT'
           );
         });
       });
 
       it('should call mergeExpensesService.getDependentFieldsMapping() once with expense, dependentField and parentField if parentField is COST_CENTER', () => {
-        component.expenses = apiExpenses3;
+        component.expenses = expenseList2;
         component.getDependentFieldsMapping('COST_CENTER').subscribe((res) => {
           expect(mergeExpensesService.getDependentFieldsMapping).toHaveBeenCalledOnceWith(
-            apiExpenses3,
+            expenseList2,
             expectedTxnCustomProperties,
-            'COST_CENTER',
+            'COST_CENTER'
           );
         });
       });
@@ -256,16 +257,16 @@ export function TestCases3(getTestBed) {
     });
 
     it('onPaymentModeChanged(): should call mergeExpensesService.getCorporateCardTransactions() once and assign CCCTxns correctly', () => {
-      component.expenses = apiExpenses3;
+      component.expenses = expenseList2;
       mergeExpensesService.getCorporateCardTransactions.and.returnValue(of(ccTransactionResponseData.data));
       component.onPaymentModeChanged();
-      expect(mergeExpensesService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(apiExpenses3);
+      expect(mergeExpensesService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(expenseList2);
       expect(component.CCCTxns).toEqual(ccTransactionResponseData.data);
     });
 
     describe('generateCustomInputOptions(): ', () => {
       beforeEach(() => {
-        component.expenses = apiExpenses3;
+        component.expenses = expenseList2;
         mergeExpensesService.getCustomInputValues.and.returnValue(cloneDeep([customInputsData4]));
         mergeExpensesService.formatCustomInputOptions.and.returnValue({
           'select all 2': optionsData32[7],
@@ -295,13 +296,13 @@ export function TestCases3(getTestBed) {
 
     describe('setAdvanceOrApprovedAndAbove(): ', () => {
       beforeEach(() => {
-        component.expenses = apiExpenses3;
-        mergeExpensesService.isApprovedAndAbove.and.returnValue(apiExpenses3);
+        component.expenses = apiExpenseRes;
+        mergeExpensesService.isApprovedAndAbove.and.returnValue(apiExpenseRes);
       });
 
       it('should call mergeExpensesService.isApprovedAndAbove() once with expenses', () => {
         component.setAdvanceOrApprovedAndAbove(expensesInfo);
-        expect(mergeExpensesService.isApprovedAndAbove).toHaveBeenCalledOnceWith(apiExpenses3);
+        expect(mergeExpensesService.isApprovedAndAbove).toHaveBeenCalledOnceWith(apiExpenseRes);
       });
 
       it('should set disableFormElements to true if isApprovedAndAbove length is greater than zero', () => {
@@ -326,13 +327,13 @@ export function TestCases3(getTestBed) {
 
     describe('setIsReported(): ', () => {
       beforeEach(() => {
-        component.expenses = apiExpenses3;
-        mergeExpensesService.isReportedPresent.and.returnValue([apiExpenses3[0]]);
+        component.expenses = expenseList2;
+        mergeExpensesService.isReportedPresent.and.returnValue([expenseList2[0]]);
       });
 
       it('should call mergeExpensesService.isReportedPresent() once and set isReportedExpensePresent to true if isReported length is greater than zero', () => {
         component.setIsReported(expensesInfo);
-        expect(mergeExpensesService.isReportedPresent).toHaveBeenCalledOnceWith(apiExpenses3);
+        expect(mergeExpensesService.isReportedPresent).toHaveBeenCalledOnceWith(expenseList2);
         expect(component.isReportedExpensePresent).toBeTrue();
       });
 
@@ -386,7 +387,7 @@ export function TestCases3(getTestBed) {
         expect(component.setAdvanceOrApprovedAndAbove).not.toHaveBeenCalled();
       });
 
-      it('should call mergeExpensesService.isReportedOrAbove once and set disableExpenseToKeep, expenseToKeepInfoText and modify target_expense_id in form', () => {
+      it('should call mergeExpensesService.isReportedOrAbove once and set disableExpenseToKeep, expenseToKeepInfoText and modify target_txn_id in form', () => {
         mergeExpensesService.isReportedOrAbove.and.returnValue(true);
         spyOn(component, 'setIsReported');
         component.disableExpenseToKeep = false;
@@ -397,9 +398,9 @@ export function TestCases3(getTestBed) {
         expect(component.setIsReported).toHaveBeenCalledOnceWith(expensesInfo);
         expect(component.disableExpenseToKeep).toBeTrue();
         expect(component.expenseToKeepInfoText).toEqual(
-          'You are required to keep the expense that has already been submitted.',
+          'You are required to keep the expense that has already been submitted.'
         );
-        expect(component.fg.controls.target_expense_id.value).toEqual(apiExpenses3[0].id);
+        expect(component.fg.controls.target_txn_id.value).toEqual('txLgXPnTDOGf');
       });
 
       it('should call mergeExpensesService.isMoreThanOneAdvancePresent once and modify showReceiptSelection and expenseToKeepInfoText', () => {
@@ -416,12 +417,12 @@ export function TestCases3(getTestBed) {
         expect(component.disableExpenseToKeep).toBeFalse();
         expect(component.showReceiptSelection).toBeTrue();
         expect(component.expenseToKeepInfoText).toEqual(
-          'You cannot make changes to an expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.',
+          'You cannot make changes to an expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
         );
-        expect(component.fg.controls.target_expense_id.value).not.toEqual('txB1rVZJ4Pxl');
+        expect(component.fg.controls.target_txn_id.value).not.toEqual('txB1rVZJ4Pxl');
       });
 
-      it('should call mergeExpensesService.isAdvancePresent once and modify disableExpenseToKeep, expenseToKeepInfoText and target_expense_id property in form', () => {
+      it('should call mergeExpensesService.isAdvancePresent once and modify disableExpenseToKeep, expenseToKeepInfoText and target_txn_id property in form', () => {
         mergeExpensesService.isAdvancePresent.and.returnValue(true);
         spyOn(component, 'setIsReported');
         component.disableExpenseToKeep = false;
@@ -435,9 +436,9 @@ export function TestCases3(getTestBed) {
         expect(component.disableExpenseToKeep).toBeTrue();
         expect(component.showReceiptSelection).toBeFalse();
         expect(component.expenseToKeepInfoText).toEqual(
-          'You are required to keep the expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.',
+          'You are required to keep the expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
         );
-        expect(component.fg.controls.target_expense_id.value).toEqual(apiExpenses3[0].id);
+        expect(component.fg.controls.target_txn_id.value).toEqual('txLgXPnTDOGf');
       });
 
       it('should call setAdvanceOrApprovedAndAbove once', () => {
@@ -460,12 +461,13 @@ export function TestCases3(getTestBed) {
 
     describe('patchCategoryDependentFields(): ', () => {
       beforeEach(() => {
-        const mockExpense = cloneDeep(apiExpenses3);
+        const mockExpense = cloneDeep(expenseList2);
 
-        mockExpense[1].locations = [optionsData15.options[0].value, optionsData33.options[0].value];
-        mockExpense[1].travel_classes = ['ECONOMY', 'BUSINESS'];
-        mockExpense[1].distance = 23;
-        mockExpense[1].distance_unit = MileageUnitEnum.KM;
+        mockExpense[1].tx_locations = [optionsData15.options[0].value, optionsData33.options[0].value];
+        mockExpense[1].tx_flight_journey_travel_class = 'ECONOMY';
+        mockExpense[1].tx_flight_return_travel_class = 'BUSINESS';
+        mockExpense[1].tx_distance = 23;
+        mockExpense[1].tx_distance_unit = 'KM';
         component.expenses = mockExpense;
         component.categoryDependentFieldsOptions$ = of(combinedOptionsData3);
         mergeExpensesService.getFieldValueOnChange.and.returnValues(
@@ -478,7 +480,7 @@ export function TestCases3(getTestBed) {
           'SLEEPER',
           'AC',
           23,
-          'KM',
+          'KM'
         );
       });
 
@@ -522,9 +524,9 @@ export function TestCases3(getTestBed) {
         const flightOnwardtravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(5);
         expect(flightOnwardtravelClassCall).toEqual([optionsData17, false, 'BUSINESS', undefined]);
         const trainJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(6);
-        expect(trainJourneytravelClassCall).toEqual([optionsData18, false, 'ECONOMY', 'SLEEPER']);
+        expect(trainJourneytravelClassCall).toEqual([optionsData18, false, null, 'SLEEPER']);
         const busTravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(7);
-        expect(busTravelClassCall).toEqual([optionsData19, false, 'ECONOMY', undefined]);
+        expect(busTravelClassCall).toEqual([optionsData19, false, null, undefined]);
         const distanceCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(8);
         expect(distanceCall).toEqual([optionsData20, false, 23, 23]);
         const distanceUnitCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(9);
@@ -598,9 +600,9 @@ export function TestCases3(getTestBed) {
         const flightOnwardtravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(5);
         expect(flightOnwardtravelClassCall).toEqual([optionsData17, undefined, 'BUSINESS', undefined]);
         const trainJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(6);
-        expect(trainJourneytravelClassCall).toEqual([optionsData18, undefined, 'ECONOMY', 'SLEEPER']);
+        expect(trainJourneytravelClassCall).toEqual([optionsData18, undefined, null, 'SLEEPER']);
         const busTravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(7);
-        expect(busTravelClassCall).toEqual([optionsData19, undefined, 'ECONOMY', undefined]);
+        expect(busTravelClassCall).toEqual([optionsData19, undefined, null, undefined]);
         const distanceCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(8);
         expect(distanceCall).toEqual([optionsData20, undefined, 23, 23]);
         const distanceUnitCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(9);
@@ -623,9 +625,9 @@ export function TestCases3(getTestBed) {
         const flightOnwardtravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(5);
         expect(flightOnwardtravelClassCall).toEqual([optionsData17, false, 'BUSINESS', undefined]);
         const trainJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(6);
-        expect(trainJourneytravelClassCall).toEqual([optionsData18, false, 'ECONOMY', undefined]);
+        expect(trainJourneytravelClassCall).toEqual([optionsData18, false, null, undefined]);
         const busTravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(7);
-        expect(busTravelClassCall).toEqual([optionsData19, false, 'ECONOMY', undefined]);
+        expect(busTravelClassCall).toEqual([optionsData19, false, null, undefined]);
         const distanceCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(8);
         expect(distanceCall).toEqual([optionsData20, false, 23, undefined]);
         const distanceUnitCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(9);
