@@ -1,4 +1,5 @@
 import { Destination } from './destination.model';
+import { File } from './platform/v1/file.model';
 
 export interface PublicPolicyExpense {
   activity_details?: string;
@@ -46,7 +47,7 @@ export interface PublicPolicyExpense {
   mileage_rate: number;
   mileage_vehicle_type: string;
   num_days: number;
-  num_files: number;
+  files: Pick<File, 'id' | 'name' | 'content_type' | 'type'>[];
   category_id: number;
   org_user_id: string;
   orig_amount: number;
