@@ -3770,6 +3770,7 @@ export class AddEditExpensePage implements OnInit {
 
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
     return this.platformExpense$.pipe(
+      // platformExpense$ gets the latest files, file_ids after attach of receipts
       switchMap((expense) => {
         etxn.tx.files = expense.files;
         return this.policyService.getPlatformPolicyExpense(etxn, this.selectedCCCTransaction).pipe(
