@@ -104,7 +104,6 @@ import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-
 import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
 import { TransactionState } from 'src/app/core/models/transaction-state.enum';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { Expense } from 'src/app/core/models/expense.model';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
@@ -2279,7 +2278,7 @@ export class AddEditPerDiemPage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<Expense | void>;
+      deleteMethod: () => Observable<void>;
     };
   } {
     return {
@@ -2291,7 +2290,7 @@ export class AddEditPerDiemPage implements OnInit {
         body: config.body,
         ctaText: config.ctaText,
         ctaLoadingText: config.ctaLoadingText,
-        deleteMethod: (): Observable<Expense | void> => {
+        deleteMethod: (): Observable<void> => {
           if (removePerDiemFromReport) {
             return this.platformReportService.ejectExpenses(reportId, id);
           }

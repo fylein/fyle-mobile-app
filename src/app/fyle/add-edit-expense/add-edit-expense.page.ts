@@ -61,7 +61,6 @@ import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { Currency } from 'src/app/core/models/currency.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { Destination } from 'src/app/core/models/destination.model';
-import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -1516,7 +1515,7 @@ export class AddEditExpensePage implements OnInit {
               etxn.tx.category = {
                 ...etxn.tx.category,
                 system_category: extractedCategory.fyle_category,
-              }
+              };
             }
           }
 
@@ -2235,7 +2234,8 @@ export class AddEditExpensePage implements OnInit {
           const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
           if (
             !isCategoryExtracted &&
-            (!etxn.tx.category_id || (etxn.tx.category?.system_category && etxn.tx.category?.system_category.toLowerCase() === 'unspecified'))
+            (!etxn.tx.category_id ||
+              (etxn.tx.category?.system_category && etxn.tx.category?.system_category.toLowerCase() === 'unspecified'))
           ) {
             return this.getAutofillCategory({
               isAutofillsEnabled,
@@ -3052,8 +3052,8 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  getIsPolicyExpense(etxn: Expense): boolean {
-    return isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
+  getIsPolicyExpense(etxn: Partial<UnflattenedTransaction>): boolean {
+    return isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001;
   }
 
   getCheckSpiltExpense(etxn: Partial<UnflattenedTransaction>): boolean {
@@ -4195,7 +4195,7 @@ export class AddEditExpensePage implements OnInit {
               }),
               switchMap((tx) => {
                 const selectedReportId = reportControl.report?.id;
-                const criticalPolicyViolated = this.getIsPolicyExpense(etxn as unknown as Expense);
+                const criticalPolicyViolated = this.getIsPolicyExpense(etxn);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.platformReportService.addExpenses(selectedReportId, [tx.id]).pipe(
@@ -5077,7 +5077,7 @@ export class AddEditExpensePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<Expense | void>;
+      deleteMethod: () => Observable<void>;
     };
   } {
     return {
@@ -5089,7 +5089,7 @@ export class AddEditExpensePage implements OnInit {
         body: config.body,
         ctaText: config.ctaText,
         ctaLoadingText: config.ctaLoadingText,
-        deleteMethod: (): Observable<Expense | void> => {
+        deleteMethod: (): Observable<void> => {
           if (removeExpenseFromReport) {
             return this.platformReportService.ejectExpenses(reportId, this.activatedRoute.snapshot.params.id as string);
           }
