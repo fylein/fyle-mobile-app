@@ -3,7 +3,7 @@ import { environment } from 'src/environments/environment';
 import { map, Observable } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { PlatformMerchant } from '../models/platform/platform-merchants.model';
+import { Merchant } from '../models/platform/platform-merchants.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +21,7 @@ export class VendorService {
     this.ROOT_ENDPOINT = rootUrl;
   }
 
-  getMerchants(searchString: string): Observable<PlatformMerchant[]> {
+  getMerchants(searchString: string): Observable<Merchant[]> {
     const data = {
       params: {
         q: searchString,
@@ -30,7 +30,7 @@ export class VendorService {
     };
 
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformMerchant[]>>('/merchants', data)
-      .pipe(map((response: PlatformApiResponse<PlatformMerchant[]>) => response.data));
+      .get<PlatformApiResponse<Merchant[]>>('/merchants', data)
+      .pipe(map((response: PlatformApiResponse<Merchant[]>) => response.data));
   }
 }

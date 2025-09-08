@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { PlatformMerchant } from '../models/platform/platform-merchants.model';
+import { Merchant } from '../models/platform/platform-merchants.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { VendorService } from './vendor.service';
 
-const mockMerchants: PlatformMerchant[] = [
+const mockMerchants: Merchant[] = [
   {
     id: 309,
     display_name: 'Fuel Station',
@@ -36,7 +36,7 @@ const mockMerchants: PlatformMerchant[] = [
   },
 ];
 
-const mockApiResponse: PlatformApiResponse<PlatformMerchant[]> = {
+const mockApiResponse: PlatformApiResponse<Merchant[]> = {
   count: 4,
   data: mockMerchants,
   offset: 0,

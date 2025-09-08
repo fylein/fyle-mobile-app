@@ -15,7 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
-import { PlatformMerchant } from 'src/app/core/models/platform/platform-merchants.model';
+import { Merchant } from 'src/app/core/models/platform/platform-merchants.model';
 
 describe('FySelectVendorModalComponent', () => {
   let component: FySelectVendorModalComponent;
@@ -26,7 +26,7 @@ describe('FySelectVendorModalComponent', () => {
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
-  const vendors: PlatformMerchant[] = [
+  const vendors: Merchant[] = [
     {
       id: 309,
       display_name: 'Fuel',

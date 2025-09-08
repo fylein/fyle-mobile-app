@@ -1,4 +1,4 @@
-export interface PlatformMerchant {
+export interface Merchant {
   id: number;
   created_at: Date;
   updated_at: Date;

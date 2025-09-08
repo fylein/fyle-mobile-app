@@ -17,7 +17,7 @@ import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { VendorListItem } from 'src/app/core/models/vendor.model';
-import { PlatformMerchant } from 'src/app/core/models/platform/platform-merchants.model';
+import { Merchant } from 'src/app/core/models/platform/platform-merchants.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 
 @Component({
@@ -43,7 +43,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
 
   @Input() filteredOptions$!: Observable<VendorListItem[]>;
 
-  readonly currentSelection = input<PlatformMerchant | null>(null);
+  readonly currentSelection = input<Merchant | null>(null);
 
   recentrecentlyUsedItems$!: Observable<VendorListItem[]>;
 
@@ -98,7 +98,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
             map((vendors: VendorListItem[]) => {
               const noneOption: VendorListItem = {
                 label: this.translocoService.translate('fySelectVendorModal.none'),
-                value: null as unknown as PlatformMerchant,
+                value: null as unknown as Merchant,
               };
               return [noneOption, ...vendors];
             }),
@@ -117,7 +117,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       startWith([
         {
           label: this.translocoService.translate('fySelectVendorModal.none'),
-          value: null as unknown as PlatformMerchant,
+          value: null as unknown as Merchant,
         },
       ]),
       map((vendors: VendorListItem[]) => {
@@ -180,7 +180,7 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     this.value = this.value.trim();
     const newOption: VendorListItem = {
       label: this.value,
-      value: { display_name: this.value } as PlatformMerchant,
+      value: { display_name: this.value } as Merchant,
     };
     this.recentLocalStorageItemsService.post('recentVendorList', newOption, 'label');
     this.modalController.dismiss(newOption);

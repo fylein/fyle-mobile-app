@@ -1,4 +1,4 @@
-import { PlatformMerchant } from './platform/platform-merchants.model';
+import { Merchant } from './platform/platform-merchants.model';
 
 export interface Vendor {
   id: number;
@@ -14,7 +14,7 @@ export interface Vendor {
 
 export interface VendorListItem {
   label: string;
-  value: PlatformMerchant;
+  value: Merchant;
   selected?: boolean;
   isRecentlyUsed?: boolean;
 }
