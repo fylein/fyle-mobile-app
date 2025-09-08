@@ -1,4 +1,15 @@
-import { Component, ElementRef, inject, Input, OnInit, ViewChild, input, output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  Input,
+  OnInit,
+  ViewChild,
+  input,
+  output,
+  EventEmitter,
+  computed,
+} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import dayjs from 'dayjs';
@@ -15,7 +26,6 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { FileService } from 'src/app/core/services/file.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
@@ -40,8 +50,6 @@ import { signal } from '@angular/core';
   standalone: false,
 })
 export class ExpensesCardComponent implements OnInit {
-  private transactionService = inject(TransactionService);
-
   private sharedExpenseService = inject(SharedExpenseService);
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
@@ -74,6 +82,17 @@ export class ExpensesCardComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  private readonly isInstaFyleEnabled = computed(() =>
+    this.platformEmployeeSettingsService
+      .get()
+      .pipe(
+        map(
+          (employeeSettings) =>
+            employeeSettings.insta_fyle_settings.allowed && employeeSettings.insta_fyle_settings.enabled,
+        ),
+      ),
+  );
+
   // Cache key for localStorage
   private static readonly CACHE_KEY = 'mandatory_expense_fields_cache';
 
@@ -81,9 +100,7 @@ export class ExpensesCardComponent implements OnInit {
   //  Your application code writes to the query. This prevents migration.
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() expense: Expense;
+  readonly expense = input<Expense>(undefined);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -178,8 +195,6 @@ export class ExpensesCardComponent implements OnInit {
 
   paymentModeIcon: string;
 
-  isScanInProgress: boolean;
-
   isProjectEnabled$: Observable<boolean>;
 
   attachmentUploadInProgress = false;
@@ -188,11 +203,18 @@ export class ExpensesCardComponent implements OnInit {
 
   isConnected$: Observable<boolean>;
 
-  isSycing$: Observable<boolean>;
-
   category: string;
 
-  isScanCompleted: boolean;
+  readonly isScanCompleted = computed(() => {
+    const isInstaFyleEnabled = this.isInstaFyleEnabled();
+    const expense = this.expense();
+    if (isInstaFyleEnabled && (this.homeCurrency === 'USD' || this.homeCurrency === 'INR') && expense) {
+      return this.checkIfScanIsCompleted(expense);
+    }
+    return false;
+  });
+
+  readonly isScanInProgress = computed(() => !this.isScanCompleted() && !this.expense().extracted_data);
 
   imageTransperencyOverlay = 'linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), ';
 
@@ -214,8 +236,8 @@ export class ExpensesCardComponent implements OnInit {
 
   get isSelected(): boolean {
     if (this.selectedElements) {
-      if (this.expense.id) {
-        return this.selectedElements.some((expense) => this.expense.id === expense.id);
+      if (this.expense().id) {
+        return this.selectedElements.some((expense) => this.expense().id === expense.id);
       } else {
         return this.selectedElements.some((expense) => isEqual(this.expense, expense));
       }
@@ -225,17 +247,17 @@ export class ExpensesCardComponent implements OnInit {
 
   onGoToTransaction(): void {
     if (!this.isSelectionModeEnabled) {
-      this.goToTransaction.emit({ expense: this.expense, expenseIndex: this.expenseIndex });
+      this.goToTransaction.emit({ expense: this.expense(), expenseIndex: this.expenseIndex });
     }
   }
 
   getReceipt(): void {
-    if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'mileage') {
+    if (this.expense()?.category?.name?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/mileage.svg';
-    } else if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'per diem') {
+    } else if (this.expense()?.category?.name?.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/calendar.svg';
     } else {
-      if (!this.expense.file_ids?.length) {
+      if (!this.expense().file_ids?.length) {
         this.receiptIcon = 'assets/svg/list-plus.svg';
         if (this.isFromPotentialDuplicates || this.isFromViewReports) {
           this.receiptIcon = 'assets/svg/list.svg';
@@ -248,73 +270,49 @@ export class ExpensesCardComponent implements OnInit {
 
   isZeroAmountPerDiemOrMileage(): boolean {
     return (
-      (this.expense?.category?.name?.toLowerCase() === 'per diem' ||
-        this.expense?.category?.name?.toLowerCase() === 'mileage') &&
-      (this.expense.amount === 0 || this.expense.claim_amount === 0)
+      (this.expense()?.category?.name?.toLowerCase() === 'per diem' ||
+        this.expense()?.category?.name?.toLowerCase() === 'mileage') &&
+      (this.expense().amount === 0 || this.expense().claim_amount === 0)
     );
   }
 
-  checkIfScanIsCompleted(): boolean {
+  checkIfScanIsCompleted(expense: Expense): boolean {
     const isZeroAmountPerDiemOrMileage = this.isZeroAmountPerDiemOrMileage();
 
     const hasUserManuallyEnteredData =
       isZeroAmountPerDiemOrMileage ||
-      ((this.expense.amount || this.expense.claim_amount) &&
-        isNumber(this.expense.amount || this.expense.claim_amount));
-    const isRequiredExtractedDataPresent = this.expense.extracted_data?.amount;
+      ((expense.amount || expense.claim_amount) && isNumber(this.expense().amount || this.expense().claim_amount));
+    const isRequiredExtractedDataPresent = expense.extracted_data?.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
-    // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
-    const hasScanExpired = this.expense.created_at && dayjs(this.expense.created_at).diff(Date.now(), 'day') < 0;
+    const hasScanExpired = expense.created_at && dayjs(expense.created_at).diff(Date.now(), 'day') < 0;
     return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
-  }
-
-  handleScanStatus(): void {
-    const that = this;
-    that.isScanInProgress = false;
-    that.isScanCompleted = false;
-
-    if (!that.isOutboxExpense) {
-      that.platformEmployeeSettingsService.get().subscribe((employeeSettings) => {
-        if (
-          employeeSettings.insta_fyle_settings.allowed &&
-          employeeSettings.insta_fyle_settings.enabled &&
-          (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
-        ) {
-          that.isScanCompleted = that.checkIfScanIsCompleted();
-          that.isScanInProgress = !that.isScanCompleted && !this.expense.extracted_data;
-        } else {
-          that.isScanCompleted = true;
-          that.isScanInProgress = false;
-        }
-      });
-    }
   }
 
   canShowPaymentModeIcon(): void {
     this.showPaymentModeIcon =
-      this.expense.source_account?.type === AccountType.PERSONAL_CASH_ACCOUNT && this.expense.is_reimbursable;
+      this.expense().source_account?.type === AccountType.PERSONAL_CASH_ACCOUNT && this.expense().is_reimbursable;
   }
 
   setIsPolicyViolated(): void {
-    this.isPolicyViolated = this.expense.is_policy_flagged;
+    this.isPolicyViolated = this.expense().is_policy_flagged;
   }
 
   setExpenseDetails(): void {
-    this.category = this.expense?.category?.name && this.expense?.category?.name.toLowerCase();
+    this.category = this.expense()?.category?.name?.toLowerCase();
     this.isMileageExpense = this.category === 'mileage';
     this.isPerDiem = this.category === 'per diem';
 
-    this.isDraft = this.sharedExpenseService.isExpenseInDraft(this.expense);
-    this.isCriticalPolicyViolated = this.sharedExpenseService.isCriticalPolicyViolatedExpense(this.expense);
-    this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
+    this.isDraft = this.sharedExpenseService.isExpenseInDraft(this.expense());
+    this.isCriticalPolicyViolated = this.sharedExpenseService.isCriticalPolicyViolatedExpense(this.expense());
+    this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense());
 
     this.setIsPolicyViolated();
 
-    if (!this.expense.id) {
+    if (!this.expense().id) {
       this.showDt = !!this.isFirstOfflineExpense;
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
-      const currentDate = (this.expense.spent_at || this.expense.created_at).toDateString();
+      const currentDate = (this.expense().spent_at || this.expense().created_at).toDateString();
       const previousDate = new Date(
         (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string,
       ).toDateString();
@@ -332,14 +330,11 @@ export class ExpensesCardComponent implements OnInit {
     this.setupNetworkWatcher();
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
-    this.isSycing$ = this.isConnected$.pipe(
-      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense),
-    );
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
     });
 
-    this.missingMandatoryFields = this.expense.missing_mandatory_fields;
+    this.missingMandatoryFields = this.expense().missing_mandatory_fields;
 
     // get the mandatory expense fields using cached approach
     this.ensureMandatoryFieldsMap();
@@ -360,22 +355,20 @@ export class ExpensesCardComponent implements OnInit {
 
     this.setExpenseDetails();
 
-    this.handleScanStatus();
-
     this.isIos = this.platform.is('ios');
 
-    this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(this.expense));
+    this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(this.expense()));
   }
 
   setOtherData(): void {
-    if (this.expense?.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
-      if (this.expense?.matched_corporate_card_transaction_ids?.length > 0) {
+    if (this.expense()?.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
+      if (this.expense()?.matched_corporate_card_transaction_ids?.length > 0) {
         this.paymentModeIcon = 'card';
       } else {
         this.paymentModeIcon = 'card';
       }
     } else {
-      if (this.expense?.is_reimbursable) {
+      if (this.expense()?.is_reimbursable) {
         this.paymentModeIcon = 'cash';
       } else {
         this.paymentModeIcon = 'cash-slash';
@@ -385,13 +378,13 @@ export class ExpensesCardComponent implements OnInit {
 
   onSetMultiselectMode(): void {
     if (!this.isSelectionModeEnabled) {
-      this.setMultiselectMode.emit(this.expense);
+      this.setMultiselectMode.emit(this.expense());
     }
   }
 
   onTapTransaction(): void {
     if (this.isSelectionModeEnabled) {
-      this.cardClickedForSelection.emit(this.expense);
+      this.cardClickedForSelection.emit(this.expense());
     }
   }
 
@@ -401,7 +394,7 @@ export class ExpensesCardComponent implements OnInit {
       !(
         this.isMileageExpense ||
         this.isPerDiem ||
-        this.expense.file_ids?.length > 0 ||
+        this.expense().file_ids?.length > 0 ||
         this.isFromPotentialDuplicates
       ) &&
       !this.isSelectionModeEnabled
@@ -494,12 +487,6 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
-  matchReceiptWithEtxn(fileObj: FileObject): void {
-    this.expense.file_ids = [];
-    this.expense.file_ids.push(fileObj.id);
-    fileObj.transaction_id = this.expense.id;
-  }
-
   attachReceipt(receiptDetails: ReceiptDetail): void {
     this.attachmentUploadInProgress = true;
     const attachmentType = this.fileService.getAttachmentType(receiptDetails.type);
@@ -508,8 +495,7 @@ export class ExpensesCardComponent implements OnInit {
     from(this.transactionOutboxService.fileUpload(receiptDetails.dataUrl, attachmentType))
       .pipe(
         switchMap((fileObj: FileObject) => {
-          this.matchReceiptWithEtxn(fileObj);
-          return this.expensesService.attachReceiptToExpense(this.expense.id, fileObj.id);
+          return this.expensesService.attachReceiptToExpense(this.expense().id, fileObj.id);
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;
@@ -530,7 +516,7 @@ export class ExpensesCardComponent implements OnInit {
   dismiss(event: Event): void {
     event.stopPropagation();
     event.preventDefault();
-    this.dismissed.emit(this.expense);
+    this.dismissed.emit(this.expense());
   }
 
   async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {

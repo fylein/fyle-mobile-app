@@ -170,7 +170,6 @@ describe('AddEditExpensePage', () => {
       'deleteExpense',
       'unlinkCorporateCardExpense',
       'showToastMessage',
-      'setCategoryFromVendor',
       'saveReceiptWithInvalidForm',
       'clickSaveAddNew',
       'policyCorrection',

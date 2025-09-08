@@ -51,7 +51,7 @@ describe('SpenderOnboardingService', () => {
       ],
     });
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
@@ -86,7 +86,7 @@ describe('SpenderOnboardingService', () => {
     });
   });
 
-  it('processSmsOptInStep(): should process opt in step', (done) => {
+  it('processSmsOptInStep(): should process opt-in step', (done) => {
     const onboardingRequestResponse: OnboardingStepStatus = {
       is_configured: true,
       is_skipped: false,
@@ -237,35 +237,37 @@ describe('SpenderOnboardingService', () => {
     it('should return true when all conditions are met', () => {
       expect(
         //@ts-ignore
-        spenderOnboardingService.shouldProceedToOnboarding('USD', false, true, { state: OnboardingState.YET_TO_START })
+        spenderOnboardingService.shouldProceedToOnboarding('USD', false, true, { state: OnboardingState.YET_TO_START }),
       ).toBeTrue();
     });
 
     it('should return false when currency is not USD', () => {
       expect(
         //@ts-ignore
-        spenderOnboardingService.shouldProceedToOnboarding('EUR', false, true, { state: OnboardingState.YET_TO_START })
+        spenderOnboardingService.shouldProceedToOnboarding('EUR', false, true, { state: OnboardingState.YET_TO_START }),
       ).toBeFalse();
     });
 
     it('should return false when org is restricted', () => {
       expect(
         //@ts-ignore
-        spenderOnboardingService.shouldProceedToOnboarding('USD', true, true, { state: OnboardingState.YET_TO_START })
+        spenderOnboardingService.shouldProceedToOnboarding('USD', true, true, { state: OnboardingState.YET_TO_START }),
       ).toBeFalse();
     });
 
     it('should return false when cards are not enabled', () => {
       expect(
         //@ts-ignore
-        spenderOnboardingService.shouldProceedToOnboarding('USD', false, false, { state: OnboardingState.YET_TO_START })
+        spenderOnboardingService.shouldProceedToOnboarding('USD', false, false, {
+          state: OnboardingState.YET_TO_START,
+        }),
       ).toBeFalse();
     });
 
     it('should return false when onboarding is completed', () => {
       expect(
         //@ts-ignore
-        spenderOnboardingService.shouldProceedToOnboarding('USD', false, true, { state: 'COMPLETED' })
+        spenderOnboardingService.shouldProceedToOnboarding('USD', false, true, { state: 'COMPLETED' }),
       ).toBeFalse();
     });
   });
