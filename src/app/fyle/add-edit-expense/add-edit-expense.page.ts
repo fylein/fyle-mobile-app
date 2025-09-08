@@ -513,7 +513,7 @@ export class AddEditExpensePage implements OnInit {
 
   isIos = false;
 
-  duplicateExpenses: PlatformExpense[];
+  duplicateExpenses: Expense[];
 
   isExpenseMatchedForDebitCCCE: boolean;
 
@@ -5398,8 +5398,11 @@ export class AddEditExpensePage implements OnInit {
             };
             return this.expensesService.getAllExpenses({ offset: 0, limit: 100, queryParams }).pipe(
               map((expenses) => {
+                const expensesArray = expenses.map((expense) =>
+                  this.transactionService.transformRawExpense(expense),
+                ) as [];
                 return transformedDuplicateSets.map((duplicateSet) =>
-                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expenses),
+                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray),
                 );
               }),
             );
@@ -5409,37 +5412,37 @@ export class AddEditExpensePage implements OnInit {
         }),
         catchError(() => EMPTY), // Return an empty observable in case of an error
       )
-      .subscribe((duplicateExpensesSet: PlatformExpense[][]) => {
-        this.duplicateExpenses = duplicateExpensesSet[0];
+      .subscribe((duplicateExpensesSet) => {
+        this.duplicateExpenses = duplicateExpensesSet[0] as Expense[];
       });
   }
 
-  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: PlatformExpense[]): PlatformExpense[] {
+  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Partial<Expense>[]): Partial<Expense>[] {
     return duplicateSet.transaction_ids.map(
       (expenseId) =>
-        expensesArray[expensesArray.findIndex((duplicateTxn: PlatformExpense) => expenseId === duplicateTxn.id)],
+        expensesArray[expensesArray.findIndex((duplicateTxn: Expense) => expenseId === duplicateTxn.tx_id)],
     );
   }
 
-  async showSuggestedDuplicates(duplicateExpenses: PlatformExpense[]): Promise<void> {
+  async showSuggestedDuplicates(duplicateExpenses: Expense[]): Promise<void> {
     this.trackingService.showSuggestedDuplicates();
 
-    const expenseIds = duplicateExpenses.map((expense) => expense?.id);
+    const txnIDs = duplicateExpenses.map((expense) => expense?.tx_id);
 
-    const isAnyIdUndefined = expenseIds.some((id) => !id);
+    const isAnyIdUndefined = txnIDs.some((id) => !id);
 
     if (isAnyIdUndefined) {
       this.showSnackBarToast({ message: 'Something went wrong. Please try after some time.' }, 'failure', [
         'msb-failure',
       ]);
-      this.trackingService.eventTrack('Showing duplicate expenses failed', expenseIds);
+      this.trackingService.eventTrack('Showing duplicate expenses failed', txnIDs);
       return;
     }
 
     const currencyModal = await this.modalController.create({
       component: SuggestedDuplicatesComponent,
       componentProps: {
-        duplicateExpenseIDs: expenseIds,
+        duplicateExpenseIDs: txnIDs,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
