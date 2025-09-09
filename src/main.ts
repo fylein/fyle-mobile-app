@@ -1,11 +1,4 @@
-import {
-  enableProdMode,
-  provideAppInitializer,
-  inject,
-  ErrorHandler,
-  InjectionToken,
-  importProvidersFrom,
-} from '@angular/core';
+import { enableProdMode, provideAppInitializer, inject, ErrorHandler, importProvidersFrom } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { provideRouter, PreloadAllModules, withPreloading } from '@angular/router';
 
@@ -23,13 +16,7 @@ import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { provideTransloco, TranslocoService } from '@jsverse/transloco';
 import { TranslocoHttpLoader } from './app/transloco-http-loader';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
-import {
-  HAMMER_GESTURE_CONFIG,
-  HammerGestureConfig,
-  BrowserModule,
-  HammerModule,
-  bootstrapApplication,
-} from '@angular/platform-browser';
+import { HAMMER_GESTURE_CONFIG, HammerModule, bootstrapApplication } from '@angular/platform-browser';
 import { RouteReuseStrategy, Router } from '@angular/router';
 import { IonicRouteStrategy, IonicModule } from '@ionic/angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
@@ -46,7 +33,6 @@ import { HumanizeCurrencyPipe } from './app/shared/pipes/humanize-currency.pipe'
 import { ExactCurrencyPipe } from './app/shared/pipes/exact-currency.pipe';
 import { DecimalPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { IconModule } from './app/shared/icon/icon.module';
-import { DashboardService } from './app/fyle/dashboard/dashboard.service';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { ReportState } from './app/shared/pipes/report-state.pipe';
 
