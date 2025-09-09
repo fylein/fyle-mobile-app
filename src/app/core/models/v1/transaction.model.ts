@@ -1,5 +1,6 @@
 import { ExpenseTransactionStatus } from '../../enums/platform/v1/expense-transaction-status.enum';
 import { Destination } from '../destination.model';
+import { File } from '../platform/v1/file.model';
 import { TxnCustomProperties } from '../txn-custom-properties.model';
 
 export interface Transaction {
@@ -48,7 +49,7 @@ export interface Transaction {
   mileage_rate?: number;
   mileage_vehicle_type?: string;
   num_days?: number;
-  num_files?: number;
+  files: Pick<File, 'id' | 'name' | 'content_type' | 'type'>[];
   category_id?: number;
   org_user_id?: string;
   orig_amount?: number;

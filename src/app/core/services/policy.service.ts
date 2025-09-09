@@ -58,7 +58,7 @@ export class PolicyService {
       ended_at: transaction.to_dt,
       per_diem_rate_id: transaction.per_diem_rate_id,
       per_diem_num_days: transaction.num_days,
-      num_files: transaction.num_files,
+      num_files: transaction.files?.length || 0,
       is_matching_ccc: transaction.is_matching_ccc_expense,
       mileage_rate_id: transaction.mileage_rate_id,
       mileage_calculated_distance: transaction.mileage_calculated_distance,
@@ -191,17 +191,6 @@ export class PolicyService {
     selectedCCCTransaction: Partial<MatchedCCCTransaction>,
   ): Observable<PublicPolicyExpense> {
     const transactionCopy = cloneDeep(etxn.tx);
-    /* Adding number of attachements and sending in test call as tx_num_files
-     * If editing an expense with receipts, check for already uploaded receipts
-     */
-    if (etxn.tx) {
-      transactionCopy.num_files = etxn.tx.num_files;
-
-      // Check for receipts uploaded from mobile
-      if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-        transactionCopy.num_files = etxn.tx.num_files + etxn.dataUrls.length;
-      }
-    }
 
     transactionCopy.is_matching_ccc_expense = !!selectedCCCTransaction;
     let transaction$ = of(transactionCopy);

@@ -461,23 +461,6 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateReceiptAttachedParams(
-    newQueryParams: FilterQueryParams,
-    filters: Partial<ExpenseFilters>,
-  ): FilterQueryParams {
-    const newQueryParamsCopy = cloneDeep(newQueryParams);
-    if (filters.receiptsAttached) {
-      if (filters.receiptsAttached === 'YES') {
-        newQueryParamsCopy.tx_num_files = 'gt.0';
-      }
-
-      if (filters.receiptsAttached === 'NO') {
-        newQueryParamsCopy.tx_num_files = 'eq.0';
-      }
-    }
-    return newQueryParamsCopy;
-  }
-
   generateSplitExpenseParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
@@ -622,7 +605,7 @@ export class TransactionService {
         created_at: expense.created_at,
         spent_at: expense.spent_at,
         categoryDisplayName: expense.category?.display_name,
-        num_files: expense.files?.length,
+        files: expense.files,
         org_category: expense.category?.name,
         fyle_category: expense.category?.system_category,
         state: expense.state,

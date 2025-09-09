@@ -328,29 +328,6 @@ describe('TransactionService', () => {
     });
   });
 
-  describe('generateReceiptAttachedParams():', () => {
-    const params = { or: [] };
-    beforeEach(() => {
-      spyOn(lodash, 'cloneDeep').and.returnValue(params);
-    });
-
-    it('should return receipt attached params if receipt attached is YES', () => {
-      const filters = { receiptsAttached: 'YES' };
-      const receiptsAttachedParams = { or: [], tx_num_files: 'gt.0' };
-      expect(transactionService.generateReceiptAttachedParams(params, filters)).toEqual(receiptsAttachedParams);
-    });
-
-    it('should return receipt attached params if receipt attached is NO', () => {
-      const filters = { receiptsAttached: 'NO' };
-      const receiptsAttachedParams = { or: [], tx_num_files: 'eq.0' };
-      expect(transactionService.generateReceiptAttachedParams(params, filters)).toEqual(receiptsAttachedParams);
-    });
-
-    afterEach(() => {
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(params);
-    });
-  });
-
   describe('generateSplitExpenseParams():', () => {
     let params: FilterQueryParams;
 
