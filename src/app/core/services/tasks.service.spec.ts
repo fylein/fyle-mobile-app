@@ -1125,6 +1125,7 @@ describe('TasksService', () => {
   describe('getMobileNumberVerificationTasks(): ', () => {
     it('should not return any task if user has verified mobile number', (done) => {
       authService.getEou.and.resolveTo(extendedOrgUserResponse);
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(authService.getEou).toHaveBeenCalledOnceWith();
@@ -1139,6 +1140,7 @@ describe('TasksService', () => {
       eou.ou.mobile_verified = false;
       authService.getEou.and.resolveTo(eou);
       utilityService.isUserFromINCluster.and.resolveTo(true);
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(authService.getEou).toHaveBeenCalledOnceWith();

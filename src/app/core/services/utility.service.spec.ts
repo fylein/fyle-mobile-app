@@ -309,6 +309,7 @@ describe('UtilityService', () => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
       authService.getEou.and.resolveTo(mockEou);
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigOptInData));
 
       utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
@@ -326,6 +327,7 @@ describe('UtilityService', () => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
       authService.getEou.and.resolveTo(mockEou);
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       const mockFeatureConfig = cloneDeep(featureConfigOptInData);
       mockFeatureConfig.value = null;
       featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
@@ -345,6 +347,7 @@ describe('UtilityService', () => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
       authService.getEou.and.resolveTo(mockEou);
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       featureConfigService.getConfiguration.and.returnValue(of(undefined));
 
       utilityService.canShowOptInModal(featureConfig).subscribe((result) => {

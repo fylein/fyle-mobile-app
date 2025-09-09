@@ -851,6 +851,7 @@ describe('DashboardPage', () => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = true;
       component.eou$ = of(mockEou);
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
 
       const result$ = component.setShowOptInBanner();
 

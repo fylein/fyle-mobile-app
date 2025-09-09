@@ -14,6 +14,9 @@ import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-he
 import { ErrorType } from './error-type.model';
 import { errorMappings } from 'src/app/core/mock-data/error-mapping-for-verify-number-popover.data';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 describe('VerifyNumberPopoverComponent', () => {
   let component: VerifyNumberPopoverComponent;
@@ -22,6 +25,7 @@ describe('VerifyNumberPopoverComponent', () => {
   let mobileNumberVerificationService: jasmine.SpyObj<MobileNumberVerificationService>;
   let resendOtpSpy: jasmine.Spy;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+  let currencyService: jasmine.SpyObj<CurrencyService>;
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
@@ -36,6 +40,7 @@ describe('VerifyNumberPopoverComponent', () => {
       langChanges$: of('en'),
       _loadDependencies: () => Promise.resolve(),
     });
+    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     TestBed.configureTestingModule({
       declarations: [VerifyNumberPopoverComponent, FyAlertInfoComponent, FormButtonValidationDirective],
       imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule],
@@ -43,6 +48,9 @@ describe('VerifyNumberPopoverComponent', () => {
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: MobileNumberVerificationService, useValue: mobileNumberVerificationServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
+        { provide: CurrencyService, useValue: currencyServiceSpy },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
 
@@ -54,6 +62,7 @@ describe('VerifyNumberPopoverComponent', () => {
       MobileNumberVerificationService,
     ) as jasmine.SpyObj<MobileNumberVerificationService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
         'verifyNumberPopover.title': 'Verify mobile number',
@@ -279,6 +288,7 @@ describe('VerifyNumberPopoverComponent', () => {
 
     it('should verify otp if input is valid', () => {
       mobileNumberVerificationService.verifyOtp.and.returnValue(of({ message: '' }));
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       component.value = '123456';
 
       click(verifyCta);

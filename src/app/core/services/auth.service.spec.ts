@@ -9,6 +9,9 @@ import { apiEouRes, eouFlattended, eouRes3 } from '../mock-data/extended-org-use
 import { apiAuthResponseRes } from '../mock-data/auth-response.data';
 import { finalize, noop, of, tap } from 'rxjs';
 import { apiAccessTokenRes, apiTokenWithoutRoles } from '../mock-data/access-token-data.data';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -17,6 +20,7 @@ describe('AuthService', () => {
   let apiService: jasmine.SpyObj<ApiService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let jwtHelperService: jasmine.SpyObj<JwtHelperService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   //The token consists of user-details
   const access_token =
@@ -34,13 +38,21 @@ describe('AuthService', () => {
       'setAccessToken',
     ]);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
-    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
+    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', [
+      'unflatten',
+      'transformExtOrgUserResponse',
+    ]);
     const jwtHelperServiceSpy = jasmine.createSpyObj('JwtHelperService', ['decodeToken']);
     TestBed.configureTestingModule({
       providers: [
         {
           provide: ApiService,
           useValue: apiServiceSpy,
+        },
+        {
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: TokenService,
@@ -58,10 +70,15 @@ describe('AuthService', () => {
           provide: JwtHelperService,
           useValue: jwtHelperServiceSpy,
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
     authService = TestBed.inject(AuthService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService,
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
@@ -83,14 +100,14 @@ describe('AuthService', () => {
   });
 
   it('refreshEou(): should refresh extended org user in memory', (done) => {
-    apiService.get.and.returnValue(of(eouFlattended));
-    dataTransformService.unflatten.and.returnValue(eouRes3);
+    spenderPlatformV1ApiService.get.and.returnValue(of({ data: eouFlattended } as any));
+    dataTransformService.transformExtOrgUserResponse.and.returnValue(eouRes3);
     storageService.set.and.resolveTo(null);
 
     authService.refreshEou().subscribe((res) => {
       expect(res).toEqual(eouRes3);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/eous/current');
-      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(eouFlattended);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/employees/current');
+      expect(dataTransformService.transformExtOrgUserResponse).toHaveBeenCalledOnceWith(eouFlattended as any);
       expect(storageService.set).toHaveBeenCalledOnceWith('user', eouRes3);
       done();
     });
@@ -170,7 +187,7 @@ describe('AuthService', () => {
         }),
         finalize(() => {
           expect(storageService.delete).toHaveBeenCalledWith('recentlyUsedProjects');
-        })
+        }),
       )
       .subscribe(noop);
     done();
