@@ -57,10 +57,6 @@ export const currentEouRes: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'INR',
-  },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -81,13 +77,44 @@ export const currentEouRes: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    code: '0000000',
+    name: '0000000',
+    sub_department: null,
+    display_name: '0000000',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_user_ids: [null, 'oubQzXeZbwbS', null],
+  approver_users: [null, { id: 'oubQzXeZbwbS', full_name: 'AA23', email: 'ajain+12+12+1@fyle.in' }, null],
+  delegatees: [],
+  locale: {
+    timezone: 'Asia/Kolkata',
+    abbreviation: 'IST',
+    offset: '+05:30',
   },
+  commute_details: {
+    id: 123,
+    distance: 15.2,
+    distance_unit: 'km',
+    home_location: {
+      latitude: 19.076,
+      longitude: 72.8777,
+      city: 'Mumbai',
+      country: 'India',
+      formatted_address: 'Mumbai, Maharashtra, India',
+      state: 'Maharashtra',
+    },
+    work_location: {
+      latitude: 19.076,
+      longitude: 72.8777,
+      city: 'Mumbai',
+      country: 'India',
+      formatted_address: 'Mumbai, Maharashtra, India',
+      state: 'Maharashtra',
+    },
+  },
+  commute_details_id: 'commute123',
+  flattened_custom_field: {},
 });
 
 export const currentEouUnflatted: EouApiResponse = deepFreeze({
@@ -287,10 +314,6 @@ export const eouListWithDisabledUser = deepFreeze([
       default_cost_center_code: null,
       cost_center_ids: [13794, 13790],
     },
-    org: {
-      domain: 'fyle.in',
-      currency: 'INR',
-    },
     us: {
       id: 'us6kdyOIYUCM',
       created_at: new Date('2022-10-28T07:49:51.961Z'),
@@ -311,13 +334,30 @@ export const eouListWithDisabledUser = deepFreeze([
       full_name: null,
       email: null,
     },
-    bb: {
-      bank_name: null,
+    department: {
+      id: null,
+      code: null,
+      name: null,
+      sub_department: null,
+      display_name: null,
     },
-    dwolla: {
-      customer_id: null,
-      bank_account_added: null,
+    approver_user_ids: [null, null, null],
+    approver_users: [null, null, null],
+    delegatees: [],
+    locale: {
+      timezone: 'Asia/Kolkata',
+      abbreviation: 'IST',
+      offset: '+05:30',
     },
+    commute_details: {
+      id: null,
+      distance: 0,
+      distance_unit: 'km',
+      home_location: null,
+      work_location: null,
+    },
+    commute_details_id: null,
+    flattened_custom_field: {},
   },
   {
     ou: {
@@ -361,10 +401,6 @@ export const eouListWithDisabledUser = deepFreeze([
       default_cost_center_code: null,
       cost_center_ids: [13696, 13701, 6281],
     },
-    org: {
-      domain: 'fyle.in',
-      currency: 'INR',
-    },
     us: {
       id: 'usQo18yCqdts',
       created_at: new Date('2018-01-22T13:15:54.696Z'),
@@ -385,13 +421,30 @@ export const eouListWithDisabledUser = deepFreeze([
       full_name: null,
       email: null,
     },
-    bb: {
-      bank_name: null,
+    department: {
+      id: null,
+      code: null,
+      name: null,
+      sub_department: null,
+      display_name: null,
     },
-    dwolla: {
-      customer_id: null,
-      bank_account_added: null,
+    approver_user_ids: [null, null, null],
+    approver_users: [null, null, null],
+    delegatees: [],
+    locale: {
+      timezone: 'Asia/Kolkata',
+      abbreviation: 'IST',
+      offset: '+05:30',
     },
+    commute_details: {
+      id: null,
+      distance: 0,
+      distance_unit: 'km',
+      home_location: null,
+      work_location: null,
+    },
+    commute_details_id: null,
+    flattened_custom_field: {},
   },
 ]);
 
@@ -500,10 +553,6 @@ export const extendedOrgUserResponse = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13696, 14018],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'INR',
-  },
   us: {
     id: 'usBkJD1Um174',
     created_at: new Date('2019-05-08T12:53:32.373Z'),
@@ -524,13 +573,48 @@ export const extendedOrgUserResponse = deepFreeze({
     full_name: 'Arun tvs',
     email: 'arun.tvs@fyle.in',
   },
-  bb: {
-    bank_name: null,
+  department: {
+    id: 'deptYSONXoGd64',
+    code: 'BLAH',
+    name: 'blah',
+    sub_department: null,
+    display_name: 'blah',
   },
-  dwolla: {
-    customer_id: 'dwcMdzMqqWLD9Ds',
-    bank_account_added: null,
+  approver_user_ids: ['ouHgqeUOCrFP', null, 'ouwu0kuvZMT1'],
+  approver_users: [
+    { id: 'ouHgqeUOCrFP', full_name: 'Pradeep g', email: 'pradeep.gupta@fyle.in' },
+    null,
+    { id: 'ouwu0kuvZMT1', full_name: 'Arun tvs', email: 'arun.tvs@fyle.in' },
+  ],
+  delegatees: [],
+  locale: {
+    timezone: 'Asia/Kolkata',
+    abbreviation: 'IST',
+    offset: '+05:30',
   },
+  commute_details: {
+    id: 123,
+    distance: 8.7,
+    distance_unit: 'km',
+    home_location: {
+      latitude: 12.9716,
+      longitude: 77.5946,
+      city: 'Bangalore',
+      country: 'India',
+      formatted_address: 'Bangalore, Karnataka, India',
+      state: 'Karnataka',
+    },
+    work_location: {
+      latitude: 12.9716,
+      longitude: 77.5946,
+      city: 'Bangalore',
+      country: 'India',
+      formatted_address: 'Bangalore, Karnataka, India',
+      state: 'Karnataka',
+    },
+  },
+  commute_details_id: 'commute123',
+  flattened_custom_field: {},
 });
 
 export const postUserParam = deepFreeze({

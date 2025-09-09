@@ -432,9 +432,10 @@ export class DashboardPage {
     return forkJoin({
       isBannerShown: isBannerShown$,
       eou: this.eou$,
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ isBannerShown, eou }) => {
-        const isUSDorCADCurrency = ['USD', 'CAD'].includes(eou.org.currency);
+      map(({ isBannerShown, eou, homeCurrency }) => {
+        const isUSDorCADCurrency = ['USD', 'CAD'].includes(homeCurrency);
         const isInvalidUSMobileNumber = eou.ou.mobile && !eou.ou.mobile.startsWith('+1');
 
         if (eou.ou.mobile_verified || !isUSDorCADCurrency || isInvalidUSMobileNumber || isBannerShown) {

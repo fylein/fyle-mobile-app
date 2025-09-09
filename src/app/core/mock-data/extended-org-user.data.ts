@@ -73,10 +73,6 @@ export const apiEouRes: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794, 14018, 13795],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'USD',
-  },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -97,13 +93,30 @@ export const apiEouRes: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    name: 'Engineering',
+    code: 'ENG',
+    sub_department: null,
+    display_name: 'Engineering',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_users: [],
+  delegatees: [],
+  locale: {
+    timezone: 'America/New_York',
+    abbreviation: 'EST',
+    offset: '-05:00',
   },
+  commute_details: {
+    id: 123,
+    home_location: null,
+    work_location: null,
+    distance: 0,
+    distance_unit: 'km',
+  },
+  approver_user_ids: [],
+  commute_details_id: 'commute123',
+  flattened_custom_field: {},
 });
 
 export const eouRes2: ExtendedOrgUser = deepFreeze({
@@ -155,10 +168,6 @@ export const eouRes2: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'USD',
-  },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -179,13 +188,30 @@ export const eouRes2: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    name: 'Engineering',
+    code: 'ENG',
+    sub_department: null,
+    display_name: 'Engineering',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_users: [],
+  delegatees: [],
+  locale: {
+    timezone: 'America/New_York',
+    abbreviation: 'EST',
+    offset: '-05:00',
   },
+  commute_details: {
+    id: 123,
+    home_location: null,
+    work_location: null,
+    distance: 0,
+    distance_unit: 'km',
+  },
+  approver_user_ids: [],
+  commute_details_id: 'commute123',
+  flattened_custom_field: {},
 });
 
 export const eouRes3: ExtendedOrgUser = deepFreeze({
@@ -272,10 +298,6 @@ export const eouRes3: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'INR',
-  },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -296,13 +318,30 @@ export const eouRes3: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    name: 'Engineering',
+    code: 'ENG',
+    sub_department: null,
+    display_name: 'Engineering',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_users: [],
+  delegatees: [],
+  locale: {
+    timezone: 'America/New_York',
+    abbreviation: 'EST',
+    offset: '-05:00',
   },
+  commute_details: {
+    id: 123,
+    home_location: null,
+    work_location: null,
+    distance: 0,
+    distance_unit: 'km',
+  },
+  approver_user_ids: [],
+  commute_details_id: 'commute123',
+  flattened_custom_field: {},
 });
 
 export const eouFlattended: EouApiResponse = deepFreeze({
@@ -481,10 +520,6 @@ export const eouUnFlattended: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'INR',
-  },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -505,13 +540,30 @@ export const eouUnFlattended: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    name: 'Engineering',
+    code: 'ENG',
+    sub_department: null,
+    display_name: 'Engineering',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_users: [],
+  delegatees: [],
+  locale: {
+    timezone: 'America/New_York',
+    abbreviation: 'EST',
+    offset: '-05:00',
   },
+  commute_details: {
+    id: 123,
+    home_location: null,
+    work_location: null,
+    distance: 0,
+    distance_unit: 'km',
+  },
+  approver_user_ids: [],
+  commute_details_id: 'commute123',
+  flattened_custom_field: {},
 });
 
 export const eouWithNoAttempts: ExtendedOrgUser = deepFreeze({

@@ -99,7 +99,6 @@ const extendedOrgUser = {
     default_cost_center_code: null,
     cost_center_ids: [],
   },
-  org: { domain: 'gmail.com', currency: 'INR' },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -111,8 +110,30 @@ const extendedOrgUser = {
   ap1: { full_name: null, email: null },
   ap2: { full_name: null, email: null },
   ap3: { full_name: null, email: null },
-  bb: { bank_name: null },
-  dwolla: { customer_id: null, bank_account_added: null },
+  department: {
+    id: null,
+    code: null,
+    name: null,
+    sub_department: null,
+    display_name: null,
+  },
+  approver_user_ids: [null, null, null],
+  approver_users: [null, null, null],
+  delegatees: [],
+  locale: {
+    timezone: 'Asia/Kolkata',
+    abbreviation: 'IST',
+    offset: '+05:30',
+  },
+  commute_details: {
+    id: null,
+    distance: 0,
+    distance_unit: 'km',
+    home_location: null,
+    work_location: null,
+  },
+  commute_details_id: null,
+  flattened_custom_field: {},
 };
 
 describe('VendorService', () => {

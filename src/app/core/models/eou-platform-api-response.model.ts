@@ -33,11 +33,11 @@ export interface EouPlatformApiResponse {
   branch_account: string;
   locale: Locale;
   mobile: string;
-  is_mobile_verified: string;
+  is_mobile_verified: string | boolean;
   custom_fields: CustomField[];
   flattened_custom_field: Record<string, unknown>;
   commute_details_id: string;
   commute_details: CommuteDetails;
-  mobile_verification_attempts_left: string;
+  mobile_verification_attempts_left: string | number;
   is_primary: boolean;
 }

@@ -1153,13 +1153,14 @@ describe('TasksService', () => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
       eou.ou.mobile = null;
-      eou.org.currency = 'CAD';
       authService.getEou.and.resolveTo(eou);
+      currencyService.getHomeCurrency.and.returnValue(of('CAD'));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
         [addMobileNumberTask],
       );
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
         expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledTimes(1);
         expect(res).toEqual([addMobileNumberTask]);
         done();
@@ -1169,13 +1170,14 @@ describe('TasksService', () => {
     it('should return opt-in task if user has not verified mobile number', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
-      eou.org.currency = 'USD';
       authService.getEou.and.resolveTo(eou);
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
         [addMobileNumberTask],
       );
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
         expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledTimes(1);
         expect(res).toEqual([addMobileNumberTask]);
         done();

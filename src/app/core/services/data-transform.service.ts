@@ -36,6 +36,27 @@ export class DataTransformService {
     return 'ACTIVE';
   }
 
+  parseBoolean(value: string | boolean): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true';
+    }
+    return false;
+  }
+
+  parseNumber(value: string | number): number {
+    if (typeof value === 'number') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      const parsed = parseInt(value, 10);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  }
+
   transformCustomFields(customFields: CustomField[]): CustomProperty<number | string>[] {
     return (
       customFields.map((field) => ({
@@ -74,8 +95,8 @@ export class DataTransformService {
         branch_ifsc: platformRes.branch_ifsc,
         branch_account: platformRes.branch_account,
         mobile: platformRes.mobile,
-        mobile_verified: platformRes.is_mobile_verified,
-        mobile_verification_attempts_left: platformRes.mobile_verification_attempts_left,
+        mobile_verified: this.parseBoolean(platformRes.is_mobile_verified),
+        mobile_verification_attempts_left: this.parseNumber(platformRes.mobile_verification_attempts_left),
         is_primary: platformRes.is_primary,
         custom_field_values: this.transformCustomFields(platformRes.custom_fields),
       },
