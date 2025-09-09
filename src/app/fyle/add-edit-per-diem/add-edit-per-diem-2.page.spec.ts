@@ -176,7 +176,7 @@ export function TestCases2(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -210,7 +210,7 @@ export function TestCases2(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       authService.getEou.and.resolveTo(apiEouRes);
@@ -274,7 +274,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          })
+          }),
         );
         spyOn(component.fg, 'updateValueAndValidity');
         component.etxn$ = of(unflattenedTxnData);
@@ -298,7 +298,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
@@ -316,7 +316,7 @@ export function TestCases2(getTestBed) {
       it('should return custom inputs if etxn.tx.org_category_id is undefined', () => {
         component.fg.value.custom_inputs = undefined;
         const mockEtxn = cloneDeep(unflattenedTxnData);
-        mockEtxn.tx.org_category_id = undefined;
+        mockEtxn.tx.category_id = undefined;
         component.etxn$ = of(mockEtxn);
         categoriesService.getAll.and.returnValue(of([orgCategoryData]));
         component.getCustomInputs().subscribe((res) => {
@@ -340,7 +340,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).not.toHaveBeenCalled();
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(component.getPerDiemCategories).not.toHaveBeenCalled();
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 247980);
@@ -366,7 +366,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).not.toHaveBeenCalled();
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 38912);
@@ -432,7 +432,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          })
+          }),
         );
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         spyOn(component, 'getNewExpense').and.returnValue(of(unflattenedTxnDataPerDiem));
@@ -463,7 +463,7 @@ export function TestCases2(getTestBed) {
         expect(dateService.addDaysToDate).toHaveBeenCalledOnceWith(today, 1);
         expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
         expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
         expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
@@ -598,7 +598,7 @@ export function TestCases2(getTestBed) {
             {
               categoryIds: ['129140', '129112', '16582', '201952'],
             },
-            orgCategoryData1
+            orgCategoryData1,
           );
           expect(res).toBeTrue();
         });
@@ -675,7 +675,7 @@ export function TestCases2(getTestBed) {
         component.recentlyUsedCostCenters$.subscribe((res) => {
           expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledOnceWith(
             expectedCCdata3,
-            recentlyUsedRes
+            recentlyUsedRes,
           );
           expect(res).toEqual(expectedCCdata2);
         });

@@ -133,14 +133,14 @@ export class TransactionService {
         transaction.custom_properties = <TxnCustomProperties[]>(
           this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset)
         );
-        // setting txn_dt time to T10:00:00:000 in local time zone
-        if (transaction.txn_dt) {
-          transaction.txn_dt.setHours(12);
-          transaction.txn_dt.setMinutes(0);
-          transaction.txn_dt.setSeconds(0);
-          transaction.txn_dt.setMilliseconds(0);
+        // setting spent_at time to T10:00:00:000 in local time zone
+        if (transaction.spent_at) {
+          transaction.spent_at.setHours(12);
+          transaction.spent_at.setMinutes(0);
+          transaction.spent_at.setSeconds(0);
+          transaction.spent_at.setMilliseconds(0);
 
-          transaction.txn_dt = this.dateService.getUTCMidAfternoonDate(transaction.txn_dt);
+          transaction.spent_at = this.dateService.getUTCMidAfternoonDate(transaction.spent_at);
         }
 
         if (transaction.from_dt) {
@@ -236,7 +236,7 @@ export class TransactionService {
   checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
     return this.platformEmployeeSettingsService.get().pipe(
       switchMap((employeeSettings) => {
-        // setting txn_dt time to T10:00:00:000 in local time zone
+        // setting spent_at time to T10:00:00:000 in local time zone
         if (platformPolicyExpense.spent_at) {
           platformPolicyExpense.spent_at.setHours(12);
           platformPolicyExpense.spent_at.setMinutes(0);
@@ -493,32 +493,6 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateDateParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
-    let newQueryParamsCopy = cloneDeep(newQueryParams);
-    if (filters.date) {
-      filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
-      filters.customDateEnd = filters.customDateEnd && new Date(filters.customDateEnd);
-      if (filters.date === DateFilters.thisMonth) {
-        const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParamsCopy.and = `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`;
-      }
-
-      if (filters.date === DateFilters.thisWeek) {
-        const thisWeek = this.dateService.getThisWeekRange();
-        newQueryParamsCopy.and = `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`;
-      }
-
-      if (filters.date === DateFilters.lastMonth) {
-        const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParamsCopy.and = `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
-      }
-
-      newQueryParamsCopy = this.generateCustomDateParams(newQueryParamsCopy, filters);
-    }
-
-    return newQueryParamsCopy;
-  }
-
   generateTypeFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const typeOrFilter = this.generateTypeOrFilter(filters);
@@ -530,22 +504,6 @@ export class TransactionService {
     }
 
     return newQueryParamsCopy;
-  }
-
-  setSortParams(
-    currentParams: Partial<SortFiltersParams>,
-    filters: Partial<ExpenseFilters>,
-  ): Partial<SortFiltersParams> {
-    const currentParamsCopy = cloneDeep(currentParams);
-    if (filters.sortParam && filters.sortDir) {
-      currentParamsCopy.sortParam = filters.sortParam;
-      currentParamsCopy.sortDir = filters.sortDir;
-    } else {
-      currentParamsCopy.sortParam = 'tx_txn_dt';
-      currentParamsCopy.sortDir = 'desc';
-    }
-
-    return currentParamsCopy;
   }
 
   getPaymentModeWiseSummary(etxns: Expense[]): PaymentModeSummary {
@@ -662,7 +620,7 @@ export class TransactionService {
       tx: {
         id: expense.id,
         created_at: expense.created_at,
-        txn_dt: expense.spent_at,
+        spent_at: expense.spent_at,
         categoryDisplayName: expense.category?.display_name,
         num_files: expense.files?.length,
         org_category: expense.category?.name,
@@ -696,7 +654,7 @@ export class TransactionService {
         creator_id: expense.creator_user_id,
         request_id: expense.is_receipt_mandatory,
         report_id: expense.report_id,
-        org_category_id: expense.category_id,
+        category_id: expense.category_id,
         cost_center_id: expense.cost_center_id,
         cost_center_name: expense.cost_center?.name,
         cost_center_code: expense.cost_center?.code,
@@ -913,26 +871,6 @@ export class TransactionService {
     }
 
     return stateOrFilter;
-  }
-
-  private generateCustomDateParams(
-    newQueryParams: FilterQueryParams,
-    filters: Partial<ExpenseFilters>,
-  ): FilterQueryParams {
-    const newQueryParamsCopy = cloneDeep(newQueryParams);
-    if (filters.date === DateFilters.custom) {
-      const startDate = filters.customDateStart?.toISOString();
-      const endDate = filters.customDateEnd?.toISOString();
-      if (filters.customDateStart && filters.customDateEnd) {
-        newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
-      } else if (filters.customDateStart) {
-        newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate})`;
-      } else if (filters.customDateEnd) {
-        newQueryParamsCopy.and = `(tx_txn_dt.lt.${endDate})`;
-      }
-    }
-
-    return newQueryParamsCopy;
   }
 
   private generateTypeOrFilter(filters: Partial<ExpenseFilters>): string[] {
