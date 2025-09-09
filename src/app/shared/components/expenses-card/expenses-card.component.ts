@@ -27,7 +27,15 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
-import { NgClass, NgStyle, NgTemplateOutlet, AsyncPipe, LowerCasePipe, TitleCasePipe, CurrencyPipe } from '@angular/common';
+import {
+  NgClass,
+  NgStyle,
+  NgTemplateOutlet,
+  AsyncPipe,
+  LowerCasePipe,
+  TitleCasePipe,
+  CurrencyPipe,
+} from '@angular/common';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatIcon } from '@angular/material/icon';
 import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
@@ -37,29 +45,29 @@ import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
 
 @Component({
-    selector: 'app-expense-card',
-    templateUrl: './expenses-card.component.html',
-    styleUrls: ['./expenses-card.component.scss'],
-    imports: [
-        NgClass,
-        MatCheckbox,
-        IonicModule,
-        NgStyle,
-        NgTemplateOutlet,
-        MatIcon,
-        AsyncPipe,
-        LowerCasePipe,
-        TitleCasePipe,
-        CurrencyPipe,
-        TranslocoPipe,
-        HumanizeCurrencyPipe,
-        DateFormatPipe,
-        ExpenseState,
-        FyCurrencyPipe,
-        CurrencySymbolPipe,
-    ],
+  selector: 'app-expense-card',
+  templateUrl: './expenses-card.component.html',
+  styleUrls: ['./expenses-card.component.scss'],
+  imports: [
+    NgClass,
+    MatCheckbox,
+    IonicModule,
+    NgStyle,
+    NgTemplateOutlet,
+    MatIcon,
+    AsyncPipe,
+    LowerCasePipe,
+    TitleCasePipe,
+    CurrencyPipe,
+    TranslocoPipe,
+    HumanizeCurrencyPipe,
+    DateFormatPipe,
+    ExpenseState,
+    FyCurrencyPipe,
+    CurrencySymbolPipe,
+  ],
 })
-export class ExpensesCardComponent implements OnInit {
+export class ExpensesCardV1Component implements OnInit {
   private transactionService = inject(TransactionService);
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);

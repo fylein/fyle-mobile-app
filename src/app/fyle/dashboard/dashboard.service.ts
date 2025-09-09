@@ -15,7 +15,9 @@ import { GroupedReportStats } from 'src/app/core/models/platform/v1/grouped-repo
 import { TranslocoService } from '@jsverse/transloco';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class DashboardService {
   private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
 

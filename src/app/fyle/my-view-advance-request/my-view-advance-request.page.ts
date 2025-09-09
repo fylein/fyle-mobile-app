@@ -14,7 +14,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.constants';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { getCurrencySymbol, NgClass, AsyncPipe, TitleCasePipe, DatePipe } from '@angular/common';
@@ -30,22 +30,22 @@ import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-st
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 
 @Component({
-    selector: 'app-my-view-advance-request',
-    templateUrl: './my-view-advance-request.page.html',
-    styleUrls: ['./my-view-advance-request.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        RouterLinkActive,
-        RouterLink,
-        FySummaryTileComponent,
-        ReceiptPreviewThumbnailComponent,
-        FyStatisticComponent,
-        AsyncPipe,
-        TitleCasePipe,
-        DatePipe,
-        EllipsisPipe,
-    ],
+  selector: 'app-my-view-advance-request',
+  templateUrl: './my-view-advance-request.page.html',
+  styleUrls: ['./my-view-advance-request.page.scss'],
+  imports: [
+    IonicModule,
+    NgClass,
+    RouterLinkActive,
+    RouterLink,
+    FySummaryTileComponent,
+    ReceiptPreviewThumbnailComponent,
+    FyStatisticComponent,
+    AsyncPipe,
+    TitleCasePipe,
+    DatePipe,
+    EllipsisPipe,
+  ],
 })
 export class MyViewAdvanceRequestPage {
   private activatedRoute = inject(ActivatedRoute);

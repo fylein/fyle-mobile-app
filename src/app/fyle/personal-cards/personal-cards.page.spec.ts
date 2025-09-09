@@ -1,10 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import {
-  MatCheckboxChange,
-  MatCheckboxModule,
-} from '@angular/material/checkbox';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -15,13 +12,12 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { InfiniteScrollCustomEvent, IonicModule, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
 import { IonInfiniteScrollCustomEvent } from '@ionic/core';
-import { BehaviorSubject, of, Subject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { allFilterPills, creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import {
   personalCardQueryParamFiltersData,
-  tasksQueryParamsWithFiltersData,
   tasksQueryParamsWithFiltersData3,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
@@ -108,7 +104,7 @@ describe('PersonalCardsPage', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
 
     TestBed.configureTestingModule({
-    imports: [
+      imports: [
         IonicModule.forRoot(),
         RouterTestingModule,
         FormsModule,
@@ -118,79 +114,79 @@ describe('PersonalCardsPage', () => {
         BrowserAnimationsModule,
         NoopAnimationsModule,
         PersonalCardsPage,
-    ],
-    providers: [
+      ],
+      providers: [
         ChangeDetectorRef,
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        navigateBack: true,
-                    },
-                    queryParams: {
-                        filters: {
-                            amount: 10,
-                        },
-                    },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                navigateBack: true,
+              },
+              queryParams: {
+                filters: {
+                  amount: 10,
                 },
+              },
             },
+          },
         },
         {
-            provide: PersonalCardsService,
-            useValue: personalCardsServiceSpy,
+          provide: PersonalCardsService,
+          useValue: personalCardsServiceSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: InAppBrowserService,
-            useValue: inAppBrowserServiceSpy,
+          provide: InAppBrowserService,
+          useValue: inAppBrowserServiceSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ExtendQueryParamsService,
-            useValue: extendQueryParamsServiceSpy,
+          provide: ExtendQueryParamsService,
+          useValue: extendQueryParamsServiceSpy,
         },
         {
-            provide: Platform,
-            useValue: platformSpy,
+          provide: Platform,
+          useValue: platformSpy,
         },
         {
-            provide: SpinnerDialog,
-            useValue: spinnerDialogSpy,
+          provide: SpinnerDialog,
+          useValue: spinnerDialogSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).compileComponents();
     fixture = TestBed.createComponent(PersonalCardsPage);
     component = fixture.componentInstance;
 
@@ -697,7 +693,7 @@ describe('PersonalCardsPage', () => {
 
         expect(personalCardsService.getMatchedExpensesSuggestions).toHaveBeenCalledOnceWith(
           platformPersonalCardTxns.data[0].amount,
-          '2024-09-22'
+          '2024-09-22',
         );
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -712,14 +708,14 @@ describe('PersonalCardsPage', () => {
         component.selectionMode = false;
         component.loadingMatchedExpenseCount = false;
         personalCardsService.getMatchedExpensesSuggestions.and.returnValue(
-          of(platformPersonalCardTxnExpenseSuggestionsRes.data)
+          of(platformPersonalCardTxnExpenseSuggestionsRes.data),
         );
 
         component.createExpense(platformPersonalCardTxns.data[0]);
 
         expect(personalCardsService.getMatchedExpensesSuggestions).toHaveBeenCalledOnceWith(
           platformPersonalCardTxns.data[0].amount,
-          '2024-09-22'
+          '2024-09-22',
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards_matched_expenses'], {
           state: {
@@ -819,7 +815,7 @@ describe('PersonalCardsPage', () => {
           startDate: '2023-02-20T00:00:00.000Z',
           endDate: '2023-02-24T00:00:00.000Z',
         },
-        {}
+        {},
       );
     }));
 
@@ -891,7 +887,7 @@ describe('PersonalCardsPage', () => {
         inappbrowserSpy.on.withArgs('loadstart').and.returnValue(
           of({
             url: 'https://www.fylehq.com',
-          })
+          }),
         );
         inAppBrowserService.create.and.returnValue(inappbrowserSpy);
         spyOn(component, 'postAccounts');
@@ -919,7 +915,7 @@ describe('PersonalCardsPage', () => {
         inappbrowserSpy.on.withArgs('loadstart').and.returnValue(
           of({
             url: 'https://www.fylehq.com',
-          })
+          }),
         );
         inAppBrowserService.create.and.returnValue(inappbrowserSpy);
         spyOn(component, 'syncTransactions');

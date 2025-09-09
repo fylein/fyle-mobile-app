@@ -98,36 +98,38 @@ import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/
 import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
 import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
 import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
-import { ExpensesCardComponent } from '../../shared/components/expenses-card/expenses-card.component';
+import { ExpensesCardV1Component } from '../../shared/components/expenses-card/expenses-card.component';
+import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 
 @Component({
-    selector: 'app-my-expenses',
-    templateUrl: './my-expenses.page.html',
-    styleUrls: ['./my-expenses.page.scss'],
-    imports: [
-        FyHeaderComponent,
-        NgClass,
-        IonicModule,
-        MatFormField,
-        MatIcon,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatIconButton,
-        MatSuffix,
-        MatCheckbox,
-        FyFilterPillsComponent,
-        FyLoadingScreenComponent,
-        FyAlertInfoComponent,
-        FyZeroStateComponent,
-        ExpensesCardComponent,
-        FooterComponent,
-        AsyncPipe,
-        ExactCurrencyPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-my-expenses',
+  templateUrl: './my-expenses.page.html',
+  styleUrls: ['./my-expenses.page.scss'],
+  imports: [
+    FyHeaderComponent,
+    NgClass,
+    IonicModule,
+    MatFormField,
+    MatIcon,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatIconButton,
+    MatSuffix,
+    MatCheckbox,
+    FyFilterPillsComponent,
+    FyLoadingScreenComponent,
+    FyAlertInfoComponent,
+    FyZeroStateComponent,
+    ExpensesCardV1Component,
+    ExpensesCardComponent,
+    FooterComponent,
+    AsyncPipe,
+    ExactCurrencyPipe,
+    TranslocoPipe,
+  ],
 })
 export class MyExpensesPage implements OnInit {
   // TODO: Skipped for migration because:
