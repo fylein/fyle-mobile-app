@@ -66,68 +66,67 @@ describe('FyViewAttachmentComponent', () => {
     });
     
     TestBed.configureTestingModule({
-      declarations: [FyViewAttachmentComponent, PopupAlertComponent],
-      providers: [
+    providers: [
         {
-          provide: DomSanitizer,
-          useValue: domSantizerSpy,
-        },
-        {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: DomSanitizer,
+            useValue: domSantizerSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: SpenderFileService,
-          useValue: spenderFileServiceSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: ApproverFileService,
-          useValue: approverFileServiceSpy,
+            provide: SpenderFileService,
+            useValue: spenderFileServiceSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: ApproverFileService,
+            useValue: approverFileServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: ExpensesService,
-          useValue: expensesServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: FileService,
-          useValue: fileServiceSpy,
+            provide: ExpensesService,
+            useValue: expensesServiceSpy,
         },
         {
-          provide: TransactionsOutboxService,
-          useValue: transactionsOutboxServiceSpy,
+            provide: FileService,
+            useValue: fileServiceSpy,
         },
         {
-          provide: 'API_PAGINATION_SIZE',
-          useValue: 10,
+            provide: TransactionsOutboxService,
+            useValue: transactionsOutboxServiceSpy,
         },
         {
-          provide: ActivatedRoute,
-          useValue: activatedRouteSpy,
+            provide: 'API_PAGINATION_SIZE',
+            useValue: 10,
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: ActivatedRoute,
+            useValue: activatedRouteSpy,
         },
-        { 
-          provide: TranslocoService, 
-          useValue: translocoServiceSpy 
+        {
+            provide: Router,
+            useValue: routerSpy,
         },
-      ],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+        {
+            provide: TranslocoService,
+            useValue: translocoServiceSpy
+        },
+    ],
+    imports: [IonicModule.forRoot(), TranslocoModule, FyViewAttachmentComponent, PopupAlertComponent],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(FyViewAttachmentComponent);
     component = fixture.componentInstance;

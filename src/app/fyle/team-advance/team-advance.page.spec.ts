@@ -46,38 +46,37 @@ describe('TeamAdvancePage', () => {
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
 
     TestBed.configureTestingModule({
-      declarations: [TeamAdvancePage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), TeamAdvancePage],
+    providers: [
         ChangeDetectorRef,
         TitleCasePipe,
         {
-          provide: AdvanceRequestService,
-          useValue: advanceRequestServiceSpy,
+            provide: AdvanceRequestService,
+            useValue: advanceRequestServiceSpy,
         },
         {
-          provide: TasksService,
-          useValue: tasksServiceSpy,
+            provide: TasksService,
+            useValue: tasksServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: FiltersHelperService,
-          useValue: filtersHelperServiceSpy,
+            provide: FiltersHelperService,
+            useValue: filtersHelperServiceSpy,
         },
         {
-          provide: ExpenseFieldsService,
-          useValue: expenseFieldsServiceSpy,
+            provide: ExpenseFieldsService,
+            useValue: expenseFieldsServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(TeamAdvancePage);
     component = fixture.componentInstance;

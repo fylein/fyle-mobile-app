@@ -28,34 +28,33 @@ describe('VirtualSelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [VirtualSelectComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, VirtualSelectComponent],
+    providers: [
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: ModalPropertiesService,
-          useValue: modalPropertiesServiceSpy,
+            provide: ModalPropertiesService,
+            useValue: modalPropertiesServiceSpy,
         },
         {
-          provide: Injector,
-          useValue: injectorSpy,
+            provide: Injector,
+            useValue: injectorSpy,
         },
         {
-          provide: NgControl,
-          useValue: {
-            control: new UntypedFormControl(),
-          },
+            provide: NgControl,
+            useValue: {
+                control: new UntypedFormControl(),
+            },
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(VirtualSelectComponent);
     component = fixture.componentInstance;

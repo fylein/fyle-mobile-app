@@ -32,15 +32,14 @@ describe('ProfileOptInCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ProfileOptInCardComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, ProfileOptInCardComponent],
+    providers: [
         { provide: ClipboardService, useValue: clipboardServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ProfileOptInCardComponent);
     component = fixture.componentInstance;

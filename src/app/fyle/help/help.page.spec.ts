@@ -32,36 +32,35 @@ describe('HelpPage', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
-      declarations: [HelpPage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), HelpPage],
+    providers: [
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: EmployeesService,
-          useValue: employeesServiceSpy,
+            provide: EmployeesService,
+            useValue: employeesServiceSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
         {
-          provide: BrowserHandlerService,
-          useValue: browserHandlerServiceSpy,
+            provide: BrowserHandlerService,
+            useValue: browserHandlerServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(HelpPage);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;

@@ -32,28 +32,27 @@ describe('FyPolicyViolationComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyPolicyViolationComponent],
-      providers: [
+    providers: [
         {
-          provide: PolicyService,
-          useValue: policyServiceSpy,
+            provide: PolicyService,
+            useValue: policyServiceSpy,
         },
         {
-          provide: UtilityService,
-          useValue: utilityServiceSpy,
+            provide: UtilityService,
+            useValue: utilityServiceSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyPolicyViolationComponent],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(FyPolicyViolationComponent);
     component = fixture.componentInstance;

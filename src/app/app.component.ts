@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit, inject } from '@angular/core';
-import { Platform, MenuController, NavController } from '@ionic/angular';
+import { Platform, MenuController, NavController, IonicModule } from '@ionic/angular';
 import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params, UrlTree } from '@angular/router';
@@ -26,12 +26,23 @@ import { SpenderOnboardingService } from './core/services/spender-onboarding.ser
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { FooterService } from './core/services/footer.service';
 import { TasksService } from './core/services/tasks.service';
+import { DelegatedAccMessageComponent } from './shared/components/delegated-acc-message/delegated-acc-message.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
+import { NgClass } from '@angular/common';
+import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: 'app.component.html',
-  styleUrls: ['app.component.scss'],
-  standalone: false,
+    selector: 'app-root',
+    templateUrl: 'app.component.html',
+    styleUrls: ['app.component.scss'],
+    imports: [
+        IonicModule,
+        DelegatedAccMessageComponent,
+        SidemenuComponent,
+        FooterComponent,
+        NgClass,
+        FyConnectionComponent,
+    ],
 })
 export class AppComponent implements OnInit, AfterViewInit {
   private platform = inject(Platform);

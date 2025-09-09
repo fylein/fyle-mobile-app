@@ -26,14 +26,13 @@ describe('ReviewFooterComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ReviewFooterComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, ReviewFooterComponent],
+    providers: [
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ReviewFooterComponent);
     reviewFooterComponent = fixture.componentInstance;

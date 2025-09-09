@@ -19,13 +19,12 @@ describe('ToastMessageComponent', () => {
     snackbarRefSpy = jasmine.createSpyObj('MatSnackBarRef', ['dismiss', 'dismissWithAction']);
 
     TestBed.configureTestingModule({
-      declarations: [ToastMessageComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatSnackBarModule, MatIconTestingModule],
-      providers: [
+    imports: [IonicModule.forRoot(), MatIconModule, MatSnackBarModule, MatIconTestingModule, ToastMessageComponent],
+    providers: [
         { provide: MAT_SNACK_BAR_DATA, useValue: {} },
         { provide: MatSnackBarRef, useValue: snackbarRefSpy },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ToastMessageComponent);
     toastMessageComponent = fixture.componentInstance;

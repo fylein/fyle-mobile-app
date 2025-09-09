@@ -46,8 +46,7 @@ describe('FyUserlistModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyUserlistModalComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         MatIconTestingModule,
         FormsModule,
@@ -55,14 +54,15 @@ describe('FyUserlistModalComponent', () => {
         MatIconModule,
         MatCheckboxModule,
         TranslocoModule,
-      ],
-      providers: [
+        FyUserlistModalComponent,
+    ],
+    providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ChangeDetectorRef, useValue: cdrSpy },
         { provide: EmployeesService, useValue: employeesServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;

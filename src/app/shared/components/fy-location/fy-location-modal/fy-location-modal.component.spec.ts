@@ -47,57 +47,56 @@ describe('FyLocationModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyLocationModalComponent],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyLocationModalComponent],
+    providers: [
         {
-          provide: ModalController,
-          useValue: jasmine.createSpyObj('ModalController', ['dismiss']),
+            provide: ModalController,
+            useValue: jasmine.createSpyObj('ModalController', ['dismiss']),
         },
         {
-          provide: LocationService,
-          useValue: jasmine.createSpyObj('LocationService', [
-            'getCurrentLocation',
-            'getAutocompletePredictions',
-            'getGeocode',
-            'clearCurrentLocationCache',
-          ]),
+            provide: LocationService,
+            useValue: jasmine.createSpyObj('LocationService', [
+                'getCurrentLocation',
+                'getAutocompletePredictions',
+                'getGeocode',
+                'clearCurrentLocationCache',
+            ]),
         },
         {
-          provide: AuthService,
-          useValue: jasmine.createSpyObj('AuthService', ['getEou']),
+            provide: AuthService,
+            useValue: jasmine.createSpyObj('AuthService', ['getEou']),
         },
         {
-          provide: LoaderService,
-          useValue: jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']),
+            provide: LoaderService,
+            useValue: jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']),
         },
         {
-          provide: RecentLocalStorageItemsService,
-          useValue: jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']),
+            provide: RecentLocalStorageItemsService,
+            useValue: jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']),
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: Geolocation,
-          useValue: jasmine.createSpyObj('Geolocation', ['requestPermissions', 'requestPermissions']),
+            provide: Geolocation,
+            useValue: jasmine.createSpyObj('Geolocation', ['requestPermissions', 'requestPermissions']),
         },
         {
-          provide: GmapsService,
-          useValue: jasmine.createSpyObj('GMapsService', ['getGeocode']),
+            provide: GmapsService,
+            useValue: jasmine.createSpyObj('GMapsService', ['getGeocode']),
         },
         {
-          provide: DEVICE_PLATFORM,
-          useValue: 'android',
+            provide: DEVICE_PLATFORM,
+            useValue: 'android',
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(FyLocationModalComponent);
     component = fixture.componentInstance;

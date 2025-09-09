@@ -11,17 +11,43 @@ import {
 } from '@angular/core';
 import { combineLatest, from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, shareReplay } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { cloneDeep, isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { VirtualSelectOption } from './virtual-select-option.interface';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { CdkVirtualScrollViewport, CdkFixedSizeVirtualScroll, CdkVirtualForOf } from '@angular/cdk/scrolling';
+import { FyZeroStateComponent } from '../../fy-zero-state/fy-zero-state.component';
+import { MatRipple } from '@angular/material/core';
+import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
+import { NgTemplateOutlet } from '@angular/common';
 @Component({
-  selector: 'app-virtual-select-modal',
-  templateUrl: './virtual-select-modal.component.html',
-  styleUrls: ['./virtual-select-modal.component.scss'],
-  standalone: false,
+    selector: 'app-virtual-select-modal',
+    templateUrl: './virtual-select-modal.component.html',
+    styleUrls: ['./virtual-select-modal.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        MatFormField,
+        MatPrefix,
+        MatInput,
+        FormsModule,
+        MatIconButton,
+        MatSuffix,
+        CdkVirtualScrollViewport,
+        CdkFixedSizeVirtualScroll,
+        FyZeroStateComponent,
+        CdkVirtualForOf,
+        MatRipple,
+        FyHighlightTextComponent,
+        NgTemplateOutlet,
+        TranslocoPipe,
+    ],
 })
 export class VirtualSelectModalComponent implements AfterViewInit {
   private modalController = inject(ModalController);

@@ -15,13 +15,12 @@ describe('DisabledPage', () => {
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
-      declarations: [DisabledPage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), DisabledPage],
+    providers: [
         { provide: UserEventService, useValue: userEventServiceSpy },
         { provide: Router, useValue: routerSpy },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(DisabledPage);
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;

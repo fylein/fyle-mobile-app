@@ -79,8 +79,7 @@ describe('FyProjectSelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyProjectSelectModalComponent, FyHighlightTextComponent, HighlightPipe],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         MatIconModule,
         MatIconTestingModule,
@@ -89,47 +88,48 @@ describe('FyProjectSelectModalComponent', () => {
         MatInputModule,
         BrowserAnimationsModule,
         TranslocoModule,
-      ],
-      providers: [
+        FyProjectSelectModalComponent, FyHighlightTextComponent, HighlightPipe,
+    ],
+    providers: [
         ChangeDetectorRef,
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: ProjectsService,
-          useValue: projectsServiceSpy,
+            provide: ProjectsService,
+            useValue: projectsServiceSpy,
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
         {
-          provide: RecentLocalStorageItemsService,
-          useValue: recentLocalStorageItemsServiceSpy,
+            provide: RecentLocalStorageItemsService,
+            useValue: recentLocalStorageItemsServiceSpy,
         },
         {
-          provide: UtilityService,
-          useValue: utilityServiceSpy,
+            provide: UtilityService,
+            useValue: utilityServiceSpy,
         },
         {
-          provide: OrgSettingsService,
-          useValue: orgSettingsServiceSpy,
+            provide: OrgSettingsService,
+            useValue: orgSettingsServiceSpy,
         },
         {
-          provide: PlatformEmployeeSettingsService,
-          useValue: platformEmployeeSettingsServiceSpy,
+            provide: PlatformEmployeeSettingsService,
+            useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-          provide: CategoriesService,
-          useValue: categoriesServiceSpy,
+            provide: CategoriesService,
+            useValue: categoriesServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(FyProjectSelectModalComponent);
     component = fixture.componentInstance;
 

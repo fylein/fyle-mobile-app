@@ -29,28 +29,27 @@ describe('DashboardEmailOptInComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [DashboardEmailOptInComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, DashboardEmailOptInComponent],
+    providers: [
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(DashboardEmailOptInComponent);
     component = fixture.componentInstance;

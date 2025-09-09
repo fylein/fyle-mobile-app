@@ -48,40 +48,39 @@ describe('PotentialDuplicatesPage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
 
     TestBed.configureTestingModule({
-      declarations: [PotentialDuplicatesPage],
-      imports: [RouterTestingModule],
-      providers: [
+    imports: [RouterTestingModule, PotentialDuplicatesPage],
+    providers: [
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: SnackbarPropertiesService,
-          useValue: snackbarPropertiesSpy,
+            provide: SnackbarPropertiesService,
+            useValue: snackbarPropertiesSpy,
         },
         {
-          provide: MatSnackBar,
-          useValue: matSnackBarSpy,
+            provide: MatSnackBar,
+            useValue: matSnackBarSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: ExpensesService,
-          useValue: expensesServiceSpy,
+            provide: ExpensesService,
+            useValue: expensesServiceSpy,
         },
         {
-          provide: OrgSettingsService,
-          useValue: orgSettingsServiceSpy,
+            provide: OrgSettingsService,
+            useValue: orgSettingsServiceSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(PotentialDuplicatesPage);
     component = fixture.componentInstance;

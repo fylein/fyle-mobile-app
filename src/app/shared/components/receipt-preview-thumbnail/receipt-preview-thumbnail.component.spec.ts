@@ -21,17 +21,16 @@ describe('ReceiptPreviewThumbnailComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ReceiptPreviewThumbnailComponent],
-      providers: [
+    providers: [
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    imports: [IonicModule.forRoot(), TranslocoModule, ReceiptPreviewThumbnailComponent],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ReceiptPreviewThumbnailComponent);
     component = fixture.componentInstance;

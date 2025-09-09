@@ -26,23 +26,22 @@ describe('CameraPreviewComponent', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [CameraPreviewComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
-      providers: [
+    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, CameraPreviewComponent],
+    providers: [
         {
-          provide: DEVICE_PLATFORM,
-          useValue: 'Ios',
+            provide: DEVICE_PLATFORM,
+            useValue: 'Ios',
         },
         {
-          provide: CameraService,
-          useValue: cameraServiceSpy,
+            provide: CameraService,
+            useValue: cameraServiceSpy,
         },
         {
-          provide: CameraPreviewService,
-          useValue: cameraPreviewServiceSpy,
+            provide: CameraPreviewService,
+            useValue: cameraPreviewServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(CameraPreviewComponent);
     component = fixture.componentInstance;

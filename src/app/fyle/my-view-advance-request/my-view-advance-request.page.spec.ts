@@ -10,7 +10,7 @@ import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.constants';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { cloneDeep } from 'lodash';
@@ -75,15 +75,13 @@ describe('MyViewAdvanceRequestPage', () => {
     loaderServiceSpy.hideLoader.and.resolveTo();
 
     TestBed.configureTestingModule({
-      declarations: [MyViewAdvanceRequestPage],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), MyViewAdvanceRequestPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
-
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },

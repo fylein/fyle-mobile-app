@@ -153,10 +153,9 @@ describe('MyReportsPage', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [MyReportsPage, ReportState],
-      schemas: [NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule],
-      providers: [
+    schemas: [NO_ERRORS_SCHEMA],
+    imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule, MyReportsPage, ReportState],
+    providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
@@ -166,47 +165,47 @@ describe('MyReportsPage', () => {
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate', 'createUrlTree']) },
         {
-          provide: NavController,
-          useValue: navControllerSpy,
+            provide: NavController,
+            useValue: navControllerSpy,
         },
         {
-          provide: NetworkService,
-          useValue: networkServiceSpy,
+            provide: NetworkService,
+            useValue: networkServiceSpy,
         },
         {
-          provide: ReportService,
-          useValue: reportServiceSpy,
+            provide: ReportService,
+            useValue: reportServiceSpy,
         },
         {
-          provide: DateService,
-          useValue: dateServiceSpy,
+            provide: DateService,
+            useValue: dateServiceSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: SpenderReportsService,
-          useValue: spenderReportsServiceSpy,
+            provide: SpenderReportsService,
+            useValue: spenderReportsServiceSpy,
         },
         { provide: TranslocoService, useValue: translocoServiceSpy },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         ReportState,
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(MyReportsPage);
     component = fixture.componentInstance;

@@ -30,30 +30,30 @@ describe('FySelectProjectComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FySelectProjectComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,
-      ],
-      providers: [
+        FySelectProjectComponent,
+    ],
+    providers: [
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: ModalPropertiesService,
-          useValue: modalPropertiesSpy,
+            provide: ModalPropertiesService,
+            useValue: modalPropertiesSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(FySelectProjectComponent);
     component = fixture.componentInstance;
 

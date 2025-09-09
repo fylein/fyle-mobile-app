@@ -1,10 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 // ref: https://forum.ionicframework.com/t/highlighting-text/105265/2
-@Pipe({
-  name: 'highlight',
-  standalone: false,
-})
+@Pipe({ name: 'highlight', })
 export class HighlightPipe implements PipeTransform {
   transform(text: string, search: string): string {
     try {

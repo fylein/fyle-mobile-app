@@ -64,52 +64,51 @@ describe('NotificationsBetaPage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
-      declarations: [NotificationsBetaPage],
-      imports: [RouterTestingModule, ReactiveFormsModule],
-      providers: [
+    imports: [RouterTestingModule, ReactiveFormsModule, NotificationsBetaPage],
+    providers: [
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
         {
-          provide: PlatformEmployeeSettingsService,
-          useValue: platformEmployeeSettingsServiceSpy,
+            provide: PlatformEmployeeSettingsService,
+            useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-          provide: OrgSettingsService,
-          useValue: orgSettingsServiceSpy,
+            provide: OrgSettingsService,
+            useValue: orgSettingsServiceSpy,
         },
         {
-          provide: EmployeesService,
-          useValue: employeesServiceSpy,
+            provide: EmployeesService,
+            useValue: employeesServiceSpy,
         },
         {
-          provide: NotificationsBetaPageService,
-          useValue: notificationsBetaPageServiceSpy,
+            provide: NotificationsBetaPageService,
+            useValue: notificationsBetaPageServiceSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: ModalPropertiesService,
-          useValue: modalPropertiesServiceSpy,
+            provide: ModalPropertiesService,
+            useValue: modalPropertiesServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(NotificationsBetaPage);
     component = fixture.componentInstance;

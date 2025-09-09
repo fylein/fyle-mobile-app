@@ -26,20 +26,19 @@ describe('FyFiltersComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyFiltersComponent],
-      providers: [
+    providers: [
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), FormsModule, TranslocoModule],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+    imports: [IonicModule.forRoot(), FormsModule, TranslocoModule, FyFiltersComponent],
+}).compileComponents();
 
     fixture = TestBed.createComponent(FyFiltersComponent);
     component = fixture.componentInstance;

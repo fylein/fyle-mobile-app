@@ -5,12 +5,13 @@ import { switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
-  selector: 'app-verify',
-  templateUrl: './verify.page.html',
-  styleUrls: ['./verify.page.scss'],
-  standalone: false,
+    selector: 'app-verify',
+    templateUrl: './verify.page.html',
+    styleUrls: ['./verify.page.scss'],
+    imports: [IonicModule],
 })
 export class VerifyPage implements OnInit {
   private activatedRoute = inject(ActivatedRoute);

@@ -32,8 +32,7 @@ describe('RouteSelectorModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [RouteSelectorModalComponent, FyLocationComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         ReactiveFormsModule,
         FormsModule,
@@ -41,24 +40,25 @@ describe('RouteSelectorModalComponent', () => {
         MatIconModule,
         MatCheckboxModule,
         TranslocoModule,
-      ],
-      providers: [
+        RouteSelectorModalComponent, FyLocationComponent,
+    ],
+    providers: [
         UntypedFormBuilder,
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: MileageService,
-          useValue: mileageServiceSpy,
+            provide: MileageService,
+            useValue: mileageServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(RouteSelectorModalComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;

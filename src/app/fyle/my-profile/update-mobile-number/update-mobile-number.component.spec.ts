@@ -35,27 +35,26 @@ describe('UpdateMobileNumberComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [UpdateMobileNumberComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule, UpdateMobileNumberComponent, FormButtonValidationDirective],
+    providers: [
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
         {
-          provide: OrgUserService,
-          useValue: orgUserServiceSpy,
+            provide: OrgUserService,
+            useValue: orgUserServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(UpdateMobileNumberComponent);
     component = fixture.componentInstance;
 

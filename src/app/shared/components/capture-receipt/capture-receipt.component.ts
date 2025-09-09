@@ -35,6 +35,7 @@ import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { AsyncPipe } from '@angular/common';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Image = Partial<{
@@ -43,10 +44,10 @@ type Image = Partial<{
 }>;
 
 @Component({
-  selector: 'app-capture-receipt',
-  templateUrl: './capture-receipt.component.html',
-  styleUrls: ['./capture-receipt.component.scss'],
-  standalone: false,
+    selector: 'app-capture-receipt',
+    templateUrl: './capture-receipt.component.html',
+    styleUrls: ['./capture-receipt.component.scss'],
+    imports: [CameraPreviewComponent, AsyncPipe],
 })
 export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
   private modalController = inject(ModalController);

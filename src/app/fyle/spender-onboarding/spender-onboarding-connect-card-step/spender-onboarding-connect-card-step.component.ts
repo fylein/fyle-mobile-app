@@ -1,14 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnChanges, OnInit, SimpleChanges, inject, output } from '@angular/core';
-import {
-  UntypedFormBuilder,
-  UntypedFormControl,
-  UntypedFormGroup,
-  ValidationErrors,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
-import { PopoverController } from '@ionic/angular';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PopoverController, IonicModule } from '@ionic/angular';
 import { catchError, concatMap, finalize, from, map, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -20,13 +13,24 @@ import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.servic
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CardProperties } from '../models/card-properties.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
+import { NgxMaskModule } from 'ngx-mask';
+import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
 
 @Component({
-  selector: 'app-spender-onboarding-connect-card-step',
-  templateUrl: './spender-onboarding-connect-card-step.component.html',
-  styleUrls: ['./spender-onboarding-connect-card-step.component.scss'],
-  standalone: false,
+    selector: 'app-spender-onboarding-connect-card-step',
+    templateUrl: './spender-onboarding-connect-card-step.component.html',
+    styleUrls: ['./spender-onboarding-connect-card-step.component.scss'],
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        NgClass,
+        NgxMaskModule,
+        IonicModule,
+        FormButtonValidationDirective,
+        TranslocoPipe,
+    ],
 })
 export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChanges {
   private corporateCreditCardExpensesService = inject(CorporateCreditCardExpenseService);

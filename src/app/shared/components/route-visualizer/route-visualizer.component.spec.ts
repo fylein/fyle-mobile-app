@@ -68,24 +68,23 @@ describe('RouteVisualizerComponent', () => {
     const staticMapPropertiesServiceSpy = jasmine.createSpyObj('StaticMapPropertiesService', ['getProperties']);
 
     TestBed.configureTestingModule({
-      declarations: [RouteVisualizerComponent],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), RouteVisualizerComponent],
+    providers: [
         {
-          provide: LocationService,
-          useValue: locationServiceSpy,
+            provide: LocationService,
+            useValue: locationServiceSpy,
         },
         {
-          provide: GmapsService,
-          useValue: gmapsServiceSpy,
+            provide: GmapsService,
+            useValue: gmapsServiceSpy,
         },
         {
-          provide: StaticMapPropertiesService,
-          useValue: staticMapPropertiesServiceSpy,
+            provide: StaticMapPropertiesService,
+            useValue: staticMapPropertiesServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(RouteVisualizerComponent);
     component = fixture.componentInstance;

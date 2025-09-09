@@ -26,17 +26,16 @@ describe('CustomInputsFieldsFormComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [CustomInputsFieldsFormComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, CustomInputsFieldsFormComponent],
+    providers: [
         UntypedFormBuilder,
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(CustomInputsFieldsFormComponent);
     component = fixture.componentInstance;

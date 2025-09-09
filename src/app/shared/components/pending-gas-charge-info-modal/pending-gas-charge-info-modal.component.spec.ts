@@ -25,19 +25,18 @@ describe('PendingGasChargeInfoModalComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [PendingGasChargeInfoModalComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule, MatIconModule, IconModule, HttpClientTestingModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, MatIconModule, IconModule, HttpClientTestingModule, PendingGasChargeInfoModalComponent],
+    providers: [
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(PendingGasChargeInfoModalComponent);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;

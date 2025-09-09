@@ -82,8 +82,7 @@ describe('FySelectVendorModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FySelectVendorModalComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         FormsModule,
         MatIconModule,
@@ -92,35 +91,36 @@ describe('FySelectVendorModalComponent', () => {
         MatInputModule,
         BrowserAnimationsModule,
         TranslocoModule,
-      ],
-      providers: [
+        FySelectVendorModalComponent,
+    ],
+    providers: [
         {
-          provide: ChangeDetectorRef,
-          useValue: changeDetectionRefSpy,
+            provide: ChangeDetectorRef,
+            useValue: changeDetectionRefSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: VendorService,
-          useValue: vendorServiceSpy,
+            provide: VendorService,
+            useValue: vendorServiceSpy,
         },
         {
-          provide: RecentLocalStorageItemsService,
-          useValue: recentLocalStorageItemsServiceSpy,
+            provide: RecentLocalStorageItemsService,
+            useValue: recentLocalStorageItemsServiceSpy,
         },
         {
-          provide: UtilityService,
-          useValue: utilityServiceSpy,
+            provide: UtilityService,
+            useValue: utilityServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(FySelectVendorModalComponent);
     component = fixture.componentInstance;
 

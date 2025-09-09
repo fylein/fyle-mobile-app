@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { catchError, forkJoin, map, switchMap, throwError } from 'rxjs';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Location } from 'src/app/core/models/location.model';
@@ -13,13 +13,24 @@ import { EmployeesService } from 'src/app/core/services/platform/v1/spender/empl
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
+import { FyLocationComponent } from '../fy-location/fy-location.component';
 
 @Component({
-  selector: 'app-fy-select-commute-details',
-  templateUrl: './fy-select-commute-details.component.html',
-  styleUrls: ['./fy-select-commute-details.component.scss'],
-  standalone: false,
+    selector: 'app-fy-select-commute-details',
+    templateUrl: './fy-select-commute-details.component.html',
+    styleUrls: ['./fy-select-commute-details.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        FormButtonValidationDirective,
+        FyLocationComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        TranslocoPipe,
+    ],
 })
 export class FySelectCommuteDetailsComponent implements OnInit {
   private formBuilder = inject(UntypedFormBuilder);

@@ -20,10 +20,9 @@ describe('ActiveOrgCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      declarations: [ActiveOrgCardComponent],
-      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
-    }).compileComponents();
+    imports: [IonicModule.forRoot(), TranslocoModule, ActiveOrgCardComponent],
+    providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+}).compileComponents();
   }));
 
   beforeEach(() => {

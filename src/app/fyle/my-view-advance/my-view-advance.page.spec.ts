@@ -32,32 +32,31 @@ describe('MyViewAdvancePage', () => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getAdvanceRequestPlatform']);
 
     TestBed.configureTestingModule({
-      declarations: [MyViewAdvancePage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), MyViewAdvancePage],
+    providers: [
         { provide: AdvanceService, useValue: advanceServiceSpy },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                id: 'advETmi3eePvQ',
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        id: 'advETmi3eePvQ',
+                    },
+                },
             },
-          },
         },
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpy },
         UrlSerializer,
         {
-          provide: NavController,
-          useValue: navControllerSpy,
+            provide: NavController,
+            useValue: navControllerSpy,
         },
         { provide: Router, useValue: routerSpy },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(MyViewAdvancePage);
     component = fixture.componentInstance;

@@ -35,20 +35,19 @@ describe('TeamAdvCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [TeamAdvCardComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, EllipsisPipe, FyCurrencyPipe],
-      imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule, TeamAdvCardComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, EllipsisPipe, FyCurrencyPipe],
+    providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         {
-          provide: FyCurrencyPipe,
-          useValue: fyCurrencyPipeSpy,
+            provide: FyCurrencyPipe,
+            useValue: fyCurrencyPipeSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(TeamAdvCardComponent);
     teamAdvCardComponent = fixture.componentInstance;

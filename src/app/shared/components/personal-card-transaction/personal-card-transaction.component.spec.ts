@@ -43,18 +43,17 @@ describe('PersonalCardTransactionComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-      declarations: [PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
-      imports: [IonicModule.forRoot(), IconModule, MatIconTestingModule, MatIconModule, TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), IconModule, MatIconTestingModule, MatIconModule, TranslocoModule, PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
+    providers: [
         {
-          provide: DateFormatPipe,
-          useValue: dateFormatPipeSpy,
+            provide: DateFormatPipe,
+            useValue: dateFormatPipeSpy,
         },
         FyCurrencyPipe,
         CurrencyPipe,
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(PersonalCardTransactionComponent);
     component = fixture.componentInstance;

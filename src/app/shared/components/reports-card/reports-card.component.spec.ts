@@ -27,17 +27,14 @@ describe('ReportsCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [
-        ReportsCardComponent,
+    imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, TranslocoModule, ReportsCardComponent,
         EllipsisPipe,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         ReportState,
-        SnakeCaseToSpaceCase,
-      ],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, TranslocoModule],
-      providers: [FyCurrencyPipe, CurrencyPipe, { provide: TranslocoService, useValue: translocoServiceSpy }],
-    }).compileComponents();
+        SnakeCaseToSpaceCase],
+    providers: [FyCurrencyPipe, CurrencyPipe, { provide: TranslocoService, useValue: translocoServiceSpy }],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ReportsCardComponent);
     component = fixture.componentInstance;

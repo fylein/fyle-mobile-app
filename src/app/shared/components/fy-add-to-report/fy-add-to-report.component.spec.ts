@@ -55,46 +55,45 @@ describe('FyAddToReportComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyAddToReportComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, FyAddToReportComponent],
+    providers: [
         {
-          provide: Injector,
-          useValue: injectorSpy,
+            provide: Injector,
+            useValue: injectorSpy,
         },
         {
-          provide: NgControl,
-          useValue: {
-            control: new UntypedFormControl(),
-          },
+            provide: NgControl,
+            useValue: {
+                control: new UntypedFormControl(),
+            },
         },
         {
-          provide: SpenderReportsService,
-          useValue: platformSpenderReportsServiceSpy,
+            provide: SpenderReportsService,
+            useValue: platformSpenderReportsServiceSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: ModalPropertiesService,
-          useValue: modalPropertiesSpy,
+            provide: ModalPropertiesService,
+            useValue: modalPropertiesSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(FyAddToReportComponent);
     component = fixture.componentInstance;

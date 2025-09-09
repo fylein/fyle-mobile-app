@@ -9,9 +9,9 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { Observable, fromEvent, from, combineLatest } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';
@@ -19,12 +19,37 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { VendorListItem } from 'src/app/core/models/vendor.model';
 import { Merchant } from 'src/app/core/models/platform/platform-merchants.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { CdkVirtualScrollViewport, CdkFixedSizeVirtualScroll, CdkVirtualForOf } from '@angular/cdk/scrolling';
+import { MatRipple } from '@angular/material/core';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
 
 @Component({
-  selector: 'app-fy-select-vendor-modal',
-  templateUrl: './fy-select-vendor-modal.component.html',
-  styleUrls: ['./fy-select-vendor-modal.component.scss'],
-  standalone: false,
+    selector: 'app-fy-select-vendor-modal',
+    templateUrl: './fy-select-vendor-modal.component.html',
+    styleUrls: ['./fy-select-vendor-modal.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        MatFormField,
+        MatPrefix,
+        MatInput,
+        FormsModule,
+        MatSuffix,
+        MatIconButton,
+        CdkVirtualScrollViewport,
+        CdkFixedSizeVirtualScroll,
+        MatRipple,
+        NgClass,
+        CdkVirtualForOf,
+        FyHighlightTextComponent,
+        NgTemplateOutlet,
+        TranslocoPipe,
+    ],
 })
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);

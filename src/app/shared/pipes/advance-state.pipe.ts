@@ -1,10 +1,7 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Pipe({
-  name: 'advanceState',
-  standalone: false,
-})
+@Pipe({ name: 'advanceState', })
 export class AdvanceState implements PipeTransform {
   private translocoService = inject(TranslocoService);
 

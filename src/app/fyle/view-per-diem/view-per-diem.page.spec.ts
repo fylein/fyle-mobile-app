@@ -115,9 +115,8 @@ describe('ViewPerDiemPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [ViewPerDiemPage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), ViewPerDiemPage],
+    providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: CustomInputsService, useValue: customInputsServiceSpy },
@@ -135,23 +134,23 @@ describe('ViewPerDiemPage', () => {
         { provide: ApproverExpensesService, useValue: approverExpensesServiceSpy },
         { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                id: 'tx3qwe4ty',
-                view: ExpenseView.individual,
-                txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
-                activeIndex: '0',
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        id: 'tx3qwe4ty',
+                        view: ExpenseView.individual,
+                        txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
+                        activeIndex: '0',
+                    },
+                },
             },
-          },
         },
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         { provide: SpenderExpenseCommentService, useValue: spenderExpenseCommentServiceSpy },
         { provide: ApproverExpenseCommentService, useValue: approverExpenseCommentServiceSpy },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ViewPerDiemPage);
     component = fixture.componentInstance;

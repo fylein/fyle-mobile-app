@@ -82,22 +82,21 @@ describe('MyAdvancesPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [MyAdvancesPage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), MyAdvancesPage],
+    providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              queryParams: {
-                filters: JSON.stringify(myAdvancesFiltersData),
-              },
-              params: {
-                navigateBack: true,
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    queryParams: {
+                        filters: JSON.stringify(myAdvancesFiltersData),
+                    },
+                    params: {
+                        navigateBack: true,
+                    },
+                },
             },
-          },
         },
         { provide: Router, useValue: routerSpy },
         { provide: AdvanceService, useValue: advanceServiceSpy },
@@ -110,9 +109,9 @@ describe('MyAdvancesPage', () => {
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         TitleCasePipe,
         UrlSerializer,
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(MyAdvancesPage);
     component = fixture.componentInstance;

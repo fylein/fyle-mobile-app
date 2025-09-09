@@ -44,17 +44,16 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [SpenderOnboardingConnectCardStepComponent],
-      imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule, TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule, TranslocoModule, SpenderOnboardingConnectCardStepComponent],
+    providers: [
         UntypedFormBuilder,
         { provide: RealTimeFeedService, useValue: realTimeFeedServiceSpy },
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(SpenderOnboardingConnectCardStepComponent);
     component = fixture.componentInstance;

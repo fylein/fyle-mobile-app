@@ -21,15 +21,14 @@ describe('FyFilterPillsComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [FyFilterPillsComponent, SnakeCaseToSpaceCase],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, FyFilterPillsComponent, SnakeCaseToSpaceCase],
+    providers: [
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(FyFilterPillsComponent);
     component = fixture.componentInstance;

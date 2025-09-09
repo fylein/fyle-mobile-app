@@ -43,8 +43,7 @@ describe('DependentFieldModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [DependentFieldModalComponent, FyZeroStateComponent, FyHighlightTextComponent, HighlightPipe],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         MatIconModule,
         MatFormFieldModule,
@@ -54,23 +53,24 @@ describe('DependentFieldModalComponent', () => {
         MatInputModule,
         BrowserAnimationsModule,
         TranslocoModule,
-      ],
-      providers: [
+        DependentFieldModalComponent, FyZeroStateComponent, FyHighlightTextComponent, HighlightPipe,
+    ],
+    providers: [
         ChangeDetectorRef,
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: DependentFieldsService,
-          useValue: dependentFieldsServiceSpy,
+            provide: DependentFieldsService,
+            useValue: dependentFieldsServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    })
+    ],
+})
       .compileComponents()
       .then(() => {
         fixture = TestBed.createComponent(DependentFieldModalComponent);

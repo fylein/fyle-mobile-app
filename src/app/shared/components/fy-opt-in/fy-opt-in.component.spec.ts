@@ -72,9 +72,8 @@ describe('FyOptInComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyOptInComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, FyOptInComponent],
+    providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
@@ -87,9 +86,9 @@ describe('FyOptInComponent', () => {
         { provide: PlatformHandlerService, useValue: platformHandlerServiceSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(FyOptInComponent);
     component = fixture.componentInstance;

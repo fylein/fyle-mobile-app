@@ -132,108 +132,107 @@ describe('ViewMileagePage', () => {
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewMileagePage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), ViewMileagePage],
+    providers: [
         {
-          useValue: loaderServiceSpy,
-          provide: LoaderService,
+            useValue: loaderServiceSpy,
+            provide: LoaderService,
         },
         {
-          useValue: customInputsServiceSpy,
-          provide: CustomInputsService,
+            useValue: customInputsServiceSpy,
+            provide: CustomInputsService,
         },
         {
-          useValue: spenderExpenseCommentServiceSpy,
-          provide: SpenderExpenseCommentService,
+            useValue: spenderExpenseCommentServiceSpy,
+            provide: SpenderExpenseCommentService,
         },
         {
-          useValue: approverExpenseCommentServiceSpy,
-          provide: ApproverExpenseCommentService,
+            useValue: approverExpenseCommentServiceSpy,
+            provide: ApproverExpenseCommentService,
         },
         {
-          useValue: modalControllerSpy,
-          provide: ModalController,
+            useValue: modalControllerSpy,
+            provide: ModalController,
         },
         {
-          useValue: routerSpy,
-          provide: Router,
+            useValue: routerSpy,
+            provide: Router,
         },
         {
-          useValue: popoverControllerSpy,
-          provide: PopoverController,
+            useValue: popoverControllerSpy,
+            provide: PopoverController,
         },
         {
-          useValue: networkServiceSpy,
-          provide: NetworkService,
+            useValue: networkServiceSpy,
+            provide: NetworkService,
         },
         {
-          useValue: policyServiceSpy,
-          provide: PolicyService,
+            useValue: policyServiceSpy,
+            provide: PolicyService,
         },
         {
-          useValue: modalPropertiesSpy,
-          provide: ModalPropertiesService,
+            useValue: modalPropertiesSpy,
+            provide: ModalPropertiesService,
         },
         {
-          useValue: trackingServiceSpy,
-          provide: TrackingService,
+            useValue: trackingServiceSpy,
+            provide: TrackingService,
         },
         {
-          useValue: expenseFieldsServiceSpy,
-          provide: ExpenseFieldsService,
+            useValue: expenseFieldsServiceSpy,
+            provide: ExpenseFieldsService,
         },
         {
-          useValue: orgSettingsServiceSpy,
-          provide: OrgSettingsService,
+            useValue: orgSettingsServiceSpy,
+            provide: OrgSettingsService,
         },
         {
-          useValue: dependentFieldsServiceSpy,
-          provide: DependentFieldsService,
+            useValue: dependentFieldsServiceSpy,
+            provide: DependentFieldsService,
         },
         {
-          useValue: fileServiceSpy,
-          provide: FileService,
+            useValue: fileServiceSpy,
+            provide: FileService,
         },
         {
-          useValue: spenderExpensesServiceSpy,
-          provide: SpenderExpensesService,
+            useValue: spenderExpensesServiceSpy,
+            provide: SpenderExpensesService,
         },
         {
-          useValue: approverExpensesServiceSpy,
-          provide: ApproverExpensesService,
+            useValue: approverExpensesServiceSpy,
+            provide: ApproverExpensesService,
         },
         {
-          useValue: mileageRatesServiceSpy,
-          provide: MileageRatesService,
+            useValue: mileageRatesServiceSpy,
+            provide: MileageRatesService,
         },
         {
-          provide: ApproverReportsService,
-          useValue: approverReportsServiceSpy,
+            provide: ApproverReportsService,
+            useValue: approverReportsServiceSpy,
         },
         {
-          provide: SpenderFileService,
-          useValue: spenderFileServiceSpy,
+            provide: SpenderFileService,
+            useValue: spenderFileServiceSpy,
         },
         {
-          provide: ApproverFileService,
-          useValue: approverFileServiceSpy,
+            provide: ApproverFileService,
+            useValue: approverFileServiceSpy,
         },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                id: 'tx3qwe4ty',
-                view: ExpenseView.individual,
-                txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
-                activeIndex: '0',
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        id: 'tx3qwe4ty',
+                        view: ExpenseView.individual,
+                        txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
+                        activeIndex: '0',
+                    },
+                },
             },
-          },
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(ViewMileagePage);
     component = fixture.componentInstance;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;

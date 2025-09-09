@@ -35,15 +35,14 @@ describe('AppVersionPage', () => {
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
 
     TestBed.configureTestingModule({
-      declarations: [AppVersionPage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), AppVersionPage],
+    providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStubSpy },
         { provide: BrowserHandlerService, useValue: browserHandlerServiceSpy },
         { provide: PlatformHandlerService, useValue: platformHandlerServiceSpy },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(AppVersionPage);
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;

@@ -1,17 +1,25 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { ModalController, Platform } from '@ionic/angular';
+import { ModalController, Platform, IonicModule } from '@ionic/angular';
 import { finalize, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { MatIcon } from '@angular/material/icon';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-email-notifications',
-  templateUrl: './email-notifications.component.html',
-  styleUrls: ['./email-notifications.component.scss'],
-  standalone: false,
+    selector: 'app-email-notifications',
+    templateUrl: './email-notifications.component.html',
+    styleUrls: ['./email-notifications.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        MatCheckbox,
+        FormsModule,
+    ],
 })
 export class EmailNotificationsComponent implements OnInit {
   // TODO: Skipped for migration because:

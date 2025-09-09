@@ -23,10 +23,9 @@ describe('ShareReportComponent', () => {
     });
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     TestBed.configureTestingModule({
-      declarations: [ShareReportComponent],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, getTranslocoModule()],
-      providers: [{ provide: ModalController, useValue: modalController }],
-    }).compileComponents();
+    imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, getTranslocoModule(), ShareReportComponent],
+    providers: [{ provide: ModalController, useValue: modalController }],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ShareReportComponent);
     component = fixture.componentInstance;

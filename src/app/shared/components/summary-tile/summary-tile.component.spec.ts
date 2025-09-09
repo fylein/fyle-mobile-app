@@ -25,26 +25,23 @@ describe('FySummaryTileComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     await TestBed.configureTestingModule({
-      declarations: [
-        FySummaryTileComponent,
+    imports: [IonicModule.forRoot(), TranslocoModule, FySummaryTileComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         FyCurrencyPipe,
         SnakeCaseToSpaceCase,
-        EllipsisPipe,
-      ],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+        EllipsisPipe],
+    providers: [
         {
-          provide: FyCurrencyPipe,
-          useValue: fyCurrencyPipeSpy,
+            provide: FyCurrencyPipe,
+            useValue: fyCurrencyPipeSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
   });
 
   beforeEach(() => {

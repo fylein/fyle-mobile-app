@@ -26,20 +26,19 @@ describe('FyLocationComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [FormsModule, TranslocoModule],
-      declarations: [FyLocationComponent],
-      providers: [
+    imports: [FormsModule, TranslocoModule, FyLocationComponent],
+    providers: [
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(FyLocationComponent);
     component = fixture.componentInstance;
