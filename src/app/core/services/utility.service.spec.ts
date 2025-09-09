@@ -19,17 +19,20 @@ import { FeatureConfigService } from './platform/v1/spender/feature-config.servi
 import { BehaviorSubject, of } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { featureConfigOptInData } from '../mock-data/feature-config.data';
+import { CurrencyService } from './currency.service';
 
 describe('UtilityService', () => {
   let utilityService: UtilityService;
   let tokenService: jasmine.SpyObj<TokenService>;
   let authService: jasmine.SpyObj<AuthService>;
   let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
+  let currencyService: jasmine.SpyObj<CurrencyService>;
 
   beforeEach(() => {
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['getConfiguration']);
+    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -46,12 +49,17 @@ describe('UtilityService', () => {
           provide: FeatureConfigService,
           useValue: featureConfigServiceSpy,
         },
+        {
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
+        },
       ],
     });
     utilityService = TestBed.inject(UtilityService);
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
+    currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
   });
 
   it('should be created', () => {
@@ -61,7 +69,7 @@ describe('UtilityService', () => {
   it('should discard null characters', () => {
     const mockStr = 'Fyle\u0000 Expense!\u0000';
     expect(utilityService.discardNullChar(mockStr)).toEqual(
-      mockStr.replace(/[\u0000][\u0008-\u0009][\u000A-\u000C][\u005C]/g, '')
+      mockStr.replace(/[\u0000][\u0008-\u0009][\u000A-\u000C][\u005C]/g, ''),
     );
   });
 
@@ -124,7 +132,7 @@ describe('UtilityService', () => {
     it('should sort single advance', () => {
       spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
       expect(utilityService.sortAllAdvances(0, SortingParam.creationDate, publicAdvanceRequestRes.data)).toEqual(
-        publicAdvanceRequestRes.data
+        publicAdvanceRequestRes.data,
       );
       expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
@@ -132,7 +140,7 @@ describe('UtilityService', () => {
     it('should sort multiple advances', () => {
       spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
       expect(utilityService.sortAllAdvances(1, SortingParam.creationDate, publicAdvanceRequestRes.data)).toEqual(
-        publicAdvanceRequestRes.data
+        publicAdvanceRequestRes.data,
       );
       expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
@@ -140,7 +148,7 @@ describe('UtilityService', () => {
     it('should sort advances by approval date', () => {
       spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
       expect(utilityService.sortAllAdvances(1, SortingParam.approvalDate, publicAdvanceRequestRes.data)).toEqual(
-        publicAdvanceRequestRes.data
+        publicAdvanceRequestRes.data,
       );
       expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
@@ -148,7 +156,7 @@ describe('UtilityService', () => {
     it('should sort advances by project', () => {
       spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
       expect(
-        utilityService.sortAllAdvances(SortingDirection.ascending, SortingParam.project, publicAdvanceRequestRes.data)
+        utilityService.sortAllAdvances(SortingDirection.ascending, SortingParam.project, publicAdvanceRequestRes.data),
       ).toEqual(publicAdvanceRequestRes.data);
       expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
@@ -162,7 +170,7 @@ describe('UtilityService', () => {
   it('getAmountWithCurrencyFromString(): should return amount with currency from a string', () => {
     const mockStr = 'Expense will be capped to USD 100';
     expect(utilityService.getAmountWithCurrencyFromString(mockStr)).toEqual(
-      mockStr.match(/capped to ([a-zA-Z]{1,3} \d+)/i)
+      mockStr.match(/capped to ([a-zA-Z]{1,3} \d+)/i),
     );
   });
 
@@ -267,9 +275,8 @@ describe('UtilityService', () => {
         key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
       };
       spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
-      const mockEou = cloneDeep(apiEouRes);
-      mockEou.org.currency = 'INR';
-      authService.getEou.and.resolveTo(mockEou);
+      authService.getEou.and.resolveTo(apiEouRes);
+      currencyService.getHomeCurrency.and.returnValue(of('INR'));
 
       utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
         expect(result).toBeFalse();
