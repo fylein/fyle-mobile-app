@@ -207,7 +207,7 @@ describe('MyExpensesPage', () => {
       },
     };
     const transactionOutboxServiceSpy = jasmine.createSpyObj('TransactionOutboxService', [
-      'getPendingTransactions',
+      'getPendingExpenses',
       'sync',
       'deleteOfflineExpense',
       'deleteBulkOfflineExpenses',
@@ -1756,16 +1756,16 @@ describe('MyExpensesPage', () => {
     const mockFormattedTransactions = cloneDeep(apiExpenseRes);
     const mockPendingTransactions = cloneDeep(txnList);
     spyOn(component, 'formatTransactions').and.returnValues(mockFormattedTransactions, []);
-    transactionOutboxService.getPendingTransactions.and.returnValues(mockPendingTransactions, []);
+    transactionOutboxService.getPendingExpenses.and.returnValues(mockPendingTransactions, []);
     transactionOutboxService.sync.and.resolveTo(undefined);
     spyOn(component, 'doRefresh');
 
     component.syncOutboxExpenses();
     tick(100);
 
-    expect(component.pendingTransactions).toEqual([]);
+    expect(component.pendingExpenses).toEqual([]);
     expect(component.formatTransactions).toHaveBeenCalledTimes(2);
-    expect(transactionOutboxService.getPendingTransactions).toHaveBeenCalledTimes(2);
+    expect(transactionOutboxService.getPendingExpenses).toHaveBeenCalledTimes(2);
     expect(transactionOutboxService.sync).toHaveBeenCalledTimes(1);
     expect(component.syncing).toBeFalse();
     expect(component.doRefresh).toHaveBeenCalledTimes(1);

@@ -185,7 +185,7 @@ export class TransactionsOutboxService {
     return this.syncEntry(this.queue.pop());
   }
 
-  getPendingTransactions(): Partial<Transaction>[] {
+  getPendingExpenses(): Partial<Transaction>[] {
     return this.queue.map((entry) => ({ ...entry.transaction, dataUrls: entry.dataUrls }));
   }
 

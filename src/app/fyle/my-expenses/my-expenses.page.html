@@ -99,8 +99,7 @@
 <ion-content
   [ngClass]="{
     'd-none': isCameraPreviewStarted,
-    'my-expenses--content-zero-state':
-      (pendingTransactions.length === 0 && (count$ | async) === 0 && isConnected$ | async),
+    'my-expenses--content-zero-state': (pendingExpenses.length === 0 && (count$ | async) === 0 && isConnected$ | async),
   }"
   class="my-expenses--content"
   (click)="onPageClick()"
@@ -109,8 +108,7 @@
     class="my-expenses--body"
     [ngClass]="{
       'my-expenses--zero-states-body':
-        ((count$ | async) === 0 && isConnected$ | async) ||
-        (pendingTransactions.length === 0 && !(isConnected$ | async)),
+        ((count$ | async) === 0 && isConnected$ | async) || (pendingExpenses.length === 0 && !(isConnected$ | async)),
     }"
   >
     @if (isConnected$ | async) {
@@ -135,7 +133,7 @@
         class="my-expenses--shimmers"
       ></app-fy-loading-screen>
     }
-    @if (pendingTransactions.length === 0 && (count$ | async) === 0 && isConnected$ | async) {
+    @if (pendingExpenses.length === 0 && (count$ | async) === 0 && isConnected$ | async) {
       <div class="my-expenses--zero-state">
         @if (!simpleSearchText) {
           <img
@@ -198,7 +196,7 @@
       </div>
     }
     @if (!(isConnected$ | async)) {
-      @if (pendingTransactions.length > 0) {
+      @if (pendingExpenses.length > 0) {
         <div class="my-expenses--syncing">
           <app-fy-alert-info
             [type]="'information'"
@@ -206,7 +204,7 @@
           ></app-fy-alert-info>
         </div>
       }
-      @if (pendingTransactions.length === 0) {
+      @if (pendingExpenses.length === 0) {
         <div class="my-expenses--zero-state">
           <app-fy-zero-state
             class="stats--zero-state"
@@ -221,12 +219,12 @@
     }
     @if (!(filters?.state || filters?.date || simpleSearchText) && !isLoading) {
       <div>
-        @for (pendingTransaction of pendingTransactions; track pendingTransaction; let i = $index) {
+        @for (pendingExpense of pendingExpenses; track pendingExpense; let i = $index) {
           <app-expense-card
-            [expense]="pendingTransaction"
+            [expense]="pendingExpense"
             [isFirstOfflineExpense]="i === 0"
-            [previousExpenseTxnDate]="pendingTransactions[i - 1]?.tx_txn_dt"
-            [previousExpenseCreatedAt]="pendingTransactions[i - 1]?.tx_created_at"
+            [previousExpenseTxnDate]="pendingExpenses[i - 1]?.tx_txn_dt"
+            [previousExpenseCreatedAt]="pendingExpenses[i - 1]?.tx_created_at"
             [isSelectionModeEnabled]="selectionMode"
             [selectedElements]="selectedOutboxExpenses"
             [isOutboxExpense]="true"

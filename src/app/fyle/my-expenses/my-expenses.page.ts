@@ -131,7 +131,8 @@ export class MyExpensesPage implements OnInit {
 
   specialCategories$: Observable<PlatformCategory[]>;
 
-  pendingTransactions: Partial<Transaction>[] = [];
+  // expenses pending to be synced
+  pendingExpenses: Partial<Transaction>[] = [];
 
   selectionMode = false;
 
@@ -900,18 +901,18 @@ export class MyExpensesPage implements OnInit {
   }
 
   syncOutboxExpenses(): void {
-    this.pendingTransactions = this.transactionOutboxService.getPendingTransactions();
-    if (this.pendingTransactions.length > 0) {
+    this.pendingExpenses = this.transactionOutboxService.getPendingExpenses();
+    if (this.pendingExpenses.length > 0) {
       this.syncing = true;
-      from(this.pendingTransactions)
+      from(this.pendingExpenses)
         .pipe(
           switchMap(() => from(this.transactionOutboxService.sync())),
           finalize(() => {
             this.syncing = false;
-            const pendingTransactions = this.transactionOutboxService.getPendingTransactions();
-            if (pendingTransactions.length === 0) {
+            const pendingExpenses = this.transactionOutboxService.getPendingExpenses();
+            if (pendingExpenses.length === 0) {
               this.doRefresh();
-              this.pendingTransactions = [];
+              this.pendingExpenses = [];
             }
           }),
         )
@@ -1638,7 +1639,7 @@ export class MyExpensesPage implements OnInit {
 
   deleteSelectedExpenses(offlineExpenses: Partial<Transaction>[]): Observable<void> {
     if (offlineExpenses?.length > 0) {
-      this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
+      this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingExpenses, offlineExpenses);
       return of(null);
     } else {
       this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.id);
@@ -1742,9 +1743,9 @@ export class MyExpensesPage implements OnInit {
   onSelectAll(checked: boolean): void {
     if (checked) {
       this.selectedElements = [];
-      if (this.pendingTransactions.length > 0) {
-        this.selectedOutboxExpenses = this.pendingTransactions;
-        this.allExpensesCount = this.pendingTransactions.length;
+      if (this.pendingExpenses.length > 0) {
+        this.selectedOutboxExpenses = this.pendingExpenses;
+        this.allExpensesCount = this.pendingExpenses.length;
         this.isReportableExpensesSelected =
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
         this.outboxExpensesToBeDeleted = this.selectedOutboxExpenses;
