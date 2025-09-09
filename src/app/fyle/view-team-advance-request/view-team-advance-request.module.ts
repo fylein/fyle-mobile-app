@@ -11,16 +11,16 @@ import { SharedModule } from '../../shared/shared.module';
 import { AdvanceActionsComponent } from './advance-actions/advance-actions.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ViewTeamAdvanceRequestPageRoutingModule,
-    MatIconModule,
-    MatButtonModule,
-    MatRippleModule,
-    SharedModule,
-  ],
-  declarations: [ViewTeamAdvanceRequestPage, AdvanceActionsComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        ViewTeamAdvanceRequestPageRoutingModule,
+        MatIconModule,
+        MatButtonModule,
+        MatRippleModule,
+        SharedModule,
+        ViewTeamAdvanceRequestPage, AdvanceActionsComponent,
+    ],
 })
 export class ViewTeamAdvanceRequestPageModule {}

@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, inject, output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController, RefresherEventDetail } from '@ionic/angular';
+import { ModalController, PopoverController, RefresherEventDetail, IonicModule } from '@ionic/angular';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
@@ -40,13 +40,27 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { FyFilterPillsComponent } from '../../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { AutoSubmissionInfoCardComponent } from './auto-submission-info-card/auto-submission-info-card.component';
+import { TasksCardComponent } from './tasks-card/tasks-card.component';
+import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/fy-zero-state.component';
 
 @Component({
-  selector: 'app-tasks',
-  templateUrl: './tasks.component.html',
-  styleUrls: ['./tasks.component.scss'],
-  standalone: false,
+    selector: 'app-tasks',
+    templateUrl: './tasks.component.html',
+    styleUrls: ['./tasks.component.scss'],
+    imports: [
+        IonicModule,
+        FyFilterPillsComponent,
+        NgClass,
+        AutoSubmissionInfoCardComponent,
+        TasksCardComponent,
+        FyZeroStateComponent,
+        AsyncPipe,
+        TranslocoPipe,
+    ],
 })
 export class TasksComponent implements OnInit {
   private taskService = inject(TasksService);

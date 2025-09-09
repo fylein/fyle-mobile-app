@@ -25,16 +25,19 @@ import { cloneDeep } from 'lodash';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component({
-  selector: 'mat-checkbox',
-  template: '<div class="mock-checkbox"></div>',
-  standalone: false,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: MockMatCheckboxComponent,
-      multi: true,
-    },
-  ],
+    selector: 'mat-checkbox',
+    template: '<div class="mock-checkbox"></div>',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: MockMatCheckboxComponent,
+            multi: true,
+        },
+    ],
+    imports: [ReactiveFormsModule,
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,],
 })
 class MockMatCheckboxComponent implements ControlValueAccessor {
   writeValue(value: any): void {}
@@ -60,32 +63,32 @@ describe('RouteSelectorComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [RouteSelectorComponent, MockMatCheckboxComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         ReactiveFormsModule,
         MatIconTestingModule,
         MatIconModule,
         TranslocoModule,
         NoopAnimationsModule,
-      ],
-      providers: [
+        RouteSelectorComponent, MockMatCheckboxComponent,
+    ],
+    providers: [
         UntypedFormBuilder,
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: Injector,
-          useValue: injectorSpy,
+            provide: Injector,
+            useValue: injectorSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(RouteSelectorComponent);
     component = fixture.componentInstance;
     fb = TestBed.inject(UntypedFormBuilder);

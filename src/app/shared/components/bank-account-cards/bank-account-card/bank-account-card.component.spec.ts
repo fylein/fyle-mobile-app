@@ -40,39 +40,38 @@ describe('BankAccountCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [BankAccountCardComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, BankAccountCardComponent],
+    providers: [
         {
-          provide: PersonalCardsService,
-          useValue: personalCardsServiceSpy,
+            provide: PersonalCardsService,
+            useValue: personalCardsServiceSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: MatSnackBar,
-          useValue: matSnackBarSpy,
+            provide: MatSnackBar,
+            useValue: matSnackBarSpy,
         },
         {
-          provide: SnackbarPropertiesService,
-          useValue: snackbarPropertiesSpy,
+            provide: SnackbarPropertiesService,
+            useValue: snackbarPropertiesSpy,
         },
         {
-          provide: DateService,
-          useValue: dateServiceSpy,
+            provide: DateService,
+            useValue: dateServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(BankAccountCardComponent);
     personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;

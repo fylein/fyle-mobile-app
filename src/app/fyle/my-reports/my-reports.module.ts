@@ -15,22 +15,22 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    MyReportsPageRoutingModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatButtonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatRippleModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatIconModule,
-    SharedModule,
-  ],
-  declarations: [MyReportsPage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        MyReportsPageRoutingModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatButtonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatRippleModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatIconModule,
+        SharedModule,
+        MyReportsPage,
+    ],
 })
 export class MyReportsPageModule {}

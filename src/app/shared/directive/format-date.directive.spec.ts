@@ -4,10 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Component({
-  template: `<input appFormatDate type="date" />`,
-  standalone: false,
-})
+@Component({ template: `<input appFormatDate type="date" />`, })
 class TestFormatDateDirectiveComponent {}
 
 describe('FormatDateDirective', () => {
@@ -21,14 +18,14 @@ describe('FormatDateDirective', () => {
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
     TestBed.configureTestingModule({
-      declarations: [TestFormatDateDirectiveComponent, FormatDateDirective],
-      providers: [
+    imports: [TestFormatDateDirectiveComponent, FormatDateDirective],
+    providers: [
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    });
+    ],
+});
 
     fixture = TestBed.createComponent(TestFormatDateDirectiveComponent);
     component = fixture.componentInstance;

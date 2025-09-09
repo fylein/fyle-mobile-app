@@ -10,16 +10,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    DelegatedAccountsPageRoutingModule,
-    SharedModule,
-    MatRippleModule,
-    MatFormFieldModule,
-    MatInputModule,
-  ],
-  declarations: [DelegatedAccountsPage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        DelegatedAccountsPageRoutingModule,
+        SharedModule,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatInputModule,
+        DelegatedAccountsPage,
+    ],
 })
 export class DelegatedAccountsPageModule {}

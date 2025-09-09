@@ -36,26 +36,25 @@ describe('FyCurrencyComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [FyCurrencyComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, FyCurrencyComponent],
+    providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: Injector, useValue: injectorSpy },
         {
-          provide: NgControl,
-          useValue: {
-            control: new UntypedFormControl(),
-          },
+            provide: NgControl,
+            useValue: {
+                control: new UntypedFormControl(),
+            },
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(FyCurrencyComponent);
     component = fixture.componentInstance;

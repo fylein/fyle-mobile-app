@@ -45,9 +45,8 @@ describe('NewPasswordPage', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
 
     TestBed.configureTestingModule({
-      declarations: [NewPasswordPage],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, RouterTestingModule],
-      providers: [
+    imports: [IonicModule.forRoot(), ReactiveFormsModule, RouterTestingModule, NewPasswordPage],
+    providers: [
         UntypedFormBuilder,
         { provide: AuthService, useValue: authServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
@@ -59,16 +58,16 @@ describe('NewPasswordPage', () => {
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: { refreshToken: 'token123' },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: { refreshToken: 'token123' },
+                },
             },
-          },
         },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(NewPasswordPage);
     component = fixture.componentInstance;

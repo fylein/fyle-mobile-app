@@ -26,19 +26,18 @@ describe('EmployeeDetailsCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [EmployeeDetailsCardComponent, InitialsPipe],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, EmployeeDetailsCardComponent, InitialsPipe],
+    providers: [
         {
-          provide: UtilityService,
-          useValue: utilityServiceSpy,
+            provide: UtilityService,
+            useValue: utilityServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(EmployeeDetailsCardComponent);
     component = fixture.componentInstance;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;

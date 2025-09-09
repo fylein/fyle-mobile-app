@@ -1,8 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { from, throwError, Observable, of, noop, Subscription } from 'rxjs';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, IonicModule } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
 import { shareReplay, filter, finalize, switchMap, map, tap, take } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -20,12 +20,23 @@ import { SignInPageState } from './sign-in-page-state.enum';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { MatInput, MatSuffix } from '@angular/material/input';
+import { NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-sign-in',
-  templateUrl: './sign-in.page.html',
-  styleUrls: ['./sign-in.page.scss'],
-  standalone: false,
+    selector: 'app-sign-in',
+    templateUrl: './sign-in.page.html',
+    styleUrls: ['./sign-in.page.scss'],
+    imports: [
+        IonicModule,
+        FormButtonValidationDirective,
+        FormsModule,
+        ReactiveFormsModule,
+        MatInput,
+        NgClass,
+        MatSuffix,
+    ],
 })
 export class SignInPage implements OnInit {
   private formBuilder = inject(UntypedFormBuilder);

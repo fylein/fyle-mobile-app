@@ -12,19 +12,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    TeamAdvancePageRoutingModule,
-    MatRippleModule,
-    SharedModule,
-    MatFormFieldModule,
-    MatInputModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-  ],
-  declarations: [TeamAdvancePage, TeamAdvCardComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        TeamAdvancePageRoutingModule,
+        MatRippleModule,
+        SharedModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        TeamAdvancePage, TeamAdvCardComponent,
+    ],
 })
 export class TeamAdvancePageModule {}

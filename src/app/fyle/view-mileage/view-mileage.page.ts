@@ -6,13 +6,13 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, takeUntil, take, filter } from 'rxjs/operators';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { PopoverController, ModalController, IonicModule } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass, AsyncPipe, TitleCasePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -40,12 +40,37 @@ import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expe
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
+import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
+import { ReceiptPreviewThumbnailComponent } from '../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { ViewDependentFieldsComponent } from '../../shared/components/view-dependent-fields/view-dependent-fields.component';
+import { NavigationFooterComponent } from '../../shared/components/navigation-footer/navigation-footer.component';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
+import { ExpenseState as ExpenseState_1 } from '../../shared/pipes/expense-state.pipe';
+import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
+import { MileageRateName } from '../../shared/pipes/mileage-rate-name.pipe';
 
 @Component({
-  selector: 'app-view-mileage',
-  templateUrl: './view-mileage.page.html',
-  styleUrls: ['./view-mileage.page.scss'],
-  standalone: false,
+    selector: 'app-view-mileage',
+    templateUrl: './view-mileage.page.html',
+    styleUrls: ['./view-mileage.page.scss'],
+    imports: [
+        IonicModule,
+        NgClass,
+        FyPolicyViolationInfoComponent,
+        ReceiptPreviewThumbnailComponent,
+        ViewDependentFieldsComponent,
+        NavigationFooterComponent,
+        AsyncPipe,
+        TitleCasePipe,
+        CurrencyPipe,
+        DatePipe,
+        ExactCurrencyPipe,
+        SnakeCaseToSpaceCase,
+        ExpenseState_1,
+        FyCurrencyPipe,
+        MileageRateName,
+    ],
 })
 export class ViewMileagePage {
   private activatedRoute = inject(ActivatedRoute);

@@ -10,9 +10,8 @@ describe('PolicyViolationActionComponent', () => {
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [PolicyViolationActionComponent],
-        imports: [IonicModule.forRoot()],
-      }).compileComponents();
+    imports: [IonicModule.forRoot(), PolicyViolationActionComponent],
+}).compileComponents();
 
       fixture = TestBed.createComponent(PolicyViolationActionComponent);
       component = fixture.componentInstance;

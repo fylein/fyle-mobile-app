@@ -34,8 +34,7 @@ describe('FyMultiselectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyMultiselectModalComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         MatIconTestingModule,
         MatIconModule,
@@ -45,22 +44,23 @@ describe('FyMultiselectModalComponent', () => {
         FormsModule,
         BrowserAnimationsModule,
         TranslocoModule,
-      ],
-      providers: [
+        FyMultiselectModalComponent,
+    ],
+    providers: [
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: ChangeDetectorRef,
-          useValue: cdrSpy,
+            provide: ChangeDetectorRef,
+            useValue: cdrSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(FyMultiselectModalComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;

@@ -108,8 +108,7 @@ describe('PersonalCardsPage', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
 
     TestBed.configureTestingModule({
-      declarations: [PersonalCardsPage],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         RouterTestingModule,
         FormsModule,
@@ -118,79 +117,80 @@ describe('PersonalCardsPage', () => {
         MatInputModule,
         BrowserAnimationsModule,
         NoopAnimationsModule,
-      ],
-      providers: [
+        PersonalCardsPage,
+    ],
+    providers: [
         ChangeDetectorRef,
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                navigateBack: true,
-              },
-              queryParams: {
-                filters: {
-                  amount: 10,
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        navigateBack: true,
+                    },
+                    queryParams: {
+                        filters: {
+                            amount: 10,
+                        },
+                    },
                 },
-              },
             },
-          },
         },
         {
-          provide: PersonalCardsService,
-          useValue: personalCardsServiceSpy,
+            provide: PersonalCardsService,
+            useValue: personalCardsServiceSpy,
         },
         {
-          provide: NetworkService,
-          useValue: networkServiceSpy,
+            provide: NetworkService,
+            useValue: networkServiceSpy,
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: InAppBrowserService,
-          useValue: inAppBrowserServiceSpy,
+            provide: InAppBrowserService,
+            useValue: inAppBrowserServiceSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: MatSnackBar,
-          useValue: matSnackBarSpy,
+            provide: MatSnackBar,
+            useValue: matSnackBarSpy,
         },
         {
-          provide: SnackbarPropertiesService,
-          useValue: snackbarPropertiesSpy,
+            provide: SnackbarPropertiesService,
+            useValue: snackbarPropertiesSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: ExtendQueryParamsService,
-          useValue: extendQueryParamsServiceSpy,
+            provide: ExtendQueryParamsService,
+            useValue: extendQueryParamsServiceSpy,
         },
         {
-          provide: Platform,
-          useValue: platformSpy,
+            provide: Platform,
+            useValue: platformSpy,
         },
         {
-          provide: SpinnerDialog,
-          useValue: spinnerDialogSpy,
+            provide: SpinnerDialog,
+            useValue: spinnerDialogSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: ModalPropertiesService,
-          useValue: modalPropertiesSpy,
+            provide: ModalPropertiesService,
+            useValue: modalPropertiesSpy,
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(PersonalCardsPage);
     component = fixture.componentInstance;
 

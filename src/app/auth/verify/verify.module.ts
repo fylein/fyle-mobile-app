@@ -9,7 +9,6 @@ import { VerifyPageRoutingModule } from './verify-routing.module';
 import { VerifyPage } from './verify.page';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, VerifyPageRoutingModule],
-  declarations: [VerifyPage],
+    imports: [CommonModule, FormsModule, IonicModule, VerifyPageRoutingModule, VerifyPage],
 })
 export class VerifyPageModule {}

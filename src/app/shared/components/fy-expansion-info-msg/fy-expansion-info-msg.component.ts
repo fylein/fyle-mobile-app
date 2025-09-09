@@ -1,11 +1,18 @@
 import { Component, Input, ViewEncapsulation, output } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-fy-expansion-info-msg',
-  templateUrl: './fy-expansion-info-msg.component.html',
-  styleUrls: ['./fy-expansion-info-msg.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  standalone: false,
+    selector: 'app-fy-expansion-info-msg',
+    templateUrl: './fy-expansion-info-msg.component.html',
+    styleUrls: ['./fy-expansion-info-msg.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    imports: [
+        IonicModule,
+        MatIcon,
+        TranslocoPipe,
+    ],
 })
 export class FyExpansionInfoMsgComponent {
   // TODO: Skipped for migration because:

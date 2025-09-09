@@ -13,21 +13,21 @@ import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    TeamReportsPageRoutingModule,
-    SharedModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    ReactiveFormsModule,
-    MatRippleModule,
-    MatNativeDateModule,
-    MatDatepickerModule,
-  ],
-  declarations: [TeamReportsPage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        TeamReportsPageRoutingModule,
+        SharedModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        ReactiveFormsModule,
+        MatRippleModule,
+        MatNativeDateModule,
+        MatDatepickerModule,
+        TeamReportsPage,
+    ],
 })
 export class TeamReportsPageModule {}

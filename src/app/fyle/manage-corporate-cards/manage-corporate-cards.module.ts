@@ -13,17 +13,17 @@ import { CardAddedComponent } from './card-added/card-added.component';
 import { NgxMaskModule } from 'ngx-mask';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    IonicModule,
-    SharedModule,
-    ManageCorporateCardsPageRoutingModule,
-    NgxMaskModule.forRoot({
-      validation: false,
-    }),
-  ],
-  declarations: [ManageCorporateCardsPage, AddCorporateCardComponent, CardAddedComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        IonicModule,
+        SharedModule,
+        ManageCorporateCardsPageRoutingModule,
+        NgxMaskModule.forRoot({
+            validation: false,
+        }),
+        ManageCorporateCardsPage, AddCorporateCardComponent, CardAddedComponent,
+    ],
 })
 export class ManageCorporateCardsPageModule {}

@@ -1,25 +1,32 @@
 import { Component, OnInit, forwardRef, Input, TemplateRef, Injector, inject, input } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { VirtualSelectModalComponent } from './virtual-select-modal/virtual-select-modal.component';
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { SelectionReturnType, VirtualSelectOptions } from './virtual-select.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-virtual-select',
-  templateUrl: './virtual-select.component.html',
-  styleUrls: ['./virtual-select.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => VirtualSelectComponent),
-      multi: true,
-    },
-  ],
-  standalone: false,
+    selector: 'app-virtual-select',
+    templateUrl: './virtual-select.component.html',
+    styleUrls: ['./virtual-select.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => VirtualSelectComponent),
+            multi: true,
+        },
+    ],
+    imports: [
+        NgClass,
+        FormsModule,
+        MatIcon,
+        TranslocoPipe,
+    ],
 })
 export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   private modalController = inject(ModalController);

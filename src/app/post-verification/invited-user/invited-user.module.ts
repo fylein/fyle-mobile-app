@@ -18,19 +18,19 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    InvitedUserPageRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSnackBarModule,
-    SharedModule,
-  ],
-  declarations: [InvitedUserPage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        InvitedUserPageRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSnackBarModule,
+        SharedModule,
+        InvitedUserPage,
+    ],
 })
 export class InvitedUserPageModule {}

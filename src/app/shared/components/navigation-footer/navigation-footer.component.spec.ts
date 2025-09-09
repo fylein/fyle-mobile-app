@@ -33,42 +33,41 @@ describe('NavigationFooterComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [NavigationFooterComponent, FyNavFooterComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
-      providers: [
+    imports: [IonicModule.forRoot(), TranslocoModule, NavigationFooterComponent, FyNavFooterComponent],
+    providers: [
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                txnIds: JSON.stringify(['tx5fBcPBAxLv', 'txOJVaaPxo9O', 'tx3nHShG60zq']),
-                view: ExpenseView.individual,
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        txnIds: JSON.stringify(['tx5fBcPBAxLv', 'txOJVaaPxo9O', 'tx3nHShG60zq']),
+                        view: ExpenseView.individual,
+                    },
+                },
             },
-          },
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: SpenderExpensesService,
-          useValue: spenderExpensesServiceSpy,
+            provide: SpenderExpensesService,
+            useValue: spenderExpensesServiceSpy,
         },
         {
-          provide: ApproverExpensesService,
-          useValue: approverExpensesServiceSpy,
+            provide: ApproverExpensesService,
+            useValue: approverExpensesServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+            provide: TranslocoService,
+            useValue: translocoServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(NavigationFooterComponent);
     component = fixture.componentInstance;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;

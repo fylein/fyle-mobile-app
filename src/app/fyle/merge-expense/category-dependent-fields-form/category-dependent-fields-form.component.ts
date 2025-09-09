@@ -1,13 +1,10 @@
 import { Component, Input, OnDestroy, OnInit, inject, input, output } from '@angular/core';
 import { Injector } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
-import {
-  UntypedFormGroup,
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-  UntypedFormBuilder,
-  UntypedFormControl,
-} from '@angular/forms';
+import { UntypedFormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, UntypedFormBuilder, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
+import { FySelectComponent } from '../../../shared/components/fy-select/fy-select.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 type Option = Partial<{
   label: string;
@@ -22,11 +19,17 @@ type OptionsData = Partial<{
 }>;
 
 @Component({
-  selector: 'app-category-dependent-fields-form',
-  templateUrl: './category-dependent-fields-form.component.html',
-  styleUrls: ['./category-dependent-fields-form.component.scss'],
-  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: CategoryDependentFieldsFormComponent, multi: true }],
-  standalone: false,
+    selector: 'app-category-dependent-fields-form',
+    templateUrl: './category-dependent-fields-form.component.html',
+    styleUrls: ['./category-dependent-fields-form.component.scss'],
+    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: CategoryDependentFieldsFormComponent, multi: true }],
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        NgClass,
+        FySelectComponent,
+        TranslocoPipe,
+    ],
 })
 export class CategoryDependentFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
   private formBuilder = inject(UntypedFormBuilder);

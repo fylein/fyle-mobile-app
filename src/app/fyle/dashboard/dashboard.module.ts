@@ -21,31 +21,29 @@ import { CardStatsComponent } from './card-stats/card-stats.component';
 import { NgxMaskModule } from 'ngx-mask';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    DashboardPageRoutingModule,
-    MatExpansionModule,
-    SharedModule,
-    MatIconModule,
-    MatRippleModule,
-    MatTabsModule,
-    MatBottomSheetModule,
-    MatSnackBarModule,
-    SwiperModule,
-    NgxMaskModule.forRoot({
-      validation: false,
-    }),
-  ],
-  declarations: [
-    DashboardPage,
-    StatsComponent,
-    StatBadgeComponent,
-    TasksComponent,
-    TasksCardComponent,
-    CardStatsComponent,
-  ],
-  providers: [DashboardService],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        DashboardPageRoutingModule,
+        MatExpansionModule,
+        SharedModule,
+        MatIconModule,
+        MatRippleModule,
+        MatTabsModule,
+        MatBottomSheetModule,
+        MatSnackBarModule,
+        SwiperModule,
+        NgxMaskModule.forRoot({
+            validation: false,
+        }),
+        DashboardPage,
+        StatsComponent,
+        StatBadgeComponent,
+        TasksComponent,
+        TasksCardComponent,
+        CardStatsComponent,
+    ],
+    providers: [DashboardService],
 })
 export class DashboardPageModule {}

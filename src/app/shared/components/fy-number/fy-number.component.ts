@@ -1,21 +1,21 @@
 import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit, inject, input } from '@angular/core';
-import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, NgControl, Validators } from '@angular/forms';
+import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, NgControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Platform } from '@ionic/angular';
 import { noop } from 'rxjs';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
-  selector: 'app-fy-number',
-  templateUrl: './fy-number.component.html',
-  styleUrls: ['./fy-number.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FyNumberComponent),
-      multi: true,
-    },
-  ],
-  standalone: false,
+    selector: 'app-fy-number',
+    templateUrl: './fy-number.component.html',
+    styleUrls: ['./fy-number.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FyNumberComponent),
+            multi: true,
+        },
+    ],
+    imports: [FormsModule, ReactiveFormsModule],
 })
 export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterViewInit {
   private platform = inject(Platform);

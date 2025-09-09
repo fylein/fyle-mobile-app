@@ -12,10 +12,10 @@ import {
   inject,
   viewChild,
 } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, IonicModule } from '@ionic/angular';
 import dayjs from 'dayjs';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import {
@@ -123,12 +123,64 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { MileageSettings } from 'src/app/core/models/mileage-settings.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { NgClass, NgIf, AsyncPipe, SlicePipe, CurrencyPipe } from '@angular/common';
+import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
+import { MatIcon } from '@angular/material/icon';
+import { RouteVisualizerComponent } from '../../shared/components/route-visualizer/route-visualizer.component';
+import { RouteSelectorComponent as RouteSelectorComponent_1 } from '../../shared/components/route-selector/route-selector.component';
+import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
+import { FormatDateDirective } from '../../shared/directive/format-date.directive';
+import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { DependentFieldsComponent as DependentFieldsComponent_1 } from '../../shared/components/dependent-fields/dependent-fields.component';
+import { VirtualSelectComponent } from '../../shared/components/virtual-select/virtual-select.component';
+import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
+import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
+import { FyMultiselectComponent } from '../../shared/components/fy-multiselect/fy-multiselect.component';
+import { FyAddToReportComponent } from '../../shared/components/fy-add-to-report/fy-add-to-report.component';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { ReviewFooterComponent } from '../../shared/components/review-footer/review-footer.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
+import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
+import { SingularPipe } from '../../shared/pipes/singular.pipe';
 
 @Component({
-  selector: 'app-add-edit-mileage',
-  templateUrl: './add-edit-mileage.page.html',
-  styleUrls: ['./add-edit-mileage.page.scss'],
-  standalone: false,
+    selector: 'app-add-edit-mileage',
+    templateUrl: './add-edit-mileage.page.html',
+    styleUrls: ['./add-edit-mileage.page.scss'],
+    imports: [
+        IonicModule,
+        NgClass,
+        NgIf,
+        FyPolicyViolationInfoComponent,
+        MatIcon,
+        RouteVisualizerComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        RouteSelectorComponent_1,
+        FySelectComponent,
+        FormatDateDirective,
+        FySelectProjectComponent,
+        MatCheckbox,
+        DependentFieldsComponent_1,
+        VirtualSelectComponent,
+        FyNumberComponent,
+        FyLocationComponent,
+        FyMultiselectComponent,
+        FyAddToReportComponent,
+        FyAlertInfoComponent,
+        FyZeroStateComponent,
+        ReviewFooterComponent,
+        FormButtonValidationDirective,
+        AsyncPipe,
+        SlicePipe,
+        CurrencyPipe,
+        EllipsisPipe,
+        FyCurrencyPipe,
+        SingularPipe,
+    ],
 })
 export class AddEditMileagePage implements OnInit {
   private router = inject(Router);

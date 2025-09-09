@@ -2,10 +2,7 @@ import { Directive, ElementRef, Input, OnChanges, inject, input } from '@angular
 import { LoaderPosition } from './loader-position.enum';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Directive({
-  selector: '[appFormButtonValidation]',
-  standalone: false,
-})
+@Directive({ selector: '[appFormButtonValidation]', })
 export class FormButtonValidationDirective implements OnChanges {
   private elementRef = inject(ElementRef);
 

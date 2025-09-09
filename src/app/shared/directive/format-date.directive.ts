@@ -4,10 +4,7 @@ import { Directive, ElementRef, OnInit, HostListener, Renderer2, inject } from '
 import dayjs from 'dayjs';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Directive({
-  selector: '[appFormatDate]',
-  standalone: false,
-})
+@Directive({ selector: '[appFormatDate]', })
 export class FormatDateDirective implements OnInit {
   private elementRef = inject(ElementRef);
 

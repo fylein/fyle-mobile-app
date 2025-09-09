@@ -10,16 +10,16 @@ import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ViewExpensePageRoutingModule,
-    SharedModule,
-    PdfViewerModule,
-    MatButtonModule,
-    PinchZoomComponent,
-  ],
-  declarations: [ViewExpensePage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        ViewExpensePageRoutingModule,
+        SharedModule,
+        PdfViewerModule,
+        MatButtonModule,
+        PinchZoomComponent,
+        ViewExpensePage,
+    ],
 })
 export class ViewExpensePageModule {}

@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, ViewChild, inject, input, output } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController, IonicModule } from '@ionic/angular';
 import dayjs from 'dayjs';
 import { isEqual, isNumber } from 'lodash';
 import { Observable, concat, from, noop } from 'rxjs';
@@ -26,13 +26,38 @@ import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass, NgStyle, NgTemplateOutlet, AsyncPipe, LowerCasePipe, TitleCasePipe, CurrencyPipe } from '@angular/common';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatIcon } from '@angular/material/icon';
+import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { ExpenseState } from '../../pipes/expense-state.pipe';
+import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
+import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
 
 @Component({
-  selector: 'app-expense-card',
-  templateUrl: './expenses-card.component.html',
-  styleUrls: ['./expenses-card.component.scss'],
-  standalone: false,
+    selector: 'app-expense-card',
+    templateUrl: './expenses-card.component.html',
+    styleUrls: ['./expenses-card.component.scss'],
+    imports: [
+        NgClass,
+        MatCheckbox,
+        IonicModule,
+        NgStyle,
+        NgTemplateOutlet,
+        MatIcon,
+        AsyncPipe,
+        LowerCasePipe,
+        TitleCasePipe,
+        CurrencyPipe,
+        TranslocoPipe,
+        HumanizeCurrencyPipe,
+        DateFormatPipe,
+        ExpenseState,
+        FyCurrencyPipe,
+        CurrencySymbolPipe,
+    ],
 })
 export class ExpensesCardComponent implements OnInit {
   private transactionService = inject(TransactionService);

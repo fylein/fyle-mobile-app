@@ -10,7 +10,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -21,20 +21,27 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-fy-add-to-report',
-  templateUrl: './fy-add-to-report.component.html',
-  styleUrls: ['./fy-add-to-report.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FyAddToReportComponent),
-      multi: true,
-    },
-  ],
-  standalone: false,
+    selector: 'app-fy-add-to-report',
+    templateUrl: './fy-add-to-report.component.html',
+    styleUrls: ['./fy-add-to-report.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FyAddToReportComponent),
+            multi: true,
+        },
+    ],
+    imports: [
+        NgClass,
+        FormsModule,
+        MatIcon,
+        TranslocoPipe,
+    ],
 })
 export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAccessor {
   private modalController = inject(ModalController);

@@ -10,10 +10,9 @@ describe('CameraOverlayPage', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [CameraOverlayPage],
-      imports: [IonicModule.forRoot()],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    imports: [IonicModule.forRoot(), CameraOverlayPage],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(CameraOverlayPage);
     component = fixture.componentInstance;

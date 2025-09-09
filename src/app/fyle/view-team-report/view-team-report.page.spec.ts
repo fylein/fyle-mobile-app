@@ -127,109 +127,108 @@ describe('ViewTeamReportPageV2', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe, DateWithTimezonePipe],
-      imports: [IonicModule.forRoot(), FormsModule],
-      providers: [
+    imports: [IonicModule.forRoot(), FormsModule, ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe, DateWithTimezonePipe],
+    providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                id: 'rpFE5X1Pqi9P',
-                navigate_back: true,
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        id: 'rpFE5X1Pqi9P',
+                        navigate_back: true,
+                    },
+                },
             },
-          },
         },
         {
-          provide: ApproverExpensesService,
-          useValue: approverExpensesServiceSpy,
+            provide: ApproverExpensesService,
+            useValue: approverExpensesServiceSpy,
         },
         {
-          provide: ReportService,
-          useValue: reportServiceSpy,
+            provide: ReportService,
+            useValue: reportServiceSpy,
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: NetworkService,
-          useValue: networkServiceSpy,
+            provide: NetworkService,
+            useValue: networkServiceSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: ModalPropertiesService,
-          useValue: modalPropertiesSpy,
+            provide: ModalPropertiesService,
+            useValue: modalPropertiesSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: LaunchDarklyService,
-          useValue: launchDarklyService,
+            provide: LaunchDarklyService,
+            useValue: launchDarklyService,
         },
         {
-          provide: RefinerService,
-          useValue: refinerService,
+            provide: RefinerService,
+            useValue: refinerService,
         },
         {
-          provide: MatSnackBar,
-          useValue: matSnackBarSpy,
+            provide: MatSnackBar,
+            useValue: matSnackBarSpy,
         },
         {
-          provide: SnackbarPropertiesService,
-          useValue: snackbarPropertiesSpy,
+            provide: SnackbarPropertiesService,
+            useValue: snackbarPropertiesSpy,
         },
         {
-          provide: StatusService,
-          useValue: statusServiceSpy,
+            provide: StatusService,
+            useValue: statusServiceSpy,
         },
         {
-          provide: HumanizeCurrencyPipe,
-          useValue: humanizeCurrencySpy,
+            provide: HumanizeCurrencyPipe,
+            useValue: humanizeCurrencySpy,
         },
         {
-          provide: ExactCurrencyPipe,
-          useValue: exactCurrencySpy,
+            provide: ExactCurrencyPipe,
+            useValue: exactCurrencySpy,
         },
         {
-          provide: OrgSettingsService,
-          useValue: orgSettingsServiceSpy,
+            provide: OrgSettingsService,
+            useValue: orgSettingsServiceSpy,
         },
         {
-          provide: ApproverReportsService,
-          useValue: approverReportsServiceSpy,
+            provide: ApproverReportsService,
+            useValue: approverReportsServiceSpy,
         },
         {
-          provide: BrowserHandlerService,
-          useValue: browserHandlerServiceSpy,
+            provide: BrowserHandlerService,
+            useValue: browserHandlerServiceSpy,
         },
         {
-          provide: TIMEZONE,
-          useValue: new BehaviorSubject<string>('UTC'),
+            provide: TIMEZONE,
+            useValue: new BehaviorSubject<string>('UTC'),
         },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
     fixture = TestBed.createComponent(ViewTeamReportPage);
     component = fixture.componentInstance;
 

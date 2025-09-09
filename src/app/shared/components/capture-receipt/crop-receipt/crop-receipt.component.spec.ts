@@ -22,8 +22,8 @@ describe('CropReceiptComponent', () => {
     selector: 'image-cropper',
     template: '',
     providers: [{ provide: ImageCropperComponent, useClass: ImageCropperStubComponent }],
-    standalone: false,
-  })
+    imports: [MatIconModule, MatIconTestingModule, HammerModule,],
+})
   class ImageCropperStubComponent {
     readonly imageBase64 = input(undefined);
 
@@ -41,20 +41,19 @@ describe('CropReceiptComponent', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
-      declarations: [CropReceiptComponent, ImageCropperStubComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, HammerModule],
-      providers: [
+    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, HammerModule, CropReceiptComponent, ImageCropperStubComponent],
+    providers: [
         Platform,
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
+            provide: LoaderService,
+            useValue: loaderServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
     fixture = TestBed.createComponent(CropReceiptComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;

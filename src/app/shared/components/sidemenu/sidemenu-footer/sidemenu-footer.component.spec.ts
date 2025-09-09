@@ -18,10 +18,9 @@ describe('SidemenuFooterComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     await TestBed.configureTestingModule({
-      declarations: [SidemenuFooterComponent],
-      imports: [TranslocoModule],
-      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
-    }).compileComponents();
+    imports: [TranslocoModule, SidemenuFooterComponent],
+    providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+}).compileComponents();
   });
 
   beforeEach(() => {

@@ -6,12 +6,19 @@ import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violat
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { PolicyDetail } from 'src/app/core/models/policy-detail.model';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-fy-policy-violation-info',
-  templateUrl: './fy-policy-violation-info.component.html',
-  styleUrls: ['./fy-policy-violation-info.component.scss'],
-  standalone: false,
+    selector: 'app-fy-policy-violation-info',
+    templateUrl: './fy-policy-violation-info.component.html',
+    styleUrls: ['./fy-policy-violation-info.component.scss'],
+    imports: [
+        MatIcon,
+        NgClass,
+        TranslocoPipe,
+    ],
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
   private modalController = inject(ModalController);

@@ -44,8 +44,7 @@ describe('SuggestedDuplicatesComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [SuggestedDuplicatesComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         MatIconModule,
         MatIconTestingModule,
@@ -54,8 +53,9 @@ describe('SuggestedDuplicatesComponent', () => {
         NoopAnimationsModule,
         CommonModule,
         TranslocoModule,
-      ],
-      providers: [
+        SuggestedDuplicatesComponent,
+    ],
+    providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
@@ -63,9 +63,9 @@ describe('SuggestedDuplicatesComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA], //this is added temporarily and is not recommended
-    }).compileComponents();
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA], //this is added temporarily and is not recommended
+}).compileComponents();
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;

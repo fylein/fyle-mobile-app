@@ -12,16 +12,16 @@ import { ActiveOrgCardComponent } from './active-org-card/active-org-card.compon
 import { OrgCardComponent } from './org-card/org-card.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    SwitchOrgPageRoutingModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatRippleModule,
-    SharedModule,
-  ],
-  declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        SwitchOrgPageRoutingModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRippleModule,
+        SharedModule,
+        SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent,
+    ],
 })
 export class SwitchOrgPageModule {}

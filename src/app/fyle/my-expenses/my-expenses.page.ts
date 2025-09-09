@@ -1,9 +1,9 @@
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass, AsyncPipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, PopoverController, IonicModule } from '@ionic/angular';
 import { cloneDeep, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,
@@ -33,7 +33,7 @@ import {
   takeUntil,
   takeWhile,
 } from 'rxjs/operators';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Expense } from 'src/app/core/models/expense.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -88,12 +88,46 @@ import { FooterService } from 'src/app/core/services/footer.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { driver } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { FyHeaderComponent } from '../../shared/components/fy-header/fy-header.component';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { ExpensesCardComponent } from '../../shared/components/expenses-card/expenses-card.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 
 @Component({
-  selector: 'app-my-expenses',
-  templateUrl: './my-expenses.page.html',
-  styleUrls: ['./my-expenses.page.scss'],
-  standalone: false,
+    selector: 'app-my-expenses',
+    templateUrl: './my-expenses.page.html',
+    styleUrls: ['./my-expenses.page.scss'],
+    imports: [
+        FyHeaderComponent,
+        NgClass,
+        IonicModule,
+        MatFormField,
+        MatIcon,
+        MatPrefix,
+        MatInput,
+        FormsModule,
+        MatIconButton,
+        MatSuffix,
+        MatCheckbox,
+        FyFilterPillsComponent,
+        FyLoadingScreenComponent,
+        FyAlertInfoComponent,
+        FyZeroStateComponent,
+        ExpensesCardComponent,
+        FooterComponent,
+        AsyncPipe,
+        ExactCurrencyPipe,
+        TranslocoPipe,
+    ],
 })
 export class MyExpensesPage implements OnInit {
   // TODO: Skipped for migration because:

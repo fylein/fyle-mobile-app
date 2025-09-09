@@ -17,20 +17,20 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import { ShareReportComponent } from './share-report/share-report.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    MyViewReportPageRoutingModule,
-    SharedModule,
-    MatIconModule,
-    MatButtonModule,
-    MatRippleModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSnackBarModule,
-    MatCheckboxModule,
-  ],
-  declarations: [MyViewReportPage, ShareReportComponent, EditReportNamePopoverComponent, AddExpensesToReportComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        MyViewReportPageRoutingModule,
+        SharedModule,
+        MatIconModule,
+        MatButtonModule,
+        MatRippleModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSnackBarModule,
+        MatCheckboxModule,
+        MyViewReportPage, ShareReportComponent, EditReportNamePopoverComponent, AddExpensesToReportComponent,
+    ],
 })
 export class MyViewReportPageModule {}

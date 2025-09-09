@@ -20,26 +20,24 @@ import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    AddEditAdvanceRequestPageRoutingModule,
-    MatIconModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    SharedModule,
-    MatCheckboxModule,
-    PdfViewerModule,
-    PinchZoomComponent,
-  ],
-  declarations: [
-    AddEditAdvanceRequestPage,
-    FyCurrencyComponent,
-    FyCurrencyChooseCurrencyComponent,
-    FyCurrencyExchangeRateComponent,
-    CameraOptionsPopupComponent,
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        AddEditAdvanceRequestPageRoutingModule,
+        MatIconModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        SharedModule,
+        MatCheckboxModule,
+        PdfViewerModule,
+        PinchZoomComponent,
+        AddEditAdvanceRequestPage,
+        FyCurrencyComponent,
+        FyCurrencyChooseCurrencyComponent,
+        FyCurrencyExchangeRateComponent,
+        CameraOptionsPopupComponent,
+    ],
 })
 export class AddEditAdvanceRequestPageModule {}

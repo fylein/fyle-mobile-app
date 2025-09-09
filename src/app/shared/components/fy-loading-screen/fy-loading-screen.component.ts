@@ -1,10 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
-  selector: 'app-fy-loading-screen',
-  templateUrl: './fy-loading-screen.component.html',
-  styleUrls: ['./fy-loading-screen.component.scss'],
-  standalone: false,
+    selector: 'app-fy-loading-screen',
+    templateUrl: './fy-loading-screen.component.html',
+    styleUrls: ['./fy-loading-screen.component.scss'],
+    imports: [IonicModule],
 })
 export class FyLoadingScreenComponent implements OnInit {
   // TODO: Skipped for migration because:

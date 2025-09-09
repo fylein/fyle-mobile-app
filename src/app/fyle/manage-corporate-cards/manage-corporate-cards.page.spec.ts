@@ -49,9 +49,8 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
 @Component({
-  selector: 'app-corporate-card',
-  template: '<div></div>',
-  standalone: false,
+    selector: 'app-corporate-card',
+    template: '<div></div>',
 })
 class MockCorporateCardComponent {
   readonly card = input<PlatformCorporateCard>(undefined);
@@ -109,67 +108,66 @@ describe('ManageCorporateCardsPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
-      declarations: [ManageCorporateCardsPage, MockCorporateCardComponent],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), ManageCorporateCardsPage, MockCorporateCardComponent],
+    providers: [
         {
-          provide: Router,
-          useValue: routerSpy,
+            provide: Router,
+            useValue: routerSpy,
         },
         {
-          provide: CorporateCreditCardExpenseService,
-          useValue: corporateCreditCardExpenseServiceSpy,
+            provide: CorporateCreditCardExpenseService,
+            useValue: corporateCreditCardExpenseServiceSpy,
         },
         {
-          provide: ActionSheetController,
-          useValue: actionSheetControllerSpy,
+            provide: ActionSheetController,
+            useValue: actionSheetControllerSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
+            provide: PopoverController,
+            useValue: popoverControllerSpy,
         },
         {
-          provide: OrgSettingsService,
-          useValue: orgSettingsServiceSpy,
+            provide: OrgSettingsService,
+            useValue: orgSettingsServiceSpy,
         },
         {
-          provide: PlatformEmployeeSettingsService,
-          useValue: platformEmployeeSettingsServiceSpy,
+            provide: PlatformEmployeeSettingsService,
+            useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-          provide: RealTimeFeedService,
-          useValue: realTimeFeedServiceSpy,
+            provide: RealTimeFeedService,
+            useValue: realTimeFeedServiceSpy,
         },
         {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
+            provide: TrackingService,
+            useValue: trackingServiceSpy,
         },
         {
-          provide: VirtualCardsService,
-          useValue: virtualCardsServiceSpy,
+            provide: VirtualCardsService,
+            useValue: virtualCardsServiceSpy,
         },
         {
-          provide: UtilityService,
-          useValue: utilityServiceSpy,
+            provide: UtilityService,
+            useValue: utilityServiceSpy,
         },
         {
-          provide: FeatureConfigService,
-          useValue: featureConfigServiceSpy,
+            provide: FeatureConfigService,
+            useValue: featureConfigServiceSpy,
         },
         {
-          provide: ModalController,
-          useValue: modalControllerSpy,
+            provide: ModalController,
+            useValue: modalControllerSpy,
         },
         {
-          provide: ModalPropertiesService,
-          useValue: modalPropertiesSpy,
+            provide: ModalPropertiesService,
+            useValue: modalPropertiesSpy,
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
+            provide: AuthService,
+            useValue: authServiceSpy,
         },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ManageCorporateCardsPage);
     component = fixture.componentInstance;

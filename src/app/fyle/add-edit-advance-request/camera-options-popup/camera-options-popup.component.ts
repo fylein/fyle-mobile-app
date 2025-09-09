@@ -1,12 +1,14 @@
 import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-camera-options-popup',
-  templateUrl: './camera-options-popup.component.html',
-  styleUrls: ['./camera-options-popup.component.scss'],
-  standalone: false,
+    selector: 'app-camera-options-popup',
+    templateUrl: './camera-options-popup.component.html',
+    styleUrls: ['./camera-options-popup.component.scss'],
+    imports: [MatIcon, TranslocoPipe],
 })
 export class CameraOptionsPopupComponent implements OnInit {
   private popoverController = inject(PopoverController);

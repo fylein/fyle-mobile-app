@@ -9,18 +9,33 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { isEqual } from 'lodash';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, TitleCasePipe } from '@angular/common';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { Option } from 'src/app/core/models/option.model';
+import { MatIcon } from '@angular/material/icon';
+import { MatRipple } from '@angular/material/core';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { HumanizeCurrencyPipe } from '../../../pipes/humanize-currency.pipe';
+import { ReportState } from '../../../pipes/report-state.pipe';
+import { SnakeCaseToSpaceCase } from '../../../pipes/snake-case-to-space-case.pipe';
 
 @Component({
-  selector: 'app-add-to-report-modal',
-  templateUrl: './fy-add-to-report-modal.component.html',
-  styleUrls: ['./fy-add-to-report-modal.component.scss'],
-  standalone: false,
+    selector: 'app-add-to-report-modal',
+    templateUrl: './fy-add-to-report-modal.component.html',
+    styleUrls: ['./fy-add-to-report-modal.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        MatRipple,
+        TitleCasePipe,
+        TranslocoPipe,
+        HumanizeCurrencyPipe,
+        ReportState,
+        SnakeCaseToSpaceCase,
+    ],
 })
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);

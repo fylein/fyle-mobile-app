@@ -6,10 +6,7 @@ import { Pipe, PipeTransform, inject } from '@angular/core';
  * It adds functionality to add a space between the currency code and the amount when no symbol is present for the given currency
  * Since this feature is not there by default, we need to add this by ourselves
  */
-@Pipe({
-  name: 'currency',
-  standalone: false,
-})
+@Pipe({ name: 'currency', })
 export class FyCurrencyPipe implements PipeTransform {
   private currencyPipe = inject(CurrencyPipe);
 

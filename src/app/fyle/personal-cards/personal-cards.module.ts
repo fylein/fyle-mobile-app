@@ -19,19 +19,19 @@ import { DateRangeModalComponent } from './date-range-modal/date-range-modal.com
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    PersonalCardsPageRoutingModule,
-    SharedModule,
-    MatCheckboxModule,
-    MatNativeDateModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatDatepickerModule,
-  ],
-  providers: [SpinnerDialog],
-  declarations: [PersonalCardsPage, TransactionsShimmerComponent, DateRangeModalComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        PersonalCardsPageRoutingModule,
+        SharedModule,
+        MatCheckboxModule,
+        MatNativeDateModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatDatepickerModule,
+        PersonalCardsPage, TransactionsShimmerComponent, DateRangeModalComponent,
+    ],
+    providers: [SpinnerDialog],
 })
 export class PersonalCardsPageModule {}

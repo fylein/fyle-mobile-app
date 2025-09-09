@@ -1,11 +1,21 @@
 import { AfterViewInit, Component, ElementRef, Input, inject, input, viewChild } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, IonicModule } from '@ionic/angular';
+import { MatIcon } from '@angular/material/icon';
+import { NgStyle } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-fy-popover',
-  templateUrl: './fy-popover.component.html',
-  styleUrls: ['./fy-popover.component.scss'],
-  standalone: false,
+    selector: 'app-fy-popover',
+    templateUrl: './fy-popover.component.html',
+    styleUrls: ['./fy-popover.component.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        NgStyle,
+        FormsModule,
+        TranslocoPipe,
+    ],
 })
 export class FyPopoverComponent implements AfterViewInit {
   private popoverController = inject(PopoverController);

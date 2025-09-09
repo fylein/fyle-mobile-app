@@ -1,8 +1,8 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component, ElementRef, OnDestroy, inject, viewChildren } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, IonicModule } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
 import dayjs from 'dayjs';
 import { combineLatest, forkJoin, from, iif, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -65,12 +65,34 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
 import { FilteredMissingFieldsViolations } from 'src/app/core/models/filtered-missing-fields-violations.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { MatIcon } from '@angular/material/icon';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { NgClass, AsyncPipe, SlicePipe } from '@angular/common';
+import { FormatDateDirective } from '../../shared/directive/format-date.directive';
+import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
+import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 
 @Component({
-  selector: 'app-split-expense',
-  templateUrl: './split-expense.page.html',
-  styleUrls: ['./split-expense.page.scss'],
-  standalone: false,
+    selector: 'app-split-expense',
+    templateUrl: './split-expense.page.html',
+    styleUrls: ['./split-expense.page.scss'],
+    imports: [
+        IonicModule,
+        MatIcon,
+        FormButtonValidationDirective,
+        FyAlertInfoComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        NgClass,
+        FormatDateDirective,
+        FySelectProjectComponent,
+        FySelectComponent,
+        AsyncPipe,
+        SlicePipe,
+        ExactCurrencyPipe,
+    ],
 })
 export class SplitExpensePage implements OnDestroy {
   private activatedRoute = inject(ActivatedRoute);

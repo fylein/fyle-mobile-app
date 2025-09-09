@@ -16,19 +16,19 @@ import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    MyViewAdvanceRequestPageRoutingModule,
-    MatIconModule,
-    SharedModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    PdfViewerModule,
-    PinchZoomComponent,
-  ],
-  declarations: [MyViewAdvanceRequestPage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        MyViewAdvanceRequestPageRoutingModule,
+        MatIconModule,
+        SharedModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        PdfViewerModule,
+        PinchZoomComponent,
+        MyViewAdvanceRequestPage,
+    ],
 })
 export class MyViewAdvanceRequestPageModule {}

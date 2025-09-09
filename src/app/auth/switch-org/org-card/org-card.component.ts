@@ -1,11 +1,18 @@
 import { Component, OnInit, Input, output } from '@angular/core';
 import { Org } from 'src/app/core/models/org.model';
+import { IonicModule } from '@ionic/angular';
+import { MatRipple } from '@angular/material/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-org-card',
-  templateUrl: './org-card.component.html',
-  styleUrls: ['./org-card.component.scss'],
-  standalone: false,
+    selector: 'app-org-card',
+    templateUrl: './org-card.component.html',
+    styleUrls: ['./org-card.component.scss'],
+    imports: [
+        IonicModule,
+        MatRipple,
+        TranslocoPipe,
+    ],
 })
 export class OrgCardComponent implements OnInit {
   // TODO: Skipped for migration because:

@@ -21,14 +21,13 @@ describe('ReviewSplitExpenseComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ReviewSplitExpenseComponent],
-      providers: [
+    providers: [
         { provide: ModalController, useValue: modalSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-      imports: [TranslocoModule],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    ],
+    imports: [TranslocoModule, ReviewSplitExpenseComponent],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(ReviewSplitExpenseComponent);
     component = fixture.componentInstance;

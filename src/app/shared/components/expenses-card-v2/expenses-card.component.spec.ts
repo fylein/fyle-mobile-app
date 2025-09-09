@@ -113,7 +113,13 @@ describe('ExpensesCardComponent', () => {
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
-      declarations: [
+    imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        MatCheckboxModule,
+        FormsModule,
+        getTranslocoModule(),
         ExpensesCardComponent,
         DateFormatPipe,
         HumanizeCurrencyPipe,
@@ -121,16 +127,8 @@ describe('ExpensesCardComponent', () => {
         ExactCurrencyPipe,
         CurrencySymbolPipe,
         FyCurrencyPipe,
-      ],
-      imports: [
-        IonicModule.forRoot(),
-        MatIconModule,
-        MatIconTestingModule,
-        MatCheckboxModule,
-        FormsModule,
-        getTranslocoModule(),
-      ],
-      providers: [
+    ],
+    providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: SharedExpenseService, useValue: sharedExpenseServiceSpy },
@@ -153,8 +151,8 @@ describe('ExpensesCardComponent', () => {
         { provide: CurrencySymbolPipe, useValue: jasmine.createSpyObj('CurrencySymbolPipe', ['transform']) },
         { provide: ExactCurrencyPipe, useValue: jasmine.createSpyObj('ExactCurrencyPipe', ['transform']) },
         { provide: FyCurrencyPipe, useValue: jasmine.createSpyObj('FyCurrencyPipe', ['transform']) },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
@@ -1903,9 +1901,8 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ExpensesCardComponent],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), ExpensesCardComponent],
+    providers: [
         { provide: TransactionService, useValue: {} },
         { provide: SharedExpenseService, useValue: {} },
         { provide: PlatformEmployeeSettingsService, useValue: {} },
@@ -1917,17 +1914,17 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
         { provide: Platform, useValue: { is: (): boolean => false } },
         { provide: MatSnackBar, useValue: {} },
         { provide: SnackbarPropertiesService, useValue: { setSnackbarProperties: (): object => ({}) } },
-        { provide: TrackingService, useValue: { addAttachment: (): void => {}, showToastMessage: (): void => {} } },
-        { provide: CurrencyService, useValue: { getHomeCurrency: (): void => {} } },
+        { provide: TrackingService, useValue: { addAttachment: (): void => { }, showToastMessage: (): void => { } } },
+        { provide: CurrencyService, useValue: { getHomeCurrency: (): void => { } } },
         {
-          provide: ExpenseFieldsService,
-          useValue: { getAllMap: (): void => {}, getMandatoryExpenseFields: (): void => {} },
+            provide: ExpenseFieldsService,
+            useValue: { getAllMap: (): void => { }, getMandatoryExpenseFields: (): void => { } },
         },
-        { provide: OrgSettingsService, useValue: { get: (): void => {} } },
+        { provide: OrgSettingsService, useValue: { get: (): void => { } } },
         { provide: ExpensesService, useValue: {} },
         { provide: TranslocoService, useValue: { translate: (): string => '' } },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
   }));
 
   beforeEach(() => {

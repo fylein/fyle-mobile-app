@@ -17,25 +17,23 @@ import { InfoCardComponent } from './info-card/info-card.component';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    MyProfilePageRoutingModule,
-    MatFormFieldModule,
-    MatInputModule,
-    SharedModule,
-    MatButtonModule,
-    MatSnackBarModule,
-    MatRippleModule,
-  ],
-  declarations: [
-    MyProfilePage,
-    PreferenceSettingComponent,
-    EmployeeDetailsCardComponent,
-    VerifyNumberPopoverComponent,
-    InfoCardComponent,
-    UpdateMobileNumberComponent,
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        MyProfilePageRoutingModule,
+        MatFormFieldModule,
+        MatInputModule,
+        SharedModule,
+        MatButtonModule,
+        MatSnackBarModule,
+        MatRippleModule,
+        MyProfilePage,
+        PreferenceSettingComponent,
+        EmployeeDetailsCardComponent,
+        VerifyNumberPopoverComponent,
+        InfoCardComponent,
+        UpdateMobileNumberComponent,
+    ],
 })
 export class MyProfilePageModule {}

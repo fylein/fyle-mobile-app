@@ -2,10 +2,7 @@ import { Pipe, PipeTransform, inject } from '@angular/core';
 import dayjs from 'dayjs';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Pipe({
-  name: 'dateFormat',
-  standalone: false,
-})
+@Pipe({ name: 'dateFormat', })
 export class DateFormatPipe implements PipeTransform {
   private translocoService = inject(TranslocoService);
 

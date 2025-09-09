@@ -75,38 +75,36 @@ describe('MyViewAdvanceRequestPage', () => {
     loaderServiceSpy.hideLoader.and.resolveTo();
 
     TestBed.configureTestingModule({
-      declarations: [MyViewAdvanceRequestPage],
-      imports: [IonicModule.forRoot()],
-      providers: [
+    imports: [IonicModule.forRoot(), MyViewAdvanceRequestPage],
+    providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
-
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {
-                id: 'areqR1cyLgXdND',
-              },
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: {
+                    params: {
+                        id: 'areqR1cyLgXdND',
+                    },
+                },
             },
-          },
         },
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpy },
         {
-          provide: MIN_SCREEN_WIDTH,
-          useValue: 230,
+            provide: MIN_SCREEN_WIDTH,
+            useValue: 230,
         },
         UrlSerializer,
         { provide: NavController, useValue: navControllerSpy },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
     fixture = TestBed.createComponent(MyViewAdvanceRequestPage);
     component = fixture.componentInstance;

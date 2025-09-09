@@ -9,7 +9,6 @@ import { DisabledPageRoutingModule } from './disabled-routing.module';
 import { DisabledPage } from './disabled.page';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, DisabledPageRoutingModule],
-  declarations: [DisabledPage],
+    imports: [CommonModule, FormsModule, IonicModule, DisabledPageRoutingModule, DisabledPage],
 })
 export class DisabledPageModule {}

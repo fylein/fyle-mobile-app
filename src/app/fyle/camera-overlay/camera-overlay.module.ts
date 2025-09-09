@@ -10,7 +10,6 @@ import { CameraOverlayPage } from './camera-overlay.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, CameraOverlayPageRoutingModule, SharedModule],
-  declarations: [CameraOverlayPage],
+    imports: [CommonModule, FormsModule, IonicModule, CameraOverlayPageRoutingModule, SharedModule, CameraOverlayPage],
 })
 export class CameraOverlayPageModule {}

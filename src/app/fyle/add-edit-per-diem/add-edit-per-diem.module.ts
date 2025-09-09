@@ -13,22 +13,22 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    AddEditPerDiemPageRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatRippleModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatCheckboxModule,
-    SharedModule,
-    MatSnackBarModule,
-  ],
-  declarations: [AddEditPerDiemPage],
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        AddEditPerDiemPageRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRippleModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatCheckboxModule,
+        SharedModule,
+        MatSnackBarModule,
+        AddEditPerDiemPage,
+    ],
 })
 export class AddEditPerDiemPageModule {}

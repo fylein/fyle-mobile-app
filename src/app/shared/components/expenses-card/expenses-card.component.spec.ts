@@ -110,16 +110,16 @@ describe('ExpensesCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe, ExpenseState],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         MatIconModule,
         MatIconTestingModule,
         MatCheckboxModule,
         FormsModule,
         TranslocoModule,
-      ],
-      providers: [
+        ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe, ExpenseState,
+    ],
+    providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
@@ -139,8 +139,8 @@ describe('ExpensesCardComponent', () => {
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
         { provide: ExpenseState, useValue: expenseStateSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,

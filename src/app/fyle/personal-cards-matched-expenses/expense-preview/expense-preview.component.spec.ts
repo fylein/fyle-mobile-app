@@ -48,16 +48,16 @@ describe('ExpensePreviewComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ExpensePreviewComponent, ExpensePreviewShimmerComponent],
-      imports: [
+    imports: [
         IonicModule.forRoot(),
         MatIconModule,
         MatIconTestingModule,
         FormsModule,
         MatSnackBarModule,
         TranslocoModule,
-      ],
-      providers: [
+        ExpensePreviewComponent, ExpensePreviewShimmerComponent,
+    ],
+    providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesServiceSpy },
@@ -67,8 +67,8 @@ describe('ExpensePreviewComponent', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-      ],
-    }).compileComponents();
+    ],
+}).compileComponents();
 
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
