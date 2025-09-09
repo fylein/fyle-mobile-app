@@ -17,7 +17,7 @@ import {
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { OrgUserService } from './org-user.service';
 import { TokenService } from './token.service';
 import { delegatorData } from '../mock-data/platform/v1/delegator.data';
@@ -206,6 +206,23 @@ describe('OrgUserService', () => {
     orgUserService.isSwitchedToDelegator().then((res) => {
       expect(res).toBeTrue();
       done();
+    });
+  });
+
+  it('getCurrent(): should handle error and return empty observable', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(throwError(() => new Error('API Error')));
+    dataTransformService.transformExtOrgUserResponse.and.returnValue(currentEouRes);
+
+    orgUserService.getCurrent().subscribe({
+      next: () => {
+        fail('Should not emit any value on error');
+      },
+      error: (error) => {
+        expect(error.message).toBe('API Error');
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/employees/current');
+        expect(dataTransformService.transformExtOrgUserResponse).not.toHaveBeenCalled();
+        done();
+      },
     });
   });
 });

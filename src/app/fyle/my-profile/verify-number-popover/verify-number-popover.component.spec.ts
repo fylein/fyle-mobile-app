@@ -364,4 +364,17 @@ describe('VerifyNumberPopoverComponent', () => {
     expect(clearInterval).toHaveBeenCalledOnceWith(jasmine.any(Number));
     expect(component.showOtpTimer).toBeFalse();
   }));
+
+  it('verifyOtp(): should handle error and set error message', () => {
+    mobileNumberVerificationService.verifyOtp.and.returnValue(throwError(() => new Error('API Error')));
+    currencyService.getHomeCurrency.and.returnValue(of('USD'));
+    component.value = '123456';
+    spyOn(component, 'setError');
+
+    component.verifyOtp();
+
+    expect(mobileNumberVerificationService.verifyOtp).toHaveBeenCalledOnceWith(component.value);
+    expect(component.setError).toHaveBeenCalledOnceWith('INVALID_OTP');
+    expect(popoverController.dismiss).not.toHaveBeenCalled();
+  });
 });

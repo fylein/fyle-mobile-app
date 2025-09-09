@@ -2,7 +2,7 @@ import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { SpenderOnboardingService } from './spender-onboarding.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { OnboardingStepStatus } from '../models/onboarding-step-status.model';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { onboardingStatusData } from '../mock-data/onboarding-status.data';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
 import { UtilityService } from './utility.service';

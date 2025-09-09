@@ -16,7 +16,7 @@ import { cloneDeep } from 'lodash';
 import { TokenService } from './token.service';
 import { AuthService } from './auth.service';
 import { FeatureConfigService } from './platform/v1/spender/feature-config.service';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { featureConfigOptInData } from '../mock-data/feature-config.data';
 import { CurrencyService } from './currency.service';
@@ -372,6 +372,23 @@ describe('UtilityService', () => {
         expect(result).toBeFalse();
         done();
       });
+    });
+  });
+
+  it('canShowOptInModal(): should handle error and return false', (done) => {
+    const featureConfig = {
+      feature: 'OPT_IN',
+      key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
+    };
+    spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
+    const mockEou = cloneDeep(apiEouRes);
+    mockEou.ou.mobile = '+11234567890';
+    authService.getEou.and.resolveTo(mockEou);
+    currencyService.getHomeCurrency.and.returnValue(throwError(() => new Error('Currency API Error')));
+
+    utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
+      expect(result).toBeFalse();
+      done();
     });
   });
 });

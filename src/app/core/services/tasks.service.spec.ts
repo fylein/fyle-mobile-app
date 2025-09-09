@@ -1185,6 +1185,24 @@ describe('TasksService', () => {
         done();
       });
     });
+
+    it('should not return any task if user currency is not USD or CAD', (done) => {
+      const eou = cloneDeep(extendedOrgUserResponse);
+      eou.ou.mobile_verified = false;
+      authService.getEou.and.resolveTo(eou);
+      utilityService.isUserFromINCluster.and.resolveTo(false);
+      currencyService.getHomeCurrency.and.returnValue(of('INR'));
+      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
+
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(utilityService.isUserFromINCluster).toHaveBeenCalledOnceWith();
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledOnceWith();
+        expect(res).toEqual([]);
+        expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
+        done();
+      });
+    });
   });
 
   describe('getCommuteDetailsTasks():', () => {

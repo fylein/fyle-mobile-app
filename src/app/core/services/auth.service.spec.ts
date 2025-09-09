@@ -7,7 +7,7 @@ import { DataTransformService } from './data-transform.service';
 import { JwtHelperService } from './jwt-helper.service';
 import { apiEouRes, eouFlattended, eouRes3 } from '../mock-data/extended-org-user.data';
 import { apiAuthResponseRes } from '../mock-data/auth-response.data';
-import { finalize, noop, of, tap } from 'rxjs';
+import { finalize, noop, of, tap, throwError } from 'rxjs';
 import { apiAccessTokenRes, apiTokenWithoutRoles } from '../mock-data/access-token-data.data';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -218,6 +218,24 @@ describe('AuthService', () => {
       });
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       done();
+    });
+  });
+
+  it('refreshEou(): should handle error and return empty observable', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(throwError(() => new Error('API Error')));
+    dataTransformService.transformExtOrgUserResponse.and.returnValue(eouRes3);
+
+    authService.refreshEou().subscribe({
+      next: () => {
+        fail('Should not emit any value on error');
+      },
+      error: (error) => {
+        expect(error.message).toBe('API Error');
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/employees/current');
+        expect(dataTransformService.transformExtOrgUserResponse).not.toHaveBeenCalled();
+        expect(storageService.set).not.toHaveBeenCalled();
+        done();
+      },
     });
   });
 });
