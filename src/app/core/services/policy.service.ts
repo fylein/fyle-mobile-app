@@ -33,14 +33,14 @@ export class PolicyService {
     const txnLocations = transaction.locations as string[];
     const platformPolicyExpense: PlatformPolicyExpense = {
       id: transaction.id,
-      spent_at: transaction.txn_dt,
+      spent_at: transaction.spent_at,
       merchant: transaction.vendor,
       foreign_currency: transaction.orig_currency,
       foreign_amount: transaction.orig_amount,
       claim_amount: transaction.amount,
       purpose: transaction.purpose,
       cost_center_id: transaction.cost_center_id,
-      category_id: transaction.org_category_id,
+      category_id: transaction.category_id,
       project_id: transaction.project_id,
       source_account_id: transaction.source_account_id,
       tax_amount: transaction.tax_amount,
@@ -205,13 +205,13 @@ export class PolicyService {
 
     transactionCopy.is_matching_ccc_expense = !!selectedCCCTransaction;
     let transaction$ = of(transactionCopy);
-    if (!transactionCopy.org_category_id) {
+    if (!transactionCopy.category_id) {
       // Set unspecified org category if expense doesn't have a category
       const categoryName = this.translocoService.translate('services.policy.unspecified');
       transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
         map((category) => ({
           ...transactionCopy,
-          org_category_id: category.id,
+          category_id: category.id,
         })),
       );
     }

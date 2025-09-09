@@ -82,7 +82,7 @@ export class SplitExpenseService {
     customPropertyId: number,
     expenseFields: ExpenseField[],
   ): boolean {
-    const categoryId = splitExpense.org_category_id || sourceTxn?.org_category_id;
+    const categoryId = splitExpense.category_id || sourceTxn?.category_id;
     if (categoryId && expenseFields?.length > 0) {
       const customField = expenseFields.find((field) => field.id === customPropertyId);
       return customField?.org_category_ids?.includes(categoryId);
@@ -136,11 +136,11 @@ export class SplitExpenseService {
       transaction.id = null;
       transaction.source = transaction.source || 'MOBILE_SPLIT';
 
-      transaction.txn_dt = splitExpense.txn_dt || sourceTxn.txn_dt;
-      transaction.txn_dt = new Date(transaction.txn_dt);
+      transaction.spent_at = splitExpense.spent_at || sourceTxn.spent_at;
+      transaction.spent_at = new Date(transaction.spent_at);
       transaction.project_id = splitExpense.project_id || sourceTxn.project_id;
       transaction.cost_center_id = splitExpense.cost_center_id || sourceTxn.cost_center_id;
-      transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
+      transaction.category_id = splitExpense.category_id || sourceTxn.category_id;
       transaction.billable = this.setUpSplitExpenseBillable(sourceTxn, splitExpense);
       transaction.tax_amount = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
       transaction.custom_properties = splitExpense.custom_properties || sourceTxn.custom_properties;
@@ -234,9 +234,9 @@ export class SplitExpenseService {
       id: transaction.id,
       splits: this.transformSplitArray(splitTxns, reportAndCategoryParams.unspecifiedCategory),
       // Platform will throw error if category_id is null in form, therefore adding unspecified category
-      category_id: transaction.org_category_id || reportAndCategoryParams.unspecifiedCategory?.id,
+      category_id: transaction.category_id || reportAndCategoryParams.unspecifiedCategory?.id,
       source: transaction.source,
-      spent_at: transaction.txn_dt,
+      spent_at: transaction.spent_at,
       is_reimbursable: transaction.skip_reimbursement === null ? null : !transaction.skip_reimbursement,
       travel_classes: [],
       locations: transaction.locations,
@@ -271,8 +271,8 @@ export class SplitExpenseService {
 
     for (const splitEtxn of splitEtxns) {
       const splitObject = {
-        spent_at: splitEtxn.txn_dt,
-        category_id: splitEtxn.org_category_id || unspecifiedCategory?.id,
+        spent_at: splitEtxn.spent_at,
+        category_id: splitEtxn.category_id || unspecifiedCategory?.id,
         project_id: splitEtxn.project_id,
         cost_center_id: splitEtxn.cost_center_id,
         purpose: splitEtxn.purpose,

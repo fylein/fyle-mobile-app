@@ -307,23 +307,23 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   setTransactionDate(splitExpenseValue: SplitExpense, offset: string): Date {
-    let txnDate: Date;
+    let spentAtDate: Date;
 
-    if (splitExpenseValue.txn_dt) {
-      txnDate = this.dateService.getUTCDate(new Date(splitExpenseValue.txn_dt));
-    } else if (this.transaction.txn_dt) {
-      txnDate = this.dateService.getUTCDate(new Date(this.transaction.txn_dt));
+    if (splitExpenseValue.spent_at) {
+      spentAtDate = this.dateService.getUTCDate(new Date(splitExpenseValue.spent_at));
+    } else if (this.transaction.spent_at) {
+      spentAtDate = this.dateService.getUTCDate(new Date(this.transaction.spent_at));
     } else {
-      txnDate = this.dateService.getUTCDate(new Date());
+      spentAtDate = this.dateService.getUTCDate(new Date());
     }
 
-    txnDate.setHours(12);
-    txnDate.setMinutes(0);
-    txnDate.setSeconds(0);
-    txnDate.setMilliseconds(0);
-    txnDate = this.timezoneService.convertToUtc(txnDate, offset);
+    spentAtDate.setHours(12);
+    spentAtDate.setMinutes(0);
+    spentAtDate.setSeconds(0);
+    spentAtDate.setMilliseconds(0);
+    spentAtDate = this.timezoneService.convertToUtc(spentAtDate, offset);
 
-    return txnDate;
+    return spentAtDate;
   }
 
   correctDates(transaction: Transaction, offset: string): void {
@@ -376,7 +376,7 @@ export class SplitExpensePage implements OnDestroy {
 
         return of({
           ...this.transaction,
-          org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
+          category_id: splitExpenseValue.category && splitExpenseValue.category.id,
           project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
           cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
           currency: splitExpenseValue.currency,
@@ -384,7 +384,7 @@ export class SplitExpensePage implements OnDestroy {
           source: 'MOBILE',
           billable: this.setUpSplitExpenseBillable(splitExpenseValue),
           tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
-          txn_dt: this.setTransactionDate(splitExpenseValue, offset),
+          spent_at: this.setTransactionDate(splitExpenseValue, offset),
           custom_properties: this.timezoneService.convertAllDatesToProperLocale(
             txnCustomProperties,
             offset,
@@ -440,15 +440,14 @@ export class SplitExpensePage implements OnDestroy {
   ): void {
     splitTxn.project_id = project.project_id;
     splitTxn.project_name = project.project_name;
-    splitTxn.org_category_id = null;
+    splitTxn.category_id = null;
     splitTxn.org_category = null;
     if (
-      this.transaction.org_category_id &&
+      this.transaction.category_id &&
       (!isProjectCategoryRestrictionsEnabled ||
-        (project.project_org_category_ids &&
-          project.project_org_category_ids.includes(this.transaction.org_category_id)))
+        (project.project_org_category_ids && project.project_org_category_ids.includes(this.transaction.category_id)))
     ) {
-      splitTxn.org_category_id = this.transaction.org_category_id;
+      splitTxn.category_id = this.transaction.category_id;
       splitTxn.org_category = this.transaction.org_category;
     }
   }
@@ -465,7 +464,7 @@ export class SplitExpensePage implements OnDestroy {
     if (splitFormValue.project?.project_id) {
       this.setSplitExpenseValuesBasedOnProject(splitTxn, project, isProjectCategoryRestrictionsEnabled);
     } else if (splitFormValue.category?.id) {
-      splitTxn.org_category_id = splitFormValue.category.id;
+      splitTxn.category_id = splitFormValue.category.id;
       splitTxn.org_category = splitFormValue.category.name;
       splitTxn.project_id = null;
       splitTxn.project_name = null;
@@ -492,11 +491,11 @@ export class SplitExpensePage implements OnDestroy {
     isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     splitTxn.cost_center_id = splitFormValue.cost_center?.id || this.transaction.cost_center_id;
-    if (this.transaction.project_id || this.transaction.org_category_id) {
+    if (this.transaction.project_id || this.transaction.category_id) {
       this.setSplitExpenseProjectHelper(splitFormValue, splitTxn, expenseDetails, isProjectCategoryRestrictionsEnabled);
     } else {
       //if no project or category id exists in source txn, set them from splitExpense object
-      splitTxn.org_category_id = splitFormValue.category?.id || this.transaction.org_category_id;
+      splitTxn.category_id = splitFormValue.category?.id || this.transaction.category_id;
       splitTxn.project_id = splitFormValue.project?.id || this.transaction.project_id;
     }
   }
@@ -717,7 +716,7 @@ export class SplitExpensePage implements OnDestroy {
     for (const txn of splitEtxns) {
       delete txn.id;
 
-      const categoryId = txn.org_category_id || this.unspecifiedCategory?.id;
+      const categoryId = txn.category_id || this.unspecifiedCategory?.id;
 
       if (txn.custom_properties?.length > 0 && this.expenseFields?.length > 0) {
         txn.custom_properties = txn.custom_properties.filter((customProperty) => {
@@ -1302,18 +1301,18 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   // eslint-disable-next-line complexity
-  add(amount?: number, currency?: string, percentage?: number, txnDt?: string | Date | dayjs.Dayjs): void {
-    if (!txnDt) {
-      const dateOfTxn = this.transaction?.txn_dt;
+  add(amount?: number, currency?: string, percentage?: number, spentAt?: string | Date | dayjs.Dayjs): void {
+    if (!spentAt) {
+      const dateOfTxn = this.transaction?.spent_at;
       const today = new Date();
-      txnDt = dateOfTxn ? new Date(dateOfTxn) : today;
-      txnDt = dayjs(txnDt).format('YYYY-MM-DD');
+      spentAt = dateOfTxn ? new Date(dateOfTxn) : today;
+      spentAt = dayjs(spentAt).format('YYYY-MM-DD');
     }
     const fg = this.formBuilder.group({
       amount: [amount, Validators.required],
       currency: [currency],
       percentage: [percentage],
-      txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])],
+      spent_at: [spentAt, Validators.compose([Validators.required, this.customDateValidator])],
     });
 
     const isFirstSplit = this.splitExpensesFormArray.length === 0;
