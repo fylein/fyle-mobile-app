@@ -101,13 +101,6 @@ export const expenseFiltersData6: Partial<ExpenseFilters> = deepFreeze({
   splitExpense: 'YES',
 });
 
-export const expenseFiltersData7: Partial<ExpenseFilters> = deepFreeze({
-  receiptsAttached: 'YES',
-  sortParam: 'tx_txn_dt',
-  sortDir: 'asc',
-  splitExpense: 'YES',
-});
-
 export const expenseFiltersDataWCustom: Partial<ExpenseFilters> = deepFreeze({
   state: 'custom',
   date: DateFilters.custom,

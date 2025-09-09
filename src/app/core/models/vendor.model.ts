@@ -1,3 +1,5 @@
+import { Merchant } from './platform/platform-merchants.model';
+
 export interface Vendor {
   id: number;
   tin: string;
@@ -7,13 +9,12 @@ export interface Vendor {
   creator_id: string;
   created_at: Date;
   updated_at: Date;
-  default_category: string;
   verified: boolean;
 }
 
 export interface VendorListItem {
   label: string;
-  value: Vendor;
+  value: Merchant;
   selected?: boolean;
   isRecentlyUsed?: boolean;
 }

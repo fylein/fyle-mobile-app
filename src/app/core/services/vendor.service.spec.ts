@@ -1,59 +1,38 @@
-import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { Vendor } from '../models/vendor.model';
-import { AuthService } from './auth.service';
+import { Merchant } from '../models/platform/platform-merchants.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { VendorService } from './vendor.service';
 
-const vendors: Vendor[] = [
+const mockMerchants: Merchant[] = [
   {
     id: 309,
-    cin: null,
-    tin: null,
-    display_name: 'Fuel',
-    other_names: null,
-    creator_id: 'SYSTEM',
+    display_name: 'Fuel Station',
     created_at: new Date('2017-06-18T15:52:26.857075Z'),
     updated_at: new Date('2020-06-09T19:16:44.618140Z'),
-    default_category: null,
-    verified: true,
+    org_id: 'orh7SigX1sfN',
   },
   {
     id: 437,
-    cin: null,
-    tin: null,
     display_name: 'Fedex',
-    other_names: null,
-    creator_id: 'SYSTEM',
     created_at: new Date('2017-06-18T15:52:26.857075Z'),
     updated_at: new Date('2019-07-10T12:07:59.158939Z'),
-    default_category: null,
-    verified: true,
+    org_id: 'orh7SigX1sfN',
   },
   {
     id: 314,
-    cin: null,
-    tin: null,
     display_name: 'Fastrak',
-    other_names: null,
-    creator_id: 'SYSTEM',
     created_at: new Date('2017-06-18T15:52:26.857075Z'),
     updated_at: new Date('2020-10-14T07:19:18.958436Z'),
-    default_category: null,
-    verified: true,
+    org_id: 'orh7SigX1sfN',
   },
   {
     id: 101,
-    cin: null,
-    tin: null,
-    display_name: 'fyle.in',
-    other_names: null,
-    creator_id: 'ouD8bcoymzv3',
+    display_name: 'Fyle Store',
     created_at: new Date('2017-01-30T08:09:24.393267Z'),
     updated_at: new Date('2020-11-03T17:12:50.250702Z'),
-    default_category: 'Unspecified',
-    verified: true,
+    org_id: 'orh7SigX1sfN',
   },
 ];
 
@@ -136,48 +115,47 @@ const extendedOrgUser = {
   flattened_custom_field: {},
 };
 
+const mockApiResponse: PlatformApiResponse<Merchant[]> = {
+  count: 4,
+  data: mockMerchants,
+  offset: 0,
+};
+
 describe('VendorService', () => {
   let vendorService: VendorService;
-  let httpClient: jasmine.SpyObj<HttpClient>;
-  let authService: jasmine.SpyObj<AuthService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
-    const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
         VendorService,
         {
-          provide: HttpClient,
-          useValue: httpClientSpy,
-        },
-        {
-          provide: AuthService,
-          useValue: authServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
       ],
     });
     vendorService = TestBed.inject(VendorService);
-    httpClient = TestBed.inject(HttpClient) as jasmine.SpyObj<HttpClient>;
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService,
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
     expect(vendorService).toBeTruthy();
   });
 
-  it('should return vendors after querying by user and querystring', (done) => {
-    httpClient.get.and.returnValue(of(vendors));
-    authService.getEou.and.returnValue(new Promise<ExtendedOrgUser>((resolve) => resolve(extendedOrgUser)));
-    vendorService.setRoot('http://app.fylehq.com');
+  it('should return merchants after querying with search string', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(mockApiResponse));
 
-    vendorService.get('Alooo').subscribe((vendorsRes) => {
-      expect(vendorsRes).toEqual(vendors);
-      expect(httpClient.get).toHaveBeenCalledWith('http://app.fylehq.com/vendors/all', {
+    vendorService.getMerchants('Fuel').subscribe((merchants) => {
+      expect(merchants).toEqual(mockMerchants);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/merchants', {
         params: {
-          org_user_id: extendedOrgUser.ou.id,
-          q: 'Alooo',
+          q: 'Fuel',
+          limit: 4,
         },
       });
       done();

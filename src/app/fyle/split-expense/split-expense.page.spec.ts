@@ -340,7 +340,7 @@ describe('SplitExpensePage', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
@@ -373,7 +373,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(120),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -381,7 +381,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(800),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       Object.defineProperty(splitExpenseForm1.controls.amount, '_pendingChange', { value: true });
@@ -402,7 +402,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(1200),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -410,7 +410,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(80),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       Object.defineProperty(otherSplitExpenseForm.controls.amount, '_pendingChange', { value: true });
@@ -519,7 +519,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(473.4),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -528,7 +528,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(315.6),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -549,7 +549,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -559,7 +559,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -569,7 +569,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(null),
         currency: new UntypedFormControl(null),
         percentage: new UntypedFormControl(null),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -746,7 +746,7 @@ describe('SplitExpensePage', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         toastMessage,
         ToastType.SUCCESS,
-        'msb-success-with-camera-icon-for-split-exp'
+        'msb-success-with-camera-icon-for-split-exp',
       );
     });
   });
@@ -805,7 +805,7 @@ describe('SplitExpensePage', () => {
 
       expect(launchDarklyService.getVariation).toHaveBeenCalledWith(
         'show_project_mapped_categories_in_split_expense',
-        false
+        false,
       );
       expect(component.getActiveCategories).toHaveBeenCalled();
 
@@ -824,7 +824,7 @@ describe('SplitExpensePage', () => {
 
       expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
         'show_project_mapped_categories_in_split_expense',
-        false
+        false,
       );
       expect(component.getActiveCategories).toHaveBeenCalled();
 
@@ -832,7 +832,7 @@ describe('SplitExpensePage', () => {
       expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
         testProjectV2,
         testActiveCategoryList,
-        true
+        true,
       );
 
       component.categories$.subscribe((categories) => {
@@ -848,7 +848,7 @@ describe('SplitExpensePage', () => {
 
       expect(launchDarklyService.getVariation).toHaveBeenCalledWith(
         'show_project_mapped_categories_in_split_expense',
-        false
+        false,
       );
       expect(component.getActiveCategories).toHaveBeenCalled();
 
@@ -867,7 +867,7 @@ describe('SplitExpensePage', () => {
       component.dependentCustomProperties$.subscribe((dependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           txnData.custom_properties,
-          184692
+          184692,
         );
         expect(dependentCustomProperties).toEqual(dependentFieldValues);
       });
@@ -879,7 +879,7 @@ describe('SplitExpensePage', () => {
       component.dependentCustomProperties$.subscribe((dependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           txnData.custom_properties,
-          undefined
+          undefined,
         );
         expect(dependentCustomProperties).toBeNull();
       });
@@ -958,7 +958,7 @@ describe('SplitExpensePage', () => {
       expect(component.txnFields).toEqual(JSON.parse(activateRouteMock.snapshot.params.txnFields));
       expect(component.fileUrls).toEqual(JSON.parse(activateRouteMock.snapshot.params.fileObjs));
       expect(component.selectedCCCTransaction).toEqual(
-        JSON.parse(activateRouteMock.snapshot.params.selectedCCCTransaction)
+        JSON.parse(activateRouteMock.snapshot.params.selectedCCCTransaction),
       );
       expect(component.reportId).toEqual(JSON.parse(activateRouteMock.snapshot.params.selectedReportId));
       expect(component.transaction).toEqual(JSON.parse(activateRouteMock.snapshot.params.txn));
@@ -1105,7 +1105,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl('Test Project'),
         cost_center: new UntypedFormControl(''),
@@ -1116,7 +1116,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(null),
         cost_center: new UntypedFormControl(''),
@@ -1221,7 +1221,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -1232,7 +1232,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -1259,12 +1259,12 @@ describe('SplitExpensePage', () => {
       spyOn(component, 'getActiveCategories').and.returnValue(of([]));
       spyOn(component, 'getFilteredCategories').and.returnValue(of([]));
       component.splitExpensesFormArray.clear();
-      component.transaction = { ...txnData2, txn_dt: null };
+      component.transaction = { ...txnData2, spent_at: null };
       component.add(50, 'USD', 50);
 
       const formGroup = component.splitExpensesFormArray.at(0);
       const expectedDate = dayjs(new Date()).format('YYYY-MM-DD');
-      expect(formGroup.get('txn_dt').value).toBe(expectedDate);
+      expect(formGroup.get('spent_at').value).toBe(expectedDate);
     });
 
     it('should set default date to transaction date if available', () => {
@@ -1275,7 +1275,7 @@ describe('SplitExpensePage', () => {
       component.add(50, 'USD', 50);
 
       const formGroup = component.splitExpensesFormArray.at(0);
-      expect(formGroup.get('txn_dt').value).toBe('2023-02-08');
+      expect(formGroup.get('spent_at').value).toBe('2023-02-08');
     });
 
     it('should add category control if category is visible in splitConfig', () => {
@@ -1339,7 +1339,7 @@ describe('SplitExpensePage', () => {
         new UntypedFormGroup({
           category: new UntypedFormControl(null),
           project: new UntypedFormControl(null),
-        })
+        }),
       );
 
       component.handleInitialconfig(true);
@@ -1355,7 +1355,7 @@ describe('SplitExpensePage', () => {
         new UntypedFormGroup({
           category: new UntypedFormControl('some-category'),
           project: new UntypedFormControl(null),
-        })
+        }),
       );
 
       component.handleInitialconfig(true);
@@ -1383,7 +1383,7 @@ describe('SplitExpensePage', () => {
         new UntypedFormGroup({
           category: new UntypedFormControl(null),
           project: new UntypedFormControl('some-project'),
-        })
+        }),
       );
 
       component.handleInitialconfig(true);
@@ -1405,7 +1405,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl('Test Project'),
         cost_center: new UntypedFormControl(''),
@@ -1416,7 +1416,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(null),
         cost_center: new UntypedFormControl(''),
@@ -1441,13 +1441,13 @@ describe('SplitExpensePage', () => {
             launchDarklyService,
             projectsService,
           },
-        })
+        }),
       );
 
       expect(component.handleCategoryValidation).toHaveBeenCalledWith(0, component.splitExpensesFormArray.at(0));
       expect(component.resetInvalidCategoryIfNotAllowed).toHaveBeenCalledWith(
         0,
-        component.splitExpensesFormArray.at(0)
+        component.splitExpensesFormArray.at(0),
       );
     });
 
@@ -1468,7 +1468,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(testProjectV2),
         cost_center: new UntypedFormControl(''),
@@ -1479,7 +1479,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(null),
         cost_center: new UntypedFormControl(''),
@@ -1520,7 +1520,7 @@ describe('SplitExpensePage', () => {
         .subscribe(() => {
           expect(launchDarklyService.getVariation).toHaveBeenCalledWith(
             'show_project_mapped_categories_in_split_expense',
-            false
+            false,
           );
           expect(projectsService.getbyId).toHaveBeenCalled();
           expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalled();
@@ -1588,7 +1588,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(null),
         project: new UntypedFormControl(null),
         cost_center: new UntypedFormControl(null),
@@ -1607,7 +1607,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(null),
         project: new UntypedFormControl(null),
         cost_center: new UntypedFormControl(null),
@@ -1688,7 +1688,7 @@ describe('SplitExpensePage', () => {
     it('should show correct message when type is category and msg is not empty', () => {
       component.showDisabledMessage('category');
       expect(component.showPopoverModal).toHaveBeenCalledWith(
-        'No category is assigned. Please contact admin for further help.'
+        'No category is assigned. Please contact admin for further help.',
       );
     });
 
@@ -1781,7 +1781,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -1792,7 +1792,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-02-08'),
+        spent_at: new UntypedFormControl('2023-02-08'),
         category: new UntypedFormControl(''),
         project: new UntypedFormControl(''),
         cost_center: new UntypedFormControl(''),
@@ -1846,7 +1846,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(10000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -1854,7 +1854,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(5000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       const mockOrgCategory1: OrgCategory = {
@@ -1904,7 +1904,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(9000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -1912,7 +1912,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(4000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(26.667),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -1920,7 +1920,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(2000),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(13.333),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -1948,14 +1948,14 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(327.5),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       const splitExpenseForm2 = new UntypedFormGroup({
         amount: new UntypedFormControl(327.5),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -1974,7 +1974,7 @@ describe('SplitExpensePage', () => {
         evenAmount,
         evenPercentage,
         lastSplitAmount,
-        lastSplitPercentage
+        lastSplitPercentage,
       );
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
@@ -1986,14 +1986,14 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(327.5),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       const splitExpenseForm2 = new UntypedFormGroup({
         amount: new UntypedFormControl(327.5),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2016,14 +2016,14 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(218.333),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(33.333),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       const splitExpenseForm2 = new UntypedFormGroup({
         amount: new UntypedFormControl(218.333),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(33.333),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2031,7 +2031,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(218.333),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(33.334),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2061,7 +2061,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(500),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2069,7 +2069,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(500),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(50),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
@@ -2084,7 +2084,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(800),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(80),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2092,7 +2092,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(200),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(20),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
       component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
@@ -2107,14 +2107,14 @@ describe('SplitExpensePage', () => {
           amount: new UntypedFormControl(10.0),
           currency: new UntypedFormControl('INR'),
           percentage: new UntypedFormControl(20),
-          txn_dt: new UntypedFormControl('2023-01-11'),
+          spent_at: new UntypedFormControl('2023-01-11'),
           category: new UntypedFormControl(''),
         }),
         new UntypedFormGroup({
           amount: new UntypedFormControl(10.01),
           currency: new UntypedFormControl('INR'),
           percentage: new UntypedFormControl(20),
-          txn_dt: new UntypedFormControl('2023-01-11'),
+          spent_at: new UntypedFormControl('2023-01-11'),
           category: new UntypedFormControl(''),
         }),
       ]);
@@ -2218,28 +2218,28 @@ describe('SplitExpensePage', () => {
       timezoneService.convertToUtc.and.returnValue(mockUTCDate);
     });
 
-    it('should set txn_dt to the date provided in split expense form', () => {
+    it('should set spent_at to the date provided in split expense form', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpense1);
       const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
       expect(txnDateRes).toEqual(mockUTCDate);
-      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date(mockSplitExpenseForm.txn_dt));
+      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date(mockSplitExpenseForm.spent_at));
       expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(mockDate, '-05:00:00');
     });
 
-    it('should set txn_dt to transaction date if split expense form date is empty', () => {
+    it('should set spent_at to transaction date if split expense form date is empty', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpense1);
-      mockSplitExpenseForm.txn_dt = '';
+      mockSplitExpenseForm.spent_at = '';
       const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
       expect(txnDateRes).toEqual(mockUTCDate);
-      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(txnData4.txn_dt);
+      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(txnData4.spent_at);
       expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(mockDate, '-05:00:00');
     });
 
-    it('should set txn_dt to today if transaction date is also not provided', () => {
+    it('should set spent_at to today if transaction date is also not provided', () => {
       const mockSplitExpenseForm = cloneDeep(splitExpense1);
-      mockSplitExpenseForm.txn_dt = '';
+      mockSplitExpenseForm.spent_at = '';
       const mockTxn = cloneDeep(txnData4);
-      mockTxn.txn_dt = null;
+      mockTxn.spent_at = null;
       component.transaction = mockTxn;
 
       const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
@@ -2250,7 +2250,7 @@ describe('SplitExpensePage', () => {
 
   it('setSplitExpenseValuesBasedOnProject(): should set project_id, project_name and category id in split expense', () => {
     const mockTransaction = cloneDeep(txnData4);
-    mockTransaction.org_category_id = 122269;
+    mockTransaction.category_id = 122269;
     component.transaction = mockTransaction;
     const splitTxn = cloneDeep(txnData4);
     const project = cloneDeep(expectedProjectsResponse[0]);
@@ -2263,7 +2263,7 @@ describe('SplitExpensePage', () => {
     it('should call setSplitExpenseValuesBasedOnProject() if project is present in split expense form', () => {
       spyOn(component, 'setSplitExpenseValuesBasedOnProject');
       const mockTransaction = cloneDeep(txnData4);
-      mockTransaction.org_category_id = 122269;
+      mockTransaction.category_id = 122269;
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithProject);
       const splitTxn = cloneDeep(txnData4);
@@ -2277,7 +2277,7 @@ describe('SplitExpensePage', () => {
     it('should not call setSplitExpenseValuesBasedOnProject() if project is not present in split expense form', () => {
       spyOn(component, 'setSplitExpenseValuesBasedOnProject');
       const mockTransaction = cloneDeep(txnData4);
-      mockTransaction.org_category_id = 122269;
+      mockTransaction.category_id = 122269;
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
       const splitTxn = cloneDeep(txnData4);
@@ -2289,7 +2289,7 @@ describe('SplitExpensePage', () => {
 
     it('should set cost center to null in split expense if category is present in split expense form and category is not mapped to that cost center', () => {
       const mockTransaction = cloneDeep(txnData4);
-      mockTransaction.org_category_id = 122269;
+      mockTransaction.category_id = 122269;
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
       const splitTxn = cloneDeep(txnData4);
@@ -2302,7 +2302,7 @@ describe('SplitExpensePage', () => {
 
     it('should set cost center to null in split expense if cost center is null', () => {
       const mockTransaction = cloneDeep(txnData4);
-      mockTransaction.org_category_id = 122269;
+      mockTransaction.category_id = 122269;
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
       const splitTxn = cloneDeep(txnData4);
@@ -2314,14 +2314,14 @@ describe('SplitExpensePage', () => {
 
     it('should set category_id in split expense if category is present in split expense form and category is not mapped to that cost center', () => {
       const mockTransaction = cloneDeep(txnData4);
-      mockTransaction.org_category_id = 122269;
+      mockTransaction.category_id = 122269;
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
       component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
-      expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
+      expect(splitTxn.category_id).toEqual(mockSplitExpenseForm.category.id);
       expect(splitTxn.org_category).toEqual(mockSplitExpenseForm.category.name);
     });
 
@@ -2334,7 +2334,7 @@ describe('SplitExpensePage', () => {
       project.project_org_category_ids = [184692];
       const costCenter = cloneDeep(costCenterExpenseField);
       component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
-      expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
+      expect(splitTxn.category_id).toEqual(mockSplitExpenseForm.category.id);
       expect(splitTxn.org_category).toEqual(mockSplitExpenseForm.category.name);
       expect(splitTxn.project_id).toEqual(project.project_id);
       expect(splitTxn.project_name).toEqual(project.project_name);
@@ -2342,16 +2342,16 @@ describe('SplitExpensePage', () => {
 
     it('should not set category_id in split expense if category is not present in transaction and split expense form', () => {
       const mockTransaction = cloneDeep(txnData4);
-      mockTransaction.org_category_id = null;
+      mockTransaction.category_id = null;
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
       mockSplitExpenseForm.category = null;
       const splitTxn = cloneDeep(txnData4);
-      splitTxn.org_category_id = null;
+      splitTxn.category_id = null;
       const project = cloneDeep(expectedProjectsResponse[0]);
       component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter: null }, true);
 
-      expect(splitTxn.org_category_id).toBeNull();
+      expect(splitTxn.category_id).toBeNull();
     });
   });
 
@@ -2381,35 +2381,35 @@ describe('SplitExpensePage', () => {
         mockSplitExpenseForm,
         splitTxn,
         { project, costCenter },
-        true
+        true,
       );
     });
 
     it('should set category id and project id equal to values in the form', () => {
       const mockTransaction = cloneDeep(txnData4);
       mockTransaction.project_id = null;
-      mockTransaction.org_category_id = null;
+      mockTransaction.category_id = null;
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter2);
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
       component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
-      expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
+      expect(splitTxn.category_id).toEqual(mockSplitExpenseForm.category.id);
       expect(splitTxn.project_id).toBeNull();
     });
 
     it('should set category id and project id equal to original expense', () => {
       const mockTransaction = cloneDeep(txnData4);
       mockTransaction.project_id = null;
-      mockTransaction.org_category_id = null;
+      mockTransaction.category_id = null;
       component.transaction = mockTransaction;
       const mockSplitExpenseForm = cloneDeep(splitExpense1);
       const splitTxn = cloneDeep(txnData4);
       const project = cloneDeep(expectedProjectsResponse[0]);
       const costCenter = cloneDeep(costCenterExpenseField);
       component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, { project, costCenter }, true);
-      expect(splitTxn.org_category_id).toEqual(mockTransaction.org_category_id);
+      expect(splitTxn.category_id).toEqual(mockTransaction.category_id);
       expect(splitTxn.project_id).toEqual(mockTransaction.project_id);
     });
 
@@ -2453,7 +2453,7 @@ describe('SplitExpensePage', () => {
         mockSplitExpenseForm,
         splitTxn,
         { project: null, costCenter: expenseFieldObjData.cost_center_id },
-        true
+        true,
       );
     });
 
@@ -2468,7 +2468,7 @@ describe('SplitExpensePage', () => {
         mockSplitExpenseForm,
         splitTxn,
         { project: mockSplitExpenseForm.project, costCenter: expenseFieldObjData.cost_center_id },
-        true
+        true,
       );
     });
 
@@ -2484,11 +2484,11 @@ describe('SplitExpensePage', () => {
         mockSplitExpenseForm,
         splitTxn,
         { project: component.selectedProject, costCenter: expenseFieldObjData.cost_center_id },
-        true
+        true,
       );
     });
 
-    it('should call setCategoryAndProjectHelper with split form project if project is present in split form but project_org_category_ids is null', () => {
+    it('should call setCategoryAndProjectHelper with split form project if project is present in split form but project_category_ids is null', () => {
       component.selectedProject = cloneDeep(expectedProjectsResponse[0]);
       const mockTransaction = cloneDeep(txnData4);
       component.transaction = mockTransaction;
@@ -2500,7 +2500,7 @@ describe('SplitExpensePage', () => {
         mockSplitExpenseForm,
         splitTxn,
         { project: mockSplitExpenseForm.project, costCenter: expenseFieldObjData.cost_center_id },
-        true
+        true,
       );
     });
   });
@@ -2517,7 +2517,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(120),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(60),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2525,7 +2525,7 @@ describe('SplitExpensePage', () => {
         amount: new UntypedFormControl(800),
         currency: new UntypedFormControl('INR'),
         percentage: new UntypedFormControl(40),
-        txn_dt: new UntypedFormControl('2023-01-11'),
+        spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
 
@@ -2538,7 +2538,7 @@ describe('SplitExpensePage', () => {
           component.totalSplitAmount,
           splitExpenses,
           component.expenseFields,
-          component.homeCurrency
+          component.homeCurrency,
         );
         expect(component.setupCategoryAndProject).toHaveBeenCalledTimes(2);
         expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[0], splitExpenseForm1.value, true);
@@ -2553,7 +2553,7 @@ describe('SplitExpensePage', () => {
         amount: [23, Validators.required],
         currency: ['USD'],
         percentage: [50],
-        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+        spent_at: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
       });
       component.splitExpensesFormArray = new UntypedFormArray([mockSplitExpForm]);
       spyOn(component, 'generateSplitEtxnFromFg').and.returnValue(of(txnList[0]));
@@ -2570,7 +2570,7 @@ describe('SplitExpensePage', () => {
         of({
           action: 'continue',
           comments: { '0': 'test comment' },
-        })
+        }),
       );
       spyOn(component, 'handleSplitExpense');
       component.fileUrls = fileObjectData1;
@@ -2597,7 +2597,7 @@ describe('SplitExpensePage', () => {
         amount: [-23, Validators.required],
         currency: ['USD'],
         percentage: [50],
-        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+        spent_at: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
       });
       component.splitExpensesFormArray = new UntypedFormArray([mockSplitExpForm]);
 
@@ -2647,7 +2647,7 @@ describe('SplitExpensePage', () => {
         expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
           'We were unable to split your expense. Please try again later.',
           ToastType.FAILURE,
-          'msb-failure-with-camera-icon-for-split-exp'
+          'msb-failure-with-camera-icon-for-split-exp',
         );
         expect(trackingService.splittingExpense).toHaveBeenCalledOnceWith({
           Asset: 'Mobile',
@@ -2666,7 +2666,7 @@ describe('SplitExpensePage', () => {
         amount: [, Validators.required],
         currency: ['USD'],
         percentage: [50],
-        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+        spent_at: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
       });
       component.splitExpensesFormArray = new UntypedFormArray([mockSplitExpForm]);
       spyOn(component.splitExpensesFormArray, 'markAllAsTouched');
@@ -2699,11 +2699,11 @@ describe('SplitExpensePage', () => {
         {
           reportId: component.reportId,
           unspecifiedCategory: component.unspecifiedCategory,
-        }
+        },
       );
       expect(splitExpenseService.postSplitExpenseComments).toHaveBeenCalledOnceWith(
         ['txAzvMhbD71q', 'txzLsDY1IAAw'],
-        {}
+        {},
       );
       expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
     });
@@ -2720,7 +2720,7 @@ describe('SplitExpensePage', () => {
         expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
           'We were unable to split your expense. Please try again later.',
           ToastType.FAILURE,
-          'msb-failure-with-camera-icon-for-split-exp'
+          'msb-failure-with-camera-icon-for-split-exp',
         );
         expect(splitExpenseService.postSplitExpenseComments).not.toHaveBeenCalled();
         expect(component.showSuccessToast).not.toHaveBeenCalled();
@@ -2729,7 +2729,7 @@ describe('SplitExpensePage', () => {
 
     it('should throw an error and show failure toast if postSplitExpenseComments API fails', fakeAsync(() => {
       splitExpenseService.postSplitExpenseComments.and.returnValue(
-        throwError(() => new Error('Post Split Expense Comments API failed!'))
+        throwError(() => new Error('Post Split Expense Comments API failed!')),
       );
       spyOn(component, 'toastWithoutCTA');
 
@@ -2741,7 +2741,7 @@ describe('SplitExpensePage', () => {
         expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
           'We were unable to split your expense. Please try again later.',
           ToastType.FAILURE,
-          'msb-failure-with-camera-icon-for-split-exp'
+          'msb-failure-with-camera-icon-for-split-exp',
         );
         expect(component.showSuccessToast).not.toHaveBeenCalled();
       }
@@ -2788,7 +2788,7 @@ describe('SplitExpensePage', () => {
       const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
         txnList,
         { '0': policyViolation1 },
-        null
+        null,
       );
       expect(splitExpenseService.filteredPolicyViolations).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
       expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -2822,7 +2822,7 @@ describe('SplitExpensePage', () => {
       const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
         txnList,
         { '0': policyViolation1 },
-        null
+        null,
       );
       expect(splitExpenseService.filteredPolicyViolations).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
       expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -2849,7 +2849,7 @@ describe('SplitExpensePage', () => {
       const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
         txnList,
         { '0': policyViolation1 },
-        missingFieldsViolations
+        missingFieldsViolations,
       );
 
       expect(component.showMissingFieldsModal).toHaveBeenCalled();
@@ -2888,7 +2888,7 @@ describe('SplitExpensePage', () => {
         of({
           policyViolations: splitPolicyExp1,
           missingFields: SplitExpenseMissingFieldsData,
-        })
+        }),
       );
       spyOn(component, 'transformViolationData').and.returnValue({ '0': policyViolation1 });
       spyOn(component, 'transformMandatoryFieldsData').and.returnValue({
@@ -2910,17 +2910,17 @@ describe('SplitExpensePage', () => {
           {
             reportId: component.reportId,
             unspecifiedCategory: component.unspecifiedCategory,
-          }
+          },
         );
         expect(component.transformViolationData).toHaveBeenCalledOnceWith(splitEtxns, splitPolicyExp1);
         expect(component.transformMandatoryFieldsData).toHaveBeenCalledOnceWith(
           splitEtxns,
-          SplitExpenseMissingFieldsData
+          SplitExpenseMissingFieldsData,
         );
         expect(component.showSplitExpensePolicyViolationsAndMissingFields).toHaveBeenCalledOnceWith(
           splitEtxns,
           { '0': policyViolation1 },
-          { '1': transformedSplitExpenseMissingFieldsData }
+          { '1': transformedSplitExpenseMissingFieldsData },
         );
         done();
       });
@@ -2932,7 +2932,7 @@ describe('SplitExpensePage', () => {
         of({
           policyViolations: splitPolicyExp1,
           missingFields: {},
-        })
+        }),
       );
       component.handlePolicyAndMissingFieldsCheck(splitEtxns).subscribe((_res) => {
         expect(policyService.checkIfViolationsExist).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
@@ -2944,14 +2944,14 @@ describe('SplitExpensePage', () => {
           {
             reportId: component.reportId,
             unspecifiedCategory: component.unspecifiedCategory,
-          }
+          },
         );
         expect(component.transformViolationData).toHaveBeenCalledOnceWith(splitEtxns, splitPolicyExp1);
         expect(component.transformMandatoryFieldsData).not.toHaveBeenCalled();
         expect(component.showSplitExpensePolicyViolationsAndMissingFields).toHaveBeenCalledOnceWith(
           splitEtxns,
           { '0': policyViolation1 },
-          null
+          null,
         );
         done();
       });
@@ -2959,7 +2959,7 @@ describe('SplitExpensePage', () => {
 
     it('should return action as continue if policy violations and missing fields does not exist', (done) => {
       const splitEtxns = cloneDeep(txnList);
-      splitEtxns[0].org_category_id = null;
+      splitEtxns[0].category_id = null;
       splitEtxns[0].custom_properties[0].id = component.expenseFields[0].id;
       policyService.checkIfViolationsExist.and.returnValue(false);
       splitExpenseService.checkIfMissingFieldsExist.and.returnValue(false);
@@ -2967,7 +2967,7 @@ describe('SplitExpensePage', () => {
         of({
           policyViolations: splitPolicyExp1,
           missingFields: {},
-        })
+        }),
       );
       component.handlePolicyAndMissingFieldsCheck(splitEtxns).subscribe((res) => {
         expect(policyService.checkIfViolationsExist).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
@@ -2979,7 +2979,7 @@ describe('SplitExpensePage', () => {
           {
             reportId: component.reportId,
             unspecifiedCategory: component.unspecifiedCategory,
-          }
+          },
         );
         expect(component.transformViolationData).toHaveBeenCalledOnceWith(splitEtxns, splitPolicyExp1);
         expect(component.transformMandatoryFieldsData).not.toHaveBeenCalled();

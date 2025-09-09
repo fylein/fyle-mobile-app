@@ -674,14 +674,14 @@ export class AddEditPerDiemPage implements OnInit {
         tx: {
           skip_reimbursement: false,
           source: 'MOBILE',
-          org_category_id: categoryContainer.defaultPerDiemCategory && categoryContainer.defaultPerDiemCategory.id,
+          category_id: categoryContainer.defaultPerDiemCategory && categoryContainer.defaultPerDiemCategory.id,
           org_category: categoryContainer.defaultPerDiemCategory && categoryContainer.defaultPerDiemCategory.name,
           sub_category:
             categoryContainer.defaultPerDiemCategory && categoryContainer.defaultPerDiemCategory.sub_category,
           amount: 0,
           currency: homeCurrency,
           state: 'COMPLETE',
-          txn_dt: new Date(),
+          spent_at: new Date(),
           from_dt: null,
           to_dt: null,
           per_diem_rate_id: null,
@@ -765,10 +765,10 @@ export class AddEditPerDiemPage implements OnInit {
           return this.etxn$.pipe(
             switchMap((etxn) =>
               iif(
-                () => !!etxn.tx.org_category_id,
+                () => !!etxn.tx.category_id,
                 this.categoriesService
                   .getAll()
-                  .pipe(map((categories) => categories.find((category) => category.id === etxn.tx.org_category_id))),
+                  .pipe(map((categories) => categories.find((category) => category.id === etxn.tx.category_id))),
                 this.getPerDiemCategories().pipe(map((perDiemContainer) => perDiemContainer.defaultPerDiemCategory)),
               ),
             ),
@@ -1353,10 +1353,10 @@ export class AddEditPerDiemPage implements OnInit {
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap((etxn) =>
         iif(
-          () => !!etxn.tx.org_category_id,
+          () => !!etxn.tx.category_id,
           this.subCategories$.pipe(
             map((allActiveSubCategories) =>
-              allActiveSubCategories.find((subCategory) => subCategory.id === etxn.tx.org_category_id),
+              allActiveSubCategories.find((subCategory) => subCategory.id === etxn.tx.category_id),
             ),
           ),
           of(null),
@@ -1485,7 +1485,7 @@ export class AddEditPerDiemPage implements OnInit {
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
-            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id),
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.category_id),
           );
 
           const customInputValues = customInputs
@@ -1655,7 +1655,7 @@ export class AddEditPerDiemPage implements OnInit {
             ...etxn.tx,
             source_account_id: sourceAccountId,
             billable: formValue.billable,
-            org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
+            category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.category_id,
             skip_reimbursement: skipReimbursement,
             per_diem_rate_id: formValue.per_diem_rate.id,
             source: 'MOBILE',

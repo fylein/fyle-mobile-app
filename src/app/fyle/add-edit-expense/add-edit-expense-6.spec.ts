@@ -1007,14 +1007,14 @@ export function TestCases6(getTestBed) {
           },
         });
 
-        const result = component.getTxnDate();
+        const result = component.getSpendDate();
         expect(result).toBeNull();
       });
 
       it('should return null', () => {
         setFormValueNull();
 
-        const result = component.getTxnDate();
+        const result = component.getSpendDate();
         expect(result).toBeNull();
       });
     });
