@@ -6,8 +6,6 @@ import { isEqual, isNumber } from 'lodash';
 import { Observable, concat, from, noop } from 'rxjs';
 import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { Expense } from 'src/app/core/models/expense.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -27,6 +25,8 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { TranslocoService } from '@jsverse/transloco';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 
 @Component({
   selector: 'app-expense-card',
@@ -73,7 +73,7 @@ export class ExpensesCardComponent implements OnInit {
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
-  @Input() expense: Expense;
+  @Input() expense: Partial<Transaction>;
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -89,7 +89,7 @@ export class ExpensesCardComponent implements OnInit {
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
-  @Input() selectedElements: Expense[];
+  @Input() selectedElements: Partial<Transaction>[];
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -124,15 +124,15 @@ export class ExpensesCardComponent implements OnInit {
   @Input() showDt = true;
 
   readonly goToTransaction = output<{
-    etxn: Expense;
+    etxn: Partial<Transaction>;
     etxnIndex: number;
   }>();
 
-  readonly cardClickedForSelection = output<Expense>();
+  readonly cardClickedForSelection = output<Partial<Transaction>>();
 
-  readonly setMultiselectMode = output<Expense>();
+  readonly setMultiselectMode = output<Partial<Transaction>>();
 
-  readonly dismissed = output<Expense>();
+  readonly dismissed = output<Partial<Transaction>>();
 
   readonly showCamera = output<boolean>();
 
@@ -147,6 +147,8 @@ export class ExpensesCardComponent implements OnInit {
   isPolicyViolated: boolean;
 
   isCriticalPolicyViolated: boolean;
+  isDraft: boolean;
+  vendorDetails: string;
 
   homeCurrency: string;
 
@@ -180,8 +182,8 @@ export class ExpensesCardComponent implements OnInit {
 
   get isSelected(): boolean {
     if (this.selectedElements) {
-      if (this.expense.tx_id) {
-        return this.selectedElements.some((txn) => this.expense.tx_id === txn.tx_id);
+      if (this.expense.id) {
+        return this.selectedElements.some((txn) => this.expense.id === txn.id);
       } else {
         return this.selectedElements.some((txn) => isEqual(this.expense, txn));
       }
@@ -196,12 +198,12 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getReceipt(): void {
-    if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage') {
+    if (this.expense.category?.name?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/mileage.svg';
-    } else if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'per diem') {
+    } else if (this.expense.category?.name?.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/calendar.svg';
     } else {
-      if (!this.expense.tx_file_ids) {
+      if (!this.expense.file_ids) {
         this.receiptIcon = 'assets/svg/list-plus.svg';
         if (this.isFromPotentialDuplicates || this.isFromViewReports) {
           this.receiptIcon = 'assets/svg/list.svg';
@@ -214,8 +216,8 @@ export class ExpensesCardComponent implements OnInit {
 
   isZeroAmountPerDiem(): boolean {
     return (
-      this.expense.tx_org_category?.toLowerCase() === 'per diem' &&
-      (this.expense.tx_amount === 0 || this.expense.tx_user_amount === 0)
+      this.expense.category?.name?.toLowerCase() === 'per diem' &&
+      (this.expense.amount === 0 || this.expense.user_amount === 0)
     );
   }
 
@@ -223,13 +225,13 @@ export class ExpensesCardComponent implements OnInit {
     const isPerDiem = this.isZeroAmountPerDiem();
     const hasUserManuallyEnteredData =
       isPerDiem ||
-      ((this.expense.tx_amount || this.expense.tx_user_amount) &&
-        isNumber(this.expense.tx_amount || this.expense.tx_user_amount));
-    const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
+      ((this.expense.amount || this.expense.user_amount) &&
+        isNumber(this.expense.amount || this.expense.user_amount));
+    const isRequiredExtractedDataPresent = this.expense.extracted_data && this.expense.extracted_data.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
     // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
-    const hasScanExpired = this.expense.tx_created_at && dayjs(this.expense.tx_created_at).diff(Date.now(), 'day') < 0;
+    const hasScanExpired = this.expense.created_at && dayjs(this.expense.created_at).diff(Date.now(), 'day') < 0;
     return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
   }
 
@@ -246,7 +248,7 @@ export class ExpensesCardComponent implements OnInit {
           (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
         ) {
           that.isScanCompleted = that.checkIfScanIsCompleted();
-          that.isScanInProgress = !that.isScanCompleted && !this.expense.tx_extracted_data;
+          that.isScanInProgress = !that.isScanCompleted && !this.expense.extracted_data;
         } else {
           that.isScanCompleted = true;
           that.isScanInProgress = false;
@@ -257,7 +259,7 @@ export class ExpensesCardComponent implements OnInit {
 
   canShowPaymentModeIcon(): void {
     this.showPaymentModeIcon =
-      this.expense.source_account_type === AccountType.PERSONAL && !this.expense.tx_skip_reimbursement;
+      this.expense.source_account?.type === AccountType.PERSONAL_CASH_ACCOUNT && !this.expense.skip_reimbursement;
   }
 
   ngOnInit(): void {
@@ -268,14 +270,14 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense),
     );
 
-    this.isMileageExpense = this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage';
-    this.isPerDiem = this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'per diem';
+    this.isMileageExpense = this.expense.category?.name?.toLowerCase() === 'mileage';
+    this.isPerDiem = this.expense.category?.name?.toLowerCase() === 'per diem';
 
-    this.category = this.expense.tx_org_category?.toLowerCase();
-    this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
-    this.expense.isPolicyViolated = this.expense.tx_policy_flag;
-    this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
-    this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
+    this.category = this.expense.category?.name?.toLowerCase();
+    this.isDraft = this.transactionService.getIsDraft(this.expense);
+    this.isPolicyViolated = this.expense.policy_flag;
+    this.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
+    this.vendorDetails = this.transactionService.getVendorDetails(this.expense);
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
     });
@@ -294,10 +296,10 @@ export class ExpensesCardComponent implements OnInit {
       shareReplay(1),
     );
 
-    if (!this.expense.tx_id) {
+    if (!this.expense.id) {
       this.showDt = !!this.isFirstOfflineExpense;
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
-      const currentDate = this.expense && new Date(this.expense.tx_txn_dt || this.expense.tx_created_at).toDateString();
+      const currentDate = this.expense && new Date(this.expense.spent_at || this.expense.created_at).toDateString();
       const previousDate = new Date(
         (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string,
       ).toDateString();
@@ -316,14 +318,14 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setOtherData(): void {
-    if (this.expense.source_account_type === AccountType.CCC) {
-      if (this.expense.tx_corporate_credit_card_expense_group_id) {
+    if (this.expense.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
+      if (this.expense.corporate_credit_card_expense_group_id) {
         this.paymentModeIcon = 'card';
       } else {
         this.paymentModeIcon = 'card';
       }
     } else {
-      if (!this.expense.tx_skip_reimbursement) {
+      if (!this.expense.skip_reimbursement) {
         this.paymentModeIcon = 'cash';
       } else {
         this.paymentModeIcon = 'cash-slash';
@@ -346,7 +348,7 @@ export class ExpensesCardComponent implements OnInit {
   canAddAttachment(): boolean {
     return (
       !this.isFromViewReports &&
-      !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids || this.isFromPotentialDuplicates) &&
+      !(this.isMileageExpense || this.isPerDiem || this.expense.file_ids || this.isFromPotentialDuplicates) &&
       !this.isSelectionModeEnabled
     );
   }
@@ -438,9 +440,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   matchReceiptWithEtxn(fileObj: FileObject): void {
-    this.expense.tx_file_ids = [];
-    this.expense.tx_file_ids.push(fileObj.id);
-    fileObj.transaction_id = this.expense.tx_id;
+    this.expense.file_ids = [];
+    this.expense.file_ids.push(fileObj.id);
+    fileObj.transaction_id = this.expense.id;
   }
 
   attachReceipt(receiptDetails: ReceiptDetail): void {
@@ -452,7 +454,7 @@ export class ExpensesCardComponent implements OnInit {
       .pipe(
         switchMap((fileObj: FileObject) => {
           this.matchReceiptWithEtxn(fileObj);
-          return this.expensesService.attachReceiptToExpense(this.expense.tx_id, fileObj.id);
+          return this.expensesService.attachReceiptToExpense(this.expense.id, fileObj.id);
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;

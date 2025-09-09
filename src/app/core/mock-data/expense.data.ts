@@ -1,6 +1,5 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import { Expense } from '../models/expense.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 
 export const apiExpenseRes: Expense[] = deepFreeze([

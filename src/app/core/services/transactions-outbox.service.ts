@@ -8,7 +8,6 @@ import { TransactionService } from './transaction.service';
 import { indexOf } from 'lodash';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
 import { TrackingService } from './tracking.service';
-import { Expense } from '../models/expense.model';
 import { CurrencyService } from './currency.service';
 import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
@@ -186,7 +185,7 @@ export class TransactionsOutboxService {
     return this.syncEntry(this.queue.pop());
   }
 
-  getPendingTransactions(): Partial<Transaction>[] {
+  getPendingExpenses(): Partial<Transaction>[] {
     return this.queue.map((entry) => ({ ...entry.transaction, dataUrls: entry.dataUrls }));
   }
 
@@ -196,7 +195,7 @@ export class TransactionsOutboxService {
     return null;
   }
 
-  deleteBulkOfflineExpenses(pendingTransactions: Partial<Expense>[], deleteExpenses: Partial<Expense>[]): void {
+  deleteBulkOfflineExpenses(pendingTransactions: Partial<Transaction>[], deleteExpenses: Partial<Transaction>[]): void {
     const indexes = deleteExpenses.map((offlineExpense) => indexOf(pendingTransactions, offlineExpense));
     // We need to delete last element of this list first
     indexes.sort((a, b) => b - a);

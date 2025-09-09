@@ -1,6 +1,7 @@
 import { ExpenseTransactionStatus } from '../../enums/platform/v1/expense-transaction-status.enum';
 import { Destination } from '../destination.model';
 import { PlatformCategory } from '../platform/platform-category.model';
+import { Account } from '../platform/v1/account.model';
 import { File } from '../platform/v1/file.model';
 import { TxnCustomProperties } from '../txn-custom-properties.model';
 
@@ -67,6 +68,7 @@ export interface Transaction {
   reported_at?: Date;
   skip_reimbursement: boolean;
   source: string;
+  source_account?: Pick<Account, 'id' | 'type'>;
   source_account_id?: string;
   advance_wallet_id?: string;
   split_group_id?: string;

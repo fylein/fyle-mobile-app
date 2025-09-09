@@ -1,8 +1,8 @@
 @if (expense && showDt) {
   <div class="expenses-card--date" [ngClass]="{ 'expenses-card--date__from-reports': isFromReports }">
     @if ({ isConnected: isConnected$ | async }; as data) {
-      @if (expense.tx_id && data.isConnected) {
-        {{ expense.tx_txn_dt || expense.tx_created_at | dateFormat }}
+      @if (expense.id && data.isConnected) {
+        {{ expense.spent_at || expense.created_at | dateFormat }}
       } @else {
         {{ 'expensesCard.offlineExpenses' | transloco }}
       }
@@ -49,7 +49,7 @@
               class="expenses-card--receipt-container expenses-card--with-image"
               [ngStyle]="{
                 'background-image':
-                  expense.tx_dataUrls?.length > 0 &&
+                  expense.dataUrls?.length > 0 &&
                   imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')',
               }"
             >
@@ -62,11 +62,11 @@
               class="expenses-card--receipt-container expenses-card--with-image"
               [ngStyle]="{
                 'background-image':
-                  expense.tx_dataUrls?.length > 0 &&
+                  expense.dataUrls?.length > 0 &&
                   imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')',
               }"
             >
-              @if (!expense.tx_dataUrls?.length) {
+              @if (!expense.dataUrls?.length) {
                 <ion-icon class="expenses-card--receipt-icon" [src]="'../../../../assets/svg/list.svg'"></ion-icon>
               }
             </div>
@@ -115,7 +115,7 @@
                     {{ 'expensesCard.syncingPerDiem' | transloco }}
                   } @else {
                     {{
-                      expense.tx_amount || expense.tx_user_amount
+                      expense.amount || expense.user_amount
                         ? ('expensesCard.syncingReceipt' | transloco)
                         : ('expensesCard.uploadingReceipt' | transloco)
                     }}
@@ -156,15 +156,15 @@
                     {{ 'expensesCard.scanFailed' | transloco }}
                   </div>
                 </div>
-                @if (expense.isDraft && !isFromViewReports) {
+                @if (isDraft && !isFromViewReports) {
                   <div>
                     <div
                       class="expenses-card--state-container expenses-card--state-container__center state-pill state-{{
-                        expense.tx_state | expenseState | lowercase
+                        expense.state | expenseState | lowercase
                       }}"
                     >
                       <span>
-                        {{ expense.tx_state | expenseState | titlecase }}
+                        {{ expense.state | expenseState | titlecase }}
                       </span>
                     </div>
                   </div>
@@ -178,24 +178,24 @@
           <ng-container *ngTemplateOutlet="expenseCardDefaultView"></ng-container>
         }
         <ng-template #expenseCardDefaultView>
-          @if (!expense.isDraft) {
+          @if (!isDraft) {
             <div class="expenses-card--category-vendor-project-container">
               <div class="d-flex expenses-card--category-icon-container">
                 <div
                   class="expenses-card--category"
                   [ngClass]="{ 'expenses-card--category__small': isSelectionModeEnabled }"
                 >
-                  @if (expense?.tx_org_category && expense?.tx_org_category.toLowerCase() !== 'unspecified') {
-                    {{ expense?.tx_org_category }}
+                  @if (expense?.category?.name.toLowerCase() !== 'unspecified') {
+                    {{ expense?.category?.name }}
                   } @else {
                     {{ 'expensesCard.unspecifiedCategory' | transloco }}
                   }
                 </div>
                 <div class="expenses-card--icons">
-                  @if (expense.isCriticalPolicyViolated || expense.isPolicyViolated) {
+                  @if (isCriticalPolicyViolated || isPolicyViolated) {
                     <mat-icon class="expenses-card--icons__policy-violated-icon">error</mat-icon>
                   }
-                  @if (expense.tx_is_split_expense) {
+                  @if (isSplitExpense) {
                     <mat-icon class="expenses-card--icons__split-icon" svgIcon="split"></mat-icon>
                   }
                 </div>
@@ -203,23 +203,23 @@
               <div
                 class="expenses-card--vendor"
                 [ngClass]="{
-                  'expenses-card--vendor__not-filled': !expense.vendorDetails,
-                  'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage',
+                  'expenses-card--vendor__not-filled': !vendorDetails,
+                  'expenses-card--distance-unit': expense.category?.system_category === 'Mileage',
                 }"
               >
-                {{ expense.vendorDetails }}
+                {{ vendorDetails }}
               </div>
               @if (expenseFields && isProjectEnabled$ | async) {
                 <div
                   class="expenses-card--project"
-                  [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
+                  [ngClass]="{ 'expenses-card--project__not-filled': !expense.project_name }"
                 >
-                  @if (expense?.tx_project_name?.length > 0) {
+                  @if (expense?.project_name?.length > 0) {
                     <div>
                       <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
                       {{
-                        expense?.tx_project_name
-                          ? expense?.tx_project_name
+                        expense?.project_name
+                          ? expense?.project_name
                           : ('expensesCard.unspecifiedProject' | transloco)
                       }}
                     </div>
@@ -228,7 +228,7 @@
               }
             </div>
           }
-          @if (expense.isDraft) {
+          @if (isDraft) {
             <div
               class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
             >
@@ -239,14 +239,14 @@
           <div class="expenses-card--default-view-container">
             <div class="expenses-card--currency-amount-container ion-text-right">
               <span class="expenses-card--currency">
-                {{ (expense.tx_currency | currencySymbol: 'wide') || (homeCurrency | currencySymbol: 'wide') }}
+                {{ (expense.currency | currencySymbol: 'wide') || (homeCurrency | currencySymbol: 'wide') }}
               </span>
 
               <span class="expenses-card--amount">
-                @if (expense.tx_currency) {
-                  {{ expense.tx_amount | humanizeCurrency: expense.tx_currency : true }}
+                @if (expense.currency) {
+                  {{ expense.amount | humanizeCurrency: expense.currency : true }}
                 } @else {
-                  {{ expense.tx_amount | humanizeCurrency: homeCurrency : true }}
+                  {{ expense.amount | humanizeCurrency: homeCurrency : true }}
                 }
               </span>
               @if (showPaymentModeIcon) {
@@ -254,23 +254,23 @@
               }
             </div>
 
-            @if (expense.tx_orig_currency && expense.tx_orig_amount) {
+            @if (expense.orig_currency && expense.orig_amount) {
               <div class="expenses-card--exchange-rate ion-text-right">
-                ({{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency }}
+                ({{ expense.orig_amount | humanizeCurrency: expense.orig_currency }}
                 {{ 'expensesCard.at' | transloco }}
-                {{ expense.tx_amount / expense.tx_orig_amount | currency: expense.tx_currency : 'code' }})
+                {{ expense.amount / expense.orig_amount | currency: expense.currency : 'code' }})
               </div>
             }
 
-            @if (expense.isDraft && !isFromViewReports) {
-              <div class="expenses-card--state-container state-pill state-{{ expense.tx_state | expenseState }}">
+            @if (isDraft && !isFromViewReports) {
+              <div class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}">
                 <span>
-                  {{ expense.tx_state | expenseState | titlecase }}
+                  {{ expense.state | expenseState | titlecase }}
                 </span>
               </div>
             }
 
-            @if (expense.isCriticalPolicyViolated) {
+            @if (isCriticalPolicyViolated) {
               <div class="expenses-card--critical-policy-violations">
                 {{ 'expensesCard.criticalPolicyViolations' | transloco }}
               </div>

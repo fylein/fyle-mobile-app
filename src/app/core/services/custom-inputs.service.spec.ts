@@ -13,7 +13,6 @@ import {
   filledDependentFields,
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
-import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
 import { CustomInput } from '../models/custom-input.model';
 import { mockExpenseData } from '../mock-data/expense-field.data';
 import { getTranslocoModule } from '../testing/transloco-testing.utils';

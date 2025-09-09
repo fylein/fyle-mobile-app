@@ -210,10 +210,10 @@ describe('TransactionsOutboxService', () => {
     });
   });
 
-  it('getPendingTransactions(): should return pending transactions', () => {
+  it('getPendingExpenses(): should return pending transactions', () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.queue = mockQueue;
-    const res = transactionsOutboxService.getPendingTransactions();
+    const res = transactionsOutboxService.getPendingExpenses();
     expect(res.length).toEqual(1);
     expect(res).toEqual(
       transactionsOutboxService.queue.map((entry) => ({ ...entry.transaction, dataUrls: entry.dataUrls })),
