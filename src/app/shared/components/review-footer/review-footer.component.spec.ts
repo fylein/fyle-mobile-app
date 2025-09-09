@@ -1,10 +1,9 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonButton, IonicModule } from '@ionic/angular';
+import {IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReviewFooterComponent } from './review-footer.component';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
-import { expensesWithDependentFields } from 'src/app/core/mock-data/dependent-field-expenses.data';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';

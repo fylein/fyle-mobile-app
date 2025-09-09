@@ -35,7 +35,6 @@ import {
 } from 'rxjs/operators';
 import { TranslocoService } from '@jsverse/transloco';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { Expense } from 'src/app/core/models/expense.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
@@ -132,13 +131,13 @@ export class MyExpensesPage implements OnInit {
 
   specialCategories$: Observable<PlatformCategory[]>;
 
-  pendingTransactions: Partial<Expense>[] = [];
+  pendingTransactions: Partial<Transaction>[] = [];
 
   selectionMode = false;
 
   selectedElements: PlatformExpense[];
 
-  selectedOutboxExpenses: Partial<Expense>[] = [];
+  selectedOutboxExpenses: Partial<Transaction>[] = [];
 
   syncing = false;
 
@@ -192,7 +191,7 @@ export class MyExpensesPage implements OnInit {
 
   expensesToBeDeleted: PlatformExpense[];
 
-  outboxExpensesToBeDeleted: Partial<Expense>[] = [];
+  outboxExpensesToBeDeleted: Partial<Transaction>[] = [];
 
   cccExpenses: number;
 
@@ -308,16 +307,6 @@ export class MyExpensesPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
-  formatTransactions(transactions: Partial<Transaction>[]): Partial<Expense>[] {
-    return transactions.map((transaction) => {
-      const formattedTxn = <Partial<Expense>>{};
-      Object.keys(transaction).forEach((key: keyof Partial<Transaction>) => {
-        formattedTxn['tx_' + key] = transaction[key];
-      });
-      return formattedTxn;
-    });
-  }
-
   switchSelectionMode(expense?: PlatformExpense): void {
     this.selectionMode = !this.selectionMode;
     this.footerService.updateSelectionMode(this.selectionMode);
@@ -346,7 +335,7 @@ export class MyExpensesPage implements OnInit {
     this.checkDeleteDisabled().pipe(take(1)).subscribe();
   }
 
-  switchOutboxSelectionMode(expense?: Expense): void {
+  switchOutboxSelectionMode(expense?: Partial<Transaction>): void {
     this.selectionMode = !this.selectionMode;
     this.footerService.updateSelectionMode(this.selectionMode);
     if (!this.selectionMode) {
@@ -911,7 +900,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   syncOutboxExpenses(): void {
-    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+    this.pendingTransactions = this.transactionOutboxService.getPendingTransactions();
     if (this.pendingTransactions.length > 0) {
       this.syncing = true;
       from(this.pendingTransactions)
@@ -919,7 +908,7 @@ export class MyExpensesPage implements OnInit {
           switchMap(() => from(this.transactionOutboxService.sync())),
           finalize(() => {
             this.syncing = false;
-            const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+            const pendingTransactions = this.transactionOutboxService.getPendingTransactions();
             if (pendingTransactions.length === 0) {
               this.doRefresh();
               this.pendingTransactions = [];
@@ -1108,23 +1097,23 @@ export class MyExpensesPage implements OnInit {
   setOutboxExpenseStatsOnSelect(): void {
     this.allExpensesStats$ = of({
       count: this.selectedOutboxExpenses.length,
-      amount: this.selectedOutboxExpenses.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0),
+      amount: this.selectedOutboxExpenses.reduce((acc, exp) => acc + exp.amount, 0),
     });
   }
 
-  selectOutboxExpense(expense: Expense): void {
+  selectOutboxExpense(expense: Partial<Transaction>): void {
     let isSelectedElementsIncludesExpense = false;
-    if (expense.tx_id) {
-      isSelectedElementsIncludesExpense = this.selectedOutboxExpenses.some((txn) => expense.tx_id === txn.tx_id);
+    if (expense.id) {
+      isSelectedElementsIncludesExpense = this.selectedOutboxExpenses.some((exp) => expense.id === exp.id);
     } else {
-      isSelectedElementsIncludesExpense = this.selectedOutboxExpenses.some((txn) => isEqual(txn, expense));
+      isSelectedElementsIncludesExpense = this.selectedOutboxExpenses.some((exp) => isEqual(exp, expense));
     }
 
     if (isSelectedElementsIncludesExpense) {
-      if (expense.tx_id) {
-        this.selectedOutboxExpenses = this.selectedOutboxExpenses.filter((txn) => txn.tx_id !== expense.tx_id);
+      if (expense.id) {
+        this.selectedOutboxExpenses = this.selectedOutboxExpenses.filter((exp) => exp.id !== expense.id);
       } else {
-        this.selectedOutboxExpenses = this.selectedOutboxExpenses.filter((txn) => !isEqual(txn, expense));
+        this.selectedOutboxExpenses = this.selectedOutboxExpenses.filter((exp) => !isEqual(exp, expense));
       }
     } else {
       this.selectedOutboxExpenses.push(expense);
@@ -1647,7 +1636,7 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
-  deleteSelectedExpenses(offlineExpenses: Partial<Expense>[]): Observable<void> {
+  deleteSelectedExpenses(offlineExpenses: Partial<Transaction>[]): Observable<void> {
     if (offlineExpenses?.length > 0) {
       this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
       return of(null);
@@ -1662,7 +1651,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openDeleteExpensesPopover(): Promise<void> {
-    const offlineExpenses = this.outboxExpensesToBeDeleted.filter((expense) => !expense.tx_id);
+    const offlineExpenses = this.outboxExpensesToBeDeleted.filter((expense) => !expense.id);
 
     let expenseDeletionMessage: string;
     let cccExpensesMessage: string;

@@ -6,7 +6,6 @@ import { from, Observable, forkJoin, of } from 'rxjs';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { Expense } from '../models/expense.model';
 import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 
@@ -291,16 +290,16 @@ export class TransactionService {
     return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/unmatch', { data: payload });
   }
 
-  getVendorDetails(expense: Expense): string {
-    const fyleCategory = expense.tx_fyle_category && expense.tx_fyle_category.toLowerCase();
-    let vendorDisplayName = expense.tx_vendor;
+  getVendorDetails(expense: Partial<Transaction>): string {
+    const systemCategory = expense.category?.system_category && expense.category.system_category.toLowerCase();
+    let vendorDisplayName = expense.vendor;
 
-    if (fyleCategory === 'mileage') {
-      vendorDisplayName = (expense.tx_distance || 0).toString();
-      vendorDisplayName += ' ' + expense.tx_distance_unit;
-    } else if (fyleCategory === 'per diem') {
-      vendorDisplayName = expense.tx_num_days.toString();
-      if (expense.tx_num_days > 1) {
+    if (systemCategory === 'mileage') {
+      vendorDisplayName = (expense.distance || 0).toString();
+      vendorDisplayName += ' ' + expense.distance_unit;
+    } else if (systemCategory === 'per diem') {
+      vendorDisplayName = expense.num_days.toString();
+      if (expense.num_days > 1) {
         vendorDisplayName += ' ' + this.translocoService.translate('services.transaction.days');
       } else {
         vendorDisplayName += ' ' + this.translocoService.translate('services.transaction.day');
@@ -310,33 +309,33 @@ export class TransactionService {
     return vendorDisplayName;
   }
 
-  getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
+  getReportableExpenses(expenses: Partial<Transaction>[]): Partial<Transaction>[] {
     return expenses?.filter(
       (expense) =>
         !this.getIsCriticalPolicyViolated(expense) &&
         !this.getIsDraft(expense) &&
         !this.getIsUnreportable(expense) &&
-        expense.tx_id,
+        expense.id,
     );
   }
 
-  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
-    return typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001;
+  getIsCriticalPolicyViolated(expense: Partial<Transaction>): boolean {
+    return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
   }
 
-  getIsDraft(expense: Partial<Expense>): boolean {
-    return expense.tx_state && expense.tx_state === 'DRAFT';
+  getIsDraft(expense: Partial<Transaction>): boolean {
+    return expense.state && expense.state === 'DRAFT';
   }
 
-  getIsUnreportable(expense: Partial<Expense>): boolean {
-    return expense.tx_state && expense.tx_state === 'UNREPORTABLE';
+  getIsUnreportable(expense: Partial<Transaction>): boolean {
+    return expense.state && expense.state === 'UNREPORTABLE';
   }
 
-  excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
-    return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
+  excludeCCCExpenses(expenses: Partial<Transaction>[]): Partial<Transaction>[] {
+    return expenses.filter((expense) => expense && !expense.corporate_credit_card_expense_group_id);
   }
 
-  getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
+  getExpenseDeletionMessage(expensesToBeDeleted: Partial<Transaction>[]): string {
     if (expensesToBeDeleted.length === 1) {
       return this.translocoService.translate('services.transaction.deleteSingleExpenseMessage');
     }
@@ -345,7 +344,7 @@ export class TransactionService {
     });
   }
 
-  getCCCExpenseMessage(expensesToBeDeleted: Partial<Expense>[], cccExpenses: number): string {
+  getCCCExpenseMessage(expensesToBeDeleted: Partial<Transaction>[], cccExpenses: number): string {
     const messageKey = cccExpenses > 1 ? 'cccMultipleExpensesWarning' : 'cccSingleExpenseWarning';
     let message = this.translocoService.translate(`services.transaction.${messageKey}`, { cccExpenses });
     if (expensesToBeDeleted?.length > 0) {
@@ -355,7 +354,7 @@ export class TransactionService {
   }
 
   getDeleteDialogBody(
-    expensesToBeDeleted: Partial<Expense>[],
+    expensesToBeDeleted: Partial<Transaction>[],
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string,
@@ -411,15 +410,15 @@ export class TransactionService {
     return this.spenderPlatformV1ApiService.post('/expenses/unlink_card_transaction', payload);
   }
 
-  isMergeAllowed(expenses: Partial<Expense>[]): boolean {
+  isMergeAllowed(expenses: Partial<Transaction>[]): boolean {
     if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
-        (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem',
+        (expense) => expense.category?.system_category === 'Mileage' || expense.category?.system_category === 'Per Diem',
       );
       const areAllExpensesSubmitted = expenses.every((expense) =>
-        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state),
+        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.state),
       );
-      const areAllCCCMatchedExpenses = expenses.every((expense) => expense.tx_corporate_credit_card_expense_group_id);
+      const areAllCCCMatchedExpenses = expenses.every((expense) => expense.corporate_credit_card_expense_group_id);
       return !areSomeMileageOrPerDiemExpenses && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
     } else {
       return false;
@@ -466,92 +465,6 @@ export class TransactionService {
     }
 
     return newQueryParamsCopy;
-  }
-
-  getPaymentModeWiseSummary(etxns: Expense[]): PaymentModeSummary {
-    const paymentModes = [
-      {
-        name: this.translocoService.translate('services.transaction.reimbursable'),
-        key: 'reimbursable',
-      },
-      {
-        name: this.translocoService.translate('services.transaction.nonReimbursable'),
-        key: 'nonReimbursable',
-      },
-      {
-        name: this.translocoService.translate('services.transaction.advance'),
-        key: 'advance',
-      },
-      {
-        name: this.translocoService.translate('services.transaction.ccc'),
-        key: 'ccc',
-      },
-    ];
-
-    return etxns
-      .map((etxn) => ({
-        ...etxn,
-        paymentMode: this.getPaymentModeForEtxn(etxn, paymentModes),
-      }))
-      .reduce((paymentMap: PaymentModeSummary, etxnData) => {
-        if (paymentMap.hasOwnProperty(etxnData.paymentMode.key)) {
-          paymentMap[etxnData.paymentMode.key].name = etxnData.paymentMode.name;
-          paymentMap[etxnData.paymentMode.key].key = etxnData.paymentMode.key;
-          paymentMap[etxnData.paymentMode.key].amount += etxnData.tx_amount;
-          paymentMap[etxnData.paymentMode.key].count++;
-        } else {
-          paymentMap[etxnData.paymentMode.key] = {
-            name: etxnData.paymentMode.name,
-            key: etxnData.paymentMode.key,
-            amount: etxnData.tx_amount,
-            count: 1,
-          };
-        }
-        return paymentMap;
-      }, {});
-  }
-
-  getCurrenyWiseSummary(etxns: Expense[]): CurrencySummary[] {
-    const currencyMap: Record<string, CurrencySummary> = {};
-    etxns.forEach((etxn) => {
-      if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
-        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_currency, etxn.tx_amount);
-      } else {
-        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_orig_currency, etxn.tx_amount, etxn.tx_orig_amount);
-      }
-    });
-
-    return Object.keys(currencyMap)
-      .map((currency) => currencyMap[currency])
-      .sort((a, b) => (a.amount < b.amount ? 1 : -1));
-  }
-
-  isEtxnInPaymentMode(txnSkipReimbursement: boolean, txnSourceAccountType: string, paymentMode: string): boolean {
-    let etxnInPaymentMode = false;
-    const isAdvanceOrCCCEtxn = txnSourceAccountType === AccountType.ADVANCE || txnSourceAccountType === AccountType.CCC;
-
-    if (paymentMode === 'reimbursable') {
-      //Paid by Employee: reimbursable
-      etxnInPaymentMode = !txnSkipReimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'nonReimbursable') {
-      //Paid by Company: not reimbursable
-      etxnInPaymentMode = txnSkipReimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'advance') {
-      //Paid from Advance account: not reimbursable
-      etxnInPaymentMode = txnSourceAccountType === AccountType.ADVANCE;
-    } else if (paymentMode === 'ccc') {
-      //Paid from CCC: not reimbursable
-      etxnInPaymentMode = txnSourceAccountType === AccountType.CCC;
-    }
-    return etxnInPaymentMode;
-  }
-
-  getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]): PaymentMode {
-    const txnSkipReimbursement = etxn.tx_skip_reimbursement;
-    const txnSourceAccountType = etxn.source_account_type;
-    return paymentModes.find((paymentMode) =>
-      this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key),
-    );
   }
 
   addEtxnToCurrencyMap(
@@ -672,6 +585,7 @@ export class TransactionService {
             }))
           : null,
         source_account_id: expense.advance_wallet_id ? null : expense.source_account_id,
+        source_account: expense.source_account,
         advance_wallet_id: expense.advance_wallet_id || null,
         org_category_code: expense.category?.code,
         project_code: expense.project?.code,
