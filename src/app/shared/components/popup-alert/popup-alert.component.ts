@@ -1,5 +1,5 @@
 import { Component, Input, inject, input } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonFooter, IonHeader, IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
 import { NgClass } from '@angular/common';
 import { FyAlertInfoComponent } from '../fy-alert-info/fy-alert-info.component';
@@ -9,9 +9,11 @@ import { TranslocoPipe } from '@jsverse/transloco';
     templateUrl: './popup-alert.component.html',
     styleUrls: ['./popup-alert.component.scss'],
     imports: [
-        IonicModule,
         NgClass,
         FyAlertInfoComponent,
+        IonFooter,
+        IonHeader,
+        IonIcon,
         TranslocoPipe,
     ],
 })

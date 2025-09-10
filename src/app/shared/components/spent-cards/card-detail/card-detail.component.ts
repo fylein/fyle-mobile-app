@@ -1,7 +1,6 @@
 import { Component, Input, inject, input } from '@angular/core';
 import { Params, Router } from '@angular/router';
-import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model'
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NgClass } from '@angular/common';
 import { CorporateCardComponent } from '../../corporate-card/corporate-card.component';
@@ -27,8 +26,6 @@ export class CardDetailComponent {
   private router = inject(Router);
 
   private trackingService = inject(TrackingService);
-
-  private orgSettingService = inject(OrgSettingsService);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.

@@ -27,7 +27,6 @@ import {
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { FileObject } from 'src/app/core/models/file-obj.model';
-import { IconModule } from 'src/app/shared/icon/icon.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -244,7 +243,6 @@ describe('SplitExpensePage', () => {
     TestBed.configureTestingModule({
     imports: [
         IonicModule.forRoot(),
-        IconModule,
         FormsModule,
         ReactiveFormsModule,
         MatFormFieldModule,

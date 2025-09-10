@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { FyViewAttachmentComponent } from './fy-view-attachment.component';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -8,13 +7,13 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyViewAttachmentComponent', () => {
   let component: FyViewAttachmentComponent;
@@ -26,12 +25,10 @@ describe('FyViewAttachmentComponent', () => {
   let approverFileService: jasmine.SpyObj<ApproverFileService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-  let expensesService: jasmine.SpyObj<ExpensesService>;
   let fileService: jasmine.SpyObj<FileService>;
   let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let router: jasmine.SpyObj<Router>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   
   beforeEach(waitForAsync(() => {
     const domSantizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl']);
@@ -45,7 +42,6 @@ describe('FyViewAttachmentComponent', () => {
     ]);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['deleteFilesBulk']);
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['deleteFilesBulk']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptToExpense']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile', 'uploadUrl', 'uploadUrlForTeamAdvance']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['uploadData']);
     const activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [], {
@@ -56,13 +52,6 @@ describe('FyViewAttachmentComponent', () => {
     });
     const routerSpy = jasmine.createSpyObj('Router', [], {
       url: '/test-url',
-    });
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
     });
     
     TestBed.configureTestingModule({
@@ -96,10 +85,6 @@ describe('FyViewAttachmentComponent', () => {
             useValue: trackingServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
-        },
-        {
             provide: FileService,
             useValue: fileServiceSpy,
         },
@@ -119,14 +104,10 @@ describe('FyViewAttachmentComponent', () => {
             provide: Router,
             useValue: routerSpy,
         },
-        {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy
-        },
     ],
-    imports: [IonicModule.forRoot(), TranslocoModule, FyViewAttachmentComponent, PopupAlertComponent],
+    imports: [getTranslocoModule(), FyViewAttachmentComponent, MatIconTestingModule],
     schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+}).compileComponents()
 
     fixture = TestBed.createComponent(FyViewAttachmentComponent);
     component = fixture.componentInstance;
@@ -137,33 +118,10 @@ describe('FyViewAttachmentComponent', () => {
     approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'fyViewAttachment.mapPreview': 'Map preview',
-        'fyViewAttachment.receiptPreviews': 'Receipt previews',
-        'fyViewAttachment.saving': 'Saving',
-        'fyViewAttachment.saveChanges': 'Save changes',
-        'fyViewAttachment.saved': 'Saved',
-        'fyViewAttachment.removeReceiptTitle': 'Remove receipt',
-        'fyViewAttachment.removeReceiptMessage': 'Are you sure you want to remove this receipt?',
-        'fyViewAttachment.remove': 'Remove',
-        'fyViewAttachment.cancel': 'Cancel',
-      };
-      let translation = translations[key] || key;
-      if (params) {
-        Object.keys(params).forEach((key) => {
-          translation = translation.replace(`{{${key}}}`, params[key]);
-        });
-      }
-      return translation;
-    });
     
     // Global fetch and fileService.readFile mocks
     spyOn(window, 'fetch').and.callFake(() =>
