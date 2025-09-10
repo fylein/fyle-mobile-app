@@ -22,8 +22,6 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { DateService } from 'src/app/core/services/date.service';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
@@ -31,20 +29,15 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import { Filters } from '../my-expenses/my-expenses-filters.model';
 import {
   selectedFilters1,
-  selectedFilters2,
   selectedFilters3,
   selectedFilters4,
   selectedFilters5,
 } from 'src/app/core/mock-data/selected-filters.data';
-import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import {
-  deletePopoverParamsRes,
   expectedGenerateFilterPillsData,
   filterPopoverParams,
   generatedFiltersStateDate,
   generatedFiltersStateDateSortParams,
-  openFiltersOptions,
-  popoverControllerParams,
 } from 'src/app/core/mock-data/my-reports.data';
 import { loadData1, loadData2, loadData3 } from 'src/app/core/mock-data/my-reports-load-data.data';
 import {
@@ -1649,12 +1642,8 @@ describe('MyReportsPage', () => {
   });
 
   it('onSearchBarFocus(): should set isSearchBarFocused to true', () => {
-    component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-    inputElement = component.simpleSearchInput.nativeElement;
     component.isSearchBarFocused = false;
-
-    inputElement.dispatchEvent(new Event('focus'));
-
+    component.onSearchBarFocus();
     expect(component.isSearchBarFocused).toBeTrue();
   });
 

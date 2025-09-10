@@ -1,5 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IconModule } from '../../icon/icon.module';
 import { PersonalCardTransactionComponent } from './personal-card-transaction.component';
 import { IonicModule } from '@ionic/angular';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
@@ -43,7 +42,7 @@ describe('PersonalCardTransactionComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), IconModule, MatIconTestingModule, MatIconModule, TranslocoModule, PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
+    imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, TranslocoModule, PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
     providers: [
         {
             provide: DateFormatPipe,

@@ -16,7 +16,10 @@ import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-cor
 import { By } from '@angular/platform-browser';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { of } from 'rxjs';
-import { orgSettingsWithV2ExpensesPage, orgSettingsWoV2ExpensesPage } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsWithV2ExpensesPage } from 'src/app/core/mock-data/org-settings.data';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { CorporateCardComponent } from '../../corporate-card/corporate-card.component';
 
 @Component({
     selector: 'app-corporate-card',
@@ -59,6 +62,8 @@ describe('CardDetailComponent', () => {
     providers: [
         FyCurrencyPipe,
         CurrencyPipe,
+        provideHttpClient(),
+        provideHttpClientTesting(),
         {
             provide: Router,
             useValue: routerSpy,
@@ -103,11 +108,11 @@ describe('CardDetailComponent', () => {
   });
 
   it('should display the card correctly', () => {
-    const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
+    const card = fixture.debugElement.query(By.directive(CorporateCardComponent));
     expect(card).toBeTruthy();
 
-    expect(card.componentInstance.card()).toEqual(component.cardDetail.card);
-    expect(card.componentInstance.hideOptionsMenu()).toBeTrue();
+    expect(card.componentInstance.card).toEqual(component.cardDetail.card);
+    expect(card.componentInstance.hideOptionsMenu).toBeTrue();
   });
 
   describe('goToExpensesPage():', () => {

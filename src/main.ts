@@ -32,9 +32,9 @@ import { FyCurrencyPipe } from './app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from './app/shared/pipes/humanize-currency.pipe';
 import { ExactCurrencyPipe } from './app/shared/pipes/exact-currency.pipe';
 import { DecimalPipe, DatePipe, TitleCasePipe } from '@angular/common';
-import { IconModule } from './app/shared/icon/icon.module';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { ReportState } from './app/shared/pipes/report-state.pipe';
+import { provideIcons } from './app/shared/icon/icon.providers';
 
 // Global cache config
 GlobalCacheConfig.maxAge = 10 * 60 * 1000;
@@ -110,8 +110,8 @@ bootstrapApplication(AppComponent, {
       HammerModule,
       HammerModule,
       NgOtpInputModule,
-      IconModule,
     ),
+    provideIcons(),
     GooglePlus,
     InAppBrowser,
     Smartlook,

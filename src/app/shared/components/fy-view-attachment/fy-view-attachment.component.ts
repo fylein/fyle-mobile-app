@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild, inject, input, output } from '@angular/core';
-import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from, of, forkJoin } from 'rxjs';
@@ -27,7 +27,13 @@ import { FormButtonValidationDirective } from '../../directive/form-button-valid
     templateUrl: './fy-view-attachment.component.html',
     styleUrls: ['./fy-view-attachment.component.scss'],
     imports: [
-        IonicModule,
+        IonHeader,
+        IonButtons,
+        IonButton,
+        IonFooter,
+        IonContent,
+        IonToolbar,
+        IonTitle,
         NgClass,
         MatIcon,
         SwiperModule,
