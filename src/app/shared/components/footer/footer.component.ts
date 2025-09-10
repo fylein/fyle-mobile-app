@@ -12,17 +12,10 @@ import { MatRipple } from '@angular/material/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-footer',
-    templateUrl: './footer.component.html',
-    styleUrls: ['./footer.component.scss'],
-    imports: [
-        NgClass,
-        IonicModule,
-        MatIcon,
-        MatRipple,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-footer',
+  templateUrl: './footer.component.html',
+  styleUrls: ['./footer.component.scss'],
+  imports: [NgClass, IonicModule, MatIcon, MatRipple, AsyncPipe, TranslocoPipe],
 })
 export class FooterComponent implements OnInit {
   private networkService = inject(NetworkService);

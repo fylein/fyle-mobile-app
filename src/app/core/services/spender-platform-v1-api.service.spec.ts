@@ -86,7 +86,7 @@ describe('SpenderPlatformV1ApiService', () => {
       expect(res).toEqual(apiResponse);
       expect(httpClient.post).toHaveBeenCalledWith(
         'https://staging.fyle.tech/platform/v1/spender/expense_fields',
-        requestObj
+        requestObj,
       );
       done();
     });

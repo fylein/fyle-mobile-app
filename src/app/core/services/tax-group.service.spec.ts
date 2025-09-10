@@ -111,7 +111,7 @@ describe('TaxGroupService', () => {
     });
     taxGroupService = TestBed.inject(TaxGroupService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     globalCacheBusterNotifier.next();
   });

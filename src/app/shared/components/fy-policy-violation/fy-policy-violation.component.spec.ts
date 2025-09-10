@@ -32,27 +32,27 @@ describe('FyPolicyViolationComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    providers: [
+      providers: [
         {
-            provide: PolicyService,
-            useValue: policyServiceSpy,
+          provide: PolicyService,
+          useValue: policyServiceSpy,
         },
         {
-            provide: UtilityService,
-            useValue: utilityServiceSpy,
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyPolicyViolationComponent],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyPolicyViolationComponent],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyPolicyViolationComponent);
     component = fixture.componentInstance;
@@ -135,15 +135,15 @@ describe('FyPolicyViolationComponent', () => {
     };
     utilityService.getEmailsFromString.and.returnValue(['ajain@fyle.in', 'aiyush.dhar@fyle.in']);
     policyService.getApprovalString.and.returnValue(
-      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in'
+      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in',
     );
     component.constructAdditionalApproverAction();
     fixture.detectChanges();
     expect(utilityService.getEmailsFromString).toHaveBeenCalledOnceWith(
-      'expense will need approval from ajain@fyle.in, aiyush.dhar@fyle.in'
+      'expense will need approval from ajain@fyle.in, aiyush.dhar@fyle.in',
     );
     expect(component.approverEmailsRequiredMsg).toEqual(
-      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in'
+      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in',
     );
   });
 

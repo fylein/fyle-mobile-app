@@ -9,8 +9,8 @@ describe('TransactionsShimmerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TransactionsShimmerComponent],
-}).compileComponents();
+      imports: [IonicModule.forRoot(), TransactionsShimmerComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

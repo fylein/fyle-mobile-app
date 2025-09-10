@@ -45,25 +45,32 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, PersonalCardsMatchedExpensesPage, CurrencySymbolPipe, ExactCurrencyPipe],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        RouterTestingModule,
+        RouterModule,
+        PersonalCardsMatchedExpensesPage,
+        CurrencySymbolPipe,
+        ExactCurrencyPipe,
+      ],
+      providers: [
         UrlSerializer,
         {
-            provide: PersonalCardsService,
-            useValue: personalCardsServiceSpy,
+          provide: PersonalCardsService,
+          useValue: personalCardsServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         FyCurrencyPipe,
         CurrencyPipe,
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;

@@ -1,7 +1,15 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, inject, input } from '@angular/core';
 import { Injector } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
-import { UntypedFormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, UntypedFormBuilder, UntypedFormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  UntypedFormBuilder,
+  UntypedFormArray,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CustomInputsField } from 'src/app/core/models/custom-inputs-field.model';
 import { FySelectComponent } from '../../../shared/components/fy-select/fy-select.component';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -23,16 +31,11 @@ interface CombinedOptions {
 }
 
 @Component({
-    selector: 'app-custom-inputs-fields-form',
-    templateUrl: './custom-inputs-fields-form.component.html',
-    styleUrls: ['./custom-inputs-fields-form.component.scss'],
-    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: CustomInputsFieldsFormComponent, multi: true }],
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        FySelectComponent,
-        TranslocoPipe,
-    ],
+  selector: 'app-custom-inputs-fields-form',
+  templateUrl: './custom-inputs-fields-form.component.html',
+  styleUrls: ['./custom-inputs-fields-form.component.scss'],
+  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: CustomInputsFieldsFormComponent, multi: true }],
+  imports: [FormsModule, ReactiveFormsModule, FySelectComponent, TranslocoPipe],
 })
 export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges {
   private formBuilder = inject(UntypedFormBuilder);

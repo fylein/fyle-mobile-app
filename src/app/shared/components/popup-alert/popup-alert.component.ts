@@ -5,17 +5,10 @@ import { NgClass } from '@angular/common';
 import { FyAlertInfoComponent } from '../fy-alert-info/fy-alert-info.component';
 import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
-    selector: 'app-popup-alert',
-    templateUrl: './popup-alert.component.html',
-    styleUrls: ['./popup-alert.component.scss'],
-    imports: [
-        NgClass,
-        FyAlertInfoComponent,
-        IonFooter,
-        IonHeader,
-        IonIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-popup-alert',
+  templateUrl: './popup-alert.component.html',
+  styleUrls: ['./popup-alert.component.scss'],
+  imports: [NgClass, FyAlertInfoComponent, IonFooter, IonHeader, IonIcon, TranslocoPipe],
 })
 export class PopupAlertComponent {
   private popoverController = inject(PopoverController);

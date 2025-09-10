@@ -1,7 +1,14 @@
 import { Component, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
-import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform, IonicModule } from '@ionic/angular';
+import {
+  ActionSheetButton,
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  IonicModule,
+} from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
@@ -51,25 +58,25 @@ import { TranslocoPipe } from '@jsverse/transloco';
 SwiperCore.use([Pagination, Autoplay]);
 
 @Component({
-    selector: 'app-dashboard',
-    templateUrl: './dashboard.page.html',
-    styleUrls: ['./dashboard.page.scss'],
-    imports: [
-        IonicModule,
-        FyMenuIconComponent,
-        NgClass,
-        MatIcon,
-        MatTabGroup,
-        MatTab,
-        SwiperModule,
-        DashboardOptInComponent,
-        DashboardEmailOptInComponent,
-        StatsComponent,
-        CardStatsComponent,
-        TasksComponent,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.page.html',
+  styleUrls: ['./dashboard.page.scss'],
+  imports: [
+    IonicModule,
+    FyMenuIconComponent,
+    NgClass,
+    MatIcon,
+    MatTabGroup,
+    MatTab,
+    SwiperModule,
+    DashboardOptInComponent,
+    DashboardEmailOptInComponent,
+    StatsComponent,
+    CardStatsComponent,
+    TasksComponent,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class DashboardPage {
   private currencyService = inject(CurrencyService);

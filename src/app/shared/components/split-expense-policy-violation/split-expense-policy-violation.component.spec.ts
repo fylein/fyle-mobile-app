@@ -27,20 +27,20 @@ describe('SplitExpensePolicyViolationComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), ReactiveFormsModule, TranslocoModule, SplitExpensePolicyViolationComponent],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    providers: [
+      imports: [IonicModule.forRoot(), ReactiveFormsModule, TranslocoModule, SplitExpensePolicyViolationComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      providers: [
         UntypedFormBuilder,
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SplitExpensePolicyViolationComponent);
     component = fixture.componentInstance;

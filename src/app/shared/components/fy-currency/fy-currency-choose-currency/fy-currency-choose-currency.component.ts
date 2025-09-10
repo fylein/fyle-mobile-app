@@ -27,23 +27,23 @@ import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-currency-choose-currency',
-    templateUrl: './fy-currency-choose-currency.component.html',
-    styleUrls: ['./fy-currency-choose-currency.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatFormField,
-        MatInput,
-        FormsModule,
-        MatIconButton,
-        MatSuffix,
-        MatRipple,
-        FyHighlightTextComponent,
-        NgTemplateOutlet,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-currency-choose-currency',
+  templateUrl: './fy-currency-choose-currency.component.html',
+  styleUrls: ['./fy-currency-choose-currency.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    MatFormField,
+    MatInput,
+    FormsModule,
+    MatIconButton,
+    MatSuffix,
+    MatRipple,
+    FyHighlightTextComponent,
+    NgTemplateOutlet,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
   private currencyService = inject(CurrencyService);

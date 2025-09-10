@@ -308,7 +308,7 @@ describe('PlatformEmployeeSettingsService', () => {
       const result = service.getEmailEvents();
 
       expect(result.expensesAndReports.eous_forward_email_to_user.textLabel).toBe(
-        'When an expense is created via email'
+        'When an expense is created via email',
       );
       expect(result.expensesAndReports.erpts_submitted.textLabel).toBe('On submission of expense report');
       expect(result.expensesAndReports.estatuses_created_txn.textLabel).toBe('When a comment is left on an expense');
@@ -412,7 +412,7 @@ describe('PlatformEmployeeSettingsService', () => {
 
         // Check specific event types
         const hasExpenseCreatedEvent = expensesAndReportsEvents.some(
-          (event) => event.eventType === 'eous_forward_email_to_user'
+          (event) => event.eventType === 'eous_forward_email_to_user',
         );
         const hasAdvanceCreatedEvent = advancesEvents.some((event) => event.eventType === 'eadvances_created');
 

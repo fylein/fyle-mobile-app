@@ -8,10 +8,10 @@ import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-dashboard-opt-in',
-    templateUrl: './dashboard-opt-in.component.html',
-    styleUrls: ['./dashboard-opt-in.component.scss'],
-    imports: [MatIcon, TranslocoPipe],
+  selector: 'app-dashboard-opt-in',
+  templateUrl: './dashboard-opt-in.component.html',
+  styleUrls: ['./dashboard-opt-in.component.scss'],
+  imports: [MatIcon, TranslocoPipe],
 })
 export class DashboardOptInComponent {
   private modalController = inject(ModalController);

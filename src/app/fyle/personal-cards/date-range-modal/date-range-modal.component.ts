@@ -4,17 +4,10 @@ import { MatDateRangeInput, MatStartDate, MatEndDate, MatDateRangePicker } from 
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-date-range-modal',
-    templateUrl: './date-range-modal.component.html',
-    styleUrls: ['./date-range-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatDateRangeInput,
-        MatStartDate,
-        MatEndDate,
-        MatDateRangePicker,
-        TranslocoPipe,
-    ],
+  selector: 'app-date-range-modal',
+  templateUrl: './date-range-modal.component.html',
+  styleUrls: ['./date-range-modal.component.scss'],
+  imports: [IonicModule, MatDateRangeInput, MatStartDate, MatEndDate, MatDateRangePicker, TranslocoPipe],
 })
 export class DateRangeModalComponent implements OnInit {
   private modalController = inject(ModalController);

@@ -70,7 +70,7 @@ describe('ExpensesService', () => {
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
@@ -295,7 +295,7 @@ describe('ExpensesService', () => {
   it('getExpenseStats(): should get expense stats for unreported stats', (done) => {
     spenderService.post.and.returnValue(of(completeStats));
     sharedExpenseService.generateStatsQueryParams.and.returnValue(
-      'state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)'
+      'state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)',
     );
 
     const queryParams = {

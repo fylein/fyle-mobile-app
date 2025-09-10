@@ -3,10 +3,10 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { IonicModule } from '@ionic/angular';
 
 @Component({
-    selector: 'app-fy-menu-icon',
-    templateUrl: './fy-menu-icon.component.html',
-    styleUrls: ['./fy-menu-icon.component.scss'],
-    imports: [IonicModule],
+  selector: 'app-fy-menu-icon',
+  templateUrl: './fy-menu-icon.component.html',
+  styleUrls: ['./fy-menu-icon.component.scss'],
+  imports: [IonicModule],
 })
 export class FyMenuIconComponent implements OnInit {
   private trackingService = inject(TrackingService);

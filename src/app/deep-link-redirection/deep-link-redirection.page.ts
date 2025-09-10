@@ -12,10 +12,10 @@ import { ApproverReportsService } from '../core/services/platform/v1/approver/re
 import { IonicModule } from '@ionic/angular';
 
 @Component({
-    selector: 'app-deep-link-redirection',
-    templateUrl: './deep-link-redirection.page.html',
-    styleUrls: ['./deep-link-redirection.page.scss'],
-    imports: [IonicModule],
+  selector: 'app-deep-link-redirection',
+  templateUrl: './deep-link-redirection.page.html',
+  styleUrls: ['./deep-link-redirection.page.scss'],
+  imports: [IonicModule],
 })
 export class DeepLinkRedirectionPage {
   private activatedRoute = inject(ActivatedRoute);

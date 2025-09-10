@@ -6,16 +6,10 @@ import { FyAlertInfoComponent } from '../fy-alert-info/fy-alert-info.component';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-critical-policy-violation',
-    templateUrl: './fy-critical-policy-violation.component.html',
-    styleUrls: ['./fy-critical-policy-violation.component.scss'],
-    imports: [
-        MatIcon,
-        PolicyViolationRuleComponent,
-        FyAlertInfoComponent,
-        IonicModule,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-critical-policy-violation',
+  templateUrl: './fy-critical-policy-violation.component.html',
+  styleUrls: ['./fy-critical-policy-violation.component.scss'],
+  imports: [MatIcon, PolicyViolationRuleComponent, FyAlertInfoComponent, IonicModule, TranslocoPipe],
 })
 export class FyCriticalPolicyViolationComponent {
   private modalController = inject(ModalController);

@@ -48,19 +48,19 @@ import { TasksCardComponent } from './tasks-card/tasks-card.component';
 import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/fy-zero-state.component';
 
 @Component({
-    selector: 'app-tasks',
-    templateUrl: './tasks.component.html',
-    styleUrls: ['./tasks.component.scss'],
-    imports: [
-        IonicModule,
-        FyFilterPillsComponent,
-        NgClass,
-        AutoSubmissionInfoCardComponent,
-        TasksCardComponent,
-        FyZeroStateComponent,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-tasks',
+  templateUrl: './tasks.component.html',
+  styleUrls: ['./tasks.component.scss'],
+  imports: [
+    IonicModule,
+    FyFilterPillsComponent,
+    NgClass,
+    AutoSubmissionInfoCardComponent,
+    TasksCardComponent,
+    FyZeroStateComponent,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class TasksComponent implements OnInit {
   private taskService = inject(TasksService);

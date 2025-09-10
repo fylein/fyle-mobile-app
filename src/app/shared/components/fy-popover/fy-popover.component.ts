@@ -6,16 +6,10 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-popover',
-    templateUrl: './fy-popover.component.html',
-    styleUrls: ['./fy-popover.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgStyle,
-        FormsModule,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-popover',
+  templateUrl: './fy-popover.component.html',
+  styleUrls: ['./fy-popover.component.scss'],
+  imports: [IonicModule, MatIcon, NgStyle, FormsModule, TranslocoPipe],
 })
 export class FyPopoverComponent implements AfterViewInit {
   private popoverController = inject(PopoverController);

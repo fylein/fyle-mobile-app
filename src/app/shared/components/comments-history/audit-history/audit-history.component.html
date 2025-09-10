@@ -7,29 +7,27 @@
             <mat-icon
               class="audit-history--icon"
               [svgIcon]="estatus.st.icon"
-          [ngClass]="{
-            'audit-history--circle': estatus.st.icon === 'radio-circle-outline',
-            'audit-history--delete': estatus.st.icon === 'bin',
-            'audit-history--merge': estatus.st.icon === 'merge',
-            'audit-history--success': estatus.st.icon === 'check-square-fill',
-            'icon--alert-warning': estatus.st.icon === 'warning-fill',
-            'audit-history--flagged': estatus.st.category === 'Flagged',
-            'audit-history--unflagged': estatus.st.category === 'Unflagged',
-            'audit-history--card-filled':
-              estatus.st.category === 'Card Transaction Matched' || estatus.st.category === 'Expense Matched'
-          }"
+              [ngClass]="{
+                'audit-history--circle': estatus.st.icon === 'radio-circle-outline',
+                'audit-history--delete': estatus.st.icon === 'bin',
+                'audit-history--merge': estatus.st.icon === 'merge',
+                'audit-history--success': estatus.st.icon === 'check-square-fill',
+                'icon--alert-warning': estatus.st.icon === 'warning-fill',
+                'audit-history--flagged': estatus.st.category === 'Flagged',
+                'audit-history--unflagged': estatus.st.category === 'Unflagged',
+                'audit-history--card-filled':
+                  estatus.st.category === 'Card Transaction Matched' || estatus.st.category === 'Expense Matched',
+              }"
             ></mat-icon>
           }
           <span class="text-capitalize audit-history--category">{{ estatus.st.category }}</span>
           <div class="audit-history--timestamp">
-            <span>{{ estatus.st_created_at | dateWithTimezone : 'MMM D, YYYY h:mm a' }}</span>
+            <span>{{ estatus.st_created_at | dateWithTimezone: 'MMM D, YYYY h:mm a' }}</span>
           </div>
         </div>
         <div id="{{ estatus.st_id }}" class="audit-history--comment-block">
           @if (estatus.st.category !== 'Expense Issues') {
-            <span class="comment-text smartlook-hide">{{
-              estatus.st_comment
-            }}</span>
+            <span class="comment-text smartlook-hide">{{ estatus.st_comment }}</span>
           }
           @if (estatus.has_details) {
             <div class="audit-history--details">
@@ -39,20 +37,14 @@
                 estatus.st.category !== 'Card Transaction Matched' &&
                 estatus.st.category !== 'Expense automatically merged' &&
                 estatus.st.category !== 'Expense merged'
-                ) {
-                <span
-                  >{{ 'auditHistory.detailsLabel' | transloco }}
-                </span>
+              ) {
+                <span>{{ 'auditHistory.detailsLabel' | transloco }} </span>
               }
               @if (estatus.st.category === 'Card Transaction Matched') {
-                <span>{{
-                  'auditHistory.cardTransactionDetailsLabel' | transloco
-                }}</span>
+                <span>{{ 'auditHistory.cardTransactionDetailsLabel' | transloco }}</span>
               }
               @if (estatus.st.category === 'Expense automatically merged' || estatus.st.category === 'Expense merged') {
-                <span
-                  >{{ 'auditHistory.mergedExpenseDetailsLabel' | transloco }}
-                </span>
+                <span>{{ 'auditHistory.mergedExpenseDetailsLabel' | transloco }} </span>
               }
               <ul class="audit-history--diff-list">
                 @for (item of estatus.st_diff | keyvalue; track item) {

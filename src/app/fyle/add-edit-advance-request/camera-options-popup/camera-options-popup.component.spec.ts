@@ -25,23 +25,23 @@ describe('CameraOptionsPopupComponent', () => {
     });
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, CameraOptionsPopupComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, CameraOptionsPopupComponent],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: FileService,
-            useValue: fileServiceSpy,
+          provide: FileService,
+          useValue: fileServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CameraOptionsPopupComponent);
     component = fixture.componentInstance;

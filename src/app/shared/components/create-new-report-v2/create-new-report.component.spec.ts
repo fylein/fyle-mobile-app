@@ -45,7 +45,7 @@ describe('CreateNewReportComponent', () => {
     const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
-    imports: [
+      imports: [
         IonicModule.forRoot(),
         MatIconModule,
         MatIconTestingModule,
@@ -53,9 +53,12 @@ describe('CreateNewReportComponent', () => {
         ReactiveFormsModule,
         MatCheckboxModule,
         getTranslocoModule(),
-        CreateNewReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe,
-    ],
-    providers: [
+        CreateNewReportComponent,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        FyCurrencyPipe,
+      ],
+      providers: [
         { provide: ModalController, useValue: modalController },
         { provide: TrackingService, useValue: trackingService },
         { provide: CurrencyService, useValue: currencyService },
@@ -64,9 +67,9 @@ describe('CreateNewReportComponent', () => {
         { provide: ExactCurrencyPipe, useValue: exactCurrencyPipeSpy },
         { provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy },
         { provide: SpenderReportsService, useValue: spenderReportsService },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;

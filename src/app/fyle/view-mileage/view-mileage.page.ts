@@ -51,26 +51,26 @@ import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 import { MileageRateName } from '../../shared/pipes/mileage-rate-name.pipe';
 
 @Component({
-    selector: 'app-view-mileage',
-    templateUrl: './view-mileage.page.html',
-    styleUrls: ['./view-mileage.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        FyPolicyViolationInfoComponent,
-        ReceiptPreviewThumbnailComponent,
-        ViewDependentFieldsComponent,
-        NavigationFooterComponent,
-        AsyncPipe,
-        TitleCasePipe,
-        CurrencyPipe,
-        DatePipe,
-        ExactCurrencyPipe,
-        SnakeCaseToSpaceCase,
-        ExpenseState_1,
-        FyCurrencyPipe,
-        MileageRateName,
-    ],
+  selector: 'app-view-mileage',
+  templateUrl: './view-mileage.page.html',
+  styleUrls: ['./view-mileage.page.scss'],
+  imports: [
+    IonicModule,
+    NgClass,
+    FyPolicyViolationInfoComponent,
+    ReceiptPreviewThumbnailComponent,
+    ViewDependentFieldsComponent,
+    NavigationFooterComponent,
+    AsyncPipe,
+    TitleCasePipe,
+    CurrencyPipe,
+    DatePipe,
+    ExactCurrencyPipe,
+    SnakeCaseToSpaceCase,
+    ExpenseState_1,
+    FyCurrencyPipe,
+    MileageRateName,
+  ],
 })
 export class ViewMileagePage {
   private activatedRoute = inject(ActivatedRoute);

@@ -6,15 +6,10 @@ import { NgClass } from '@angular/common';
 import { FyMenuIconComponent } from '../fy-menu-icon/fy-menu-icon.component';
 
 @Component({
-    selector: 'app-fy-header',
-    templateUrl: './fy-header.component.html',
-    styleUrls: ['./fy-header.component.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        FyMenuIconComponent,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-header',
+  templateUrl: './fy-header.component.html',
+  styleUrls: ['./fy-header.component.scss'],
+  imports: [IonicModule, NgClass, FyMenuIconComponent, TranslocoPipe],
 })
 export class FyHeaderComponent implements OnInit {
   private translocoService = inject(TranslocoService);

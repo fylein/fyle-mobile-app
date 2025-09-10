@@ -19,14 +19,14 @@ describe('AutoSubmissionInfoCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, AutoSubmissionInfoCardComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, AutoSubmissionInfoCardComponent],
+      providers: [
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AutoSubmissionInfoCardComponent);
     component = fixture.componentInstance;

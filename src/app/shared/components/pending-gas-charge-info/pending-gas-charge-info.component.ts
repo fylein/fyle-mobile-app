@@ -6,14 +6,10 @@ import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-pending-gas-charge-info',
-    templateUrl: './pending-gas-charge-info.component.html',
-    styleUrls: ['./pending-gas-charge-info.component.scss'],
-    imports: [
-        NgClass,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-pending-gas-charge-info',
+  templateUrl: './pending-gas-charge-info.component.html',
+  styleUrls: ['./pending-gas-charge-info.component.scss'],
+  imports: [NgClass, MatIcon, TranslocoPipe],
 })
 export class PendingGasChargeInfoComponent {
   // Signals for reactive state

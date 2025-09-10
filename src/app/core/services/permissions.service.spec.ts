@@ -49,7 +49,7 @@ describe('PermissionsService', () => {
           actions,
           { allowedRouteAccess: false, approve: false, create: false, delete: false },
           'owner',
-          resource
+          resource,
         )
         .and.callThrough();
       setAllowedActionsSpy.withArgs(actions, { allowedRouteAccess: false }, 'hod', resource).and.callThrough();
@@ -58,7 +58,7 @@ describe('PermissionsService', () => {
           actions,
           { allowedRouteAccess: false, approve: false, create: false, delete: false },
           'approver',
-          resource
+          resource,
         )
         .and.callThrough();
 
@@ -68,25 +68,25 @@ describe('PermissionsService', () => {
           actions,
           { allowedRouteAccess: true, approve: true, create: false, delete: false },
           'hod',
-          resource
+          resource,
         );
         expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
           actions,
           { allowedRouteAccess: true, approve: true, create: false, delete: false },
           'hop',
-          resource
+          resource,
         );
         expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
           actions,
           { allowedRouteAccess: true, approve: true, create: false, delete: false },
           'owner',
-          resource
+          resource,
         );
         expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
           actions,
           { allowedRouteAccess: true, approve: true, create: false, delete: false },
           'approver',
-          resource
+          resource,
         );
         expect(permissionsService.setAllowedActions).toHaveBeenCalledTimes(4);
         expect(authService.getRoles).toHaveBeenCalledTimes(1);
@@ -154,7 +154,7 @@ describe('PermissionsService', () => {
             allowed: false,
             enabled: false,
           },
-        })
+        }),
       ).toBeTrue();
     });
   });

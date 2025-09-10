@@ -31,27 +31,33 @@ describe('FyCurrencyExchangeRateComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyCurrencyExchangeRateComponent],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        FormsModule,
+        ReactiveFormsModule,
+        TranslocoModule,
+        FyCurrencyExchangeRateComponent,
+      ],
+      providers: [
         UntypedFormBuilder,
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyCurrencyExchangeRateComponent);
     component = fixture.componentInstance;

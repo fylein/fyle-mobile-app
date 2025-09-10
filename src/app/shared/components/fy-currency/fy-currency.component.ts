@@ -1,6 +1,13 @@
 import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges, inject } from '@angular/core';
 
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, UntypedFormBuilder, UntypedFormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  NG_VALUE_ACCESSOR,
+  ControlValueAccessor,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { noop, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
@@ -19,27 +26,27 @@ import { FyNumberComponent } from '../fy-number/fy-number.component';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-currency',
-    templateUrl: './fy-currency.component.html',
-    styleUrls: ['./fy-currency.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FyCurrencyComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        MatIcon,
-        NgClass,
-        FyNumberComponent,
-        DecimalPipe,
-        CurrencyPipe,
-        TranslocoPipe,
-        FyCurrencyPipe,
-    ],
+  selector: 'app-currency',
+  templateUrl: './fy-currency.component.html',
+  styleUrls: ['./fy-currency.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FyCurrencyComponent),
+      multi: true,
+    },
+  ],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    MatIcon,
+    NgClass,
+    FyNumberComponent,
+    DecimalPipe,
+    CurrencyPipe,
+    TranslocoPipe,
+    FyCurrencyPipe,
+  ],
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChanges {
   private fb = inject(UntypedFormBuilder);

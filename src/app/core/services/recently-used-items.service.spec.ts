@@ -47,7 +47,7 @@ describe('RecentlyUsedItemsService', () => {
     });
     recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
@@ -83,7 +83,7 @@ describe('RecentlyUsedItemsService', () => {
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledOnceWith(
           platformProjectsArgs1,
           true,
-          testActiveCategoryList
+          testActiveCategoryList,
         );
         expect(res).toEqual(recentlyUsedProjectRes);
         done();

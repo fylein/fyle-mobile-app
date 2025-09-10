@@ -20,14 +20,14 @@ describe('MobileNumberCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, MobileNumberCardComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, MobileNumberCardComponent],
+      providers: [
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MobileNumberCardComponent);
     component = fixture.componentInstance;

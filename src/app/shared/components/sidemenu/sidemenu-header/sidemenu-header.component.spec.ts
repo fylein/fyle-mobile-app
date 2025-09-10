@@ -14,8 +14,8 @@ describe('SidemenuHeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatRippleModule, SidemenuHeaderComponent, InitialsPipe],
-}).compileComponents();
+      imports: [IonicModule.forRoot(), MatRippleModule, SidemenuHeaderComponent, InitialsPipe],
+    }).compileComponents();
   });
 
   beforeEach(() => {

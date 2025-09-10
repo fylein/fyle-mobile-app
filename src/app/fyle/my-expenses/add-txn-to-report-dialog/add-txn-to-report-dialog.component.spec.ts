@@ -29,33 +29,40 @@ describe('AddTxnToReportDialogComponent', () => {
     const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule, getTranslocoModule(), AddTxnToReportDialogComponent,
+      imports: [
+        IonicModule.forRoot(),
+        RouterTestingModule,
+        RouterModule,
+        MatBottomSheetModule,
+        getTranslocoModule(),
+        AddTxnToReportDialogComponent,
         FyZeroStateComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         ReportState,
-        SnakeCaseToSpaceCase],
-    providers: [
+        SnakeCaseToSpaceCase,
+      ],
+      providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: MatBottomSheet,
-            useValue: matBottomsheetSpy,
+          provide: MatBottomSheet,
+          useValue: matBottomsheetSpy,
         },
         {
-            provide: MAT_BOTTOM_SHEET_DATA,
-            useValue: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
+          provide: MAT_BOTTOM_SHEET_DATA,
+          useValue: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddTxnToReportDialogComponent);
     component = fixture.componentInstance;

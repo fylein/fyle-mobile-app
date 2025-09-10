@@ -30,16 +30,16 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [FormsModule, ReactiveFormsModule, TranslocoModule, FyCurrencyChooseCurrencyComponent],
-    providers: [
+      imports: [FormsModule, ReactiveFormsModule, TranslocoModule, FyCurrencyChooseCurrencyComponent],
+      providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: RecentLocalStorageItemsService, useValue: recentLocalStorageItemsServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyCurrencyChooseCurrencyComponent);
     component = fixture.componentInstance;
@@ -47,7 +47,7 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {

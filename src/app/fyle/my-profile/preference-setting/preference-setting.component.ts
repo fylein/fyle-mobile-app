@@ -3,10 +3,10 @@ import { EventData } from './event-data.model';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 @Component({
-    selector: 'app-preference-setting',
-    templateUrl: './preference-setting.component.html',
-    styleUrls: ['./preference-setting.component.scss'],
-    imports: [IonicModule, FormsModule],
+  selector: 'app-preference-setting',
+  templateUrl: './preference-setting.component.html',
+  styleUrls: ['./preference-setting.component.scss'],
+  imports: [IonicModule, FormsModule],
 })
 export class PreferenceSettingComponent {
   // TODO: Skipped for migration because:

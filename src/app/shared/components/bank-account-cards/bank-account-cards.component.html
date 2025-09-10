@@ -1,7 +1,7 @@
 <div
   class="bank-accounts"
   [ngClass]="{ 'bank-accounts--minimal': minimal, 'bank-accounts--single-card': linkedAccounts.length === 1 }"
-  >
+>
   @if (linkedAccounts) {
     <swiper
       #swiper
@@ -12,7 +12,7 @@
       [pagination]="pagination"
       (afterInit)="onCardChange($event)"
       (activeIndexChange)="onCardChange($event)"
-      >
+    >
       @for (linkedAccount of linkedAccounts; track linkedAccount) {
         <ng-template swiperSlide>
           <app-bank-account-card [accountDetails]="linkedAccount" [minimal]="minimal" (deleted)="onDeleted()">

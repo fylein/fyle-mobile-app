@@ -99,7 +99,7 @@ describe('DateService', () => {
       describe('GET:', () => {
         it('date is viewed in new zealand', () => {
           const incomingDate = dateService.getUTCMidAfternoonDate(
-            dayjs('2024-05-14T00:00:00.000Z').tz(newZeaLandTimezone).toDate()
+            dayjs('2024-05-14T00:00:00.000Z').tz(newZeaLandTimezone).toDate(),
           );
           const date = incomingDate.getDate();
           const month = incomingDate.getMonth() + 1; // js month is 0 - 11
@@ -112,7 +112,7 @@ describe('DateService', () => {
 
         it('date is viewed in america', () => {
           const incomingDate = dateService.getUTCMidAfternoonDate(
-            dayjs('2024-05-14T00:00:00.000Z').tz(americaTimezone).toDate()
+            dayjs('2024-05-14T00:00:00.000Z').tz(americaTimezone).toDate(),
           );
           const date = incomingDate.getDate();
           const month = incomingDate.getMonth() + 1; // js month is 0 - 11

@@ -3,10 +3,7 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { IonicModule, ModalController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
-import {
-  MatSnackBar,
-  MatSnackBarModule,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensePreviewComponent } from './expense-preview.component';
@@ -48,16 +45,17 @@ describe('ExpensePreviewComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [
+      imports: [
         IonicModule.forRoot(),
         MatIconModule,
         MatIconTestingModule,
         FormsModule,
         MatSnackBarModule,
         TranslocoModule,
-        ExpensePreviewComponent, ExpensePreviewShimmerComponent,
-    ],
-    providers: [
+        ExpensePreviewComponent,
+        ExpensePreviewShimmerComponent,
+      ],
+      providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesServiceSpy },
@@ -67,8 +65,8 @@ describe('ExpensePreviewComponent', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;

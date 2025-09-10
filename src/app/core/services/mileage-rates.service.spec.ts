@@ -72,10 +72,10 @@ describe('MileageRatesService', () => {
     });
     mileageRatesService = TestBed.inject(MileageRatesService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     approverPlatformApiService = TestBed.inject(
-      ApproverPlatformApiService
+      ApproverPlatformApiService,
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
 
     currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;

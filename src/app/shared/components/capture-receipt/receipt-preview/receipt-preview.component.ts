@@ -22,17 +22,10 @@ import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 SwiperCore.use([Pagination]);
 
 @Component({
-    selector: 'app-receipt-preview',
-    templateUrl: './receipt-preview.component.html',
-    styleUrls: ['./receipt-preview.component.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        MatIcon,
-        SwiperModule,
-        PinchZoomComponent,
-        TranslocoPipe,
-    ],
+  selector: 'app-receipt-preview',
+  templateUrl: './receipt-preview.component.html',
+  styleUrls: ['./receipt-preview.component.scss'],
+  imports: [IonicModule, NgClass, MatIcon, SwiperModule, PinchZoomComponent, TranslocoPipe],
 })
 export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   private platform = inject(Platform);

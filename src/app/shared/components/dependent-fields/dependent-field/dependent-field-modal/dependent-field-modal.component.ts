@@ -25,24 +25,24 @@ import { FyHighlightTextComponent } from '../../../fy-highlight-text/fy-highligh
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-dependent-field-modal',
-    templateUrl: './dependent-field-modal.component.html',
-    styleUrls: ['./dependent-field-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatFormField,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatSuffix,
-        MatIconButton,
-        FyZeroStateComponent,
-        MatRipple,
-        FyHighlightTextComponent,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-dependent-field-modal',
+  templateUrl: './dependent-field-modal.component.html',
+  styleUrls: ['./dependent-field-modal.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    MatFormField,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatSuffix,
+    MatIconButton,
+    FyZeroStateComponent,
+    MatRipple,
+    FyHighlightTextComponent,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class DependentFieldModalComponent implements AfterViewInit {
   private modalController = inject(ModalController);

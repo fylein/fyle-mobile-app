@@ -4,10 +4,10 @@ import { Router } from '@angular/router';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-error',
-    templateUrl: './error.component.html',
-    styleUrls: ['./error.component.scss'],
-    imports: [IonicModule, TranslocoPipe],
+  selector: 'app-error',
+  templateUrl: './error.component.html',
+  styleUrls: ['./error.component.scss'],
+  imports: [IonicModule, TranslocoPipe],
 })
 export class ErrorComponent implements OnInit {
   private popoverController = inject(PopoverController);

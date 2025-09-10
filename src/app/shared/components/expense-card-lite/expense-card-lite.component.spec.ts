@@ -28,16 +28,24 @@ describe('ExpenseCardLiteComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, ExpenseCardLiteComponent, CurrencySymbolPipe, ExactCurrencyPipe],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        ExpenseCardLiteComponent,
+        CurrencySymbolPipe,
+        ExactCurrencyPipe,
+      ],
+      providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ExpenseCardLiteComponent);
     expenseCardLiteComponent = fixture.componentInstance;

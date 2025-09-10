@@ -27,18 +27,26 @@ describe('FyDeleteDialogComponent', () => {
     });
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, MatIconTestingModule, MatIconModule, TranslocoModule, FyDeleteDialogComponent, FormButtonValidationDirective],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        FormsModule,
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
+        FyDeleteDialogComponent,
+        FormButtonValidationDirective,
+      ],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyDeleteDialogComponent);
     component = fixture.componentInstance;
@@ -77,7 +85,7 @@ describe('FyDeleteDialogComponent', () => {
 
     expect(getTextContent(getElementBySelector(fixture, '.fy-delete-dialog--header'))).toEqual('Header');
     expect(getTextContent(getElementBySelector(fixture, '.fy-delete-dialog--info-container__message'))).toEqual(
-      'Message'
+      'Message',
     );
     expect(getTextContent(getElementBySelector(fixture, '.fy-delete-dialog--delete'))).toEqual('Are you sure?');
   });

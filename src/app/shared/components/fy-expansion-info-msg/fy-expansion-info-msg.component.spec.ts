@@ -19,14 +19,14 @@ describe('FyExpansionInfoMsgComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [MatIconModule, IonicModule.forRoot(), TranslocoModule, TranslocoModule, FyExpansionInfoMsgComponent],
-    providers: [
+      imports: [MatIconModule, IonicModule.forRoot(), TranslocoModule, TranslocoModule, FyExpansionInfoMsgComponent],
+      providers: [
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyExpansionInfoMsgComponent);
     component = fixture.componentInstance;

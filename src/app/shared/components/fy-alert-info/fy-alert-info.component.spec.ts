@@ -14,14 +14,14 @@ describe('FyAlertComponent', () => {
   beforeEach(waitForAsync(() => {
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FyAlertInfoComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FyAlertInfoComponent],
+      providers: [
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyAlertInfoComponent);
     component = fixture.componentInstance;

@@ -13,10 +13,10 @@ import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-r
 import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
 
 @Component({
-    selector: 'app-help',
-    templateUrl: './help.page.html',
-    styleUrls: ['./help.page.scss'],
-    imports: [IonicModule, FyMenuIconComponent],
+  selector: 'app-help',
+  templateUrl: './help.page.html',
+  styleUrls: ['./help.page.scss'],
+  imports: [IonicModule, FyMenuIconComponent],
 })
 export class HelpPage implements OnInit {
   private modalController = inject(ModalController);

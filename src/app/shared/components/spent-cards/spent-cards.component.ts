@@ -10,14 +10,10 @@ import { AddCardComponent } from '../add-card/add-card.component';
 SwiperCore.use([Pagination]);
 
 @Component({
-    selector: 'app-spent-cards',
-    templateUrl: './spent-cards.component.html',
-    styleUrls: ['./spent-cards.component.scss'],
-    imports: [
-        SwiperModule,
-        CardDetailComponent,
-        AddCardComponent,
-    ],
+  selector: 'app-spent-cards',
+  templateUrl: './spent-cards.component.html',
+  styleUrls: ['./spent-cards.component.scss'],
+  imports: [SwiperModule, CardDetailComponent, AddCardComponent],
 })
 export class SpentCardsComponent {
   // TODO: Skipped for migration because:

@@ -13,14 +13,14 @@ describe('PopupAlertComponent', () => {
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     TestBed.configureTestingModule({
-    imports: [getTranslocoModule(), PopupAlertComponent, FyAlertInfoComponent],
-    providers: [
+      imports: [getTranslocoModule(), PopupAlertComponent, FyAlertInfoComponent],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PopupAlertComponent);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;

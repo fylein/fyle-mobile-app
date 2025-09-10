@@ -18,7 +18,7 @@
       class="segment-block view-info--segment-block-container__segment"
       (ionChange)="segmentChanged($event)"
       value="report"
-      >
+    >
       <ion-segment-button value="report" class="view-info--segment-block-container__btn text-capitalize">
         {{ 'fyViewReportInfo.report' | transloco }}
       </ion-segment-button>
@@ -26,10 +26,7 @@
         {{ 'fyViewReportInfo.amount' | transloco }}
       </ion-segment-button>
       @if (view === ExpenseView.team) {
-        <ion-segment-button
-          value="employee"
-          class="view-info--segment-block-container__btn text-capitalize"
-          >
+        <ion-segment-button value="employee" class="view-info--segment-block-container__btn text-capitalize">
           {{ 'fyViewReportInfo.employee' | transloco }}
         </ion-segment-button>
       }
@@ -40,7 +37,7 @@
 @if (isReportView && !isEmployeeView) {
   <ion-content (swipe)="onSwipeReport($event)">
     <ion-grid class="view-info--body-container">
-      @for (item of reportDetails | keyvalue : originalOrder; track item) {
+      @for (item of reportDetails | keyvalue: originalOrder; track item) {
         <ion-row class="view-info--body-container__content">
           <ion-col size="5">
             <div class="view-info--body-container__title">
@@ -62,10 +59,8 @@
   <ion-content (swipe)="onSwipeAmount($event)">
     <p class="view-info--section-header">{{ 'fyViewReportInfo.componentWiseSplit' | transloco }}</p>
     <ion-grid class="view-info--body-container">
-      @for (item of amountComponentWiseDetails | keyvalue : originalOrder; track item) {
-        <ion-row
-          class="view-info--body-container__content"
-          >
+      @for (item of amountComponentWiseDetails | keyvalue: originalOrder; track item) {
+        <ion-row class="view-info--body-container__content">
           <ion-col size="5">
             <div class="view-info--body-container__title">
               @switch (item.key) {
@@ -88,7 +83,7 @@
           </ion-col>
           <ion-col size="7">
             <div class="view-info--body-container__value smartlook-hide">
-              {{ item.value | currency : reportCurrency : 'symbol-narrow' }}
+              {{ item.value | currency: reportCurrency : 'symbol-narrow' }}
             </div>
           </ion-col>
         </ion-row>
@@ -108,19 +103,19 @@
                 </div>
                 <div class="view-info--body-container__subtitle">
                   {{
-                  item.count === 1
-                  ? ('fyViewReportInfo.oneExpense' | transloco)
-                  : item.count + ('fyViewReportInfo.expenses' | transloco)
+                    item.count === 1
+                      ? ('fyViewReportInfo.oneExpense' | transloco)
+                      : item.count + ('fyViewReportInfo.expenses' | transloco)
                   }}
                 </div>
               </ion-col>
               <ion-col size="7">
                 <div class="view-info--body-container__value smartlook-hide">
                   @if (item.currency !== reportCurrency) {
-                    {{ item.origAmount | currency : item.currency : 'code' }} =
-                    {{ item.amount | currency : reportCurrency : 'code' }}
+                    {{ item.origAmount | currency: item.currency : 'code' }} =
+                    {{ item.amount | currency: reportCurrency : 'code' }}
                   } @else {
-                    {{ item.origAmount | currency : item.currency : 'code' }}
+                    {{ item.origAmount | currency: item.currency : 'code' }}
                   }
                 </div>
               </ion-col>
@@ -135,7 +130,7 @@
 @if (view === ExpenseView.team && isEmployeeView && !isReportView) {
   <ion-content (swipe)="onSwipeEmployee($event)">
     <ion-grid class="view-info--body-container">
-      @for (item of employeeDetails | keyvalue : originalOrder; track item) {
+      @for (item of employeeDetails | keyvalue: originalOrder; track item) {
         @if (item && item.value && item.value.length) {
           <ion-row class="view-info--body-container__content">
             <ion-col size="5">

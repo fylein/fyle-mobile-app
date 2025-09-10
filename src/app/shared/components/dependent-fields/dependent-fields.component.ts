@@ -8,15 +8,10 @@ import { DependentFieldComponent } from './dependent-field/dependent-field.compo
 import { IonicModule } from '@ionic/angular';
 
 @Component({
-    selector: 'app-dependent-fields',
-    templateUrl: './dependent-fields.component.html',
-    styleUrls: ['./dependent-fields.component.scss'],
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        DependentFieldComponent,
-        IonicModule,
-    ],
+  selector: 'app-dependent-fields',
+  templateUrl: './dependent-fields.component.html',
+  styleUrls: ['./dependent-fields.component.scss'],
+  imports: [FormsModule, ReactiveFormsModule, DependentFieldComponent, IonicModule],
 })
 export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   private dependentFieldsService = inject(DependentFieldsService);

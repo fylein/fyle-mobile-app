@@ -20,7 +20,7 @@
         matInput
         [placeholder]="'fySelectVendorModal.searchPlaceholder' | transloco"
         [(ngModel)]="value"
-        />
+      />
       @if (isLoading) {
         <mat-icon class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
       }
@@ -31,7 +31,7 @@
           mat-icon-button
           [attr.aria-label]="'fySelectVendorModal.clear' | transloco"
           (click)="clearValue()"
-          >
+        >
           <mat-icon>close</mat-icon>
         </button>
       }
@@ -45,7 +45,7 @@
     itemSize="56"
     minBufferPx="900"
     maxBufferPx="1350"
-    >
+  >
     <div class="selection-modal--container">
       @if (value && value.trim().length) {
         <div>
@@ -60,49 +60,49 @@
               <mat-icon class="selection-modal--add-item-icon"> add_circle_outline </mat-icon>
               <span
                 >{{ 'fySelectVendorModal.add' | transloco }} "<span class="selection-modal--new-item-name"
-                ><strong>{{ value }}</strong></span
+                  ><strong>{{ value }}</strong></span
                 >"</span
-                >
-              </div>
-            </div>
-          </div>
-        }
-        <!-- All Vendors -->
-        @if (selectableOptions?.length > 0) {
-          <div [ngClass]="{ 'selection-modal--all-merchants__margin-top': value }">
-            <div
-              matRipple
-              class="selection-modal--list-element"
-              *cdkVirtualFor="let filteredListItem of selectableOptions"
-              (click)="onElementSelect(filteredListItem)"
               >
-              <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-                @if (filteredListItem.isRecentlyUsed) {
-                  <div class="selection-modal--recently-used-item-content">
-                    <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
-                    <div class="selection-modal--label">
-                      <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-                    </div>
-                    @if (selected) {
-                      <mat-icon class="selection-modal--check"> check </mat-icon>
-                    }
-                  </div>
-                }
-                @if (!filteredListItem.isRecentlyUsed) {
-                  <div class="selection-modal--list-item">
-                    <div class="selection-modal--label">
-                      <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-                    </div>
-                    @if (selected) {
-                      <mat-icon class="selection-modal--check"> check </mat-icon>
-                    }
-                  </div>
-                }
-              </ng-template>
-              <ng-container *ngTemplateOutlet="defaultSelectionElement; context: filteredListItem"> </ng-container>
             </div>
           </div>
-        }
-      </div>
-    </cdk-virtual-scroll-viewport>
-  </ion-content>
+        </div>
+      }
+      <!-- All Vendors -->
+      @if (selectableOptions?.length > 0) {
+        <div [ngClass]="{ 'selection-modal--all-merchants__margin-top': value }">
+          <div
+            matRipple
+            class="selection-modal--list-element"
+            *cdkVirtualFor="let filteredListItem of selectableOptions"
+            (click)="onElementSelect(filteredListItem)"
+          >
+            <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
+              @if (filteredListItem.isRecentlyUsed) {
+                <div class="selection-modal--recently-used-item-content">
+                  <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
+                  <div class="selection-modal--label">
+                    <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                  </div>
+                  @if (selected) {
+                    <mat-icon class="selection-modal--check"> check </mat-icon>
+                  }
+                </div>
+              }
+              @if (!filteredListItem.isRecentlyUsed) {
+                <div class="selection-modal--list-item">
+                  <div class="selection-modal--label">
+                    <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                  </div>
+                  @if (selected) {
+                    <mat-icon class="selection-modal--check"> check </mat-icon>
+                  }
+                </div>
+              }
+            </ng-template>
+            <ng-container *ngTemplateOutlet="defaultSelectionElement; context: filteredListItem"> </ng-container>
+          </div>
+        </div>
+      }
+    </div>
+  </cdk-virtual-scroll-viewport>
+</ion-content>

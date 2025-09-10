@@ -18,26 +18,20 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': currentSelections?.length > 0 }">
-    <mat-form-field
-      class="selection-modal--form-container mat-form-field-no-padding"
-      appearance="outline"
+    <mat-form-field class="selection-modal--form-container mat-form-field-no-padding" appearance="outline">
+      <mat-chip-grid
+        class="selection-modal--form-container__chip-grid"
+        #chipList
+        [attr.aria-label]="'fyMultiselectModal.multiSelect' | transloco"
       >
-      <mat-chip-grid class="selection-modal--form-container__chip-grid" #chipList [attr.aria-label]="'fyMultiselectModal.multiSelect' | transloco">
         @for (item of currentSelections; track item) {
-          <mat-chip-row
-            data-testid="chips"
-            (removed)="removeChip(item)"
-            >
+          <mat-chip-row data-testid="chips" (removed)="removeChip(item)">
             {{ item }}
             <mat-icon matChipRemove>cancel</mat-icon>
           </mat-chip-row>
         }
         @if (!(currentSelections?.length > 0)) {
-          <mat-icon
-            class="selection-modal--search-icon"
-            matPrefix
-            svgIcon="search"
-          ></mat-icon>
+          <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
         }
         <input
           #searchBar
@@ -49,12 +43,12 @@
           [matChipInputAddOnBlur]="addOnBlur"
           (matChipInputTokenEnd)="addChip($event)"
           [placeholder]="!(currentSelections?.length > 0) ? ('fyMultiselectModal.search' | transloco) : ''"
-          />
+        />
       </mat-chip-grid>
     </mat-form-field>
     @if (currentSelections?.length > 0) {
       <div class="selection-modal--selected-count">
-        {{ 'fyMultiselectModal.countSelected' | transloco : { count: currentSelections.length } }}
+        {{ 'fyMultiselectModal.countSelected' | transloco: { count: currentSelections.length } }}
       </div>
     }
   </ion-toolbar>
@@ -67,7 +61,7 @@
         class="selection-modal--list-element"
         [(ngModel)]="filteredListItem.selected"
         (ngModelChange)="onElementSelected(filteredListItem)"
-        >
+      >
         {{ filteredListItem.label }}
       </mat-checkbox>
     }

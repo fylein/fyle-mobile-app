@@ -21,14 +21,21 @@ describe('AddMorePopupComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatBottomSheetModule, MatIconModule, MatIconTestingModule, TranslocoModule, AddMorePopupComponent],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        MatBottomSheetModule,
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        AddMorePopupComponent,
+      ],
+      providers: [
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddMorePopupComponent);
     addMorePopupComponent = fixture.componentInstance;

@@ -37,13 +37,22 @@ describe('VerifyNumberPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule, VerifyNumberPopoverComponent, FyAlertInfoComponent, FormButtonValidationDirective],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        FormsModule,
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        VerifyNumberPopoverComponent,
+        FyAlertInfoComponent,
+        FormButtonValidationDirective,
+      ],
+      providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: MobileNumberVerificationService, useValue: mobileNumberVerificationServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(VerifyNumberPopoverComponent);
     component = fixture.componentInstance;

@@ -41,24 +41,24 @@ import { ExpenseState as ExpenseState_1 } from '../../shared/pipes/expense-state
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-view-per-diem',
-    templateUrl: './view-per-diem.page.html',
-    styleUrls: ['./view-per-diem.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        FyPolicyViolationInfoComponent,
-        ViewDependentFieldsComponent,
-        NavigationFooterComponent,
-        AsyncPipe,
-        TitleCasePipe,
-        CurrencyPipe,
-        DatePipe,
-        ExactCurrencyPipe,
-        SnakeCaseToSpaceCase,
-        ExpenseState_1,
-        FyCurrencyPipe,
-    ],
+  selector: 'app-view-per-diem',
+  templateUrl: './view-per-diem.page.html',
+  styleUrls: ['./view-per-diem.page.scss'],
+  imports: [
+    IonicModule,
+    NgClass,
+    FyPolicyViolationInfoComponent,
+    ViewDependentFieldsComponent,
+    NavigationFooterComponent,
+    AsyncPipe,
+    TitleCasePipe,
+    CurrencyPipe,
+    DatePipe,
+    ExactCurrencyPipe,
+    SnakeCaseToSpaceCase,
+    ExpenseState_1,
+    FyCurrencyPipe,
+  ],
 })
 export class ViewPerDiemPage {
   private activatedRoute = inject(ActivatedRoute);

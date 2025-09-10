@@ -61,7 +61,7 @@ describe('ApiService', () => {
         expect(httpClient.post).toHaveBeenCalledOnceWith(
           'https://staging.fyle.tech/api/advance_requests',
           requestObj,
-          {}
+          {},
         );
         done();
       });

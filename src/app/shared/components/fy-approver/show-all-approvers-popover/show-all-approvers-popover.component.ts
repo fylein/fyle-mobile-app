@@ -8,16 +8,10 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { EllipsisPipe } from '../../../pipes/ellipses.pipe';
 
 @Component({
-    selector: 'app-show-all-approvers-popover',
-    templateUrl: './show-all-approvers-popover.component.html',
-    styleUrls: ['./show-all-approvers-popover.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        TranslocoPipe,
-        EllipsisPipe,
-    ],
+  selector: 'app-show-all-approvers-popover',
+  templateUrl: './show-all-approvers-popover.component.html',
+  styleUrls: ['./show-all-approvers-popover.component.scss'],
+  imports: [IonicModule, MatIcon, NgClass, TranslocoPipe, EllipsisPipe],
 })
 export class ShowAllApproversPopoverComponent {
   private popoverController = inject(PopoverController);

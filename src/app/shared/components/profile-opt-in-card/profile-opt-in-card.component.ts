@@ -6,10 +6,10 @@ import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { IonicModule } from '@ionic/angular';
 
 @Component({
-    selector: 'app-profile-opt-in-card',
-    templateUrl: './profile-opt-in-card.component.html',
-    styleUrls: ['./profile-opt-in-card.component.scss'],
-    imports: [IonicModule, TranslocoPipe],
+  selector: 'app-profile-opt-in-card',
+  templateUrl: './profile-opt-in-card.component.html',
+  styleUrls: ['./profile-opt-in-card.component.scss'],
+  imports: [IonicModule, TranslocoPipe],
 })
 export class ProfileOptInCardComponent implements OnInit {
   private clipboardService = inject(ClipboardService);

@@ -44,23 +44,29 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule, TranslocoModule, SpenderOnboardingConnectCardStepComponent],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        NgxMaskModule.forRoot(),
+        ReactiveFormsModule,
+        TranslocoModule,
+        SpenderOnboardingConnectCardStepComponent,
+      ],
+      providers: [
         UntypedFormBuilder,
         { provide: RealTimeFeedService, useValue: realTimeFeedServiceSpy },
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SpenderOnboardingConnectCardStepComponent);
     component = fixture.componentInstance;
 
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     fb = TestBed.inject(UntypedFormBuilder);
     component.fg = fb.group({});
@@ -70,7 +76,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
     realTimeFeedService.isCardNumberValid.and.returnValue(true);
     realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(
-      of([statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }])
+      of([statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }]),
     );
     component.enrollableCards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
@@ -120,7 +126,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
     beforeEach(() => {
       component.enrollableCards = [{ ...statementUploadedCard, card_number: '1111' }];
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(
-        of([{ ...statementUploadedCard, card_number: '1111' }])
+        of([{ ...statementUploadedCard, card_number: '1111' }]),
       );
     });
 
@@ -152,7 +158,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       component.ngOnInit();
       const controlName = Object.keys(component.fg.controls)[0];
       expect(
-        component.fg.controls[`card_number_${statementUploadedCard.id}`].errors.invalidCardNetwork
+        component.fg.controls[`card_number_${statementUploadedCard.id}`].errors.invalidCardNetwork,
       ).toBeUndefined();
     });
 
@@ -163,7 +169,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       component.isVisaRTFEnabled = false;
       component.ngOnInit();
       expect(
-        component.fg.controls[`card_number_${statementUploadedCard.id}`].errors.invalidCardNetwork
+        component.fg.controls[`card_number_${statementUploadedCard.id}`].errors.invalidCardNetwork,
       ).toBeUndefined();
     });
   });
@@ -306,7 +312,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       fixture.detectChanges();
       const message = component.generateMessage();
       expect(message).toBe(
-        `We ran into an issue while processing your request for the cards <span class='text-bold'>**** 1234, **** 5678</span> and <span class='text-bold'>**** 9012</span>.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`
+        `We ran into an issue while processing your request for the cards <span class='text-bold'>**** 1234, **** 5678</span> and <span class='text-bold'>**** 9012</span>.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.`,
       );
     });
 
@@ -318,7 +324,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       const message = component.generateMessage();
 
       expect(message).toBe(
-        `We ran into an issue while processing your request for the card <span class='text-bold'>**** 1234</span>.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.`
+        `We ran into an issue while processing your request for the card <span class='text-bold'>**** 1234</span>.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.`,
       );
     });
   });
@@ -346,7 +352,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       const showErrorPopoverSpy = spyOn(component, 'showErrorPopover');
       realTimeFeedService.enroll.and.returnValues(
         of(statementUploadedCard),
-        throwError(() => new Error('This card already exists in the system'))
+        throwError(() => new Error('This card already exists in the system')),
       );
       component.enrollMultipleCards(component.enrollableCards);
       tick();
@@ -384,7 +390,7 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       component.fg.controls.card_number.setValue('41111111111111111');
       const showErrorPopoverSpy = spyOn(component, 'showErrorPopover');
       realTimeFeedService.enroll.and.returnValues(
-        throwError(() => new Error('This card already exists in the system'))
+        throwError(() => new Error('This card already exists in the system')),
       );
       component.enrollSingularCard();
       tick();

@@ -135,7 +135,7 @@ export function TestCases3(getTestBed) {
         .pipe(
           finalize(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          })
+          }),
         )
         .subscribe((res) => {
           expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
@@ -357,7 +357,7 @@ export function TestCases3(getTestBed) {
 
       expect(component.showToastMessage).toHaveBeenCalledOnceWith('Commute details saved successfully', 'success');
       expect(trackingService.commuteDeductionDetailsAddedFromSpenderTask).toHaveBeenCalledOnceWith(
-        commuteDetailsResponseData.data[0]
+        commuteDetailsResponseData.data[0],
       );
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));

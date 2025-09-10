@@ -15,17 +15,10 @@ import { CurrencyPipe } from '@angular/common';
 import { FyCurrencyPipe } from '../../../shared/pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-suggested-duplicates',
-    templateUrl: './suggested-duplicates.component.html',
-    styleUrls: ['./suggested-duplicates.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        ExpensesCardComponent,
-        CurrencyPipe,
-        FyCurrencyPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-suggested-duplicates',
+  templateUrl: './suggested-duplicates.component.html',
+  styleUrls: ['./suggested-duplicates.component.scss'],
+  imports: [IonicModule, MatIcon, ExpensesCardComponent, CurrencyPipe, FyCurrencyPipe, TranslocoPipe],
 })
 export class SuggestedDuplicatesComponent {
   private modalController = inject(ModalController);

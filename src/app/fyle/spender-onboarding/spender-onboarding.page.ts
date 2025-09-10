@@ -19,16 +19,16 @@ import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
 
 @Component({
-    selector: 'app-spender-onboarding',
-    templateUrl: './spender-onboarding.page.html',
-    styleUrls: ['./spender-onboarding.page.scss'],
-    imports: [
-        IonicModule,
-        FyMenuIconComponent,
-        NgClass,
-        SpenderOnboardingConnectCardStepComponent,
-        SpenderOnboardingOptInStepComponent,
-    ],
+  selector: 'app-spender-onboarding',
+  templateUrl: './spender-onboarding.page.html',
+  styleUrls: ['./spender-onboarding.page.scss'],
+  imports: [
+    IonicModule,
+    FyMenuIconComponent,
+    NgClass,
+    SpenderOnboardingConnectCardStepComponent,
+    SpenderOnboardingOptInStepComponent,
+  ],
 })
 export class SpenderOnboardingPage {
   private loaderService = inject(LoaderService);

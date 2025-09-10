@@ -40,14 +40,14 @@ export class NetworkService {
         if (previousConnectionStatus === false && currentConnectionStatus === true) {
           return concat(
             of(ConnectionMessageStatus.onlineMessageShown),
-            of(ConnectionMessageStatus.onlineMessageHidden).pipe(delay(3000))
+            of(ConnectionMessageStatus.onlineMessageHidden).pipe(delay(3000)),
           );
         } else if (previousConnectionStatus === true && currentConnectionStatus === true) {
           return of(ConnectionMessageStatus.onlineMessageHidden);
         } else {
           return of(ConnectionMessageStatus.disconnected);
         }
-      })
+      }),
     );
   }
 }

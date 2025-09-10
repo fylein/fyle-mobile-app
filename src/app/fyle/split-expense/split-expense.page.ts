@@ -1,6 +1,14 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { Component, ElementRef, OnDestroy, inject, viewChildren } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController, IonicModule } from '@ionic/angular';
 import { isEmpty, isNumber } from 'lodash';
@@ -75,24 +83,24 @@ import { FySelectComponent } from '../../shared/components/fy-select/fy-select.c
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 
 @Component({
-    selector: 'app-split-expense',
-    templateUrl: './split-expense.page.html',
-    styleUrls: ['./split-expense.page.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        FormButtonValidationDirective,
-        FyAlertInfoComponent,
-        FormsModule,
-        ReactiveFormsModule,
-        NgClass,
-        FormatDateDirective,
-        FySelectProjectComponent,
-        FySelectComponent,
-        AsyncPipe,
-        SlicePipe,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-split-expense',
+  templateUrl: './split-expense.page.html',
+  styleUrls: ['./split-expense.page.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    FormButtonValidationDirective,
+    FyAlertInfoComponent,
+    FormsModule,
+    ReactiveFormsModule,
+    NgClass,
+    FormatDateDirective,
+    FySelectProjectComponent,
+    FySelectComponent,
+    AsyncPipe,
+    SlicePipe,
+    ExactCurrencyPipe,
+  ],
 })
 export class SplitExpensePage implements OnDestroy {
   private activatedRoute = inject(ActivatedRoute);

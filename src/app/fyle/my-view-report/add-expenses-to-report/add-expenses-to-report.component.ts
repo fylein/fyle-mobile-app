@@ -12,18 +12,10 @@ import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-add-expenses-to-report',
-    templateUrl: './add-expenses-to-report.component.html',
-    styleUrls: ['./add-expenses-to-report.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatCheckbox,
-        FormsModule,
-        ExpensesCardComponent,
-        ExactCurrencyPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-add-expenses-to-report',
+  templateUrl: './add-expenses-to-report.component.html',
+  styleUrls: ['./add-expenses-to-report.component.scss'],
+  imports: [IonicModule, MatIcon, MatCheckbox, FormsModule, ExpensesCardComponent, ExactCurrencyPipe, TranslocoPipe],
 })
 export class AddExpensesToReportComponent implements OnInit {
   private modalController = inject(ModalController);

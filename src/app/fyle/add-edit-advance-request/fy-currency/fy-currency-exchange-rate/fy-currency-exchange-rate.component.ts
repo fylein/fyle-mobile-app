@@ -18,16 +18,10 @@ import { FyNumberComponent } from '../../../../shared/components/fy-number/fy-nu
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-currency-exchange-rate',
-    templateUrl: './fy-currency-exchange-rate.component.html',
-    styleUrls: ['./fy-currency-exchange-rate.component.scss'],
-    imports: [
-        IonicModule,
-        FormsModule,
-        ReactiveFormsModule,
-        FyNumberComponent,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-currency-exchange-rate',
+  templateUrl: './fy-currency-exchange-rate.component.html',
+  styleUrls: ['./fy-currency-exchange-rate.component.scss'],
+  imports: [IonicModule, FormsModule, ReactiveFormsModule, FyNumberComponent, TranslocoPipe],
 })
 export class FyCurrencyExchangeRateComponent implements OnInit {
   private modalController = inject(ModalController);

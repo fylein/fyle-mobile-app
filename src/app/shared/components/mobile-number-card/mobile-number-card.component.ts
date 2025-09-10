@@ -4,10 +4,10 @@ import { IonicModule } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-mobile-number-card',
-    templateUrl: './mobile-number-card.component.html',
-    styleUrls: ['./mobile-number-card.component.scss'],
-    imports: [IonicModule, TranslocoPipe],
+  selector: 'app-mobile-number-card',
+  templateUrl: './mobile-number-card.component.html',
+  styleUrls: ['./mobile-number-card.component.scss'],
+  imports: [IonicModule, TranslocoPipe],
 })
 export class MobileNumberCardComponent implements OnInit {
   // TODO: Skipped for migration because:

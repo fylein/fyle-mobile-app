@@ -12,7 +12,13 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { apiAuthRes, authResData2 } from '../mock-data/auth-response.data';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData, extendedDeviceInfoMockDataWoApp } from '../mock-data/extended-device-info.data';
-import { HttpErrorResponse, HttpHeaders, HttpRequest, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpHeaders,
+  HttpRequest,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 describe('HttpConfigInterceptor', () => {
   let httpInterceptor: HttpConfigInterceptor;
@@ -35,41 +41,41 @@ describe('HttpConfigInterceptor', () => {
     const secureStorageServiceSpy = jasmine.createSpyObj('SecureStorageService', ['clearAll']);
 
     TestBed.configureTestingModule({
-    imports: [],
-    providers: [
+      imports: [],
+      providers: [
         HttpConfigInterceptor,
         {
-            provide: JwtHelperService,
-            useValue: jwtHelperServiceSpy,
+          provide: JwtHelperService,
+          useValue: jwtHelperServiceSpy,
         },
         {
-            provide: TokenService,
-            useValue: tokenServiceSpy,
+          provide: TokenService,
+          useValue: tokenServiceSpy,
         },
         {
-            provide: RouterAuthService,
-            useValue: routerAuthServiceSpy,
+          provide: RouterAuthService,
+          useValue: routerAuthServiceSpy,
         },
         {
-            provide: DeviceService,
-            useValue: deviceServiceSpy,
+          provide: DeviceService,
+          useValue: deviceServiceSpy,
         },
         {
-            provide: UserEventService,
-            useValue: userEventServiceSpy,
+          provide: UserEventService,
+          useValue: userEventServiceSpy,
         },
         {
-            provide: StorageService,
-            useValue: storageServiceSpy,
+          provide: StorageService,
+          useValue: storageServiceSpy,
         },
         {
-            provide: SecureStorageService,
-            useValue: secureStorageServiceSpy,
+          provide: SecureStorageService,
+          useValue: secureStorageServiceSpy,
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-});
+      ],
+    });
 
     httpInterceptor = TestBed.inject(HttpConfigInterceptor);
     jwtHelperService = TestBed.inject(JwtHelperService) as jasmine.SpyObj<JwtHelperService>;
@@ -88,28 +94,28 @@ describe('HttpConfigInterceptor', () => {
   describe('getUrlWithoutQueryParam:', () => {
     it('should return value truncating ;', () => {
       const result = httpInterceptor.getUrlWithoutQueryParam(
-        'https://staging1.fyle.tech/enterprise/add_edit_expense;dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+        'https://staging1.fyle.tech/enterprise/add_edit_expense;dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j',
       );
       expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
     });
 
     it('should return value truncating ?', () => {
       const result = httpInterceptor.getUrlWithoutQueryParam(
-        'https://staging1.fyle.tech/enterprise/add_edit_expense?dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+        'https://staging1.fyle.tech/enterprise/add_edit_expense?dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j',
       );
       expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
     });
 
     it('should return value truncating ;?', () => {
       const result = httpInterceptor.getUrlWithoutQueryParam(
-        'https://staging1.fyle.tech/enterprise/add_edit_expense;?dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+        'https://staging1.fyle.tech/enterprise/add_edit_expense;?dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j',
       );
       expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
     });
 
     it('should return value truncating ?;', () => {
       const result = httpInterceptor.getUrlWithoutQueryParam(
-        'https://staging1.fyle.tech/enterprise/add_edit_expense?;dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+        'https://staging1.fyle.tech/enterprise/add_edit_expense?;dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j',
       );
       expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
     });
@@ -255,7 +261,7 @@ describe('HttpConfigInterceptor', () => {
                 () =>
                   new HttpErrorResponse({
                     status: 200,
-                  })
+                  }),
               ),
           })
           .subscribe({
@@ -282,7 +288,7 @@ describe('HttpConfigInterceptor', () => {
                 () =>
                   new HttpErrorResponse({
                     status: 401,
-                  })
+                  }),
               ),
           })
           .subscribe({
@@ -314,7 +320,7 @@ describe('HttpConfigInterceptor', () => {
                   new HttpErrorResponse({
                     status: 404,
                     headers: header,
-                  })
+                  }),
               ),
           })
           .subscribe({

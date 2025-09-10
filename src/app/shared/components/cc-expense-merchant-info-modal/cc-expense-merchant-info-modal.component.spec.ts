@@ -21,18 +21,18 @@ describe('CCExpenseMerchantInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, CCExpenseMerchantInfoModalComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, CCExpenseMerchantInfoModalComponent],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CCExpenseMerchantInfoModalComponent);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;

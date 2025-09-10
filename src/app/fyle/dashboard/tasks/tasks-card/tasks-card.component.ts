@@ -10,15 +10,10 @@ import { MatRipple } from '@angular/material/core';
 import { IonicModule } from '@ionic/angular';
 
 @Component({
-    selector: 'app-tasks-card',
-    templateUrl: './tasks-card.component.html',
-    styleUrls: ['./tasks-card.component.scss'],
-    imports: [
-        MatRipple,
-        IonicModule,
-        NgClass,
-        AsyncPipe,
-    ],
+  selector: 'app-tasks-card',
+  templateUrl: './tasks-card.component.html',
+  styleUrls: ['./tasks-card.component.scss'],
+  imports: [MatRipple, IonicModule, NgClass, AsyncPipe],
 })
 export class TasksCardComponent implements OnInit {
   private currencyService = inject(CurrencyService);

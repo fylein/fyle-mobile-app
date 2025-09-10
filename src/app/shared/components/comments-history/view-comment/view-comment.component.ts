@@ -23,20 +23,20 @@ import { FormsModule } from '@angular/forms';
 import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../../pipes/date-with-timezone.pipe';
 
 @Component({
-    selector: 'app-view-comment',
-    templateUrl: './view-comment.component.html',
-    styleUrls: ['./view-comment.component.scss'],
-    providers: [DateWithTimezonePipe],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        AuditHistoryComponent,
-        MatInput,
-        FormsModule,
-        TranslocoPipe,
-        DateWithTimezonePipe_1,
-    ],
+  selector: 'app-view-comment',
+  templateUrl: './view-comment.component.html',
+  styleUrls: ['./view-comment.component.scss'],
+  providers: [DateWithTimezonePipe],
+  imports: [
+    IonicModule,
+    MatIcon,
+    NgClass,
+    AuditHistoryComponent,
+    MatInput,
+    FormsModule,
+    TranslocoPipe,
+    DateWithTimezonePipe_1,
+  ],
 })
 export class ViewCommentComponent implements OnInit {
   private statusService = inject(StatusService);

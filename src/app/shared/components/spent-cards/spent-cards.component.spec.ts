@@ -12,9 +12,9 @@ describe('SpentCardsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), SwiperModule, SpentCardsComponent],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      imports: [IonicModule.forRoot(), SwiperModule, SpentCardsComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SpentCardsComponent);
     component = fixture.componentInstance;

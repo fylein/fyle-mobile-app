@@ -6,15 +6,10 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 
 @Component({
-    selector: 'app-fy-filter-pills',
-    templateUrl: './fy-filter-pills.component.html',
-    styleUrls: ['./fy-filter-pills.component.scss'],
-    imports: [
-        IonicModule,
-        TitleCasePipe,
-        TranslocoPipe,
-        SnakeCaseToSpaceCase,
-    ],
+  selector: 'app-fy-filter-pills',
+  templateUrl: './fy-filter-pills.component.html',
+  styleUrls: ['./fy-filter-pills.component.scss'],
+  imports: [IonicModule, TitleCasePipe, TranslocoPipe, SnakeCaseToSpaceCase],
 })
 export class FyFilterPillsComponent implements OnInit {
   // TODO: Skipped for migration because:

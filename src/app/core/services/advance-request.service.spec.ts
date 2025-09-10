@@ -81,7 +81,7 @@ describe('AdvanceRequestService', () => {
   let spenderFileService: jasmine.SpyObj<SpenderFileService>;
   let approverFileService: jasmine.SpyObj<ApproverFileService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
-  
+
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
@@ -164,7 +164,7 @@ describe('AdvanceRequestService', () => {
         },
       ],
     });
-    
+
     advanceRequestService = TestBed.inject(AdvanceRequestService);
     dateService = TestBed.inject(DateService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
@@ -213,7 +213,7 @@ describe('AdvanceRequestService', () => {
       const expectedData = cloneDeep(publicAdvanceRequestRes);
       // Clone the frozen mock data to avoid read-only property errors
       const clonedAdvanceRequestPlatform = cloneDeep(advanceRequestPlatform);
-      
+
       // Reset the spy before setting up the mock
       spenderService.get.calls.reset();
       spenderService.get.and.returnValue(of(clonedAdvanceRequestPlatform));
@@ -238,7 +238,7 @@ describe('AdvanceRequestService', () => {
       const expectedData = cloneDeep(publicAdvanceRequestRes);
       // Clone the frozen mock data to avoid read-only property errors
       const clonedAdvanceRequestPlatform = cloneDeep(advanceRequestPlatform);
-      
+
       // Reset the spy before setting up the mock
       spenderService.get.calls.reset();
       spenderService.get.and.returnValue(of(clonedAdvanceRequestPlatform));
@@ -857,14 +857,14 @@ describe('AdvanceRequestService', () => {
     it('should modify advance request custom fields', () => {
       const mockCustomFields = cloneDeep(customFields);
       expect(advanceRequestService.modifyAdvanceRequestCustomFields(mockCustomFields)).toEqual(
-        expectedCustomFieldsWoDate
+        expectedCustomFieldsWoDate,
       );
     });
 
     it('should modify custom fields with date value', () => {
       const mockCustomFields = cloneDeep(customField2);
       expect(advanceRequestService.modifyAdvanceRequestCustomFields(mockCustomFields)).toEqual(
-        expectedCustomFieldsWithDate
+        expectedCustomFieldsWithDate,
       );
     });
   });

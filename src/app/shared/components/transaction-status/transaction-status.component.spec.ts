@@ -20,9 +20,9 @@ describe('TransactionStatusComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, TransactionStatusComponent],
-    providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
-}).compileComponents();
+      imports: [IonicModule.forRoot(), TranslocoModule, TransactionStatusComponent],
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TransactionStatusComponent);
     component = fixture.componentInstance;

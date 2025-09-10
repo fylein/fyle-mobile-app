@@ -10,16 +10,10 @@ import { FormButtonValidationDirective } from '../../directive/form-button-valid
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-delete-dialog',
-    templateUrl: './fy-delete-dialog.component.html',
-    styleUrls: ['./fy-delete-dialog.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        FormButtonValidationDirective,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-delete-dialog',
+  templateUrl: './fy-delete-dialog.component.html',
+  styleUrls: ['./fy-delete-dialog.component.scss'],
+  imports: [IonicModule, MatIcon, NgClass, FormButtonValidationDirective, TranslocoPipe],
 })
 export class FyDeleteDialogComponent implements OnInit {
   private popoverController = inject(PopoverController);

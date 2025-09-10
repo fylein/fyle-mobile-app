@@ -12,17 +12,10 @@ import { ExpenseCardLiteComponent } from '../../shared/components/expense-card-l
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 import { CurrencySymbolPipe } from '../../shared/pipes/currency-symbol.pipe';
 @Component({
-    selector: 'app-personal-cards-matched-expenses',
-    templateUrl: './personal-cards-matched-expenses.page.html',
-    styleUrls: ['./personal-cards-matched-expenses.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        ExpenseCardLiteComponent,
-        DatePipe,
-        ExactCurrencyPipe,
-        CurrencySymbolPipe,
-    ],
+  selector: 'app-personal-cards-matched-expenses',
+  templateUrl: './personal-cards-matched-expenses.page.html',
+  styleUrls: ['./personal-cards-matched-expenses.page.scss'],
+  imports: [IonicModule, NgClass, ExpenseCardLiteComponent, DatePipe, ExactCurrencyPipe, CurrencySymbolPipe],
 })
 export class PersonalCardsMatchedExpensesPage {
   private router = inject(Router);

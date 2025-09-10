@@ -7,16 +7,10 @@ import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 @Component({
-    selector: 'app-expense-card-lite',
-    templateUrl: './expense-card-lite.component.html',
-    styleUrls: ['./expense-card-lite.component.scss'],
-    imports: [
-        IonicModule,
-        DatePipe,
-        TranslocoPipe,
-        CurrencySymbolPipe,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-expense-card-lite',
+  templateUrl: './expense-card-lite.component.html',
+  styleUrls: ['./expense-card-lite.component.scss'],
+  imports: [IonicModule, DatePipe, TranslocoPipe, CurrencySymbolPipe, ExactCurrencyPipe],
 })
 export class ExpenseCardLiteComponent implements OnInit {
   // TODO: Skipped for migration because:

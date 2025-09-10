@@ -55,8 +55,8 @@ describe('FySelectCommuteDetailsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, FySelectCommuteDetailsComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, FySelectCommuteDetailsComponent],
+      providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: LocationService, useValue: locationServiceSpy },
@@ -66,9 +66,9 @@ describe('FySelectCommuteDetailsComponent', () => {
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FySelectCommuteDetailsComponent);
     component = fixture.componentInstance;

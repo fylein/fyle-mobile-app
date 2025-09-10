@@ -3,11 +3,11 @@ import { SpenderFileService } from './file.service';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
 import { of, throwError } from 'rxjs';
 import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
-import { 
-  platformFileData, 
-  platformFileBulkData, 
-  platformFilePostRequestPayload, 
-  platformFilePostRequestBulkPayload 
+import {
+  platformFileData,
+  platformFileBulkData,
+  platformFilePostRequestPayload,
+  platformFilePostRequestBulkPayload,
 } from 'src/app/core/mock-data/platform-file.data';
 
 describe('SpenderFileService', () => {
@@ -26,7 +26,7 @@ describe('SpenderFileService', () => {
     });
     service = TestBed.inject(SpenderFileService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
@@ -40,7 +40,9 @@ describe('SpenderFileService', () => {
 
       service.createFile(platformFilePostRequestPayload).subscribe((response) => {
         expect(response).toEqual(platformFileData);
-        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/files', { data: platformFilePostRequestPayload });
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/files', {
+          data: platformFilePostRequestPayload,
+        });
         done();
       });
     });
@@ -53,7 +55,7 @@ describe('SpenderFileService', () => {
         error: (err) => {
           expect(err).toEqual(error);
           done();
-        }
+        },
       });
     });
   });
@@ -64,7 +66,9 @@ describe('SpenderFileService', () => {
 
       service.createFilesBulk(platformFilePostRequestBulkPayload).subscribe((response) => {
         expect(response).toEqual(platformFileBulkData);
-        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/files/bulk', { data: platformFilePostRequestBulkPayload });
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/files/bulk', {
+          data: platformFilePostRequestBulkPayload,
+        });
         done();
       });
     });
@@ -77,7 +81,7 @@ describe('SpenderFileService', () => {
         error: (err) => {
           expect(err).toEqual(error);
           done();
-        }
+        },
       });
     });
 
@@ -96,7 +100,7 @@ describe('SpenderFileService', () => {
     it('should delete multiple files in bulk successfully', (done) => {
       const fileIds = ['fi1', 'fi2', 'fi3'];
       const expectedPayload = { data: [{ id: 'fi1' }, { id: 'fi2' }, { id: 'fi3' }] };
-      
+
       spenderPlatformV1ApiService.post.and.returnValue(of({}));
 
       service.deleteFilesBulk(fileIds).subscribe((response) => {
@@ -115,14 +119,14 @@ describe('SpenderFileService', () => {
         error: (err) => {
           expect(err).toEqual(error);
           done();
-        }
+        },
       });
     });
 
     it('should handle single file deletion', (done) => {
       const fileIds = ['fi1'];
       const expectedPayload = { data: [{ id: 'fi1' }] };
-      
+
       spenderPlatformV1ApiService.post.and.returnValue(of({}));
 
       service.deleteFilesBulk(fileIds).subscribe((response) => {
@@ -160,7 +164,10 @@ describe('SpenderFileService', () => {
 
       service.attachToAdvance(advanceRequestId, fileIds).subscribe((response) => {
         expect(response).toBeUndefined();
-        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/advance_requests/attach_files/bulk', expectedPayload);
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith(
+          '/advance_requests/attach_files/bulk',
+          expectedPayload,
+        );
         done();
       });
     });
@@ -175,7 +182,7 @@ describe('SpenderFileService', () => {
         error: (err) => {
           expect(err).toEqual(error);
           done();
-        }
+        },
       });
     });
 
@@ -195,7 +202,10 @@ describe('SpenderFileService', () => {
 
       service.attachToAdvance(advanceRequestId, fileIds).subscribe((response) => {
         expect(response).toBeUndefined();
-        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/advance_requests/attach_files/bulk', expectedPayload);
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith(
+          '/advance_requests/attach_files/bulk',
+          expectedPayload,
+        );
         done();
       });
     });
@@ -216,7 +226,10 @@ describe('SpenderFileService', () => {
 
       service.attachToAdvance(advanceRequestId, fileIds).subscribe((response) => {
         expect(response).toBeUndefined();
-        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/advance_requests/attach_files/bulk', expectedPayload);
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith(
+          '/advance_requests/attach_files/bulk',
+          expectedPayload,
+        );
         done();
       });
     });

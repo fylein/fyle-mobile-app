@@ -28,15 +28,10 @@ import { SidemenuContentComponent } from './sidemenu-content/sidemenu-content.co
 import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
 
 @Component({
-    selector: 'app-sidemenu',
-    templateUrl: './sidemenu.component.html',
-    styleUrls: ['./sidemenu.component.scss'],
-    imports: [
-        IonicModule,
-        SidemenuHeaderComponent,
-        SidemenuContentComponent,
-        SidemenuFooterComponent,
-    ],
+  selector: 'app-sidemenu',
+  templateUrl: './sidemenu.component.html',
+  styleUrls: ['./sidemenu.component.scss'],
+  imports: [IonicModule, SidemenuHeaderComponent, SidemenuContentComponent, SidemenuFooterComponent],
 })
 export class SidemenuComponent implements OnInit {
   private deviceService = inject(DeviceService);

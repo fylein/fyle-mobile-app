@@ -27,27 +27,27 @@ import { MatRipple } from '@angular/material/core';
 import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
 import { NgTemplateOutlet } from '@angular/common';
 @Component({
-    selector: 'app-virtual-select-modal',
-    templateUrl: './virtual-select-modal.component.html',
-    styleUrls: ['./virtual-select-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatFormField,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatIconButton,
-        MatSuffix,
-        CdkVirtualScrollViewport,
-        CdkFixedSizeVirtualScroll,
-        FyZeroStateComponent,
-        CdkVirtualForOf,
-        MatRipple,
-        FyHighlightTextComponent,
-        NgTemplateOutlet,
-        TranslocoPipe,
-    ],
+  selector: 'app-virtual-select-modal',
+  templateUrl: './virtual-select-modal.component.html',
+  styleUrls: ['./virtual-select-modal.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    MatFormField,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatIconButton,
+    MatSuffix,
+    CdkVirtualScrollViewport,
+    CdkFixedSizeVirtualScroll,
+    FyZeroStateComponent,
+    CdkVirtualForOf,
+    MatRipple,
+    FyHighlightTextComponent,
+    NgTemplateOutlet,
+    TranslocoPipe,
+  ],
 })
 export class VirtualSelectModalComponent implements AfterViewInit {
   private modalController = inject(ModalController);

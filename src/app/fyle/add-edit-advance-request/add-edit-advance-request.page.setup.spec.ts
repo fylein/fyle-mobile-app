@@ -85,8 +85,8 @@ describe('AddEditAdvanceRequestPage', () => {
     const platformSpyObj = jasmine.createSpyObj('Platform', ['is']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterTestingModule, AddEditAdvanceRequestPage],
-    providers: [
+      imports: [IonicModule.forRoot(), RouterTestingModule, AddEditAdvanceRequestPage],
+      providers: [
         { provide: AuthService, useValue: authServiceSpyObj },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpyObj },
         { provide: ModalController, useValue: modalControllerSpyObj },
@@ -108,19 +108,19 @@ describe('AddEditAdvanceRequestPage', () => {
         { provide: ApproverFileService, useValue: approverFileServiceSpyObj },
         { provide: Platform, useValue: platformSpyObj },
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        id: 'areqR1cyLgXdND',
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                id: 'areqR1cyLgXdND',
+              },
             },
+          },
         },
         UntypedFormBuilder,
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     return TestBed;
   };

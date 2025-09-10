@@ -191,10 +191,7 @@ export const recentlyUsedCostCentersRes: Partial<{ label: string; value: CostCen
     },
   ]);
 
-export const recentlyUsedMileages: Pick<
-  RecentlyUsed,
-  'start_locations' | 'end_locations' | 'locations'
-> = deepFreeze({
+export const recentlyUsedMileages: Pick<RecentlyUsed, 'start_locations' | 'end_locations' | 'locations'> = deepFreeze({
   start_locations: [
     'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',
     'MG Road, Yellappa Chetty Layout, Sivanchetti Gardens, Halasuru, Karnataka, India',

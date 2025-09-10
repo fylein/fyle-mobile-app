@@ -42,17 +42,26 @@ describe('PersonalCardTransactionComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, TranslocoModule, PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
+        PersonalCardTransactionComponent,
+        DateFormatPipe,
+        ExactCurrencyPipe,
+        FyCurrencyPipe,
+      ],
+      providers: [
         {
-            provide: DateFormatPipe,
-            useValue: dateFormatPipeSpy,
+          provide: DateFormatPipe,
+          useValue: dateFormatPipeSpy,
         },
         FyCurrencyPipe,
         CurrencyPipe,
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PersonalCardTransactionComponent);
     component = fixture.componentInstance;

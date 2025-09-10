@@ -25,26 +25,26 @@ import { FormsModule } from '@angular/forms';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
-    selector: 'app-fy-userlist-modal',
-    templateUrl: './fy-userlist-modal.component.html',
-    styleUrls: ['./fy-userlist-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        MatFormField,
-        MatChipGrid,
-        MatChipRow,
-        MatChipRemove,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatChipInput,
-        MatSuffix,
-        MatCheckbox,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-userlist-modal',
+  templateUrl: './fy-userlist-modal.component.html',
+  styleUrls: ['./fy-userlist-modal.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    NgClass,
+    MatFormField,
+    MatChipGrid,
+    MatChipRow,
+    MatChipRemove,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatChipInput,
+    MatSuffix,
+    MatCheckbox,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);

@@ -30,13 +30,13 @@ describe('TasksCardComponent', () => {
       return translations[key] || key;
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatRippleModule, MatIconModule, MatIconTestingModule, TasksCardComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), MatRippleModule, MatIconModule, MatIconTestingModule, TasksCardComponent],
+      providers: [
         { provide: TranslocoService, useValue: translocoService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TasksCardComponent);
     component = fixture.componentInstance;

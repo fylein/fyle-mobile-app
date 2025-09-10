@@ -79,8 +79,17 @@ describe('ViewCommentComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule, ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        ViewCommentComponent,
+        DateFormatPipe,
+        DateWithTimezonePipe,
+      ],
+      providers: [
         { provide: StatusService, useValue: statusService },
         { provide: AuthService, useValue: authService },
         { provide: ModalController, useValue: modalController },
@@ -97,8 +106,8 @@ describe('ViewCommentComponent', () => {
         { provide: AdvanceRequestService, useValue: advanceRequestService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     authService.getEou.and.resolveTo(apiEouRes);
     const mockCommentResponse = cloneDeep(apiCommentsResponse);

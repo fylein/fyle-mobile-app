@@ -3,10 +3,10 @@ import { DatePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-auto-submission-info-card',
-    templateUrl: './auto-submission-info-card.component.html',
-    styleUrls: ['./auto-submission-info-card.component.scss'],
-    imports: [DatePipe, TranslocoPipe],
+  selector: 'app-auto-submission-info-card',
+  templateUrl: './auto-submission-info-card.component.html',
+  styleUrls: ['./auto-submission-info-card.component.scss'],
+  imports: [DatePipe, TranslocoPipe],
 })
 export class AutoSubmissionInfoCardComponent implements OnInit {
   // TODO: Skipped for migration because:

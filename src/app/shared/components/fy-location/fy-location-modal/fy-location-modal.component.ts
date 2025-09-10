@@ -42,23 +42,23 @@ import { MatRipple } from '@angular/material/core';
 import { AsyncPipe, LowerCasePipe } from '@angular/common';
 
 @Component({
-    selector: 'app-fy-location-modal',
-    templateUrl: './fy-location-modal.component.html',
-    styleUrls: ['./fy-location-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatFormField,
-        MatInput,
-        FormsModule,
-        MatIcon,
-        MatSuffix,
-        MatIconButton,
-        FyAlertInfoComponent,
-        MatRipple,
-        AsyncPipe,
-        LowerCasePipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-location-modal',
+  templateUrl: './fy-location-modal.component.html',
+  styleUrls: ['./fy-location-modal.component.scss'],
+  imports: [
+    IonicModule,
+    MatFormField,
+    MatInput,
+    FormsModule,
+    MatIcon,
+    MatSuffix,
+    MatIconButton,
+    FyAlertInfoComponent,
+    MatRipple,
+    AsyncPipe,
+    LowerCasePipe,
+    TranslocoPipe,
+  ],
 })
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
   private gmapsService = inject(GmapsService);

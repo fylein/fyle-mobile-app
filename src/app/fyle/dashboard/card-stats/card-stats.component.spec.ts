@@ -29,9 +29,9 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { tap } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-spent-cards',
-    template: '<div></div>',
-    imports: [TranslocoModule],
+  selector: 'app-spent-cards',
+  template: '<div></div>',
+  imports: [TranslocoModule],
 })
 class MockSpentCardsComponent {
   readonly cardDetails = input<PlatformCorporateCardDetail[]>(undefined);
@@ -44,9 +44,9 @@ class MockSpentCardsComponent {
 }
 
 @Component({
-    selector: 'app-add-card',
-    template: '<div></div>',
-    imports: [TranslocoModule],
+  selector: 'app-add-card',
+  template: '<div></div>',
+  imports: [TranslocoModule],
 })
 class MockAddCardComponent {
   readonly showZeroStateMessage = input<boolean>(undefined);
@@ -91,46 +91,52 @@ describe('CardStatsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, CardStatsComponent, MockSpentCardsComponent, MockAddCardComponent],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        TranslocoModule,
+        CardStatsComponent,
+        MockSpentCardsComponent,
+        MockAddCardComponent,
+      ],
+      providers: [
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: DashboardService,
-            useValue: dashboardServiceSpy,
+          provide: DashboardService,
+          useValue: dashboardServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: platformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-            provide: CorporateCreditCardExpenseService,
-            useValue: corporateCreditCardExpenseServiceSpy,
+          provide: CorporateCreditCardExpenseService,
+          useValue: corporateCreditCardExpenseServiceSpy,
         },
         {
-            provide: VirtualCardsService,
-            useValue: virtualCardsServiceSpy,
+          provide: VirtualCardsService,
+          useValue: virtualCardsServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CardStatsComponent);
     component = fixture.componentInstance;

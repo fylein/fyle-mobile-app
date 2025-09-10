@@ -128,7 +128,7 @@ describe('SwitchOrgPage', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [
+      imports: [
         IonicModule.forRoot(),
         MatIconTestingModule,
         MatIconModule,
@@ -138,126 +138,129 @@ describe('SwitchOrgPage', () => {
         FormsModule,
         ReactiveFormsModule,
         TranslocoModule,
-        SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent,
-    ],
-    providers: [
+        SwitchOrgPage,
+        ActiveOrgCardComponent,
+        OrgCardComponent,
+        FyZeroStateComponent,
+      ],
+      providers: [
         UrlSerializer,
         ChangeDetectorRef,
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        navigate_back: false,
-                        choose: JSON.stringify(true),
-                        invite_link: JSON.stringify(true),
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                navigate_back: false,
+                choose: JSON.stringify(true),
+                invite_link: JSON.stringify(true),
+              },
             },
+          },
         },
         {
-            provide: LaunchDarklyService,
-            useValue: ldSpy,
+          provide: LaunchDarklyService,
+          useValue: ldSpy,
         },
         {
-            provide: Platform,
-            useValue: platformSpy,
+          provide: Platform,
+          useValue: platformSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: SpenderOnboardingService,
-            useValue: spenderOnboardingServiceSpy,
+          provide: SpenderOnboardingService,
+          useValue: spenderOnboardingServiceSpy,
         },
         {
-            provide: UserService,
-            useValue: userServiceSpy,
+          provide: UserService,
+          useValue: userServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: SecureStorageService,
-            useValue: secureStorageServiceSpy,
+          provide: SecureStorageService,
+          useValue: secureStorageServiceSpy,
         },
         {
-            provide: StorageService,
-            useValue: storageServiceSpy,
+          provide: StorageService,
+          useValue: storageServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: OrgService,
-            useValue: orgServiceSpy,
+          provide: OrgService,
+          useValue: orgServiceSpy,
         },
         {
-            provide: UserEventService,
-            useValue: userEventServiceSpy,
+          provide: UserEventService,
+          useValue: userEventServiceSpy,
         },
         {
-            provide: RecentLocalStorageItemsService,
-            useValue: recentLocalStorageItemsServiceSpy,
+          provide: RecentLocalStorageItemsService,
+          useValue: recentLocalStorageItemsServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: DeviceService,
-            useValue: deviceServiceSpy,
+          provide: DeviceService,
+          useValue: deviceServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: OrgUserService,
-            useValue: orgUserServiceSpy,
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
         },
         {
-            provide: AppVersionService,
-            useValue: appVersionServiceSpy,
+          provide: AppVersionService,
+          useValue: appVersionServiceSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: RouterAuthService,
-            useValue: routerAuthServiceSpy,
+          provide: RouterAuthService,
+          useValue: routerAuthServiceSpy,
         },
         {
-            provide: TransactionService,
-            useValue: transactionServiceSpy,
+          provide: TransactionService,
+          useValue: transactionServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
-            provide: DeepLinkService,
-            useValue: deepLinkServiceSpy,
+          provide: DeepLinkService,
+          useValue: deepLinkServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
     fixture = TestBed.createComponent(SwitchOrgPage);
     component = fixture.componentInstance;
 
@@ -272,7 +275,7 @@ describe('SwitchOrgPage', () => {
     userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
@@ -504,7 +507,7 @@ describe('SwitchOrgPage', () => {
       component.handleDismissPopup('resend', email, org_id, orgData1);
       expect(component.resendInvite).toHaveBeenCalledOnceWith(email, org_id);
       expect(component.showToastNotification).toHaveBeenCalledOnceWith(
-        'Verification link could not be sent. Please try again!'
+        'Verification link could not be sent. Please try again!',
       );
     });
   });
@@ -619,7 +622,7 @@ describe('SwitchOrgPage', () => {
             'my_dashboard',
             { openSMSOptInDialog: undefined },
           ]);
-        })
+        }),
       )
       .subscribe((res) => {
         expect(res).toEqual(apiEouRes);
@@ -678,7 +681,7 @@ describe('SwitchOrgPage', () => {
         of({
           is_password_required: false,
           is_password_set: true,
-        })
+        }),
       );
     });
 
@@ -758,7 +761,7 @@ describe('SwitchOrgPage', () => {
         of({
           is_password_required: true,
           is_password_set: false,
-        })
+        }),
       );
       spyOn(component, 'handlePendingDetails').and.returnValue(of(apiEouRes));
       const config = {
@@ -775,7 +778,7 @@ describe('SwitchOrgPage', () => {
         expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(
           config.roles,
           config.isFromInviteLink,
-          config.isPasswordSetRequired
+          config.isPasswordSetRequired,
         );
         done();
       });
@@ -802,7 +805,7 @@ describe('SwitchOrgPage', () => {
         },
         lastLoggedInVersion: '5.50.0',
         eou: apiEouRes,
-      })
+      }),
     );
 
     component.proceed();
@@ -986,7 +989,7 @@ describe('SwitchOrgPage', () => {
 
     const resetButton = getElementBySelector(
       fixture,
-      '.switch-org__searchbar-container__searchbar__clear-icon'
+      '.switch-org__searchbar-container__searchbar__clear-icon',
     ) as HTMLElement;
     click(resetButton);
 

@@ -7,14 +7,10 @@ import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-promote-opt-in-modal',
-    templateUrl: './promote-opt-in-modal.component.html',
-    styleUrls: ['./promote-opt-in-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-promote-opt-in-modal',
+  templateUrl: './promote-opt-in-modal.component.html',
+  styleUrls: ['./promote-opt-in-modal.component.scss'],
+  imports: [IonicModule, MatIcon, TranslocoPipe],
 })
 export class PromoteOptInModalComponent {
   private modalController = inject(ModalController);

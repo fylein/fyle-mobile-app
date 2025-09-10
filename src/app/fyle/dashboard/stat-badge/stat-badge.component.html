@@ -6,9 +6,7 @@
           @if (!loading && reportState) {
             <div>
               @if (!loading) {
-                <div
-                  [ngClass]="'stat-badge--count stat-badge--count__' + reportState.toString().toLowerCase()"
-                  >
+                <div [ngClass]="'stat-badge--count stat-badge--count__' + reportState.toString().toLowerCase()">
                   {{ count }}
                 </div>
               }
@@ -17,9 +15,7 @@
           @if (!loading && expenseState) {
             <div>
               @if (!loading) {
-                <div
-                  [ngClass]="'stat-badge--count stat-badge--count__' + expenseState.toString().toLowerCase()"
-                  >
+                <div [ngClass]="'stat-badge--count stat-badge--count__' + expenseState.toString().toLowerCase()">
                   {{ count }}
                 </div>
               }
@@ -54,29 +50,27 @@
               <ion-col class="stat-badge--grid-col">
                 @if (!loading) {
                   <div class="stat-badge--amount">
-                    {{ currencySymbol
-                    }}@if (shouldDisplayExact) {
-                    {{
-                    { value: value, currencyCode: currency, skipSymbol: true } | exactCurrency
-                    }}
-                  } @else {
-                    {{ value | humanizeCurrency : currency : true }}
-                  }
-                </div>
-              }
-              @if (loading) {
-                <div>
-                  <ion-skeleton-text
-                    class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-medium"
-                    animated
-                  ></ion-skeleton-text>
-                </div>
-              }
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-</div>
+                    {{ currencySymbol }}
+                    @if (shouldDisplayExact) {
+                      {{ { value: value, currencyCode: currency, skipSymbol: true } | exactCurrency }}
+                    } @else {
+                      {{ value | humanizeCurrency: currency : true }}
+                    }
+                  </div>
+                }
+                @if (loading) {
+                  <div>
+                    <ion-skeleton-text
+                      class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-medium"
+                      animated
+                    ></ion-skeleton-text>
+                  </div>
+                }
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 </div>

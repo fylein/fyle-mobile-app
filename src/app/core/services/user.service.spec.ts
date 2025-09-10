@@ -257,7 +257,7 @@ describe('UserService', () => {
     userService.upsertProperties(userPropertiesNew).subscribe((_) => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/users/' + currentUserResponse.id + '/properties',
-        userPropertiesNew
+        userPropertiesNew,
       );
       done();
     });

@@ -539,12 +539,14 @@ export class AdvanceRequestService {
           const advanceReqPlatform = res.advanceReq;
 
           if (isApprover) {
-            return this.approverFileService.attachToAdvance(advanceReqPlatform.id, fileIds, advanceReqPlatform.user.id).pipe(
-              map(() => ({
-                files: [],
-                advanceReq: advanceReqPlatform,
-              })),
-            );
+            return this.approverFileService
+              .attachToAdvance(advanceReqPlatform.id, fileIds, advanceReqPlatform.user.id)
+              .pipe(
+                map(() => ({
+                  files: [],
+                  advanceReq: advanceReqPlatform,
+                })),
+              );
           } else {
             return this.spenderFileService.attachToAdvance(advanceReqPlatform.id, fileIds).pipe(
               map(() => ({

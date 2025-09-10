@@ -43,27 +43,27 @@ describe('EmailNotificationsComponent', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
 
     TestBed.configureTestingModule({
-    imports: [EmailNotificationsComponent],
-    providers: [
+      imports: [EmailNotificationsComponent],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: Platform,
-            useValue: platformSpy,
+          provide: Platform,
+          useValue: platformSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: platformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(EmailNotificationsComponent);
     component = fixture.componentInstance;
@@ -71,7 +71,7 @@ describe('EmailNotificationsComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
 
@@ -206,7 +206,7 @@ describe('EmailNotificationsComponent', () => {
   describe('toggleNotification():', () => {
     it('should toggle specific notification', () => {
       const notificationToBeToggled = component.notifications.find(
-        (n) => n.eventEnum === NotificationEventsEnum.ESTATUSES_CREATED_TXN
+        (n) => n.eventEnum === NotificationEventsEnum.ESTATUSES_CREATED_TXN,
       );
 
       spyOn(component, 'updateSelectAll');
@@ -215,7 +215,7 @@ describe('EmailNotificationsComponent', () => {
       component.toggleNotification(notificationToBeToggled);
 
       const toggledNotification = component.notifications.find(
-        (n) => n.eventEnum === NotificationEventsEnum.ESTATUSES_CREATED_TXN
+        (n) => n.eventEnum === NotificationEventsEnum.ESTATUSES_CREATED_TXN,
       );
       expect(toggledNotification.email).toBeFalse();
       expect(component.updateSelectAll).toHaveBeenCalledTimes(1);
@@ -230,7 +230,7 @@ describe('EmailNotificationsComponent', () => {
       component.updateNotificationSettings();
 
       expect(component.employeeSettings.notification_settings.email_unsubscribed_events).toContain(
-        NotificationEventsEnum.ERPTS_SUBMITTED
+        NotificationEventsEnum.ERPTS_SUBMITTED,
       );
       expect(trackingService.eventTrack).toHaveBeenCalledWith('Email notifications updated from mobile app', {
         unsubscribedEvents: jasmine.any(Array),

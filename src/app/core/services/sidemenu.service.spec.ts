@@ -49,7 +49,7 @@ describe('SidemenuService', () => {
       expect(permissionsService.allowedActions).toHaveBeenCalledOnceWith(
         'advances',
         ['approve', 'create', 'delete'],
-        orgSettingsRes
+        orgSettingsRes,
       );
       done();
     });
@@ -67,7 +67,7 @@ describe('SidemenuService', () => {
       expect(permissionsService.allowedActions).toHaveBeenCalledOnceWith(
         'advances',
         ['approve', 'create', 'delete'],
-        orgSettingsParams2
+        orgSettingsParams2,
       );
       done();
     });

@@ -11,14 +11,10 @@ import { NgClass } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-policy-violation-info',
-    templateUrl: './fy-policy-violation-info.component.html',
-    styleUrls: ['./fy-policy-violation-info.component.scss'],
-    imports: [
-        MatIcon,
-        NgClass,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-policy-violation-info',
+  templateUrl: './fy-policy-violation-info.component.html',
+  styleUrls: ['./fy-policy-violation-info.component.scss'],
+  imports: [MatIcon, NgClass, TranslocoPipe],
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
   private modalController = inject(ModalController);

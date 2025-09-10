@@ -7,10 +7,10 @@ import { HelpAdminInfo } from 'src/app/core/models/help-admin-info.model';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-support-dialog',
-    templateUrl: './support-dialog.page.html',
-    styleUrls: ['./support-dialog.page.scss'],
-    imports: [IonicModule, MatIcon],
+  selector: 'app-support-dialog',
+  templateUrl: './support-dialog.page.html',
+  styleUrls: ['./support-dialog.page.scss'],
+  imports: [IonicModule, MatIcon],
 })
 export class SupportDialogPage {
   private modalController = inject(ModalController);

@@ -9,17 +9,10 @@ import { EllipsisPipe } from '../../../shared/pipes/ellipses.pipe';
 import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
 
 @Component({
-    selector: 'app-my-advances-card',
-    templateUrl: './my-advances-card.component.html',
-    styleUrls: ['./my-advances-card.component.scss'],
-    imports: [
-        NgClass,
-        MatIcon,
-        DatePipe,
-        EllipsisPipe,
-        ExactCurrencyPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-my-advances-card',
+  templateUrl: './my-advances-card.component.html',
+  styleUrls: ['./my-advances-card.component.scss'],
+  imports: [NgClass, MatIcon, DatePipe, EllipsisPipe, ExactCurrencyPipe, TranslocoPipe],
 })
 export class MyAdvancesCardComponent implements OnInit {
   private advanceRequestService = inject(AdvanceRequestService);

@@ -5,16 +5,10 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgClass, NgStyle } from '@angular/common';
 
 @Component({
-    selector: 'app-sidemenu-content-item',
-    templateUrl: './sidemenu-content-item.component.html',
-    styleUrls: ['./sidemenu-content-item.component.scss'],
-    imports: [
-        IonicModule,
-        RouterLink,
-        RouterLinkActive,
-        NgClass,
-        NgStyle,
-    ],
+  selector: 'app-sidemenu-content-item',
+  templateUrl: './sidemenu-content-item.component.html',
+  styleUrls: ['./sidemenu-content-item.component.scss'],
+  imports: [IonicModule, RouterLink, RouterLinkActive, NgClass, NgStyle],
 })
 export class SidemenuContentItemComponent implements OnInit {
   // TODO: Skipped for migration because:

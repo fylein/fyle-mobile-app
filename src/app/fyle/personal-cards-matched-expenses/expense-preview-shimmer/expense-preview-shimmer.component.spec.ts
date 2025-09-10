@@ -9,8 +9,8 @@ describe('ExpensePreviewShimmerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), ExpensePreviewShimmerComponent],
-}).compileComponents();
+      imports: [IonicModule.forRoot(), ExpensePreviewShimmerComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

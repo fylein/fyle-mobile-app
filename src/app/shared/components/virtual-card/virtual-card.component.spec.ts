@@ -30,14 +30,14 @@ describe('VirtualCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, VirtualCardComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, VirtualCardComponent],
+      providers: [
         { provide: ClipboardService, useValue: clipboardServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(VirtualCardComponent);
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -113,7 +113,7 @@ describe('VirtualCardComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
       'success',
       { message },
-      'check-circle-outline'
+      'check-circle-outline',
     );
   });
 

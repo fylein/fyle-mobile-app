@@ -19,9 +19,9 @@ describe('PasswordCheckTooltipComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, PasswordCheckTooltipComponent],
-    providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
-}).compileComponents();
+      imports: [IonicModule.forRoot(), TranslocoModule, PasswordCheckTooltipComponent],
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PasswordCheckTooltipComponent);
     component = fixture.componentInstance;

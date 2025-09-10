@@ -65,8 +65,8 @@ describe('InvitedUserPage', () => {
       'checkForRedirectionToOnboarding',
     ]);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconTestingModule, RouterTestingModule, InvitedUserPage],
-    providers: [
+      imports: [IonicModule.forRoot(), MatIconTestingModule, RouterTestingModule, InvitedUserPage],
+      providers: [
         UntypedFormBuilder,
         UrlSerializer,
         { provide: NetworkService, useValue: networkServiceSpy },
@@ -80,9 +80,9 @@ describe('InvitedUserPage', () => {
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     fb = TestBed.inject(UntypedFormBuilder);

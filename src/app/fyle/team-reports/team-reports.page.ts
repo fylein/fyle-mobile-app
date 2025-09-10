@@ -41,27 +41,27 @@ import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-z
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
-    selector: 'app-team-reports',
-    templateUrl: './team-reports.page.html',
-    styleUrls: ['./team-reports.page.scss'],
-    imports: [
-        FyHeaderComponent,
-        IonicModule,
-        MatFormField,
-        MatIcon,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatIconButton,
-        MatSuffix,
-        NgClass,
-        FyFilterPillsComponent,
-        ReportsCardComponent,
-        FyLoadingScreenComponent,
-        FyZeroStateComponent,
-        FooterComponent,
-        AsyncPipe,
-    ],
+  selector: 'app-team-reports',
+  templateUrl: './team-reports.page.html',
+  styleUrls: ['./team-reports.page.scss'],
+  imports: [
+    FyHeaderComponent,
+    IonicModule,
+    MatFormField,
+    MatIcon,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatIconButton,
+    MatSuffix,
+    NgClass,
+    FyFilterPillsComponent,
+    ReportsCardComponent,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    FooterComponent,
+    AsyncPipe,
+  ],
 })
 export class TeamReportsPage implements OnInit {
   private networkService = inject(NetworkService);

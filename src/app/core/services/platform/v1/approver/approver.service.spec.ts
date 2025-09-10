@@ -101,7 +101,7 @@ describe('ApproverService', () => {
       expect(response).toEqual(apiResponse);
       expect(httpClient.post).toHaveBeenCalledWith(
         'https://staging.fyle.tech/platform/v1/approver/expense_fields',
-        requestObj
+        requestObj,
       );
       expect(dateService.fixDates).toHaveBeenCalledOnceWith(apiResponse);
       done();

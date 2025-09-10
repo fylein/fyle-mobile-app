@@ -3,10 +3,10 @@ import { IonicModule } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-nav-footer',
-    templateUrl: './fy-nav-footer.component.html',
-    styleUrls: ['./fy-nav-footer.component.scss'],
-    imports: [IonicModule, TranslocoPipe],
+  selector: 'app-fy-nav-footer',
+  templateUrl: './fy-nav-footer.component.html',
+  styleUrls: ['./fy-nav-footer.component.scss'],
+  imports: [IonicModule, TranslocoPipe],
 })
 export class FyNavFooterComponent {
   // TODO: Skipped for migration because:

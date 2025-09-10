@@ -21,17 +21,10 @@ import { MatIcon } from '@angular/material/icon';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-fy-view-report-info-v2',
-    templateUrl: './fy-view-report-info.component.html',
-    styleUrls: ['./fy-view-report-info.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        CurrencyPipe,
-        KeyValuePipe,
-        TranslocoPipe,
-        FyCurrencyPipe,
-    ],
+  selector: 'app-fy-view-report-info-v2',
+  templateUrl: './fy-view-report-info.component.html',
+  styleUrls: ['./fy-view-report-info.component.scss'],
+  imports: [IonicModule, MatIcon, CurrencyPipe, KeyValuePipe, TranslocoPipe, FyCurrencyPipe],
 })
 export class FyViewReportInfoComponent {
   private modalController = inject(ModalController);

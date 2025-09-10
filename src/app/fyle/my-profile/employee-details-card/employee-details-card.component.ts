@@ -7,16 +7,10 @@ import { InitialsPipe } from '../../../shared/pipes/initials.pipe';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-employee-details-card',
-    templateUrl: './employee-details-card.component.html',
-    styleUrls: ['./employee-details-card.component.scss'],
-    imports: [
-        NgClass,
-        IonicModule,
-        UpperCasePipe,
-        InitialsPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-employee-details-card',
+  templateUrl: './employee-details-card.component.html',
+  styleUrls: ['./employee-details-card.component.scss'],
+  imports: [NgClass, IonicModule, UpperCasePipe, InitialsPipe, TranslocoPipe],
 })
 export class EmployeeDetailsCardComponent implements OnInit {
   private utilityService = inject(UtilityService);

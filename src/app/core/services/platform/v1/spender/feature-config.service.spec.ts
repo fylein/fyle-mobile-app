@@ -24,7 +24,7 @@ describe('FeatureConfigService', () => {
     });
     service = TestBed.inject(FeatureConfigService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
   });

@@ -31,31 +31,38 @@ describe('ResetPasswordPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule, ResetPasswordPage],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        RouterTestingModule,
+        RouterModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ResetPasswordPage,
+      ],
+      providers: [
         UntypedFormBuilder,
         {
-            provide: RouterAuthService,
-            useValue: routerAuthServiceSpy,
+          provide: RouterAuthService,
+          useValue: routerAuthServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesServiceSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesServiceSpy,
         },
         {
-            provide: ActivatedRoute,
-            useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' }, queryParams: { tmp_pwd_expired: 'true' } } },
+          provide: ActivatedRoute,
+          useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' }, queryParams: { tmp_pwd_expired: 'true' } } },
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ResetPasswordPage);
     component = fixture.componentInstance;

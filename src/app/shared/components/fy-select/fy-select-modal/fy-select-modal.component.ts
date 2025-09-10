@@ -27,25 +27,25 @@ import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-t
 import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-fy-select-modal',
-    templateUrl: './fy-select-modal.component.html',
-    styleUrls: ['./fy-select-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatFormField,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatIconButton,
-        MatSuffix,
-        FyZeroStateComponent,
-        MatRipple,
-        FyHighlightTextComponent,
-        NgTemplateOutlet,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-select-modal',
+  templateUrl: './fy-select-modal.component.html',
+  styleUrls: ['./fy-select-modal.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    MatFormField,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatIconButton,
+    MatSuffix,
+    FyZeroStateComponent,
+    MatRipple,
+    FyHighlightTextComponent,
+    NgTemplateOutlet,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class FySelectModalComponent implements AfterViewInit {
   private modalController = inject(ModalController);

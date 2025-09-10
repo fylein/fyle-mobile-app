@@ -3,10 +3,7 @@
     <mat-icon class="alert-info-container--icon" svgIcon="info-circle-fill"></mat-icon>
   }
   @if (type === 'warning') {
-    <mat-icon
-      class="alert-info-container--icon icon--alert-warning"
-      svgIcon="warning-fill"
-    ></mat-icon>
+    <mat-icon class="alert-info-container--icon icon--alert-warning" svgIcon="warning-fill"></mat-icon>
   }
   @if (type === 'error') {
     <mat-icon class="alert-info-container--icon" svgIcon="warning-fill"></mat-icon>
@@ -23,7 +20,7 @@
         fill="clear"
         color="fy-primary"
         (click)="onActionClick()"
-        >
+      >
         {{ actionButtonContent }}
       </ion-button>
     </div>

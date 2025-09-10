@@ -52,44 +52,44 @@ describe('FyViewReportInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [TranslocoModule, FyViewReportInfoComponent],
-    providers: [
+      imports: [TranslocoModule, FyViewReportInfoComponent],
+      providers: [
         {
-            provide: SharedExpensesService,
-            useValue: mockSharedExpensesServiceSpy,
+          provide: SharedExpensesService,
+          useValue: mockSharedExpensesServiceSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: mockPlatformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: mockPlatformEmployeeSettingsServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: mockTrackingServiceSpy,
+          provide: TrackingService,
+          useValue: mockTrackingServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: mockAuthServiceSpy,
+          provide: AuthService,
+          useValue: mockAuthServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: mockOrgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: mockOrgSettingsServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: mockModalControllerSpy,
+          provide: ModalController,
+          useValue: mockModalControllerSpy,
         },
         DatePipe,
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyViewReportInfoComponent);
     component = fixture.componentInstance;
     sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
     datePipe = TestBed.inject(DatePipe);
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
@@ -369,7 +369,7 @@ describe('FyViewReportInfoComponent', () => {
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).toHaveBeenCalledOnceWith(
-        platformReportData.employee.id
+        platformReportData.employee.id,
       );
       expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
     }));
@@ -395,7 +395,7 @@ describe('FyViewReportInfoComponent', () => {
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).not.toHaveBeenCalledOnceWith(
-        platformReportData.employee.id
+        platformReportData.employee.id,
       );
       expect(component.employeeDetails['Allowed Cost Centers']).not.toEqual(expectedAllowedCostCenters);
     }));
@@ -430,7 +430,7 @@ describe('FyViewReportInfoComponent', () => {
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).toHaveBeenCalledOnceWith(
-        modifiedPlatformReportData.employee.id
+        modifiedPlatformReportData.employee.id,
       );
       expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
     }));

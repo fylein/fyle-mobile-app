@@ -1,5 +1,12 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController, IonicModule } from '@ionic/angular';
@@ -42,21 +49,21 @@ import { FormButtonValidationDirective } from '../../shared/directive/form-butto
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-merge-expense',
-    templateUrl: './merge-expense.page.html',
-    styleUrls: ['./merge-expense.page.scss'],
-    imports: [
-        IonicModule,
-        FormsModule,
-        ReactiveFormsModule,
-        FySelectComponent,
-        FyAlertInfoComponent,
-        GenericFieldsFormComponent,
-        CategoryDependentFieldsFormComponent,
-        CustomInputsFieldsFormComponent,
-        FormButtonValidationDirective,
-        AsyncPipe,
-    ],
+  selector: 'app-merge-expense',
+  templateUrl: './merge-expense.page.html',
+  styleUrls: ['./merge-expense.page.scss'],
+  imports: [
+    IonicModule,
+    FormsModule,
+    ReactiveFormsModule,
+    FySelectComponent,
+    FyAlertInfoComponent,
+    GenericFieldsFormComponent,
+    CategoryDependentFieldsFormComponent,
+    CustomInputsFieldsFormComponent,
+    FormButtonValidationDirective,
+    AsyncPipe,
+  ],
 })
 export class MergeExpensePage implements OnInit, AfterViewChecked {
   private router = inject(Router);

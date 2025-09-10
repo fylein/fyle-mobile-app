@@ -66,8 +66,8 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, SpenderOnboardingOptInStepComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, SpenderOnboardingOptInStepComponent],
+      providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
@@ -82,9 +82,9 @@ describe('SpenderOnboardingOptInStepComponent', () => {
         { provide: UserEventService, useValue: userEventServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SpenderOnboardingOptInStepComponent);
     component = fixture.componentInstance;

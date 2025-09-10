@@ -2,11 +2,28 @@
 /* eslint-disable complexity */
 import { TitleCasePipe, NgClass, AsyncPipe, SlicePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, signal, ViewChild, inject } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators, ValidatorFn, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+  ValidatorFn,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController, IonicModule } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+  IonicModule,
+} from '@ionic/angular';
 import dayjs from 'dayjs';
 import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
 import {
@@ -209,45 +226,45 @@ type FormValue = {
 };
 
 @Component({
-    selector: 'app-add-edit-expense',
-    templateUrl: './add-edit-expense.page.html',
-    styleUrls: ['./add-edit-expense.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        FormsModule,
-        ReactiveFormsModule,
-        FyAlertInfoComponent,
-        FyPolicyViolationInfoComponent,
-        MatIcon,
-        TransactionStatusComponent,
-        PendingGasChargeInfoComponent,
-        FyCurrencyComponent,
-        ReceiptPreviewThumbnailComponent,
-        FormatDateDirective,
-        FySelectComponent,
-        FySelectProjectComponent,
-        MatCheckbox,
-        DependentFieldsComponent_1,
-        VirtualSelectComponent,
-        FyNumberComponent,
-        FyLocationComponent,
-        FySelectVendorComponent,
-        FyMultiselectComponent,
-        FyUserlistComponent,
-        FyAddToReportComponent,
-        ReviewFooterComponent,
-        FormButtonValidationDirective,
-        AsyncPipe,
-        SlicePipe,
-        CurrencyPipe,
-        DatePipe,
-        EllipsisPipe,
-        HumanizeCurrencyPipe,
-        MaskNumber,
-        FyCurrencyPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-add-edit-expense',
+  templateUrl: './add-edit-expense.page.html',
+  styleUrls: ['./add-edit-expense.page.scss'],
+  imports: [
+    IonicModule,
+    NgClass,
+    FormsModule,
+    ReactiveFormsModule,
+    FyAlertInfoComponent,
+    FyPolicyViolationInfoComponent,
+    MatIcon,
+    TransactionStatusComponent,
+    PendingGasChargeInfoComponent,
+    FyCurrencyComponent,
+    ReceiptPreviewThumbnailComponent,
+    FormatDateDirective,
+    FySelectComponent,
+    FySelectProjectComponent,
+    MatCheckbox,
+    DependentFieldsComponent_1,
+    VirtualSelectComponent,
+    FyNumberComponent,
+    FyLocationComponent,
+    FySelectVendorComponent,
+    FyMultiselectComponent,
+    FyUserlistComponent,
+    FyAddToReportComponent,
+    ReviewFooterComponent,
+    FormButtonValidationDirective,
+    AsyncPipe,
+    SlicePipe,
+    CurrencyPipe,
+    DatePipe,
+    EllipsisPipe,
+    HumanizeCurrencyPipe,
+    MaskNumber,
+    FyCurrencyPipe,
+    TranslocoPipe,
+  ],
 })
 export class AddEditExpensePage implements OnInit {
   private activatedRoute = inject(ActivatedRoute);

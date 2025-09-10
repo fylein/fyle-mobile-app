@@ -16,17 +16,10 @@ import { FormsModule } from '@angular/forms';
 import { MatChip } from '@angular/material/chips';
 import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
 @Component({
-    selector: 'app-add-approvers-popover',
-    templateUrl: './add-approvers-popover.component.html',
-    styleUrls: ['./add-approvers-popover.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        FormsModule,
-        MatChip,
-        FyAlertInfoComponent,
-        TranslocoPipe,
-    ],
+  selector: 'app-add-approvers-popover',
+  templateUrl: './add-approvers-popover.component.html',
+  styleUrls: ['./add-approvers-popover.component.scss'],
+  imports: [IonicModule, MatIcon, FormsModule, MatChip, FyAlertInfoComponent, TranslocoPipe],
 })
 export class AddApproversPopoverComponent {
   private modalController = inject(ModalController);

@@ -18,20 +18,20 @@ import { AsyncPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { FyCurrencyPipe } from '../../../shared/pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-expense-preview',
-    templateUrl: './expense-preview.component.html',
-    styleUrls: ['./expense-preview.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        ExpensePreviewShimmerComponent,
-        FormButtonValidationDirective,
-        AsyncPipe,
-        CurrencyPipe,
-        DatePipe,
-        FyCurrencyPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-expense-preview',
+  templateUrl: './expense-preview.component.html',
+  styleUrls: ['./expense-preview.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    ExpensePreviewShimmerComponent,
+    FormButtonValidationDirective,
+    AsyncPipe,
+    CurrencyPipe,
+    DatePipe,
+    FyCurrencyPipe,
+    TranslocoPipe,
+  ],
 })
 export class ExpensePreviewComponent implements OnInit {
   private modalController = inject(ModalController);

@@ -28,22 +28,29 @@ describe('FyNumberComponent', () => {
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, ReactiveFormsModule, FyNumberComponent],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        FyNumberComponent,
+      ],
+      providers: [
         { provide: Platform, useValue: platformSpy },
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         {
-            provide: Injector,
-            useValue: injectorSpy,
+          provide: Injector,
+          useValue: injectorSpy,
         },
         {
-            provide: NgControl,
-            useValue: {
-                control: new UntypedFormControl(),
-            },
+          provide: NgControl,
+          useValue: {
+            control: new UntypedFormControl(),
+          },
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;

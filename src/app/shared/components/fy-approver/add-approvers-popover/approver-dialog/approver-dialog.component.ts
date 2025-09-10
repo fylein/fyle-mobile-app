@@ -17,24 +17,24 @@ import { FormsModule } from '@angular/forms';
 import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
-    selector: 'app-approver-dialog',
-    templateUrl: './approver-dialog.component.html',
-    styleUrls: ['./approver-dialog.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        MatFormField,
-        MatChipGrid,
-        MatChipRow,
-        MatChipRemove,
-        MatPrefix,
-        FormsModule,
-        MatChipInput,
-        MatCheckbox,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-approver-dialog',
+  templateUrl: './approver-dialog.component.html',
+  styleUrls: ['./approver-dialog.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    NgClass,
+    MatFormField,
+    MatChipGrid,
+    MatChipRow,
+    MatChipRemove,
+    MatPrefix,
+    FormsModule,
+    MatChipInput,
+    MatCheckbox,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class ApproverDialogComponent implements AfterViewInit, OnInit {
   private loaderService = inject(LoaderService);

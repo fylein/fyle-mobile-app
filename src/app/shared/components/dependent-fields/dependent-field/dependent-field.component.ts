@@ -9,22 +9,17 @@ import { MatIcon } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-dependent-field',
-    templateUrl: './dependent-field.component.html',
-    styleUrls: ['./dependent-field.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => DependentFieldComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        NgClass,
-        FormsModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-dependent-field',
+  templateUrl: './dependent-field.component.html',
+  styleUrls: ['./dependent-field.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => DependentFieldComponent),
+      multi: true,
+    },
+  ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class DependentFieldComponent implements ControlValueAccessor {
   private modalController = inject(ModalController);

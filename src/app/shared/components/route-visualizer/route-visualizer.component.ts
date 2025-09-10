@@ -9,10 +9,10 @@ import { StaticMapPropertiesService } from 'src/app/core/services/static-map-pro
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-route-visualizer',
-    templateUrl: './route-visualizer.component.html',
-    styleUrls: ['./route-visualizer.component.scss'],
-    imports: [AsyncPipe],
+  selector: 'app-route-visualizer',
+  templateUrl: './route-visualizer.component.html',
+  styleUrls: ['./route-visualizer.component.scss'],
+  imports: [AsyncPipe],
 })
 export class RouteVisualizerComponent implements OnChanges, OnInit {
   private locationService = inject(LocationService);

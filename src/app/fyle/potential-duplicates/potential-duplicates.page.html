@@ -12,46 +12,51 @@
     <div class="potential-duplicates--navigation">
       <div class="potential-duplicates--navigation-button text-center">
         @if (selectedSet !== 0) {
-        <span (click)="prev()"> Prev </span>
+          <span (click)="prev()"> Prev </span>
         }
       </div>
-      <div class="potential-duplicates--navigation-count">{{selectedSet + 1}} of {{duplicateSetData?.length}}</div>
+      <div class="potential-duplicates--navigation-count">{{ selectedSet + 1 }} of {{ duplicateSetData?.length }}</div>
       <div class="potential-duplicates--navigation-button text-center">
-        @if (selectedSet+1 !== duplicateSetData?.length) {
-        <span (click)="next()"> Next </span>
+        @if (selectedSet + 1 !== duplicateSetData?.length) {
+          <span (click)="next()"> Next </span>
         }
       </div>
     </div>
 
     @if (!isLoading) {
-    <div class="potential-duplicates--container">
-      @for (duplicatesSet of duplicateExpenses; track duplicatesSet; let setIndex = $index) { @if (setIndex ===
-      selectedSet) {
-      <div class="potential-duplicates--header text-center">
-        {{duplicatesSet?.length}} expenses for {{ duplicatesSet[0].amount | currency: duplicatesSet[0].currency:
-        'symbol-narrow' }}
+      <div class="potential-duplicates--container">
+        @for (duplicatesSet of duplicateExpenses; track duplicatesSet; let setIndex = $index) {
+          @if (setIndex === selectedSet) {
+            <div class="potential-duplicates--header text-center">
+              {{ duplicatesSet?.length }} expenses for
+              {{ duplicatesSet[0].amount | currency: duplicatesSet[0].currency : 'symbol-narrow' }}
+            </div>
+          }
+          @for (expense of duplicatesSet; track expense.id; let i = $index) {
+            @if (setIndex === selectedSet) {
+              <app-expense-card-v2
+                [showDt]="false"
+                [isFromPotentialDuplicates]="true"
+                [expense]="expense"
+                [isDismissable]="duplicatesSet?.length > 2"
+                (dismissed)="dismiss($event)"
+                (goToTransaction)="goToTransaction($event)"
+              >
+              </app-expense-card-v2>
+            }
+          }
+        }
       </div>
-      } @for (expense of duplicatesSet; track expense.id; let i = $index) { @if (setIndex === selectedSet) {
-      <app-expense-card-v2
-        [showDt]="false"
-        [isFromPotentialDuplicates]="true"
-        [expense]="expense"
-        [isDismissable]="duplicatesSet?.length > 2"
-        (dismissed)="dismiss($event)"
-        (goToTransaction)="goToTransaction($event)"
-      >
-      </app-expense-card-v2>
-      } } }
-    </div>
-    } @if (isLoading) {
-    <div class="potential-duplicates--container">
-      <div class="potential-duplicates--shimmers-title text-center">
-        <ion-skeleton-text animated></ion-skeleton-text>
+    }
+    @if (isLoading) {
+      <div class="potential-duplicates--container">
+        <div class="potential-duplicates--shimmers-title text-center">
+          <ion-skeleton-text animated></ion-skeleton-text>
+        </div>
+        <div class="potential-duplicates--shimmers">
+          <app-fy-loading-screen></app-fy-loading-screen>
+        </div>
       </div>
-      <div class="potential-duplicates--shimmers">
-        <app-fy-loading-screen></app-fy-loading-screen>
-      </div>
-    </div>
     }
   </div>
 </ion-content>

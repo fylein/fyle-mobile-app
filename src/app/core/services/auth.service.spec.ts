@@ -170,7 +170,7 @@ describe('AuthService', () => {
         }),
         finalize(() => {
           expect(storageService.delete).toHaveBeenCalledWith('recentlyUsedProjects');
-        })
+        }),
       )
       .subscribe(noop);
     done();

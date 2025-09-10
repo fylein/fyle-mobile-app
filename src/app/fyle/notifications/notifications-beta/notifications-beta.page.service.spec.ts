@@ -137,7 +137,7 @@ describe('NotificationsBetaPageService', () => {
 
       const expenseNotifications = result.expenseNotificationsConfig.notifications;
       const filteredNotification = expenseNotifications.find(
-        (notification) => notification.eventEnum === NotificationEventsEnum.EOUS_FORWARD_EMAIL_TO_USER
+        (notification) => notification.eventEnum === NotificationEventsEnum.EOUS_FORWARD_EMAIL_TO_USER,
       );
 
       expect(filteredNotification).toBeUndefined();
@@ -150,7 +150,7 @@ describe('NotificationsBetaPageService', () => {
 
       const reportNotifications = result.expenseReportNotificationsConfig.notifications;
       const userUnsubscribedNotification = reportNotifications.find(
-        (notification) => notification.eventEnum === NotificationEventsEnum.ERPTS_SUBMITTED
+        (notification) => notification.eventEnum === NotificationEventsEnum.ERPTS_SUBMITTED,
       );
 
       expect(userUnsubscribedNotification?.email).toBeFalse();
@@ -201,7 +201,7 @@ describe('NotificationsBetaPageService', () => {
       // Report notifications should have one with email: false due to user preference
       const reportNotifications = result.expenseReportNotificationsConfig.notifications;
       const userUnsubscribedNotification = reportNotifications.find(
-        (notification) => notification.eventEnum === NotificationEventsEnum.ERPTS_SUBMITTED
+        (notification) => notification.eventEnum === NotificationEventsEnum.ERPTS_SUBMITTED,
       );
       expect(userUnsubscribedNotification?.email).toBeFalse();
 
