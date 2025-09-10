@@ -9,14 +9,10 @@ import { BankAccountCardComponent } from './bank-account-card/bank-account-card.
 // install Swiper modules
 SwiperCore.use([Pagination]);
 @Component({
-    selector: 'app-bank-account-cards',
-    templateUrl: './bank-account-cards.component.html',
-    styleUrls: ['./bank-account-cards.component.scss'],
-    imports: [
-        NgClass,
-        SwiperModule,
-        BankAccountCardComponent,
-    ],
+  selector: 'app-bank-account-cards',
+  templateUrl: './bank-account-cards.component.html',
+  styleUrls: ['./bank-account-cards.component.scss'],
+  imports: [NgClass, SwiperModule, BankAccountCardComponent],
 })
 export class BankAccountCardsComponent {
   // TODO: Skipped for migration because:

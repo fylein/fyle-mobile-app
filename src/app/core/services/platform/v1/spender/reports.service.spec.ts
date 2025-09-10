@@ -43,7 +43,7 @@ describe('SpenderReportsService', () => {
     });
     spenderReportsService = TestBed.inject(SpenderReportsService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;

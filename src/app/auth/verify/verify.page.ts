@@ -8,10 +8,10 @@ import { UserEventService } from 'src/app/core/services/user-event.service';
 import { IonicModule } from '@ionic/angular';
 
 @Component({
-    selector: 'app-verify',
-    templateUrl: './verify.page.html',
-    styleUrls: ['./verify.page.scss'],
-    imports: [IonicModule],
+  selector: 'app-verify',
+  templateUrl: './verify.page.html',
+  styleUrls: ['./verify.page.scss'],
+  imports: [IonicModule],
 })
 export class VerifyPage implements OnInit {
   private activatedRoute = inject(ActivatedRoute);

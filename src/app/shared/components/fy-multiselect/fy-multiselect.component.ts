@@ -10,21 +10,17 @@ import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-fy-multiselect',
-    templateUrl: './fy-multiselect.component.html',
-    styleUrls: ['./fy-multiselect.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FyMultiselectComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        NgClass,
-        FormsModule,
-        MatIcon,
-    ],
+  selector: 'app-fy-multiselect',
+  templateUrl: './fy-multiselect.component.html',
+  styleUrls: ['./fy-multiselect.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FyMultiselectComponent),
+      multi: true,
+    },
+  ],
+  imports: [NgClass, FormsModule, MatIcon],
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   private modalController = inject(ModalController);

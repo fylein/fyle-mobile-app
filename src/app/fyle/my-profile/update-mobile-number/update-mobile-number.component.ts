@@ -12,18 +12,10 @@ import { NgClass } from '@angular/common';
 import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
 
 @Component({
-    selector: 'app-update-mobile-number',
-    templateUrl: './update-mobile-number.component.html',
-    styleUrls: ['./update-mobile-number.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatInput,
-        FormsModule,
-        NgClass,
-        FormButtonValidationDirective,
-        TranslocoPipe,
-    ],
+  selector: 'app-update-mobile-number',
+  templateUrl: './update-mobile-number.component.html',
+  styleUrls: ['./update-mobile-number.component.scss'],
+  imports: [IonicModule, MatIcon, MatInput, FormsModule, NgClass, FormButtonValidationDirective, TranslocoPipe],
 })
 export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
   private popoverController = inject(PopoverController);

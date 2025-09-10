@@ -9,22 +9,17 @@ import { MatIcon } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-select-vendor',
-    templateUrl: './fy-select-vendor.component.html',
-    styleUrls: ['./fy-select-vendor.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FySelectVendorComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        NgClass,
-        FormsModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-select-vendor',
+  templateUrl: './fy-select-vendor.component.html',
+  styleUrls: ['./fy-select-vendor.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FySelectVendorComponent),
+      multi: true,
+    },
+  ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FySelectVendorComponent implements OnInit, OnDestroy {
   private modalController = inject(ModalController);

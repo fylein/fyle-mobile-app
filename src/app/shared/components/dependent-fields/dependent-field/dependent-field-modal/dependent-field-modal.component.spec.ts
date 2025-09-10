@@ -43,7 +43,7 @@ describe('DependentFieldModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [
+      imports: [
         IonicModule.forRoot(),
         MatIconModule,
         MatFormFieldModule,
@@ -53,24 +53,27 @@ describe('DependentFieldModalComponent', () => {
         MatInputModule,
         BrowserAnimationsModule,
         TranslocoModule,
-        DependentFieldModalComponent, FyZeroStateComponent, FyHighlightTextComponent, HighlightPipe,
-    ],
-    providers: [
+        DependentFieldModalComponent,
+        FyZeroStateComponent,
+        FyHighlightTextComponent,
+        HighlightPipe,
+      ],
+      providers: [
         ChangeDetectorRef,
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: DependentFieldsService,
-            useValue: dependentFieldsServiceSpy,
+          provide: DependentFieldsService,
+          useValue: dependentFieldsServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-})
+      ],
+    })
       .compileComponents()
       .then(() => {
         fixture = TestBed.createComponent(DependentFieldModalComponent);
@@ -120,7 +123,7 @@ describe('DependentFieldModalComponent', () => {
     spyOn(component, 'getDependentFieldOptions').and.returnValues(
       of(dependentFieldOptionsWithoutSelection),
       of(dependentFieldOptionsWithoutSelection),
-      of(dependentFieldOptionsWithoutSelection.slice(0, 2))
+      of(dependentFieldOptionsWithoutSelection.slice(0, 2)),
     );
     component.ngAfterViewInit();
 
@@ -168,7 +171,7 @@ describe('DependentFieldModalComponent', () => {
       });
       expect(component.getFinalDependentFieldValues).toHaveBeenCalledOnceWith(
         dependentFieldOptions,
-        component.currentSelection
+        component.currentSelection,
       );
 
       expect(result).toEqual(dependentFieldOptionsWithSelection);
@@ -191,7 +194,7 @@ describe('DependentFieldModalComponent', () => {
       });
       expect(component.getFinalDependentFieldValues).toHaveBeenCalledWith(
         dependentFieldOptions,
-        component.currentSelection
+        component.currentSelection,
       );
       expect(result).toEqual(dependentFieldOptionsWithSelection);
       done();
@@ -200,21 +203,21 @@ describe('DependentFieldModalComponent', () => {
 
   it('getFinalDependentFieldValues(): should return values with None option if no value is selected', () => {
     expect(component.getFinalDependentFieldValues(dependentFieldOptions, null)).toEqual(
-      dependentFieldOptionsWithoutSelection
+      dependentFieldOptionsWithoutSelection,
     );
   });
 
   it('getFinalDependentFieldValues(): should set selected to true if currentSelection is provided', () => {
     const selectedOption = 'Other Dep. Value 1';
     expect(component.getFinalDependentFieldValues(dependentFieldOptions, selectedOption)).toEqual(
-      dependentFieldOptionsWithSelection
+      dependentFieldOptionsWithSelection,
     );
   });
 
   it('getFinalDependentFieldValues(): should add selected option to start of list if it is not present', () => {
     const selectedOption = 'Other Dep. Value 51';
     expect(component.getFinalDependentFieldValues(dependentFieldOptions, selectedOption)).toEqual(
-      dependentFieldOptionsWithSelectionNotInList
+      dependentFieldOptionsWithSelectionNotInList,
     );
   });
 

@@ -49,53 +49,53 @@ describe('DelegatedAccountsPage', () => {
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, DelegatedAccountsPage],
-    providers: [
+      imports: [IonicModule.forRoot(), FormsModule, DelegatedAccountsPage],
+      providers: [
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        switchToOwn: true,
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                switchToOwn: true,
+              },
             },
+          },
         },
         {
-            provide: OrgUserService,
-            useValue: orgUserServiceSpy,
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
         },
         {
-            provide: OrgService,
-            useValue: orgServiceSpy,
+          provide: OrgService,
+          useValue: orgServiceSpy,
         },
         {
-            provide: EmployeesService,
-            useValue: employeesServiceSpy,
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: RecentLocalStorageItemsService,
-            useValue: recentLocalStorageItemsServiceSpy,
+          provide: RecentLocalStorageItemsService,
+          useValue: recentLocalStorageItemsServiceSpy,
         },
         {
-            provide: NavController,
-            useValue: navControllerSpy,
+          provide: NavController,
+          useValue: navControllerSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DelegatedAccountsPage);
     component = fixture.componentInstance;

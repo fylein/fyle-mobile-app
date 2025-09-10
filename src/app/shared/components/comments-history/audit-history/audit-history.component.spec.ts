@@ -36,19 +36,28 @@ describe('AuditHistoryComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, AuditHistoryComponent, StatusesDiffComponent, SnakeCaseToSpaceCase, DateWithTimezonePipe],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        AuditHistoryComponent,
+        StatusesDiffComponent,
+        SnakeCaseToSpaceCase,
+        DateWithTimezonePipe,
+      ],
+      providers: [
         {
-            provide: ExpenseFieldsService,
-            useValue: expenseFieldsServiceSpy,
+          provide: ExpenseFieldsService,
+          useValue: expenseFieldsServiceSpy,
         },
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(AuditHistoryComponent);
     component = fixture.componentInstance;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
@@ -98,7 +107,7 @@ describe('AuditHistoryComponent', () => {
     const eStatusCards = getAllElementsBySelector(fixture, '.audit-history--block');
     expect(eStatusCards.length).toEqual(estatusSample.length);
     expect(getTextContent(getElementBySelector(fixture, '.audit-history--category'))).toEqual(
-      estatusSample[0].st.category
+      estatusSample[0].st.category,
     );
     expect(getTextContent(getElementBySelector(fixture, '.comment-text'))).toEqual(estatusSample[0].st_comment);
   });

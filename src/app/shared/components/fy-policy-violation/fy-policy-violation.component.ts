@@ -11,18 +11,18 @@ import { PolicyViolationRuleComponent } from '../policy-violation-rule/policy-vi
 import { PolicyViolationActionComponent } from './policy-violation-action/policy-violation-action.component';
 
 @Component({
-    selector: 'app-fy-policy-violation',
-    templateUrl: './fy-policy-violation.component.html',
-    styleUrls: ['./fy-policy-violation.component.scss'],
-    imports: [
-        MatIcon,
-        PolicyViolationRuleComponent,
-        PolicyViolationActionComponent,
-        FormsModule,
-        ReactiveFormsModule,
-        IonicModule,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-policy-violation',
+  templateUrl: './fy-policy-violation.component.html',
+  styleUrls: ['./fy-policy-violation.component.scss'],
+  imports: [
+    MatIcon,
+    PolicyViolationRuleComponent,
+    PolicyViolationActionComponent,
+    FormsModule,
+    ReactiveFormsModule,
+    IonicModule,
+    TranslocoPipe,
+  ],
 })
 export class FyPolicyViolationComponent implements OnInit {
   private modalController = inject(ModalController);

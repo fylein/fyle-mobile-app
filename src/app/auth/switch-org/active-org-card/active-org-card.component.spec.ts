@@ -20,9 +20,9 @@ describe('ActiveOrgCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, ActiveOrgCardComponent],
-    providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
-}).compileComponents();
+      imports: [IonicModule.forRoot(), TranslocoModule, ActiveOrgCardComponent],
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -61,13 +61,13 @@ describe('ActiveOrgCardComponent', () => {
 
   it('should load with correct org data', () => {
     expect(getTextContent(getElementBySelector(fixture, '.active-org-card__icon-container__currency'))).toEqual(
-      orgData1[0].currency
+      orgData1[0].currency,
     );
     expect(getTextContent(getElementBySelector(fixture, '.active-org-card__content-container__title'))).toEqual(
-      orgData1[0].name
+      orgData1[0].name,
     );
     expect(getTextContent(getElementBySelector(fixture, '.active-org-card__content-container__sub-title'))).toEqual(
-      orgData1[0].domain
+      orgData1[0].domain,
     );
   });
 

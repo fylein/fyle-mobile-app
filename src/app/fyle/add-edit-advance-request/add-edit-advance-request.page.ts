@@ -1,5 +1,14 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, inject, viewChild } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, Platform, PopoverController, IonicModule } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of, timer } from 'rxjs';
@@ -52,28 +61,28 @@ import { FormButtonValidationDirective } from '../../shared/directive/form-butto
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 
 @Component({
-    selector: 'app-add-edit-advance-request',
-    templateUrl: './add-edit-advance-request.page.html',
-    styleUrls: ['./add-edit-advance-request.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        FormsModule,
-        ReactiveFormsModule,
-        FyCurrencyComponent,
-        ReceiptPreviewThumbnailComponent,
-        FySelectComponent,
-        FySelectProjectComponent,
-        FyNumberComponent,
-        FormatDateDirective,
-        MatCheckbox,
-        FyLocationComponent,
-        FyMultiselectComponent,
-        FyUserlistComponent,
-        FormButtonValidationDirective,
-        AsyncPipe,
-        EllipsisPipe,
-    ],
+  selector: 'app-add-edit-advance-request',
+  templateUrl: './add-edit-advance-request.page.html',
+  styleUrls: ['./add-edit-advance-request.page.scss'],
+  imports: [
+    IonicModule,
+    NgClass,
+    FormsModule,
+    ReactiveFormsModule,
+    FyCurrencyComponent,
+    ReceiptPreviewThumbnailComponent,
+    FySelectComponent,
+    FySelectProjectComponent,
+    FyNumberComponent,
+    FormatDateDirective,
+    MatCheckbox,
+    FyLocationComponent,
+    FyMultiselectComponent,
+    FyUserlistComponent,
+    FormButtonValidationDirective,
+    AsyncPipe,
+    EllipsisPipe,
+  ],
 })
 export class AddEditAdvanceRequestPage implements OnInit {
   private activatedRoute = inject(ActivatedRoute);

@@ -22,9 +22,9 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CorporateCardComponent } from '../../corporate-card/corporate-card.component';
 
 @Component({
-    selector: 'app-corporate-card',
-    template: '<div></div>',
-    imports: [RouterModule, RouterTestingModule, TranslocoModule,],
+  selector: 'app-corporate-card',
+  template: '<div></div>',
+  imports: [RouterModule, RouterTestingModule, TranslocoModule],
 })
 class MockCorporateCardComponent {
   readonly card = input<PlatformCorporateCard>(undefined);
@@ -54,34 +54,40 @@ describe('CardDetailComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule, TranslocoModule, CardDetailComponent,
+      imports: [
+        IonicModule.forRoot(),
+        RouterModule,
+        RouterTestingModule,
+        TranslocoModule,
+        CardDetailComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         MaskNumber,
-        MockCorporateCardComponent],
-    providers: [
+        MockCorporateCardComponent,
+      ],
+      providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         provideHttpClient(),
         provideHttpClientTesting(),
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CardDetailComponent);
     component = fixture.componentInstance;

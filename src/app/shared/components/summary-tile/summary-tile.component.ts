@@ -8,20 +8,20 @@ import { EllipsisPipe } from '../../pipes/ellipses.pipe';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 @Component({
-    selector: 'app-summary-tile',
-    templateUrl: './summary-tile.component.html',
-    styleUrls: ['./summary-tile.component.scss'],
-    imports: [
-        NgClass,
-        FyApproverComponent,
-        LowerCasePipe,
-        TitleCasePipe,
-        DatePipe,
-        TranslocoPipe,
-        EllipsisPipe,
-        SnakeCaseToSpaceCase,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-summary-tile',
+  templateUrl: './summary-tile.component.html',
+  styleUrls: ['./summary-tile.component.scss'],
+  imports: [
+    NgClass,
+    FyApproverComponent,
+    LowerCasePipe,
+    TitleCasePipe,
+    DatePipe,
+    TranslocoPipe,
+    EllipsisPipe,
+    SnakeCaseToSpaceCase,
+    ExactCurrencyPipe,
+  ],
 })
 export class FySummaryTileComponent implements OnInit, OnChanges {
   private translocoService = inject(TranslocoService);

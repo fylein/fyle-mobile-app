@@ -37,14 +37,14 @@ describe('OrgCardComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule, OrgCardComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule, OrgCardComponent],
+      providers: [
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(OrgCardComponent);
     component = fixture.componentInstance;

@@ -32,14 +32,14 @@ describe('SupportDialogPage', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, SupportDialogPage],
-    providers: [
+      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, SupportDialogPage],
+      providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: BrowserHandlerService, useValue: browserHandlerServiceSpy },
         { provide: NavParams, useClass: MockNavParams },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(SupportDialogPage);
     component = fixture.componentInstance;
 
@@ -60,7 +60,7 @@ describe('SupportDialogPage', () => {
       expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
       expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
         '#280a31',
-        'https://www.fylehq.com/help'
+        'https://www.fylehq.com/help',
       );
     });
 
@@ -69,7 +69,7 @@ describe('SupportDialogPage', () => {
       expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
       expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
         '#280a31',
-        'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk'
+        'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk',
       );
     });
 
@@ -78,7 +78,7 @@ describe('SupportDialogPage', () => {
       expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
       expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
         '#280a31',
-        'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview'
+        'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview',
       );
     });
   });

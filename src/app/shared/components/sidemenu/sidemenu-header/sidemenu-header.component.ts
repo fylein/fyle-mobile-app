@@ -7,16 +7,10 @@ import { UpperCasePipe, TitleCasePipe } from '@angular/common';
 import { InitialsPipe } from '../../../pipes/initials.pipe';
 
 @Component({
-    selector: 'app-sidemenu-header',
-    templateUrl: './sidemenu-header.component.html',
-    styleUrls: ['./sidemenu-header.component.scss'],
-    imports: [
-        IonicModule,
-        MatRipple,
-        UpperCasePipe,
-        TitleCasePipe,
-        InitialsPipe,
-    ],
+  selector: 'app-sidemenu-header',
+  templateUrl: './sidemenu-header.component.html',
+  styleUrls: ['./sidemenu-header.component.scss'],
+  imports: [IonicModule, MatRipple, UpperCasePipe, TitleCasePipe, InitialsPipe],
 })
 export class SidemenuHeaderComponent implements OnInit {
   // TODO: Skipped for migration because:

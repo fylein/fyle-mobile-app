@@ -6,16 +6,10 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-edit-report-name-popover',
-    templateUrl: './edit-report-name-popover.component.html',
-    styleUrls: ['./edit-report-name-popover.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatInput,
-        FormsModule,
-        TranslocoPipe,
-    ],
+  selector: 'app-edit-report-name-popover',
+  templateUrl: './edit-report-name-popover.component.html',
+  styleUrls: ['./edit-report-name-popover.component.scss'],
+  imports: [IonicModule, MatIcon, MatInput, FormsModule, TranslocoPipe],
 })
 export class EditReportNamePopoverComponent implements OnInit {
   private popoverController = inject(PopoverController);

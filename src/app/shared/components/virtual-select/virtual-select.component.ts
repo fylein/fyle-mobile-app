@@ -11,22 +11,17 @@ import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-virtual-select',
-    templateUrl: './virtual-select.component.html',
-    styleUrls: ['./virtual-select.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => VirtualSelectComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        NgClass,
-        FormsModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-virtual-select',
+  templateUrl: './virtual-select.component.html',
+  styleUrls: ['./virtual-select.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => VirtualSelectComponent),
+      multi: true,
+    },
+  ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   private modalController = inject(ModalController);

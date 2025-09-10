@@ -8,15 +8,10 @@ import { DatePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-corporate-card',
-    templateUrl: './corporate-card.component.html',
-    styleUrls: ['./corporate-card.component.scss'],
-    imports: [
-        IonicModule,
-        CardNumberComponent,
-        DatePipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-corporate-card',
+  templateUrl: './corporate-card.component.html',
+  styleUrls: ['./corporate-card.component.scss'],
+  imports: [IonicModule, CardNumberComponent, DatePipe, TranslocoPipe],
 })
 export class CorporateCardComponent implements OnInit {
   private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);

@@ -22,18 +22,18 @@ describe('AdvanceActionsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule, AdvanceActionsComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule, AdvanceActionsComponent],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AdvanceActionsComponent);
     component = fixture.componentInstance;

@@ -11,15 +11,10 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'app-email-notifications',
-    templateUrl: './email-notifications.component.html',
-    styleUrls: ['./email-notifications.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatCheckbox,
-        FormsModule,
-    ],
+  selector: 'app-email-notifications',
+  templateUrl: './email-notifications.component.html',
+  styleUrls: ['./email-notifications.component.scss'],
+  imports: [IonicModule, MatIcon, MatCheckbox, FormsModule],
 })
 export class EmailNotificationsComponent implements OnInit {
   // TODO: Skipped for migration because:

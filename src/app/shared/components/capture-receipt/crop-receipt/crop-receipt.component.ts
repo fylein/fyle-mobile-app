@@ -12,14 +12,10 @@ type Image = Partial<{
 }>;
 
 @Component({
-    selector: 'app-crop-receipt',
-    templateUrl: './crop-receipt.component.html',
-    styleUrls: ['./crop-receipt.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        ImageCropperModule,
-    ],
+  selector: 'app-crop-receipt',
+  templateUrl: './crop-receipt.component.html',
+  styleUrls: ['./crop-receipt.component.scss'],
+  imports: [IonicModule, MatIcon, ImageCropperModule],
 })
 export class CropReceiptComponent implements OnInit {
   private modalController = inject(ModalController);

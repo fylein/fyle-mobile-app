@@ -30,19 +30,19 @@ type Filters = Partial<{
   sortDir: SortingDirection;
 }>;
 @Component({
-    selector: 'app-team-advance',
-    templateUrl: './team-advance.page.html',
-    styleUrls: ['./team-advance.page.scss'],
-    imports: [
-        IonicModule,
-        FyMenuIconComponent,
-        FyFilterPillsComponent,
-        FyLoadingScreenComponent,
-        TeamAdvCardComponent,
-        FyZeroStateComponent,
-        FooterComponent,
-        AsyncPipe,
-    ],
+  selector: 'app-team-advance',
+  templateUrl: './team-advance.page.html',
+  styleUrls: ['./team-advance.page.scss'],
+  imports: [
+    IonicModule,
+    FyMenuIconComponent,
+    FyFilterPillsComponent,
+    FyLoadingScreenComponent,
+    TeamAdvCardComponent,
+    FyZeroStateComponent,
+    FooterComponent,
+    AsyncPipe,
+  ],
 })
 export class TeamAdvancePage implements AfterViewChecked {
   private advanceRequestService = inject(AdvanceRequestService);

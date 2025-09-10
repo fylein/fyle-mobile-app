@@ -14,14 +14,10 @@ import { DateService } from 'src/app/core/services/date.service';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { DatePipe } from '@angular/common';
 @Component({
-    selector: 'app-bank-account-card',
-    templateUrl: './bank-account-card.component.html',
-    styleUrls: ['./bank-account-card.component.scss'],
-    imports: [
-        IonicModule,
-        DatePipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-bank-account-card',
+  templateUrl: './bank-account-card.component.html',
+  styleUrls: ['./bank-account-card.component.scss'],
+  imports: [IonicModule, DatePipe, TranslocoPipe],
 })
 export class BankAccountCardComponent implements OnInit {
   private personalCardsService = inject(PersonalCardsService);

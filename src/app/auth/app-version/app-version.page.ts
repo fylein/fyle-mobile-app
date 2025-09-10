@@ -9,10 +9,10 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { IonicModule } from '@ionic/angular';
 
 @Component({
-    selector: 'app-app-version',
-    templateUrl: './app-version.page.html',
-    styleUrls: ['./app-version.page.scss'],
-    imports: [IonicModule],
+  selector: 'app-app-version',
+  templateUrl: './app-version.page.html',
+  styleUrls: ['./app-version.page.scss'],
+  imports: [IonicModule],
 })
 export class AppVersionPage implements OnInit {
   private deviceService = inject(DeviceService);

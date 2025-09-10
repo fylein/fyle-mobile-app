@@ -5,15 +5,10 @@ import { NgClass, TitleCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-view-dependent-fields',
-    templateUrl: './view-dependent-fields.component.html',
-    styleUrls: ['./view-dependent-fields.component.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        TitleCasePipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-view-dependent-fields',
+  templateUrl: './view-dependent-fields.component.html',
+  styleUrls: ['./view-dependent-fields.component.scss'],
+  imports: [IonicModule, NgClass, TitleCasePipe, TranslocoPipe],
 })
 export class ViewDependentFieldsComponent implements OnInit {
   // TODO: Skipped for migration because:

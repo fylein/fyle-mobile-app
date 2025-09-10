@@ -11,14 +11,10 @@ import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-camera-preview',
-    templateUrl: './camera-preview.component.html',
-    styleUrls: ['./camera-preview.component.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        MatIcon,
-    ],
+  selector: 'app-camera-preview',
+  templateUrl: './camera-preview.component.html',
+  styleUrls: ['./camera-preview.component.scss'],
+  imports: [IonicModule, NgClass, MatIcon],
 })
 export class CameraPreviewComponent implements OnInit, OnChanges {
   private devicePlatform = inject(DEVICE_PLATFORM);

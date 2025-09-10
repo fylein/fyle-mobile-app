@@ -20,19 +20,10 @@ import { FormsModule } from '@angular/forms';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-fy-currency-choose-currency',
-    templateUrl: './fy-currency-choose-currency.component.html',
-    styleUrls: ['./fy-currency-choose-currency.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatFormField,
-        MatInput,
-        FormsModule,
-        MatSuffix,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-currency-choose-currency',
+  templateUrl: './fy-currency-choose-currency.component.html',
+  styleUrls: ['./fy-currency-choose-currency.component.scss'],
+  imports: [IonicModule, MatIcon, MatFormField, MatInput, FormsModule, MatSuffix, AsyncPipe, TranslocoPipe],
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
   private currencyService = inject(CurrencyService);

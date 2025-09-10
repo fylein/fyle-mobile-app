@@ -161,7 +161,7 @@ export function TestCases1(getTestBed) {
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -400,7 +400,7 @@ export function TestCases1(getTestBed) {
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(
         transformedExpenseDataWithSubCategory,
         component.reviewList,
-        1
+        1,
       );
     });
 
@@ -481,7 +481,7 @@ export function TestCases1(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       const mockTxnFieldData = cloneDeep(txnFieldsData2);
       expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
@@ -491,7 +491,7 @@ export function TestCases1(getTestBed) {
         expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
           expenseFieldsMapResponse,
           fields,
-          perDiemCategory
+          perDiemCategory,
         );
         expect(res).toEqual(mockTxnFieldData);
         done();
@@ -507,7 +507,7 @@ export function TestCases1(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
       expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData2);
@@ -526,7 +526,7 @@ export function TestCases1(getTestBed) {
       expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
         expenseFieldsMapResponse,
         fields,
-        perDiemCategory
+        perDiemCategory,
       );
       expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(mockTxnFieldData);
       expect(component.fg.controls.costCenter.value).toEqual(15818);
@@ -540,7 +540,7 @@ export function TestCases1(getTestBed) {
       advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
       orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(paymentModesData);
@@ -555,7 +555,7 @@ export function TestCases1(getTestBed) {
         expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
           accountsData,
           [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
-          paymentModesConfig
+          paymentModesConfig,
         );
         done();
       });
@@ -566,7 +566,7 @@ export function TestCases1(getTestBed) {
       accountsService.getMyAccounts.and.returnValue(of(accountsData));
       orgSettingsService.get.and.returnValue(of(null));
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(paymentModesData);

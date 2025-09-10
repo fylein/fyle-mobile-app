@@ -7,17 +7,10 @@ import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 
 @Component({
-    selector: 'app-fy-input-popover',
-    templateUrl: './fy-input-popover.component.html',
-    styleUrls: ['./fy-input-popover.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatInput,
-        FormsModule,
-        NgClass,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-input-popover',
+  templateUrl: './fy-input-popover.component.html',
+  styleUrls: ['./fy-input-popover.component.scss'],
+  imports: [IonicModule, MatIcon, MatInput, FormsModule, NgClass, TranslocoPipe],
 })
 export class FyInputPopoverComponent implements AfterViewInit {
   private popoverController = inject(PopoverController);

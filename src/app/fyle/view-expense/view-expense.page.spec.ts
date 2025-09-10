@@ -148,116 +148,116 @@ describe('ViewExpensePage', () => {
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, ViewExpensePage],
-    providers: [
+      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, ViewExpensePage],
+      providers: [
         {
-            useValue: loaderServiceSpy,
-            provide: LoaderService,
+          useValue: loaderServiceSpy,
+          provide: LoaderService,
         },
         {
-            useValue: transactionServiceSpy,
-            provide: TransactionService,
+          useValue: transactionServiceSpy,
+          provide: TransactionService,
         },
         {
-            useValue: customInputsServiceSpy,
-            provide: CustomInputsService,
+          useValue: customInputsServiceSpy,
+          provide: CustomInputsService,
         },
         {
-            useValue: spenderExpenseCommentServiceSpy,
-            provide: SpenderExpenseCommentService,
+          useValue: spenderExpenseCommentServiceSpy,
+          provide: SpenderExpenseCommentService,
         },
         {
-            useValue: approverExpenseCommentServiceSpy,
-            provide: ApproverExpenseCommentService,
+          useValue: approverExpenseCommentServiceSpy,
+          provide: ApproverExpenseCommentService,
         },
         {
-            useValue: fileServiceSpy,
-            provide: FileService,
+          useValue: fileServiceSpy,
+          provide: FileService,
         },
         {
-            useValue: modalControllerSpy,
-            provide: ModalController,
+          useValue: modalControllerSpy,
+          provide: ModalController,
         },
         {
-            useValue: routerSpy,
-            provide: Router,
+          useValue: routerSpy,
+          provide: Router,
         },
         {
-            useValue: popoverControllerSpy,
-            provide: PopoverController,
+          useValue: popoverControllerSpy,
+          provide: PopoverController,
         },
         {
-            useValue: networkServiceSpy,
-            provide: NetworkService,
+          useValue: networkServiceSpy,
+          provide: NetworkService,
         },
         {
-            useValue: policyServiceSpy,
-            provide: PolicyService,
+          useValue: policyServiceSpy,
+          provide: PolicyService,
         },
         {
-            useValue: modalPropertiesSpy,
-            provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
         },
         {
-            useValue: trackingServiceSpy,
-            provide: TrackingService,
+          useValue: trackingServiceSpy,
+          provide: TrackingService,
         },
         {
-            useValue: expenseFieldsServiceSpy,
-            provide: ExpenseFieldsService,
+          useValue: expenseFieldsServiceSpy,
+          provide: ExpenseFieldsService,
         },
         {
-            useValue: orgSettingsServiceSpy,
-            provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
         },
         {
-            useValue: categoriesServiceSpy,
-            provide: CategoriesService,
+          useValue: categoriesServiceSpy,
+          provide: CategoriesService,
         },
         {
-            useValue: dependentFieldsServiceSpy,
-            provide: DependentFieldsService,
+          useValue: dependentFieldsServiceSpy,
+          provide: DependentFieldsService,
         },
         {
-            useValue: approverExpensesServiceSpy,
-            provide: ApproverExpensesService,
+          useValue: approverExpensesServiceSpy,
+          provide: ApproverExpensesService,
         },
         {
-            useValue: spenderExpensesServiceSpy,
-            provide: SpenderExpensesService,
+          useValue: spenderExpensesServiceSpy,
+          provide: SpenderExpensesService,
         },
         {
-            useValue: spenderFileServiceSpy,
-            provide: SpenderFileService,
+          useValue: spenderFileServiceSpy,
+          provide: SpenderFileService,
         },
         {
-            useValue: approverFileServiceSpy,
-            provide: ApproverFileService,
+          useValue: approverFileServiceSpy,
+          provide: ApproverFileService,
         },
         {
-            provide: ApproverReportsService,
-            useValue: approverReportsServiceSpy,
+          provide: ApproverReportsService,
+          useValue: approverReportsServiceSpy,
         },
         {
-            provide: SharedExpensesService,
-            useValue: sharedExpensesServiceSpy,
+          provide: SharedExpensesService,
+          useValue: sharedExpensesServiceSpy,
         },
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        id: 'tx5fBcPBAxLv',
-                        view: ExpenseView.individual,
-                        txnIds: ['tx5fBcPBAxLv', 'txCBp2jIK6G3'],
-                        activeIndex: '0',
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                id: 'tx5fBcPBAxLv',
+                view: ExpenseView.individual,
+                txnIds: ['tx5fBcPBAxLv', 'txCBp2jIK6G3'],
+                activeIndex: '0',
+              },
             },
+          },
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ViewExpensePage);
     component = fixture.componentInstance;

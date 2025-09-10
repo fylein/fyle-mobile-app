@@ -29,27 +29,27 @@ import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
 
 @Component({
-    selector: 'app-fy-select-vendor-modal',
-    templateUrl: './fy-select-vendor-modal.component.html',
-    styleUrls: ['./fy-select-vendor-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatFormField,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatSuffix,
-        MatIconButton,
-        CdkVirtualScrollViewport,
-        CdkFixedSizeVirtualScroll,
-        MatRipple,
-        NgClass,
-        CdkVirtualForOf,
-        FyHighlightTextComponent,
-        NgTemplateOutlet,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-select-vendor-modal',
+  templateUrl: './fy-select-vendor-modal.component.html',
+  styleUrls: ['./fy-select-vendor-modal.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    MatFormField,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatSuffix,
+    MatIconButton,
+    CdkVirtualScrollViewport,
+    CdkFixedSizeVirtualScroll,
+    MatRipple,
+    NgClass,
+    CdkVirtualForOf,
+    FyHighlightTextComponent,
+    NgTemplateOutlet,
+    TranslocoPipe,
+  ],
 })
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);

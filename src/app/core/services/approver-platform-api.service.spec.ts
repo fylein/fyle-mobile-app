@@ -88,7 +88,7 @@ describe('ApproverPlatformApiService', () => {
         expect(res).toEqual(apiResponse);
         expect(httpClient.post).toHaveBeenCalledOnceWith(
           'https://staging.fyle.tech/platform/v1/approver/reports',
-          requestObj
+          requestObj,
         );
         done();
       });

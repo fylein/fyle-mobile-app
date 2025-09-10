@@ -128,8 +128,8 @@ describe('DashboardPage', () => {
       'getIsOverlayClicked',
     ]);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), DashboardPage],
-    providers: [
+      imports: [IonicModule.forRoot(), DashboardPage],
+      providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -144,15 +144,15 @@ describe('DashboardPage', () => {
         { provide: NavController, useValue: navControllerSpy },
         Platform,
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    queryParams: {
-                        state: 'tasks',
-                    },
-                    params: {},
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParams: {
+                state: 'tasks',
+              },
+              params: {},
             },
+          },
         },
         { provide: UtilityService, useValue: utilityServiceSpy },
         { provide: FeatureConfigService, useValue: featureConfigServiceSpy },
@@ -160,29 +160,29 @@ describe('DashboardPage', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         { provide: FooterService, useValue: footerServiceSpy },
         {
-            provide: TimezoneService,
-            useValue: timezoneServiceSpy,
+          provide: TimezoneService,
+          useValue: timezoneServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
         {
-            provide: WalkthroughService,
-            useValue: walkthroughServiceSpy,
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardPage);
     component = fixture.componentInstance;

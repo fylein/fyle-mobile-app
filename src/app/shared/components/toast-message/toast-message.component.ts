@@ -1,17 +1,18 @@
 import { Component, inject } from '@angular/core';
-import { MatSnackBarRef, MAT_SNACK_BAR_DATA, MatSnackBarLabel, MatSnackBarActions, MatSnackBarAction } from '@angular/material/snack-bar';
+import {
+  MatSnackBarRef,
+  MAT_SNACK_BAR_DATA,
+  MatSnackBarLabel,
+  MatSnackBarActions,
+  MatSnackBarAction,
+} from '@angular/material/snack-bar';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-toast-message',
-    templateUrl: './toast-message.component.html',
-    styleUrls: ['./toast-message.component.scss'],
-    imports: [
-        MatSnackBarLabel,
-        MatIcon,
-        MatSnackBarActions,
-        MatSnackBarAction,
-    ],
+  selector: 'app-toast-message',
+  templateUrl: './toast-message.component.html',
+  styleUrls: ['./toast-message.component.scss'],
+  imports: [MatSnackBarLabel, MatIcon, MatSnackBarActions, MatSnackBarAction],
 })
 export class ToastMessageComponent {
   data = inject<{

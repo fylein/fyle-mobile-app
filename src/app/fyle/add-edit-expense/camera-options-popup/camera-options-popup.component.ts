@@ -11,14 +11,10 @@ import { MatRipple } from '@angular/material/core';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-camera-options-popup',
-    templateUrl: './camera-options-popup.component.html',
-    styleUrls: ['./camera-options-popup.component.scss'],
-    imports: [
-        MatRipple,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-camera-options-popup',
+  templateUrl: './camera-options-popup.component.html',
+  styleUrls: ['./camera-options-popup.component.scss'],
+  imports: [MatRipple, MatIcon, TranslocoPipe],
 })
 export class CameraOptionsPopupComponent implements OnInit {
   private popoverController = inject(PopoverController);

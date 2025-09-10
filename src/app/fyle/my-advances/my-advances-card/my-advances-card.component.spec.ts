@@ -30,20 +30,27 @@ describe('MyAdvancesCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        TranslocoModule,
+        MyAdvancesCardComponent,
+        EllipsisPipe,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+      ],
+      providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-            provide: AdvanceRequestService,
-            useValue: advanceRequestServiceSpy,
+          provide: AdvanceRequestService,
+          useValue: advanceRequestServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MyAdvancesCardComponent);
     component = fixture.componentInstance;

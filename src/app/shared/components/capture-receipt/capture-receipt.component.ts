@@ -44,10 +44,10 @@ type Image = Partial<{
 }>;
 
 @Component({
-    selector: 'app-capture-receipt',
-    templateUrl: './capture-receipt.component.html',
-    styleUrls: ['./capture-receipt.component.scss'],
-    imports: [CameraPreviewComponent, AsyncPipe],
+  selector: 'app-capture-receipt',
+  templateUrl: './capture-receipt.component.html',
+  styleUrls: ['./capture-receipt.component.scss'],
+  imports: [CameraPreviewComponent, AsyncPipe],
 })
 export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
   private modalController = inject(ModalController);

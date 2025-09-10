@@ -21,20 +21,20 @@ import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 @Component({
-    selector: 'app-my-create-report',
-    templateUrl: './my-create-report.page.html',
-    styleUrls: ['./my-create-report.page.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgIf,
-        NgFor,
-        FormsModule,
-        MatCheckbox,
-        ExpensesCardComponent,
-        FormButtonValidationDirective,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-my-create-report',
+  templateUrl: './my-create-report.page.html',
+  styleUrls: ['./my-create-report.page.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    NgIf,
+    NgFor,
+    FormsModule,
+    MatCheckbox,
+    ExpensesCardComponent,
+    FormButtonValidationDirective,
+    ExactCurrencyPipe,
+  ],
 })
 export class MyCreateReportPage implements OnInit {
   private activatedRoute = inject(ActivatedRoute);

@@ -41,23 +41,23 @@ import { OrgCardComponent } from './org-card/org-card.component';
 import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
 
 @Component({
-    selector: 'app-switch-org',
-    templateUrl: './switch-org.page.html',
-    styleUrls: ['./switch-org.page.scss'],
-    imports: [
-        IonicModule,
-        ActiveOrgCardComponent,
-        NgClass,
-        MatFormField,
-        MatIcon,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatSuffix,
-        OrgCardComponent,
-        FyZeroStateComponent,
-        AsyncPipe,
-    ],
+  selector: 'app-switch-org',
+  templateUrl: './switch-org.page.html',
+  styleUrls: ['./switch-org.page.scss'],
+  imports: [
+    IonicModule,
+    ActiveOrgCardComponent,
+    NgClass,
+    MatFormField,
+    MatIcon,
+    MatPrefix,
+    MatInput,
+    FormsModule,
+    MatSuffix,
+    OrgCardComponent,
+    FyZeroStateComponent,
+    AsyncPipe,
+  ],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
   private platform = inject(Platform);

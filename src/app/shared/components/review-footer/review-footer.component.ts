@@ -6,14 +6,10 @@ import { FormButtonValidationDirective } from '../../directive/form-button-valid
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-review-footer',
-    templateUrl: './review-footer.component.html',
-    styleUrls: ['./review-footer.component.scss'],
-    imports: [
-        IonicModule,
-        FormButtonValidationDirective,
-        TranslocoPipe,
-    ],
+  selector: 'app-review-footer',
+  templateUrl: './review-footer.component.html',
+  styleUrls: ['./review-footer.component.scss'],
+  imports: [IonicModule, FormButtonValidationDirective, TranslocoPipe],
 })
 export class ReviewFooterComponent implements OnInit {
   private trackingService = inject(TrackingService);

@@ -7,15 +7,15 @@
     <div class="suggested-duplicates--container">
       <div class="suggested-duplicates--header text-center">
         {{ duplicateExpenses.length }} {{ 'suggestedDuplicates.expensesFor' | transloco }}
-        {{ duplicateExpenses[0]?.amount | currency : duplicateExpenses[0]?.currency : 'symbol-narrow' }}
+        {{ duplicateExpenses[0]?.amount | currency: duplicateExpenses[0]?.currency : 'symbol-narrow' }}
       </div>
       @for (expense of duplicateExpenses; track expense.id; let i = $index) {
-      <app-expense-card-v2
-        [previousExpenseTxnDate]="duplicateExpenses[i - 1]?.spent_at"
-        [previousExpenseCreatedAt]="duplicateExpenses[i - 1]?.created_at"
-        [expense]="expense"
+        <app-expense-card-v2
+          [previousExpenseTxnDate]="duplicateExpenses[i - 1]?.spent_at"
+          [previousExpenseCreatedAt]="duplicateExpenses[i - 1]?.created_at"
+          [expense]="expense"
         >
-      </app-expense-card-v2>
+        </app-expense-card-v2>
       }
     </div>
   </div>

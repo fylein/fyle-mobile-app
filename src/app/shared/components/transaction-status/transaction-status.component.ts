@@ -5,15 +5,10 @@ import { IonicModule } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-transaction-status',
-    templateUrl: './transaction-status.component.html',
-    styleUrls: ['./transaction-status.component.scss'],
-    imports: [
-        NgClass,
-        IonicModule,
-        TitleCasePipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-transaction-status',
+  templateUrl: './transaction-status.component.html',
+  styleUrls: ['./transaction-status.component.scss'],
+  imports: [NgClass, IonicModule, TitleCasePipe, TranslocoPipe],
 })
 export class TransactionStatusComponent {
   // TODO: Skipped for migration because:

@@ -5,15 +5,10 @@ import { MatIcon } from '@angular/material/icon';
 import { ExpensesCardComponent } from '../expenses-card-v2/expenses-card.component';
 import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
-    selector: 'app-review-split-expense',
-    templateUrl: './review-split-expense.component.html',
-    styleUrls: ['./review-split-expense.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        ExpensesCardComponent,
-        TranslocoPipe,
-    ],
+  selector: 'app-review-split-expense',
+  templateUrl: './review-split-expense.component.html',
+  styleUrls: ['./review-split-expense.component.scss'],
+  imports: [IonicModule, MatIcon, ExpensesCardComponent, TranslocoPipe],
 })
 export class ReviewSplitExpenseComponent {
   private modalController = inject(ModalController);

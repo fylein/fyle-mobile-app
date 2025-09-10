@@ -1,5 +1,14 @@
 import { Component, Input, OnInit, inject, input } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { ModalController, IonicModule } from '@ionic/angular';
 import { switchMap } from 'rxjs/operators';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
@@ -13,21 +22,21 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-route-selector-modal',
-    templateUrl: './route-selector-modal.component.html',
-    styleUrls: ['./route-selector-modal.component.scss'],
-    imports: [
-        IonicModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgClass,
-        FyLocationComponent,
-        MatIcon,
-        FyAlertInfoComponent,
-        MatCheckbox,
-        TitleCasePipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-route-selector-modal',
+  templateUrl: './route-selector-modal.component.html',
+  styleUrls: ['./route-selector-modal.component.scss'],
+  imports: [
+    IonicModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgClass,
+    FyLocationComponent,
+    MatIcon,
+    FyAlertInfoComponent,
+    MatCheckbox,
+    TitleCasePipe,
+    TranslocoPipe,
+  ],
 })
 export class RouteSelectorModalComponent implements OnInit {
   private fb = inject(UntypedFormBuilder);

@@ -1,9 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject, of } from 'rxjs';
@@ -48,39 +45,39 @@ describe('PotentialDuplicatesPage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
 
     TestBed.configureTestingModule({
-    imports: [RouterTestingModule, PotentialDuplicatesPage],
-    providers: [
+      imports: [RouterTestingModule, PotentialDuplicatesPage],
+      providers: [
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PotentialDuplicatesPage);
     component = fixture.componentInstance;
@@ -147,7 +144,7 @@ describe('PotentialDuplicatesPage', () => {
   it('addExpenseDetailsToDuplicateSets(): should add expense details to duplicate sets', () => {
     const result = component.addExpenseDetailsToDuplicateSets(
       ['txcSFe6efB6R', 'txDDLtRaflUW'],
-      [apiExpenses1[0], expenseData]
+      [apiExpenses1[0], expenseData],
     );
     expect(result).toEqual([expenseData, apiExpenses1[0]]);
   });
@@ -277,7 +274,7 @@ describe('PotentialDuplicatesPage', () => {
 
       expect(component.dismissDuplicates).toHaveBeenCalledWith(
         ['tx5fBcPBAxLv', 'tx3nHShG60zq'],
-        ['tx5fBcPBAxLv', 'tx3nHShG60zq']
+        ['tx5fBcPBAxLv', 'tx3nHShG60zq'],
       );
 
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);

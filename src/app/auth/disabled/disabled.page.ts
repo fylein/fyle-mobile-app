@@ -4,10 +4,10 @@ import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 @Component({
-    selector: 'app-disabled',
-    templateUrl: './disabled.page.html',
-    styleUrls: ['./disabled.page.scss'],
-    imports: [IonicModule],
+  selector: 'app-disabled',
+  templateUrl: './disabled.page.html',
+  styleUrls: ['./disabled.page.scss'],
+  imports: [IonicModule],
 })
 export class DisabledPage implements OnInit {
   private userEventService = inject(UserEventService);

@@ -35,19 +35,28 @@ describe('TeamAdvCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule, TeamAdvCardComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, EllipsisPipe, FyCurrencyPipe],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        MatRippleModule,
+        TranslocoModule,
+        TeamAdvCardComponent,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        EllipsisPipe,
+        FyCurrencyPipe,
+      ],
+      providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         {
-            provide: FyCurrencyPipe,
-            useValue: fyCurrencyPipeSpy,
+          provide: FyCurrencyPipe,
+          useValue: fyCurrencyPipeSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TeamAdvCardComponent);
     teamAdvCardComponent = fixture.componentInstance;
@@ -92,7 +101,7 @@ describe('TeamAdvCardComponent', () => {
       expect(teamAdvCardComponent.currencySymbol).toEqual('$'); // Assuming USD is the currency code
       expect(teamAdvCardComponent.showDate).toBeTrue();
       expect(advanceRequestServiceSpy.getInternalStateAndDisplayName).toHaveBeenCalledWith(
-        teamAdvCardComponent.advanceRequest
+        teamAdvCardComponent.advanceRequest,
       );
       expect(advanceRequestServiceSpy.getInternalStateAndDisplayName).toHaveBeenCalledTimes(2);
       expect(teamAdvCardComponent.internalState).toEqual({ state: 'inquiry', name: 'Sent Back' });

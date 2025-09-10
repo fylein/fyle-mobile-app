@@ -1,7 +1,14 @@
 import { Component, EventEmitter, OnInit, inject } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { switchMap, finalize, tap, map } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -21,19 +28,19 @@ import { PasswordCheckTooltipComponent } from '../../shared/components/password-
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 
 @Component({
-    selector: 'app-invited-user',
-    templateUrl: './invited-user.page.html',
-    styleUrls: ['./invited-user.page.scss'],
-    imports: [
-        IonicModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgClass,
-        MatSuffix,
-        PasswordCheckTooltipComponent,
-        FormButtonValidationDirective,
-        AsyncPipe,
-    ],
+  selector: 'app-invited-user',
+  templateUrl: './invited-user.page.html',
+  styleUrls: ['./invited-user.page.scss'],
+  imports: [
+    IonicModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgClass,
+    MatSuffix,
+    PasswordCheckTooltipComponent,
+    FormButtonValidationDirective,
+    AsyncPipe,
+  ],
 })
 export class InvitedUserPage implements OnInit {
   private networkService = inject(NetworkService);

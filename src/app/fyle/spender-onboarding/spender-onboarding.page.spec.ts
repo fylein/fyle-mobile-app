@@ -50,8 +50,8 @@ describe('SpenderOnboardingPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
 
     await TestBed.configureTestingModule({
-    imports: [SpenderOnboardingPage],
-    providers: [
+      imports: [SpenderOnboardingPage],
+      providers: [
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
@@ -59,8 +59,8 @@ describe('SpenderOnboardingPage', () => {
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SpenderOnboardingPage);
     component = fixture.componentInstance;

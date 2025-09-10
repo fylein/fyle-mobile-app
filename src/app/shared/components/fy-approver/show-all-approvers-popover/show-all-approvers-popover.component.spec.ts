@@ -24,12 +24,12 @@ describe('ShowAllApproversPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, ShowAllApproversPopoverComponent, EllipsisPipe],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, ShowAllApproversPopoverComponent, EllipsisPipe],
+      providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ShowAllApproversPopoverComponent);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;

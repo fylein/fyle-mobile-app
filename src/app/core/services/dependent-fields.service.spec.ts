@@ -43,7 +43,7 @@ describe('DependentFieldsService', () => {
 
     dependentFieldsService = TestBed.inject(DependentFieldsService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
   });
@@ -59,7 +59,7 @@ describe('DependentFieldsService', () => {
     result.subscribe((res) => {
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith(
         '/dependent_expense_field_values',
-        dependentFieldValuesApiParams
+        dependentFieldValuesApiParams,
       );
       expect(res).toEqual(dependentFieldValuesApiResponse.data);
       done();
@@ -73,7 +73,7 @@ describe('DependentFieldsService', () => {
     result.subscribe((res) => {
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith(
         '/dependent_expense_field_values',
-        dependentFieldValuesWithSearchQueryApiParams
+        dependentFieldValuesWithSearchQueryApiParams,
       );
       expect(res).toEqual(dependentFieldValuesApiResponseForSearchQuery.data);
       done();

@@ -12,10 +12,10 @@ describe('FyMsgPopoverComponent', () => {
     popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FyMsgPopoverComponent],
-    providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      imports: [IonicModule.forRoot(), FyMsgPopoverComponent],
+      providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyMsgPopoverComponent);
     component = fixture.componentInstance;

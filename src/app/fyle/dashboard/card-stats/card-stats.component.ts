@@ -18,16 +18,10 @@ import { AddCardComponent } from '../../../shared/components/add-card/add-card.c
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-card-stats',
-    templateUrl: './card-stats.component.html',
-    styleUrls: ['./card-stats.component.scss'],
-    imports: [
-        SpentCardsComponent,
-        IonicModule,
-        AddCardComponent,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-card-stats',
+  templateUrl: './card-stats.component.html',
+  styleUrls: ['./card-stats.component.scss'],
+  imports: [SpentCardsComponent, IonicModule, AddCardComponent, AsyncPipe, TranslocoPipe],
 })
 export class CardStatsComponent implements OnInit {
   private currencyService = inject(CurrencyService);

@@ -90,7 +90,7 @@ describe('PaymentModesService', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     accountService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
@@ -106,7 +106,7 @@ describe('PaymentModesService', () => {
 
     paymentModesService.checkIfPaymentModeConfigurationsIsEnabled().subscribe((res) => {
       expect(res).toEqual(
-        employeeSettingsData.payment_mode_settings.allowed && employeeSettingsData.payment_mode_settings.enabled
+        employeeSettingsData.payment_mode_settings.allowed && employeeSettingsData.payment_mode_settings.enabled,
       );
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       done();
@@ -116,10 +116,10 @@ describe('PaymentModesService', () => {
   describe('getDefaultAccount():', () => {
     it('should get default account with payment modes enabled', (done) => {
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes)
+        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes),
       );
       spyOn(paymentModesService, 'checkIfPaymentModeConfigurationsIsEnabled').and.returnValue(
-        of(employeeSettingsData.payment_mode_settings.allowed && employeeSettingsData.payment_mode_settings.enabled)
+        of(employeeSettingsData.payment_mode_settings.allowed && employeeSettingsData.payment_mode_settings.enabled),
       );
 
       paymentModesService
@@ -130,7 +130,7 @@ describe('PaymentModesService', () => {
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesData[0],
             AccountType.PERSONAL,
-            false
+            false,
           );
           done();
         });
@@ -138,13 +138,13 @@ describe('PaymentModesService', () => {
 
     it('should get default account without payment modes enabled', (done) => {
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(employeeSettingsWoPaymentModes.payment_mode_settings.allowed_payment_modes)
+        of(employeeSettingsWoPaymentModes.payment_mode_settings.allowed_payment_modes),
       );
       spyOn(paymentModesService, 'checkIfPaymentModeConfigurationsIsEnabled').and.returnValue(
         of(
           employeeSettingsWoPaymentModes.payment_mode_settings.allowed &&
-            employeeSettingsData.payment_mode_settings.enabled
-        )
+            employeeSettingsData.payment_mode_settings.enabled,
+        ),
       );
 
       paymentModesService
@@ -155,7 +155,7 @@ describe('PaymentModesService', () => {
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesWithCompanyAccData[0],
             AccountType.CCC,
-            false
+            false,
           );
           done();
         });
@@ -163,7 +163,7 @@ describe('PaymentModesService', () => {
 
     it('should get default account without payment modes enabled and preference to COMPANY', (done) => {
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(employeeSettingsWoPayModesCompany.payment_mode_settings.allowed_payment_modes)
+        of(employeeSettingsWoPayModesCompany.payment_mode_settings.allowed_payment_modes),
       );
       spyOn(paymentModesService, 'checkIfPaymentModeConfigurationsIsEnabled').and.returnValue(of(false));
 
@@ -175,7 +175,7 @@ describe('PaymentModesService', () => {
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesData[0],
             AccountType.COMPANY,
-            false
+            false,
           );
           done();
         });
@@ -183,7 +183,7 @@ describe('PaymentModesService', () => {
 
     it('should get default account without ccc enabled', (done) => {
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(employeeSettingsWoPayModesCompany.payment_mode_settings.allowed_payment_modes)
+        of(employeeSettingsWoPayModesCompany.payment_mode_settings.allowed_payment_modes),
       );
       spyOn(paymentModesService, 'checkIfPaymentModeConfigurationsIsEnabled').and.returnValue(of(false));
 
@@ -195,7 +195,7 @@ describe('PaymentModesService', () => {
           expect(accountService.setAccountProperties).toHaveBeenCalledOnceWith(
             multiplePaymentModesData[0],
             AccountType.COMPANY,
-            false
+            false,
           );
           done();
         });

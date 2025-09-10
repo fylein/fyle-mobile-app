@@ -28,25 +28,31 @@ describe('AddExpensesToReportComponent', () => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), getTranslocoModule(), AddExpensesToReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        getTranslocoModule(),
+        AddExpensesToReportComponent,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+      ],
+      providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).compileComponents();
     fixture = TestBed.createComponent(AddExpensesToReportComponent);
     component = fixture.componentInstance;
 

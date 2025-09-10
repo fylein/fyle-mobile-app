@@ -20,14 +20,10 @@ import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-notifications-beta',
-    templateUrl: './notifications-beta.page.html',
-    styleUrls: ['./notifications-beta.page.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        AsyncPipe,
-    ],
+  selector: 'app-notifications-beta',
+  templateUrl: './notifications-beta.page.html',
+  styleUrls: ['./notifications-beta.page.scss'],
+  imports: [IonicModule, MatIcon, AsyncPipe],
 })
 export class NotificationsBetaPage implements OnInit {
   selectedPreference: 'onlyMe' | 'onlyDelegate' | 'both';

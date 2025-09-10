@@ -59,22 +59,22 @@ import { InfoCardComponent } from './info-card/info-card.component';
 import { PreferenceSettingComponent } from './preference-setting/preference-setting.component';
 
 @Component({
-    selector: 'app-my-profile',
-    templateUrl: './my-profile.page.html',
-    styleUrls: ['./my-profile.page.scss'],
-    imports: [
-        IonicModule,
-        FyMenuIconComponent,
-        EmployeeDetailsCardComponent,
-        ProfileOptInCardComponent,
-        MobileNumberCardComponent,
-        MatRipple,
-        NgClass,
-        InfoCardComponent,
-        RouterLink,
-        PreferenceSettingComponent,
-        AsyncPipe,
-    ],
+  selector: 'app-my-profile',
+  templateUrl: './my-profile.page.html',
+  styleUrls: ['./my-profile.page.scss'],
+  imports: [
+    IonicModule,
+    FyMenuIconComponent,
+    EmployeeDetailsCardComponent,
+    ProfileOptInCardComponent,
+    MobileNumberCardComponent,
+    MatRipple,
+    NgClass,
+    InfoCardComponent,
+    RouterLink,
+    PreferenceSettingComponent,
+    AsyncPipe,
+  ],
 })
 export class MyProfilePage {
   private authService = inject(AuthService);

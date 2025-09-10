@@ -8,15 +8,10 @@ import { FormButtonValidationDirective } from '../../../../shared/directive/form
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-dismiss-dialog',
-    templateUrl: './dismiss-dialog.component.html',
-    styleUrls: ['./dismiss-dialog.component.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        FormButtonValidationDirective,
-        TranslocoPipe,
-    ],
+  selector: 'app-dismiss-dialog',
+  templateUrl: './dismiss-dialog.component.html',
+  styleUrls: ['./dismiss-dialog.component.scss'],
+  imports: [IonicModule, NgClass, FormButtonValidationDirective, TranslocoPipe],
 })
 export class DismissDialogComponent implements OnInit {
   private popoverController = inject(PopoverController);

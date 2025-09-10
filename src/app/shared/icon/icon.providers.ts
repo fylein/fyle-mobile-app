@@ -6,7 +6,7 @@ export function provideIcons() {
   return provideAppInitializer(() => {
     const matIconRegistry = inject(MatIconRegistry);
     const domSanitizer = inject(DomSanitizer);
-    
+
     const path = '../../assets/svg';
     const svgImageArray = [
       'arrow-down.svg',
@@ -128,7 +128,7 @@ export function provideIcons() {
     svgImageArray.forEach((imageName) => {
       matIconRegistry.addSvgIcon(
         imageName.replace('.svg', ''),
-        domSanitizer.bypassSecurityTrustResourceUrl(`${path}/${imageName}`)
+        domSanitizer.bypassSecurityTrustResourceUrl(`${path}/${imageName}`),
       );
     });
   });

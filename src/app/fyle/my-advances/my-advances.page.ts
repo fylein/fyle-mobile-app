@@ -33,20 +33,20 @@ import { MyAdvancesCardComponent } from './my-advances-card/my-advances-card.com
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
-    selector: 'app-my-advances',
-    templateUrl: './my-advances.page.html',
-    styleUrls: ['./my-advances.page.scss'],
-    imports: [
-        IonicModule,
-        FyMenuIconComponent,
-        FyFilterPillsComponent,
-        FyLoadingScreenComponent,
-        NgClass,
-        FyZeroStateComponent,
-        MyAdvancesCardComponent,
-        FooterComponent,
-        AsyncPipe,
-    ],
+  selector: 'app-my-advances',
+  templateUrl: './my-advances.page.html',
+  styleUrls: ['./my-advances.page.scss'],
+  imports: [
+    IonicModule,
+    FyMenuIconComponent,
+    FyFilterPillsComponent,
+    FyLoadingScreenComponent,
+    NgClass,
+    FyZeroStateComponent,
+    MyAdvancesCardComponent,
+    FooterComponent,
+    AsyncPipe,
+  ],
 })
 export class MyAdvancesPage implements AfterViewChecked {
   private advanceRequestService = inject(AdvanceRequestService);

@@ -32,7 +32,7 @@ export class ExpenseFieldsService {
           params: {
             org_id: `eq.${eou.ou.org_id}`,
             is_enabled: 'eq.true',
-            ...(onlyDefault ? { is_custom: 'eq.false' } : {}),  
+            ...(onlyDefault ? { is_custom: 'eq.false' } : {}),
             order: 'seq.asc',
           },
         }),

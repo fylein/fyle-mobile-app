@@ -12,16 +12,10 @@ import { MatInput } from '@angular/material/input';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 
 @Component({
-    selector: 'app-reset-password',
-    templateUrl: './reset-password.page.html',
-    styleUrls: ['./reset-password.page.scss'],
-    imports: [
-        IonicModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatInput,
-        FormButtonValidationDirective,
-    ],
+  selector: 'app-reset-password',
+  templateUrl: './reset-password.page.html',
+  styleUrls: ['./reset-password.page.scss'],
+  imports: [IonicModule, FormsModule, ReactiveFormsModule, MatInput, FormButtonValidationDirective],
 })
 export class ResetPasswordPage {
   private formBuilder = inject(UntypedFormBuilder);

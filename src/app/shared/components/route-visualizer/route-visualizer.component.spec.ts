@@ -68,23 +68,23 @@ describe('RouteVisualizerComponent', () => {
     const staticMapPropertiesServiceSpy = jasmine.createSpyObj('StaticMapPropertiesService', ['getProperties']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouteVisualizerComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), RouteVisualizerComponent],
+      providers: [
         {
-            provide: LocationService,
-            useValue: locationServiceSpy,
+          provide: LocationService,
+          useValue: locationServiceSpy,
         },
         {
-            provide: GmapsService,
-            useValue: gmapsServiceSpy,
+          provide: GmapsService,
+          useValue: gmapsServiceSpy,
         },
         {
-            provide: StaticMapPropertiesService,
-            useValue: staticMapPropertiesServiceSpy,
+          provide: StaticMapPropertiesService,
+          useValue: staticMapPropertiesServiceSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(RouteVisualizerComponent);
     component = fixture.componentInstance;
@@ -92,7 +92,7 @@ describe('RouteVisualizerComponent', () => {
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;
     staticMapPropertiesService = TestBed.inject(
-      StaticMapPropertiesService
+      StaticMapPropertiesService,
     ) as jasmine.SpyObj<StaticMapPropertiesService>;
 
     locationService.getCurrentLocation.and.returnValue(of(positionData1));
@@ -216,7 +216,7 @@ describe('RouteVisualizerComponent', () => {
         expect(locationService.getDirections).toHaveBeenCalledWith(
           mileageRoute.origin,
           mileageRoute.destination,
-          mileageRoute.waypoints
+          mileageRoute.waypoints,
         );
         expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledWith({
           ...mileageRoute,

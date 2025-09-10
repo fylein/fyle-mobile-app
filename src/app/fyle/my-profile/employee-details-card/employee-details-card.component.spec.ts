@@ -26,18 +26,18 @@ describe('EmployeeDetailsCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, EmployeeDetailsCardComponent, InitialsPipe],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, EmployeeDetailsCardComponent, InitialsPipe],
+      providers: [
         {
-            provide: UtilityService,
-            useValue: utilityServiceSpy,
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(EmployeeDetailsCardComponent);
     component = fixture.componentInstance;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
@@ -77,7 +77,7 @@ describe('EmployeeDetailsCardComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.employee-details-card__icon-container__text'))).toEqual('AJ');
     expect(getTextContent(getElementBySelector(fixture, '.employee-details-card__header'))).toEqual('Abhishek Jain');
     expect(getTextContent(getElementBySelector(fixture, '.employee-details-card__employee-id'))).toEqual(
-      'Employee ID - 12345'
+      'Employee ID - 12345',
     );
   }));
 

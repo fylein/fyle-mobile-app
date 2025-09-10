@@ -7,17 +7,15 @@ describe('PolicyViolationActionComponent', () => {
   let component: PolicyViolationActionComponent;
   let fixture: ComponentFixture<PolicyViolationActionComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), PolicyViolationActionComponent],
-}).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      imports: [IonicModule.forRoot(), PolicyViolationActionComponent],
+    }).compileComponents();
 
-      fixture = TestBed.createComponent(PolicyViolationActionComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-    })
-  );
+    fixture = TestBed.createComponent(PolicyViolationActionComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

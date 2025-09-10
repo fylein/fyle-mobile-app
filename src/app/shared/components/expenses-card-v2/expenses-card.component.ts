@@ -42,7 +42,15 @@ import { ExpenseMissingMandatoryFields } from 'src/app/core/models/platform/v1/e
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { signal } from '@angular/core';
-import { NgClass, NgStyle, NgTemplateOutlet, AsyncPipe, LowerCasePipe, TitleCasePipe, CurrencyPipe } from '@angular/common';
+import {
+  NgClass,
+  NgStyle,
+  NgTemplateOutlet,
+  AsyncPipe,
+  LowerCasePipe,
+  TitleCasePipe,
+  CurrencyPipe,
+} from '@angular/common';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatIcon } from '@angular/material/icon';
 import { PendingGasChargeInfoComponent } from '../pending-gas-charge-info/pending-gas-charge-info.component';
@@ -54,29 +62,29 @@ import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 @Component({
-    selector: 'app-expense-card-v2',
-    templateUrl: './expenses-card.component.html',
-    styleUrls: ['./expenses-card.component.scss'],
-    imports: [
-        NgClass,
-        MatCheckbox,
-        IonicModule,
-        NgStyle,
-        NgTemplateOutlet,
-        MatIcon,
-        PendingGasChargeInfoComponent,
-        AsyncPipe,
-        LowerCasePipe,
-        TitleCasePipe,
-        CurrencyPipe,
-        TranslocoPipe,
-        HumanizeCurrencyPipe,
-        DateFormatPipe,
-        ExpenseState,
-        FyCurrencyPipe,
-        CurrencySymbolPipe,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-expense-card-v2',
+  templateUrl: './expenses-card.component.html',
+  styleUrls: ['./expenses-card.component.scss'],
+  imports: [
+    NgClass,
+    MatCheckbox,
+    IonicModule,
+    NgStyle,
+    NgTemplateOutlet,
+    MatIcon,
+    PendingGasChargeInfoComponent,
+    AsyncPipe,
+    LowerCasePipe,
+    TitleCasePipe,
+    CurrencyPipe,
+    TranslocoPipe,
+    HumanizeCurrencyPipe,
+    DateFormatPipe,
+    ExpenseState,
+    FyCurrencyPipe,
+    CurrencySymbolPipe,
+    ExactCurrencyPipe,
+  ],
 })
 export class ExpensesCardComponent implements OnInit {
   private sharedExpenseService = inject(SharedExpenseService);

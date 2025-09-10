@@ -26,20 +26,20 @@ import { NgClass, DecimalPipe } from '@angular/common';
 import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 
 @Component({
-    selector: 'app-fy-opt-in',
-    templateUrl: './fy-opt-in.component.html',
-    styleUrls: ['./fy-opt-in.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatInput,
-        FormsModule,
-        NgClass,
-        NgOtpInputModule,
-        FormButtonValidationDirective,
-        DecimalPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-opt-in',
+  templateUrl: './fy-opt-in.component.html',
+  styleUrls: ['./fy-opt-in.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    MatInput,
+    FormsModule,
+    NgClass,
+    NgOtpInputModule,
+    FormButtonValidationDirective,
+    DecimalPipe,
+    TranslocoPipe,
+  ],
 })
 export class FyOptInComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);

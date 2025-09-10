@@ -6,15 +6,10 @@ import { TitleCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-transaction-status-info-popover',
-    templateUrl: './transaction-status-info-popover.component.html',
-    styleUrls: ['./transaction-status-info-popover.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        TitleCasePipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-transaction-status-info-popover',
+  templateUrl: './transaction-status-info-popover.component.html',
+  styleUrls: ['./transaction-status-info-popover.component.scss'],
+  imports: [IonicModule, MatIcon, TitleCasePipe, TranslocoPipe],
 })
 export class TransactionStatusInfoPopoverComponent {
   private popoverController = inject(PopoverController);

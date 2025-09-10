@@ -32,17 +32,17 @@ import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: 'app.component.html',
-    styleUrls: ['app.component.scss'],
-    imports: [
-        IonicModule,
-        DelegatedAccMessageComponent,
-        SidemenuComponent,
-        FooterComponent,
-        NgClass,
-        FyConnectionComponent,
-    ],
+  selector: 'app-root',
+  templateUrl: 'app.component.html',
+  styleUrls: ['app.component.scss'],
+  imports: [
+    IonicModule,
+    DelegatedAccMessageComponent,
+    SidemenuComponent,
+    FooterComponent,
+    NgClass,
+    FyConnectionComponent,
+  ],
 })
 export class AppComponent implements OnInit, AfterViewInit {
   private platform = inject(Platform);

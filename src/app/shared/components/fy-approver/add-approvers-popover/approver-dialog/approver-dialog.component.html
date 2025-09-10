@@ -16,26 +16,20 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': selectedApproversList?.length > 0 }">
-    <mat-form-field
-      class="selection-modal--form-container mat-form-field-no-padding"
-      appearance="outline"
+    <mat-form-field class="selection-modal--form-container mat-form-field-no-padding" appearance="outline">
+      <mat-chip-grid
+        class="selection-modal--form-container__chip-grid"
+        #chipList
+        [attr.aria-label]="'approverDialog.multiSelect' | transloco"
       >
-      <mat-chip-grid class="selection-modal--form-container__chip-grid" #chipList [attr.aria-label]="'approverDialog.multiSelect' | transloco">
         @for (approver of selectedApproversList; track approver) {
-          <mat-chip-row
-            data-testid="approvers"
-            (removed)="removeApprover(approver)"
-            >
+          <mat-chip-row data-testid="approvers" (removed)="removeApprover(approver)">
             {{ approver.name }}
             <mat-icon matChipRemove>cancel</mat-icon>
           </mat-chip-row>
         }
         @if (!(selectedApproversList?.length > 0)) {
-          <mat-icon
-            class="selection-modal--search-icon"
-            matPrefix
-            svgIcon="search"
-          ></mat-icon>
+          <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
         }
         <input
           #searchBar
@@ -47,7 +41,7 @@
           [matChipInputAddOnBlur]="addOnBlur"
           (matChipInputTokenEnd)="addChip($event)"
           [placeholder]="!(selectedApproversList?.length > 0) ? ('approverDialog.search' | transloco) : ''"
-          />
+        />
       </mat-chip-grid>
     </mat-form-field>
     @if (selectedApproversList?.length > 0) {

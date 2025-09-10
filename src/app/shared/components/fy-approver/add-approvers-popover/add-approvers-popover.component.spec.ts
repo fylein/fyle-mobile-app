@@ -42,38 +42,46 @@ describe('AddApproversPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule, AddApproversPopoverComponent, ApproverDialogComponent],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        AddApproversPopoverComponent,
+        ApproverDialogComponent,
+      ],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: AdvanceRequestService,
-            useValue: advanceRequestServiceSpy,
+          provide: AdvanceRequestService,
+          useValue: advanceRequestServiceSpy,
         },
         {
-            provide: ApproverReportsService,
-            useValue: approverReportsServiceSpy,
+          provide: ApproverReportsService,
+          useValue: approverReportsServiceSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -173,7 +181,7 @@ describe('AddApproversPopoverComponent', () => {
     expect(advanceRequestService.addApprover).toHaveBeenCalledOnceWith(
       'areqMP09oaYXBf',
       'john.doe@fyle.in',
-      'The request is approved'
+      'The request is approved',
     );
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });
@@ -197,7 +205,7 @@ describe('AddApproversPopoverComponent', () => {
     expect(approverReportsService.addApprover).toHaveBeenCalledOnceWith(
       'repP09oaYXAf',
       'ajain@fyle.in',
-      'The request is approved'
+      'The request is approved',
     );
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });

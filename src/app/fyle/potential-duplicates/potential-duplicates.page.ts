@@ -17,16 +17,10 @@ import { CurrencyPipe } from '@angular/common';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-potential-duplicates',
-    templateUrl: './potential-duplicates.page.html',
-    styleUrls: ['./potential-duplicates.page.scss'],
-    imports: [
-        IonicModule,
-        ExpensesCardComponent,
-        FyLoadingScreenComponent,
-        CurrencyPipe,
-        FyCurrencyPipe,
-    ],
+  selector: 'app-potential-duplicates',
+  templateUrl: './potential-duplicates.page.html',
+  styleUrls: ['./potential-duplicates.page.scss'],
+  imports: [IonicModule, ExpensesCardComponent, FyLoadingScreenComponent, CurrencyPipe, FyCurrencyPipe],
 })
 export class PotentialDuplicatesPage {
   private expensesService = inject(ExpensesService);

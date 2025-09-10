@@ -19,20 +19,20 @@ import { FormButtonValidationDirective } from '../../directive/form-button-valid
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 @Component({
-    selector: 'app-create-new-report',
-    templateUrl: './create-new-report.component.html',
-    styleUrls: ['./create-new-report.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        FormsModule,
-        MatCheckbox,
-        ExpensesCardComponent,
-        FormButtonValidationDirective,
-        TranslocoPipe,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-create-new-report',
+  templateUrl: './create-new-report.component.html',
+  styleUrls: ['./create-new-report.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    NgClass,
+    FormsModule,
+    MatCheckbox,
+    ExpensesCardComponent,
+    FormButtonValidationDirective,
+    TranslocoPipe,
+    ExactCurrencyPipe,
+  ],
 })
 export class CreateNewReportComponent implements OnInit {
   private modalController = inject(ModalController);

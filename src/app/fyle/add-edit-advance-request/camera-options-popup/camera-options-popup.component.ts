@@ -5,10 +5,10 @@ import { MatIcon } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-camera-options-popup',
-    templateUrl: './camera-options-popup.component.html',
-    styleUrls: ['./camera-options-popup.component.scss'],
-    imports: [MatIcon, TranslocoPipe],
+  selector: 'app-camera-options-popup',
+  templateUrl: './camera-options-popup.component.html',
+  styleUrls: ['./camera-options-popup.component.scss'],
+  imports: [MatIcon, TranslocoPipe],
 })
 export class CameraOptionsPopupComponent implements OnInit {
   private popoverController = inject(PopoverController);

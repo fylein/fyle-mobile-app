@@ -7,16 +7,10 @@ import { HumanizeCurrencyPipe } from '../../../shared/pipes/humanize-currency.pi
 import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
 
 @Component({
-    selector: 'app-stat-badge',
-    templateUrl: './stat-badge.component.html',
-    styleUrls: ['./stat-badge.component.scss'],
-    imports: [
-        MatRipple,
-        IonicModule,
-        NgClass,
-        HumanizeCurrencyPipe,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-stat-badge',
+  templateUrl: './stat-badge.component.html',
+  styleUrls: ['./stat-badge.component.scss'],
+  imports: [MatRipple, IonicModule, NgClass, HumanizeCurrencyPipe, ExactCurrencyPipe],
 })
 export class StatBadgeComponent {
   // TODO: Skipped for migration because:

@@ -10,14 +10,10 @@ import { NgClass } from '@angular/common';
 import { MatRipple } from '@angular/material/core';
 
 @Component({
-    selector: 'app-popup-with-bullets',
-    templateUrl: './popup-with-bullets.component.html',
-    styleUrls: ['./popup-with-bullets.component.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        MatRipple,
-    ],
+  selector: 'app-popup-with-bullets',
+  templateUrl: './popup-with-bullets.component.html',
+  styleUrls: ['./popup-with-bullets.component.scss'],
+  imports: [IonicModule, NgClass, MatRipple],
 })
 export class PopupWithBulletsComponent {
   private popoverController = inject(PopoverController);

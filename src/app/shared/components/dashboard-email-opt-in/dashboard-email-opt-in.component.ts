@@ -7,10 +7,10 @@ import { Router } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-dashboard-email-opt-in',
-    templateUrl: './dashboard-email-opt-in.component.html',
-    styleUrls: ['./dashboard-email-opt-in.component.scss'],
-    imports: [MatIcon, TranslocoPipe],
+  selector: 'app-dashboard-email-opt-in',
+  templateUrl: './dashboard-email-opt-in.component.html',
+  styleUrls: ['./dashboard-email-opt-in.component.scss'],
+  imports: [MatIcon, TranslocoPipe],
 })
 export class DashboardEmailOptInComponent {
   private popoverController = inject(PopoverController);

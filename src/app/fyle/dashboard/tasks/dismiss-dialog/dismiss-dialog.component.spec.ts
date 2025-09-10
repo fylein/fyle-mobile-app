@@ -28,18 +28,26 @@ describe('DismissDialogComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, MatIconTestingModule, MatIconModule, TranslocoModule, DismissDialogComponent, FormButtonValidationDirective],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        FormsModule,
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
+        DismissDialogComponent,
+        FormButtonValidationDirective,
+      ],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DismissDialogComponent);
     component = fixture.componentInstance;
@@ -75,7 +83,7 @@ describe('DismissDialogComponent', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.dismiss-dialog--header'))).toEqual(
-      'Dismiss duplicate expenses'
+      'Dismiss duplicate expenses',
     );
     expect(getTextContent(getElementBySelector(fixture, '.dismiss-dialog--dismiss'))).toEqual('Yes, dismiss');
   });

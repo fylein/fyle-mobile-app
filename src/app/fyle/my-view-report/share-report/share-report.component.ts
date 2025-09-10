@@ -6,16 +6,10 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-share-report',
-    templateUrl: './share-report.component.html',
-    styleUrls: ['./share-report.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatInput,
-        FormsModule,
-        TranslocoPipe,
-    ],
+  selector: 'app-share-report',
+  templateUrl: './share-report.component.html',
+  styleUrls: ['./share-report.component.scss'],
+  imports: [IonicModule, MatIcon, MatInput, FormsModule, TranslocoPipe],
 })
 export class ShareReportComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);

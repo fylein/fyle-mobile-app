@@ -22,16 +22,10 @@ import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/f
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-stats',
-    templateUrl: './stats.component.html',
-    styleUrls: ['./stats.component.scss'],
-    imports: [
-        IonicModule,
-        StatBadgeComponent,
-        FyZeroStateComponent,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-stats',
+  templateUrl: './stats.component.html',
+  styleUrls: ['./stats.component.scss'],
+  imports: [IonicModule, StatBadgeComponent, FyZeroStateComponent, AsyncPipe, TranslocoPipe],
 })
 export class StatsComponent implements OnInit {
   private dashboardService = inject(DashboardService);

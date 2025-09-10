@@ -9,18 +9,10 @@ import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 @Component({
-    selector: 'app-personal-card-transaction',
-    templateUrl: './personal-card-transaction.component.html',
-    styleUrls: ['./personal-card-transaction.component.scss'],
-    imports: [
-        MatCheckbox,
-        MatIcon,
-        NgClass,
-        IonicModule,
-        TranslocoPipe,
-        DateFormatPipe,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-personal-card-transaction',
+  templateUrl: './personal-card-transaction.component.html',
+  styleUrls: ['./personal-card-transaction.component.scss'],
+  imports: [MatCheckbox, MatIcon, NgClass, IonicModule, TranslocoPipe, DateFormatPipe, ExactCurrencyPipe],
 })
 export class PersonalCardTransactionComponent implements OnInit {
   // TODO: Skipped for migration because:

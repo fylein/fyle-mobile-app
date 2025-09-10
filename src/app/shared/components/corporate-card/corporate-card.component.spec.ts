@@ -18,9 +18,9 @@ import { By } from '@angular/platform-browser';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 @Component({
-    selector: 'app-card-number',
-    template: '<div></div>',
-    imports: [TranslocoModule],
+  selector: 'app-card-number',
+  template: '<div></div>',
+  imports: [TranslocoModule],
 })
 class MockCardNumberComponent {
   readonly cardNumber = input<string>(undefined);
@@ -45,18 +45,18 @@ describe('CorporateCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, CorporateCardComponent, MockCardNumberComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, CorporateCardComponent, MockCardNumberComponent],
+      providers: [
         {
-            provide: CorporateCreditCardExpenseService,
-            useValue: corporateCreditCardExpenseServiceSpy,
+          provide: CorporateCreditCardExpenseService,
+          useValue: corporateCreditCardExpenseServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CorporateCardComponent);
     component = fixture.componentInstance;

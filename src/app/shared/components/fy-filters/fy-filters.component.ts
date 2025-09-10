@@ -16,23 +16,23 @@ import { MatDatepickerInput, MatDatepickerToggle, MatDatepicker } from '@angular
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-filters',
-    templateUrl: './fy-filters.component.html',
-    styleUrls: ['./fy-filters.component.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        MatFormField,
-        MatLabel,
-        MatInput,
-        FormsModule,
-        MatDatepickerInput,
-        MatDatepickerToggle,
-        MatSuffix,
-        MatDatepicker,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-filters',
+  templateUrl: './fy-filters.component.html',
+  styleUrls: ['./fy-filters.component.scss'],
+  imports: [
+    IonicModule,
+    NgClass,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    FormsModule,
+    MatDatepickerInput,
+    MatDatepickerToggle,
+    MatSuffix,
+    MatDatepicker,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class FyFiltersComponent implements OnInit {
   private modalController = inject(ModalController);

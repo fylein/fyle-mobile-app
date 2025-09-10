@@ -1,5 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { finalize, switchMap, tap } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,18 +26,18 @@ import { PasswordCheckTooltipComponent } from '../../shared/components/password-
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 
 @Component({
-    selector: 'app-new-password',
-    templateUrl: './new-password.page.html',
-    styleUrls: ['./new-password.page.scss'],
-    imports: [
-        IonicModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgClass,
-        MatSuffix,
-        PasswordCheckTooltipComponent,
-        FormButtonValidationDirective,
-    ],
+  selector: 'app-new-password',
+  templateUrl: './new-password.page.html',
+  styleUrls: ['./new-password.page.scss'],
+  imports: [
+    IonicModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgClass,
+    MatSuffix,
+    PasswordCheckTooltipComponent,
+    FormButtonValidationDirective,
+  ],
 })
 export class NewPasswordPage implements OnInit {
   private fb = inject(UntypedFormBuilder);

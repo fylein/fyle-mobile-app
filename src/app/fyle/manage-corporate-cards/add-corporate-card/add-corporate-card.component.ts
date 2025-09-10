@@ -1,5 +1,11 @@
 import { Component, OnInit, Input, inject } from '@angular/core';
-import { AbstractControl, UntypedFormControl, ValidationErrors, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormControl,
+  ValidationErrors,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { PopoverController, IonicModule } from '@ionic/angular';
 import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
@@ -17,22 +23,22 @@ import { FormButtonValidationDirective } from '../../../shared/directive/form-bu
 import { ArrayToCommaListPipe } from '../../../shared/pipes/array-to-comma-list.pipe';
 
 @Component({
-    selector: 'app-add-corporate-card',
-    templateUrl: './add-corporate-card.component.html',
-    styleUrls: ['./add-corporate-card.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        NgxMaskModule,
-        FormsModule,
-        AutofocusDirective,
-        ReactiveFormsModule,
-        FyAlertInfoComponent,
-        FormButtonValidationDirective,
-        ArrayToCommaListPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-add-corporate-card',
+  templateUrl: './add-corporate-card.component.html',
+  styleUrls: ['./add-corporate-card.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    NgClass,
+    NgxMaskModule,
+    FormsModule,
+    AutofocusDirective,
+    ReactiveFormsModule,
+    FyAlertInfoComponent,
+    FormButtonValidationDirective,
+    ArrayToCommaListPipe,
+    TranslocoPipe,
+  ],
 })
 export class AddCorporateCardComponent implements OnInit {
   private popoverController = inject(PopoverController);

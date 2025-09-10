@@ -32,27 +32,27 @@ describe('PopupWithBulletsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, PopupWithBulletsComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, PopupWithBulletsComponent],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: ClipboardService,
-            useValue: clipboardServiceSpy,
+          provide: ClipboardService,
+          useValue: clipboardServiceSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesServiceSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesServiceSpy,
         },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(PopupWithBulletsComponent);
     component = fixture.componentInstance;
 
@@ -136,7 +136,7 @@ describe('PopupWithBulletsComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
       'success',
       { message },
-      'check-circle-outline'
+      'check-circle-outline',
     );
   });
 });

@@ -126,97 +126,102 @@ describe('MyViewReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, MyViewReportPage,
+      imports: [
+        IonicModule.forRoot(),
+        MatIconTestingModule,
+        MatIconModule,
+        MyViewReportPage,
         EllipsisPipe,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         ReportState,
         SnakeCaseToSpaceCase,
-        DateWithTimezonePipe],
-    providers: [
+        DateWithTimezonePipe,
+      ],
+      providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         UrlSerializer,
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        id: 'rprAfNrce73O',
-                        navigateBack: true,
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                id: 'rprAfNrce73O',
+                navigateBack: true,
+              },
             },
+          },
         },
         {
-            provide: ReportService,
-            useValue: reportServiceSpy,
+          provide: ReportService,
+          useValue: reportServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expnesesServicespy,
+          provide: ExpensesService,
+          useValue: expnesesServicespy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: StatusService,
-            useValue: statusServiceSpy,
+          provide: StatusService,
+          useValue: statusServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: SpenderReportsService,
-            useValue: spenderReportsServiceSpy,
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
         },
         {
-            provide: LaunchDarklyService,
-            useValue: launchDarklyServiceSpy,
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
         },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).compileComponents();
     fixture = TestBed.createComponent(MyViewReportPage);
     component = fixture.componentInstance;
 

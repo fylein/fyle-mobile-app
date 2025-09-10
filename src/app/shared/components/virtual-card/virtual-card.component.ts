@@ -11,19 +11,10 @@ import { NgClass, SlicePipe, TitleCasePipe, CurrencyPipe, DatePipe } from '@angu
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-virtual-card',
-    templateUrl: './virtual-card.component.html',
-    styleUrls: ['./virtual-card.component.scss'],
-    imports: [
-        NgClass,
-        IonicModule,
-        SlicePipe,
-        TitleCasePipe,
-        CurrencyPipe,
-        DatePipe,
-        TranslocoPipe,
-        FyCurrencyPipe,
-    ],
+  selector: 'app-virtual-card',
+  templateUrl: './virtual-card.component.html',
+  styleUrls: ['./virtual-card.component.scss'],
+  imports: [NgClass, IonicModule, SlicePipe, TitleCasePipe, CurrencyPipe, DatePipe, TranslocoPipe, FyCurrencyPipe],
 })
 export class VirtualCardComponent implements OnInit {
   private clipboardService = inject(ClipboardService);

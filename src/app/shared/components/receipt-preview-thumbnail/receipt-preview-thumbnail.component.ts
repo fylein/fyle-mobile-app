@@ -10,18 +10,10 @@ import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
-    selector: 'app-receipt-preview-thumbnail',
-    templateUrl: './receipt-preview-thumbnail.component.html',
-    styleUrls: ['./receipt-preview-thumbnail.component.scss'],
-    imports: [
-        NgClass,
-        MatIcon,
-        IonicModule,
-        SwiperModule,
-        PinchZoomComponent,
-        PdfViewerModule,
-        TranslocoPipe,
-    ],
+  selector: 'app-receipt-preview-thumbnail',
+  templateUrl: './receipt-preview-thumbnail.component.html',
+  styleUrls: ['./receipt-preview-thumbnail.component.scss'],
+  imports: [NgClass, MatIcon, IonicModule, SwiperModule, PinchZoomComponent, PdfViewerModule, TranslocoPipe],
 })
 export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   private trackingService = inject(TrackingService);

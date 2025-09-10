@@ -1,6 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import { ActionSheetButton, ActionSheetController, ModalController, PopoverController, IonicModule } from '@ionic/angular';
+import {
+  ActionSheetButton,
+  ActionSheetController,
+  ModalController,
+  PopoverController,
+  IonicModule,
+} from '@ionic/angular';
 import {
   BehaviorSubject,
   Observable,
@@ -40,16 +46,10 @@ import { CorporateCardComponent } from '../../shared/components/corporate-card/c
 import { VirtualCardComponent } from '../../shared/components/virtual-card/virtual-card.component';
 import { AsyncPipe } from '@angular/common';
 @Component({
-    selector: 'app-manage-corporate-cards',
-    templateUrl: './manage-corporate-cards.page.html',
-    styleUrls: ['./manage-corporate-cards.page.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        CorporateCardComponent,
-        VirtualCardComponent,
-        AsyncPipe,
-    ],
+  selector: 'app-manage-corporate-cards',
+  templateUrl: './manage-corporate-cards.page.html',
+  styleUrls: ['./manage-corporate-cards.page.scss'],
+  imports: [IonicModule, MatIcon, CorporateCardComponent, VirtualCardComponent, AsyncPipe],
 })
 export class ManageCorporateCardsPage {
   private router = inject(Router);

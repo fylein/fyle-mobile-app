@@ -14,19 +14,19 @@ import { FySummaryTileComponent } from '../../shared/components/summary-tile/sum
 import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-statistic.component';
 
 @Component({
-    selector: 'app-my-view-advance',
-    templateUrl: './my-view-advance.page.html',
-    styleUrls: ['./my-view-advance.page.scss'],
-    imports: [
-        IonicModule,
-        RouterLinkActive,
-        RouterLink,
-        FySummaryTileComponent,
-        FyStatisticComponent,
-        AsyncPipe,
-        TitleCasePipe,
-        DatePipe,
-    ],
+  selector: 'app-my-view-advance',
+  templateUrl: './my-view-advance.page.html',
+  styleUrls: ['./my-view-advance.page.scss'],
+  imports: [
+    IonicModule,
+    RouterLinkActive,
+    RouterLink,
+    FySummaryTileComponent,
+    FyStatisticComponent,
+    AsyncPipe,
+    TitleCasePipe,
+    DatePipe,
+  ],
 })
 export class MyViewAdvancePage {
   private advanceService = inject(AdvanceService);

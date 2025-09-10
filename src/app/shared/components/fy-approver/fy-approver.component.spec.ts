@@ -23,18 +23,18 @@ describe('FyApproverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, FyApproverComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, FyApproverComponent],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyApproverComponent);
     component = fixture.componentInstance;

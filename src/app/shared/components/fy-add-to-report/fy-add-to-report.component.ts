@@ -26,22 +26,17 @@ import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-fy-add-to-report',
-    templateUrl: './fy-add-to-report.component.html',
-    styleUrls: ['./fy-add-to-report.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FyAddToReportComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        NgClass,
-        FormsModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-add-to-report',
+  templateUrl: './fy-add-to-report.component.html',
+  styleUrls: ['./fy-add-to-report.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FyAddToReportComponent),
+      multi: true,
+    },
+  ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAccessor {
   private modalController = inject(ModalController);

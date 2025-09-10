@@ -12,19 +12,19 @@ import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
 import { ReportState } from '../../../shared/pipes/report-state.pipe';
 import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
-    selector: 'app-add-txn-to-report-dialog',
-    templateUrl: './add-txn-to-report-dialog.component.html',
-    styleUrls: ['./add-txn-to-report-dialog.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatRipple,
-        FyZeroStateComponent,
-        TitleCasePipe,
-        ExactCurrencyPipe,
-        ReportState,
-        TranslocoPipe,
-    ],
+  selector: 'app-add-txn-to-report-dialog',
+  templateUrl: './add-txn-to-report-dialog.component.html',
+  styleUrls: ['./add-txn-to-report-dialog.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    MatRipple,
+    FyZeroStateComponent,
+    TitleCasePipe,
+    ExactCurrencyPipe,
+    ReportState,
+    TranslocoPipe,
+  ],
 })
 export class AddTxnToReportDialogComponent implements OnInit {
   private currencyService = inject(CurrencyService);

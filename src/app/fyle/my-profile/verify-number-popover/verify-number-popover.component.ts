@@ -12,18 +12,18 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-verify-number-popover',
-    templateUrl: './verify-number-popover.component.html',
-    styleUrls: ['./verify-number-popover.component.scss'],
-    imports: [
-        IonicModule,
-        FormButtonValidationDirective,
-        FyAlertInfoComponent,
-        MatInput,
-        FormsModule,
-        DecimalPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-verify-number-popover',
+  templateUrl: './verify-number-popover.component.html',
+  styleUrls: ['./verify-number-popover.component.scss'],
+  imports: [
+    IonicModule,
+    FormButtonValidationDirective,
+    FyAlertInfoComponent,
+    MatInput,
+    FormsModule,
+    DecimalPipe,
+    TranslocoPipe,
+  ],
 })
 export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   private popoverController = inject(PopoverController);

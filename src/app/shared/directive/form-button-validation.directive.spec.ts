@@ -5,7 +5,7 @@ import { FormButtonValidationDirective } from './form-button-validation.directiv
 import { LoaderPosition } from './loader-position.enum';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Component({ template: `<button appFormButtonValidation>Save</button>`, })
+@Component({ template: `<button appFormButtonValidation>Save</button>` })
 class TestFormValidationButtonComponent {}
 
 describe('FormButtonValidationDirective', () => {
@@ -19,14 +19,14 @@ describe('FormButtonValidationDirective', () => {
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
     TestBed.configureTestingModule({
-    imports: [TestFormValidationButtonComponent, FormButtonValidationDirective],
-    providers: [
+      imports: [TestFormValidationButtonComponent, FormButtonValidationDirective],
+      providers: [
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-});
+      ],
+    });
 
     fixture = TestBed.createComponent(TestFormValidationButtonComponent);
     component = fixture.componentInstance;

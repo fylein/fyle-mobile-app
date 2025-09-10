@@ -7,14 +7,10 @@ import { MatIcon } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-approver',
-    templateUrl: './fy-approver.component.html',
-    styleUrls: ['./fy-approver.component.scss'],
-    imports: [
-        MatIcon,
-        IonicModule,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-approver',
+  templateUrl: './fy-approver.component.html',
+  styleUrls: ['./fy-approver.component.scss'],
+  imports: [MatIcon, IonicModule, TranslocoPipe],
 })
 export class FyApproverComponent {
   private popoverController = inject(PopoverController);

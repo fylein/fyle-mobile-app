@@ -4,10 +4,10 @@ import { IonicModule } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-active-org-card',
-    templateUrl: './active-org-card.component.html',
-    styleUrls: ['./active-org-card.component.scss'],
-    imports: [IonicModule, TranslocoPipe],
+  selector: 'app-active-org-card',
+  templateUrl: './active-org-card.component.html',
+  styleUrls: ['./active-org-card.component.scss'],
+  imports: [IonicModule, TranslocoPipe],
 })
 export class ActiveOrgCardComponent implements OnInit {
   // TODO: Skipped for migration because:

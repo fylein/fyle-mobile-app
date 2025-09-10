@@ -38,18 +38,18 @@ import { NgClass, DecimalPipe } from '@angular/common';
 import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
 
 @Component({
-    selector: 'app-spender-onboarding-opt-in-step',
-    templateUrl: './spender-onboarding-opt-in-step.component.html',
-    styleUrls: ['./spender-onboarding-opt-in-step.component.scss'],
-    imports: [
-        FormsModule,
-        NgClass,
-        IonicModule,
-        NgOtpInputModule,
-        FormButtonValidationDirective,
-        DecimalPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-spender-onboarding-opt-in-step',
+  templateUrl: './spender-onboarding-opt-in-step.component.html',
+  styleUrls: ['./spender-onboarding-opt-in-step.component.scss'],
+  imports: [
+    FormsModule,
+    NgClass,
+    IonicModule,
+    NgOtpInputModule,
+    FormButtonValidationDirective,
+    DecimalPipe,
+    TranslocoPipe,
+  ],
 })
 export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   private fb = inject(UntypedFormBuilder);

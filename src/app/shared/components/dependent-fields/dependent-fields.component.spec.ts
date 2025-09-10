@@ -39,30 +39,31 @@ describe('DependentFieldsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [
+      imports: [
         IonicModule.forRoot(),
         ReactiveFormsModule,
         FormsModule,
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,
-        DependentFieldsComponent, DependentFieldComponent,
-    ],
-    providers: [
+        DependentFieldsComponent,
+        DependentFieldComponent,
+      ],
+      providers: [
         {
-            provide: DependentFieldsService,
-            useValue: dependentFieldsServiceSpy,
+          provide: DependentFieldsService,
+          useValue: dependentFieldsServiceSpy,
         },
         {
-            provide: UntypedFormBuilder,
-            useValue: formBuilderSpy,
+          provide: UntypedFormBuilder,
+          useValue: formBuilderSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(DependentFieldsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -130,7 +131,7 @@ describe('DependentFieldsComponent', () => {
         {
           id: changes.parentFieldId.currentValue,
           value: changes.parentFieldValue.currentValue,
-        }
+        },
       );
     });
 
@@ -184,14 +185,14 @@ describe('DependentFieldsComponent', () => {
       const addDependentFieldSpy = spyOn(component, 'addDependentField').and.returnValues(null);
       const getDependentFieldSpy = spyOn(component, 'getDependentField').and.returnValues(
         of(dependentFieldDetails),
-        of(null)
+        of(null),
       );
 
       const addDependentFieldWithValueSpy = spyOn(component, 'addDependentFieldWithValue').and.callThrough();
       component.addDependentFieldWithValue(
         component.txnCustomProperties,
         component.dependentCustomFields,
-        parentField[0]
+        parentField[0],
       );
 
       expect(addDependentFieldSpy).toHaveBeenCalledTimes(2);
@@ -217,13 +218,13 @@ describe('DependentFieldsComponent', () => {
       component.addDependentFieldWithValue(
         component.txnCustomProperties,
         component.dependentCustomFields,
-        parentField[1]
+        parentField[1],
       );
 
       expect(component.getDependentField).toHaveBeenCalledOnceWith(parentField[1].id, parentField[1].value);
       expect(component.addDependentField).toHaveBeenCalledOnceWith(
         component.dependentCustomFields[1],
-        parentField[1].value
+        parentField[1].value,
       );
     });
 
@@ -278,7 +279,7 @@ describe('DependentFieldsComponent', () => {
       fixture.detectChanges();
 
       const dependentFieldFg = component.dependentFieldsFormArray.at(
-        component.dependentFieldsFormArray.length - 1
+        component.dependentFieldsFormArray.length - 1,
       ) as UntypedFormGroup;
 
       //This field should be the last field in dependentFields and formArray

@@ -86,8 +86,15 @@ describe('MergeExpensePage', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformRawExpense']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule, MergeExpensePage],
-    providers: [
+      imports: [
+        IonicModule.forRoot(),
+        ReactiveFormsModule,
+        FormsModule,
+        RouterTestingModule,
+        RouterModule,
+        MergeExpensePage,
+      ],
+      providers: [
         UntypedFormBuilder,
         { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -99,28 +106,28 @@ describe('MergeExpensePage', () => {
         { provide: MatSnackBar, useValue: matSnackbarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         {
-            provide: MergeExpensesService,
-            useValue: mergeExpensesServiceSpy,
+          provide: MergeExpensesService,
+          useValue: mergeExpensesServiceSpy,
         },
         {
-            provide: ExpenseFieldsService,
-            useValue: expenseFieldsServiceSpy,
+          provide: ExpenseFieldsService,
+          useValue: expenseFieldsServiceSpy,
         },
         {
-            provide: DependentFieldsService,
-            useValue: dependentFieldsServiceSpy,
+          provide: DependentFieldsService,
+          useValue: dependentFieldsServiceSpy,
         },
         {
-            provide: TransactionService,
-            useValue: transactionServiceSpy,
+          provide: TransactionService,
+          useValue: transactionServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     return TestBed;
   };

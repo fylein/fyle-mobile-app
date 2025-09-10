@@ -17,19 +17,10 @@ import { UpperCasePipe } from '@angular/common';
 import { InitialsPipe } from '../../shared/pipes/initials.pipe';
 
 @Component({
-    selector: 'app-delegated-accounts',
-    templateUrl: './delegated-accounts.page.html',
-    styleUrls: ['./delegated-accounts.page.scss'],
-    imports: [
-        IonicModule,
-        MatFormField,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatRipple,
-        UpperCasePipe,
-        InitialsPipe,
-    ],
+  selector: 'app-delegated-accounts',
+  templateUrl: './delegated-accounts.page.html',
+  styleUrls: ['./delegated-accounts.page.scss'],
+  imports: [IonicModule, MatFormField, MatPrefix, MatInput, FormsModule, MatRipple, UpperCasePipe, InitialsPipe],
 })
 export class DelegatedAccountsPage {
   private orgUserService = inject(OrgUserService);

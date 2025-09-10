@@ -22,24 +22,24 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-multiselect-modal',
-    templateUrl: './fy-multiselect-modal.component.html',
-    styleUrls: ['./fy-multiselect-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        MatFormField,
-        MatChipGrid,
-        MatChipRow,
-        MatChipRemove,
-        MatPrefix,
-        FormsModule,
-        MatChipInput,
-        MatCheckbox,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-multiselect-modal',
+  templateUrl: './fy-multiselect-modal.component.html',
+  styleUrls: ['./fy-multiselect-modal.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    NgClass,
+    MatFormField,
+    MatChipGrid,
+    MatChipRow,
+    MatChipRemove,
+    MatPrefix,
+    FormsModule,
+    MatChipInput,
+    MatCheckbox,
+    AsyncPipe,
+    TranslocoPipe,
+  ],
 })
 export class FyMultiselectModalComponent implements AfterViewInit {
   private modalController = inject(ModalController);

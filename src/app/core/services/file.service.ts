@@ -26,7 +26,7 @@ export class FileService {
   private findByAdvanceRequestIdWithService(
     advanceRequestId: string,
     service: SpenderService | ApproverService,
-    fileService: SpenderFileService | ApproverFileService
+    fileService: SpenderFileService | ApproverFileService,
   ): Observable<FileObject[]> {
     return (service as SpenderService)
       .get<PlatformApiResponse<AdvanceRequestFiles[]>>('/advance_requests', {
@@ -41,19 +41,27 @@ export class FileService {
             return of<FileObject[]>([]);
           }
 
-          return fileService.generateUrlsBulk(advanceRequest.file_ids).pipe(
-            map((urlResponses: PlatformFileGenerateUrlsResponse[]) => urlResponses.map((urlResponse) => this.createFileObjectFromUrlResponse(urlResponse))),
-          );
+          return fileService
+            .generateUrlsBulk(advanceRequest.file_ids)
+            .pipe(
+              map((urlResponses: PlatformFileGenerateUrlsResponse[]) =>
+                urlResponses.map((urlResponse) => this.createFileObjectFromUrlResponse(urlResponse)),
+              ),
+            );
         }),
       );
   }
 
   downloadUrl(fileId: string): Observable<string> {
-    return this.spenderFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].download_url));
+    return this.spenderFileService
+      .generateUrlsBulk([fileId])
+      .pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].download_url));
   }
 
   downloadUrlForTeamAdvance(fileId: string): Observable<string> {
-    return this.approverFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].download_url));
+    return this.approverFileService
+      .generateUrlsBulk([fileId])
+      .pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].download_url));
   }
 
   base64Download(fileId: string): Observable<{ content: string }> {
@@ -133,11 +141,15 @@ export class FileService {
   }
 
   uploadUrl(fileId: string): Observable<string> {
-    return this.spenderFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].upload_url));
+    return this.spenderFileService
+      .generateUrlsBulk([fileId])
+      .pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].upload_url));
   }
 
   uploadUrlForTeamAdvance(fileId: string): Observable<string> {
-    return this.approverFileService.generateUrlsBulk([fileId]).pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].upload_url));
+    return this.approverFileService
+      .generateUrlsBulk([fileId])
+      .pipe(map((response: PlatformFileGenerateUrlsResponse[]) => response[0].upload_url));
   }
 
   getBlobFromDataUrl(dataUrl: string): Blob {

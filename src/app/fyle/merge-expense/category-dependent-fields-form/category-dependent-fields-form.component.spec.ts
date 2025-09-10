@@ -22,16 +22,16 @@ describe('CategoryDependentFieldsFormComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, CategoryDependentFieldsFormComponent],
-    providers: [
+      imports: [IonicModule.forRoot(), TranslocoModule, CategoryDependentFieldsFormComponent],
+      providers: [
         UntypedFormBuilder,
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CategoryDependentFieldsFormComponent);
     component = fixture.componentInstance;

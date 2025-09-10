@@ -25,18 +25,10 @@ import { MatInput, MatSuffix } from '@angular/material/input';
 import { NgClass } from '@angular/common';
 
 @Component({
-    selector: 'app-sign-in',
-    templateUrl: './sign-in.page.html',
-    styleUrls: ['./sign-in.page.scss'],
-    imports: [
-        IonicModule,
-        FormButtonValidationDirective,
-        FormsModule,
-        ReactiveFormsModule,
-        MatInput,
-        NgClass,
-        MatSuffix,
-    ],
+  selector: 'app-sign-in',
+  templateUrl: './sign-in.page.html',
+  styleUrls: ['./sign-in.page.scss'],
+  imports: [IonicModule, FormButtonValidationDirective, FormsModule, ReactiveFormsModule, MatInput, NgClass, MatSuffix],
 })
 export class SignInPage implements OnInit {
   private formBuilder = inject(UntypedFormBuilder);

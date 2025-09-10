@@ -5,10 +5,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { NavController } from '@ionic/angular';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -101,7 +98,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'patchCustomInputsValues');
         spyOn(component, 'getDependentFieldsMapping').and.returnValues(
           of(projectDependentFieldsMappingData1),
-          of(CostCenterDependentFieldsMappingData1)
+          of(CostCenterDependentFieldsMappingData1),
         );
       });
 
@@ -135,7 +132,7 @@ export function TestCases3(getTestBed) {
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(2);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledWith(
             mergeExpenseFormData1.custom_inputs.fields,
-            responseAfterAppliedFilter
+            responseAfterAppliedFilter,
           );
           expect(customInputsService.filterByCategory).toHaveBeenCalledTimes(2);
           const firstFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(0);
@@ -226,7 +223,7 @@ export function TestCases3(getTestBed) {
           expect(mergeExpensesService.getDependentFieldsMapping).toHaveBeenCalledOnceWith(
             expenseList2,
             expectedTxnCustomProperties,
-            'PROJECT'
+            'PROJECT',
           );
         });
       });
@@ -237,7 +234,7 @@ export function TestCases3(getTestBed) {
           expect(mergeExpensesService.getDependentFieldsMapping).toHaveBeenCalledOnceWith(
             expenseList2,
             expectedTxnCustomProperties,
-            'COST_CENTER'
+            'COST_CENTER',
           );
         });
       });
@@ -398,7 +395,7 @@ export function TestCases3(getTestBed) {
         expect(component.setIsReported).toHaveBeenCalledOnceWith(expensesInfo);
         expect(component.disableExpenseToKeep).toBeTrue();
         expect(component.expenseToKeepInfoText).toEqual(
-          'You are required to keep the expense that has already been submitted.'
+          'You are required to keep the expense that has already been submitted.',
         );
         expect(component.fg.controls.target_txn_id.value).toEqual('txLgXPnTDOGf');
       });
@@ -417,7 +414,7 @@ export function TestCases3(getTestBed) {
         expect(component.disableExpenseToKeep).toBeFalse();
         expect(component.showReceiptSelection).toBeTrue();
         expect(component.expenseToKeepInfoText).toEqual(
-          'You cannot make changes to an expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
+          'You cannot make changes to an expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.',
         );
         expect(component.fg.controls.target_txn_id.value).not.toEqual('txB1rVZJ4Pxl');
       });
@@ -436,7 +433,7 @@ export function TestCases3(getTestBed) {
         expect(component.disableExpenseToKeep).toBeTrue();
         expect(component.showReceiptSelection).toBeFalse();
         expect(component.expenseToKeepInfoText).toEqual(
-          'You are required to keep the expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
+          'You are required to keep the expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.',
         );
         expect(component.fg.controls.target_txn_id.value).toEqual('txLgXPnTDOGf');
       });
@@ -480,7 +477,7 @@ export function TestCases3(getTestBed) {
           'SLEEPER',
           'AC',
           23,
-          'KM'
+          'KM',
         );
       });
 

@@ -12,22 +12,22 @@ import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violat
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-split-expense-policy-violation',
-    templateUrl: './split-expense-policy-violation.component.html',
-    styleUrls: ['./split-expense-policy-violation.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        FyPolicyViolationComponent,
-        FormsModule,
-        ReactiveFormsModule,
-        FyCriticalPolicyViolationComponent,
-        CurrencyPipe,
-        KeyValuePipe,
-        TranslocoPipe,
-        FyCurrencyPipe,
-    ],
+  selector: 'app-split-expense-policy-violation',
+  templateUrl: './split-expense-policy-violation.component.html',
+  styleUrls: ['./split-expense-policy-violation.component.scss'],
+  imports: [
+    IonicModule,
+    MatIcon,
+    NgClass,
+    FyPolicyViolationComponent,
+    FormsModule,
+    ReactiveFormsModule,
+    FyCriticalPolicyViolationComponent,
+    CurrencyPipe,
+    KeyValuePipe,
+    TranslocoPipe,
+    FyCurrencyPipe,
+  ],
 })
 export class SplitExpensePolicyViolationComponent implements OnInit {
   private modalController = inject(ModalController);
