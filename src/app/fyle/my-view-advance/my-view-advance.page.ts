@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLinkActive, RouterLink } from '@angular/router';
-import { from, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { shareReplay, switchMap, map } from 'rxjs/operators';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';

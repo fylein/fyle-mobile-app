@@ -1,16 +1,11 @@
-import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, Component } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
-import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
-import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import { InfiniteScrollCustomEvent, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular/standalone';
+import { InfiniteScrollCustomEvent, ModalController, NavController, Platform, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { IonInfiniteScrollCustomEvent } from '@ionic/core';
 import { BehaviorSubject, of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
@@ -43,6 +38,21 @@ import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.mo
 import { platformPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 import { PlatformPersonalCardTxnState } from 'src/app/core/models/platform/platform-personal-card-txn-state.enum';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { BankAccountCardsComponent } from 'src/app/shared/components/bank-account-cards/bank-account-cards.component';
+import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
+
+// mock app-bank-account-cards component
+@Component({
+  selector: 'app-bank-account-cards',
+  template: '<div></div>',
+})
+class MockBankAccountCardsComponent {}
+@Component({
+  selector: 'app-footer',
+  template: '<div></div>',
+})
+class MockFooterComponent {}
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -61,6 +71,7 @@ describe('PersonalCardsPage', () => {
   let spinnerDialog: jasmine.SpyObj<SpinnerDialog>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
+  let navController: jasmine.SpyObj<NavController>;
 
   beforeEach(waitForAsync(() => {
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', [
@@ -103,16 +114,12 @@ describe('PersonalCardsPage', () => {
       'transactionsHiddenOnPersonalCards',
     ]);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
+    const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule,
-        FormsModule,
-        MatCheckboxModule,
-        MatFormFieldModule,
-        MatInputModule,
-        BrowserAnimationsModule,
-        NoopAnimationsModule,
-        PersonalCardsPage,,
+      imports: [
+        PersonalCardsPage,
+        getTranslocoTestingModule(),
         MatIconTestingModule],
       providers: [
         ChangeDetectorRef,
@@ -183,8 +190,14 @@ describe('PersonalCardsPage', () => {
           provide: ModalPropertiesService,
           useValue: modalPropertiesSpy,
         },
+        {
+          provide: NavController,
+          useValue: navControllerSpy,
+        },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).overrideComponent(PersonalCardsPage, {
+      remove: {imports: [BankAccountCardsComponent, FooterComponent]},
+      add: {imports: [MockBankAccountCardsComponent, MockFooterComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA]},
     }).compileComponents();
     fixture = TestBed.createComponent(PersonalCardsPage);
     component = fixture.componentInstance;
@@ -202,6 +215,7 @@ describe('PersonalCardsPage', () => {
     spinnerDialog = TestBed.inject(SpinnerDialog) as jasmine.SpyObj<SpinnerDialog>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
 
     personalCardsService.getPersonalCardsCount.and.returnValue(of(2));

@@ -52,10 +52,8 @@ import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
-import { ReportState as ReportState_1 } from '../../shared/pipes/report-state.pipe';
+import { ReportState as ReportStatePipe } from '../../shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
-import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pipes/date-with-timezone.pipe';
-
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -64,7 +62,7 @@ import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pip
     AsyncPipe,
     AuditHistoryComponent,
     DatePipe,
-    DateWithTimezonePipe_1,
+    DateWithTimezonePipe,
     EllipsisPipe,
     ExactCurrencyPipe,
     ExpensesCardComponent,
@@ -94,7 +92,7 @@ import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pip
     MatInput,
     NgClass,
     NgFor,
-    ReportState_1,
+    ReportStatePipe,
     RouterLink,
     SnakeCaseToSpaceCase,
     TitleCasePipe

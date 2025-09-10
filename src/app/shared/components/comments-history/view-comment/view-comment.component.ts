@@ -20,7 +20,6 @@ import { NgClass } from '@angular/common';
 import { AuditHistoryComponent } from '../audit-history/audit-history.component';
 import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../../pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-view-comment',
@@ -29,7 +28,7 @@ import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../../pipes/d
   providers: [DateWithTimezonePipe],
   imports: [
     AuditHistoryComponent,
-    DateWithTimezonePipe_1,
+    DateWithTimezonePipe,
     FormsModule,
     IonButtons,
     IonCol,

@@ -70,7 +70,7 @@ describe('MyCreateReportPage', () => {
         MatCheckboxModule,
         MyCreateReportPage,
         HumanizeCurrencyPipe,
-        ExactCurrencyPipe,,
+        ExactCurrencyPipe,
         MatIconTestingModule],
       providers: [
         FyCurrencyPipe,

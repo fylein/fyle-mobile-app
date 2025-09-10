@@ -30,7 +30,7 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { ExpenseState as ExpenseStateEnum } from 'src/app/core/models/expense-state.enum';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
@@ -46,7 +46,7 @@ import { ViewDependentFieldsComponent } from '../../shared/components/view-depen
 import { NavigationFooterComponent } from '../../shared/components/navigation-footer/navigation-footer.component';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
-import { ExpenseState as ExpenseState_1 } from '../../shared/pipes/expense-state.pipe';
+import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 import { MileageRateName } from '../../shared/pipes/mileage-rate-name.pipe';
 
@@ -59,7 +59,7 @@ import { MileageRateName } from '../../shared/pipes/mileage-rate-name.pipe';
     CurrencyPipe,
     DatePipe,
     ExactCurrencyPipe,
-    ExpenseState_1,
+    ExpenseStatePipe,
     FyCurrencyPipe,
     FyPolicyViolationInfoComponent,
     IonButton,
@@ -462,7 +462,7 @@ export class ViewMileagePage {
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state),
+          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(expense.state),
       ),
     );
 

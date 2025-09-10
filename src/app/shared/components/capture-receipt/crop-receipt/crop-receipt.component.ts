@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, inject, viewChild } from '@angular/core';
-import { ImageCropperComponent, ImageCropperModule } from 'ngx-image-cropper';
+import { ImageCropperComponent } from 'ngx-image-cropper';
 import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Subscription } from 'rxjs';
@@ -16,7 +16,7 @@ type Image = Partial<{
   templateUrl: './crop-receipt.component.html',
   styleUrls: ['./crop-receipt.component.scss'],
   imports: [
-    ImageCropperModule,
+    ImageCropperComponent,
     IonButton,
     IonButtons,
     IonContent,

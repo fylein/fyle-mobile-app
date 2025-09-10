@@ -328,7 +328,7 @@ describe('MyExpensesPage', () => {
         getTranslocoTestingModule(),
         MyExpensesPage,
         ReportState,
-        MaskNumber,,
+        MaskNumber,
         MatIconTestingModule],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },

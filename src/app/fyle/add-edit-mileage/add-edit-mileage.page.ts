@@ -135,12 +135,10 @@ import { NgClass, NgIf, AsyncPipe, SlicePipe, CurrencyPipe } from '@angular/comm
 import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
 import { MatIcon } from '@angular/material/icon';
 import { RouteVisualizerComponent } from '../../shared/components/route-visualizer/route-visualizer.component';
-import { RouteSelectorComponent as RouteSelectorComponent_1 } from '../../shared/components/route-selector/route-selector.component';
 import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
 import { FormatDateDirective } from '../../shared/directive/format-date.directive';
 import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { DependentFieldsComponent as DependentFieldsComponent_1 } from '../../shared/components/dependent-fields/dependent-fields.component';
 import { VirtualSelectComponent } from '../../shared/components/virtual-select/virtual-select.component';
 import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
 import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
@@ -163,7 +161,7 @@ import { chevronUp, chevronDown } from 'ionicons/icons';
   imports: [
     AsyncPipe,
     CurrencyPipe,
-    DependentFieldsComponent_1,
+    DependentFieldsComponent,
     EllipsisPipe,
     FormButtonValidationDirective,
     FormatDateDirective,
@@ -196,7 +194,7 @@ import { chevronUp, chevronDown } from 'ionicons/icons';
     NgIf,
     ReactiveFormsModule,
     ReviewFooterComponent,
-    RouteSelectorComponent_1,
+    RouteSelectorComponent,
     RouteVisualizerComponent,
     SingularPipe,
     SlicePipe,

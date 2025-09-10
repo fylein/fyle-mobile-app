@@ -28,7 +28,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { ExpenseState as ExpenseStateEnum } from 'src/app/core/models/expense-state.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
@@ -37,7 +37,7 @@ import { ViewDependentFieldsComponent } from '../../shared/components/view-depen
 import { NavigationFooterComponent } from '../../shared/components/navigation-footer/navigation-footer.component';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
-import { ExpenseState as ExpenseState_1 } from '../../shared/pipes/expense-state.pipe';
+import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 
 @Component({
@@ -49,7 +49,7 @@ import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
     CurrencyPipe,
     DatePipe,
     ExactCurrencyPipe,
-    ExpenseState_1,
+    ExpenseStatePipe,
     FyCurrencyPipe,
     FyPolicyViolationInfoComponent,
     IonButton,
@@ -330,7 +330,7 @@ export class ViewPerDiemPage {
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state),
+          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(expense.state),
       ),
     );
 

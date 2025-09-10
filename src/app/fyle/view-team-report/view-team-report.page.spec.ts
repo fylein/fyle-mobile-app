@@ -133,7 +133,7 @@ describe('ViewTeamReportPageV2', () => {
         EllipsisPipe,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
-        DateWithTimezonePipe,,
+        DateWithTimezonePipe,
         MatIconTestingModule],
       providers: [
         FyCurrencyPipe,

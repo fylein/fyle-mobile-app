@@ -121,7 +121,6 @@ import { FormatDateDirective } from '../../shared/directive/format-date.directiv
 import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
 import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { DependentFieldsComponent as DependentFieldsComponent_1 } from '../../shared/components/dependent-fields/dependent-fields.component';
 import { VirtualSelectComponent } from '../../shared/components/virtual-select/virtual-select.component';
 import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
 import { FyMultiselectComponent } from '../../shared/components/fy-multiselect/fy-multiselect.component';
@@ -131,7 +130,6 @@ import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-z
 import { ReviewFooterComponent } from '../../shared/components/review-footer/review-footer.component';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
-import { FyCurrencyPipe as FyCurrencyPipe_1 } from '../../shared/pipes/fy-currency.pipe';
 import { addIcons } from 'ionicons';
 import { chevronUp, chevronDown } from 'ionicons/icons';
 
@@ -143,14 +141,14 @@ import { chevronUp, chevronDown } from 'ionicons/icons';
     AsyncPipe,
     CurrencyPipe,
     DecimalPipe,
-    DependentFieldsComponent_1,
+    DependentFieldsComponent,
     EllipsisPipe,
     FormButtonValidationDirective,
     FormatDateDirective,
     FormsModule,
     FyAddToReportComponent,
     FyAlertInfoComponent,
-    FyCurrencyPipe_1,
+    FyCurrencyPipe,
     FyLocationComponent,
     FyMultiselectComponent,
     FyNumberComponent,

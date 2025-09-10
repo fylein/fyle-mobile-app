@@ -41,7 +41,7 @@ describe('TeamAdvCardComponent', () => {
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         EllipsisPipe,
-        FyCurrencyPipe,,
+        FyCurrencyPipe,
         MatIconTestingModule],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },

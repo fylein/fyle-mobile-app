@@ -1,9 +1,18 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { SwiperModule } from 'swiper/angular';
 import { BankAccountCardsComponent } from './bank-account-cards.component';
 import { linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import Swiper from 'swiper';
+import { BankAccountCardComponent } from './bank-account-card/bank-account-card.component';
+
+// create mock for bank-account-card component
+@Component({
+  selector: 'app-bank-account-card',
+  template: '<div></div>',
+  imports: [],
+})
+class MockBankAccountCardComponent {
+}
 
 describe('BankAccountCardsComponent', () => {
   let component: BankAccountCardsComponent;
@@ -11,8 +20,16 @@ describe('BankAccountCardsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [ SwiperModule, BankAccountCardsComponent],
+      imports: [BankAccountCardsComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).overrideComponent(BankAccountCardsComponent, {
+      remove: {
+        imports: [BankAccountCardComponent],
+      },
+      add: {
+        imports: [MockBankAccountCardComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      },
     }).compileComponents();
 
     fixture = TestBed.createComponent(BankAccountCardsComponent);

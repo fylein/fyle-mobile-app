@@ -38,7 +38,7 @@ describe('AddTxnToReportDialogComponent', () => {
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         ReportState,
-        SnakeCaseToSpaceCase,,
+        SnakeCaseToSpaceCase,
         MatIconTestingModule],
       providers: [
         FyCurrencyPipe,

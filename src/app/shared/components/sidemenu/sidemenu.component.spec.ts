@@ -1,5 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -34,6 +33,10 @@ import {
 } from 'src/app/core/mock-data/sidemenu.data';
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { SidemenuContentComponent } from './sidemenu-content/sidemenu-content.component';
+import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
+import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.component';
 
 describe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -51,21 +54,26 @@ describe('SidemenuComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
+
+  // mocks
   @Component({
-    selector: 'app-sidemenu',
-    template: '<ion-menu></ion-menu>',
-    standalone: false,
+    selector: 'app-sidemenu-content',
+    template: '',
   })
-  class MockIonMenuComponent {
-    readonly side = input<string>(undefined);
+  class SidemenuContentStubComponent {}
 
-    readonly class = input<string>(undefined);
+  @Component({
+    selector: 'app-sidemenu-footer',
+    template: '',
+  })
+  class SidemenuFooterStubComponent {}
 
-    readonly contentId = input<string>(undefined);
+  @Component({
+    selector: 'app-sidemenu-header',
+    template: '',
+  })
+  class SidemenuHeaderStubComponent {}
 
-    readonly swipeGesture = input<boolean>(undefined);
-  }
   beforeEach(waitForAsync(() => {
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['isLoggedIn']);
@@ -88,15 +96,9 @@ describe('SidemenuComponent', () => {
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, SidemenuComponent],
+      imports: [ SidemenuComponent,
+        getTranslocoTestingModule()],
       providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
@@ -111,9 +113,11 @@ describe('SidemenuComponent', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).overrideComponent(SidemenuComponent, {
+      remove: {imports: [SidemenuContentComponent, SidemenuFooterComponent, SidemenuHeaderComponent]},
+      add: {imports: [SidemenuContentStubComponent, SidemenuFooterStubComponent, SidemenuHeaderStubComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA]},
     }).compileComponents();
 
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
@@ -131,34 +135,6 @@ describe('SidemenuComponent', () => {
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'sidemenu.personalCards': 'Personal cards',
-        'sidemenu.expenseReports': 'Expense reports',
-        'sidemenu.advances': 'Advances',
-        'sidemenu.home': 'Home',
-        'sidemenu.getStarted': 'Get started',
-        'sidemenu.myExpenses': 'My expenses',
-        'sidemenu.cards': 'Cards',
-        'sidemenu.myExpenseReports': 'My expense reports',
-        'sidemenu.myAdvances': 'My advances',
-        'sidemenu.team': 'Team',
-        'sidemenu.settings': 'Settings',
-        'sidemenu.delegatedAccounts': 'Delegated accounts',
-        'sidemenu.switchBackToMyAccount': 'Switch back to my account',
-        'sidemenu.switchOrganization': 'Switch organization',
-        'sidemenu.liveChat': 'Live chat',
-        'sidemenu.help': 'Help',
-      };
-      let translation = translations[key] || key;
-      if (params) {
-        Object.keys(params).forEach((key) => {
-          translation = translation.replace(`{{${key}}}`, params[key]);
-        });
-      }
-      return translation;
-    });
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
 
     spyOn(document, 'getElementById').and.returnValue(document.createElement('div'));

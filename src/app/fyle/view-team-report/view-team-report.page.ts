@@ -49,10 +49,8 @@ import { AuditHistoryComponent } from '../../shared/components/comments-history/
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { FormsModule } from '@angular/forms';
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
-import { ExactCurrencyPipe as ExactCurrencyPipe_1 } from '../../shared/pipes/exact-currency.pipe';
 import { ReportState } from '../../shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
-import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-view-team-report',
@@ -90,10 +88,10 @@ import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pip
     TitleCasePipe,
     DatePipe,
     EllipsisPipe,
-    ExactCurrencyPipe_1,
+    ExactCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
-    DateWithTimezonePipe_1,
+    DateWithTimezonePipe,
   ],
 })
 export class ViewTeamReportPage {

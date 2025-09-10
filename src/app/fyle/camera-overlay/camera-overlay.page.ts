@@ -1,12 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
-import { CaptureReceiptComponent as CaptureReceiptComponent_1 } from '../../shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-camera-overlay',
   templateUrl: './camera-overlay.page.html',
   styleUrls: ['./camera-overlay.page.scss'],
-  imports: [CaptureReceiptComponent_1],
+  imports: [CaptureReceiptComponent],
 })
 export class CameraOverlayPage implements OnInit {
   // TODO: Skipped for migration because:

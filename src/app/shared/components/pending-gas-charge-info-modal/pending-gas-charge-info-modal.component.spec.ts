@@ -28,7 +28,7 @@ describe('PendingGasChargeInfoModalComponent', () => {
       imports: [TranslocoModule,
         MatIconModule,
         HttpClientTestingModule,
-        PendingGasChargeInfoModalComponent,,
+        PendingGasChargeInfoModalComponent,
         MatIconTestingModule],
       providers: [
         {

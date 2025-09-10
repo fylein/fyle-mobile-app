@@ -166,7 +166,6 @@ import { FormatDateDirective } from '../../shared/directive/format-date.directiv
 import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
 import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { DependentFieldsComponent as DependentFieldsComponent_1 } from '../../shared/components/dependent-fields/dependent-fields.component';
 import { VirtualSelectComponent } from '../../shared/components/virtual-select/virtual-select.component';
 import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
 import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
@@ -228,7 +227,7 @@ type FormValue = {
     AsyncPipe,
     CurrencyPipe,
     DatePipe,
-    DependentFieldsComponent_1,
+    DependentFieldsComponent,
     EllipsisPipe,
     FormButtonValidationDirective,
     FormatDateDirective,

@@ -1,13 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { PopoverController } from '@ionic/angular/standalone';
-import { NO_ERRORS_SCHEMA, input } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, input } from '@angular/core';
 
 import { AddCorporateCardComponent } from './add-corporate-card.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { ArrayToCommaListPipe } from 'src/app/shared/pipes/array-to-comma-list.pipe';
 import { NgxMaskModule } from 'ngx-mask';
-import { ReactiveFormsModule } from '@angular/forms';
 import { Component } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { statementUploadedCard, visaRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
@@ -24,13 +22,13 @@ import {
   cardEnrollmentErrorsProperties4,
   enrollingNonRTFCardProperties,
 } from 'src/app/core/mock-data/corporate-card-trackers.data';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
 
 @Component({
   selector: 'app-fy-alert-info',
   template: '<div></div>',
-  imports: [ReactiveFormsModule, TranslocoModule],
 })
 export class MockFyAlertInfoComponent {
   readonly message = input<string>(undefined);
@@ -46,7 +44,6 @@ describe('AddCorporateCardComponent', () => {
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let router: jasmine.SpyObj<Router>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', [
@@ -59,24 +56,10 @@ describe('AddCorporateCardComponent', () => {
       'cardEnrollmentErrors',
       'enrollingNonRTFCard',
     ]);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-      events$: of({}),
-      loaderTranslations: {},
-      cache: new Map(),
-      interceptor: {},
-    });
     TestBed.configureTestingModule({
       imports: [NgxMaskModule.forRoot(),
-        ReactiveFormsModule,
-        TranslocoModule,
+        getTranslocoTestingModule(),
         AddCorporateCardComponent,
-        MockFyAlertInfoComponent,
-        ArrayToCommaListPipe,,
         MatIconTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
@@ -98,11 +81,15 @@ describe('AddCorporateCardComponent', () => {
             url: '/enterprise/manage_corporate_cards',
           },
         },
-        {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
-        },
       ],
+    }).overrideComponent(AddCorporateCardComponent, {
+      remove: {
+        imports: [FyAlertInfoComponent],
+      },
+      add: {
+        imports: [MockFyAlertInfoComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      },
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddCorporateCardComponent);
@@ -112,52 +99,6 @@ describe('AddCorporateCardComponent', () => {
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-
-    // Mock translate method to return expected strings
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'pipes.arrayToCommaList.and': 'and',
-        'addCorporateCard.enrollmentFailure': 'Something went wrong. Please try after some time.',
-        'addCorporateCard.toolbarTitle': 'Add corporate card',
-        'addCorporateCard.enterCardNumber': 'Enter card number',
-        'addCorporateCard.errorInvalidCardNumber': 'Please enter a valid card number.',
-        'addCorporateCard.errorInvalidCardNetworkBoth':
-          'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.',
-        'addCorporateCard.errorInvalidCardNetworkVisa':
-          'Enter a valid Visa number. If you have other cards, please contact your admin.',
-        'addCorporateCard.errorInvalidCardNetworkMastercard':
-          'Enter a valid Mastercard number. If you have other cards, please contact your admin.',
-        'addCorporateCard.infoNonRtfYodlee':
-          'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.',
-        'addCorporateCard.viewTnc': 'View Terms and conditions',
-        'addCorporateCard.tncHeading': "By enrolling your card and clicking on 'add', you hereby agree to:",
-        'addCorporateCard.tncListItem1Part1': 'Allow your employer,',
-        'addCorporateCard.tncListItem1Part2': 'card network',
-        'addCorporateCard.tncListItem1Part3':
-          ' and Fyle Inc. to access details of all transactions made using the enrolled card. This includes the transaction amount, the name of the merchant, the date and time of the transaction, and any other relevant information deemed necessary to provide services.',
-        'addCorporateCard.tncListItem2':
-          'Allow Fyle to use the above details to create expenses on your behalf and enable program notifications.',
-        'addCorporateCard.tncListItem3Part1': 'Agree to our',
-        'addCorporateCard.tncLink1': 'Terms and conditions',
-        'addCorporateCard.tncListItem3Part2': ' and ',
-        'addCorporateCard.tncLink2': 'Privacy policy',
-        'addCorporateCard.loadingText': 'Adding',
-        'addCorporateCard.addButton': 'Add',
-        'addCorporateCard.addCorporateCard': 'Add corporate card',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
 
     // Default inputs
     component.isYodleeEnabled = false;
