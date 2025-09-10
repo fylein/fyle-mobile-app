@@ -13,11 +13,14 @@
         }
       </div>
 
-      <app-fy-alert-info
-        *ngIf="isOptedOutViaSms"
-        message="Opt-in to receive text message by sending <strong>START</strong> to <strong>302-440-2921</strong>"
-        type="warning"
-      ></app-fy-alert-info>
+      @if (isOptedOutViaSms) {
+        <div class="profile-opt-in-card__alert-info">
+          <app-fy-alert-info
+            message="{{ 'profileOptInCard.optInMessage' | transloco }}"
+            type="warning"
+          ></app-fy-alert-info>
+        </div>
+      }
 
       @if (isUserOptedIn || isOptedOutViaSms) {
         <div class="profile-opt-in-card__status__label">
