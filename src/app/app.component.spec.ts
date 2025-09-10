@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { IonicModule, Platform, MenuController } from '@ionic/angular';
+import { Platform, MenuController } from '@ionic/angular/standalone';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -17,7 +17,7 @@ import { TasksService } from './core/services/tasks.service';
 import { of } from 'rxjs';
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { TrackingService } from './core/services/tracking.service';
-import { NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular/standalone';
 import { TranslocoService } from '@jsverse/transloco';
 import { UserEventService } from './core/services/user-event.service';
 import { DeviceService } from './core/services/device.service';

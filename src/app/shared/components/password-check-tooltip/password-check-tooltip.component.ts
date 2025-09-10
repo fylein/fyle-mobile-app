@@ -2,7 +2,6 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges, inject, output } fr
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { PasswordChecks } from './password-checks.model';
 import { PasswordCriteria } from './password-criteria.model';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-password-check-tooltip',

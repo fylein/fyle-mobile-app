@@ -9,7 +9,6 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
-import { IonicModule } from '@ionic/angular';
 import { FySummaryTileComponent } from '../../shared/components/summary-tile/summary-tile.component';
 import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-statistic.component';
 

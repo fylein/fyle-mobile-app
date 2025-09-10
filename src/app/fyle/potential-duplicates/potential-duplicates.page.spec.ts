@@ -14,7 +14,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { cloneDeep } from 'lodash';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { expenseDuplicateSet } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
 
 describe('PotentialDuplicatesPage', () => {

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ReviewSplitExpenseComponent } from './review-split-expense.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, input } from '@angular/core';
-import { MenuController, IonicModule } from '@ionic/angular';
+import { MenuController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { UserEventService } from 'src/app/core/services/user-event.service';

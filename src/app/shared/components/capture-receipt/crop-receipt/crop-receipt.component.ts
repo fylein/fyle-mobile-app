@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, inject, viewChild } from '@angular/core';
 import { ImageCropperComponent, ImageCropperModule } from 'ngx-image-cropper';
-import { ModalController, Platform, IonicModule } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular/standalone';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Subscription } from 'rxjs';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';

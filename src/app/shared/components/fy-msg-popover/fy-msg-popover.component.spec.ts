@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { FyMsgPopoverComponent } from './fy-msg-popover.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 

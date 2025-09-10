@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { Observable, fromEvent, from, combineLatest } from 'rxjs';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';

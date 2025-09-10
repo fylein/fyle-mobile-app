@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { IonicModule } from '@ionic/angular';
 import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 import { TranslocoPipe } from '@jsverse/transloco';
 

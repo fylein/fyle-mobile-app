@@ -16,7 +16,7 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
 import { Router } from '@angular/router';
-import { MenuController, IonicModule } from '@ionic/angular';
+import { MenuController } from '@ionic/angular/standalone';
 import { SidemenuAllowedActions } from 'src/app/core/models/sidemenu-allowed-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';

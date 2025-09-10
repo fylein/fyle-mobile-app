@@ -1,6 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-fy-menu-icon',

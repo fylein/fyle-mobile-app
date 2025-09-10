@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { CardNumberComponent } from './card-number.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { CCExpenseMerchantInfoModalComponent } from './cc-expense-merchant-info-modal.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';

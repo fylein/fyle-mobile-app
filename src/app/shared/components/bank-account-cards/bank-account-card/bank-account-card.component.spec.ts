@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatSnackBar } from '@angular/material/snack-bar';

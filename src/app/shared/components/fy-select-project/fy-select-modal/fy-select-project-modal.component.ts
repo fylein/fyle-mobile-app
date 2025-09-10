@@ -10,7 +10,7 @@ import {
   input,
 } from '@angular/core';
 import { Observable, fromEvent, iif, of, from, forkJoin } from 'rxjs';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime, shareReplay } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';

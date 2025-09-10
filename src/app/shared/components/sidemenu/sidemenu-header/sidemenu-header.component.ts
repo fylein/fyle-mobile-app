@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, output } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
-import { IonicModule } from '@ionic/angular';
 import { MatRipple } from '@angular/material/core';
 import { UpperCasePipe, TitleCasePipe } from '@angular/common';
 import { InitialsPipe } from '../../../pipes/initials.pipe';

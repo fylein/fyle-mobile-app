@@ -1,7 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-
 import { VirtualCardComponent } from './virtual-card.component';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';

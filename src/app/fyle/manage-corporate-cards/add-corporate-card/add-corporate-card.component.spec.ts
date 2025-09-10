@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { NO_ERRORS_SCHEMA, input } from '@angular/core';
 
 import { AddCorporateCardComponent } from './add-corporate-card.component';

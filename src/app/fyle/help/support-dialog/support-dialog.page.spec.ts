@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
-import { NavParams } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
+import { NavParams } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FySelectModalComponent } from './fy-select-modal.component';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';

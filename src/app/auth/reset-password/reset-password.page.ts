@@ -7,7 +7,6 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, Reactive
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { IonicModule } from '@ionic/angular';
 import { MatInput } from '@angular/material/input';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 

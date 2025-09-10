@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { PolicyViolationRuleComponent } from '../policy-violation-rule/policy-violation-rule.component';
 import { FyCriticalPolicyViolationComponent } from './fy-critical-policy-violation.component';

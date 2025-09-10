@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FySelectComponent } from './fy-select.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';

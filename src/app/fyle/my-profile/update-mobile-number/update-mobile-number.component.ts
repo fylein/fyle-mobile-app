@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ElementRef, AfterViewInit, inject, input, viewChild } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { finalize, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';

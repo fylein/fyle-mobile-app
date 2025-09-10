@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController, Platform } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';

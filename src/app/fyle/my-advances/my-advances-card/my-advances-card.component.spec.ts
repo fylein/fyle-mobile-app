@@ -1,7 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';

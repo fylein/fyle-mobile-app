@@ -1,5 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { MatSnackBar } from '@angular/material/snack-bar';

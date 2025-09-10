@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, inject, input, output } from '@angular/core';
 import { HeaderState } from './header-state.enum';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { NgClass } from '@angular/common';
 import { FyMenuIconComponent } from '../fy-menu-icon/fy-menu-icon.component';
 

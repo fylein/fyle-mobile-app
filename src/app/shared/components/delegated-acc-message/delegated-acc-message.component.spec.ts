@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { DelegatedAccMessageComponent } from './delegated-acc-message.component';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { EllipsisPipe } from '../../pipes/ellipses.pipe';

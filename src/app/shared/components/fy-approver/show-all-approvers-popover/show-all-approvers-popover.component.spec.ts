@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { ShowAllApproversPopoverComponent } from './show-all-approvers-popover.component';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';

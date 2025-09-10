@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { IonicModule } from '@ionic/angular';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';

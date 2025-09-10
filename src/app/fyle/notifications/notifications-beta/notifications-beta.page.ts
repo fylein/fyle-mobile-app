@@ -9,7 +9,7 @@ import { NotificationsBetaPageService } from './notifications-beta.page.service'
 import { NotificationConfig } from 'src/app/core/models/notification-config.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { EmailNotificationsComponent } from '../email-notifications/email-notifications.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';

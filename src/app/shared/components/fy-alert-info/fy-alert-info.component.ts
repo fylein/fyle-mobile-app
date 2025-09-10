@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-fy-alert-info',

@@ -1,7 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-
 import { PasswordCheckTooltipComponent } from './password-check-tooltip.component';
 import { By } from '@angular/platform-browser';
 import { SimpleChanges } from '@angular/core';

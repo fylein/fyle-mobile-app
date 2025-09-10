@@ -5,8 +5,7 @@ import {
   ActionSheetController,
   ModalController,
   PopoverController,
-  IonicModule,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 import {
   BehaviorSubject,
   Observable,

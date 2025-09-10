@@ -7,7 +7,6 @@ import { DashboardTask } from 'src/app/core/models/dashboard-task.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TranslocoService } from '@jsverse/transloco';
 import { MatRipple } from '@angular/material/core';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-tasks-card',

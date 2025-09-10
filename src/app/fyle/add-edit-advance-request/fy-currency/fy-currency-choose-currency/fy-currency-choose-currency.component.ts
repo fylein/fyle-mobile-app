@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, inject, input } from '@angular/core';
 import { Observable, from, noop, fromEvent } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import {
   concatMap,

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { EmployeeDetailsCardComponent } from './employee-details-card.component';
 import { InitialsPipe } from 'src/app/shared/pipes/initials.pipe';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';

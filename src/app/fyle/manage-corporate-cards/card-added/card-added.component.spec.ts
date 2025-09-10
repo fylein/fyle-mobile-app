@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { CardAddedComponent } from './card-added.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';

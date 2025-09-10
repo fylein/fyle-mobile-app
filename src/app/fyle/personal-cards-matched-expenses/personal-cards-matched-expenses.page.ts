@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { Router } from '@angular/router';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';

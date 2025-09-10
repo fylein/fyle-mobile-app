@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { IonicModule } from '@ionic/angular';
 import { DatePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';

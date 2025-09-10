@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync } from '@angular/core/testing';
 import { tick } from '@angular/core/testing';
 import { ExpenseCardLiteComponent } from './expense-card-lite.component';
-import { IonicModule } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';

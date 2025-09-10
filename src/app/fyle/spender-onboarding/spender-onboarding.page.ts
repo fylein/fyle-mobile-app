@@ -12,7 +12,6 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
-import { IonicModule } from '@ionic/angular';
 import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
 import { NgClass } from '@angular/common';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';

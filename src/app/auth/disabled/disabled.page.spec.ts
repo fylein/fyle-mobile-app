@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 
 import { DisabledPage } from './disabled.page';

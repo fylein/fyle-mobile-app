@@ -1,5 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import { MatIcon } from '@angular/material/icon';

@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { FileService } from 'src/app/core/services/file.service';
 import { MatIcon } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';

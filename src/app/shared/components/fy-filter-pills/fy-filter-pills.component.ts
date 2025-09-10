@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, output } from '@angular/core';
 import { FilterPill } from './filter-pill.interface';
-import { IonicModule } from '@ionic/angular';
 import { TitleCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';

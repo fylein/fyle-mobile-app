@@ -12,7 +12,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { NotificationsBetaPageService } from './notifications-beta.page.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NotificationsBetaPage } from './notifications-beta.page';

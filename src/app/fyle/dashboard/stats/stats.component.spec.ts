@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { StatsComponent } from './stats.component';
 import { DashboardService } from '../dashboard.service';
 import { Router } from '@angular/router';

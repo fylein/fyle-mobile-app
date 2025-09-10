@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';

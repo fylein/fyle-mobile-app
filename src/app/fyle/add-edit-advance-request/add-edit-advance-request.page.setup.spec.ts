@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';

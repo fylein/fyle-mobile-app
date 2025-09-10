@@ -1,7 +1,7 @@
 import { Component, OnInit, forwardRef, Input, inject, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { noop, Observable } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyUserlistModalComponent } from './fy-userlist-modal/fy-userlist-modal.component';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { cloneDeep } from 'lodash';

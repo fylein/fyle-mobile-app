@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, input, output } from '@angular/core';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
-import { IonicModule } from '@ionic/angular';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgClass, NgStyle } from '@angular/common';
 

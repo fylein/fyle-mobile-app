@@ -1,5 +1,4 @@
 import { Component, Input, ViewEncapsulation, output } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
 import { MatIcon } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 

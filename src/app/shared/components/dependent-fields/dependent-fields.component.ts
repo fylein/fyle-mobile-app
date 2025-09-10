@@ -5,7 +5,6 @@ import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { DependentFieldComponent } from './dependent-field/dependent-field.component';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-dependent-fields',

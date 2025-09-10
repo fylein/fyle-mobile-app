@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Navigation, Router, RouterModule, UrlSerializer, UrlTree } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';

@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { FyMenuIconComponent } from './fy-menu-icon.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 

@@ -7,8 +7,7 @@ import {
   ModalController,
   NavController,
   Platform,
-  IonicModule,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';

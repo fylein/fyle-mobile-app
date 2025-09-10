@@ -6,7 +6,6 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { noop } from 'rxjs';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-app-version',

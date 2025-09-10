@@ -20,7 +20,7 @@ import {
   finalize,
   catchError,
 } from 'rxjs/operators';
-import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { Observable, fromEvent, of, from, forkJoin, noop, throwError } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';

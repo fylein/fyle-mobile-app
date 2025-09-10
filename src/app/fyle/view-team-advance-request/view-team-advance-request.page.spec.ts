@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, PopoverController } from '@ionic/angular/standalone';
 
 import { ViewTeamAdvanceRequestPage } from './view-team-advance-request.page';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';

@@ -6,7 +6,6 @@ import { NetworkService } from '../../../core/services/network.service';
 import { ConnectionMessageStatus } from '../fy-connection/connection-status.enum';
 import { Observable } from 'rxjs/internal/Observable';
 import { NgClass, AsyncPipe } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { MatIcon } from '@angular/material/icon';
 import { MatRipple } from '@angular/material/core';
 import { TranslocoPipe } from '@jsverse/transloco';

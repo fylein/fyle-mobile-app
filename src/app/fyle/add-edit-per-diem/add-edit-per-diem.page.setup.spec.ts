@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormsModule, UntypedFormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { TestCases1 } from './add-edit-per-diem-1.page.spec';
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';

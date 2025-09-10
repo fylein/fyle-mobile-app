@@ -1,5 +1,5 @@
 import { Component, Input, ElementRef, inject } from '@angular/core';
-import { ModalController, Platform, IonicModule } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular/standalone';
 
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';

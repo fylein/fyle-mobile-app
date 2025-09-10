@@ -7,12 +7,11 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import {
   ActionSheetController,
-  IonicModule,
   ModalController,
   NavController,
   Platform,
   PopoverController,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';

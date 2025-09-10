@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FyCurrencyComponent } from './fy-currency.component';
 import { UntypedFormBuilder, UntypedFormControl, FormGroup, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';

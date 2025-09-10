@@ -1,6 +1,5 @@
 import { Component, Input, inject, output } from '@angular/core';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-info-card',

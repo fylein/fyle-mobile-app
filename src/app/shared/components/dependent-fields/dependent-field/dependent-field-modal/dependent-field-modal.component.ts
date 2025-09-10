@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { DependentFieldOption } from 'src/app/core/models/dependent-field-option.model';
 import { cloneDeep } from 'lodash';

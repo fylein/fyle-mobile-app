@@ -5,8 +5,7 @@ import {
   ActionSheetController,
   ModalController,
   PopoverController,
-  IonicModule,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 import { EMPTY, Subject, forkJoin, from } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { catchError, concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, take } from 'rxjs/operators';

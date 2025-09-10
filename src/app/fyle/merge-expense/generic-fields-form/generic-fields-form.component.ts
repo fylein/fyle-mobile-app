@@ -17,7 +17,6 @@ import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.e
 import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
 import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
 import { FySelectComponent } from '../../../shared/components/fy-select/fy-select.component';
-import { IonicModule } from '@ionic/angular';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { ReceiptPreviewThumbnailComponent } from '../../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 import { CardTransactionPreviewComponent } from '../card-transaction-preview/card-transaction-preview.component';

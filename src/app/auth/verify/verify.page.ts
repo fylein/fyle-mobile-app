@@ -5,7 +5,6 @@ import { switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-verify',

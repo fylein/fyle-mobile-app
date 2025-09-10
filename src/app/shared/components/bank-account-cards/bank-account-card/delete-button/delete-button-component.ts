@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-delete-button',

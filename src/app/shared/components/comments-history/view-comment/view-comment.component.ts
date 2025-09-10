@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
-import { IonContent, ModalController, Platform, PopoverController, IonicModule } from '@ionic/angular';
+import { IonContent, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { from, Observable, Subject } from 'rxjs';
 import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';

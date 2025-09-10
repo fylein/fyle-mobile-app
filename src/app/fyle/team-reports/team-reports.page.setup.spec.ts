@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TeamReportsPage } from './team-reports.page';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { DateService } from 'src/app/core/services/date.service';

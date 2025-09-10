@@ -1,7 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { Observable, map, noop } from 'rxjs';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';

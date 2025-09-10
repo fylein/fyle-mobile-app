@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { ConnectionMessageStatus } from './connection-status.enum';
 import { NetworkService } from '../../../core/services/network.service';
 import { FyConnectionComponent } from './fy-connection.component';

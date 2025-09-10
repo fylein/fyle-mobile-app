@@ -9,7 +9,7 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { Delegator } from 'src/app/core/models/platform/delegator.model';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { NavController, IonicModule } from '@ionic/angular';
+import { NavController } from '@ionic/angular/standalone';
 import { MatFormField, MatPrefix, MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatRipple } from '@angular/material/core';

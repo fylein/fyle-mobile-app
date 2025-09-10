@@ -1,6 +1,6 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonButton, IonicModule } from '@ionic/angular';
+import { IonButton } from '@ionic/angular/standalone';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReviewFooterComponent } from './review-footer.component';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { AddApproversPopoverComponent } from './add-approvers-popover.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ApproverDialogComponent } from './approver-dialog/approver-dialog.component';

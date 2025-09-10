@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-view-expense-skeleton-loader',

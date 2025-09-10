@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { Observable } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { Router } from '@angular/router';

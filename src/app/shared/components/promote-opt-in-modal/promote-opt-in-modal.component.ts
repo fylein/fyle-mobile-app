@@ -1,5 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';

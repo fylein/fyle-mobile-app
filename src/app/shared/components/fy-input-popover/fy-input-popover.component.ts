@@ -1,5 +1,5 @@
 import { Component, Input, ElementRef, AfterViewInit, inject, input, viewChild } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';

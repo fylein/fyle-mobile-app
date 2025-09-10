@@ -1,5 +1,4 @@
 import { Component, Input, output } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({

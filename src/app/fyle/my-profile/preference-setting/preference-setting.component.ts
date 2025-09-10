@@ -1,6 +1,5 @@
 import { Component, Input, output } from '@angular/core';
 import { EventData } from './event-data.model';
-import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-preference-setting',

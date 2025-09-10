@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { SwiperModule } from 'swiper/angular';
 import { BankAccountCardsComponent } from './bank-account-cards.component';
 import { linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';

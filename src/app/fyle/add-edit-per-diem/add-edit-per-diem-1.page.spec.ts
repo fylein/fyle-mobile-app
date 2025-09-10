@@ -30,7 +30,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { getElementBySelector } from 'src/app/core/dom-helpers';

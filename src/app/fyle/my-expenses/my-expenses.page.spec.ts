@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 
 import dayjs from 'dayjs';
 import { provideHttpClientTesting } from '@angular/common/http/testing';

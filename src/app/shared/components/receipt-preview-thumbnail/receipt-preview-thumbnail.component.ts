@@ -5,7 +5,6 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SwiperComponent, SwiperModule } from 'swiper/angular';
 import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
-import { IonicModule } from '@ionic/angular';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { TranslocoPipe } from '@jsverse/transloco';

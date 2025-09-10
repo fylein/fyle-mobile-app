@@ -23,7 +23,7 @@ import {
 } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, NavController, PopoverController, IonicModule } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import dayjs from 'dayjs';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import {
@@ -153,6 +153,8 @@ import { FormButtonValidationDirective } from '../../shared/directive/form-butto
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 import { SingularPipe } from '../../shared/pipes/singular.pipe';
+import { addIcons } from 'ionicons';
+import { chevronUp, chevronDown } from 'ionicons/icons';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -3172,5 +3174,9 @@ export class AddEditMileagePage implements OnInit {
       // If user closes the modal without saving the commute details, reset the commute deduction field to null
       this.fg.patchValue({ commuteDeduction: null }, { emitEvent: false });
     }
+  }
+
+  constructor() {
+    addIcons({ chevronUp, chevronDown });
   }
 }

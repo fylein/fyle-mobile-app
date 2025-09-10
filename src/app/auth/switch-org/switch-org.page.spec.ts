@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -18,7 +17,7 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { SwitchOrgPage } from './switch-org.page';
 import { ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { Platform, PopoverController } from '@ionic/angular';
+import { Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';

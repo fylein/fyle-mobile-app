@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { MyAdvancesPage } from './my-advances.page';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';

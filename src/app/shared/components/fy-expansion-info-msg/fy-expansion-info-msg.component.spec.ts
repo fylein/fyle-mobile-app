@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
-import { IonicModule } from '@ionic/angular';
 import { By } from '@angular/platform-browser';
 import { FyExpansionInfoMsgComponent } from './fy-expansion-info-msg.component';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';

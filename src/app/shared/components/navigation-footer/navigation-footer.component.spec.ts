@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NavigationFooterComponent } from './navigation-footer.component';
 import { Router, ActivatedRoute } from '@angular/router';

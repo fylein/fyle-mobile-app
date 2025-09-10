@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Observable, fromEvent, from, of } from 'rxjs';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
 import { Employee } from 'src/app/core/models/spender/employee.model';

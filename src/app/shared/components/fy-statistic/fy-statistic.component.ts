@@ -1,5 +1,4 @@
 import { Component, OnInit, input } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-fy-statistic',

@@ -22,8 +22,7 @@ import {
   NavController,
   Platform,
   PopoverController,
-  IonicModule,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 import dayjs from 'dayjs';
 import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
 import {
@@ -187,6 +186,8 @@ import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from '../../shared/pipes/humanize-currency.pipe';
 import { MaskNumber } from '../../shared/pipes/mask-number.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
+import { addIcons } from 'ionicons';
+import { chevronUp, chevronDown } from 'ionicons/icons';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -5626,5 +5627,9 @@ export class AddEditExpensePage implements OnInit {
         expenses: updatedExpenses,
       });
     }
+  }
+
+  constructor() {
+    addIcons({ chevronUp, chevronDown });
   }
 }

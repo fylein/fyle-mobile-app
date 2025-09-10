@@ -9,7 +9,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { getCurrencySymbol, TitleCasePipe } from '@angular/common';
 import { Report } from 'src/app/core/models/platform/v1/report.model';

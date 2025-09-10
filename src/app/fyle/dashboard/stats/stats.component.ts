@@ -16,7 +16,6 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ReportStatsData } from 'src/app/core/models/report-stats-data.model';
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
-import { IonicModule } from '@ionic/angular';
 import { StatBadgeComponent } from '../stat-badge/stat-badge.component';
 import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/fy-zero-state.component';
 import { TranslocoPipe } from '@jsverse/transloco';

@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { NewPasswordPage } from './new-password.page';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';

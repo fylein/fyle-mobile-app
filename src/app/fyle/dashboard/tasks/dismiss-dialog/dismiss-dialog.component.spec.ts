@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { DismissDialogComponent } from './dismiss-dialog.component';
 import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';

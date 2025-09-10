@@ -1,7 +1,6 @@
 import { Component, Input, output } from '@angular/core';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { NgClass, TitleCasePipe } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({

@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { Router } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-disabled',

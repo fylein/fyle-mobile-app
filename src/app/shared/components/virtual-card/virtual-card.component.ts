@@ -4,7 +4,7 @@ import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { FyPopoverComponent } from '../fy-popover/fy-popover.component';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { NgClass, SlicePipe, TitleCasePipe, CurrencyPipe, DatePipe } from '@angular/common';

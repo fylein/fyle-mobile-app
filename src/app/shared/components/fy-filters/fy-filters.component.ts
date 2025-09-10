@@ -7,7 +7,7 @@ import { Component, Input, OnInit, inject } from '@angular/core';
 import { FilterOptions } from './filter-options.interface';
 import { SelectedFilters } from './selected-filters.interface';
 import { FilterOptionType } from './filter-option-type.enum';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { forkJoin, Observable, of } from 'rxjs';
 import { NgClass, AsyncPipe } from '@angular/common';
 import { MatFormField, MatLabel, MatInput, MatSuffix } from '@angular/material/input';

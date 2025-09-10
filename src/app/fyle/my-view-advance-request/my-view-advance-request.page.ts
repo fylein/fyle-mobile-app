@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLinkActive, RouterLink } from '@angular/router';
-import { PopoverController, ModalController, IonicModule } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular/standalone';
 import { forkJoin, from, Observable } from 'rxjs';
 import { finalize, map, reduce, shareReplay, switchMap, concatMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';

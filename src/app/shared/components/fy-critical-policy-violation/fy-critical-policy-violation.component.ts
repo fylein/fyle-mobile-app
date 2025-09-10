@@ -1,5 +1,5 @@
 import { Component, Input, inject, input } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { MatIcon } from '@angular/material/icon';
 import { PolicyViolationRuleComponent } from '../policy-violation-rule/policy-violation-rule.component';
 import { FyAlertInfoComponent } from '../fy-alert-info/fy-alert-info.component';

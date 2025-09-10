@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { HighlightPipe } from '../../pipes/highlight.pipe';
 import { FyHighlightTextComponent } from './fy-highlight-text.component';
 

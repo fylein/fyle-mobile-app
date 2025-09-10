@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { DependentFieldsComponent } from './dependent-fields.component';
 import { DependentFieldComponent } from './dependent-field/dependent-field.component';

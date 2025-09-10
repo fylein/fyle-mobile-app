@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { Observable, Subscription, concat, forkJoin, from, noop, finalize } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';

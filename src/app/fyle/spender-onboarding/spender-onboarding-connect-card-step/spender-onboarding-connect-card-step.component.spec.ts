@@ -4,7 +4,7 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { UntypedFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { NgxMaskModule } from 'ngx-mask';
 import { HttpErrorResponse } from '@angular/common/http';

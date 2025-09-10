@@ -8,7 +8,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Platform } from '@ionic/angular';
+import { Platform } from '@ionic/angular/standalone';
 import { noop } from 'rxjs';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 

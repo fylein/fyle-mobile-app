@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';

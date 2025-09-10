@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { CorporateCardComponent } from './corporate-card.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';

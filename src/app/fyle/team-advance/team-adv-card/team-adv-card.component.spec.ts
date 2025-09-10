@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { MatRippleModule } from '@angular/material/core';
 import { TeamAdvCardComponent } from './team-adv-card.component';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';

@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { MatIconModule } from '@angular/material/icon';
-import { IonicModule } from '@ionic/angular';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FyAlertInfoComponent } from './fy-alert-info.component';

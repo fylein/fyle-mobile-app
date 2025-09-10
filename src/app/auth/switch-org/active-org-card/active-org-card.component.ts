@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, output } from '@angular/core';
 import { Org } from 'src/app/core/models/org.model';
-import { IonicModule } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({

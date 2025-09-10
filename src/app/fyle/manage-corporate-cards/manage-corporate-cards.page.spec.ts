@@ -3,12 +3,11 @@ import {
   ActionSheetButton,
   ActionSheetController,
   IonRefresher,
-  IonicModule,
   ModalController,
   PopoverController,
   RefresherCustomEvent,
   SegmentCustomEvent,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { getElementBySelector } from 'src/app/core/dom-helpers';

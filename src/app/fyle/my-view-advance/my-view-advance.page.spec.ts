@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular/standalone';
 
 import { MyViewAdvancePage } from './my-view-advance.page';
 import { AdvanceService } from 'src/app/core/services/advance.service';

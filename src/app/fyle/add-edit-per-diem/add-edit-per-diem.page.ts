@@ -57,7 +57,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { ModalController, NavController, PopoverController, Platform, IonicModule } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular/standalone';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -132,6 +132,8 @@ import { ReviewFooterComponent } from '../../shared/components/review-footer/rev
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe as FyCurrencyPipe_1 } from '../../shared/pipes/fy-currency.pipe';
+import { addIcons } from 'ionicons';
+import { chevronUp, chevronDown } from 'ionicons/icons';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -2467,5 +2469,9 @@ export class AddEditPerDiemPage implements OnInit {
     if (currentCount > 0) {
       this.loadingOperations$.next(currentCount - 1);
     }
+  }
+
+  constructor() {
+    addIcons({ chevronUp, chevronDown });
   }
 }

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';

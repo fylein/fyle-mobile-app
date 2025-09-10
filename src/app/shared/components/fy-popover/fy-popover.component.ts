@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, inject, input, viewChild } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { MatIcon } from '@angular/material/icon';
 import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';

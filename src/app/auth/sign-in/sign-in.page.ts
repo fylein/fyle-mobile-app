@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { from, throwError, Observable, of, noop, Subscription } from 'rxjs';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { ErrorComponent } from './error/error.component';
 import { shareReplay, filter, finalize, switchMap, map, tap, take } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';

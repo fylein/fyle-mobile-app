@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { MatRippleModule } from '@angular/material/core';
 import { OrgCardComponent } from './org-card.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';

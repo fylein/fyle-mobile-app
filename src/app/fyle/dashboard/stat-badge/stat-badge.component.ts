@@ -1,7 +1,6 @@
 import { Component, Input, output } from '@angular/core';
 import { ReportStates } from './report-states.enum';
 import { MatRipple } from '@angular/material/core';
-import { IonicModule } from '@ionic/angular';
 import { NgClass } from '@angular/common';
 import { HumanizeCurrencyPipe } from '../../../shared/pipes/humanize-currency.pipe';
 import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';

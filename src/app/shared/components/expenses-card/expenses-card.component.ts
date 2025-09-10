@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, ViewChild, inject, input, output } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController, Platform, PopoverController, IonicModule } from '@ionic/angular';
+import { ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import dayjs from 'dayjs';
 import { isEqual, isNumber } from 'lodash';
 import { Observable, concat, from, noop } from 'rxjs';

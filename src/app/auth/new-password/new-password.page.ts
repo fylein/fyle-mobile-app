@@ -19,7 +19,6 @@ import { LoginInfoService } from '../../core/services/login-info.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { IonicModule } from '@ionic/angular';
 import { NgClass } from '@angular/common';
 import { MatSuffix } from '@angular/material/input';
 import { PasswordCheckTooltipComponent } from '../../shared/components/password-check-tooltip/password-check-tooltip.component';

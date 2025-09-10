@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
 
 import { FyNavFooterComponent } from './fy-nav-footer.component';

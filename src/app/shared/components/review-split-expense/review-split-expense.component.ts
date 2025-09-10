@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { MatIcon } from '@angular/material/icon';
 import { ExpensesCardComponent } from '../expenses-card-v2/expenses-card.component';
 import { TranslocoPipe } from '@jsverse/transloco';

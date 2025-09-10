@@ -3,7 +3,7 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { click, getElementBySelector, getElementRef, getTextContent } from 'src/app/core/dom-helpers';
 import { FyInputPopoverComponent } from './fy-input-popover.component';
 import { of } from 'rxjs';

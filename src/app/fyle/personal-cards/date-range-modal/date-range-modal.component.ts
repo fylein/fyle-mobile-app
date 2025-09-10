@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { MatDateRangeInput, MatStartDate, MatEndDate, MatDateRangePicker } from '@angular/material/datepicker';
 import { TranslocoPipe } from '@jsverse/transloco';
 

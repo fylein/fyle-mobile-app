@@ -3,7 +3,7 @@ import { Component, ElementRef, EventEmitter, OnInit, ViewChild, inject } from '
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, PopoverController, IonicModule } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { cloneDeep, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,

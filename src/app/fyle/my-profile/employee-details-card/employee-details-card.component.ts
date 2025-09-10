@@ -2,7 +2,6 @@ import { Component, Input, OnInit, inject } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { InitialsPipe } from '../../../shared/pipes/initials.pipe';
 import { TranslocoPipe } from '@jsverse/transloco';
 

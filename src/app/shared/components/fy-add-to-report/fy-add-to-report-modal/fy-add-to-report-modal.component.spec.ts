@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal.component';
 import { ChangeDetectorRef } from '@angular/core';

@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
-import { NavParams } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
+import { NavParams } from '@ionic/angular/standalone';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { HelpAdminInfo } from 'src/app/core/models/help-admin-info.model';

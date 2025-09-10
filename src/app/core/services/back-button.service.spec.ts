@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { BackButtonService } from './back-button.service';
 import { TranslocoService } from '@jsverse/transloco';

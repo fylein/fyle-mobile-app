@@ -4,7 +4,6 @@ import { MatBottomSheet, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { Router } from '@angular/router';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
-import { IonicModule } from '@ionic/angular';
 import { MatIcon } from '@angular/material/icon';
 import { MatRipple } from '@angular/material/core';
 import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/fy-zero-state.component';

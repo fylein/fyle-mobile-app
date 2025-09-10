@@ -9,7 +9,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { switchMap } from 'rxjs/operators';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
 import { MileageService } from 'src/app/core/services/mileage.service';
@@ -20,6 +20,8 @@ import { MatIcon } from '@angular/material/icon';
 import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { addIcons } from 'ionicons';
+import { chevronBackOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-route-selector-modal',
@@ -205,5 +207,9 @@ export class RouteSelectorModalComponent implements OnInit {
 
   close(): void {
     this.modalController.dismiss();
+  }
+
+  constructor() {
+    addIcons({ chevronBackOutline });
   }
 }

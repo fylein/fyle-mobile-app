@@ -3,7 +3,6 @@ import { Component, Input, OnInit, input, output } from '@angular/core';
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatIcon } from '@angular/material/icon';
-import { IonicModule } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';

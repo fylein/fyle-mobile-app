@@ -6,7 +6,6 @@ import { CameraState } from 'src/app/core/enums/camera-state.enum';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 import * as Sentry from '@sentry/angular';
-import { IonicModule } from '@ionic/angular';
 import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 

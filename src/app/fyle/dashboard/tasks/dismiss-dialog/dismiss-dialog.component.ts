@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { catchError, finalize, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { NgClass } from '@angular/common';

@@ -1,5 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
-import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { switchMap, finalize, concatMap, reduce } from 'rxjs/operators';
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';

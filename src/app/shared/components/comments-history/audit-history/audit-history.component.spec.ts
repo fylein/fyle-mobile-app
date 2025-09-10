@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { AuditHistoryComponent } from './audit-history.component';
 import { MatIconModule } from '@angular/material/icon';

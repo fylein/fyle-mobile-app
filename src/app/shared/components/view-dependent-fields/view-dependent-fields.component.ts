@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, input } from '@angular/core';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
-import { IonicModule } from '@ionic/angular';
 import { NgClass, TitleCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
