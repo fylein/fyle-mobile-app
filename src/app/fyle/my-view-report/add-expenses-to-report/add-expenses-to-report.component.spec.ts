@@ -11,7 +11,8 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { AddExpensesToReportComponent } from './add-expenses-to-report.component';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('AddExpensesToReportComponent', () => {
   let component: AddExpensesToReportComponent;
@@ -28,13 +29,11 @@ describe('AddExpensesToReportComponent', () => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
-      imports: [
-        
-        getTranslocoModule(),
+      imports: [getTranslocoTestingModule(),
         AddExpensesToReportComponent,
         HumanizeCurrencyPipe,
-        ExactCurrencyPipe,
-      ],
+        ExactCurrencyPipe,,
+        MatIconTestingModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

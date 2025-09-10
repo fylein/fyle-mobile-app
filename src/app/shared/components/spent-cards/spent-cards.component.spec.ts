@@ -3,7 +3,28 @@ import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-d
 import { SpentCardsComponent } from './spent-cards.component';
 import { SwiperModule } from 'swiper/angular';
 import { getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { CardDetailComponent } from './card-detail/card-detail.component';
+import { AddCardComponent } from '../add-card/add-card.component';
+
+// mock for card-detail component
+@Component({
+  selector: 'app-card-detail',
+  template: '<div></div>',
+  imports: [],
+})
+class MockCardDetailComponent {
+}
+
+// mock for add-card component
+@Component({
+  selector: 'app-add-card',
+  template: '<div></div>',
+  imports: [],
+})
+class MockAddCardComponent {
+}
 
 describe('SpentCardsComponent', () => {
   let component: SpentCardsComponent;
@@ -11,8 +32,15 @@ describe('SpentCardsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [ SwiperModule, SpentCardsComponent],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      imports: [SpentCardsComponent, getTranslocoTestingModule()],
+    }).overrideComponent(SpentCardsComponent, {
+      remove: {
+        imports: [CardDetailComponent, AddCardComponent],
+      },
+      add: {
+        imports: [MockCardDetailComponent, MockAddCardComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA]
+      },
     }).compileComponents();
 
     fixture = TestBed.createComponent(SpentCardsComponent);

@@ -13,7 +13,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('FyAddToReportModalComponent', () => {
   let component: FyAddToReportModalComponent;
@@ -31,7 +31,7 @@ describe('FyAddToReportModalComponent', () => {
         
         MatIconModule,
         MatIconTestingModule,
-        getTranslocoModule(),
+        getTranslocoTestingModule(),
         FyAddToReportModalComponent,
         HumanizeCurrencyPipe,
         ReportState,

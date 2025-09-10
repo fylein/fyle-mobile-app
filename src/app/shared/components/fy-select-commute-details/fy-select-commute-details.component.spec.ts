@@ -22,6 +22,7 @@ import { locationData1, locationData2 } from 'src/app/core/mock-data/location.da
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 import { Location } from 'src/app/core/models/location.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FySelectCommuteDetailsComponent', () => {
   let component: FySelectCommuteDetailsComponent;
@@ -55,7 +56,8 @@ describe('FySelectCommuteDetailsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, FySelectCommuteDetailsComponent],
+      imports: [TranslocoModule, FySelectCommuteDetailsComponent,
+        MatIconTestingModule],
       providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },

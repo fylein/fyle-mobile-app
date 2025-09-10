@@ -12,17 +12,29 @@ import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-par
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TestCases1 } from './team-reports-1.page.spec';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases2 } from './team-reports-2.page.spec';
 import { TestCases3 } from './team-reports-3.page.spec';
 import { TestCases4 } from './team-reports-4.page.spec';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
+import { MatInput } from '@angular/material/input';
+
+// mock for footer component
+@Component({
+  selector: 'app-fy-footer',
+  template: '<div>Mock Footer Component</div>',
+})
+class MockFooterComponent {
+}
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline', 'getConnectionStatus']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
@@ -57,7 +69,7 @@ describe('TeamReportsPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     TestBed.configureTestingModule({
-      imports: [ TeamReportsPage, ReportState],
+      imports: [ TeamReportsPage, ReportState, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
@@ -76,7 +88,12 @@ describe('TeamReportsPage', () => {
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    })
+    .overrideComponent(TeamReportsPage, {
+      remove: { imports: [FooterComponent] },
+      add: { imports: [MockFooterComponent] }
+    })
+    .compileComponents();
 
     return TestBed;
   };

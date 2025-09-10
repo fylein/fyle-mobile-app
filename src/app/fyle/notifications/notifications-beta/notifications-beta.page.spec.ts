@@ -29,6 +29,7 @@ import {
 import { EmailNotificationsComponent } from '../email-notifications/email-notifications.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('NotificationsBetaPage', () => {
   let component: NotificationsBetaPage;
@@ -64,7 +65,8 @@ describe('NotificationsBetaPage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule, ReactiveFormsModule, NotificationsBetaPage],
+      imports: [RouterTestingModule, ReactiveFormsModule, NotificationsBetaPage,
+        MatIconTestingModule],
       providers: [
         {
           provide: Router,

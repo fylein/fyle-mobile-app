@@ -18,6 +18,7 @@ import {
 } from 'src/app/core/mock-data/virtual-select-option.data';
 import { cloneDeep } from 'lodash';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('VirtualSelectModalComponent', () => {
   let component: VirtualSelectModalComponent;
@@ -40,7 +41,8 @@ describe('VirtualSelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, VirtualSelectModalComponent],
+      imports: [TranslocoModule, VirtualSelectModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

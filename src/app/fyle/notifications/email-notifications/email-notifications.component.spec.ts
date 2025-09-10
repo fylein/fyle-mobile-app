@@ -9,6 +9,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { EmailNotificationsComponent } from './email-notifications.component';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('EmailNotificationsComponent', () => {
   let component: EmailNotificationsComponent;
@@ -43,7 +44,8 @@ describe('EmailNotificationsComponent', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
 
     TestBed.configureTestingModule({
-      imports: [EmailNotificationsComponent],
+      imports: [EmailNotificationsComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

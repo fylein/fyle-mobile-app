@@ -8,6 +8,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, take } from 'rxjs';
 import { By } from '@angular/platform-browser';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FySelectModalComponent', () => {
   let component: FySelectModalComponent;
@@ -29,7 +30,8 @@ describe('FySelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, FySelectModalComponent],
+      imports: [TranslocoModule, FySelectModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

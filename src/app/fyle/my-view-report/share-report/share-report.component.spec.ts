@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 import { ShareReportComponent } from './share-report.component';
 import { of } from 'rxjs';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('ShareReportComponent', () => {
   let component: ShareReportComponent;
@@ -27,7 +27,7 @@ describe('ShareReportComponent', () => {
         FormsModule,
         MatIconModule,
         MatIconTestingModule,
-        getTranslocoModule(),
+        getTranslocoTestingModule(),
         ShareReportComponent,
       ],
       providers: [{ provide: ModalController, useValue: modalController }],

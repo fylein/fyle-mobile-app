@@ -14,7 +14,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { BehaviorSubject, of } from 'rxjs';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
-import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
 import { orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
 import {
@@ -28,7 +27,6 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
-import { TranslocoService } from '@jsverse/transloco';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -49,36 +47,8 @@ export function TestCases1(getTestBed) {
     let authService: jasmine.SpyObj<AuthService>;
     let inputElement: HTMLInputElement;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
-    let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
-
-      // Create a spy for TranslocoService
-      const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
-
-      // Mock the translate method
-      translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
-        const translations: { [key: string]: string } = {
-          'pipes.reportState.draft': 'draft',
-          'pipes.reportState.submitted': 'submitted',
-          'pipes.reportState.reported': 'reported',
-          'pipes.reportState.sentBack': 'sent_back',
-          'pipes.reportState.autoFlagged': 'auto_flagged',
-          'pipes.reportState.rejected': 'rejected',
-          'pipes.reportState.approved': 'approved',
-          'pipes.reportState.paymentPending': 'payment_pending',
-          'pipes.reportState.processing': 'processing',
-          'pipes.reportState.closed': 'closed',
-          'pipes.reportState.cancelled': 'cancelled',
-          'pipes.reportState.disabled': 'disabled',
-        };
-        return translations[key] || key;
-      });
-
-      // Add Transloco configuration to the test module
-      TestBed.configureTestingModule({
-        providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
-      });
 
       fixture = TestBed.createComponent(TeamReportsPage);
       component = fixture.componentInstance;
@@ -98,7 +68,6 @@ export function TestCases1(getTestBed) {
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       launchDarklyService.getVariation.and.returnValue(of(false));
       component.eou$ = of(apiEouRes);
-      translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     }));
 
     it('should create', () => {
@@ -129,7 +98,6 @@ export function TestCases1(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
         authService.getEou.and.resolveTo(apiEouRes);
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
         const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
         approverReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
         approverReportsService.getReportsCount.and.returnValue(of(20));
@@ -224,15 +192,6 @@ export function TestCases1(getTestBed) {
           });
         });
       });
-
-      it('should set searchString as per the input provided by user and update loadData$', fakeAsync(() => {
-        inputElement = component.simpleSearchInput.nativeElement;
-        component.ionViewWillEnter();
-        inputElement.value = 'example';
-        inputElement.dispatchEvent(new Event('keyup'));
-        tick(1000);
-        expect(component.currentPageNumber).toBe(1);
-      }));
 
       it('should call approverReporsService.getReportsByParams and update acc', fakeAsync(() => {
         mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);

@@ -23,6 +23,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyOptInComponent', () => {
   let component: FyOptInComponent;
@@ -72,7 +73,8 @@ describe('FyOptInComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, FyOptInComponent],
+      imports: [TranslocoModule, FyOptInComponent,
+        MatIconTestingModule],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },

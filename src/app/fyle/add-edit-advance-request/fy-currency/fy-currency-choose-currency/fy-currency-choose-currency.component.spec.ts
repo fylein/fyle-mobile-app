@@ -15,6 +15,7 @@ import {
 import { finalize, of, take } from 'rxjs';
 import { currencies } from 'src/app/core/mock-data/recently-used.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyCurrencyChooseCurrencyComponent', () => {
   let component: FyCurrencyChooseCurrencyComponent;
@@ -37,7 +38,8 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, FyCurrencyChooseCurrencyComponent],
+      imports: [TranslocoModule, FyCurrencyChooseCurrencyComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: CurrencyService,

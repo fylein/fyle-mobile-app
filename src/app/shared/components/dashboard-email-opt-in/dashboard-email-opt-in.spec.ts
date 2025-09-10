@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 
 import { DashboardEmailOptInComponent } from './dashboard-email-opt-in.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('DashboardEmailOptInComponent', () => {
   let component: DashboardEmailOptInComponent;
@@ -29,7 +30,7 @@ describe('DashboardEmailOptInComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, DashboardEmailOptInComponent],
+      imports: [ TranslocoModule, DashboardEmailOptInComponent, MatIconTestingModule],
       providers: [
         {
           provide: PopoverController,

@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PendingGasChargeInfoModalComponent } from './pending-gas-charge-info-modal.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('PendingGasChargeInfoModalComponent', () => {
   let component: PendingGasChargeInfoModalComponent;
@@ -24,13 +25,11 @@ describe('PendingGasChargeInfoModalComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [
-        
-        TranslocoModule,
+      imports: [TranslocoModule,
         MatIconModule,
         HttpClientTestingModule,
-        PendingGasChargeInfoModalComponent,
-      ],
+        PendingGasChargeInfoModalComponent,,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

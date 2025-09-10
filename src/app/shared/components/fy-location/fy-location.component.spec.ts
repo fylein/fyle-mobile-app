@@ -7,6 +7,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyLocationComponent', () => {
   let component: FyLocationComponent;
@@ -26,7 +27,8 @@ describe('FyLocationComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [FormsModule, TranslocoModule, FyLocationComponent],
+      imports: [FormsModule, TranslocoModule, FyLocationComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

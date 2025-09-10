@@ -17,6 +17,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('NewPasswordPage', () => {
   let component: NewPasswordPage;
@@ -43,7 +44,7 @@ describe('NewPasswordPage', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
 
     TestBed.configureTestingModule({
-      imports: [ ReactiveFormsModule, RouterTestingModule, NewPasswordPage],
+      imports: [ ReactiveFormsModule, RouterTestingModule, NewPasswordPage, getTranslocoTestingModule()],
       providers: [
         UntypedFormBuilder,
         { provide: AuthService, useValue: authServiceSpy },

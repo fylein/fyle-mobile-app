@@ -26,10 +26,9 @@ import {
   taskFiltersParams6,
   taskFiltersParams7,
 } from 'src/app/core/mock-data/task-filters.data';
-import { taskCtaData3, taskCtaData9 } from 'src/app/core/mock-data/task-cta.data';
-import { expenseList } from 'src/app/core/mock-data/expense.data';
+import { taskCtaData3 } from 'src/app/core/mock-data/task-cta.data';
 import { cloneDeep } from 'lodash';
-import { publicAdvanceRequestRes, singleExtendedAdvReqRes } from 'src/app/core/mock-data/extended-advance-request.data';
+import { publicAdvanceRequestRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   expensesList,
   mileageCategoryPlatformExpenseData,
@@ -48,16 +47,13 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { OrgService } from 'src/app/core/services/org.service';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
-import { Component, Input } from '@angular/core';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
-import { By } from '@angular/platform-browser';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -85,13 +81,8 @@ export function TestCases2(getTestBed) {
     let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-    let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
-      TestBed.configureTestingModule({
-        declarations: [TasksComponent],
-        imports: [TranslocoModule],
-      });
       fixture = TestBed.createComponent(TasksComponent);
       component = fixture.componentInstance;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
@@ -124,38 +115,6 @@ export function TestCases2(getTestBed) {
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
       networkService.isOnline.and.returnValue(of(true));
       networkService.connectivityWatcher.and.returnValue(null);
-      translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-      translocoService.translate.and.callFake((key: any, params?: any) => {
-        const translations: { [key: string]: string } = {
-          'tasks.expenses': 'Expenses',
-          'tasks.complete': 'Complete',
-          'tasks.draft': 'Draft',
-          'tasks.duplicate': 'Duplicate',
-          'tasks.reports': 'Reports',
-          'tasks.sentBack': 'Sent Back',
-          'tasks.unsubmitted': 'Unsubmitted',
-          'tasks.unapproved': 'Unapproved',
-          'tasks.advances': 'Advances',
-          'tasks.loadingExpenses': 'please wait while we load your expenses',
-          'tasks.openingReport': 'Opening your report...',
-          'tasks.openingAdvance': 'Opening your advance request...',
-          'tasks.addingExpenseToReport': 'Adding expense to report',
-          'tasks.viewReport': 'View Report',
-          'tasks.expensesAddedToDraft': 'Expenses added to an existing draft report',
-          'tasks.expensesAddedSuccessfully': 'Expenses added to report successfully',
-          'tasks.commuteDetailsSaved': 'Commute details saved successfully',
-          'tasks.noTasks': 'You have no tasks right now',
-          'tasks.noTasksFiltered': 'You have no tasks',
-          'tasks.matchingFilters': 'matching the applied filters',
-        };
-        let translation = translations[key] || key;
-        if (params) {
-          Object.keys(params).forEach((key) => {
-            translation = translation.replace(`{{${key}}}`, params[key]);
-          });
-        }
-        return translation;
-      });
     }));
 
     describe('init():', () => {

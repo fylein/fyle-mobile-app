@@ -42,6 +42,7 @@ import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { platformPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 import { PlatformPersonalCardTxnState } from 'src/app/core/models/platform/platform-personal-card-txn-state.enum';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -104,17 +105,15 @@ describe('PersonalCardsPage', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
 
     TestBed.configureTestingModule({
-      imports: [
-        
-        RouterTestingModule,
+      imports: [RouterTestingModule,
         FormsModule,
         MatCheckboxModule,
         MatFormFieldModule,
         MatInputModule,
         BrowserAnimationsModule,
         NoopAnimationsModule,
-        PersonalCardsPage,
-      ],
+        PersonalCardsPage,,
+        MatIconTestingModule],
       providers: [
         ChangeDetectorRef,
         {

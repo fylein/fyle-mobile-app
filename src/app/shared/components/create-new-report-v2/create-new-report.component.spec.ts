@@ -18,7 +18,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { apiExpenses1, nonReimbursableExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
@@ -51,7 +51,7 @@ describe('CreateNewReportComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         MatCheckboxModule,
-        getTranslocoModule(),
+        getTranslocoTestingModule(),
         CreateNewReportComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,

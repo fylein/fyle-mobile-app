@@ -34,10 +34,9 @@ import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { teamReportsModalControllerParams } from 'src/app/core/mock-data/modal-controller.data';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { TranslocoService } from '@jsverse/transloco';
 
 export function TestCases4(getTestBed) {
-  return describe('test cases set 3', () => {
+  return describe('test cases set 4', () => {
     let component: TeamReportsPage;
     let fixture: ComponentFixture<TeamReportsPage>;
     let networkService: jasmine.SpyObj<NetworkService>;
@@ -50,39 +49,9 @@ export function TestCases4(getTestBed) {
     let trackingService: jasmine.SpyObj<TrackingService>;
     let tasksService: jasmine.SpyObj<TasksService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-    let inputElement: HTMLInputElement;
     let authService: jasmine.SpyObj<AuthService>;
-    let translocoService: jasmine.SpyObj<TranslocoService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
-
-      // Create a spy for TranslocoService
-      const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
-
-      // Mock the translate method
-      translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
-        const translations: { [key: string]: string } = {
-          'pipes.reportState.draft': 'draft',
-          'pipes.reportState.submitted': 'submitted',
-          'pipes.reportState.reported': 'reported',
-          'pipes.reportState.sentBack': 'sent_back',
-          'pipes.reportState.autoFlagged': 'auto_flagged',
-          'pipes.reportState.rejected': 'rejected',
-          'pipes.reportState.approved': 'approved',
-          'pipes.reportState.paymentPending': 'payment_pending',
-          'pipes.reportState.processing': 'processing',
-          'pipes.reportState.closed': 'closed',
-          'pipes.reportState.cancelled': 'cancelled',
-          'pipes.reportState.disabled': 'disabled',
-        };
-        return translations[key] || key;
-      });
-
-      // Add Transloco configuration to the test module
-      TestBed.configureTestingModule({
-        providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
-      });
-
       fixture = TestBed.createComponent(TeamReportsPage);
       component = fixture.componentInstance;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -97,7 +66,6 @@ export function TestCases4(getTestBed) {
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
       component.eou$ = of(apiEouRes);
-      translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     }));
 
     it('generateStateFilterPills(): should update filter pills', () => {

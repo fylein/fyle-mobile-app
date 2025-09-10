@@ -5,6 +5,7 @@ import { ReviewSplitExpenseComponent } from './review-split-expense.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('ReviewSplitExpenseComponent', () => {
   let component: ReviewSplitExpenseComponent;
   let fixture: ComponentFixture<ReviewSplitExpenseComponent>;
@@ -25,7 +26,8 @@ describe('ReviewSplitExpenseComponent', () => {
         { provide: ModalController, useValue: modalSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
-      imports: [TranslocoModule, ReviewSplitExpenseComponent],
+      imports: [TranslocoModule, ReviewSplitExpenseComponent,
+        MatIconTestingModule],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 

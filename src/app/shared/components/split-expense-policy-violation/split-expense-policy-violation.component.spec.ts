@@ -10,6 +10,7 @@ import {
   filteredSplitPolicyViolationsData2,
 } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
@@ -27,7 +28,8 @@ describe('SplitExpensePolicyViolationComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ ReactiveFormsModule, TranslocoModule, SplitExpensePolicyViolationComponent],
+      imports: [ReactiveFormsModule, TranslocoModule, SplitExpensePolicyViolationComponent,
+        MatIconTestingModule],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         UntypedFormBuilder,

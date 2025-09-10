@@ -8,6 +8,7 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyCurrencyChooseCurrencyComponent', () => {
   let component: FyCurrencyChooseCurrencyComponent;
@@ -30,7 +31,8 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [FormsModule, ReactiveFormsModule, TranslocoModule, FyCurrencyChooseCurrencyComponent],
+      imports: [FormsModule, ReactiveFormsModule, TranslocoModule, FyCurrencyChooseCurrencyComponent,
+        MatIconTestingModule],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },

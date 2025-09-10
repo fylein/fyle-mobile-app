@@ -46,6 +46,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 @Component({
   selector: 'app-corporate-card',
@@ -107,7 +108,8 @@ describe('ManageCorporateCardsPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
-      imports: [ ManageCorporateCardsPage, MockCorporateCardComponent],
+      imports: [ManageCorporateCardsPage, MockCorporateCardComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: Router,

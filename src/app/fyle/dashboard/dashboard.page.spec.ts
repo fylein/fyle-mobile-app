@@ -44,6 +44,7 @@ import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { TranslocoService } from '@jsverse/transloco';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -128,7 +129,8 @@ describe('DashboardPage', () => {
       'getIsOverlayClicked',
     ]);
     TestBed.configureTestingModule({
-      imports: [ DashboardPage],
+      imports: [DashboardPage,
+        MatIconTestingModule],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },

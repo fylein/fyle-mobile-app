@@ -5,6 +5,7 @@ import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { PromoteOptInModalComponent } from './promote-opt-in-modal.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('PromoteOptInModalComponent', () => {
   let component: PromoteOptInModalComponent;
@@ -23,7 +24,8 @@ describe('PromoteOptInModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, PromoteOptInModalComponent],
+      imports: [TranslocoModule, PromoteOptInModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

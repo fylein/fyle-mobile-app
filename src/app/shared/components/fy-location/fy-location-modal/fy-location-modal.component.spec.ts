@@ -24,6 +24,7 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import * as NativeSettings from 'capacitor-native-settings';
 import { AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyLocationModalComponent', () => {
   let component: FyLocationModalComponent;
@@ -47,7 +48,8 @@ describe('FyLocationModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ FormsModule, ReactiveFormsModule, TranslocoModule, FyLocationModalComponent],
+      imports: [FormsModule, ReactiveFormsModule, TranslocoModule, FyLocationModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

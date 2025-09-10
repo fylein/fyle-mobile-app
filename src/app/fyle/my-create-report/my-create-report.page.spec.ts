@@ -29,6 +29,8 @@ import { orgSettingsPendingRestrictions, orgSettingsRes } from 'src/app/core/moc
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from '../../core/mock-data/platform-report.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
@@ -62,15 +64,14 @@ describe('MyCreateReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      imports: [
-        
+      imports: [getTranslocoTestingModule(),
         RouterTestingModule,
         FormsModule,
         MatCheckboxModule,
         MyCreateReportPage,
         HumanizeCurrencyPipe,
-        ExactCurrencyPipe,
-      ],
+        ExactCurrencyPipe,,
+        MatIconTestingModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

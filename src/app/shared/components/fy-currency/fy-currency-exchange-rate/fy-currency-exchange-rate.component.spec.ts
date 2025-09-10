@@ -17,6 +17,7 @@ import { FyNumberComponent } from '../../fy-number/fy-number.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate.component';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyCurrencyExchangeRateComponent', () => {
   let component: FyCurrencyExchangeRateComponent;
@@ -41,14 +42,12 @@ describe('FyCurrencyExchangeRateComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [
-        
-        FormsModule,
+      imports: [FormsModule,
         ReactiveFormsModule,
         TranslocoModule,
         FyCurrencyExchangeRateComponent,
-        FyNumberComponent,
-      ],
+        FyNumberComponent,,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

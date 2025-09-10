@@ -5,6 +5,7 @@ import { CCExpenseMerchantInfoModalComponent } from './cc-expense-merchant-info-
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('CCExpenseMerchantInfoComponent', () => {
   let component: CCExpenseMerchantInfoModalComponent;
@@ -21,7 +22,8 @@ describe('CCExpenseMerchantInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, CCExpenseMerchantInfoModalComponent],
+      imports: [TranslocoModule, CCExpenseMerchantInfoModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

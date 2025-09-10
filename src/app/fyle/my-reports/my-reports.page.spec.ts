@@ -79,6 +79,7 @@ import { ReportState as PlatformReportState } from 'src/app/core/models/platform
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -147,7 +148,8 @@ describe('MyReportsPage', () => {
 
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [ RouterTestingModule, TranslocoModule, MyReportsPage, ReportState],
+      imports: [RouterTestingModule, TranslocoModule, MyReportsPage, ReportState,
+        MatIconTestingModule],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },

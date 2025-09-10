@@ -63,7 +63,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -244,7 +244,7 @@ describe('AddEditExpensePage', () => {
         
         RouterTestingModule,
         RouterModule,
-        getTranslocoModule(),
+        getTranslocoTestingModule(),
         AddEditExpensePage,
         MaskNumber,
         FySelectComponent,

@@ -4,6 +4,7 @@ import { By } from '@angular/platform-browser';
 import { FyExpansionInfoMsgComponent } from './fy-expansion-info-msg.component';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyExpansionInfoMsgComponent', () => {
   let component: FyExpansionInfoMsgComponent;
@@ -18,7 +19,8 @@ describe('FyExpansionInfoMsgComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [MatIconModule,  TranslocoModule, TranslocoModule, FyExpansionInfoMsgComponent],
+      imports: [MatIconModule,  TranslocoModule, TranslocoModule, FyExpansionInfoMsgComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: TranslocoService,

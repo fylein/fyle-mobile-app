@@ -47,7 +47,7 @@ import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expen
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { TranslocoService } from '@jsverse/transloco';
 import { mandatoryExpenseFields } from 'src/app/core/mock-data/expense-field.data';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 describe('ExpensesCardComponent', () => {
@@ -118,7 +118,7 @@ describe('ExpensesCardComponent', () => {
         MatIconTestingModule,
         MatCheckboxModule,
         FormsModule,
-        getTranslocoModule(),
+        getTranslocoTestingModule(),
         ExpensesCardComponent,
         DateFormatPipe,
         HumanizeCurrencyPipe,

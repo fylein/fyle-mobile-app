@@ -62,6 +62,7 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { TIMEZONE } from 'src/app/constants';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -127,15 +128,13 @@ describe('ViewTeamReportPageV2', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
-      imports: [
-        
-        FormsModule,
+      imports: [FormsModule,
         ViewTeamReportPage,
         EllipsisPipe,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
-        DateWithTimezonePipe,
-      ],
+        DateWithTimezonePipe,,
+        MatIconTestingModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

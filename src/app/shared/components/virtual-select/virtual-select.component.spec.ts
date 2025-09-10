@@ -9,6 +9,7 @@ import { UntypedFormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { virtualSelectModalControllerParams } from 'src/app/core/mock-data/modal-controller.data';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('VirtualSelectModalComponent', () => {
   let component: VirtualSelectComponent;
@@ -28,7 +29,8 @@ describe('VirtualSelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, VirtualSelectComponent],
+      imports: [TranslocoModule, VirtualSelectComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

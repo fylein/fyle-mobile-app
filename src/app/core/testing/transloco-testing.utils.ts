@@ -2,7 +2,7 @@ import { ModuleWithProviders } from '@angular/core';
 import { TranslocoTestingModule, TranslocoTestingOptions } from '@jsverse/transloco';
 import en from 'src/assets/i18n/en.json';
 
-export function getTranslocoModule(options: TranslocoTestingOptions = {}): ModuleWithProviders<TranslocoTestingModule> {
+export function getTranslocoTestingModule(options: TranslocoTestingOptions = {}): ModuleWithProviders<TranslocoTestingModule> {
   return TranslocoTestingModule.forRoot({
     langs: { en },
     translocoConfig: {

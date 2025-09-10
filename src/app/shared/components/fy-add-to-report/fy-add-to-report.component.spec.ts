@@ -18,6 +18,7 @@ import {
 import { reportOptionsData, reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
 import { of } from 'rxjs';
 import { cloneDeep } from 'lodash';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyAddToReportComponent', () => {
   let component: FyAddToReportComponent;
@@ -55,7 +56,8 @@ describe('FyAddToReportComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, FyAddToReportComponent],
+      imports: [TranslocoModule, FyAddToReportComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: Injector,

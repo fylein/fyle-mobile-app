@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('MyAdvancesCardComponent', () => {
   let component: MyAdvancesCardComponent;
@@ -29,14 +30,12 @@ describe('MyAdvancesCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [
-        
-        TranslocoModule,
+      imports: [TranslocoModule,
         MyAdvancesCardComponent,
         EllipsisPipe,
         HumanizeCurrencyPipe,
-        ExactCurrencyPipe,
-      ],
+        ExactCurrencyPipe,,
+        MatIconTestingModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

@@ -9,6 +9,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('CameraOptionsPopupComponent', () => {
   let component: CameraOptionsPopupComponent;
@@ -31,7 +32,8 @@ describe('CameraOptionsPopupComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, CameraOptionsPopupComponent],
+      imports: [TranslocoModule, CameraOptionsPopupComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: PopoverController,

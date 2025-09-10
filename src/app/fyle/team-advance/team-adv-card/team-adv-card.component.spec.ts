@@ -10,6 +10,7 @@ import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_req
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('TeamAdvCardComponent', () => {
   let teamAdvCardComponent: TeamAdvCardComponent;
@@ -34,16 +35,14 @@ describe('TeamAdvCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [
-        
-        MatRippleModule,
+      imports: [MatRippleModule,
         TranslocoModule,
         TeamAdvCardComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         EllipsisPipe,
-        FyCurrencyPipe,
-      ],
+        FyCurrencyPipe,,
+        MatIconTestingModule],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         {

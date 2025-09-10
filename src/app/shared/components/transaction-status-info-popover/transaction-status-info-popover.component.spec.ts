@@ -6,6 +6,7 @@ import { TransactionStatusInfoPopoverComponent } from './transaction-status-info
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('TransactionStatusInfoComponent', () => {
   let component: TransactionStatusInfoPopoverComponent;
@@ -22,7 +23,8 @@ describe('TransactionStatusInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, TransactionStatusInfoPopoverComponent],
+      imports: [TranslocoModule, TransactionStatusInfoPopoverComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: PopoverController,

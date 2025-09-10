@@ -5,6 +5,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('ReceiptPreviewThumbnailComponent', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let component: ReceiptPreviewThumbnailComponent;
@@ -27,7 +28,8 @@ describe('ReceiptPreviewThumbnailComponent', () => {
         },
         { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
-      imports: [ TranslocoModule, ReceiptPreviewThumbnailComponent],
+      imports: [TranslocoModule, ReceiptPreviewThumbnailComponent,
+        MatIconTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 

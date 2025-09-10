@@ -25,6 +25,7 @@ import {
   enrollingNonRTFCardProperties,
 } from 'src/app/core/mock-data/corporate-card-trackers.data';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 @Component({
   selector: 'app-fy-alert-info',
@@ -70,15 +71,13 @@ describe('AddCorporateCardComponent', () => {
       interceptor: {},
     });
     TestBed.configureTestingModule({
-      imports: [
-        
-        NgxMaskModule.forRoot(),
+      imports: [NgxMaskModule.forRoot(),
         ReactiveFormsModule,
         TranslocoModule,
         AddCorporateCardComponent,
         MockFyAlertInfoComponent,
-        ArrayToCommaListPipe,
-      ],
+        ArrayToCommaListPipe,,
+        MatIconTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         {

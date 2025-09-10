@@ -14,7 +14,8 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog.component';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('AddTxnToReportDialogComponent', () => {
   let component: AddTxnToReportDialogComponent;
@@ -28,19 +29,17 @@ describe('AddTxnToReportDialogComponent', () => {
     const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss']);
 
     TestBed.configureTestingModule({
-      imports: [
-        
-        RouterTestingModule,
+      imports: [RouterTestingModule,
         RouterModule,
         MatBottomSheetModule,
-        getTranslocoModule(),
+        getTranslocoTestingModule(),
         AddTxnToReportDialogComponent,
         FyZeroStateComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         ReportState,
-        SnakeCaseToSpaceCase,
-      ],
+        SnakeCaseToSpaceCase,,
+        MatIconTestingModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

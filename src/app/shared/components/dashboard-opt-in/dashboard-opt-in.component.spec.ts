@@ -6,6 +6,7 @@ import { DashboardOptInComponent } from './dashboard-opt-in.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('DashboardOptInComponent', () => {
   let component: DashboardOptInComponent;
   let fixture: ComponentFixture<DashboardOptInComponent>;
@@ -26,7 +27,8 @@ describe('DashboardOptInComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, DashboardOptInComponent],
+      imports: [TranslocoModule, DashboardOptInComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,
