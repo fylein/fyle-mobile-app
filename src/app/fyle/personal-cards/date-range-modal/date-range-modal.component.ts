@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonItem, IonLabel, IonList, ModalController } from '@ionic/angular/standalone';
 import { MatDateRangeInput, MatStartDate, MatEndDate, MatDateRangePicker } from '@angular/material/datepicker';
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -7,7 +7,16 @@ import { TranslocoPipe } from '@jsverse/transloco';
   selector: 'app-date-range-modal',
   templateUrl: './date-range-modal.component.html',
   styleUrls: ['./date-range-modal.component.scss'],
-  imports: [IonicModule, MatDateRangeInput, MatStartDate, MatEndDate, MatDateRangePicker, TranslocoPipe],
+  imports: [
+    IonItem,
+    IonLabel,
+    IonList,
+    MatDateRangeInput,
+    MatDateRangePicker,
+    MatEndDate,
+    MatStartDate,
+    TranslocoPipe
+  ],
 })
 export class DateRangeModalComponent implements OnInit {
   private modalController = inject(ModalController);

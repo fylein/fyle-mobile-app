@@ -76,7 +76,7 @@ describe('ReceiptPreviewComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,

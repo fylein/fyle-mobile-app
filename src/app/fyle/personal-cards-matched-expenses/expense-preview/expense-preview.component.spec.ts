@@ -46,7 +46,7 @@ describe('ExpensePreviewComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         FormsModule,

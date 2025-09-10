@@ -14,7 +14,7 @@ describe('StatBadgeComponent', () => {
   beforeEach(waitForAsync(() => {
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), StatBadgeComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe],
+      imports: [ StatBadgeComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe],
       providers: [
         {
           provide: FyCurrencyPipe,

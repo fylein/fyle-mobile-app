@@ -45,7 +45,7 @@ describe('CreateNewReportComponent', () => {
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         FormsModule,

@@ -43,7 +43,7 @@ describe('NewPasswordPage', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, RouterTestingModule, NewPasswordPage],
+      imports: [ ReactiveFormsModule, RouterTestingModule, NewPasswordPage],
       providers: [
         UntypedFormBuilder,
         { provide: AuthService, useValue: authServiceSpy },

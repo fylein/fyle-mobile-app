@@ -25,7 +25,7 @@ describe('DateRangeModalComponent', () => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         MatDatepickerModule,
         MatNativeDateModule,

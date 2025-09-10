@@ -25,7 +25,7 @@ describe('CameraOptionsPopupComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, CameraOptionsPopupComponent],
+      imports: [ TranslocoModule, CameraOptionsPopupComponent],
       providers: [
         {
           provide: PopoverController,

@@ -27,7 +27,7 @@ describe('ReportsCardComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconTestingModule,
         MatIconModule,
         TranslocoModule,

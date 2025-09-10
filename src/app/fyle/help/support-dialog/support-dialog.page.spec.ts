@@ -31,7 +31,7 @@ describe('SupportDialogPage', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, SupportDialogPage],
+      imports: [ MatIconTestingModule, MatIconModule, SupportDialogPage],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },

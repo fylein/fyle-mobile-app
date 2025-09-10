@@ -118,7 +118,7 @@ describe('CaptureReceiptComponent', () => {
     const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['requestCameraPermissions']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), RouterTestingModule, CaptureReceiptComponent, CameraPreviewStubComponent],
+      imports: [ RouterTestingModule, CaptureReceiptComponent, CameraPreviewStubComponent],
       providers: [
         {
           provide: ModalController,

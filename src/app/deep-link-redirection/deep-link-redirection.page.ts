@@ -9,12 +9,16 @@ import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
+import { IonContent } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-deep-link-redirection',
   templateUrl: './deep-link-redirection.page.html',
   styleUrls: ['./deep-link-redirection.page.scss'],
-  imports: [IonicModule],
+  imports: [
+    IonContent
+  ],
 })
 export class DeepLinkRedirectionPage {
   private activatedRoute = inject(ActivatedRoute);

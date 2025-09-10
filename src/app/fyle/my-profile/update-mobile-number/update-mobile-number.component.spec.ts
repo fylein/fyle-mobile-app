@@ -35,7 +35,7 @@ describe('UpdateMobileNumberComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         MatIconModule,
         MatIconTestingModule,

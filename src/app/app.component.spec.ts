@@ -145,7 +145,7 @@ describe('AppComponent', () => {
         { provide: MenuController, useValue: menuControllerSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
       ],
-      imports: [IonicModule.forRoot(), AppComponent],
+      imports: [ AppComponent],
     }).compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;

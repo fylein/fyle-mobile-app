@@ -25,20 +25,24 @@ import { NgClass, AsyncPipe } from '@angular/common';
 import { MatSuffix } from '@angular/material/input';
 import { PasswordCheckTooltipComponent } from '../../shared/components/password-check-tooltip/password-check-tooltip.component';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { IonButton, IonContent, IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-invited-user',
   templateUrl: './invited-user.page.html',
   styleUrls: ['./invited-user.page.scss'],
   imports: [
-    IonicModule,
-    FormsModule,
-    ReactiveFormsModule,
-    NgClass,
-    MatSuffix,
-    PasswordCheckTooltipComponent,
-    FormButtonValidationDirective,
     AsyncPipe,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonContent,
+    IonIcon,
+    MatSuffix,
+    NgClass,
+    PasswordCheckTooltipComponent,
+    ReactiveFormsModule
   ],
 })
 export class InvitedUserPage implements OnInit {

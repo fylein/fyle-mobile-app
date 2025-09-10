@@ -25,7 +25,7 @@ describe('EditReportNamePopoverComponent', () => {
     });
     await TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         FormsModule,

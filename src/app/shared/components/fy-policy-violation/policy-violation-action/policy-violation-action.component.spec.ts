@@ -7,7 +7,7 @@ describe('PolicyViolationActionComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), PolicyViolationActionComponent],
+      imports: [ PolicyViolationActionComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PolicyViolationActionComponent);

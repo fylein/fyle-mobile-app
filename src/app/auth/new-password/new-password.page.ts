@@ -23,19 +23,23 @@ import { NgClass } from '@angular/common';
 import { MatSuffix } from '@angular/material/input';
 import { PasswordCheckTooltipComponent } from '../../shared/components/password-check-tooltip/password-check-tooltip.component';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { IonButton, IonContent, IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-new-password',
   templateUrl: './new-password.page.html',
   styleUrls: ['./new-password.page.scss'],
   imports: [
-    IonicModule,
-    FormsModule,
-    ReactiveFormsModule,
-    NgClass,
-    MatSuffix,
-    PasswordCheckTooltipComponent,
     FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonContent,
+    IonIcon,
+    MatSuffix,
+    NgClass,
+    PasswordCheckTooltipComponent,
+    ReactiveFormsModule
   ],
 })
 export class NewPasswordPage implements OnInit {

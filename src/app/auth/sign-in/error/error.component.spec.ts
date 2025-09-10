@@ -51,7 +51,7 @@ describe('ErrorComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, ErrorComponent],
+      imports: [ TranslocoModule, ErrorComponent],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: Router, useValue: routerSpy },

@@ -7,7 +7,7 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, filter, take } from 'rxjs/operators';
-import { PopoverController, ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -45,19 +45,28 @@ import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
   templateUrl: './view-per-diem.page.html',
   styleUrls: ['./view-per-diem.page.scss'],
   imports: [
-    IonicModule,
-    NgClass,
-    FyPolicyViolationInfoComponent,
-    ViewDependentFieldsComponent,
-    NavigationFooterComponent,
     AsyncPipe,
-    TitleCasePipe,
     CurrencyPipe,
     DatePipe,
     ExactCurrencyPipe,
-    SnakeCaseToSpaceCase,
     ExpenseState_1,
     FyCurrencyPipe,
+    FyPolicyViolationInfoComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
+    NavigationFooterComponent,
+    NgClass,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    ViewDependentFieldsComponent
   ],
 })
 export class ViewPerDiemPage {

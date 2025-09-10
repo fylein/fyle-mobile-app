@@ -13,7 +13,7 @@ describe('FyAlertComponent', () => {
   beforeEach(waitForAsync(() => {
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FyAlertInfoComponent],
+      imports: [ MatIconModule, MatIconTestingModule, FyAlertInfoComponent],
       providers: [
         {
           provide: TranslocoService,

@@ -43,7 +43,7 @@ describe('FyUserlistModalComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconTestingModule,
         FormsModule,
         MatChipsModule,

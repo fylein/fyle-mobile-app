@@ -324,7 +324,7 @@ describe('MyExpensesPage', () => {
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
       imports: [
-        IonicModule.forRoot(),
+        
         RouterTestingModule,
         getTranslocoModule(),
         MyExpensesPage,

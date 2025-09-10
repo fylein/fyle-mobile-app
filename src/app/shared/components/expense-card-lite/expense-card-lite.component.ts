@@ -4,12 +4,20 @@ import { DatePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
+import { IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-expense-card-lite',
   templateUrl: './expense-card-lite.component.html',
   styleUrls: ['./expense-card-lite.component.scss'],
-  imports: [IonicModule, DatePipe, TranslocoPipe, CurrencySymbolPipe, ExactCurrencyPipe],
+  imports: [
+    CurrencySymbolPipe,
+    DatePipe,
+    ExactCurrencyPipe,
+    IonIcon,
+    TranslocoPipe
+  ],
 })
 export class ExpenseCardLiteComponent implements OnInit {
   // TODO: Skipped for migration because:

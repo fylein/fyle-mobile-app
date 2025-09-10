@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { MatIcon } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -7,7 +7,16 @@ import { TranslocoPipe } from '@jsverse/transloco';
   selector: 'app-pending-gas-charge-info-modal',
   templateUrl: './pending-gas-charge-info-modal.component.html',
   styleUrls: ['./pending-gas-charge-info-modal.component.scss'],
-  imports: [IonicModule, MatIcon, TranslocoPipe],
+  imports: [
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    TranslocoPipe
+  ],
 })
 export class PendingGasChargeInfoModalComponent {
   private modalController = inject(ModalController);

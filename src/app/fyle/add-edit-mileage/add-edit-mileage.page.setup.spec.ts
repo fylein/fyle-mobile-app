@@ -247,7 +247,7 @@ describe('AddEditMileagePage', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         RouterTestingModule,
         RouterModule,
         AddEditMileagePage,

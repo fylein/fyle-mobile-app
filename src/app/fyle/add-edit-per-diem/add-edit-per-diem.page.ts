@@ -57,7 +57,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -140,33 +140,41 @@ import { chevronUp, chevronDown } from 'ionicons/icons';
   templateUrl: './add-edit-per-diem.page.html',
   styleUrls: ['./add-edit-per-diem.page.scss'],
   imports: [
-    IonicModule,
-    NgClass,
-    NgIf,
-    FormsModule,
-    ReactiveFormsModule,
-    FyPolicyViolationInfoComponent,
-    MatIcon,
-    FySelectComponent,
-    FormatDateDirective,
-    FyNumberComponent,
-    FySelectProjectComponent,
-    MatCheckbox,
+    AsyncPipe,
+    CurrencyPipe,
+    DecimalPipe,
     DependentFieldsComponent_1,
-    VirtualSelectComponent,
-    FyLocationComponent,
-    FyMultiselectComponent,
+    EllipsisPipe,
+    FormButtonValidationDirective,
+    FormatDateDirective,
+    FormsModule,
     FyAddToReportComponent,
     FyAlertInfoComponent,
-    FyZeroStateComponent,
-    ReviewFooterComponent,
-    FormButtonValidationDirective,
-    AsyncPipe,
-    SlicePipe,
-    DecimalPipe,
-    CurrencyPipe,
-    EllipsisPipe,
     FyCurrencyPipe_1,
+    FyLocationComponent,
+    FyMultiselectComponent,
+    FyNumberComponent,
+    FyPolicyViolationInfoComponent,
+    FySelectComponent,
+    FySelectProjectComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    NgIf,
+    ReactiveFormsModule,
+    ReviewFooterComponent,
+    SlicePipe,
+    VirtualSelectComponent
   ],
 })
 export class AddEditPerDiemPage implements OnInit {

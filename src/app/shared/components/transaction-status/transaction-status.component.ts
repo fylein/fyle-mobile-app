@@ -2,12 +2,19 @@ import { Component, Input, output } from '@angular/core';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { NgClass, TitleCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-transaction-status',
   templateUrl: './transaction-status.component.html',
   styleUrls: ['./transaction-status.component.scss'],
-  imports: [NgClass, IonicModule, TitleCasePipe, TranslocoPipe],
+  imports: [
+    IonIcon,
+    NgClass,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
 export class TransactionStatusComponent {
   // TODO: Skipped for migration because:

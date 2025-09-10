@@ -85,7 +85,7 @@ describe('AddEditAdvanceRequestPage', () => {
     const platformSpyObj = jasmine.createSpyObj('Platform', ['is']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), RouterTestingModule, AddEditAdvanceRequestPage],
+      imports: [ RouterTestingModule, AddEditAdvanceRequestPage],
       providers: [
         { provide: AuthService, useValue: authServiceSpyObj },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpyObj },

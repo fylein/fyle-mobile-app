@@ -3,7 +3,7 @@ import { Component, ElementRef, EventEmitter, OnInit, ViewChild, inject } from '
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
+import { ActionSheetController, IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonRefresher, IonRefresherContent, IonSkeletonText, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { cloneDeep, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,
@@ -108,27 +108,37 @@ import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
   imports: [
-    FyHeaderComponent,
-    NgClass,
-    IonicModule,
-    MatFormField,
-    MatIcon,
-    MatPrefix,
-    MatInput,
-    FormsModule,
-    MatIconButton,
-    MatSuffix,
-    MatCheckbox,
-    FyFilterPillsComponent,
-    FyLoadingScreenComponent,
-    FyAlertInfoComponent,
-    FyZeroStateComponent,
-    ExpensesCardV1Component,
-    ExpensesCardComponent,
-    FooterComponent,
     AsyncPipe,
     ExactCurrencyPipe,
-    TranslocoPipe,
+    ExpensesCardComponent,
+    ExpensesCardV1Component,
+    FooterComponent,
+    FormsModule,
+    FyAlertInfoComponent,
+    FyFilterPillsComponent,
+    FyHeaderComponent,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonItem,
+    IonRefresher,
+    IonRefresherContent,
+    IonSkeletonText,
+    MatCheckbox,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    TranslocoPipe
   ],
 })
 export class MyExpensesPage implements OnInit {

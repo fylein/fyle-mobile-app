@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController, Platform } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { finalize, map } from 'rxjs/operators';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -22,15 +22,25 @@ import { FyCurrencyPipe } from '../../../shared/pipes/fy-currency.pipe';
   templateUrl: './expense-preview.component.html',
   styleUrls: ['./expense-preview.component.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
-    ExpensePreviewShimmerComponent,
-    FormButtonValidationDirective,
     AsyncPipe,
     CurrencyPipe,
     DatePipe,
+    ExpensePreviewShimmerComponent,
+    FormButtonValidationDirective,
     FyCurrencyPipe,
-    TranslocoPipe,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    TranslocoPipe
   ],
 })
 export class ExpensePreviewComponent implements OnInit {

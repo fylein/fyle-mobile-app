@@ -64,7 +64,7 @@ describe('InvitedUserPage', () => {
       'checkForRedirectionToOnboarding',
     ]);
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatIconTestingModule, RouterTestingModule, InvitedUserPage],
+      imports: [ MatIconTestingModule, RouterTestingModule, InvitedUserPage],
       providers: [
         UntypedFormBuilder,
         UrlSerializer,

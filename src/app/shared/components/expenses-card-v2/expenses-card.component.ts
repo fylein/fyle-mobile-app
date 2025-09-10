@@ -11,7 +11,7 @@ import {
   computed,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
+import { IonIcon, IonSpinner, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import dayjs from 'dayjs';
 import { isEqual, isNumber } from 'lodash';
 import { Observable, concat, from, noop } from 'rxjs';
@@ -66,24 +66,25 @@ import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
   templateUrl: './expenses-card.component.html',
   styleUrls: ['./expenses-card.component.scss'],
   imports: [
-    NgClass,
-    MatCheckbox,
-    IonicModule,
-    NgStyle,
-    NgTemplateOutlet,
-    MatIcon,
-    PendingGasChargeInfoComponent,
     AsyncPipe,
-    LowerCasePipe,
-    TitleCasePipe,
     CurrencyPipe,
-    TranslocoPipe,
-    HumanizeCurrencyPipe,
+    CurrencySymbolPipe,
     DateFormatPipe,
+    ExactCurrencyPipe,
     ExpenseState,
     FyCurrencyPipe,
-    CurrencySymbolPipe,
-    ExactCurrencyPipe,
+    HumanizeCurrencyPipe,
+    IonIcon,
+    IonSpinner,
+    LowerCasePipe,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    NgStyle,
+    NgTemplateOutlet,
+    PendingGasChargeInfoComponent,
+    TitleCasePipe,
+    TranslocoPipe
   ],
 })
 export class ExpensesCardComponent implements OnInit {

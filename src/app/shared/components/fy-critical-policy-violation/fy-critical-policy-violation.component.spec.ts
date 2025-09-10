@@ -24,7 +24,7 @@ describe('FyCriticalPolicyViolationComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,

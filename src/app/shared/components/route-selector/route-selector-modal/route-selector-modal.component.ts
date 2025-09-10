@@ -9,7 +9,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { switchMap } from 'rxjs/operators';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
 import { MileageService } from 'src/app/core/services/mileage.service';
@@ -28,16 +28,22 @@ import { chevronBackOutline } from 'ionicons/icons';
   templateUrl: './route-selector-modal.component.html',
   styleUrls: ['./route-selector-modal.component.scss'],
   imports: [
-    IonicModule,
     FormsModule,
-    ReactiveFormsModule,
-    NgClass,
-    FyLocationComponent,
-    MatIcon,
     FyAlertInfoComponent,
+    FyLocationComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
     MatCheckbox,
+    MatIcon,
+    NgClass,
+    ReactiveFormsModule,
     TitleCasePipe,
-    TranslocoPipe,
+    TranslocoPipe
   ],
 })
 export class RouteSelectorModalComponent implements OnInit {

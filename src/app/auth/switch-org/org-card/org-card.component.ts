@@ -2,12 +2,21 @@ import { Component, OnInit, Input, output } from '@angular/core';
 import { Org } from 'src/app/core/models/org.model';
 import { MatRipple } from '@angular/material/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { IonCol, IonGrid, IonRow, IonSkeletonText } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-org-card',
   templateUrl: './org-card.component.html',
   styleUrls: ['./org-card.component.scss'],
-  imports: [IonicModule, MatRipple, TranslocoPipe],
+  imports: [
+    IonCol,
+    IonGrid,
+    IonRow,
+    IonSkeletonText,
+    MatRipple,
+    TranslocoPipe
+  ],
 })
 export class OrgCardComponent implements OnInit {
   // TODO: Skipped for migration because:

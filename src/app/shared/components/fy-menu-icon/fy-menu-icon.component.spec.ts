@@ -10,7 +10,7 @@ describe('FyMenuIconComponent', () => {
   beforeEach(waitForAsync(() => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['menuButtonClicked']);
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), FyMenuIconComponent],
+      imports: [ FyMenuIconComponent],
       providers: [
         {
           provide: TrackingService,

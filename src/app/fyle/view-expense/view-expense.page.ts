@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, takeUntil, take, filter } from 'rxjs/operators';
 import { FileService } from 'src/app/core/services/file.service';
-import { ModalController, PopoverController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -61,27 +61,36 @@ import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
   templateUrl: './view-expense.page.html',
   styleUrls: ['./view-expense.page.scss'],
   imports: [
-    IonicModule,
-    NgClass,
-    FyPolicyViolationInfoComponent,
-    FyAlertInfoComponent,
-    TransactionStatusComponent,
-    PendingGasChargeInfoComponent,
-    ReceiptPreviewThumbnailComponent,
-    ViewDependentFieldsComponent,
-    ViewExpenseSkeletonLoaderComponent,
-    NavigationFooterComponent,
     AsyncPipe,
-    TitleCasePipe,
     CurrencyPipe,
     DatePipe,
     EllipsisPipe,
-    HumanizeCurrencyPipe,
     ExactCurrencyPipe,
-    SnakeCaseToSpaceCase,
     ExpenseState_1,
-    MaskNumber,
+    FyAlertInfoComponent,
     FyCurrencyPipe,
+    FyPolicyViolationInfoComponent,
+    HumanizeCurrencyPipe,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
+    MaskNumber,
+    NavigationFooterComponent,
+    NgClass,
+    PendingGasChargeInfoComponent,
+    ReceiptPreviewThumbnailComponent,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    TransactionStatusComponent,
+    ViewDependentFieldsComponent,
+    ViewExpenseSkeletonLoaderComponent
   ],
 })
 export class ViewExpensePage {

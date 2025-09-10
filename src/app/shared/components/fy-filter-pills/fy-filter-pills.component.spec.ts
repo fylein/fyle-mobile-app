@@ -20,7 +20,7 @@ describe('FyFilterPillsComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, FyFilterPillsComponent, SnakeCaseToSpaceCase],
+      imports: [ TranslocoModule, FyFilterPillsComponent, SnakeCaseToSpaceCase],
       providers: [
         {
           provide: TranslocoService,

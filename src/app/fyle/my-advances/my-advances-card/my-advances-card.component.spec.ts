@@ -30,7 +30,7 @@ describe('MyAdvancesCardComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         TranslocoModule,
         MyAdvancesCardComponent,
         EllipsisPipe,

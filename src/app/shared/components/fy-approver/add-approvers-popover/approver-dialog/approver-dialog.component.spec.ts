@@ -69,7 +69,7 @@ describe('ApproverDialogComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconTestingModule,
         MatIconModule,
         FormsModule,

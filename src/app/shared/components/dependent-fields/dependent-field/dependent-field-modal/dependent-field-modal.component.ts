@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { DependentFieldOption } from 'src/app/core/models/dependent-field-option.model';
 import { cloneDeep } from 'lodash';
@@ -29,19 +29,24 @@ import { AsyncPipe } from '@angular/common';
   templateUrl: './dependent-field-modal.component.html',
   styleUrls: ['./dependent-field-modal.component.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
-    MatFormField,
-    MatPrefix,
-    MatInput,
-    FormsModule,
-    MatSuffix,
-    MatIconButton,
-    FyZeroStateComponent,
-    MatRipple,
-    FyHighlightTextComponent,
     AsyncPipe,
-    TranslocoPipe,
+    FormsModule,
+    FyHighlightTextComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatRipple,
+    MatSuffix,
+    TranslocoPipe
   ],
 })
 export class DependentFieldModalComponent implements AfterViewInit {

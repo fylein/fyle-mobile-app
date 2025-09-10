@@ -115,7 +115,7 @@ describe('ViewPerDiemPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), ViewPerDiemPage],
+      imports: [ ViewPerDiemPage],
       providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },

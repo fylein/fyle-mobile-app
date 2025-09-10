@@ -241,7 +241,7 @@ describe('SplitExpensePage', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         ReactiveFormsModule,
         MatFormFieldModule,

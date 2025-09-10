@@ -26,7 +26,7 @@ describe('ReviewFooterComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, ReviewFooterComponent],
+      imports: [ TranslocoModule, ReviewFooterComponent],
       providers: [
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },

@@ -1,5 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
-import { PopoverController } from '@ionic/angular/standalone';
+import { IonFooter, IonHeader, IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -13,7 +13,13 @@ import { MatRipple } from '@angular/material/core';
   selector: 'app-popup-with-bullets',
   templateUrl: './popup-with-bullets.component.html',
   styleUrls: ['./popup-with-bullets.component.scss'],
-  imports: [IonicModule, NgClass, MatRipple],
+  imports: [
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    MatRipple,
+    NgClass
+  ],
 })
 export class PopupWithBulletsComponent {
   private popoverController = inject(PopoverController);

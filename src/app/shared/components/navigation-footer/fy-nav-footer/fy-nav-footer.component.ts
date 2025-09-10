@@ -1,11 +1,20 @@
 import { Component, Input, output } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { IonButton, IonButtons, IonFooter, IonIcon, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-nav-footer',
   templateUrl: './fy-nav-footer.component.html',
   styleUrls: ['./fy-nav-footer.component.scss'],
-  imports: [IonicModule, TranslocoPipe],
+  imports: [
+    IonButton,
+    IonButtons,
+    IonFooter,
+    IonIcon,
+    IonToolbar,
+    TranslocoPipe
+  ],
 })
 export class FyNavFooterComponent {
   // TODO: Skipped for migration because:

@@ -30,7 +30,7 @@ describe('ProfileOptInCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, ProfileOptInCardComponent],
+      imports: [ TranslocoModule, ProfileOptInCardComponent],
       providers: [
         { provide: ClipboardService, useValue: clipboardServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },

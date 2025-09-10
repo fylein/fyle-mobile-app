@@ -128,7 +128,7 @@ describe('ViewTeamReportPageV2', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         ViewTeamReportPage,
         EllipsisPipe,

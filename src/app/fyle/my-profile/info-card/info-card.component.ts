@@ -1,11 +1,15 @@
 import { Component, Input, inject, output } from '@angular/core';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
+import { IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-info-card',
   templateUrl: './info-card.component.html',
   styleUrls: ['./info-card.component.scss'],
-  imports: [IonicModule],
+  imports: [
+    IonIcon
+  ],
 })
 export class InfoCardComponent {
   private clipboardService = inject(ClipboardService);

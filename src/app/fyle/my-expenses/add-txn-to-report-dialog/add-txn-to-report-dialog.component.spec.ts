@@ -29,7 +29,7 @@ describe('AddTxnToReportDialogComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         RouterTestingModule,
         RouterModule,
         MatBottomSheetModule,

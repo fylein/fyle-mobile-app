@@ -28,7 +28,7 @@ describe('FyDeleteDialogComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         MatIconTestingModule,
         MatIconModule,

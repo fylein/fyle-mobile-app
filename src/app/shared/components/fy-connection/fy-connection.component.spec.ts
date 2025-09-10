@@ -25,7 +25,7 @@ describe('FyConnectionComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, FyConnectionComponent],
+      imports: [ TranslocoModule, FyConnectionComponent],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },

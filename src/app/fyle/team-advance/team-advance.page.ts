@@ -21,6 +21,8 @@ import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-scr
 import { TeamAdvCardComponent } from './team-adv-card/team-adv-card.component';
 import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+
 
 // eslint-disable-next-line
 type Filters = Partial<{
@@ -33,14 +35,25 @@ type Filters = Partial<{
   templateUrl: './team-advance.page.html',
   styleUrls: ['./team-advance.page.scss'],
   imports: [
-    IonicModule,
-    FyMenuIconComponent,
+    AsyncPipe,
+    FooterComponent,
     FyFilterPillsComponent,
     FyLoadingScreenComponent,
-    TeamAdvCardComponent,
+    FyMenuIconComponent,
     FyZeroStateComponent,
-    FooterComponent,
-    AsyncPipe,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonTitle,
+    IonToolbar,
+    TeamAdvCardComponent
   ],
 })
 export class TeamAdvancePage implements AfterViewChecked {

@@ -37,7 +37,7 @@ describe('FyFiltersComponent', () => {
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), FormsModule, TranslocoModule, FyFiltersComponent],
+      imports: [ FormsModule, TranslocoModule, FyFiltersComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyFiltersComponent);

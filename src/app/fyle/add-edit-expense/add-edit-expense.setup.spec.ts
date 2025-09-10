@@ -241,7 +241,7 @@ describe('AddEditExpensePage', () => {
     TestBed.configureTestingModule({
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
       imports: [
-        IonicModule.forRoot(),
+        
         RouterTestingModule,
         RouterModule,
         getTranslocoModule(),

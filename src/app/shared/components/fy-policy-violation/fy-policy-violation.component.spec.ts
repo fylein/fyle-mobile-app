@@ -50,7 +50,7 @@ describe('FyPolicyViolationComponent', () => {
           useValue: translocoServiceSpy,
         },
       ],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyPolicyViolationComponent],
+      imports: [ FormsModule, ReactiveFormsModule, TranslocoModule, FyPolicyViolationComponent],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 

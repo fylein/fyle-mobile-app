@@ -22,7 +22,7 @@ describe('TransactionStatusInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, TransactionStatusInfoPopoverComponent],
+      imports: [ TranslocoModule, TransactionStatusInfoPopoverComponent],
       providers: [
         {
           provide: PopoverController,

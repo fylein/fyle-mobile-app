@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { Observable, from, noop, fromEvent, of } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, map, finalize, shareReplay, startWith, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { RecentLocalStorageItemsService } from '../../../../core/services/recent-local-storage-items.service';
@@ -31,18 +31,23 @@ import { TranslocoPipe } from '@jsverse/transloco';
   templateUrl: './fy-currency-choose-currency.component.html',
   styleUrls: ['./fy-currency-choose-currency.component.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
-    MatFormField,
-    MatInput,
-    FormsModule,
-    MatIconButton,
-    MatSuffix,
-    MatRipple,
-    FyHighlightTextComponent,
-    NgTemplateOutlet,
     AsyncPipe,
-    TranslocoPipe,
+    FormsModule,
+    FyHighlightTextComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatRipple,
+    MatSuffix,
+    NgTemplateOutlet,
+    TranslocoPipe
   ],
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {

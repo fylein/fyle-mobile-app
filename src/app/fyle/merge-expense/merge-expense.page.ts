@@ -9,7 +9,7 @@ import {
 } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController } from '@ionic/angular/standalone';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
 import { BehaviorSubject, Observable, forkJoin, noop } from 'rxjs';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { CategoryDependentFieldsFormValues } from 'src/app/core/models/category-dependent-fields-form-values.model';
@@ -53,16 +53,23 @@ import { AsyncPipe } from '@angular/common';
   templateUrl: './merge-expense.page.html',
   styleUrls: ['./merge-expense.page.scss'],
   imports: [
-    IonicModule,
-    FormsModule,
-    ReactiveFormsModule,
-    FySelectComponent,
-    FyAlertInfoComponent,
-    GenericFieldsFormComponent,
+    AsyncPipe,
     CategoryDependentFieldsFormComponent,
     CustomInputsFieldsFormComponent,
     FormButtonValidationDirective,
-    AsyncPipe,
+    FormsModule,
+    FyAlertInfoComponent,
+    FySelectComponent,
+    GenericFieldsFormComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    ReactiveFormsModule
   ],
 })
 export class MergeExpensePage implements OnInit, AfterViewChecked {

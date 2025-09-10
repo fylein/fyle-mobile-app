@@ -32,7 +32,7 @@ describe('RouteSelectorModalComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         ReactiveFormsModule,
         FormsModule,
         MatIconTestingModule,

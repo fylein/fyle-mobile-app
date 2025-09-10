@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, ViewChild, inject, input, output } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
+import { IonIcon, IonSpinner, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import dayjs from 'dayjs';
 import { isEqual, isNumber } from 'lodash';
 import { Observable, concat, from, noop } from 'rxjs';
@@ -49,22 +49,23 @@ import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
   templateUrl: './expenses-card.component.html',
   styleUrls: ['./expenses-card.component.scss'],
   imports: [
-    NgClass,
-    MatCheckbox,
-    IonicModule,
-    NgStyle,
-    NgTemplateOutlet,
-    MatIcon,
     AsyncPipe,
-    LowerCasePipe,
-    TitleCasePipe,
     CurrencyPipe,
-    TranslocoPipe,
-    HumanizeCurrencyPipe,
+    CurrencySymbolPipe,
     DateFormatPipe,
     ExpenseState,
     FyCurrencyPipe,
-    CurrencySymbolPipe,
+    HumanizeCurrencyPipe,
+    IonIcon,
+    IonSpinner,
+    LowerCasePipe,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    NgStyle,
+    NgTemplateOutlet,
+    TitleCasePipe,
+    TranslocoPipe
   ],
 })
 export class ExpensesCardV1Component implements OnInit {

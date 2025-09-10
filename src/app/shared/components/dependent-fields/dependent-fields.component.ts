@@ -5,12 +5,19 @@ import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { DependentFieldComponent } from './dependent-field/dependent-field.component';
+import { IonSkeletonText } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-dependent-fields',
   templateUrl: './dependent-fields.component.html',
   styleUrls: ['./dependent-fields.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, DependentFieldComponent, IonicModule],
+  imports: [
+    DependentFieldComponent,
+    FormsModule,
+    IonSkeletonText,
+    ReactiveFormsModule
+  ],
 })
 export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   private dependentFieldsService = inject(DependentFieldsService);

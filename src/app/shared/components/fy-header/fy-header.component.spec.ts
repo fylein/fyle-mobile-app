@@ -22,7 +22,7 @@ describe('FyHeaderComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, FyHeaderComponent, FyMenuIconComponent],
+      imports: [ TranslocoModule, FyHeaderComponent, FyMenuIconComponent],
       providers: [
         {
           provide: TrackingService,

@@ -1,6 +1,6 @@
 import { Component, Input, inject, input, output } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PopoverController } from '@ionic/angular/standalone';
+import { IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { AddApproversPopoverComponent } from './add-approvers-popover/add-approvers-popover.component';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { MatIcon } from '@angular/material/icon';
@@ -10,7 +10,11 @@ import { TranslocoPipe } from '@jsverse/transloco';
   selector: 'app-fy-approver',
   templateUrl: './fy-approver.component.html',
   styleUrls: ['./fy-approver.component.scss'],
-  imports: [MatIcon, IonicModule, TranslocoPipe],
+  imports: [
+    IonIcon,
+    MatIcon,
+    TranslocoPipe
+  ],
 })
 export class FyApproverComponent {
   private popoverController = inject(PopoverController);

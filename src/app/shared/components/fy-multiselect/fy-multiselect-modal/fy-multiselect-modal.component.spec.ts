@@ -31,7 +31,7 @@ describe('FyMultiselectModalComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconTestingModule,
         MatIconModule,
         MatCheckboxModule,

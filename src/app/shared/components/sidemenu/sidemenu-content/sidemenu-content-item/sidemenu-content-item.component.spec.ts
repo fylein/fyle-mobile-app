@@ -11,7 +11,7 @@ describe('SidemenuContentItemComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule, SidemenuContentItemComponent],
+      imports: [ RouterModule, RouterTestingModule, SidemenuContentItemComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SidemenuContentItemComponent);

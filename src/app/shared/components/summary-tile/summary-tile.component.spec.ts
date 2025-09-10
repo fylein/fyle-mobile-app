@@ -25,7 +25,7 @@ describe('FySummaryTileComponent', () => {
     });
     await TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         TranslocoModule,
         FySummaryTileComponent,
         HumanizeCurrencyPipe,

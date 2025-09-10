@@ -5,12 +5,21 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { CardNumberComponent } from '../card-number/card-number.component';
 import { DatePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { IonCol, IonIcon, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-corporate-card',
   templateUrl: './corporate-card.component.html',
   styleUrls: ['./corporate-card.component.scss'],
-  imports: [IonicModule, CardNumberComponent, DatePipe, TranslocoPipe],
+  imports: [
+    CardNumberComponent,
+    DatePipe,
+    IonCol,
+    IonIcon,
+    IonRow,
+    TranslocoPipe
+  ],
 })
 export class CorporateCardComponent implements OnInit {
   private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);

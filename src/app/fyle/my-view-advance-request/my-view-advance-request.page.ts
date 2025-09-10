@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLinkActive, RouterLink } from '@angular/router';
-import { PopoverController, ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { forkJoin, from, Observable } from 'rxjs';
 import { finalize, map, reduce, shareReplay, switchMap, concatMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -34,17 +34,28 @@ import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
   templateUrl: './my-view-advance-request.page.html',
   styleUrls: ['./my-view-advance-request.page.scss'],
   imports: [
-    IonicModule,
-    NgClass,
-    RouterLinkActive,
-    RouterLink,
-    FySummaryTileComponent,
-    ReceiptPreviewThumbnailComponent,
-    FyStatisticComponent,
     AsyncPipe,
-    TitleCasePipe,
     DatePipe,
     EllipsisPipe,
+    FyStatisticComponent,
+    FySummaryTileComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    NgClass,
+    ReceiptPreviewThumbnailComponent,
+    RouterLink,
+    RouterLinkActive,
+    TitleCasePipe
   ],
 })
 export class MyViewAdvanceRequestPage {

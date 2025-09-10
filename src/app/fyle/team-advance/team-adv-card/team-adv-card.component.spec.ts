@@ -35,7 +35,7 @@ describe('TeamAdvCardComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatRippleModule,
         TranslocoModule,
         TeamAdvCardComponent,

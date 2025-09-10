@@ -113,7 +113,7 @@ describe('ExpensesCardComponent', () => {
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         MatCheckboxModule,
@@ -1900,7 +1900,7 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), ExpensesCardComponent],
+      imports: [ ExpensesCardComponent],
       providers: [
         { provide: TransactionService, useValue: {} },
         { provide: SharedExpenseService, useValue: {} },

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { UntypedFormGroup, UntypedFormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -23,7 +23,20 @@ import { closeOutline } from 'ionicons/icons';
   selector: 'app-fy-currency-exchange-rate',
   templateUrl: './fy-currency-exchange-rate.component.html',
   styleUrls: ['./fy-currency-exchange-rate.component.scss'],
-  imports: [IonicModule, FormsModule, ReactiveFormsModule, FyNumberComponent, TranslocoPipe],
+  imports: [
+    FormsModule,
+    FyNumberComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    ReactiveFormsModule,
+    TranslocoPipe
+  ],
 })
 export class FyCurrencyExchangeRateComponent implements OnInit {
   private modalController = inject(ModalController);

@@ -86,7 +86,7 @@ describe('MergeExpensePage', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         ReactiveFormsModule,
         FormsModule,
         RouterTestingModule,

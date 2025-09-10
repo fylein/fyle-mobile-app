@@ -26,7 +26,7 @@ describe('DashboardOptInComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, DashboardOptInComponent],
+      imports: [ TranslocoModule, DashboardOptInComponent],
       providers: [
         {
           provide: ModalController,

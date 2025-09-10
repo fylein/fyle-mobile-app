@@ -31,7 +31,7 @@ describe('PopupWithBulletsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, PopupWithBulletsComponent],
+      imports: [ TranslocoModule, PopupWithBulletsComponent],
       providers: [
         {
           provide: PopoverController,

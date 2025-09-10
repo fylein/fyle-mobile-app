@@ -55,7 +55,7 @@ describe('FySelectCommuteDetailsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, FySelectCommuteDetailsComponent],
+      imports: [ TranslocoModule, FySelectCommuteDetailsComponent],
       providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },

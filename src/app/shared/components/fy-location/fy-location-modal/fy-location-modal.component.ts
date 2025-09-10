@@ -20,7 +20,7 @@ import {
   finalize,
   catchError,
 } from 'rxjs/operators';
-import { ModalController, PopoverController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSpinner, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { Observable, fromEvent, of, from, forkJoin, noop, throwError } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -46,18 +46,24 @@ import { AsyncPipe, LowerCasePipe } from '@angular/common';
   templateUrl: './fy-location-modal.component.html',
   styleUrls: ['./fy-location-modal.component.scss'],
   imports: [
-    IonicModule,
-    MatFormField,
-    MatInput,
-    FormsModule,
-    MatIcon,
-    MatSuffix,
-    MatIconButton,
-    FyAlertInfoComponent,
-    MatRipple,
     AsyncPipe,
+    FormsModule,
+    FyAlertInfoComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSpinner,
+    IonToolbar,
     LowerCasePipe,
-    TranslocoPipe,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatRipple,
+    MatSuffix,
+    TranslocoPipe
   ],
 })
 export class FyLocationModalComponent implements OnInit, AfterViewInit {

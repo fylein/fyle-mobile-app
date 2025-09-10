@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, inject, viewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { Subscription, finalize, from, switchMap } from 'rxjs';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -30,15 +30,22 @@ import { FormButtonValidationDirective } from '../../directive/form-button-valid
   templateUrl: './fy-opt-in.component.html',
   styleUrls: ['./fy-opt-in.component.scss'],
   imports: [
-    IonicModule,
+    DecimalPipe,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
     MatIcon,
     MatInput,
-    FormsModule,
     NgClass,
     NgOtpInputModule,
-    FormButtonValidationDirective,
-    DecimalPipe,
-    TranslocoPipe,
+    TranslocoPipe
   ],
 })
 export class FyOptInComponent implements OnInit, AfterViewInit {

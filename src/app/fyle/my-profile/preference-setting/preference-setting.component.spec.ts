@@ -27,7 +27,7 @@ describe('PreferenceSettingComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         FormsModule,

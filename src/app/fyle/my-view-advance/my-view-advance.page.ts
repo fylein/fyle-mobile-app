@@ -11,20 +11,31 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
 import { FySummaryTileComponent } from '../../shared/components/summary-tile/summary-tile.component';
 import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-statistic.component';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonRow, IonSkeletonText, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-my-view-advance',
   templateUrl: './my-view-advance.page.html',
   styleUrls: ['./my-view-advance.page.scss'],
   imports: [
-    IonicModule,
-    RouterLinkActive,
-    RouterLink,
-    FySummaryTileComponent,
-    FyStatisticComponent,
     AsyncPipe,
-    TitleCasePipe,
     DatePipe,
+    FyStatisticComponent,
+    FySummaryTileComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonRow,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    RouterLink,
+    RouterLinkActive,
+    TitleCasePipe
   ],
 })
 export class MyViewAdvancePage {

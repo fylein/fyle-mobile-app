@@ -37,7 +37,7 @@ describe('VerifyNumberPopoverComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         MatIconModule,
         MatIconTestingModule,

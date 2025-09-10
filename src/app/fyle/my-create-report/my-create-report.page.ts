@@ -19,20 +19,31 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonRow, IonSkeletonText, IonToolbar } from '@ionic/angular/standalone';
+
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
   styleUrls: ['./my-create-report.page.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
-    NgIf,
-    NgFor,
-    FormsModule,
-    MatCheckbox,
+    ExactCurrencyPipe,
     ExpensesCardComponent,
     FormButtonValidationDirective,
-    ExactCurrencyPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonRow,
+    IonSkeletonText,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    NgFor,
+    NgIf
   ],
 })
 export class MyCreateReportPage implements OnInit {

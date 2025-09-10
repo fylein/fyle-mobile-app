@@ -96,7 +96,7 @@ describe('SidemenuComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, SidemenuComponent],
+      imports: [ TranslocoModule, SidemenuComponent],
       providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },

@@ -43,7 +43,7 @@ describe('CorporateCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, CorporateCardComponent, MockCardNumberComponent],
+      imports: [ TranslocoModule, CorporateCardComponent, MockCardNumberComponent],
       providers: [
         {
           provide: CorporateCreditCardExpenseService,

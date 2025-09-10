@@ -29,7 +29,7 @@ describe('AddExpensesToReportComponent', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         getTranslocoModule(),
         AddExpensesToReportComponent,
         HumanizeCurrencyPipe,

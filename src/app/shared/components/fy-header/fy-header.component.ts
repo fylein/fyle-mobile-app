@@ -3,12 +3,25 @@ import { HeaderState } from './header-state.enum';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { NgClass } from '@angular/common';
 import { FyMenuIconComponent } from '../fy-menu-icon/fy-menu-icon.component';
+import { IonBackButton, IonButton, IonButtons, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-header',
   templateUrl: './fy-header.component.html',
   styleUrls: ['./fy-header.component.scss'],
-  imports: [IonicModule, NgClass, FyMenuIconComponent, TranslocoPipe],
+  imports: [
+    FyMenuIconComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FyHeaderComponent implements OnInit {
   private translocoService = inject(TranslocoService);

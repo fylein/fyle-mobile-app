@@ -6,7 +6,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, takeUntil, take, filter } from 'rxjs/operators';
-import { PopoverController, ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -55,21 +55,30 @@ import { MileageRateName } from '../../shared/pipes/mileage-rate-name.pipe';
   templateUrl: './view-mileage.page.html',
   styleUrls: ['./view-mileage.page.scss'],
   imports: [
-    IonicModule,
-    NgClass,
-    FyPolicyViolationInfoComponent,
-    ReceiptPreviewThumbnailComponent,
-    ViewDependentFieldsComponent,
-    NavigationFooterComponent,
     AsyncPipe,
-    TitleCasePipe,
     CurrencyPipe,
     DatePipe,
     ExactCurrencyPipe,
-    SnakeCaseToSpaceCase,
     ExpenseState_1,
     FyCurrencyPipe,
+    FyPolicyViolationInfoComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
     MileageRateName,
+    NavigationFooterComponent,
+    NgClass,
+    ReceiptPreviewThumbnailComponent,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    ViewDependentFieldsComponent
   ],
 })
 export class ViewMileagePage {

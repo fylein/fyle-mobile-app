@@ -8,7 +8,7 @@ describe('CameraOverlayPage', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), CameraOverlayPage],
+      imports: [ CameraOverlayPage],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 

@@ -127,7 +127,7 @@ describe('MyViewReportPage', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconTestingModule,
         MatIconModule,
         MyViewReportPage,

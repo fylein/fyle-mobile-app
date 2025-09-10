@@ -36,7 +36,7 @@ describe('FyCurrencyComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, FyCurrencyComponent],
+      imports: [ TranslocoModule, FyCurrencyComponent],
       providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },

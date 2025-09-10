@@ -23,7 +23,7 @@ describe('ShareReportComponent', () => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         MatIconModule,
         MatIconTestingModule,

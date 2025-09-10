@@ -80,7 +80,7 @@ describe('MyAdvancesPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MyAdvancesPage],
+      imports: [ MyAdvancesPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         {

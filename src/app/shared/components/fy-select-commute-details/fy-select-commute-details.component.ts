@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { catchError, forkJoin, map, switchMap, throwError } from 'rxjs';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Location } from 'src/app/core/models/location.model';
@@ -23,13 +23,19 @@ import { FyLocationComponent } from '../fy-location/fy-location.component';
   templateUrl: './fy-select-commute-details.component.html',
   styleUrls: ['./fy-select-commute-details.component.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
     FormButtonValidationDirective,
-    FyLocationComponent,
     FormsModule,
+    FyLocationComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
     ReactiveFormsModule,
-    TranslocoPipe,
+    TranslocoPipe
   ],
 })
 export class FySelectCommuteDetailsComponent implements OnInit {

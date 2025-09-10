@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { combineLatest, from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, shareReplay } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { cloneDeep, isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -31,22 +31,27 @@ import { NgTemplateOutlet } from '@angular/common';
   templateUrl: './virtual-select-modal.component.html',
   styleUrls: ['./virtual-select-modal.component.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
-    MatFormField,
-    MatPrefix,
-    MatInput,
-    FormsModule,
-    MatIconButton,
-    MatSuffix,
-    CdkVirtualScrollViewport,
     CdkFixedSizeVirtualScroll,
-    FyZeroStateComponent,
     CdkVirtualForOf,
-    MatRipple,
+    CdkVirtualScrollViewport,
+    FormsModule,
     FyHighlightTextComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatRipple,
+    MatSuffix,
     NgTemplateOutlet,
-    TranslocoPipe,
+    TranslocoPipe
   ],
 })
 export class VirtualSelectModalComponent implements AfterViewInit {

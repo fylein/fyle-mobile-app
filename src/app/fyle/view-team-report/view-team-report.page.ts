@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, PopoverController, ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, take, takeUntil, filter } from 'rxjs/operators';
 import { NetworkService } from '../../core/services/network.service';
@@ -59,7 +59,21 @@ import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pip
   templateUrl: './view-team-report.page.html',
   styleUrls: ['./view-team-report.page.scss'],
   imports: [
-    IonicModule,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonSpinner,
+    IonTitle,
+    IonToolbar,
     RouterLink,
     FyExpansionInfoMsgComponent,
     FyApproverComponent,

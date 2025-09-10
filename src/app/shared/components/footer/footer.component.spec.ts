@@ -34,7 +34,7 @@ describe('FooterComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         MatRippleModule,

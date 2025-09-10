@@ -22,6 +22,8 @@ import { ReceiptPreviewThumbnailComponent } from '../../../shared/components/rec
 import { CardTransactionPreviewComponent } from '../card-transaction-preview/card-transaction-preview.component';
 import { FySelectDisabledComponent } from '../../../shared/components/fy-select-disabled/fy-select-disabled.component';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { IonCol, IonGrid, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-generic-fields-form',
@@ -32,7 +34,9 @@ import { TranslocoPipe } from '@jsverse/transloco';
     FormsModule,
     ReactiveFormsModule,
     FySelectComponent,
-    IonicModule,
+    IonCol,
+    IonGrid,
+    IonRow,
     NgClass,
     ReceiptPreviewThumbnailComponent,
     CardTransactionPreviewComponent,

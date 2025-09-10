@@ -66,7 +66,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, SpenderOnboardingOptInStepComponent],
+      imports: [ TranslocoModule, SpenderOnboardingOptInStepComponent],
       providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },

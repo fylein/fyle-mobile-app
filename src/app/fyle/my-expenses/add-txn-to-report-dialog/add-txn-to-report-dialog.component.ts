@@ -10,19 +10,25 @@ import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/f
 import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
 import { ReportState } from '../../../shared/pipes/report-state.pipe';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { IonCol, IonGrid, IonHeader, IonIcon, IonRow } from '@ionic/angular/standalone';
+
 @Component({
   selector: 'app-add-txn-to-report-dialog',
   templateUrl: './add-txn-to-report-dialog.component.html',
   styleUrls: ['./add-txn-to-report-dialog.component.scss'],
   imports: [
-    IonicModule,
+    ExactCurrencyPipe,
+    FyZeroStateComponent,
+    IonCol,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
     MatIcon,
     MatRipple,
-    FyZeroStateComponent,
-    TitleCasePipe,
-    ExactCurrencyPipe,
     ReportState,
-    TranslocoPipe,
+    TitleCasePipe,
+    TranslocoPipe
   ],
 })
 export class AddTxnToReportDialogComponent implements OnInit {

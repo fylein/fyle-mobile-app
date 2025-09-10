@@ -54,7 +54,7 @@ describe('CardDetailComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         RouterModule,
         RouterTestingModule,
         TranslocoModule,

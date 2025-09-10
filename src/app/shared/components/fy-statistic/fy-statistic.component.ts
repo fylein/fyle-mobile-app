@@ -1,10 +1,17 @@
 import { Component, OnInit, input } from '@angular/core';
+import { IonCol, IonGrid, IonIcon, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-statistic',
   templateUrl: './fy-statistic.component.html',
   styleUrls: ['./fy-statistic.component.scss'],
-  imports: [IonicModule],
+  imports: [
+    IonCol,
+    IonGrid,
+    IonIcon,
+    IonRow
+  ],
 })
 export class FyStatisticComponent implements OnInit {
   readonly icon = input<string>(undefined);

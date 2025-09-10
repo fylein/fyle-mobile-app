@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators, FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonIcon, ModalController } from '@ionic/angular/standalone';
 import { NgOtpInputComponent, NgOtpInputConfig, NgOtpInputModule } from 'ng-otp-input';
 import { finalize, from, Subscription, switchMap } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
@@ -42,13 +42,14 @@ import { FormButtonValidationDirective } from '../../../shared/directive/form-bu
   templateUrl: './spender-onboarding-opt-in-step.component.html',
   styleUrls: ['./spender-onboarding-opt-in-step.component.scss'],
   imports: [
-    FormsModule,
-    NgClass,
-    IonicModule,
-    NgOtpInputModule,
-    FormButtonValidationDirective,
     DecimalPipe,
-    TranslocoPipe,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonIcon,
+    NgClass,
+    NgOtpInputModule,
+    TranslocoPipe
   ],
 })
 export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {

@@ -63,7 +63,7 @@ describe('MyCreateReportPage', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         RouterTestingModule,
         FormsModule,
         MatCheckboxModule,

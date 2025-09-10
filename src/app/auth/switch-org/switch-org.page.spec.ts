@@ -128,7 +128,7 @@ describe('SwitchOrgPage', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconTestingModule,
         MatIconModule,
         MatFormFieldModule,

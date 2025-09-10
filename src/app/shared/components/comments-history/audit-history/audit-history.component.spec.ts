@@ -36,7 +36,7 @@ describe('AuditHistoryComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,

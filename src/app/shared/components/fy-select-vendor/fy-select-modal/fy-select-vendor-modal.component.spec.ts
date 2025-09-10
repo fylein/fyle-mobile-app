@@ -82,7 +82,7 @@ describe('FySelectVendorModalComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         MatIconModule,
         MatIconTestingModule,

@@ -60,7 +60,7 @@ describe('RouteSelectorComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         ReactiveFormsModule,
         MatIconTestingModule,
         MatIconModule,

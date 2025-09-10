@@ -105,7 +105,7 @@ describe('PersonalCardsPage', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         RouterTestingModule,
         FormsModule,
         MatCheckboxModule,

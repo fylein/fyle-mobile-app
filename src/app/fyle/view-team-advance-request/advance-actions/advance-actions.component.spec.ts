@@ -22,7 +22,7 @@ describe('AdvanceActionsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule, AdvanceActionsComponent],
+      imports: [ MatRippleModule, TranslocoModule, AdvanceActionsComponent],
       providers: [
         {
           provide: PopoverController,

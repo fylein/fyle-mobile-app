@@ -38,7 +38,7 @@ describe('SidemenuContentComponent', () => {
     const menuControllerSpy = jasmine.createSpyObj('MenuController', ['close']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), SidemenuContentComponent],
+      imports: [ SidemenuContentComponent],
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },

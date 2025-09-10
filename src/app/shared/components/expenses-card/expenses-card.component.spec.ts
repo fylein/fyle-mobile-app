@@ -110,7 +110,7 @@ describe('ExpensesCardComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         MatCheckboxModule,

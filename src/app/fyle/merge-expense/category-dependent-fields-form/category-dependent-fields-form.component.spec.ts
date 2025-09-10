@@ -20,7 +20,7 @@ describe('CategoryDependentFieldsFormComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, CategoryDependentFieldsFormComponent],
+      imports: [ TranslocoModule, CategoryDependentFieldsFormComponent],
       providers: [
         UntypedFormBuilder,
         {

@@ -147,7 +147,7 @@ describe('MyReportsPage', () => {
 
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), RouterTestingModule, TranslocoModule, MyReportsPage, ReportState],
+      imports: [ RouterTestingModule, TranslocoModule, MyReportsPage, ReportState],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },

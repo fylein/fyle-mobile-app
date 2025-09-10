@@ -21,7 +21,7 @@ describe('CCExpenseMerchantInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, CCExpenseMerchantInfoModalComponent],
+      imports: [ TranslocoModule, CCExpenseMerchantInfoModalComponent],
       providers: [
         {
           provide: ModalController,

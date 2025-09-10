@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, inject, input } from '@angular/core';
 import { Observable, from, noop, fromEvent } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import {
   concatMap,
@@ -23,7 +23,21 @@ import { AsyncPipe } from '@angular/common';
   selector: 'app-fy-currency-choose-currency',
   templateUrl: './fy-currency-choose-currency.component.html',
   styleUrls: ['./fy-currency-choose-currency.component.scss'],
-  imports: [IonicModule, MatIcon, MatFormField, MatInput, FormsModule, MatSuffix, AsyncPipe, TranslocoPipe],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatSuffix,
+    TranslocoPipe
+  ],
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
   private currencyService = inject(CurrencyService);

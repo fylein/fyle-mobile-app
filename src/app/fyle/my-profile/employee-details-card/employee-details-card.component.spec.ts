@@ -25,7 +25,7 @@ describe('EmployeeDetailsCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, EmployeeDetailsCardComponent, InitialsPipe],
+      imports: [ TranslocoModule, EmployeeDetailsCardComponent, InitialsPipe],
       providers: [
         {
           provide: UtilityService,

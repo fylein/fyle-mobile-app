@@ -39,7 +39,7 @@ import { DateRangeModalComponent } from './date-range-modal/date-range-modal.com
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import { ModalController, Platform } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -81,23 +81,37 @@ type Filters = Partial<PersonalCardFilter>;
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
   imports: [
-    FyHeaderComponent,
-    IonicModule,
-    MatFormField,
-    MatIcon,
-    MatPrefix,
-    MatInput,
-    FormsModule,
-    MatSuffix,
+    AsyncPipe,
     BankAccountCardsComponent,
-    FyFilterPillsComponent,
-    FyZeroStateComponent,
-    MatCheckbox,
-    PersonalCardTransactionComponent,
-    TransactionsShimmerComponent,
     FooterComponent,
     FormButtonValidationDirective,
-    AsyncPipe,
+    FormsModule,
+    FyFilterPillsComponent,
+    FyHeaderComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonItem,
+    IonRefresher,
+    IonRefresherContent,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonSpinner,
+    IonToolbar,
+    MatCheckbox,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    PersonalCardTransactionComponent,
+    TransactionsShimmerComponent
   ],
 })
 export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {

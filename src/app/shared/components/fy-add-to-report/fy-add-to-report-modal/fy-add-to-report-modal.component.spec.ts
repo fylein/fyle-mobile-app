@@ -28,7 +28,7 @@ describe('FyAddToReportModalComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         getTranslocoModule(),

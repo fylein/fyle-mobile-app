@@ -28,7 +28,7 @@ describe('ExpenseCardLiteComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,

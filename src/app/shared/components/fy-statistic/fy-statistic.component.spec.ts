@@ -7,7 +7,7 @@ describe('FyStatisticComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), FyStatisticComponent],
+      imports: [ FyStatisticComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyStatisticComponent);

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { SupportDialogPage } from 'src/app/fyle/help/support-dialog/support-dialog.page';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { switchMap, finalize } from 'rxjs/operators';
@@ -16,7 +16,14 @@ import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-men
   selector: 'app-help',
   templateUrl: './help.page.html',
   styleUrls: ['./help.page.scss'],
-  imports: [IonicModule, FyMenuIconComponent],
+  imports: [
+    FyMenuIconComponent,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar
+  ],
 })
 export class HelpPage implements OnInit {
   private modalController = inject(ModalController);

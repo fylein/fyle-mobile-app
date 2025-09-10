@@ -32,7 +32,7 @@ describe('MyViewAdvancePage', () => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getAdvanceRequestPlatform']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MyViewAdvancePage],
+      imports: [ MyViewAdvancePage],
       providers: [
         { provide: AdvanceService, useValue: advanceServiceSpy },
         {

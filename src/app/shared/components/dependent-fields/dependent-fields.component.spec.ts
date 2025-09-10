@@ -39,7 +39,7 @@ describe('DependentFieldsComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         ReactiveFormsModule,
         FormsModule,
         MatIconModule,

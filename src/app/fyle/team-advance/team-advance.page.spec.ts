@@ -44,7 +44,7 @@ describe('TeamAdvancePage', () => {
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TeamAdvancePage],
+      imports: [ TeamAdvancePage],
       providers: [
         ChangeDetectorRef,
         TitleCasePipe,

@@ -71,7 +71,7 @@ describe('AddCorporateCardComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         NgxMaskModule.forRoot(),
         ReactiveFormsModule,
         TranslocoModule,

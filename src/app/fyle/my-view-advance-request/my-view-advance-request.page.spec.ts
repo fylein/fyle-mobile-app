@@ -75,7 +75,7 @@ describe('MyViewAdvanceRequestPage', () => {
     loaderServiceSpy.hideLoader.and.resolveTo();
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MyViewAdvanceRequestPage],
+      imports: [ MyViewAdvanceRequestPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },

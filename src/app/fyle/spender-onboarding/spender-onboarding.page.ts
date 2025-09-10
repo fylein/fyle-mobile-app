@@ -16,17 +16,21 @@ import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-men
 import { NgClass } from '@angular/common';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
+import { IonButtons, IonContent, IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-spender-onboarding',
   templateUrl: './spender-onboarding.page.html',
   styleUrls: ['./spender-onboarding.page.scss'],
   imports: [
-    IonicModule,
     FyMenuIconComponent,
+    IonButtons,
+    IonContent,
+    IonIcon,
     NgClass,
     SpenderOnboardingConnectCardStepComponent,
-    SpenderOnboardingOptInStepComponent,
+    SpenderOnboardingOptInStepComponent
   ],
 })
 export class SpenderOnboardingPage {

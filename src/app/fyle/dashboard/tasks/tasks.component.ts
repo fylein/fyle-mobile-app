@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, inject, output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController, RefresherEventDetail } from '@ionic/angular/standalone';
+import { IonCol, IonGrid, IonRefresher, IonRefresherContent, IonRow, IonSkeletonText, ModalController, PopoverController, RefresherEventDetail } from '@ionic/angular/standalone';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
@@ -52,14 +52,19 @@ import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/f
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.scss'],
   imports: [
-    IonicModule,
-    FyFilterPillsComponent,
-    NgClass,
-    AutoSubmissionInfoCardComponent,
-    TasksCardComponent,
-    FyZeroStateComponent,
     AsyncPipe,
-    TranslocoPipe,
+    AutoSubmissionInfoCardComponent,
+    FyFilterPillsComponent,
+    FyZeroStateComponent,
+    IonCol,
+    IonGrid,
+    IonRefresher,
+    IonRefresherContent,
+    IonRow,
+    IonSkeletonText,
+    NgClass,
+    TasksCardComponent,
+    TranslocoPipe
   ],
 })
 export class TasksComponent implements OnInit {

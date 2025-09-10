@@ -30,7 +30,7 @@ describe('FySelectProjectComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,

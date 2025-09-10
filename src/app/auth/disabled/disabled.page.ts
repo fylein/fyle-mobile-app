@@ -1,12 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { Router } from '@angular/router';
+import { IonButton, IonContent, IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-disabled',
   templateUrl: './disabled.page.html',
   styleUrls: ['./disabled.page.scss'],
-  imports: [IonicModule],
+  imports: [
+    IonButton,
+    IonContent,
+    IonIcon
+  ],
 })
 export class DisabledPage implements OnInit {
   private userEventService = inject(UserEventService);

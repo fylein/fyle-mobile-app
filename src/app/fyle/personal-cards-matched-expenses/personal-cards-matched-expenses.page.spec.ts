@@ -46,7 +46,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         RouterTestingModule,
         RouterModule,
         PersonalCardsMatchedExpensesPage,

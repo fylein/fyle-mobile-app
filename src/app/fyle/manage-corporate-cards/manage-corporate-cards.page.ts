@@ -1,11 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import {
-  ActionSheetButton,
-  ActionSheetController,
-  ModalController,
-  PopoverController,
-} from '@ionic/angular/standalone';
+import {  ActionSheetButton, ActionSheetController, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import {
   BehaviorSubject,
   Observable,
@@ -48,7 +43,24 @@ import { AsyncPipe } from '@angular/common';
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
   styleUrls: ['./manage-corporate-cards.page.scss'],
-  imports: [IonicModule, MatIcon, CorporateCardComponent, VirtualCardComponent, AsyncPipe],
+  imports: [
+    AsyncPipe,
+    CorporateCardComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonRefresher,
+    IonRefresherContent,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    VirtualCardComponent
+  ],
 })
 export class ManageCorporateCardsPage {
   private router = inject(Router);

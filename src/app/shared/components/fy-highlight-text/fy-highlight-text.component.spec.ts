@@ -8,7 +8,7 @@ describe('FyHighlightTextComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), FyHighlightTextComponent, HighlightPipe],
+      imports: [ FyHighlightTextComponent, HighlightPipe],
     }).compileComponents();
   });
 

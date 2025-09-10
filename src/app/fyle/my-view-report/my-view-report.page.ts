@@ -4,7 +4,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular/standalone';
+import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, ModalController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -61,28 +61,43 @@ import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pip
   templateUrl: './my-view-report.page.html',
   styleUrls: ['./my-view-report.page.scss'],
   imports: [
-    IonicModule,
-    MatIconButton,
-    RouterLink,
-    MatIcon,
-    NgFor,
-    FyLoadingScreenComponent,
-    ExpensesCardComponent,
-    NgClass,
-    FyZeroStateComponent,
-    AuditHistoryComponent,
-    FormButtonValidationDirective,
-    MatInput,
-    FormsModule,
     AsyncPipe,
-    LowerCasePipe,
-    TitleCasePipe,
+    AuditHistoryComponent,
     DatePipe,
+    DateWithTimezonePipe_1,
     EllipsisPipe,
     ExactCurrencyPipe,
+    ExpensesCardComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonSpinner,
+    IonTitle,
+    IonToolbar,
+    LowerCasePipe,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    NgClass,
+    NgFor,
     ReportState_1,
+    RouterLink,
     SnakeCaseToSpaceCase,
-    DateWithTimezonePipe_1,
+    TitleCasePipe
   ],
 })
 export class MyViewReportPage {

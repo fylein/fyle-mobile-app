@@ -71,7 +71,7 @@ describe('SignInPage', () => {
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         ReactiveFormsModule,
         MatFormFieldModule,

@@ -21,7 +21,7 @@ describe('AddMorePopupComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatBottomSheetModule,
         MatIconModule,
         MatIconTestingModule,

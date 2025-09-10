@@ -25,7 +25,7 @@ describe('CardTransactionPreviewComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,

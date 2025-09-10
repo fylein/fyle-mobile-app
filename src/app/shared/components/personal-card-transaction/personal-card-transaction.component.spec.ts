@@ -42,7 +42,7 @@ describe('PersonalCardTransactionComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconTestingModule,
         MatIconModule,
         TranslocoModule,

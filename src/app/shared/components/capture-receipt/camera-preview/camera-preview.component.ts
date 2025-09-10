@@ -8,12 +8,20 @@ import { CameraService } from 'src/app/core/services/camera.service';
 import * as Sentry from '@sentry/angular';
 import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
+import { IonContent, IonIcon, IonImg } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-camera-preview',
   templateUrl: './camera-preview.component.html',
   styleUrls: ['./camera-preview.component.scss'],
-  imports: [IonicModule, NgClass, MatIcon],
+  imports: [
+    IonContent,
+    IonIcon,
+    IonImg,
+    MatIcon,
+    NgClass
+  ],
 })
 export class CameraPreviewComponent implements OnInit, OnChanges {
   private devicePlatform = inject(DEVICE_PLATFORM);

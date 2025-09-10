@@ -11,7 +11,7 @@ describe('BankAccountCardsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), SwiperModule, BankAccountCardsComponent],
+      imports: [ SwiperModule, BankAccountCardsComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 

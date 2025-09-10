@@ -41,7 +41,7 @@ describe('CropReceiptComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         HammerModule,

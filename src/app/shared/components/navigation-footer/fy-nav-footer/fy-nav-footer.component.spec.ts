@@ -20,7 +20,7 @@ describe('FyNavFooterComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, FyNavFooterComponent],
+      imports: [ TranslocoModule, FyNavFooterComponent],
       providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;

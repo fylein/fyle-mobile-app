@@ -31,7 +31,7 @@ describe('CameraOptionsPopupComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, CameraOptionsPopupComponent],
+      imports: [ TranslocoModule, CameraOptionsPopupComponent],
       providers: [
         {
           provide: PopoverController,

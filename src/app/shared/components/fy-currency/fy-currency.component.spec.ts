@@ -39,7 +39,7 @@ describe('FyCurrencyComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         ReactiveFormsModule,
         TranslocoModule,

@@ -22,7 +22,7 @@ describe('DelegatedAccMessageComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, DelegatedAccMessageComponent, EllipsisPipe],
+      imports: [ TranslocoModule, DelegatedAccMessageComponent, EllipsisPipe],
       providers: [
         {
           provide: AuthService,

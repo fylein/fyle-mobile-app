@@ -29,7 +29,7 @@ describe('DismissDialogComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         MatIconTestingModule,
         MatIconModule,

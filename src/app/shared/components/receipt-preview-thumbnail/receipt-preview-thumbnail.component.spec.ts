@@ -27,7 +27,7 @@ describe('ReceiptPreviewThumbnailComponent', () => {
         },
         { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
-      imports: [IonicModule.forRoot(), TranslocoModule, ReceiptPreviewThumbnailComponent],
+      imports: [ TranslocoModule, ReceiptPreviewThumbnailComponent],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 

@@ -4,12 +4,25 @@ import { Org } from 'src/app/core/models/org.model';
 import { MatRipple } from '@angular/material/core';
 import { UpperCasePipe, TitleCasePipe } from '@angular/common';
 import { InitialsPipe } from '../../../pipes/initials.pipe';
+import { IonCol, IonGrid, IonHeader, IonIcon, IonRow, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-sidemenu-header',
   templateUrl: './sidemenu-header.component.html',
   styleUrls: ['./sidemenu-header.component.scss'],
-  imports: [IonicModule, MatRipple, UpperCasePipe, TitleCasePipe, InitialsPipe],
+  imports: [
+    InitialsPipe,
+    IonCol,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonToolbar,
+    MatRipple,
+    TitleCasePipe,
+    UpperCasePipe
+  ],
 })
 export class SidemenuHeaderComponent implements OnInit {
   // TODO: Skipped for migration because:

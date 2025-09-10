@@ -91,7 +91,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), ViewTeamAdvanceRequestPage],
+      imports: [ ViewTeamAdvanceRequestPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },

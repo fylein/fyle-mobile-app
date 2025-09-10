@@ -4,7 +4,7 @@ import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { switchMap, map, shareReplay, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, ModalController } from '@ionic/angular/standalone';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -45,24 +45,32 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
   templateUrl: './my-reports.page.html',
   styleUrls: ['./my-reports.page.scss'],
   imports: [
-    FyHeaderComponent,
-    IonicModule,
-    RouterLink,
-    MatFormField,
-    MatIcon,
-    MatPrefix,
-    MatInput,
+    AsyncPipe,
+    FooterComponent,
     FormsModule,
-    MatIconButton,
-    MatSuffix,
-    NgClass,
     FyFilterPillsComponent,
+    FyHeaderComponent,
     FyLoadingScreenComponent,
     FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonRefresher,
+    IonRefresherContent,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
     ReportsCardComponent,
-    FooterComponent,
-    AsyncPipe,
-    TranslocoPipe,
+    RouterLink,
+    TranslocoPipe
   ],
 })
 export class MyReportsPage {

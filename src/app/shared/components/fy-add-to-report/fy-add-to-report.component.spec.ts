@@ -55,7 +55,7 @@ describe('FyAddToReportComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, FyAddToReportComponent],
+      imports: [ TranslocoModule, FyAddToReportComponent],
       providers: [
         {
           provide: Injector,

@@ -32,7 +32,7 @@ describe('PendingVerificationPage', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         RouterTestingModule,
         RouterModule,
         FormsModule,

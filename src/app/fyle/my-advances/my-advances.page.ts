@@ -30,21 +30,33 @@ import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-scr
 import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
 import { MyAdvancesCardComponent } from './my-advances-card/my-advances-card.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonRefresher, IonRefresherContent, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-my-advances',
   templateUrl: './my-advances.page.html',
   styleUrls: ['./my-advances.page.scss'],
   imports: [
-    IonicModule,
-    FyMenuIconComponent,
+    AsyncPipe,
+    FooterComponent,
     FyFilterPillsComponent,
     FyLoadingScreenComponent,
-    NgClass,
+    FyMenuIconComponent,
     FyZeroStateComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonRefresher,
+    IonRefresherContent,
+    IonTitle,
+    IonToolbar,
     MyAdvancesCardComponent,
-    FooterComponent,
-    AsyncPipe,
+    NgClass
   ],
 })
 export class MyAdvancesPage implements AfterViewChecked {

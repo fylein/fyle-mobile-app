@@ -92,7 +92,7 @@ describe('CardStatsComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         TranslocoModule,
         CardStatsComponent,
         MockSpentCardsComponent,

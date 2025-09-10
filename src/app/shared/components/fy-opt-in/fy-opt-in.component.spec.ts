@@ -72,7 +72,7 @@ describe('FyOptInComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, FyOptInComponent],
+      imports: [ TranslocoModule, FyOptInComponent],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },

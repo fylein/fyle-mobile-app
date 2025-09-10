@@ -24,7 +24,7 @@ describe('CustomInputsFieldsFormComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, CustomInputsFieldsFormComponent],
+      imports: [ TranslocoModule, CustomInputsFieldsFormComponent],
       providers: [
         UntypedFormBuilder,
         {

@@ -25,7 +25,7 @@ describe('PendingGasChargeInfoModalComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         TranslocoModule,
         MatIconModule,
         HttpClientTestingModule,

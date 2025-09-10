@@ -107,7 +107,7 @@ describe('ManageCorporateCardsPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), ManageCorporateCardsPage, MockCorporateCardComponent],
+      imports: [ ManageCorporateCardsPage, MockCorporateCardComponent],
       providers: [
         {
           provide: Router,

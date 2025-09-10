@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, inject, viewChild } from '@angular/core';
 import { ImageCropperComponent, ImageCropperModule } from 'ngx-image-cropper';
-import { ModalController, Platform } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Subscription } from 'rxjs';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
@@ -15,7 +15,17 @@ type Image = Partial<{
   selector: 'app-crop-receipt',
   templateUrl: './crop-receipt.component.html',
   styleUrls: ['./crop-receipt.component.scss'],
-  imports: [IonicModule, MatIcon, ImageCropperModule],
+  imports: [
+    ImageCropperModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon
+  ],
 })
 export class CropReceiptComponent implements OnInit {
   private modalController = inject(ModalController);

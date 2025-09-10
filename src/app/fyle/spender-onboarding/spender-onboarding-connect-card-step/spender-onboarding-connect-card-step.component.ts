@@ -10,7 +10,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { PopoverController } from '@ionic/angular/standalone';
+import { IonButton, IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { catchError, concatMap, finalize, from, map, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -32,13 +32,14 @@ import { FormButtonValidationDirective } from '../../../shared/directive/form-bu
   templateUrl: './spender-onboarding-connect-card-step.component.html',
   styleUrls: ['./spender-onboarding-connect-card-step.component.scss'],
   imports: [
+    FormButtonValidationDirective,
     FormsModule,
-    ReactiveFormsModule,
+    IonButton,
+    IonIcon,
     NgClass,
     NgxMaskModule,
-    IonicModule,
-    FormButtonValidationDirective,
-    TranslocoPipe,
+    ReactiveFormsModule,
+    TranslocoPipe
   ],
 })
 export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChanges {

@@ -12,7 +12,7 @@ describe('InfoCardComponent', () => {
   beforeEach(waitForAsync(() => {
     const clipboardServiceSpy = jasmine.createSpyObj('ClipboardService', ['writeString']);
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), InfoCardComponent],
+      imports: [ InfoCardComponent],
       providers: [{ provide: ClipboardService, useValue: clipboardServiceSpy }],
     }).compileComponents();
 

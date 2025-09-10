@@ -116,7 +116,7 @@ describe('MyProfilePage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), RouterTestingModule, MyProfilePage],
+      imports: [ RouterTestingModule, MyProfilePage],
       providers: [
         {
           provide: ActivatedRoute,

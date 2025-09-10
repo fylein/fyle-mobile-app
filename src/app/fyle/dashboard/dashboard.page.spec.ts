@@ -128,7 +128,7 @@ describe('DashboardPage', () => {
       'getIsOverlayClicked',
     ]);
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), DashboardPage],
+      imports: [ DashboardPage],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },

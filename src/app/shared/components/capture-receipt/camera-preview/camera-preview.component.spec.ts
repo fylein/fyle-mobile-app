@@ -25,7 +25,7 @@ describe('CameraPreviewComponent', () => {
     ]);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, CameraPreviewComponent],
+      imports: [ MatIconModule, MatIconTestingModule, CameraPreviewComponent],
       providers: [
         {
           provide: DEVICE_PLATFORM,

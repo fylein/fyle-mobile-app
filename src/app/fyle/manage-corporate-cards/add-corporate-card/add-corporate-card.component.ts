@@ -7,7 +7,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { PopoverController } from '@ionic/angular/standalone';
+import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
 import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
@@ -27,17 +27,26 @@ import { ArrayToCommaListPipe } from '../../../shared/pipes/array-to-comma-list.
   templateUrl: './add-corporate-card.component.html',
   styleUrls: ['./add-corporate-card.component.scss'],
   imports: [
-    IonicModule,
+    ArrayToCommaListPipe,
+    AutofocusDirective,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyAlertInfoComponent,
+    IonAccordion,
+    IonAccordionGroup,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
     MatIcon,
     NgClass,
     NgxMaskModule,
-    FormsModule,
-    AutofocusDirective,
     ReactiveFormsModule,
-    FyAlertInfoComponent,
-    FormButtonValidationDirective,
-    ArrayToCommaListPipe,
-    TranslocoPipe,
+    TranslocoPipe
   ],
 })
 export class AddCorporateCardComponent implements OnInit {
