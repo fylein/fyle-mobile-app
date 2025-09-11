@@ -48,12 +48,12 @@ export class ProfileOptInCardComponent implements OnInit {
   mobileNumber: string;
 
   ngOnInit(): void {
-    this.isUserOptedIn = this.extendedOrgUser.ou.mobile && this.extendedOrgUser.ou.mobile_verified;
-    this.mobileNumber = this.extendedOrgUser.ou.mobile;
-    this.isMobileAddedButNotVerified = this.extendedOrgUser.ou.mobile && !this.extendedOrgUser.ou.mobile_verified;
-    this.isInvalidUSNumber = this.isMobileAddedButNotVerified && !this.extendedOrgUser.ou.mobile.startsWith('+1');
     this.employeesService.getByParams({ user_id: `eq.${this.extendedOrgUser.ou.user_id}` }).subscribe((res) => {
       this.employee = res.data[0];
+      this.mobileNumber = this.employee.mobile;
+      this.isMobileAddedButNotVerified = this.mobileNumber && !this.employee.is_mobile_verified;
+      this.isInvalidUSNumber = this.isMobileAddedButNotVerified && !this.mobileNumber.startsWith('+1');
+      this.isUserOptedIn = this.mobileNumber && this.employee.is_mobile_verified;
       this.isOptedOutViaSms = this.employee.sms_opt_out_source === 'SMS';
     });
   }

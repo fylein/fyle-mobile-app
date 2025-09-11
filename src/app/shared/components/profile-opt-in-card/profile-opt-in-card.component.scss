@@ -29,11 +29,11 @@
     color: colors.$brand-primary;
     white-space: nowrap;
     font-weight: 500;
-  }
 
-  &--disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
+    &--disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
   }
 
   &__description {
