@@ -8,7 +8,7 @@
             {{ 'profileOptInCard.description' | transloco }}
           </div>
         </div>
-        @if (!isUserOptedIn && !isOptedOutViaSms) {
+        @if (!isUserOptedIn && !isMobileAddedButNotVerified && !isOptedOutViaSms) {
           <span class="profile-opt-in-card__opt-in-btn">{{ 'profileOptInCard.optIn' | transloco }}</span>
         }
       </div>
