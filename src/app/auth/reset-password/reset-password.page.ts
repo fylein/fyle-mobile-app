@@ -11,7 +11,6 @@ import { MatInput } from '@angular/material/input';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { IonButton, IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 
-
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.page.html',

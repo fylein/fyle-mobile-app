@@ -1,17 +1,24 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { ResetPasswordPage } from './reset-password.page';
-import { ReactiveFormsModule, FormsModule, UntypedFormBuilder, Validators, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
 import { getElementRef } from 'src/app/core/dom-helpers';
-import { DebugElement } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, DebugElement, Directive } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
+
+// mock for FormButtonValidationDirective
+@Directive({ selector: '[appFormButtonValidation]' })
+class MockFormButtonValidationDirective {
+}
+
 
 describe('ResetPasswordPage', () => {
   let component: ResetPasswordPage;
@@ -31,11 +38,7 @@ describe('ResetPasswordPage', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
       imports: [
-        
         RouterTestingModule,
-        RouterModule,
-        FormsModule,
-        ReactiveFormsModule,
         ResetPasswordPage,
       ],
       providers: [
@@ -61,6 +64,14 @@ describe('ResetPasswordPage', () => {
           useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' }, queryParams: { tmp_pwd_expired: 'true' } } },
         },
       ],
+    }).overrideComponent(ResetPasswordPage, {
+      remove: {
+        imports: [FormButtonValidationDirective],
+      },
+      add: {
+        imports: [MockFormButtonValidationDirective],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      },
     }).compileComponents();
 
     fixture = TestBed.createComponent(ResetPasswordPage);
@@ -115,7 +126,7 @@ describe('ResetPasswordPage', () => {
       fixture.detectChanges();
 
       const errorElement = getElementRef(fixture, '.forgot-password__error-message');
-      expect(errorElement.nativeElement.textContent).toContain(' Enter an email address. ');
+      expect(errorElement.nativeElement.textContent).toContain('Enter an email address.');
     });
 
     it('should call sendResetLink with correct email when button is clicked', () => {

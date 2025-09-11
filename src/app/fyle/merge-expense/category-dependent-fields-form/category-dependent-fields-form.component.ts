@@ -1,5 +1,4 @@
 import { Component, Input, OnDestroy, OnInit, inject, input, output } from '@angular/core';
-import { Injector } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import {
   UntypedFormGroup,
@@ -35,8 +34,6 @@ type OptionsData = Partial<{
 })
 export class CategoryDependentFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
   private formBuilder = inject(UntypedFormBuilder);
-
-  private injector = inject(Injector);
 
   readonly fieldsTouched = output<string[]>();
 
