@@ -883,7 +883,7 @@ describe('DashboardPage', () => {
       });
     });
 
-    it('should set canShowOptInBanner to false if user mobile number does not start wiclth +1', (done) => {
+    it('should set canShowOptInBanner to false if user mobile number does not start with +1', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
       mockEou.ou.mobile = '+911234567890';

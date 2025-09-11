@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CustomField } from '../models/custom_field.model';
 import { CustomProperty } from '../models/custom-properties.model';
-import { EouPlatformApiResponse } from '../models/eou-platform-api-response.model';
+import { EouPlatformApiResponse } from '../models/employee-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 @Injectable({

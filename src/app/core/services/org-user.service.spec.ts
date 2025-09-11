@@ -14,6 +14,9 @@ import {
   accessTokenData,
   accessTokenWithProxyOrgUserId,
 } from '../test-data/org-user.service.spec.data';
+import { eouPlatformApiResponse } from '../mock-data/extended-org-user.data';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { EouPlatformApiResponse } from '../models/employee-response.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
@@ -40,10 +43,7 @@ describe('OrgUserService', () => {
     const jwtHelperServiceSpy = jasmine.createSpyObj('JwtHelperService', ['decodeToken']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getAccessToken']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['newRefreshToken', 'refreshEou']);
-    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', [
-      'unflatten',
-      'transformExtOrgUserResponse',
-    ]);
+    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['transformExtOrgUserResponse']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -92,10 +92,10 @@ describe('OrgUserService', () => {
   });
 
   it('should be able to get current eou', (done) => {
-    spenderPlatformV1ApiService.get.and.returnValue(of({ data: currentEouUnflatted } as any));
-    dataTransformService.transformExtOrgUserResponse
-      .withArgs(currentEouUnflatted as any)
-      .and.returnValue(currentEouRes);
+    spenderPlatformV1ApiService.get.and.returnValue(
+      of({ data: eouPlatformApiResponse } as PlatformApiResponse<EouPlatformApiResponse>),
+    );
+    dataTransformService.transformExtOrgUserResponse.withArgs(eouPlatformApiResponse).and.returnValue(currentEouRes);
 
     orgUserService.getCurrent().subscribe((res) => {
       expect(res).toEqual(currentEouRes);

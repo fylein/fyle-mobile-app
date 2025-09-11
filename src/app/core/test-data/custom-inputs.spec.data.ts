@@ -330,7 +330,7 @@ export const authRespone = deepFreeze({
     sub_department: null,
     display_name: '0000000',
   },
-  approver_user_ids: ['oudZdj614Xj6', null, null],
+  approver_user_ids: ['oudZdj614Xj6'],
   approver_users: [{ id: 'oudZdj614Xj6', full_name: 'Approver One', email: 'approver1@fyle.in' }, null, null],
   delegatees: [],
   locale: {

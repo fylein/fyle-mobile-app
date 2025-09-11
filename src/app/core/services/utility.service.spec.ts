@@ -375,7 +375,7 @@ describe('UtilityService', () => {
     });
   });
 
-  it('canShowOptInModal(): should handle error and return false', (done) => {
+  it('canShowOptInModal(): should return false when currency service fails to get home currency', (done) => {
     const featureConfig = {
       feature: 'OPT_IN',
       key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',

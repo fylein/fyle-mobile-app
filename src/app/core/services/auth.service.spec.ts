@@ -5,13 +5,15 @@ import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 import { JwtHelperService } from './jwt-helper.service';
-import { apiEouRes, eouFlattended, eouRes3 } from '../mock-data/extended-org-user.data';
+import { apiEouRes, eouRes3, eouPlatformApiResponse } from '../mock-data/extended-org-user.data';
 import { apiAuthResponseRes } from '../mock-data/auth-response.data';
 import { finalize, noop, of, tap, throwError } from 'rxjs';
 import { apiAccessTokenRes, apiTokenWithoutRoles } from '../mock-data/access-token-data.data';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { EouPlatformApiResponse } from '../models/employee-response.model';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -39,10 +41,7 @@ describe('AuthService', () => {
     ]);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
-    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', [
-      'unflatten',
-      'transformExtOrgUserResponse',
-    ]);
+    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['transformExtOrgUserResponse']);
     const jwtHelperServiceSpy = jasmine.createSpyObj('JwtHelperService', ['decodeToken']);
     TestBed.configureTestingModule({
       providers: [
@@ -100,14 +99,16 @@ describe('AuthService', () => {
   });
 
   it('refreshEou(): should refresh extended org user in memory', (done) => {
-    spenderPlatformV1ApiService.get.and.returnValue(of({ data: eouFlattended } as any));
+    spenderPlatformV1ApiService.get.and.returnValue(
+      of({ data: eouPlatformApiResponse } as PlatformApiResponse<EouPlatformApiResponse>),
+    );
     dataTransformService.transformExtOrgUserResponse.and.returnValue(eouRes3);
     storageService.set.and.resolveTo(null);
 
     authService.refreshEou().subscribe((res) => {
       expect(res).toEqual(eouRes3);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/employees/current');
-      expect(dataTransformService.transformExtOrgUserResponse).toHaveBeenCalledOnceWith(eouFlattended as any);
+      expect(dataTransformService.transformExtOrgUserResponse).toHaveBeenCalledOnceWith(eouPlatformApiResponse);
       expect(storageService.set).toHaveBeenCalledOnceWith('user', eouRes3);
       done();
     });
@@ -221,7 +222,7 @@ describe('AuthService', () => {
     });
   });
 
-  it('refreshEou(): should handle error and return empty observable', (done) => {
+  it('refreshEou(): should handle api failure when spender platform service fails', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(throwError(() => new Error('API Error')));
     dataTransformService.transformExtOrgUserResponse.and.returnValue(eouRes3);
 
