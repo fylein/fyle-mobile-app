@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -32,7 +31,7 @@ describe('FyMultiselectModalComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconTestingModule,
         MatIconModule,
         MatCheckboxModule,

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 
 import dayjs from 'dayjs';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -129,9 +129,10 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -323,14 +324,12 @@ describe('MyExpensesPage', () => {
 
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [
-        IonicModule.forRoot(),
-        RouterTestingModule,
-        getTranslocoModule(),
+      imports: [RouterTestingModule,
+        getTranslocoTestingModule(),
         MyExpensesPage,
         ReportState,
         MaskNumber,
-      ],
+        MatIconTestingModule],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },

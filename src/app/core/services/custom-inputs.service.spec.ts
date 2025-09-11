@@ -16,7 +16,7 @@ import { CustomInputsService } from './custom-inputs.service';
 import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
 import { CustomInput } from '../models/custom-input.model';
 import { mockExpenseData } from '../mock-data/expense-field.data';
-import { getTranslocoModule } from '../testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from '../testing/transloco-testing.utils';
 
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
@@ -29,7 +29,7 @@ describe('CustomInputsService', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
-      imports: [getTranslocoModule()],
+      imports: [getTranslocoTestingModule()],
       providers: [
         CustomInputsService,
         {

@@ -10,7 +10,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, Platform, PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { concat, forkJoin, from, iif, noop, Observable, of, timer } from 'rxjs';
 import { concatMap, finalize, map, raceWith, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -65,23 +65,31 @@ import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
   templateUrl: './add-edit-advance-request.page.html',
   styleUrls: ['./add-edit-advance-request.page.scss'],
   imports: [
-    IonicModule,
-    NgClass,
-    FormsModule,
-    ReactiveFormsModule,
-    FyCurrencyComponent,
-    ReceiptPreviewThumbnailComponent,
-    FySelectComponent,
-    FySelectProjectComponent,
-    FyNumberComponent,
-    FormatDateDirective,
-    MatCheckbox,
-    FyLocationComponent,
-    FyMultiselectComponent,
-    FyUserlistComponent,
-    FormButtonValidationDirective,
     AsyncPipe,
     EllipsisPipe,
+    FormButtonValidationDirective,
+    FormatDateDirective,
+    FormsModule,
+    FyCurrencyComponent,
+    FyLocationComponent,
+    FyMultiselectComponent,
+    FyNumberComponent,
+    FySelectComponent,
+    FySelectProjectComponent,
+    FyUserlistComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    NgClass,
+    ReactiveFormsModule,
+    ReceiptPreviewThumbnailComponent
   ],
 })
 export class AddEditAdvanceRequestPage implements OnInit {

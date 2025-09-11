@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatRippleModule } from '@angular/material/core';
-import { IonicModule } from '@ionic/angular';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
@@ -14,7 +13,7 @@ describe('SidemenuHeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatRippleModule, SidemenuHeaderComponent, InitialsPipe],
+      imports: [ MatRippleModule, SidemenuHeaderComponent, InitialsPipe],
     }).compileComponents();
   });
 

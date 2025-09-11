@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, PopoverController } from '@ionic/angular/standalone';
 
 import { ViewTeamAdvanceRequestPage } from './view-team-advance-request.page';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -91,7 +91,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), ViewTeamAdvanceRequestPage],
+      imports: [ ViewTeamAdvanceRequestPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },

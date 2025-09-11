@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { Router } from '@angular/router';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
@@ -15,7 +15,20 @@ import { CurrencySymbolPipe } from '../../shared/pipes/currency-symbol.pipe';
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
   styleUrls: ['./personal-cards-matched-expenses.page.scss'],
-  imports: [IonicModule, NgClass, ExpenseCardLiteComponent, DatePipe, ExactCurrencyPipe, CurrencySymbolPipe],
+  imports: [
+    CurrencySymbolPipe,
+    DatePipe,
+    ExactCurrencyPipe,
+    ExpenseCardLiteComponent,
+    IonBackButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    NgClass
+  ],
 })
 export class PersonalCardsMatchedExpensesPage {
   private router = inject(Router);

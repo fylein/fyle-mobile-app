@@ -1,15 +1,5 @@
 import { Component, OnInit, Input, ViewChild, inject, input, output } from '@angular/core';
-import {
-  IonButton,
-  IonButtons,
-  IonContent,
-  IonFooter,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
-  ModalController,
-  PopoverController,
-} from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from, of, forkJoin } from 'rxjs';
@@ -37,20 +27,21 @@ import { FormButtonValidationDirective } from '../../directive/form-button-valid
   templateUrl: './fy-view-attachment.component.html',
   styleUrls: ['./fy-view-attachment.component.scss'],
   imports: [
-    IonHeader,
-    IonButtons,
-    IonButton,
-    IonFooter,
-    IonContent,
-    IonToolbar,
-    IonTitle,
-    NgClass,
-    MatIcon,
-    SwiperModule,
-    PinchZoomComponent,
-    PdfViewerModule,
     FormButtonValidationDirective,
-    TranslocoPipe,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    NgClass,
+    PdfViewerModule,
+    PinchZoomComponent,
+    SwiperModule,
+    TranslocoPipe
   ],
 })
 export class FyViewAttachmentComponent implements OnInit {

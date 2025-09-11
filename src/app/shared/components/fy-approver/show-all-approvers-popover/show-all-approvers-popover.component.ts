@@ -1,5 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import { MatIcon } from '@angular/material/icon';
@@ -11,7 +11,19 @@ import { EllipsisPipe } from '../../../pipes/ellipses.pipe';
   selector: 'app-show-all-approvers-popover',
   templateUrl: './show-all-approvers-popover.component.html',
   styleUrls: ['./show-all-approvers-popover.component.scss'],
-  imports: [IonicModule, MatIcon, NgClass, TranslocoPipe, EllipsisPipe],
+  imports: [
+    EllipsisPipe,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class ShowAllApproversPopoverComponent {
   private popoverController = inject(PopoverController);

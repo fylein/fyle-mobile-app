@@ -10,7 +10,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NgClass } from '@angular/common';

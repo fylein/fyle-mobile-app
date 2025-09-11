@@ -18,7 +18,7 @@ import { TranslocoHttpLoader } from './app/transloco-http-loader';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
 import { HAMMER_GESTURE_CONFIG, HammerModule, bootstrapApplication } from '@angular/platform-browser';
 import { RouteReuseStrategy, Router } from '@angular/router';
-import { IonicRouteStrategy, IonicModule } from '@ionic/angular';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
 import { HttpConfigInterceptor } from './app/core/interceptors/httpInterceptor';
 import { CurrencyPipe } from '@angular/common';
@@ -102,15 +102,7 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(appRoutes, withPreloading(PreloadAllModules)),
-    importProvidersFrom(
-      IonicModule.forRoot({
-        innerHTMLTemplatesEnabled: true,
-        useSetInputAPI: true,
-      }),
-      HammerModule,
-      HammerModule,
-      NgOtpInputModule,
-    ),
+    importProvidersFrom(HammerModule, HammerModule, NgOtpInputModule),
     provideIcons(),
     GooglePlus,
     InAppBrowser,
@@ -187,6 +179,10 @@ bootstrapApplication(AppComponent, {
     },
     provideHttpClient(withInterceptorsFromDi(), withJsonpSupport()),
     provideAnimations(),
+    provideIonicAngular({
+      innerHTMLTemplatesEnabled: true,
+      useSetInputAPI: true,
+    }),
   ],
 }).catch(() => {});
 

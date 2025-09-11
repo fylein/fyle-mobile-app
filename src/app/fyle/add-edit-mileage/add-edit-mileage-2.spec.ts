@@ -5,7 +5,13 @@ import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { coordinatesData1, locationData1, predictedLocation1 } from 'src/app/core/mock-data/location.data';

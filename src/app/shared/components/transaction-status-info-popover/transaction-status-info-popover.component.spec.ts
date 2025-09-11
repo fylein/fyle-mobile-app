@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { TransactionStatusInfoPopoverComponent } from './transaction-status-info-popover.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('TransactionStatusInfoComponent', () => {
   let component: TransactionStatusInfoPopoverComponent;
@@ -22,7 +23,8 @@ describe('TransactionStatusInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, TransactionStatusInfoPopoverComponent],
+      imports: [TranslocoModule, TransactionStatusInfoPopoverComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: PopoverController,

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { MatRippleModule } from '@angular/material/core';
 import { TeamAdvCardComponent } from './team-adv-card.component';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -11,6 +10,7 @@ import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_req
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('TeamAdvCardComponent', () => {
   let teamAdvCardComponent: TeamAdvCardComponent;
@@ -35,16 +35,14 @@ describe('TeamAdvCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [
-        IonicModule.forRoot(),
-        MatRippleModule,
+      imports: [MatRippleModule,
         TranslocoModule,
         TeamAdvCardComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         EllipsisPipe,
         FyCurrencyPipe,
-      ],
+        MatIconTestingModule],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         {

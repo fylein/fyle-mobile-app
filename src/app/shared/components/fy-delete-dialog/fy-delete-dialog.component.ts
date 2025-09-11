@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject, input } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonCol, IonContent, IonGrid, IonRow, PopoverController } from '@ionic/angular/standalone';
 import { catchError, finalize, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { LoaderPosition } from '../../directive/loader-position.enum';
@@ -13,7 +13,16 @@ import { TranslocoPipe } from '@jsverse/transloco';
   selector: 'app-fy-delete-dialog',
   templateUrl: './fy-delete-dialog.component.html',
   styleUrls: ['./fy-delete-dialog.component.scss'],
-  imports: [IonicModule, MatIcon, NgClass, FormButtonValidationDirective, TranslocoPipe],
+  imports: [
+    FormButtonValidationDirective,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonRow,
+    MatIcon,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FyDeleteDialogComponent implements OnInit {
   private popoverController = inject(PopoverController);

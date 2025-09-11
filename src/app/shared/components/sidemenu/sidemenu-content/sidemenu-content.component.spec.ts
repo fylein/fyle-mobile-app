@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { MenuController } from '@ionic/angular';
+import { MenuController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
@@ -39,7 +38,7 @@ describe('SidemenuContentComponent', () => {
     const menuControllerSpy = jasmine.createSpyObj('MenuController', ['close']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), SidemenuContentComponent],
+      imports: [ SidemenuContentComponent],
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },

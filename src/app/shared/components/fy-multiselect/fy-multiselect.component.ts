@@ -1,7 +1,7 @@
 import { Component, OnInit, forwardRef, Input, inject, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multiselect-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';

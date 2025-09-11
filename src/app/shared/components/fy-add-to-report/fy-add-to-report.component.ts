@@ -13,7 +13,7 @@ import {
 import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';

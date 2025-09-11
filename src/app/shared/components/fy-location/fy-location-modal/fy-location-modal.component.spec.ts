@@ -1,7 +1,7 @@
 import { TestBed, ComponentFixture, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { FyLocationModalComponent } from './fy-location-modal.component';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
@@ -24,6 +24,7 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import * as NativeSettings from 'capacitor-native-settings';
 import { AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyLocationModalComponent', () => {
   let component: FyLocationModalComponent;
@@ -47,7 +48,8 @@ describe('FyLocationModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyLocationModalComponent],
+      imports: [FormsModule, ReactiveFormsModule, TranslocoModule, FyLocationModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

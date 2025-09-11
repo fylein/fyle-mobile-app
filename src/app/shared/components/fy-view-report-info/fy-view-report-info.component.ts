@@ -1,6 +1,5 @@
 import { Component, Input, ElementRef, inject } from '@angular/core';
-import { ModalController, Platform, IonicModule } from '@ionic/angular';
-
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonRow, IonSegment, IonSegmentButton, IonTitle, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe, CurrencyPipe, KeyValuePipe } from '@angular/common';
@@ -24,7 +23,24 @@ import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
   selector: 'app-fy-view-report-info-v2',
   templateUrl: './fy-view-report-info.component.html',
   styleUrls: ['./fy-view-report-info.component.scss'],
-  imports: [IonicModule, MatIcon, CurrencyPipe, KeyValuePipe, TranslocoPipe, FyCurrencyPipe],
+  imports: [
+    CurrencyPipe,
+    FyCurrencyPipe,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonRow,
+    IonSegment,
+    IonSegmentButton,
+    IonTitle,
+    IonToolbar,
+    KeyValuePipe,
+    MatIcon,
+    TranslocoPipe
+  ],
 })
 export class FyViewReportInfoComponent {
   private modalController = inject(ModalController);

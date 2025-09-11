@@ -6,7 +6,7 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { SortingValue } from '../models/sorting-value.model';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { TitleCasePipe } from '@angular/common';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';

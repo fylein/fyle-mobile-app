@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { PolicyViolationActionComponent } from './policy-violation-action.component';
 
 describe('PolicyViolationActionComponent', () => {
@@ -9,7 +7,7 @@ describe('PolicyViolationActionComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), PolicyViolationActionComponent],
+      imports: [ PolicyViolationActionComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PolicyViolationActionComponent);

@@ -7,15 +7,24 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { HttpErrorResponse } from '@angular/common/http';
-import { IonicModule } from '@ionic/angular';
 import { MatInput } from '@angular/material/input';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { IonButton, IonContent, IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-pending-verification',
   templateUrl: './pending-verification.page.html',
   styleUrls: ['./pending-verification.page.scss'],
-  imports: [IonicModule, FormsModule, ReactiveFormsModule, MatInput, FormButtonValidationDirective],
+  imports: [
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonContent,
+    IonIcon,
+    MatInput,
+    ReactiveFormsModule
+  ],
 })
 export class PendingVerificationPage {
   private formBuilder = inject(UntypedFormBuilder);

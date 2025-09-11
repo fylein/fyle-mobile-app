@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { Observable, fromEvent, from, combineLatest } from 'rxjs';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';
@@ -33,22 +33,27 @@ import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-t
   templateUrl: './fy-select-vendor-modal.component.html',
   styleUrls: ['./fy-select-vendor-modal.component.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
-    MatFormField,
-    MatPrefix,
-    MatInput,
-    FormsModule,
-    MatSuffix,
-    MatIconButton,
-    CdkVirtualScrollViewport,
     CdkFixedSizeVirtualScroll,
-    MatRipple,
-    NgClass,
     CdkVirtualForOf,
+    CdkVirtualScrollViewport,
+    FormsModule,
     FyHighlightTextComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatRipple,
+    MatSuffix,
+    NgClass,
     NgTemplateOutlet,
-    TranslocoPipe,
+    TranslocoPipe
   ],
 })
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {

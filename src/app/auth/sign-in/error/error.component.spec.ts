@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { Router } from '@angular/router';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 import { ErrorComponent } from './error.component';
@@ -51,7 +51,7 @@ describe('ErrorComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, ErrorComponent],
+      imports: [ TranslocoModule, ErrorComponent],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: Router, useValue: routerSpy },

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -13,7 +12,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ExpensesCardComponent } from './expenses-card.component';
-import { PopoverController, ModalController, Platform } from '@ionic/angular';
+import { PopoverController, ModalController, Platform } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -48,7 +47,7 @@ import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expen
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { TranslocoService } from '@jsverse/transloco';
 import { mandatoryExpenseFields } from 'src/app/core/mock-data/expense-field.data';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 describe('ExpensesCardComponent', () => {
@@ -114,12 +113,12 @@ describe('ExpensesCardComponent', () => {
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         MatCheckboxModule,
         FormsModule,
-        getTranslocoModule(),
+        getTranslocoTestingModule(),
         ExpensesCardComponent,
         DateFormatPipe,
         HumanizeCurrencyPipe,
@@ -1901,7 +1900,7 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), ExpensesCardComponent],
+      imports: [ ExpensesCardComponent],
       providers: [
         { provide: TransactionService, useValue: {} },
         { provide: SharedExpenseService, useValue: {} },

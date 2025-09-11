@@ -29,7 +29,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { Observable, Subject, Subscription, finalize, of } from 'rxjs';

@@ -25,7 +25,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ReportStates } from './stat-badge/report-states.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -42,7 +42,7 @@ describe('DashboardService', () => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
 
     TestBed.configureTestingModule({
-      imports: [getTranslocoModule()],
+      imports: [getTranslocoTestingModule()],
       providers: [
         DashboardService,
         CorporateCreditCardExpenseService,

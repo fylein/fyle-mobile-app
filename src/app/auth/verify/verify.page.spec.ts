@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { VerifyPage } from './verify.page';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -28,7 +26,7 @@ describe('VerifyPage', () => {
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), RouterTestingModule, VerifyPage],
+      imports: [ RouterTestingModule, VerifyPage],
       providers: [
         {
           provide: Router,

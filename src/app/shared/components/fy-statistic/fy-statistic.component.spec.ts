@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { FyStatisticComponent } from './fy-statistic.component';
 
 describe('FyStatisticComponent', () => {
@@ -9,7 +7,7 @@ describe('FyStatisticComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), FyStatisticComponent],
+      imports: [ FyStatisticComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyStatisticComponent);

@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild, ElementRef, EventEmitter, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, EventEmitter, inject } from '@angular/core';
 import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, ModalController } from '@ionic/angular/standalone';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -45,25 +45,33 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
   templateUrl: './team-reports.page.html',
   styleUrls: ['./team-reports.page.scss'],
   imports: [
-    FyHeaderComponent,
-    IonicModule,
-    MatFormField,
-    MatIcon,
-    MatPrefix,
-    MatInput,
+    AsyncPipe,
+    FooterComponent,
     FormsModule,
-    MatIconButton,
-    MatSuffix,
-    NgClass,
     FyFilterPillsComponent,
-    ReportsCardComponent,
+    FyHeaderComponent,
     FyLoadingScreenComponent,
     FyZeroStateComponent,
-    FooterComponent,
-    AsyncPipe,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonRefresher,
+    IonRefresherContent,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    ReportsCardComponent
   ],
 })
-export class TeamReportsPage implements OnInit {
+export class TeamReportsPage implements OnInit, AfterViewInit {
   private networkService = inject(NetworkService);
 
   private modalController = inject(ModalController);
@@ -152,6 +160,28 @@ export class TeamReportsPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
+  ngAfterViewInit(): void {
+    if (this.simpleSearchInput?.nativeElement) {
+      this.simpleSearchInput.nativeElement.value = '';
+      fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+        .pipe(
+          map((event: Event) => {
+            const value = (event.target as HTMLInputElement).value;
+            return value;
+          }),
+          distinctUntilChanged(),
+          debounceTime(1000),
+        )
+        .subscribe((searchString) => {
+          const currentParams = this.loadData$.getValue();
+          currentParams.searchString = searchString;
+          this.currentPageNumber = 1;
+          currentParams.pageNumber = this.currentPageNumber;
+          this.loadData$.next(currentParams);
+        });
+    }
+  }
+
   ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
@@ -187,24 +217,6 @@ export class TeamReportsPage implements OnInit {
       }
 
       this.homeCurrency$ = this.currencyService.getHomeCurrency();
-
-      this.simpleSearchInput.nativeElement.value = '';
-      fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
-        .pipe(
-          map((event: Event) => {
-            const value = (event.target as HTMLInputElement).value;
-            return value;
-          }),
-          distinctUntilChanged(),
-          debounceTime(1000),
-        )
-        .subscribe((searchString) => {
-          const currentParams = this.loadData$.getValue();
-          currentParams.searchString = searchString;
-          this.currentPageNumber = 1;
-          currentParams.pageNumber = this.currentPageNumber;
-          this.loadData$.next(currentParams);
-        });
 
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {

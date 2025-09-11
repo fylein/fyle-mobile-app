@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -12,7 +11,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CaptureReceiptComponent } from './capture-receipt.component';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -119,7 +118,7 @@ describe('CaptureReceiptComponent', () => {
     const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['requestCameraPermissions']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), RouterTestingModule, CaptureReceiptComponent, CameraPreviewStubComponent],
+      imports: [ RouterTestingModule, CaptureReceiptComponent, CameraPreviewStubComponent],
       providers: [
         {
           provide: ModalController,

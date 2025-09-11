@@ -1,7 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-
 import { ViewDependentFieldsComponent } from './view-dependent-fields.component';
 import { of } from 'rxjs';
 
@@ -18,7 +16,7 @@ describe('ViewDependentFieldsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, ViewDependentFieldsComponent],
+      imports: [ TranslocoModule, ViewDependentFieldsComponent],
       providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
 

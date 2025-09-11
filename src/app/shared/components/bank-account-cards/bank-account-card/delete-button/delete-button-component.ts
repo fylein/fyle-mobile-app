@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonIcon, PopoverController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-delete-button',
   templateUrl: './delete-button-component.html',
   styleUrls: ['./delete-button-component.scss'],
-  imports: [IonicModule],
+  imports: [IonIcon],
 })
 export class DeleteButtonComponent {
   private popoverController = inject(PopoverController);

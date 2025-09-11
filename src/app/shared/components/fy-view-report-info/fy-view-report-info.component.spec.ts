@@ -8,7 +8,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ModalController, SegmentCustomEvent } from '@ionic/angular';
+import { ModalController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { DatePipe, KeyValue } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -19,6 +19,7 @@ import { cloneDeep } from 'lodash';
 import { expenseResponseData, expenseResponseData2 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyViewReportInfoComponent', () => {
   let component: FyViewReportInfoComponent;
@@ -52,7 +53,8 @@ describe('FyViewReportInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [TranslocoModule, FyViewReportInfoComponent],
+      imports: [TranslocoModule, FyViewReportInfoComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: SharedExpensesService,

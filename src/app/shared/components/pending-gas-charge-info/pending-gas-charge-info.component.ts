@@ -1,5 +1,5 @@
 import { Component, Input, signal, computed, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { PendingGasChargeInfoModalComponent } from '../pending-gas-charge-info-modal/pending-gas-charge-info-modal.component';
 import { NgClass } from '@angular/common';

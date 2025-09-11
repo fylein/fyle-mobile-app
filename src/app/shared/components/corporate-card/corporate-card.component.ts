@@ -2,16 +2,24 @@ import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { IonicModule } from '@ionic/angular';
 import { CardNumberComponent } from '../card-number/card-number.component';
 import { DatePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { IonCol, IonIcon, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-corporate-card',
   templateUrl: './corporate-card.component.html',
   styleUrls: ['./corporate-card.component.scss'],
-  imports: [IonicModule, CardNumberComponent, DatePipe, TranslocoPipe],
+  imports: [
+    CardNumberComponent,
+    DatePipe,
+    IonCol,
+    IonIcon,
+    IonRow,
+    TranslocoPipe
+  ],
 })
 export class CorporateCardComponent implements OnInit {
   private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -18,6 +18,7 @@ import {
 } from 'src/app/core/mock-data/virtual-select-option.data';
 import { cloneDeep } from 'lodash';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('VirtualSelectModalComponent', () => {
   let component: VirtualSelectModalComponent;
@@ -40,7 +41,8 @@ describe('VirtualSelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, VirtualSelectModalComponent],
+      imports: [TranslocoModule, VirtualSelectModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

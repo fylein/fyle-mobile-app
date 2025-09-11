@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -85,7 +85,7 @@ describe('AddEditAdvanceRequestPage', () => {
     const platformSpyObj = jasmine.createSpyObj('Platform', ['is']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), RouterTestingModule, AddEditAdvanceRequestPage],
+      imports: [ RouterTestingModule, AddEditAdvanceRequestPage],
       providers: [
         { provide: AuthService, useValue: authServiceSpyObj },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpyObj },

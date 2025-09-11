@@ -28,7 +28,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { multiplePaymentModesData, unflattenedAccount2Data } from 'src/app/core/test-data/accounts.service.spec.data';

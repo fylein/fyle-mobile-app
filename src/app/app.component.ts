@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit, inject } from '@angular/core';
-import { Platform, MenuController, NavController, IonicModule } from '@ionic/angular';
+import { IonApp, IonFooter, IonRouterOutlet, MenuController, NavController, Platform } from '@ionic/angular/standalone';
 import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params, UrlTree } from '@angular/router';
@@ -36,12 +36,14 @@ import { FyConnectionComponent } from './shared/components/fy-connection/fy-conn
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
   imports: [
-    IonicModule,
     DelegatedAccMessageComponent,
-    SidemenuComponent,
     FooterComponent,
-    NgClass,
     FyConnectionComponent,
+    IonApp,
+    IonFooter,
+    IonRouterOutlet,
+    NgClass,
+    SidemenuComponent
   ],
 })
 export class AppComponent implements OnInit, AfterViewInit {

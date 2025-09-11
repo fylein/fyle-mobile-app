@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { AddCardComponent } from './add-card.component';
 import { getElementRef, getTextContent } from 'src/app/core/dom-helpers';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
@@ -18,7 +16,7 @@ describe('AddCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, AddCardComponent],
+      imports: [ TranslocoModule, AddCardComponent],
       providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
 

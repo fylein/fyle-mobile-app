@@ -7,13 +7,22 @@ import { DashboardTask } from 'src/app/core/models/dashboard-task.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TranslocoService } from '@jsverse/transloco';
 import { MatRipple } from '@angular/material/core';
-import { IonicModule } from '@ionic/angular';
+import { IonCol, IonGrid, IonIcon, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-tasks-card',
   templateUrl: './tasks-card.component.html',
   styleUrls: ['./tasks-card.component.scss'],
-  imports: [MatRipple, IonicModule, NgClass, AsyncPipe],
+  imports: [
+    AsyncPipe,
+    IonCol,
+    IonGrid,
+    IonIcon,
+    IonRow,
+    MatRipple,
+    NgClass
+  ],
 })
 export class TasksCardComponent implements OnInit {
   private currencyService = inject(CurrencyService);

@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';

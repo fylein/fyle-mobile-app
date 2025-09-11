@@ -1,5 +1,5 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController } from '@ionic/angular/standalone';
 import { LoaderService } from './loader.service';
 import { TranslocoService } from '@jsverse/transloco';
 describe('LoaderService', () => {

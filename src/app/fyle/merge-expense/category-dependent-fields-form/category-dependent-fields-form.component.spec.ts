@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { CategoryDependentFieldsFormComponent } from './category-dependent-fields-form.component';
 import { UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -22,7 +20,7 @@ describe('CategoryDependentFieldsFormComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, CategoryDependentFieldsFormComponent],
+      imports: [ TranslocoModule, CategoryDependentFieldsFormComponent],
       providers: [
         UntypedFormBuilder,
         {

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync, flushMicrotasks } from '@angular/core/testing';
-import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 
 import { MyViewAdvanceRequestPage } from './my-view-advance-request.page';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -75,7 +75,7 @@ describe('MyViewAdvanceRequestPage', () => {
     loaderServiceSpy.hideLoader.and.resolveTo();
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MyViewAdvanceRequestPage],
+      imports: [ MyViewAdvanceRequestPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },

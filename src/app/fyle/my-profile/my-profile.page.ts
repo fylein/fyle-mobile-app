@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
+import { IonButtons, IonContent, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { Observable, Subscription, concat, forkJoin, from, noop, finalize } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -63,17 +63,23 @@ import { PreferenceSettingComponent } from './preference-setting/preference-sett
   templateUrl: './my-profile.page.html',
   styleUrls: ['./my-profile.page.scss'],
   imports: [
-    IonicModule,
-    FyMenuIconComponent,
-    EmployeeDetailsCardComponent,
-    ProfileOptInCardComponent,
-    MobileNumberCardComponent,
-    MatRipple,
-    NgClass,
-    InfoCardComponent,
-    RouterLink,
-    PreferenceSettingComponent,
     AsyncPipe,
+    EmployeeDetailsCardComponent,
+    FyMenuIconComponent,
+    InfoCardComponent,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatRipple,
+    MobileNumberCardComponent,
+    NgClass,
+    PreferenceSettingComponent,
+    ProfileOptInCardComponent,
+    RouterLink
   ],
 })
 export class MyProfilePage {

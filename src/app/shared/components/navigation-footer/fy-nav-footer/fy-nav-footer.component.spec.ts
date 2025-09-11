@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
 
 import { FyNavFooterComponent } from './fy-nav-footer.component';
@@ -21,7 +20,7 @@ describe('FyNavFooterComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, FyNavFooterComponent],
+      imports: [ TranslocoModule, FyNavFooterComponent],
       providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;

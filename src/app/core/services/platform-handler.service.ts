@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BackButtonActionPriority } from '../models/back-button-action-priority.enum';
-import { Platform } from '@ionic/angular';
+import { Platform } from '@ionic/angular/standalone';
 import { Subscription } from 'rxjs';
 
 @Injectable({

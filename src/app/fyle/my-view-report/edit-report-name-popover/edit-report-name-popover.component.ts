@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ElementRef, inject, viewChild } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonHeader, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +9,17 @@ import { TranslocoPipe } from '@jsverse/transloco';
   selector: 'app-edit-report-name-popover',
   templateUrl: './edit-report-name-popover.component.html',
   styleUrls: ['./edit-report-name-popover.component.scss'],
-  imports: [IonicModule, MatIcon, MatInput, FormsModule, TranslocoPipe],
+  imports: [
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    TranslocoPipe
+  ],
 })
 export class EditReportNamePopoverComponent implements OnInit {
   private popoverController = inject(PopoverController);

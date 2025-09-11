@@ -1,14 +1,7 @@
 import { Component, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
-import {
-  ActionSheetButton,
-  ActionSheetController,
-  ModalController,
-  NavController,
-  Platform,
-  IonicModule,
-} from '@ionic/angular';
+import {  ActionSheetButton, ActionSheetController, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, NavController, Platform } from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
@@ -62,20 +55,27 @@ SwiperCore.use([Pagination, Autoplay]);
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   imports: [
-    IonicModule,
-    FyMenuIconComponent,
-    NgClass,
-    MatIcon,
-    MatTabGroup,
-    MatTab,
-    SwiperModule,
-    DashboardOptInComponent,
-    DashboardEmailOptInComponent,
-    StatsComponent,
-    CardStatsComponent,
-    TasksComponent,
     AsyncPipe,
-    TranslocoPipe,
+    CardStatsComponent,
+    DashboardEmailOptInComponent,
+    DashboardOptInComponent,
+    FyMenuIconComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatTab,
+    MatTabGroup,
+    NgClass,
+    StatsComponent,
+    SwiperModule,
+    TasksComponent,
+    TranslocoPipe
   ],
 })
 export class DashboardPage {

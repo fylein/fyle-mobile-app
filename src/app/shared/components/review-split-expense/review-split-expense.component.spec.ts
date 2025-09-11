@@ -1,50 +1,43 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ReviewSplitExpenseComponent } from './review-split-expense.component';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { ExpensesCardComponent } from '../expenses-card-v2/expenses-card.component';
+
+// mock for expenses card component
+@Component({
+  selector: 'app-expense-card-v2',
+  template: '',
+})
+class ExpensesCardStubComponent {}
+
 describe('ReviewSplitExpenseComponent', () => {
   let component: ReviewSplitExpenseComponent;
   let fixture: ComponentFixture<ReviewSplitExpenseComponent>;
   let modalControllerSpy: jasmine.SpyObj<ModalController>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
       providers: [
         { provide: ModalController, useValue: modalSpy },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
-      imports: [TranslocoModule, ReviewSplitExpenseComponent],
+      imports: [ReviewSplitExpenseComponent,
+        getTranslocoTestingModule(),
+        MatIconTestingModule],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).overrideComponent(ReviewSplitExpenseComponent, {
+      remove: {imports: [ExpensesCardComponent]},
+      add: {imports: [ExpensesCardStubComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA]},
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReviewSplitExpenseComponent);
     component = fixture.componentInstance;
     modalControllerSpy = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'reviewSplitExpense.title': 'Review split expenses',
-      };
-      let translation = translations[key] || key;
-      if (params) {
-        Object.keys(params).forEach((key) => {
-          translation = translation.replace(`{{${key}}}`, params[key]);
-        });
-      }
-      return translation;
-    });
+
     fixture.detectChanges();
   }));
 

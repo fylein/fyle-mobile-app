@@ -1,6 +1,5 @@
 /* eslint-disable custom-rules/prefer-resolve-to-reject-with */
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { CameraPreviewComponent } from './camera-preview.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { CameraState } from 'src/app/core/enums/camera-state.enum';
@@ -26,7 +25,7 @@ describe('CameraPreviewComponent', () => {
     ]);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, CameraPreviewComponent],
+      imports: [ MatIconModule, MatIconTestingModule, CameraPreviewComponent],
       providers: [
         {
           provide: DEVICE_PLATFORM,
