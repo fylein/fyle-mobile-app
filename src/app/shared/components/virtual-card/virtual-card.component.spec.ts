@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { VirtualCardComponent } from './virtual-card.component';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
-import { click, getElementBySelector } from 'src/app/core/dom-helpers';
+import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
-import { of } from 'rxjs';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { PopoverController } from '@ionic/angular/standalone';
 
 describe('VirtualCardComponent', () => {
   let component: VirtualCardComponent;
@@ -14,26 +14,19 @@ describe('VirtualCardComponent', () => {
   let clipboardService: jasmine.SpyObj<ClipboardService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const clipboardServiceSpy = jasmine.createSpyObj('ClipboardService', ['writeString']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, VirtualCardComponent],
+      imports: [ getTranslocoTestingModule(), VirtualCardComponent],
       providers: [
         { provide: ClipboardService, useValue: clipboardServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
+        { provide: PopoverController, useValue: popoverControllerSpy }
       ],
     }).compileComponents();
 
@@ -42,25 +35,6 @@ describe('VirtualCardComponent', () => {
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     clipboardService = TestBed.inject(ClipboardService) as jasmine.SpyObj<ClipboardService>;
     component = fixture.componentInstance;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'virtualCard.preActive': 'Pre-Active',
-        'virtualCard.cvv': 'CVV',
-        'virtualCard.expiry': 'Expiry',
-        'virtualCard.available': 'Available',
-        'virtualCard.copiedSuccessfully': 'Copied Successfully!',
-        'virtualCard.availableMonthlyLimit': 'Available monthly limit',
-        'virtualCard.availableLimitMessage': 'Available limit on this card for the current month.',
-      };
-      let translation = translations[key] || key;
-      if (params) {
-        Object.keys(params).forEach((key) => {
-          translation = translation.replace(`{{${key}}}`, params[key]);
-        });
-      }
-      return translation;
-    });
     fixture.detectChanges();
   }));
 

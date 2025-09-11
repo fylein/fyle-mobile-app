@@ -11,29 +11,34 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.constants';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { cloneDeep } from 'lodash';
 import {
   advanceRequestFileUrlData,
   advanceRequestFileUrlData2,
   expectedFileData1,
-  fileObject10,
   fileObject4,
 } from 'src/app/core/mock-data/file-object.data';
 import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import { publicAdvanceRequestRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-actions.data';
-import { advanceReqApprovals, advanceReqApprovalsPublic } from 'src/app/core/mock-data/approval.data';
+import { advanceReqApprovalsPublic } from 'src/app/core/mock-data/approval.data';
 import { advanceRequestCustomFieldData2 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { customFields } from 'src/app/core/mock-data/custom-field.data';
-import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { advanceRequestPlatform } from 'src/app/core/mock-data/platform/v1/advance-request-platform.data';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import { modalControllerParams8, modalControllerParams9 } from 'src/app/core/mock-data/modal-controller.data';
+import { modalControllerParams8 } from 'src/app/core/mock-data/modal-controller.data';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { ReceiptPreviewThumbnailComponent } from 'src/app/shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+
+// mock for app-receipt-preview-thumbnail
+@Component({
+  selector: 'app-receipt-preview-thumbnail',
+  template: '<div></div>',
+})
+class MockReceiptPreviewThumbnailComponent {}
 
 describe('MyViewAdvanceRequestPage', () => {
   let component: MyViewAdvanceRequestPage;
@@ -75,7 +80,7 @@ describe('MyViewAdvanceRequestPage', () => {
     loaderServiceSpy.hideLoader.and.resolveTo();
 
     TestBed.configureTestingModule({
-      imports: [ MyViewAdvanceRequestPage],
+      imports: [MyViewAdvanceRequestPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
@@ -104,6 +109,13 @@ describe('MyViewAdvanceRequestPage', () => {
         { provide: NavController, useValue: navControllerSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
+    }).overrideComponent(MyViewAdvanceRequestPage, {
+      remove: {
+        imports: [ReceiptPreviewThumbnailComponent]
+      },
+      add: {
+        imports: [MockReceiptPreviewThumbnailComponent]
+      }
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyViewAdvanceRequestPage);
