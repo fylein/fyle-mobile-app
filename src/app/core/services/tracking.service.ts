@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
+import { CurrencyService } from './currency.service';
 import { DeviceService } from '../../core/services/device.service';
 import { environment } from 'src/environments/environment';
 import { ExpenseView } from '../models/expense-view.enum';
@@ -45,6 +46,8 @@ export class TrackingService {
   private authService = inject(AuthService);
 
   private deviceService = inject(DeviceService);
+
+  private currencyService = inject(CurrencyService);
 
   identityId = null;
 
@@ -98,10 +101,11 @@ export class TrackingService {
             mixpanel?.identify(eou.us.id);
           }
 
+          const homeCurrency = await this.currencyService.getHomeCurrency().toPromise();
           properties['User Id'] = eou.us.id;
           properties['Org Id'] = eou.ou.org_id;
           properties['Org User Id'] = eou.ou.id;
-          properties['Org Currency'] = eou.org.currency;
+          properties['Org Currency'] = homeCurrency;
           properties['Is Demo Account'] = this.isDemoAccount(eou);
         } catch (e) {}
       }

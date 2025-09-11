@@ -49,6 +49,7 @@ describe('SidemenuContentItemComponent', () => {
 
   it('should have the correct title displayed', fakeAsync(() => {
     sidemenuContentItemComponent.sidemenuItem = sidemenuItemData1;
+    sidemenuContentItemComponent.ngOnInit();
     fixture.detectChanges();
     tick();
     fixture.detectChanges();

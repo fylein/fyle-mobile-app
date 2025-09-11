@@ -461,11 +461,12 @@ export class TasksService {
     return forkJoin({
       eou: from(this.authService.getEou()),
       isUserFromINCluster: from(this.utilityService.isUserFromINCluster()),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      switchMap(({ eou, isUserFromINCluster }) => {
+      switchMap(({ eou, isUserFromINCluster, homeCurrency }) => {
         //Show this task only if mobile number is not verified and user is enrolled for RTF and user is not from IN cluster
         if (
-          (eou.org.currency === 'USD' || eou.org.currency === 'CAD') &&
+          (homeCurrency === 'USD' || homeCurrency === 'CAD') &&
           !eou.ou.mobile_verified &&
           eou.ou.mobile_verification_attempts_left !== 0 &&
           !isUserFromINCluster

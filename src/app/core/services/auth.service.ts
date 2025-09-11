@@ -12,7 +12,7 @@ import { AuthResponse } from '../models/auth-response.model';
 import { AccessTokenData } from '../models/access-token-data.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { EouPlatformApiResponse } from '../models/eou-platform-api-response.model';
+import { EouPlatformApiResponse } from '../models/employee-response.model';
 
 @Injectable({
   providedIn: 'root',

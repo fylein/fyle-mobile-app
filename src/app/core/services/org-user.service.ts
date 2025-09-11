@@ -17,7 +17,7 @@ import { AccessTokenData } from '../models/access-token-data.model';
 import { Delegator } from '../models/platform/delegator.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { EouPlatformApiResponse } from '../models/eou-platform-api-response.model';
+import { EouPlatformApiResponse } from '../models/employee-response.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
