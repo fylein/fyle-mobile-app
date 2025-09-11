@@ -1,4 +1,4 @@
-import { Component, Injector, Input, OnDestroy, OnInit, TemplateRef, inject, input, output } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, TemplateRef, inject, input, output } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
@@ -47,8 +47,6 @@ import { IonCol, IonGrid, IonRow } from '@ionic/angular/standalone';
 })
 export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
   private formBuilder = inject(UntypedFormBuilder);
-
-  private injector = inject(Injector);
 
   readonly amountOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 

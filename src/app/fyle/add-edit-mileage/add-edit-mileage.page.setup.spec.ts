@@ -46,16 +46,11 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { DependentFieldComponent } from 'src/app/shared/components/dependent-fields/dependent-field/dependent-field.component';
-import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
-import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
-import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { TestCases1 } from './add-edit-mileage-1.spec';
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { LocationService } from 'src/app/core/services/location.service';
-import { FyLocationComponent } from 'src/app/shared/components/fy-location/fy-location.component';
 import { TestCases2 } from '../add-edit-mileage/add-edit-mileage-2.spec';
 import { TestCases3 } from '../add-edit-mileage/add-edit-mileage-3.spec';
 import { TestCases4 } from './add-edit-mileage-4.spec';
@@ -63,8 +58,8 @@ import { TestCases5 } from './add-edit-mileage-5.spec';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -104,7 +99,6 @@ describe('AddEditMileagePage', () => {
       'addExpenses',
     ]);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
     const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', [
       'standardizeCustomFields',
@@ -241,21 +235,13 @@ describe('AddEditMileagePage', () => {
       'getGeocode',
     ]);
 
-    const platformHandlerService = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
-
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
 
     TestBed.configureTestingModule({
       imports: [
-        
         RouterTestingModule,
-        RouterModule,
         AddEditMileagePage,
-        MaskNumber,
-        FySelectComponent,
-        EllipsisPipe,
-        DependentFieldComponent,
-        FyLocationComponent,
+        getTranslocoTestingModule(),
       ],
       providers: [
         UntypedFormBuilder,
