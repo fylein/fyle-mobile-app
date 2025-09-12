@@ -13,7 +13,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { getElementRef } from 'src/app/core/dom-helpers';
-import { CUSTOM_ELEMENTS_SCHEMA, Directive } from '@angular/core';
+import { Directive, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
 
 describe('PendingVerificationPage', () => {
@@ -71,7 +71,7 @@ describe('PendingVerificationPage', () => {
       },
       add: {
         imports: [MockFormButtonValidationDirective],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+        schemas: [NO_ERRORS_SCHEMA],
       },
     }).compileComponents();
 

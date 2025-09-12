@@ -106,6 +106,15 @@ export function TestCases1(getTestBed) {
         mockAddNewFiltersToParams.and.returnValue(mockTasksQuery);
         spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
         spyOn(component, 'clearFilters');
+
+        component.simpleSearchInput = {
+          nativeElement: {
+            value: '',
+            dispatchEvent: jasmine.createSpy('dispatchEvent'),
+            addEventListener: jasmine.createSpy('addEventListener'),
+            removeEventListener: jasmine.createSpy('removeEventListener'),
+          }
+        } as any;
       });
 
       it('should set navigateBack to true if navigate_back is defined in activatedRoute.snapshot.params', () => {

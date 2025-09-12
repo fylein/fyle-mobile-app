@@ -14,6 +14,7 @@ import {
 } from 'src/app/core/mock-data/sidemenu-item.data';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { cloneDeep } from 'lodash';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('SidemenuContentComponent', () => {
   let component: SidemenuContentComponent;
@@ -38,7 +39,7 @@ describe('SidemenuContentComponent', () => {
     const menuControllerSpy = jasmine.createSpyObj('MenuController', ['close']);
 
     TestBed.configureTestingModule({
-      imports: [ SidemenuContentComponent],
+      imports: [SidemenuContentComponent, MatIconTestingModule],
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },

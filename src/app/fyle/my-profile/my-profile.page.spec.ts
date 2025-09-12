@@ -1,4 +1,4 @@
-import { EventEmitter } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
@@ -41,6 +41,15 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FeatureConfig } from 'src/app/core/models/feature-config.model';
+import { Component } from '@angular/core';
+import { EmployeeDetailsCardComponent } from './employee-details-card/employee-details-card.component';
+
+// mock EmployeeDetailsCardComponent
+@Component({
+  selector: 'app-employee-details-card',
+  template: '',
+})
+export class MockEmployeeDetailsCardComponent {}
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -224,6 +233,14 @@ describe('MyProfilePage', () => {
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
+    }).overrideComponent(MyProfilePage, {
+      remove: {
+        imports: [EmployeeDetailsCardComponent],
+      },
+      add: {
+        imports: [MockEmployeeDetailsCardComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      }
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyProfilePage);

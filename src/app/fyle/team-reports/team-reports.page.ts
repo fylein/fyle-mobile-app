@@ -71,7 +71,7 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
     ReportsCardComponent
   ],
 })
-export class TeamReportsPage implements OnInit, AfterViewInit {
+export class TeamReportsPage implements OnInit {
   private networkService = inject(NetworkService);
 
   private modalController = inject(ModalController);
@@ -160,27 +160,6 @@ export class TeamReportsPage implements OnInit, AfterViewInit {
     this.setupNetworkWatcher();
   }
 
-  ngAfterViewInit(): void {
-    if (this.simpleSearchInput?.nativeElement) {
-      this.simpleSearchInput.nativeElement.value = '';
-      fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
-        .pipe(
-          map((event: Event) => {
-            const value = (event.target as HTMLInputElement).value;
-            return value;
-          }),
-          distinctUntilChanged(),
-          debounceTime(1000),
-        )
-        .subscribe((searchString) => {
-          const currentParams = this.loadData$.getValue();
-          currentParams.searchString = searchString;
-          this.currentPageNumber = 1;
-          currentParams.pageNumber = this.currentPageNumber;
-          this.loadData$.next(currentParams);
-        });
-    }
-  }
 
   ionViewWillLeave(): void {
     this.onPageExit.next(null);
@@ -217,6 +196,24 @@ export class TeamReportsPage implements OnInit, AfterViewInit {
       }
 
       this.homeCurrency$ = this.currencyService.getHomeCurrency();
+
+      this.simpleSearchInput.nativeElement.value = '';
+      fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+        .pipe(
+          map((event: Event) => {
+            const value = (event.target as HTMLInputElement).value;
+            return value;
+          }),
+          distinctUntilChanged(),
+          debounceTime(1000),
+        )
+        .subscribe((searchString) => {
+          const currentParams = this.loadData$.getValue();
+          currentParams.searchString = searchString;
+          this.currentPageNumber = 1;
+          currentParams.pageNumber = this.currentPageNumber;
+          this.loadData$.next(currentParams);
+        });
 
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {

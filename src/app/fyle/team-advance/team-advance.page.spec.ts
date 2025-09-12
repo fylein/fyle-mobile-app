@@ -17,6 +17,7 @@ import { FiltersHelperService } from 'src/app/core/services/filters-helper.servi
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TeamAdvancePage } from './team-advance.page';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('TeamAdvancePage', () => {
   let component: TeamAdvancePage;
@@ -44,7 +45,7 @@ describe('TeamAdvancePage', () => {
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
 
     TestBed.configureTestingModule({
-      imports: [ TeamAdvancePage],
+      imports: [TeamAdvancePage, getTranslocoTestingModule()],
       providers: [
         ChangeDetectorRef,
         TitleCasePipe,

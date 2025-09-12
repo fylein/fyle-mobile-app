@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { ModalController, PopoverController } from '@ionic/angular/standalone';
 
 import { ViewPerDiemPage } from './view-per-diem.page';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
@@ -25,7 +24,6 @@ import {
   individualExpPolicyStateData2,
   individualExpPolicyStateData3,
 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
@@ -35,8 +33,6 @@ import { customFieldData1, customFields } from 'src/app/core/mock-data/custom-fi
 import { perDiemRatesData1 } from 'src/app/core/mock-data/per-diem-rates.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { cloneDeep } from 'lodash';
-import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { perDiemExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
@@ -45,12 +41,10 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
   let fixture: ComponentFixture<ViewPerDiemPage>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let perDiemService: jasmine.SpyObj<PerDiemService>;
@@ -69,10 +63,8 @@ describe('ViewPerDiemPage', () => {
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let activatedRoute: ActivatedRoute;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'fillCustomProperties',
@@ -110,14 +102,10 @@ describe('ViewPerDiemPage', () => {
       'ejectExpenses',
       'getReportById',
     ]);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
-      'checkIfManualFlaggingFeatureIsEnabled',
-    ]);
 
     TestBed.configureTestingModule({
       imports: [ ViewPerDiemPage],
       providers: [
-        { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: CustomInputsService, useValue: customInputsServiceSpy },
         { provide: PerDiemService, useValue: perDiemServiceSpy },
@@ -146,7 +134,6 @@ describe('ViewPerDiemPage', () => {
             },
           },
         },
-        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         { provide: SpenderExpenseCommentService, useValue: spenderExpenseCommentServiceSpy },
         { provide: ApproverExpenseCommentService, useValue: approverExpenseCommentServiceSpy },
       ],
@@ -154,7 +141,6 @@ describe('ViewPerDiemPage', () => {
 
     fixture = TestBed.createComponent(ViewPerDiemPage);
     component = fixture.componentInstance;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -177,7 +163,6 @@ describe('ViewPerDiemPage', () => {
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     activatedRoute = TestBed.inject(ActivatedRoute);
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     fixture.detectChanges();
   }));

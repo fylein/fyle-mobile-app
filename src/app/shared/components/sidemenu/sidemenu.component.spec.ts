@@ -14,7 +14,7 @@ import { MenuController } from '@ionic/angular/standalone';
 import { SidemenuComponent } from './sidemenu.component';
 import { of, take } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, NO_ERRORS_SCHEMA, Output, input } from '@angular/core';
+import { Component, EventEmitter, NO_ERRORS_SCHEMA} from '@angular/core';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { currentEouRes } from 'src/app/core/test-data/org-user.service.spec.data';
@@ -37,6 +37,7 @@ import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testin
 import { SidemenuContentComponent } from './sidemenu-content/sidemenu-content.component';
 import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
 import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.component';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -98,7 +99,7 @@ describe('SidemenuComponent', () => {
     ]);
     TestBed.configureTestingModule({
       imports: [ SidemenuComponent,
-        getTranslocoTestingModule()],
+        getTranslocoTestingModule(), MatIconTestingModule],
       providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
@@ -114,10 +115,9 @@ describe('SidemenuComponent', () => {
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).overrideComponent(SidemenuComponent, {
       remove: {imports: [SidemenuContentComponent, SidemenuFooterComponent, SidemenuHeaderComponent]},
-      add: {imports: [SidemenuContentStubComponent, SidemenuFooterStubComponent, SidemenuHeaderStubComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA]},
+      add: {imports: [SidemenuContentStubComponent, SidemenuFooterStubComponent, SidemenuHeaderStubComponent], schemas: [NO_ERRORS_SCHEMA]},
     }).compileComponents();
 
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;

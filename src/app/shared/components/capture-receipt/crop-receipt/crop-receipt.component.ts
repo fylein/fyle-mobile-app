@@ -1,10 +1,10 @@
 import { Component, OnInit, Input, inject, viewChild } from '@angular/core';
-import { ImageCropperComponent } from 'ngx-image-cropper';
 import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Subscription } from 'rxjs';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { MatIcon } from '@angular/material/icon';
+import { ImageCropperComponent, ImageCropperModule } from 'ngx-image-cropper';
 
 type Image = Partial<{
   source: string;
@@ -16,7 +16,7 @@ type Image = Partial<{
   templateUrl: './crop-receipt.component.html',
   styleUrls: ['./crop-receipt.component.scss'],
   imports: [
-    ImageCropperComponent,
+    ImageCropperModule,
     IonButton,
     IonButtons,
     IonContent,

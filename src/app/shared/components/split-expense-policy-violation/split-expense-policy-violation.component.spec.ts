@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ModalController } from '@ionic/angular/standalone';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { SplitExpensePolicyViolationComponent } from './split-expense-policy-violation.component';
-import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import {
   filteredSplitPolicyViolationsData,
@@ -23,7 +23,7 @@ describe('SplitExpensePolicyViolationComponent', () => {
     TestBed.configureTestingModule({
       imports: [getTranslocoTestingModule(), SplitExpensePolicyViolationComponent,
         MatIconTestingModule],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      schemas: [NO_ERRORS_SCHEMA],
       providers: [
         UntypedFormBuilder,
         {

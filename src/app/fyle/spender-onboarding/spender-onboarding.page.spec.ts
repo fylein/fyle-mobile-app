@@ -17,7 +17,7 @@ import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
 
 // mock for SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent
@@ -80,6 +80,7 @@ describe('SpenderOnboardingPage', () => {
       },
       add: {
         imports: [MockSpenderOnboardingConnectCardStepComponent, MockSpenderOnboardingOptInStepComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
       },
     }).compileComponents();
 

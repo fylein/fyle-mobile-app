@@ -648,11 +648,11 @@ export class MyExpensesPage implements OnInit {
         this.syncOutboxExpenses();
       }
     });
-
+    
     const getHomeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
-
+    
     this.homeCurrency$ = getHomeCurrency$;
-
+    
     getHomeCurrency$.subscribe((homeCurrency) => {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });

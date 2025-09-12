@@ -117,11 +117,10 @@ describe('MyAdvancesPage', () => {
         TitleCasePipe,
         UrlSerializer,
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     })
     .overrideComponent(MyAdvancesPage, {
       remove: { imports: [FooterComponent] },
-      add: { imports: [MockFooterComponent] }
+      add: { imports: [MockFooterComponent], schemas: [NO_ERRORS_SCHEMA] }
     })
     .compileComponents();
 

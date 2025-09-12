@@ -3,7 +3,6 @@ import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rx
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, PopoverController, ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, take, takeUntil, filter } from 'rxjs/operators';
@@ -102,8 +101,6 @@ export class ViewTeamReportPage {
   private expensesService = inject(ExpensesService);
 
   private authService = inject(AuthService);
-
-  private loaderService = inject(LoaderService);
 
   private router = inject(Router);
 

@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
 import { getElementRef } from 'src/app/core/dom-helpers';
-import { CUSTOM_ELEMENTS_SCHEMA, DebugElement, Directive } from '@angular/core';
+import { DebugElement, Directive, NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
@@ -70,7 +70,7 @@ describe('ResetPasswordPage', () => {
       },
       add: {
         imports: [MockFormButtonValidationDirective],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+        schemas: [NO_ERRORS_SCHEMA],
       },
     }).compileComponents();
 
