@@ -5,7 +5,6 @@ import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, input } from '@angular/core';
 import { AddCorporateCardComponent } from './add-corporate-card.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { NgxMaskModule } from 'ngx-mask';
 import { Component } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { statementUploadedCard, visaRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
@@ -57,7 +56,7 @@ describe('AddCorporateCardComponent', () => {
       'enrollingNonRTFCard',
     ]);
     TestBed.configureTestingModule({
-      imports: [NgxMaskModule.forRoot(),
+      imports: [
         getTranslocoTestingModule(),
         AddCorporateCardComponent,
         MatIconTestingModule],
@@ -113,8 +112,6 @@ describe('AddCorporateCardComponent', () => {
   });
 
   it('should close the add card popover when clicked on close button', () => {
-    component.ngOnInit();
-    fixture.detectChanges();
 
     const closeBtn = getElementBySelector(fixture, '[data-testid="close-btn"') as HTMLButtonElement;
     closeBtn.click();
@@ -131,10 +128,6 @@ describe('AddCorporateCardComponent', () => {
 
     it('should show a visa icon when entering a card number starting with 4', () => {
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
-
-      component.ngOnInit();
-      fixture.detectChanges();
-
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '4111111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
@@ -148,9 +141,6 @@ describe('AddCorporateCardComponent', () => {
     it('should show a mastercard icon when entering a card number starting with 5', () => {
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.MASTERCARD);
 
-      component.ngOnInit();
-      fixture.detectChanges();
-
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '5111111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
@@ -163,9 +153,6 @@ describe('AddCorporateCardComponent', () => {
 
     it('should show the default card icon when entering entering non visa/mastercard card number', () => {
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
-
-      component.ngOnInit();
-      fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '6111111111111111';
@@ -182,9 +169,6 @@ describe('AddCorporateCardComponent', () => {
     it('should show an error message when the user has entered an invalid card number', fakeAsync(() => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
-
-      component.ngOnInit();
-      fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '6111111111111111';
@@ -206,9 +190,6 @@ describe('AddCorporateCardComponent', () => {
 
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
-
-      component.ngOnInit();
-      fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '4111111111111111';
@@ -234,9 +215,6 @@ describe('AddCorporateCardComponent', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.MASTERCARD);
 
-      component.ngOnInit();
-      fixture.detectChanges();
-
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '5111111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
@@ -261,9 +239,6 @@ describe('AddCorporateCardComponent', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
 
-      component.ngOnInit();
-      fixture.detectChanges();
-
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '3111111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
@@ -285,9 +260,6 @@ describe('AddCorporateCardComponent', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(of(visaRTFCard));
-
-      component.ngOnInit();
-      fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '4555555555555555';
@@ -311,9 +283,6 @@ describe('AddCorporateCardComponent', () => {
       realTimeFeedService.enroll.and.returnValue(of(visaRTFCard));
 
       component.card = statementUploadedCard;
-
-      component.ngOnInit();
-      fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '4555555555555555';
@@ -363,9 +332,6 @@ describe('AddCorporateCardComponent', () => {
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(throwError(() => new Error()));
 
-      component.ngOnInit();
-      fixture.detectChanges();
-
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '4555555555555555';
       cardNumberInput.dispatchEvent(new Event('input'));
@@ -388,9 +354,6 @@ describe('AddCorporateCardComponent', () => {
     it('should disallow card enrollment if the entered card number is invalid', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
-
-      component.ngOnInit();
-      fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '4234111111111111';
@@ -495,9 +458,6 @@ describe('AddCorporateCardComponent', () => {
     it('should show mastercard in card networks if the user is entering a mastercard card number', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.MASTERCARD);
-
-      component.ngOnInit();
-      fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '5111111111111111';

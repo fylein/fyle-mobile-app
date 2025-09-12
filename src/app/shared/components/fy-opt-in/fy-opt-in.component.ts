@@ -7,7 +7,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { NgOtpInputConfig, NgOtpInputComponent, NgOtpInputModule } from 'ng-otp-input';
+import { NgOtpInputConfig, NgOtpInputComponent } from 'ng-otp-input';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -44,7 +44,7 @@ import { FormButtonValidationDirective } from '../../directive/form-button-valid
     MatIcon,
     MatInput,
     NgClass,
-    NgOtpInputModule,
+    NgOtpInputComponent,
     TranslocoPipe
   ],
 })
