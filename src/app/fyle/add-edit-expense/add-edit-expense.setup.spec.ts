@@ -117,7 +117,6 @@ describe('AddEditExpensePage', () => {
       'upsert',
       'review',
       'matchCCCExpense',
-      'transformRawExpense',
     ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
@@ -237,7 +236,6 @@ describe('AddEditExpensePage', () => {
       'deleteExpenses',
     ]);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
