@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpHeaders } from '@angular/common/http';
 import { OtpDetails } from '../models/otp-details.model';
 import { map, Observable } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';

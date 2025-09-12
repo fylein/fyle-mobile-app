@@ -16,7 +16,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
 import { NgClass } from '@angular/common';
-import { NgxMaskModule } from 'ngx-mask';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { AutofocusDirective } from '../../../shared/directive/autofocus.directive';
 import { FyAlertInfoComponent } from '../../../shared/components/fy-alert-info/fy-alert-info.component';
 import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
@@ -44,10 +44,11 @@ import { ArrayToCommaListPipe } from '../../../shared/pipes/array-to-comma-list.
     IonToolbar,
     MatIcon,
     NgClass,
-    NgxMaskModule,
+    NgxMaskDirective,
     ReactiveFormsModule,
     TranslocoPipe
   ],
+  providers: [provideNgxMask()]
 })
 export class AddCorporateCardComponent implements OnInit {
   private popoverController = inject(PopoverController);

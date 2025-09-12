@@ -14,8 +14,8 @@ import {
 } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators, FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { IonButton, IonIcon, ModalController } from '@ionic/angular/standalone';
-import { NgOtpInputComponent, NgOtpInputConfig, NgOtpInputModule } from 'ng-otp-input';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { NgOtpInputComponent, NgOtpInputConfig } from 'ng-otp-input';
 import { finalize, from, Subscription, switchMap } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
@@ -48,8 +48,8 @@ import { FormButtonValidationDirective } from '../../../shared/directive/form-bu
     IonButton,
     IonIcon,
     NgClass,
-    NgOtpInputModule,
-    TranslocoPipe
+    NgOtpInputComponent,
+    TranslocoPipe,
   ],
 })
 export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
@@ -345,7 +345,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   }
 
   onOtpChange(otp: string): void {
-    if (otp.length === 6) {
+    if (otp?.length === 6) {
       this.verifyOtp(otp);
     }
   }

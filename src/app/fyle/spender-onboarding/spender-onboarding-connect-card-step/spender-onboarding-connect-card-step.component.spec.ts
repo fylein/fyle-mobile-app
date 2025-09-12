@@ -1,12 +1,10 @@
-import { ComponentFixture, fakeAsync, flush, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
-import { UntypedFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { PopoverController } from '@ionic/angular/standalone';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
-import { NgxMaskModule } from 'ngx-mask';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
@@ -14,6 +12,7 @@ import { SimpleChanges } from '@angular/core';
 import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { enrollmentErrorPopoverData1, enrollmentErrorPopoverData2 } from 'src/app/core/mock-data/modal-controller.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('SpenderOnboardingConnectCardStepComponent', () => {
   let component: SpenderOnboardingConnectCardStepComponent;
@@ -23,7 +22,6 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let fb: UntypedFormBuilder;
   let trackingService: TrackingService;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
@@ -36,19 +34,9 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       'getCardTypeFromNumber',
       'isCardNumberValid',
     ]);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
       imports: [
-        
-        NgxMaskModule.forRoot(),
-        ReactiveFormsModule,
-        TranslocoModule,
+        getTranslocoTestingModule(),
         SpenderOnboardingConnectCardStepComponent,
       ],
       providers: [
@@ -57,7 +45,6 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
@@ -79,47 +66,6 @@ describe('SpenderOnboardingConnectCardStepComponent', () => {
       of([statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }]),
     );
     component.enrollableCards = [statementUploadedCard, { ...statementUploadedCard, id: 'bacc15bbrRGWzg' }];
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'spenderOnboardingConnectCardStep.title': 'Connect corporate card',
-        'spenderOnboardingConnectCardStep.subTitle':
-          'This will help you bring your card transactions into Fyle as expenses instantly.',
-        'spenderOnboardingConnectCardStep.cardLabel': 'Corporate card',
-        'spenderOnboardingConnectCardStep.cardNumberPlaceholder': 'XXXX XXXX XXXX',
-        'spenderOnboardingConnectCardStep.invalidCardNumberError': 'Please enter a valid card number.',
-        'spenderOnboardingConnectCardStep.invalidCardNetworkVisaMastercardError':
-          'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.',
-        'spenderOnboardingConnectCardStep.invalidCardNetworkVisaError':
-          'Enter a valid Visa number. If you have other cards, please contact your admin.',
-        'spenderOnboardingConnectCardStep.invalidCardNetworkMastercardError':
-          'Enter a valid Mastercard number. If you have other cards, please contact your admin.',
-        'spenderOnboardingConnectCardStep.singularCardPlaceholder': 'Enter corporate card number',
-        'spenderOnboardingConnectCardStep.continue': 'Continue',
-        'spenderOnboardingConnectCardStep.partialEnrollmentError':
-          'Some cards were not enrolled. You can enroll them later from Settings.',
-        'spenderOnboardingConnectCardStep.multipleEnrollmentError':
-          "We ran into an issue while processing your request for the cards <span class='text-bold'>{{allButLast}}</span> and <span class='text-bold'>{{lastCard}}</span>.<br><br>You can cancel and retry connecting the failed card or proceed to the next step.",
-        'spenderOnboardingConnectCardStep.singleEnrollmentError':
-          "We ran into an issue while processing your request for the card <span class='text-bold'>{{failedCard}}</span>.<br><br> You can cancel and retry connecting the failed card or proceed to the next step.",
-        'spenderOnboardingConnectCardStep.statusSummaryTitle': 'Status summary',
-        'spenderOnboardingConnectCardStep.failedConnectingTitle': 'Failed connecting',
-        'spenderOnboardingConnectCardStep.proceedAnyway': 'Proceed anyway',
-        'spenderOnboardingConnectCardStep.cancel': 'Cancel',
-        'spenderOnboardingConnectCardStep.genericEnrollmentError': 'Something went wrong. Please try after some time.',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
   }));
 
   describe('ngOnInit(): ', () => {

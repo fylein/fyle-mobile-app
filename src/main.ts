@@ -35,6 +35,7 @@ import { DecimalPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { ReportState } from './app/shared/pipes/report-state.pipe';
 import { provideIcons } from './app/shared/icon/icon.providers';
+import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 
 // Global cache config
 GlobalCacheConfig.maxAge = 10 * 60 * 1000;
@@ -102,11 +103,12 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(appRoutes, withPreloading(PreloadAllModules)),
-    importProvidersFrom(HammerModule, HammerModule, NgOtpInputModule),
+    importProvidersFrom(HammerModule, NgOtpInputModule),
     provideIcons(),
     GooglePlus,
     InAppBrowser,
     Smartlook,
+    ImagePicker,
     provideTransloco({
       config: {
         availableLangs: ['en'],
