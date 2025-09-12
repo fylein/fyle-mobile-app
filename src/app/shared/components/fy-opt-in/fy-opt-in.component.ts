@@ -1,6 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, inject, viewChild } from '@angular/core';
-import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { Subscription, finalize, from, switchMap } from 'rxjs';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -45,7 +55,7 @@ import { FormButtonValidationDirective } from '../../directive/form-button-valid
     MatInput,
     NgClass,
     NgOtpInputComponent,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class FyOptInComponent implements OnInit, AfterViewInit {
@@ -300,7 +310,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
   }
 
   onOtpChange(otp: string): void {
-    if (otp.length === 6) {
+    if (otp?.length === 6) {
       this.verifyOtp(otp);
     }
   }

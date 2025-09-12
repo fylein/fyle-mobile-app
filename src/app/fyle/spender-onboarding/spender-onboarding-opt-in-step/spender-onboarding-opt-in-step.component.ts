@@ -49,7 +49,7 @@ import { FormButtonValidationDirective } from '../../../shared/directive/form-bu
     IonIcon,
     NgClass,
     NgOtpInputComponent,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
@@ -345,7 +345,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   }
 
   onOtpChange(otp: string): void {
-    if (otp.length === 6) {
+    if (otp?.length === 6) {
       this.verifyOtp(otp);
     }
   }
