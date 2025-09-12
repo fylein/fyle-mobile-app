@@ -557,7 +557,7 @@ export class MyProfilePage {
 
   getOptOutMessageBody(): string {
     return `<div>
-              <p>Once you opt-out, you can't send receipts and expense details via text message. Your mobile number will be deleted</p>
+              <p>Once you opt-out, you can't send receipts and complete expenses via text message. Your mobile number will be deleted</p>
               <p>Would you like to continue?<p>  
             </div>`;
   }

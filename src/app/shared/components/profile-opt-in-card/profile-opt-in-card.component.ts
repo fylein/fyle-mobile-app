@@ -1,6 +1,8 @@
 import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { PlatformEmployee } from 'src/app/core/models/platform/platform-employee.model';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TranslocoService } from '@jsverse/transloco';
 
@@ -14,6 +16,8 @@ export class ProfileOptInCardComponent implements OnInit {
   private clipboardService = inject(ClipboardService);
 
   private trackingService = inject(TrackingService);
+
+  private employeesService = inject(EmployeesService);
 
   private translocoService = inject(TranslocoService);
 
@@ -31,6 +35,10 @@ export class ProfileOptInCardComponent implements OnInit {
 
   readonly deleteMobileNumberClicked = output<void>();
 
+  employee: PlatformEmployee;
+
+  isOptedOutViaSms = false;
+
   isUserOptedIn = false;
 
   isMobileAddedButNotVerified = false;
@@ -40,10 +48,14 @@ export class ProfileOptInCardComponent implements OnInit {
   mobileNumber: string;
 
   ngOnInit(): void {
-    this.isUserOptedIn = this.extendedOrgUser.ou.mobile && this.extendedOrgUser.ou.mobile_verified;
-    this.mobileNumber = this.extendedOrgUser.ou.mobile;
-    this.isMobileAddedButNotVerified = this.extendedOrgUser.ou.mobile && !this.extendedOrgUser.ou.mobile_verified;
-    this.isInvalidUSNumber = this.isMobileAddedButNotVerified && !this.extendedOrgUser.ou.mobile.startsWith('+1');
+    this.employeesService.getByParams({ user_id: `eq.${this.extendedOrgUser.ou.user_id}` }).subscribe((res) => {
+      this.employee = res.data[0];
+      this.mobileNumber = this.employee.mobile;
+      this.isMobileAddedButNotVerified = this.mobileNumber && !this.employee.is_mobile_verified;
+      this.isInvalidUSNumber = this.isMobileAddedButNotVerified && !this.mobileNumber.startsWith('+1');
+      this.isUserOptedIn = this.mobileNumber && this.employee.is_mobile_verified;
+      this.isOptedOutViaSms = this.employee.sms_opt_out_source === 'SMS';
+    });
   }
 
   clickedOnOptIn(): void {
