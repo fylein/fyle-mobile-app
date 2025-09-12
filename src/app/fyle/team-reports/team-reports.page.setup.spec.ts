@@ -22,7 +22,6 @@ import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
-import { MatInput } from '@angular/material/input';
 
 // mock for footer component
 @Component({
@@ -91,7 +90,7 @@ describe('TeamReportsPage', () => {
     })
     .overrideComponent(TeamReportsPage, {
       remove: { imports: [FooterComponent] },
-      add: { imports: [MockFooterComponent] }
+      add: { imports: [MockFooterComponent], schemas: [NO_ERRORS_SCHEMA] }
     })
     .compileComponents();
 

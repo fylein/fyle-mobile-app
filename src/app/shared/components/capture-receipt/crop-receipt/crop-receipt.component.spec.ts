@@ -3,7 +3,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { CropReceiptComponent } from './crop-receipt.component';
 import { ModalController, Platform } from '@ionic/angular/standalone';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { ImageCropperComponent } from 'ngx-image-cropper';
+import { ImageCropperComponent, ImageCropperModule } from 'ngx-image-cropper';
 import { Subscription } from 'rxjs';
 import { Component, input } from '@angular/core';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
@@ -52,7 +52,7 @@ describe('CropReceiptComponent', () => {
         },
       ],
     }).overrideComponent(CropReceiptComponent, {
-      remove: {imports: [ImageCropperComponent]},
+      remove: {imports: [ImageCropperModule]},
       add: {imports: [ImageCropperStubComponent]}
     }).compileComponents();
     fixture = TestBed.createComponent(CropReceiptComponent);

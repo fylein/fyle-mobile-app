@@ -41,6 +41,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { BankAccountCardsComponent } from 'src/app/shared/components/bank-account-cards/bank-account-cards.component';
 import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
+import { PersonalCardTransactionComponent } from 'src/app/shared/components/personal-card-transaction/personal-card-transaction.component';
 
 // mock app-bank-account-cards component
 @Component({
@@ -53,6 +54,12 @@ class MockBankAccountCardsComponent {}
   template: '<div></div>',
 })
 class MockFooterComponent {}
+
+@Component({
+  selector: 'app-personal-card-transaction',
+  template: '<div></div>',
+})
+class MockPersonalCardTransactionComponent {}
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -196,8 +203,8 @@ describe('PersonalCardsPage', () => {
         },
       ],
     }).overrideComponent(PersonalCardsPage, {
-      remove: {imports: [BankAccountCardsComponent, FooterComponent]},
-      add: {imports: [MockBankAccountCardsComponent, MockFooterComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA]},
+      remove: {imports: [BankAccountCardsComponent, FooterComponent, PersonalCardTransactionComponent]},
+      add: {imports: [MockBankAccountCardsComponent, MockFooterComponent, MockPersonalCardTransactionComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA]},
     }).compileComponents();
     fixture = TestBed.createComponent(PersonalCardsPage);
     component = fixture.componentInstance;
@@ -632,7 +639,11 @@ describe('PersonalCardsPage', () => {
     });
 
     it('searchClick(): should open search', fakeAsync(() => {
-      spyOn(component.simpleSearchInput.nativeElement, 'focus');
+      component.simpleSearchInput = {
+        nativeElement: {
+          focus: jasmine.createSpy('focus'),
+        },
+      } as any;
 
       component.searchClick();
       tick(500);
@@ -680,10 +691,21 @@ describe('PersonalCardsPage', () => {
     });
 
     describe('clearText():', () => {
+      beforeEach(() => {
+        component.simpleSearchInput = {
+          nativeElement: {
+            value: 'test',
+            dispatchEvent: jasmine.createSpy('dispatchEvent'),
+          },
+        } as any;
+      });
+
       it('should set search bar if not redirected from cancel', () => {
         component.clearText('onSimpleSearchCancel');
 
         expect(component.simpleSearchText).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.value).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event('keyup'));
         expect(component.isSearchBarFocused).toBeTrue();
       });
 
@@ -691,6 +713,8 @@ describe('PersonalCardsPage', () => {
         component.clearText('notFromCancel');
 
         expect(component.simpleSearchText).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.value).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event('keyup'));
         expect(component.isSearchBarFocused).toBeFalse();
       });
     });
@@ -1071,7 +1095,14 @@ describe('PersonalCardsPage', () => {
       spyOn(component, 'loadInfiniteScroll');
       personalCardsService.generateFilterPills.and.returnValue(allFilterPills);
 
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.personal-cards--simple-search-input'));
+      component.simpleSearchInput = {
+        nativeElement: {
+          value: 'test',
+          dispatchEvent: jasmine.createSpy('dispatchEvent'),
+          addEventListener: jasmine.createSpy('addEventListener'),
+          removeEventListener: jasmine.createSpy('removeEventListener'),
+        },
+      } as any;
     });
 
     it('should set navigateBack based on activatedRoute params', () => {
