@@ -24,7 +24,7 @@ export interface OrgUser {
   branch_ifsc?: string;
   branch_account?: string;
   mobile: string;
-  mobile_verified?: boolean | string;
+  mobile_verified?: boolean;
   mobile_verified_at?: Date;
   is_primary?: boolean;
   owner?: boolean;
@@ -34,5 +34,5 @@ export interface OrgUser {
   org_name?: string;
   settings_id?: string;
   cost_center_ids?: number[];
-  mobile_verification_attempts_left?: number | string;
+  mobile_verification_attempts_left?: number;
 }

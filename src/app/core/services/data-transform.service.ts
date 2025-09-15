@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CustomField } from '../models/custom_field.model';
 import { CustomProperty } from '../models/custom-properties.model';
-import { EouPlatformApiResponse } from '../models/eou-platform-api-response.model';
+import { EouPlatformApiResponse } from '../models/employee-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 @Injectable({
@@ -36,6 +36,27 @@ export class DataTransformService {
     return 'ACTIVE';
   }
 
+  parseBoolean(value: string | boolean): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true';
+    }
+    return false;
+  }
+
+  parseNumber(value: string | number): number {
+    if (typeof value === 'number') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      const parsed = parseInt(value, 10);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  }
+
   transformCustomFields(customFields: CustomField[]): CustomProperty<number | string>[] {
     return (
       customFields.map((field) => ({
@@ -56,26 +77,27 @@ export class DataTransformService {
         user_id: platformRes.user_id,
         employee_id: platformRes.code,
         location: platformRes.location,
-        level: platformRes.level.name,
+        level: platformRes.level?.name,
         level_id: platformRes.level_id,
-        band: platformRes.level.band,
+        band: platformRes.level?.band,
         business_unit: platformRes.business_unit,
         department_id: platformRes.department_id,
-        department: platformRes.department.name,
-        sub_department: platformRes.department.sub_department,
+        department: platformRes.department?.name,
+        sub_department: platformRes.department?.sub_department,
         roles: platformRes.roles,
+        special_email: platformRes.special_email,
 
-        approver1_id: platformRes.approver_user_ids[0],
-        approver2_id: platformRes.approver_user_ids[1],
-        approver3_id: platformRes.approver_user_ids[2],
+        approver1_id: platformRes?.approver_user_ids[0],
+        approver2_id: platformRes?.approver_user_ids[1],
+        approver3_id: platformRes?.approver_user_ids[2],
 
         title: platformRes.title,
         status: this.getStatus(platformRes.is_enabled, platformRes.has_accepted_invite),
         branch_ifsc: platformRes.branch_ifsc,
         branch_account: platformRes.branch_account,
         mobile: platformRes.mobile,
-        mobile_verified: platformRes.is_mobile_verified,
-        mobile_verification_attempts_left: platformRes.mobile_verification_attempts_left,
+        mobile_verified: this.parseBoolean(platformRes.is_mobile_verified),
+        mobile_verification_attempts_left: this.parseNumber(platformRes.mobile_verification_attempts_left),
         is_primary: platformRes.is_primary,
         custom_field_values: this.transformCustomFields(platformRes.custom_fields),
       },

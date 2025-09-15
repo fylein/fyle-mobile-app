@@ -139,10 +139,6 @@ export const extendedOrgUserResponse: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: 'sdh',
     cost_center_ids: [2422, 2423, 11725, 11726],
   },
-  org: {
-    domain: 'fyledemo.com',
-    currency: 'INR',
-  },
   us: {
     id: 'usN0bYiJRI5V',
     created_at: new Date('2019-02-04T10:26:36.763Z'),
@@ -163,13 +159,44 @@ export const extendedOrgUserResponse: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'STATE BANK OF INDIA',
+  department: {
+    id: 'dept123',
+    code: 'ENG',
+    name: 'Engineering',
+    sub_department: 'Backend',
+    display_name: 'Engineering - Backend',
   },
-  dwolla: {
-    customer_id: 'dwc8ZDUdZeUHhrI',
-    bank_account_added: true,
+  approver_user_ids: ['ouE1vAIIx0fA', null, null],
+  approver_users: [{ id: 'ouE1vAIIx0fA', full_name: 'Manager One', email: 'manager1@fyle.in' }, null, null],
+  delegatees: [],
+  locale: {
+    timezone: 'Asia/Kolkata',
+    abbreviation: 'IST',
+    offset: '+05:30',
   },
+  commute_details: {
+    id: 123,
+    distance: 10.5,
+    distance_unit: 'km',
+    home_location: {
+      latitude: 12.9716,
+      longitude: 77.5946,
+      city: 'Bangalore',
+      country: 'India',
+      formatted_address: 'Bangalore, Karnataka, India',
+      state: 'Karnataka',
+    },
+    work_location: {
+      latitude: 12.9716,
+      longitude: 77.5946,
+      city: 'Bangalore',
+      country: 'India',
+      formatted_address: 'Bangalore, Karnataka, India',
+      state: 'Karnataka',
+    },
+  },
+  commute_details_id: 'commute123',
+  flattened_custom_field: {},
 });
 
 export const extendedOrgUserResponseSpender: ExtendedOrgUser = deepFreeze({
