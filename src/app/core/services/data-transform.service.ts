@@ -66,6 +66,7 @@ export class DataTransformService {
     );
   }
 
+  /* eslint-disable complexity */
   transformExtOrgUserResponse(platformRes: EouPlatformApiResponse): ExtendedOrgUser {
     const transformedResponse: ExtendedOrgUser = {
       ou: {
