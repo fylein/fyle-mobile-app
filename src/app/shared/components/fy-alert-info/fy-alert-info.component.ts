@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject, output } from '@angular/core';
+import { Component, Input, OnInit, inject, output, input } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
@@ -25,6 +25,8 @@ export class FyAlertInfoComponent implements OnInit {
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
   @Input() actionButtonContent: string;
+
+  readonly allowHtml = input(false);
 
   readonly actionClick = output<void>();
 

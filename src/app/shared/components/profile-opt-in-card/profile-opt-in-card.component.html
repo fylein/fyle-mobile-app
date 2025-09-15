@@ -15,7 +15,11 @@
 
       @if (isOptedOutViaSms) {
         <div class="profile-opt-in-card__alert-info">
-          <app-fy-alert-info [message]="'profileOptInCard.optInMessage' | transloco" type="warning"></app-fy-alert-info>
+          <app-fy-alert-info
+            [message]="'profileOptInCard.optInMessage' | transloco"
+            type="warning"
+            [allowHtml]="true"
+          ></app-fy-alert-info>
         </div>
       }
 
@@ -28,16 +32,21 @@
             [style.pointer-events]="isOptedOutViaSms ? 'none' : 'auto'"
             (click)="!isOptedOutViaSms && clickedOnOptOut()"
           >
-            {{ (isUserOptedIn ? 'profileOptInCard.optOut' : 'profileOptInCard.optIn') | transloco }}
+            {{
+              (isUserOptedIn && !isOptedOutViaSms ? 'profileOptInCard.optOut' : 'profileOptInCard.optIn') | transloco
+            }}
           </span>
         </div>
         <div class="profile-opt-in-card__status__icon-container">
           <div
             class="profile-opt-in-card__status__icon"
-            [class.profile-opt-in-card__status__icon--inactive]="!isUserOptedIn"
+            [class.profile-opt-in-card__status__icon--inactive]="!isUserOptedIn || isOptedOutViaSms"
           ></div>
           <div class="profile-opt-in-card__status__text">
-            {{ (isUserOptedIn ? 'profileOptInCard.optedIn' : 'profileOptInCard.optedOut') | transloco }}
+            {{
+              (isUserOptedIn && !isOptedOutViaSms ? 'profileOptInCard.optedIn' : 'profileOptInCard.optedOut')
+                | transloco
+            }}
           </div>
         </div>
         <div class="profile-opt-in-card__divider"></div>
