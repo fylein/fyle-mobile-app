@@ -10,8 +10,8 @@ export interface PlatformEmployee {
   department?: Department;
   department_id?: string;
   org_id: string;
-  mobile?: string;
-  is_mobile_verified: boolean;
+  mobile: string | null;
+  is_mobile_verified: boolean | null;
   sms_opt_out_source: string | null;
   delegatees?: Delegatee[];
 }
