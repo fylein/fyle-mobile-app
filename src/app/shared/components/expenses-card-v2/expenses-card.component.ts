@@ -211,7 +211,7 @@ export class ExpensesCardComponent implements OnInit {
     if (isInstaFyleEnabled && (this.homeCurrency === 'USD' || this.homeCurrency === 'INR') && expense) {
       return this.checkIfScanIsCompleted(expense);
     }
-    return false;
+    return true;
   });
 
   readonly isScanInProgress = computed(() => !this.isScanCompleted() && !this.expense().extracted_data);
