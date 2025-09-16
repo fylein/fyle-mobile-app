@@ -837,6 +837,7 @@
                             appFormatDate
                             class="add-edit-expense--date-input date-input__format smartlook-show"
                             formControlName="from_dt"
+                            [max]="fg.get('to_dt')?.value"
                             [name]="txnFields.from_dt?.field_name"
                             type="date"
                             [placeholder]="txnFields.from_dt?.placeholder || 'Select ' + txnFields.from_dt?.field_name"
@@ -874,6 +875,7 @@
                             appFormatDate
                             class="add-edit-expense--date-input date-input__format smartlook-show"
                             formControlName="to_dt"
+                            [min]="fg.get('from_dt')?.value"
                             [name]="txnFields.to_dt?.field_name"
                             type="date"
                             [placeholder]="txnFields.from_dt?.placeholder || 'Select ' + txnFields.to_dt?.field_name"
