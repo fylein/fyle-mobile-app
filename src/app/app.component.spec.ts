@@ -23,6 +23,9 @@ import { DeviceService } from './core/services/device.service';
 import { GmapsService } from './core/services/gmaps.service';
 
 import { SplashScreen } from '@capacitor/splash-screen';
+import { StatusBar } from '@capacitor/status-bar';
+import { TextZoom } from '@capacitor/text-zoom';
+import { App } from '@capacitor/app';
 import { BackButtonService } from './core/services/back-button.service';
 import { getTranslocoTestingModule } from './core/testing/transloco-testing.utils';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
@@ -162,15 +165,17 @@ describe('AppComponent', () => {
         { provide: MenuController, useValue: menuControllerSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
       ],
-    }).overrideComponent(AppComponent, {
-      remove: {
-        imports: [SidemenuComponent, FyConnectionComponent, FooterComponent],
-      },
-      add: {
-        imports: [MockSidemenuComponent, MockFyConnectionComponent, MockFyFooterComponent],
-        schemas: [NO_ERRORS_SCHEMA]
-      },
-    }).compileComponents();
+    })
+      .overrideComponent(AppComponent, {
+        remove: {
+          imports: [SidemenuComponent, FyConnectionComponent, FooterComponent],
+        },
+        add: {
+          imports: [MockSidemenuComponent, MockFyConnectionComponent, MockFyFooterComponent],
+          schemas: [NO_ERRORS_SCHEMA],
+        },
+      })
+      .compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -193,24 +198,59 @@ describe('AppComponent', () => {
 
   describe('ngAfterViewInit', () => {
     let splashScreenSpy: jasmine.SpyObj<typeof SplashScreen>;
+    let statusBarSpy: jasmine.SpyObj<typeof StatusBar>;
+    let textZoomSpy: jasmine.SpyObj<typeof TextZoom>;
+    let appSpy: jasmine.SpyObj<typeof App>;
 
     beforeEach(() => {
       splashScreenSpy = jasmine.createSpyObj('SplashScreen', ['hide']);
       splashScreenSpy.hide.and.resolveTo();
-      // Replace the global SplashScreen object
+
+      statusBarSpy = jasmine.createSpyObj('StatusBar', ['setStyle']);
+      statusBarSpy.setStyle.and.resolveTo();
+
+      textZoomSpy = jasmine.createSpyObj('TextZoom', ['set']);
+      textZoomSpy.set.and.resolveTo();
+
+      appSpy = jasmine.createSpyObj('App', ['addListener']);
+      appSpy.addListener.and.resolveTo({ remove: jasmine.createSpy('remove') });
+
+      // Replace the global Capacitor plugin objects
       Object.defineProperty(window, 'SplashScreen', {
         value: splashScreenSpy,
         writable: true,
         configurable: true,
       });
+
+      Object.defineProperty(window, 'StatusBar', {
+        value: statusBarSpy,
+        writable: true,
+        configurable: true,
+      });
+
+      Object.defineProperty(window, 'TextZoom', {
+        value: textZoomSpy,
+        writable: true,
+        configurable: true,
+      });
+
+      Object.defineProperty(window, 'App', {
+        value: appSpy,
+        writable: true,
+        configurable: true,
+      });
+
       jasmine.clock().install();
       jasmine.clock().mockDate();
     });
 
     afterEach(() => {
       jasmine.clock().uninstall();
-      // Clean up the global SplashScreen object
+      // Clean up the global Capacitor plugin objects
       delete (window as any).SplashScreen;
+      delete (window as any).StatusBar;
+      delete (window as any).TextZoom;
+      delete (window as any).App;
     });
 
     it('should initialize after view is ready', async () => {
