@@ -13,27 +13,37 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from '../../core/models/platform/v1/report.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
-import { IonicModule } from '@ionic/angular';
 import { MatIcon } from '@angular/material/icon';
 import { NgIf, NgFor } from '@angular/common';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonRow, IonSkeletonText, IonToolbar } from '@ionic/angular/standalone';
+
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
   styleUrls: ['./my-create-report.page.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
-    NgIf,
-    NgFor,
-    FormsModule,
-    MatCheckbox,
+    ExactCurrencyPipe,
     ExpensesCardComponent,
     FormButtonValidationDirective,
-    ExactCurrencyPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonRow,
+    IonSkeletonText,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    NgFor,
+    NgIf
   ],
 })
 export class MyCreateReportPage implements OnInit {

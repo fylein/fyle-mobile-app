@@ -6,16 +6,25 @@ import { NetworkService } from '../../../core/services/network.service';
 import { ConnectionMessageStatus } from '../fy-connection/connection-status.enum';
 import { Observable } from 'rxjs/internal/Observable';
 import { NgClass, AsyncPipe } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { MatIcon } from '@angular/material/icon';
 import { MatRipple } from '@angular/material/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { IonRippleEffect, IonTabButton } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
-  imports: [NgClass, IonicModule, MatIcon, MatRipple, AsyncPipe, TranslocoPipe],
+  imports: [
+    AsyncPipe,
+    IonRippleEffect,
+    IonTabButton,
+    MatIcon,
+    MatRipple,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FooterComponent implements OnInit {
   private networkService = inject(NetworkService);

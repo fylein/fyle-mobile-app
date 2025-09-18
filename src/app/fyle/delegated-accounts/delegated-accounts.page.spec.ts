@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular/standalone';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -49,7 +49,7 @@ describe('DelegatedAccountsPage', () => {
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), FormsModule, DelegatedAccountsPage],
+      imports: [ FormsModule, DelegatedAccountsPage],
       providers: [
         {
           provide: ActivatedRoute,

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PreferenceSettingComponent } from './preference-setting.component';
@@ -27,7 +27,7 @@ describe('PreferenceSettingComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
         FormsModule,

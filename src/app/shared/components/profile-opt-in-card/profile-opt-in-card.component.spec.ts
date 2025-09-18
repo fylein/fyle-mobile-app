@@ -1,7 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-
 import { ProfileOptInCardComponent } from './profile-opt-in-card.component';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -32,7 +30,7 @@ describe('ProfileOptInCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, ProfileOptInCardComponent],
+      imports: [ TranslocoModule, ProfileOptInCardComponent],
       providers: [
         { provide: ClipboardService, useValue: clipboardServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },

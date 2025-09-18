@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { FySelectDisabledComponent } from './fy-select-disabled.component';
 import { getTextContent, getElementBySelector } from 'src/app/core/dom-helpers';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +10,7 @@ describe('FySelectDisabledComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FySelectDisabledComponent],
+      imports: [ MatIconModule, MatIconTestingModule, FySelectDisabledComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FySelectDisabledComponent);

@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, forwardRef, Input, inject, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { noop } from 'rxjs';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';

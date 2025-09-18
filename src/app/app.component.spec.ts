@@ -1,7 +1,7 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { IonicModule, Platform, MenuController } from '@ionic/angular';
+import { Platform, MenuController } from '@ionic/angular/standalone';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -17,15 +17,35 @@ import { TasksService } from './core/services/tasks.service';
 import { of } from 'rxjs';
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { TrackingService } from './core/services/tracking.service';
-import { NavController } from '@ionic/angular';
-import { TranslocoService } from '@jsverse/transloco';
+import { NavController } from '@ionic/angular/standalone';
 import { UserEventService } from './core/services/user-event.service';
 import { DeviceService } from './core/services/device.service';
 import { GmapsService } from './core/services/gmaps.service';
 
 import { SplashScreen } from '@capacitor/splash-screen';
-import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
 import { BackButtonService } from './core/services/back-button.service';
+import { getTranslocoTestingModule } from './core/testing/transloco-testing.utils';
+import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
+import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
+
+// mock side menu component
+@Component({
+  selector: 'app-sidemenu',
+})
+class MockSidemenuComponent {}
+
+// mock connection component
+@Component({
+  selector: 'app-fy-connection',
+})
+class MockFyConnectionComponent {}
+
+// mock footer component
+@Component({
+  selector: 'app-fy-footer',
+})
+class MockFyFooterComponent {}
 
 describe('AppComponent', () => {
   let platformReadySpy;
@@ -42,7 +62,6 @@ describe('AppComponent', () => {
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let navController: jasmine.SpyObj<NavController>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let deviceService: jasmine.SpyObj<DeviceService>;
   let gmapsService: jasmine.SpyObj<GmapsService>;
@@ -99,7 +118,6 @@ describe('AppComponent', () => {
     ]);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateRoot', 'back']);
     spenderOnboardingServiceSpy.setOnboardingStatusAsComplete.and.returnValue(of(null));
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', {
       onSetToken: (callback) => callback(),
       onLogout: (callback) => callback(),
@@ -113,7 +131,7 @@ describe('AppComponent', () => {
     trackingServiceSpy.updateIdentityIfNotPresent = jasmine.createSpy('updateIdentityIfNotPresent').and.resolveTo();
     trackingServiceSpy.onSignOut = jasmine.createSpy('onSignOut');
     TestBed.configureTestingModule({
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      imports: [getTranslocoTestingModule(), AppComponent],
       providers: [
         { provide: Platform, useValue: platformSpy },
         { provide: AuthService, useValue: authServiceSpy },
@@ -138,14 +156,20 @@ describe('AppComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: NavController, useValue: navControllerSpy },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: GmapsService, useValue: gmapsServiceSpy },
         { provide: MenuController, useValue: menuControllerSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
       ],
-      imports: [IonicModule.forRoot(), AppComponent],
+    }).overrideComponent(AppComponent, {
+      remove: {
+        imports: [SidemenuComponent, FyConnectionComponent, FooterComponent],
+      },
+      add: {
+        imports: [MockSidemenuComponent, MockFyConnectionComponent, MockFyFooterComponent],
+        schemas: [NO_ERRORS_SCHEMA]
+      },
     }).compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
@@ -160,8 +184,6 @@ describe('AppComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
-    // adding transloco service to the testbed
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;

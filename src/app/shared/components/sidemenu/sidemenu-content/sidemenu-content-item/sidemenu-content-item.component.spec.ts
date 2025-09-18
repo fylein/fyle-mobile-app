@@ -1,5 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { RouterTestingModule } from '@angular/router/testing';
 import { RouterModule } from '@angular/router';
 import { SidemenuContentItemComponent } from './sidemenu-content-item.component';
@@ -12,7 +11,7 @@ describe('SidemenuContentItemComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule, SidemenuContentItemComponent],
+      imports: [ RouterModule, RouterTestingModule, SidemenuContentItemComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SidemenuContentItemComponent);

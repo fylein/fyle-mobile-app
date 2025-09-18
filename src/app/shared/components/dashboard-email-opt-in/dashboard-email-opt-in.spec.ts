@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
 
 import { DashboardEmailOptInComponent } from './dashboard-email-opt-in.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('DashboardEmailOptInComponent', () => {
   let component: DashboardEmailOptInComponent;
@@ -29,7 +30,7 @@ describe('DashboardEmailOptInComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, DashboardEmailOptInComponent],
+      imports: [ TranslocoModule, DashboardEmailOptInComponent, MatIconTestingModule],
       providers: [
         {
           provide: PopoverController,

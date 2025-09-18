@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
@@ -14,7 +13,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('FyAddToReportModalComponent', () => {
   let component: FyAddToReportModalComponent;
@@ -29,10 +28,10 @@ describe('FyAddToReportModalComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconModule,
         MatIconTestingModule,
-        getTranslocoModule(),
+        getTranslocoTestingModule(),
         FyAddToReportModalComponent,
         HumanizeCurrencyPipe,
         ReportState,

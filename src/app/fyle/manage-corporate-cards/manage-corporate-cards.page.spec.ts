@@ -3,12 +3,11 @@ import {
   ActionSheetButton,
   ActionSheetController,
   IonRefresher,
-  IonicModule,
   ModalController,
   PopoverController,
   RefresherCustomEvent,
   SegmentCustomEvent,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
@@ -17,7 +16,7 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
-import { NEVER, Observable, Subscription, of, throwError } from 'rxjs';
+import { NEVER, Subscription, of, throwError } from 'rxjs';
 import { orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import {
@@ -26,8 +25,7 @@ import {
   virtualCard,
   visaRTFCard,
 } from 'src/app/core/mock-data/platform-corporate-card.data';
-import { Component, input } from '@angular/core';
-import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
@@ -39,14 +37,16 @@ import { cardUnenrolledProperties } from 'src/app/core/mock-data/corporate-card-
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
-import { virtualCardDetailsCombined } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { VirtualCardComponent } from 'src/app/shared/components/virtual-card/virtual-card.component';
+import { CorporateCardComponent } from 'src/app/shared/components/corporate-card/corporate-card.component';
+import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 
 @Component({
   selector: 'app-corporate-card',
@@ -58,6 +58,12 @@ class MockCorporateCardComponent {
   readonly isVisaRTFEnabled = input<boolean>(undefined);
 
   readonly isMastercardRTFEnabled = input<boolean>(undefined);
+}
+@Component({
+  selector: 'app-virtual-card',
+  template: '<div></div>',
+})
+class MockVirtualCardComponent {
 }
 
 describe('ManageCorporateCardsPage', () => {
@@ -108,7 +114,8 @@ describe('ManageCorporateCardsPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), ManageCorporateCardsPage, MockCorporateCardComponent],
+      imports: [ManageCorporateCardsPage,
+        MatIconTestingModule],
       providers: [
         {
           provide: Router,
@@ -167,6 +174,9 @@ describe('ManageCorporateCardsPage', () => {
           useValue: authServiceSpy,
         },
       ],
+    }).overrideComponent(ManageCorporateCardsPage, {
+      remove: {imports: [CorporateCardComponent, VirtualCardComponent]},
+      add: {imports: [MockCorporateCardComponent, MockVirtualCardComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA]},
     }).compileComponents();
 
     fixture = TestBed.createComponent(ManageCorporateCardsPage);

@@ -1,14 +1,26 @@
 import { Component, OnInit, Input, input, output } from '@angular/core';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
-import { IonicModule } from '@ionic/angular';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgClass, NgStyle } from '@angular/common';
+import { IonCol, IonGrid, IonIcon, IonItem, IonLabel, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-sidemenu-content-item',
   templateUrl: './sidemenu-content-item.component.html',
   styleUrls: ['./sidemenu-content-item.component.scss'],
-  imports: [IonicModule, RouterLink, RouterLinkActive, NgClass, NgStyle],
+  imports: [
+    IonCol,
+    IonGrid,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonRow,
+    NgClass,
+    NgStyle,
+    RouterLink,
+    RouterLinkActive
+  ],
 })
 export class SidemenuContentItemComponent implements OnInit {
   // TODO: Skipped for migration because:

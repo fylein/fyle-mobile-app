@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { StatsComponent } from './stats.component';
 import { DashboardService } from '../dashboard.service';
 import { Router } from '@angular/router';
@@ -61,7 +59,7 @@ describe('StatsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, StatsComponent],
+      imports: [ TranslocoModule, StatsComponent],
       providers: [
         {
           provide: DashboardService,

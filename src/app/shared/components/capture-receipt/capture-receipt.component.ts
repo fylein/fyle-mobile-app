@@ -10,7 +10,7 @@ import {
   input,
 } from '@angular/core';
 import { CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';

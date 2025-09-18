@@ -1,4 +1,4 @@
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 
 import { AuthService } from 'src/app/core/services/auth.service';

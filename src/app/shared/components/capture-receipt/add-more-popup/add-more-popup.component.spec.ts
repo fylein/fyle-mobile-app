@@ -1,6 +1,5 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { AddMorePopupComponent } from './add-more-popup.component';
 import { getElementBySelector, getTextContent, getAllElementsBySelector } from 'src/app/core/dom-helpers';
@@ -22,7 +21,7 @@ describe('AddMorePopupComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
+        
         MatBottomSheetModule,
         MatIconModule,
         MatIconTestingModule,

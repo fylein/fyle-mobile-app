@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PendingGasChargeInfoComponent } from './pending-gas-charge-info.component';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { PendingGasChargeInfoModalComponent } from '../pending-gas-charge-info-modal/pending-gas-charge-info-modal.component';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('PendingGasChargeInfoComponent', () => {
   let component: PendingGasChargeInfoComponent;
@@ -18,7 +19,8 @@ describe('PendingGasChargeInfoComponent', () => {
     translocoServiceSpy.translate.and.returnValue('translated text');
 
     await TestBed.configureTestingModule({
-      imports: [MatIconModule, HttpClientTestingModule, TranslocoModule],
+      imports: [MatIconModule, HttpClientTestingModule, TranslocoModule,
+        MatIconTestingModule],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },

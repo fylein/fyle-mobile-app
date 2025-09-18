@@ -376,7 +376,7 @@
   },
   "pipes": {
     "arrayToCommaList": {
-      "and": " and "
+      "and": "and"
     },
     "humanizeCurrency": {
       "kiloSuffix": "K",

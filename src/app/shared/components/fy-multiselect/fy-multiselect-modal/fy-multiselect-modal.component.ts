@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -26,19 +26,24 @@ import { TranslocoPipe } from '@jsverse/transloco';
   templateUrl: './fy-multiselect-modal.component.html',
   styleUrls: ['./fy-multiselect-modal.component.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
-    NgClass,
-    MatFormField,
-    MatChipGrid,
-    MatChipRow,
-    MatChipRemove,
-    MatPrefix,
-    FormsModule,
-    MatChipInput,
-    MatCheckbox,
     AsyncPipe,
-    TranslocoPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatChipGrid,
+    MatChipInput,
+    MatChipRemove,
+    MatChipRow,
+    MatFormField,
+    MatIcon,
+    MatPrefix,
+    NgClass,
+    TranslocoPipe
   ],
 })
 export class FyMultiselectModalComponent implements AfterViewInit {

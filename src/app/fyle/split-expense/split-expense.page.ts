@@ -10,7 +10,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, NavController, PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonToolbar, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { isEmpty, isNumber } from 'lodash';
 import dayjs from 'dayjs';
 import { combineLatest, forkJoin, from, iif, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -87,19 +87,24 @@ import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
   templateUrl: './split-expense.page.html',
   styleUrls: ['./split-expense.page.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
-    FormButtonValidationDirective,
-    FyAlertInfoComponent,
-    FormsModule,
-    ReactiveFormsModule,
-    NgClass,
-    FormatDateDirective,
-    FySelectProjectComponent,
-    FySelectComponent,
     AsyncPipe,
-    SlicePipe,
     ExactCurrencyPipe,
+    FormButtonValidationDirective,
+    FormatDateDirective,
+    FormsModule,
+    FyAlertInfoComponent,
+    FySelectComponent,
+    FySelectProjectComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonToolbar,
+    MatIcon,
+    NgClass,
+    ReactiveFormsModule,
+    SlicePipe
   ],
 })
 export class SplitExpensePage implements OnDestroy {

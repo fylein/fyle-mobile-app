@@ -3,8 +3,7 @@ import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rx
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, PopoverController, ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, take, takeUntil, filter } from 'rxjs/operators';
 import { NetworkService } from '../../core/services/network.service';
@@ -49,17 +48,29 @@ import { AuditHistoryComponent } from '../../shared/components/comments-history/
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { FormsModule } from '@angular/forms';
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
-import { ExactCurrencyPipe as ExactCurrencyPipe_1 } from '../../shared/pipes/exact-currency.pipe';
 import { ReportState } from '../../shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
-import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
   styleUrls: ['./view-team-report.page.scss'],
   imports: [
-    IonicModule,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonSpinner,
+    IonTitle,
+    IonToolbar,
     RouterLink,
     FyExpansionInfoMsgComponent,
     FyApproverComponent,
@@ -76,10 +87,10 @@ import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pip
     TitleCasePipe,
     DatePipe,
     EllipsisPipe,
-    ExactCurrencyPipe_1,
+    ExactCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
-    DateWithTimezonePipe_1,
+    DateWithTimezonePipe,
   ],
 })
 export class ViewTeamReportPage {
@@ -90,8 +101,6 @@ export class ViewTeamReportPage {
   private expensesService = inject(ExpensesService);
 
   private authService = inject(AuthService);
-
-  private loaderService = inject(LoaderService);
 
   private router = inject(Router);
 

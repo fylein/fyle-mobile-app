@@ -3,13 +3,17 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
+import { IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-profile-opt-in-card',
   templateUrl: './profile-opt-in-card.component.html',
   styleUrls: ['./profile-opt-in-card.component.scss'],
-  imports: [IonicModule, TranslocoPipe],
+  imports: [
+    IonIcon,
+    TranslocoPipe
+  ],
 })
 export class ProfileOptInCardComponent implements OnInit {
   private clipboardService = inject(ClipboardService);

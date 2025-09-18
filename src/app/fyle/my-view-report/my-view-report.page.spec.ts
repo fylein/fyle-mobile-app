@@ -1,12 +1,11 @@
 import { CurrencyPipe } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { IonicModule, ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { cloneDeep } from 'lodash';
 import { BehaviorSubject, Subscription, of } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
@@ -30,12 +29,7 @@ import {
   userComments,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
-import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
-import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import {
@@ -61,8 +55,17 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
-import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { TIMEZONE } from 'src/app/constants';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v2/expenses-card.component';
+
+// mock for expenses card component
+@Component({
+  selector: 'app-expense-card-v2',
+  imports: [],
+})
+class MockExpensesCardComponent {
+}
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -127,16 +130,9 @@ describe('MyViewReportPage', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
         MatIconTestingModule,
-        MatIconModule,
         MyViewReportPage,
-        EllipsisPipe,
-        HumanizeCurrencyPipe,
-        ExactCurrencyPipe,
-        ReportState,
-        SnakeCaseToSpaceCase,
-        DateWithTimezonePipe,
+        getTranslocoTestingModule(),
       ],
       providers: [
         FyCurrencyPipe,
@@ -221,6 +217,14 @@ describe('MyViewReportPage', () => {
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).overrideComponent(MyViewReportPage, {
+      remove: {
+        imports: [ExpensesCardComponent],
+      },
+      add: {
+        imports: [MockExpensesCardComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA]
+      },
     }).compileComponents();
     fixture = TestBed.createComponent(MyViewReportPage);
     component = fixture.componentInstance;

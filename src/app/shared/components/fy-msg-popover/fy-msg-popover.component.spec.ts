@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { FyMsgPopoverComponent } from './fy-msg-popover.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyMsgPopoverComponent', () => {
   let component: FyMsgPopoverComponent;
@@ -12,7 +13,8 @@ describe('FyMsgPopoverComponent', () => {
     popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), FyMsgPopoverComponent],
+      imports: [FyMsgPopoverComponent,
+        MatIconTestingModule],
       providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { EmployeeDetailsCardComponent } from './employee-details-card.component';
 import { InitialsPipe } from 'src/app/shared/pipes/initials.pipe';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -26,7 +25,7 @@ describe('EmployeeDetailsCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, EmployeeDetailsCardComponent, InitialsPipe],
+      imports: [ TranslocoModule, EmployeeDetailsCardComponent, InitialsPipe],
       providers: [
         {
           provide: UtilityService,

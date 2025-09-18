@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -15,7 +14,7 @@ describe('StatBadgeComponent', () => {
   beforeEach(waitForAsync(() => {
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), StatBadgeComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe],
+      imports: [ StatBadgeComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe],
       providers: [
         {
           provide: FyCurrencyPipe,

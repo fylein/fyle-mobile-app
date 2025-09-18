@@ -7,7 +7,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
 import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
@@ -16,7 +16,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
 import { NgClass } from '@angular/common';
-import { NgxMaskModule } from 'ngx-mask';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { AutofocusDirective } from '../../../shared/directive/autofocus.directive';
 import { FyAlertInfoComponent } from '../../../shared/components/fy-alert-info/fy-alert-info.component';
 import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
@@ -27,18 +27,28 @@ import { ArrayToCommaListPipe } from '../../../shared/pipes/array-to-comma-list.
   templateUrl: './add-corporate-card.component.html',
   styleUrls: ['./add-corporate-card.component.scss'],
   imports: [
-    IonicModule,
+    ArrayToCommaListPipe,
+    AutofocusDirective,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyAlertInfoComponent,
+    IonAccordion,
+    IonAccordionGroup,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
     MatIcon,
     NgClass,
-    NgxMaskModule,
-    FormsModule,
-    AutofocusDirective,
+    NgxMaskDirective,
     ReactiveFormsModule,
-    FyAlertInfoComponent,
-    FormButtonValidationDirective,
-    ArrayToCommaListPipe,
-    TranslocoPipe,
+    TranslocoPipe
   ],
+  providers: [provideNgxMask()]
 })
 export class AddCorporateCardComponent implements OnInit {
   private popoverController = inject(PopoverController);

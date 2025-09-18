@@ -16,14 +16,7 @@ import {
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  ActionSheetController,
-  ModalController,
-  NavController,
-  Platform,
-  PopoverController,
-  IonicModule,
-} from '@ionic/angular';
+import {  ActionSheetController, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 import dayjs from 'dayjs';
 import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
 import {
@@ -173,7 +166,6 @@ import { FormatDateDirective } from '../../shared/directive/format-date.directiv
 import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
 import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { DependentFieldsComponent as DependentFieldsComponent_1 } from '../../shared/components/dependent-fields/dependent-fields.component';
 import { VirtualSelectComponent } from '../../shared/components/virtual-select/virtual-select.component';
 import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
 import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
@@ -187,6 +179,8 @@ import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from '../../shared/pipes/humanize-currency.pipe';
 import { MaskNumber } from '../../shared/pipes/mask-number.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
+import { addIcons } from 'ionicons';
+import { chevronUp, chevronDown } from 'ionicons/icons';
 
 // eslint-disable-next-line
 type FormValue = {
@@ -230,40 +224,52 @@ type FormValue = {
   templateUrl: './add-edit-expense.page.html',
   styleUrls: ['./add-edit-expense.page.scss'],
   imports: [
-    IonicModule,
-    NgClass,
-    FormsModule,
-    ReactiveFormsModule,
-    FyAlertInfoComponent,
-    FyPolicyViolationInfoComponent,
-    MatIcon,
-    TransactionStatusComponent,
-    PendingGasChargeInfoComponent,
-    FyCurrencyComponent,
-    ReceiptPreviewThumbnailComponent,
-    FormatDateDirective,
-    FySelectComponent,
-    FySelectProjectComponent,
-    MatCheckbox,
-    DependentFieldsComponent_1,
-    VirtualSelectComponent,
-    FyNumberComponent,
-    FyLocationComponent,
-    FySelectVendorComponent,
-    FyMultiselectComponent,
-    FyUserlistComponent,
-    FyAddToReportComponent,
-    ReviewFooterComponent,
-    FormButtonValidationDirective,
     AsyncPipe,
-    SlicePipe,
     CurrencyPipe,
     DatePipe,
+    DependentFieldsComponent,
     EllipsisPipe,
-    HumanizeCurrencyPipe,
-    MaskNumber,
+    FormButtonValidationDirective,
+    FormatDateDirective,
+    FormsModule,
+    FyAddToReportComponent,
+    FyAlertInfoComponent,
+    FyCurrencyComponent,
     FyCurrencyPipe,
+    FyLocationComponent,
+    FyMultiselectComponent,
+    FyNumberComponent,
+    FyPolicyViolationInfoComponent,
+    FySelectComponent,
+    FySelectProjectComponent,
+    FySelectVendorComponent,
+    FyUserlistComponent,
+    HumanizeCurrencyPipe,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSkeletonText,
+    IonSpinner,
+    IonTitle,
+    IonToolbar,
+    MaskNumber,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    PendingGasChargeInfoComponent,
+    ReactiveFormsModule,
+    ReceiptPreviewThumbnailComponent,
+    ReviewFooterComponent,
+    SlicePipe,
+    TransactionStatusComponent,
     TranslocoPipe,
+    VirtualSelectComponent
   ],
 })
 export class AddEditExpensePage implements OnInit {
@@ -5626,5 +5632,9 @@ export class AddEditExpensePage implements OnInit {
         expenses: updatedExpenses,
       });
     }
+  }
+
+  constructor() {
+    addIcons({ chevronUp, chevronDown });
   }
 }

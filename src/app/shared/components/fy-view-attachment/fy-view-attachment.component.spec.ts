@@ -12,7 +12,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ActivatedRoute, Router } from '@angular/router';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyViewAttachmentComponent', () => {
@@ -105,7 +105,7 @@ describe('FyViewAttachmentComponent', () => {
           useValue: routerSpy,
         },
       ],
-      imports: [getTranslocoModule(), FyViewAttachmentComponent, MatIconTestingModule],
+      imports: [getTranslocoTestingModule(), FyViewAttachmentComponent, MatIconTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 

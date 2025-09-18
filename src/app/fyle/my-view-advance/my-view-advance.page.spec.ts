@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular/standalone';
 
 import { MyViewAdvancePage } from './my-view-advance.page';
 import { AdvanceService } from 'src/app/core/services/advance.service';
-import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive, UrlSerializer } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import { of } from 'rxjs';
@@ -32,7 +32,7 @@ describe('MyViewAdvancePage', () => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getAdvanceRequestPlatform']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MyViewAdvancePage],
+      imports: [MyViewAdvancePage],
       providers: [
         { provide: AdvanceService, useValue: advanceServiceSpy },
         {
@@ -56,6 +56,10 @@ describe('MyViewAdvancePage', () => {
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
+    }).overrideComponent(MyViewAdvancePage, {
+      remove: {imports: [    RouterLink,
+        RouterLinkActive,]},
+      add: {schemas: [CUSTOM_ELEMENTS_SCHEMA]}
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyViewAdvancePage);

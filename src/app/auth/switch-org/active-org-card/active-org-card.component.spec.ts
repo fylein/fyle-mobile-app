@@ -3,7 +3,6 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ActiveOrgCardComponent } from './active-org-card.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { IonicModule } from '@ionic/angular';
 import { of } from 'rxjs';
 
 describe('ActiveOrgCardComponent', () => {
@@ -20,7 +19,7 @@ describe('ActiveOrgCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, ActiveOrgCardComponent],
+      imports: [ TranslocoModule, ActiveOrgCardComponent],
       providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
   }));

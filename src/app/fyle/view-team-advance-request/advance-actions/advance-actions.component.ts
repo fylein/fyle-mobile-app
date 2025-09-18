@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, inject, input } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { MatRipple } from '@angular/material/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 

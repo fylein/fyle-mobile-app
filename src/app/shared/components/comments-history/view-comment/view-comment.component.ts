@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
-import { IonContent, ModalController, Platform, PopoverController, IonicModule } from '@ionic/angular';
+import { IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonRow, IonSegment, IonSegmentButton, IonSpinner, IonToolbar, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { from, Observable, Subject } from 'rxjs';
 import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -20,7 +20,6 @@ import { NgClass } from '@angular/common';
 import { AuditHistoryComponent } from '../audit-history/audit-history.component';
 import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../../pipes/date-with-timezone.pipe';
 
 @Component({
   selector: 'app-view-comment',
@@ -28,14 +27,24 @@ import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../../pipes/d
   styleUrls: ['./view-comment.component.scss'],
   providers: [DateWithTimezonePipe],
   imports: [
-    IonicModule,
-    MatIcon,
-    NgClass,
     AuditHistoryComponent,
-    MatInput,
+    DateWithTimezonePipe,
     FormsModule,
-    TranslocoPipe,
-    DateWithTimezonePipe_1,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonRow,
+    IonSegment,
+    IonSegmentButton,
+    IonSpinner,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    NgClass,
+    TranslocoPipe
   ],
 })
 export class ViewCommentComponent implements OnInit {

@@ -10,7 +10,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { catchError, concatMap, finalize, from, map, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -24,7 +24,7 @@ import { CardProperties } from '../models/card-properties.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { NgClass } from '@angular/common';
-import { NgxMaskModule } from 'ngx-mask';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
 
 @Component({
@@ -32,14 +32,16 @@ import { FormButtonValidationDirective } from '../../../shared/directive/form-bu
   templateUrl: './spender-onboarding-connect-card-step.component.html',
   styleUrls: ['./spender-onboarding-connect-card-step.component.scss'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    NgClass,
-    NgxMaskModule,
-    IonicModule,
     FormButtonValidationDirective,
-    TranslocoPipe,
+    FormsModule,
+    IonButton,
+    IonIcon,
+    NgClass,
+    NgxMaskDirective,
+    ReactiveFormsModule,
+    TranslocoPipe
   ],
+  providers: [provideNgxMask()]
 })
 export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChanges {
   private corporateCreditCardExpensesService = inject(CorporateCreditCardExpenseService);

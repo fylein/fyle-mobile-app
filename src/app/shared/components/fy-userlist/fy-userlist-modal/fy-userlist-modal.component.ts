@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Observable, fromEvent, from, of } from 'rxjs';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonSpinner, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
 import { Employee } from 'src/app/core/models/spender/employee.model';
@@ -29,21 +29,27 @@ import { TranslocoPipe } from '@jsverse/transloco';
   templateUrl: './fy-userlist-modal.component.html',
   styleUrls: ['./fy-userlist-modal.component.scss'],
   imports: [
-    IonicModule,
-    MatIcon,
-    NgClass,
-    MatFormField,
-    MatChipGrid,
-    MatChipRow,
-    MatChipRemove,
-    MatPrefix,
-    MatInput,
-    FormsModule,
-    MatChipInput,
-    MatSuffix,
-    MatCheckbox,
     AsyncPipe,
-    TranslocoPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonSpinner,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatChipGrid,
+    MatChipInput,
+    MatChipRemove,
+    MatChipRow,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    TranslocoPipe
   ],
 })
 export class FyUserlistModalComponent implements OnInit, AfterViewInit {

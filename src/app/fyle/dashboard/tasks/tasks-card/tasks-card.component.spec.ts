@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { TranslocoService } from '@jsverse/transloco';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TasksCardComponent } from './tasks-card.component';
-import { IonicModule } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatRippleModule } from '@angular/material/core';
@@ -30,7 +29,7 @@ describe('TasksCardComponent', () => {
       return translations[key] || key;
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatRippleModule, MatIconModule, MatIconTestingModule, TasksCardComponent],
+      imports: [ MatRippleModule, MatIconModule, MatIconTestingModule, TasksCardComponent],
       providers: [
         { provide: TranslocoService, useValue: translocoService },
         provideHttpClient(withInterceptorsFromDi()),

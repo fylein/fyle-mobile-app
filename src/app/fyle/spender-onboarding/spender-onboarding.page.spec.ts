@@ -16,7 +16,21 @@ import { orgSettingsWoTaxAndRtf } from 'src/app/core/mock-data/org-settings.data
 import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { orgSettingsCardsDisabled } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
+
+// mock for SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent
+@Component({
+  selector: 'app-spender-onboarding-connect-card-step',
+  template: '<div></div>',
+})
+export class MockSpenderOnboardingConnectCardStepComponent {}
+@Component({
+  selector: 'app-spender-onboarding-opt-in-step',
+  template: '<div></div>',
+})
+export class MockSpenderOnboardingOptInStepComponent {}
 
 describe('SpenderOnboardingPage', () => {
   let component: SpenderOnboardingPage;
@@ -60,6 +74,14 @@ describe('SpenderOnboardingPage', () => {
         { provide: Router, useValue: routerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
       ],
+    }).overrideComponent(SpenderOnboardingPage, {
+      remove: {
+        imports: [SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent],
+      },
+      add: {
+        imports: [MockSpenderOnboardingConnectCardStepComponent, MockSpenderOnboardingOptInStepComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      },
     }).compileComponents();
 
     fixture = TestBed.createComponent(SpenderOnboardingPage);

@@ -4,7 +4,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { PopoverController, ModalController, IonContent, SegmentCustomEvent, IonicModule } from '@ionic/angular';
+import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, ModalController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -52,37 +52,50 @@ import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
-import { ReportState as ReportState_1 } from '../../shared/pipes/report-state.pipe';
+import { ReportState as ReportStatePipe } from '../../shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
-import { DateWithTimezonePipe as DateWithTimezonePipe_1 } from '../../shared/pipes/date-with-timezone.pipe';
-
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
   styleUrls: ['./my-view-report.page.scss'],
   imports: [
-    IonicModule,
-    MatIconButton,
-    RouterLink,
-    MatIcon,
-    NgFor,
-    FyLoadingScreenComponent,
-    ExpensesCardComponent,
-    NgClass,
-    FyZeroStateComponent,
-    AuditHistoryComponent,
-    FormButtonValidationDirective,
-    MatInput,
-    FormsModule,
     AsyncPipe,
-    LowerCasePipe,
-    TitleCasePipe,
+    AuditHistoryComponent,
     DatePipe,
+    DateWithTimezonePipe,
     EllipsisPipe,
     ExactCurrencyPipe,
-    ReportState_1,
+    ExpensesCardComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonSpinner,
+    IonTitle,
+    IonToolbar,
+    LowerCasePipe,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    NgClass,
+    NgFor,
+    ReportStatePipe,
+    RouterLink,
     SnakeCaseToSpaceCase,
-    DateWithTimezonePipe_1,
+    TitleCasePipe
   ],
 })
 export class MyViewReportPage {

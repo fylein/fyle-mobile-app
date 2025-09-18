@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonCol, IonContent, IonGrid, IonRow, PopoverController } from '@ionic/angular/standalone';
 import { catchError, finalize, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { NgClass } from '@angular/common';
@@ -11,7 +11,15 @@ import { TranslocoPipe } from '@jsverse/transloco';
   selector: 'app-dismiss-dialog',
   templateUrl: './dismiss-dialog.component.html',
   styleUrls: ['./dismiss-dialog.component.scss'],
-  imports: [IonicModule, NgClass, FormButtonValidationDirective, TranslocoPipe],
+  imports: [
+    FormButtonValidationDirective,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonRow,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class DismissDialogComponent implements OnInit {
   private popoverController = inject(PopoverController);

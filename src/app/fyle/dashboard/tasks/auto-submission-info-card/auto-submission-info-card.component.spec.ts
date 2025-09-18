@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 import { AutoSubmissionInfoCardComponent } from './auto-submission-info-card.component';
@@ -19,7 +18,7 @@ describe('AutoSubmissionInfoCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), TranslocoModule, AutoSubmissionInfoCardComponent],
+      imports: [ TranslocoModule, AutoSubmissionInfoCardComponent],
       providers: [
         {
           provide: TranslocoService,

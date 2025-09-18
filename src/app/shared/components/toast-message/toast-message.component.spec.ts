@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { MatSnackBarModule, MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from './toast-message.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,7 +14,7 @@ describe('ToastMessageComponent', () => {
     snackbarRefSpy = jasmine.createSpyObj('MatSnackBarRef', ['dismiss', 'dismissWithAction']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MatIconModule, MatSnackBarModule, MatIconTestingModule, ToastMessageComponent],
+      imports: [ MatIconModule, MatSnackBarModule, MatIconTestingModule, ToastMessageComponent],
       providers: [
         { provide: MAT_SNACK_BAR_DATA, useValue: {} },
         { provide: MatSnackBarRef, useValue: snackbarRefSpy },

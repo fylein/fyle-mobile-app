@@ -1,9 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
+import { ModalController } from '@ionic/angular/standalone';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -11,13 +7,24 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { CurrencyPipe } from '@angular/common';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v2/expenses-card.component';
+
+// mock for expenses-card-v2 component
+@Component({
+  selector: 'app-expense-card-v2',
+  template: '<div></div>',
+  imports: [],
+})
+class MockExpensesCardComponent {}
 
 describe('SuggestedDuplicatesComponent', () => {
   let component: SuggestedDuplicatesComponent;
@@ -27,33 +34,20 @@ describe('SuggestedDuplicatesComponent', () => {
   let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let router: jasmine.SpyObj<Router>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
+  let currencyPipe: jasmine.SpyObj<CurrencyPipe>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
+    const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses', 'dismissDuplicates']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
-        MatIconModule,
         MatIconTestingModule,
-        FormsModule,
-        MatSnackBarModule,
         NoopAnimationsModule,
-        CommonModule,
-        TranslocoModule,
         SuggestedDuplicatesComponent,
+        getTranslocoTestingModule(),
       ],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
@@ -61,41 +55,28 @@ describe('SuggestedDuplicatesComponent', () => {
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
+        { provide: CurrencyPipe, useValue: currencyPipeSpy },
+        provideHttpClientTesting(),
+        provideHttpClient(),
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA], //this is added temporarily and is not recommended
-    }).compileComponents();
+    })
+    .overrideComponent(SuggestedDuplicatesComponent, {
+      remove: {
+        imports: [ExpensesCardComponent],
+      },
+      add: {
+        imports: [MockExpensesCardComponent],
+      },
+    })
+    .compileComponents();
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'suggestedDuplicates.dismissSuccess': 'Duplicates were successfully dismissed',
-        'suggestedDuplicates.dismissAll': 'Dismiss all',
-        'suggestedDuplicates.dismiss': 'Dismiss',
-        'suggestedDuplicates.merge': 'Merge',
-        'suggestedDuplicates.mergeExpense': 'Merge expense',
-        'suggestedDuplicates.header': '{{count}} expenses for {{amount}}',
-        'suggestedDuplicates.expensesFor': 'expenses for',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
+    currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;
     fixture = TestBed.createComponent(SuggestedDuplicatesComponent);
     component = fixture.componentInstance;
 
@@ -187,6 +168,7 @@ describe('SuggestedDuplicatesComponent', () => {
   });
 
   it('should display the correct header information', () => {
+    currencyPipe.transform.and.returnValue('$100.50');
     const expectedHeader = '3 expenses for $100.50';
     component.duplicateExpenses = [
       { ...expenseData, amount: 100.5, currency: 'USD' },

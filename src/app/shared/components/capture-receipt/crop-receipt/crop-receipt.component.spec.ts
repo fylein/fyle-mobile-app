@@ -1,13 +1,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { CropReceiptComponent } from './crop-receipt.component';
-import { ModalController, Platform } from '@ionic/angular';
-import { MatIconModule } from '@angular/material/icon';
+import { ModalController, Platform } from '@ionic/angular/standalone';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { ImageCropperComponent } from 'ngx-image-cropper';
+import { ImageCropperComponent, ImageCropperModule } from 'ngx-image-cropper';
 import { Subscription } from 'rxjs';
-import { HammerModule } from '@angular/platform-browser';
 import { Component, input } from '@angular/core';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 
@@ -21,8 +18,6 @@ describe('CropReceiptComponent', () => {
   @Component({
     selector: 'image-cropper',
     template: '',
-    providers: [{ provide: ImageCropperComponent, useClass: ImageCropperStubComponent }],
-    imports: [MatIconModule, MatIconTestingModule, HammerModule],
   })
   class ImageCropperStubComponent {
     readonly imageBase64 = input(undefined);
@@ -42,12 +37,8 @@ describe('CropReceiptComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
-        MatIconModule,
         MatIconTestingModule,
-        HammerModule,
         CropReceiptComponent,
-        ImageCropperStubComponent,
       ],
       providers: [
         Platform,
@@ -60,6 +51,9 @@ describe('CropReceiptComponent', () => {
           useValue: loaderServiceSpy,
         },
       ],
+    }).overrideComponent(CropReceiptComponent, {
+      remove: {imports: [ImageCropperModule]},
+      add: {imports: [ImageCropperStubComponent]}
     }).compileComponents();
     fixture = TestBed.createComponent(CropReceiptComponent);
     component = fixture.componentInstance;

@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { MyAdvancesPage } from './my-advances.page';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
@@ -12,7 +10,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
+import { EventEmitter, NO_ERRORS_SCHEMA, Component, Input, Output } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
@@ -42,6 +40,15 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
 import { cloneDeep } from 'lodash';
 import { filterOptions } from 'src/app/core/mock-data/filter-options.data';
+import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
+
+// Mock Footer Component
+@Component({
+  selector: 'app-fy-footer',
+  template: '<div>Mock Footer Component</div>',
+})
+class MockFooterComponent {
+}
 
 describe('MyAdvancesPage', () => {
   let component: MyAdvancesPage;
@@ -82,7 +89,7 @@ describe('MyAdvancesPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), MyAdvancesPage],
+      imports: [MyAdvancesPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         {
@@ -110,8 +117,12 @@ describe('MyAdvancesPage', () => {
         TitleCasePipe,
         UrlSerializer,
       ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    })
+    .overrideComponent(MyAdvancesPage, {
+      remove: { imports: [FooterComponent] },
+      add: { imports: [MockFooterComponent], schemas: [NO_ERRORS_SCHEMA] }
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(MyAdvancesPage);
     component = fixture.componentInstance;

@@ -2,7 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, Vie
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of, catchError, throwError } from 'rxjs';
 import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { Platform, PopoverController, IonicModule } from '@ionic/angular';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonToolbar, Platform, PopoverController } from '@ionic/angular/standalone';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -45,18 +45,23 @@ import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-z
   templateUrl: './switch-org.page.html',
   styleUrls: ['./switch-org.page.scss'],
   imports: [
-    IonicModule,
     ActiveOrgCardComponent,
-    NgClass,
+    AsyncPipe,
+    FormsModule,
+    FyZeroStateComponent,
+    IonBackButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonToolbar,
     MatFormField,
     MatIcon,
-    MatPrefix,
     MatInput,
-    FormsModule,
+    MatPrefix,
     MatSuffix,
-    OrgCardComponent,
-    FyZeroStateComponent,
-    AsyncPipe,
+    NgClass,
+    OrgCardComponent
   ],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {

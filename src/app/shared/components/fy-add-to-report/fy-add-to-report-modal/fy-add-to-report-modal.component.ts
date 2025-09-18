@@ -9,7 +9,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { getCurrencySymbol, TitleCasePipe } from '@angular/common';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
@@ -27,14 +27,23 @@ import { SnakeCaseToSpaceCase } from '../../../pipes/snake-case-to-space-case.pi
   templateUrl: './fy-add-to-report-modal.component.html',
   styleUrls: ['./fy-add-to-report-modal.component.scss'],
   imports: [
-    IonicModule,
+    HumanizeCurrencyPipe,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
     MatIcon,
     MatRipple,
-    TitleCasePipe,
-    TranslocoPipe,
-    HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    TranslocoPipe
   ],
 })
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {

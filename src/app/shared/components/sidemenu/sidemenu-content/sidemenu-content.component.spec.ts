@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { MenuController } from '@ionic/angular';
+import { MenuController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
@@ -15,6 +14,7 @@ import {
 } from 'src/app/core/mock-data/sidemenu-item.data';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { cloneDeep } from 'lodash';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('SidemenuContentComponent', () => {
   let component: SidemenuContentComponent;
@@ -39,7 +39,7 @@ describe('SidemenuContentComponent', () => {
     const menuControllerSpy = jasmine.createSpyObj('MenuController', ['close']);
 
     TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), SidemenuContentComponent],
+      imports: [SidemenuContentComponent, MatIconTestingModule],
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },

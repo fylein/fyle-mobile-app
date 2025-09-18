@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { BehaviorSubject, finalize, of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -62,6 +62,8 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { TIMEZONE } from 'src/app/constants';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -128,14 +130,9 @@ describe('ViewTeamReportPageV2', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        IonicModule.forRoot(),
-        FormsModule,
         ViewTeamReportPage,
-        EllipsisPipe,
-        HumanizeCurrencyPipe,
-        ExactCurrencyPipe,
-        DateWithTimezonePipe,
-      ],
+        getTranslocoTestingModule(),
+        MatIconTestingModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

@@ -5,7 +5,7 @@ import { FormButtonValidationDirective } from './form-button-validation.directiv
 import { LoaderPosition } from './loader-position.enum';
 import { TranslocoService } from '@jsverse/transloco';
 
-@Component({ template: `<button appFormButtonValidation>Save</button>` })
+@Component({ template: `<button appFormButtonValidation>Save</button>`, imports: [FormButtonValidationDirective] })
 class TestFormValidationButtonComponent {}
 
 describe('FormButtonValidationDirective', () => {
