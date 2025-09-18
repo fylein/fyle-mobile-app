@@ -51,7 +51,7 @@ class MockFyConnectionComponent {}
 })
 class MockFyFooterComponent {}
 
-fdescribe('AppComponent', () => {
+describe('AppComponent', () => {
   let platformReadySpy;
   let platformSpy: jasmine.SpyObj<Platform>;
   let authService: jasmine.SpyObj<AuthService>;
