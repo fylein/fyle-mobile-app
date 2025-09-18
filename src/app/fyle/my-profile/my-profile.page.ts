@@ -11,7 +11,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -77,7 +77,7 @@ export class MyProfilePage {
 
   private networkService = inject(NetworkService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private popoverController = inject(PopoverController);
 

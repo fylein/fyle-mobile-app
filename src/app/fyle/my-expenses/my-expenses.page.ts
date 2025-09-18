@@ -49,7 +49,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
@@ -248,7 +248,7 @@ export class MyExpensesPage implements OnInit {
 
   private myExpensesService = inject(MyExpensesService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private currencyService = inject(CurrencyService);
 

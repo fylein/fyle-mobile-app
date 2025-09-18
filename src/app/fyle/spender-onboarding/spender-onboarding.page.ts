@@ -5,7 +5,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OnboardingStep } from './models/onboarding-step.enum';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -26,7 +26,7 @@ export class SpenderOnboardingPage {
 
   private spenderOnboardingService = inject(SpenderOnboardingService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
 

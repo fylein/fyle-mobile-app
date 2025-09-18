@@ -20,7 +20,7 @@ import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
@@ -54,7 +54,7 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   private expenseFieldsService = inject(ExpenseFieldsService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private cdr = inject(ChangeDetectorRef);
 
