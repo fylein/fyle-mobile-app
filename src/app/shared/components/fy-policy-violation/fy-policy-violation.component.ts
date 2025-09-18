@@ -1,17 +1,30 @@
 import { Component, Input, OnInit, inject, input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonFooter, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { getCurrencySymbol } from '@angular/common';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { PolicyViolationRuleComponent } from '../policy-violation-rule/policy-violation-rule.component';
+import { PolicyViolationActionComponent } from './policy-violation-action/policy-violation-action.component';
 
 @Component({
   selector: 'app-fy-policy-violation',
   templateUrl: './fy-policy-violation.component.html',
   styleUrls: ['./fy-policy-violation.component.scss'],
-  standalone: false,
+  imports: [
+    FormsModule,
+    IonButton,
+    IonFooter,
+    IonToolbar,
+    MatIcon,
+    PolicyViolationActionComponent,
+    PolicyViolationRuleComponent,
+    ReactiveFormsModule,
+    TranslocoPipe
+  ],
 })
 export class FyPolicyViolationComponent implements OnInit {
   private modalController = inject(ModalController);

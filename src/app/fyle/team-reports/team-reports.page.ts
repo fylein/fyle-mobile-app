@@ -1,7 +1,18 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter, inject } from '@angular/core';
 import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { ModalController } from '@ionic/angular';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonIcon,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
+  IonRefresher,
+  IonRefresherContent,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -28,12 +39,48 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { FyHeaderComponent } from '../../shared/components/fy-header/fy-header.component';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { ReportsCardComponent } from '../../shared/components/reports-card/reports-card.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-team-reports',
   templateUrl: './team-reports.page.html',
   styleUrls: ['./team-reports.page.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    FooterComponent,
+    FormsModule,
+    FyFilterPillsComponent,
+    FyHeaderComponent,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonRefresher,
+    IonRefresherContent,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    ReportsCardComponent,
+  ],
 })
 export class TeamReportsPage implements OnInit {
   private networkService = inject(NetworkService);

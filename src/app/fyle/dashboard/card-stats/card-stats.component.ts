@@ -3,22 +3,31 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { BehaviorSubject, Observable, concat, filter, forkJoin, map, shareReplay, switchMap } from 'rxjs';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, AsyncPipe } from '@angular/common';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
-import { PopoverController } from '@ionic/angular';
+import { IonSkeletonText, PopoverController } from '@ionic/angular/standalone';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
+import { SpentCardsComponent } from '../../../shared/components/spent-cards/spent-cards.component';
+import { AddCardComponent } from '../../../shared/components/add-card/add-card.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-card-stats',
   templateUrl: './card-stats.component.html',
   styleUrls: ['./card-stats.component.scss'],
-  standalone: false,
+  imports: [
+    AddCardComponent,
+    AsyncPipe,
+    IonSkeletonText,
+    SpentCardsComponent,
+    TranslocoPipe
+  ],
 })
 export class CardStatsComponent implements OnInit {
   private currencyService = inject(CurrencyService);

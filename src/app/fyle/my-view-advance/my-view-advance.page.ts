@@ -1,20 +1,42 @@
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { from, Observable } from 'rxjs';
+import { ActivatedRoute, RouterLinkActive, RouterLink } from '@angular/router';
+import { Observable } from 'rxjs';
 import { shareReplay, switchMap, map } from 'rxjs/operators';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, AsyncPipe, TitleCasePipe, DatePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
+import { FySummaryTileComponent } from '../../shared/components/summary-tile/summary-tile.component';
+import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-statistic.component';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonRow, IonSkeletonText, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-my-view-advance',
   templateUrl: './my-view-advance.page.html',
   styleUrls: ['./my-view-advance.page.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    DatePipe,
+    FyStatisticComponent,
+    FySummaryTileComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonRow,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    RouterLink,
+    RouterLinkActive,
+    TitleCasePipe
+  ],
 })
 export class MyViewAdvancePage {
   private advanceService = inject(AdvanceService);

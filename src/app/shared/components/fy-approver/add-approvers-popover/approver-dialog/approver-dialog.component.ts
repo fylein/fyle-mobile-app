@@ -3,19 +3,43 @@ import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { switchMap, map, finalize, startWith, distinctUntilChanged } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipGrid, MatChipRow, MatChipRemove, MatChipInput } from '@angular/material/chips';
 import { Approver } from '../models/approver.model';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatPrefix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-approver-dialog',
   templateUrl: './approver-dialog.component.html',
   styleUrls: ['./approver-dialog.component.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatChipGrid,
+    MatChipInput,
+    MatChipRemove,
+    MatChipRow,
+    MatFormField,
+    MatIcon,
+    MatPrefix,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class ApproverDialogComponent implements AfterViewInit, OnInit {
   private loaderService = inject(LoaderService);

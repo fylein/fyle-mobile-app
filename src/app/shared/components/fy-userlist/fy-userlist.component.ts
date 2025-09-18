@@ -1,11 +1,14 @@
 import { Component, OnInit, forwardRef, Input, inject, input } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { noop, Observable } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyUserlistModalComponent } from './fy-userlist-modal/fy-userlist-modal.component';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { cloneDeep } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-userlist',
@@ -18,7 +21,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
-  standalone: false,
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FyUserlistComponent implements OnInit {
   private modalController = inject(ModalController);

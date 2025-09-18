@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 
 import { EditReportNamePopoverComponent } from './edit-report-name-popover.component';
@@ -24,8 +24,14 @@ describe('EditReportNamePopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     await TestBed.configureTestingModule({
-      declarations: [EditReportNamePopoverComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        EditReportNamePopoverComponent,
+      ],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },

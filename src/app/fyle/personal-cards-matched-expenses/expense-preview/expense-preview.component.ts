@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController, Platform } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { finalize, map } from 'rxjs/operators';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -10,13 +10,38 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { ExpensePreviewShimmerComponent } from '../expense-preview-shimmer/expense-preview-shimmer.component';
+import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
+import { AsyncPipe, CurrencyPipe, DatePipe } from '@angular/common';
+import { FyCurrencyPipe } from '../../../shared/pipes/fy-currency.pipe';
 
 @Component({
   selector: 'app-expense-preview',
   templateUrl: './expense-preview.component.html',
   styleUrls: ['./expense-preview.component.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    DatePipe,
+    ExpensePreviewShimmerComponent,
+    FormButtonValidationDirective,
+    FyCurrencyPipe,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    TranslocoPipe
+  ],
 })
 export class ExpensePreviewComponent implements OnInit {
   private modalController = inject(ModalController);

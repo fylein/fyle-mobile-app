@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormsModule, UntypedFormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { TestCases1 } from './add-edit-per-diem-1.page.spec';
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
@@ -39,12 +39,12 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { TestCases2 } from './add-edit-per-diem-2.page.spec';
 import { TestCases3 } from './add-edit-per-diem-3.page.spec';
 import { TestCases4 } from './add-edit-per-diem-4.page.spec';
 import { TestCases5 } from './add-edit-per-diem-5.page.spec';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
@@ -151,8 +151,14 @@ describe('AddEditPerDiemPage', () => {
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['addDaysToDate', 'getUTCDate']);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditPerDiemPage],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
+      imports: [
+        getTranslocoTestingModule(),
+        ReactiveFormsModule,
+        FormsModule,
+        RouterTestingModule,
+        RouterModule,
+        AddEditPerDiemPage,
+      ],
       providers: [
         UntypedFormBuilder,
         FyCurrencyPipe,

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatRippleModule } from '@angular/material/core';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 import { AdvanceActionsComponent } from './advance-actions.component';
@@ -22,8 +22,7 @@ describe('AdvanceActionsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [AdvanceActionsComponent],
-      imports: [IonicModule.forRoot(), MatRippleModule, TranslocoModule],
+      imports: [ MatRippleModule, TranslocoModule, AdvanceActionsComponent],
       providers: [
         {
           provide: PopoverController,

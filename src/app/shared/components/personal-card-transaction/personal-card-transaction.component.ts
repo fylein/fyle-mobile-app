@@ -1,12 +1,28 @@
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass } from '@angular/common';
 import { Component, Input, OnInit, input, output } from '@angular/core';
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
+import { IonIcon, IonSpinner } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-personal-card-transaction',
   templateUrl: './personal-card-transaction.component.html',
   styleUrls: ['./personal-card-transaction.component.scss'],
-  standalone: false,
+  imports: [
+    DateFormatPipe,
+    ExactCurrencyPipe,
+    IonIcon,
+    IonSpinner,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class PersonalCardTransactionComponent implements OnInit {
   // TODO: Skipped for migration because:

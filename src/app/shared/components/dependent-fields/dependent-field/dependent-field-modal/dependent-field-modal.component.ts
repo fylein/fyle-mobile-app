@@ -10,17 +10,44 @@ import {
 } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { DependentFieldOption } from 'src/app/core/models/dependent-field-option.model';
 import { cloneDeep } from 'lodash';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { FyZeroStateComponent } from '../../../fy-zero-state/fy-zero-state.component';
+import { MatRipple } from '@angular/material/core';
+import { FyHighlightTextComponent } from '../../../fy-highlight-text/fy-highlight-text.component';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-dependent-field-modal',
   templateUrl: './dependent-field-modal.component.html',
   styleUrls: ['./dependent-field-modal.component.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    FyHighlightTextComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatRipple,
+    MatSuffix,
+    TranslocoPipe
+  ],
 })
 export class DependentFieldModalComponent implements AfterViewInit {
   private modalController = inject(ModalController);

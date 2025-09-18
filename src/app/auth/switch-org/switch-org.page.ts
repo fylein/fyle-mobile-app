@@ -2,7 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, Vie
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of, catchError, throwError } from 'rxjs';
 import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { Platform, PopoverController } from '@ionic/angular';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonToolbar, Platform, PopoverController } from '@ionic/angular/standalone';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -32,12 +32,37 @@ import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { ActiveOrgCardComponent } from './active-org-card/active-org-card.component';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { OrgCardComponent } from './org-card/org-card.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
 
 @Component({
   selector: 'app-switch-org',
   templateUrl: './switch-org.page.html',
   styleUrls: ['./switch-org.page.scss'],
-  standalone: false,
+  imports: [
+    ActiveOrgCardComponent,
+    AsyncPipe,
+    FormsModule,
+    FyZeroStateComponent,
+    IonBackButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    OrgCardComponent
+  ],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
   private platform = inject(Platform);

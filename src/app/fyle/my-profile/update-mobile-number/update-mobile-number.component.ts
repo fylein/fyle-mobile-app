@@ -1,16 +1,33 @@
 import { Component, OnInit, Input, ElementRef, AfterViewInit, inject, input, viewChild } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { IonButton, IonButtons, IonHeader, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
 import { finalize, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
+import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
 
 @Component({
   selector: 'app-update-mobile-number',
   templateUrl: './update-mobile-number.component.html',
   styleUrls: ['./update-mobile-number.component.scss'],
-  standalone: false,
+  imports: [
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
   private popoverController = inject(PopoverController);

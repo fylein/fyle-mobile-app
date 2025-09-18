@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FyPolicyViolationComponent } from './fy-policy-violation.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -8,6 +8,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyPolicyViolationComponent', () => {
   let component: FyPolicyViolationComponent;
@@ -32,7 +33,6 @@ describe('FyPolicyViolationComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyPolicyViolationComponent],
       providers: [
         {
           provide: PolicyService,
@@ -51,7 +51,8 @@ describe('FyPolicyViolationComponent', () => {
           useValue: translocoServiceSpy,
         },
       ],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule],
+      imports: [FormsModule, ReactiveFormsModule, TranslocoModule, FyPolicyViolationComponent,
+        MatIconTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
@@ -136,15 +137,15 @@ describe('FyPolicyViolationComponent', () => {
     };
     utilityService.getEmailsFromString.and.returnValue(['ajain@fyle.in', 'aiyush.dhar@fyle.in']);
     policyService.getApprovalString.and.returnValue(
-      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in'
+      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in',
     );
     component.constructAdditionalApproverAction();
     fixture.detectChanges();
     expect(utilityService.getEmailsFromString).toHaveBeenCalledOnceWith(
-      'expense will need approval from ajain@fyle.in, aiyush.dhar@fyle.in'
+      'expense will need approval from ajain@fyle.in, aiyush.dhar@fyle.in',
     );
     expect(component.approverEmailsRequiredMsg).toEqual(
-      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in'
+      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in',
     );
   });
 

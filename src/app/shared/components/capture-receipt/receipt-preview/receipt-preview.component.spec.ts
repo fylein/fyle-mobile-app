@@ -1,12 +1,11 @@
 //@ts-nocheck
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReceiptPreviewComponent } from './receipt-preview.component';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
@@ -31,7 +30,7 @@ describe('ReceiptPreviewComponent', () => {
     selector: 'swiper',
     template: '',
     providers: [{ provide: SwiperComponent, useClass: SwiperStubComponent }],
-    standalone: false,
+    imports: [MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent],
   })
   class SwiperStubComponent {
     readonly pagination = input(undefined);
@@ -76,8 +75,15 @@ describe('ReceiptPreviewComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ReceiptPreviewComponent, SwiperStubComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent],
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        PinchZoomComponent,
+        ReceiptPreviewComponent,
+        SwiperStubComponent,
+      ],
       providers: [
         Platform,
         {

@@ -1,8 +1,15 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
 import { BehaviorSubject, Observable, forkJoin, noop } from 'rxjs';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { CategoryDependentFieldsFormValues } from 'src/app/core/models/category-dependent-fields-form-values.model';
@@ -31,13 +38,38 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { GenericFieldsFormComponent } from './generic-fields-form/generic-fields-form.component';
+import { CategoryDependentFieldsFormComponent } from './category-dependent-fields-form/category-dependent-fields-form.component';
+import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form/custom-inputs-fields-form.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { AsyncPipe } from '@angular/common';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Component({
   selector: 'app-merge-expense',
   templateUrl: './merge-expense.page.html',
   styleUrls: ['./merge-expense.page.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    CategoryDependentFieldsFormComponent,
+    CustomInputsFieldsFormComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyAlertInfoComponent,
+    FySelectComponent,
+    GenericFieldsFormComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    ReactiveFormsModule
+  ],
 })
 export class MergeExpensePage implements OnInit, AfterViewChecked {
   private router = inject(Router);

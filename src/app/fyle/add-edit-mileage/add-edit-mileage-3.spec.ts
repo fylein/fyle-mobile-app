@@ -4,7 +4,13 @@ import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } 
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { cloneDeep } from 'lodash';
 import { BehaviorSubject, Observable, Subject, Subscription, of, throwError } from 'rxjs';
 import { costCentersData } from 'src/app/core/mock-data/cost-centers.data';

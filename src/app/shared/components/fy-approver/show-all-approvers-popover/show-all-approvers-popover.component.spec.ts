@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { ShowAllApproversPopoverComponent } from './show-all-approvers-popover.component';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
@@ -8,6 +8,7 @@ import { By } from '@angular/platform-browser';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('ShowAllApproversPopoverComponent', () => {
   let component: ShowAllApproversPopoverComponent;
@@ -24,8 +25,8 @@ describe('ShowAllApproversPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [ShowAllApproversPopoverComponent, EllipsisPipe],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [TranslocoModule, ShowAllApproversPopoverComponent, EllipsisPipe,
+        MatIconTestingModule],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },

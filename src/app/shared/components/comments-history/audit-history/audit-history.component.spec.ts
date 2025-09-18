@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { AuditHistoryComponent } from './audit-history.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -36,8 +35,16 @@ describe('AuditHistoryComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [AuditHistoryComponent, StatusesDiffComponent, SnakeCaseToSpaceCase, DateWithTimezonePipe],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        AuditHistoryComponent,
+        StatusesDiffComponent,
+        SnakeCaseToSpaceCase,
+        DateWithTimezonePipe,
+      ],
       providers: [
         {
           provide: ExpenseFieldsService,
@@ -99,7 +106,7 @@ describe('AuditHistoryComponent', () => {
     const eStatusCards = getAllElementsBySelector(fixture, '.audit-history--block');
     expect(eStatusCards.length).toEqual(estatusSample.length);
     expect(getTextContent(getElementBySelector(fixture, '.audit-history--category'))).toEqual(
-      estatusSample[0].st.category
+      estatusSample[0].st.category,
     );
     expect(getTextContent(getElementBySelector(fixture, '.comment-text'))).toEqual(estatusSample[0].st_comment);
   });

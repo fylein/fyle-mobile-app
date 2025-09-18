@@ -136,7 +136,7 @@ export class NotificationsBetaPageService {
   getEmailNotificationsConfig(
     orgSettings: OrgSettings,
     employeeSettings: EmployeeSettings,
-    currentEou: ExtendedOrgUser
+    currentEou: ExtendedOrgUser,
   ): {
     expenseNotificationsConfig: NotificationConfig;
     expenseReportNotificationsConfig: NotificationConfig;

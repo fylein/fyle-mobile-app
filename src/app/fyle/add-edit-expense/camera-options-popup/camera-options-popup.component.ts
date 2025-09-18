@@ -1,18 +1,20 @@
 import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { finalize, from, map, raceWith, switchMap, timer } from 'rxjs';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatRipple } from '@angular/material/core';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-camera-options-popup',
   templateUrl: './camera-options-popup.component.html',
   styleUrls: ['./camera-options-popup.component.scss'],
-  standalone: false,
+  imports: [MatRipple, MatIcon, TranslocoPipe],
 })
 export class CameraOptionsPopupComponent implements OnInit {
   private popoverController = inject(PopoverController);

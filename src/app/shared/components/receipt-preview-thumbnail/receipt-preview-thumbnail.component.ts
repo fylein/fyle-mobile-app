@@ -2,12 +2,27 @@ import { Component, OnInit, Input, ViewChild, DoCheck, inject, input, output } f
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { SwiperComponent } from 'swiper/angular';
+import { SwiperComponent, SwiperModule } from 'swiper/angular';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { IonSpinner } from '@ionic/angular/standalone';
+
 @Component({
   selector: 'app-receipt-preview-thumbnail',
   templateUrl: './receipt-preview-thumbnail.component.html',
   styleUrls: ['./receipt-preview-thumbnail.component.scss'],
-  standalone: false,
+  imports: [
+    IonSpinner,
+    MatIcon,
+    NgClass,
+    PdfViewerModule,
+    PinchZoomComponent,
+    SwiperModule,
+    TranslocoPipe
+  ],
 })
 export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   private trackingService = inject(TrackingService);

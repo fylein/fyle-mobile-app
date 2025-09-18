@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { VerifyNumberPopoverComponent } from './verify-number-popover.component';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -37,8 +36,16 @@ describe('VerifyNumberPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [VerifyNumberPopoverComponent, FyAlertInfoComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        
+        FormsModule,
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        VerifyNumberPopoverComponent,
+        FyAlertInfoComponent,
+        FormButtonValidationDirective,
+      ],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: MobileNumberVerificationService, useValue: mobileNumberVerificationServiceSpy },

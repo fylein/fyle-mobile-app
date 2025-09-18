@@ -2,35 +2,28 @@
   <div class="statuses-diff">
     <div class="statuses-diff--expense-issues">
       @if (key === 'Please contact your admin to configure the following') {
-        <span
-          >{{ key | snakeCaseToSpaceCase }}
-        </span>
+        <span>{{ key | snakeCaseToSpaceCase }} </span>
       }
       @if (key === 'Violating Transactions') {
-        <span class="statuses-diff--violating-txns">{{
-          key | snakeCaseToSpaceCase
-        }}</span>
+        <span class="statuses-diff--violating-txns">{{ key | snakeCaseToSpaceCase }}</span>
       }
       @if (key !== 'Please contact your admin to configure the following' && key !== 'Violating Transactions') {
-        <span
-          class="text-capitalize"
-          >{{ key | snakeCaseToSpaceCase }}</span
-          >
-        }
-      </div>
-      <ul class="statuses-diff--values-list">
-        @for (detail of value; track detail) {
-          <div>
-            <li class="text-capitalize">{{ detail }}</li>
-          </div>
-        }
-      </ul>
+        <span class="text-capitalize">{{ key | snakeCaseToSpaceCase }}</span>
+      }
     </div>
-  }
-  @if (!isValueList) {
-    <div>
-      <li class="text-capitalize">
-        {{ key === 'vehicle type' ? ('statusesDiff.mileageRateName' | transloco) : key }} : {{ value }}
-      </li>
-    </div>
-  }
+    <ul class="statuses-diff--values-list">
+      @for (detail of value; track detail) {
+        <div>
+          <li class="text-capitalize">{{ detail }}</li>
+        </div>
+      }
+    </ul>
+  </div>
+}
+@if (!isValueList) {
+  <div>
+    <li class="text-capitalize">
+      {{ key === 'vehicle type' ? ('statusesDiff.mileageRateName' | transloco) : key }} : {{ value }}
+    </li>
+  </div>
+}

@@ -4,13 +4,18 @@ import { PlatformEmployee } from 'src/app/core/models/platform/platform-employee
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-profile-opt-in-card',
   templateUrl: './profile-opt-in-card.component.html',
   styleUrls: ['./profile-opt-in-card.component.scss'],
-  standalone: false,
+  imports: [
+    IonIcon,
+    TranslocoPipe
+  ],
 })
 export class ProfileOptInCardComponent implements OnInit {
   private clipboardService = inject(ClipboardService);

@@ -1,6 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, inject, viewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { Subscription, finalize, from, switchMap } from 'rxjs';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -18,13 +28,35 @@ import { BrowserHandlerService } from 'src/app/core/services/browser-handler.ser
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { UserEventService } from 'src/app/core/services/user-event.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { NgClass, DecimalPipe } from '@angular/common';
+import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 
 @Component({
   selector: 'app-fy-opt-in',
   templateUrl: './fy-opt-in.component.html',
   styleUrls: ['./fy-opt-in.component.scss'],
-  standalone: false,
+  imports: [
+    DecimalPipe,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    NgClass,
+    NgOtpInputComponent,
+    TranslocoPipe,
+  ],
 })
 export class FyOptInComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);
@@ -278,7 +310,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
   }
 
   onOtpChange(otp: string): void {
-    if (otp.length === 6) {
+    if (otp?.length === 6) {
       this.verifyOtp(otp);
     }
   }

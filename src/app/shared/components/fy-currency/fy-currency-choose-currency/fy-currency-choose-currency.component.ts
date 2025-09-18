@@ -12,17 +12,43 @@ import {
 } from '@angular/core';
 import { Observable, from, noop, fromEvent, of } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, map, finalize, shareReplay, startWith, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { RecentLocalStorageItemsService } from '../../../../core/services/recent-local-storage-items.service';
 import { Currency } from 'src/app/core/models/currency.model';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { MatRipple } from '@angular/material/core';
+import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
+import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-currency-choose-currency',
   templateUrl: './fy-currency-choose-currency.component.html',
   styleUrls: ['./fy-currency-choose-currency.component.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    FyHighlightTextComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatRipple,
+    MatSuffix,
+    NgTemplateOutlet,
+    TranslocoPipe
+  ],
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
   private currencyService = inject(CurrencyService);

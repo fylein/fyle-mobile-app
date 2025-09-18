@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { IonButtons, IonContent, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { Observable, Subscription, concat, forkJoin, from, noop, finalize } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -49,12 +49,38 @@ import { CommonEmployeeSettings } from 'src/app/core/models/common-employee-sett
 import { driver } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
+import { EmployeeDetailsCardComponent } from './employee-details-card/employee-details-card.component';
+import { ProfileOptInCardComponent } from '../../shared/components/profile-opt-in-card/profile-opt-in-card.component';
+import { MobileNumberCardComponent } from '../../shared/components/mobile-number-card/mobile-number-card.component';
+import { MatRipple } from '@angular/material/core';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { InfoCardComponent } from './info-card/info-card.component';
+import { PreferenceSettingComponent } from './preference-setting/preference-setting.component';
 
 @Component({
   selector: 'app-my-profile',
   templateUrl: './my-profile.page.html',
   styleUrls: ['./my-profile.page.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    EmployeeDetailsCardComponent,
+    FyMenuIconComponent,
+    InfoCardComponent,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatRipple,
+    MobileNumberCardComponent,
+    NgClass,
+    PreferenceSettingComponent,
+    ProfileOptInCardComponent,
+    RouterLink
+  ],
 })
 export class MyProfilePage {
   private authService = inject(AuthService);

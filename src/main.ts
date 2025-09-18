@@ -1,8 +1,8 @@
-import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { enableProdMode, provideAppInitializer, inject, ErrorHandler, importProvidersFrom } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
+import { provideRouter, PreloadAllModules, withPreloading } from '@angular/router';
 
-import { AppModule } from './app/app.module';
+import { MyHammerConfig, MIN_SCREEN_WIDTH } from './app/app.constants';
 import { environment } from './environments/environment';
 
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
@@ -10,6 +10,32 @@ import * as Sentry from '@sentry/angular';
 import 'hammerjs';
 
 import { GlobalCacheConfig } from 'ts-cacheable';
+import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
+import { provideTransloco, TranslocoService } from '@jsverse/transloco';
+import { TranslocoHttpLoader } from './app/transloco-http-loader';
+import { firstValueFrom, BehaviorSubject } from 'rxjs';
+import { HAMMER_GESTURE_CONFIG, HammerModule, bootstrapApplication } from '@angular/platform-browser';
+import { RouteReuseStrategy, Router } from '@angular/router';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
+import { HttpConfigInterceptor } from './app/core/interceptors/httpInterceptor';
+import { CurrencyPipe } from '@angular/common';
+import { ConfigService } from './app/core/services/config.service';
+import { TIMEZONE, PAGINATION_SIZE, DEVICE_PLATFORM } from './app/constants';
+import { appRoutes } from './app/app-routes';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { NgOtpInputModule } from 'ng-otp-input';
+import { AppComponent } from './app/app.component';
+import { FyCurrencyPipe } from './app/shared/pipes/fy-currency.pipe';
+import { HumanizeCurrencyPipe } from './app/shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from './app/shared/pipes/exact-currency.pipe';
+import { DecimalPipe, DatePipe, TitleCasePipe } from '@angular/common';
+import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
+import { ReportState } from './app/shared/pipes/report-state.pipe';
+import { provideIcons } from './app/shared/icon/icon.providers';
+import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 
 // Global cache config
 GlobalCacheConfig.maxAge = 10 * 60 * 1000;
@@ -74,9 +100,93 @@ if (environment.production) {
   enableProdMode();
 }
 
-platformBrowserDynamic()
-  .bootstrapModule(AppModule)
-  .catch(() => {});
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideRouter(appRoutes, withPreloading(PreloadAllModules)),
+    importProvidersFrom(HammerModule, NgOtpInputModule),
+    provideIcons(),
+    GooglePlus,
+    InAppBrowser,
+    Smartlook,
+    ImagePicker,
+    provideTransloco({
+      config: {
+        availableLangs: ['en'],
+        defaultLang: 'en',
+        reRenderOnLangChange: true,
+        prodMode: environment.production,
+      },
+      loader: TranslocoHttpLoader,
+    }),
+    provideAppInitializer(() => {
+      const initializerFn = ((transloco: TranslocoService) => async (): Promise<void> => {
+        await firstValueFrom(transloco.load('en'));
+        transloco.setActiveLang('en');
+      })(inject(TranslocoService));
+      return initializerFn();
+    }),
+    {
+      provide: HAMMER_GESTURE_CONFIG,
+      useClass: MyHammerConfig,
+    },
+    {
+      provide: RouteReuseStrategy,
+      useClass: IonicRouteStrategy,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpConfigInterceptor,
+      multi: true,
+    },
+    {
+      provide: ErrorHandler,
+      useValue: Sentry.createErrorHandler({
+        showDialog: false,
+      }),
+    },
+    CurrencyPipe,
+    FyCurrencyPipe,
+    HumanizeCurrencyPipe,
+    ExactCurrencyPipe,
+    DecimalPipe,
+    DatePipe,
+    TitleCasePipe,
+    ConfigService,
+    SpinnerDialog,
+    ReportState,
+    {
+      provide: TIMEZONE,
+      useValue: new BehaviorSubject<string>('UTC'),
+    },
+    provideAppInitializer((): Promise<void> => {
+      inject(Sentry.TraceService);
+      const configService = inject(ConfigService);
+      return configService.loadConfigurationData();
+    }),
+    {
+      provide: Sentry.TraceService,
+      deps: [Router],
+    },
+    {
+      provide: MIN_SCREEN_WIDTH,
+      useValue: 375,
+    },
+    {
+      provide: PAGINATION_SIZE,
+      useValue: 200,
+    },
+    {
+      provide: DEVICE_PLATFORM,
+      useValue: Capacitor.getPlatform(),
+    },
+    provideHttpClient(withInterceptorsFromDi(), withJsonpSupport()),
+    provideAnimations(),
+    provideIonicAngular({
+      innerHTMLTemplatesEnabled: true,
+      useSetInputAPI: true,
+    }),
+  ],
+}).catch(() => {});
 
 // Call the element loader after the platform has been bootstrapped
 defineCustomElements(window);

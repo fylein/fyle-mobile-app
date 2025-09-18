@@ -1,11 +1,11 @@
 import { Component, OnInit, Input, ViewChild, inject, input, output } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from, of, forkJoin } from 'rxjs';
 import { switchMap, finalize, tap } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { SwiperComponent } from 'swiper/angular';
+import { SwiperComponent, SwiperModule } from 'swiper/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -14,14 +14,35 @@ import { Router } from '@angular/router';
 import { FileService } from 'src/app/core/services/file.service';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 
 @Component({
   selector: 'app-fy-view-attachment',
   templateUrl: './fy-view-attachment.component.html',
   styleUrls: ['./fy-view-attachment.component.scss'],
-  standalone: false,
+  imports: [
+    FormButtonValidationDirective,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    NgClass,
+    PdfViewerModule,
+    PinchZoomComponent,
+    SwiperModule,
+    TranslocoPipe
+  ],
 })
 export class FyViewAttachmentComponent implements OnInit {
   private modalController = inject(ModalController);

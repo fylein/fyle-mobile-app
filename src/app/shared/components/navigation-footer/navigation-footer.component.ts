@@ -6,12 +6,13 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { Observable } from 'rxjs';
+import { FyNavFooterComponent } from './fy-nav-footer/fy-nav-footer.component';
 
 @Component({
   selector: 'app-navigation-footer',
   templateUrl: './navigation-footer.component.html',
   styleUrls: ['./navigation-footer.component.scss'],
-  standalone: false,
+  imports: [FyNavFooterComponent],
 })
 export class NavigationFooterComponent implements OnInit {
   private router = inject(Router);

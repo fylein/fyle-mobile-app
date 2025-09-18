@@ -1,10 +1,10 @@
 import { Component, EventEmitter, ViewChild, ElementRef, inject } from '@angular/core';
 import { concat, Observable, Subject, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { switchMap, map, shareReplay, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, ModalController } from '@ionic/angular/standalone';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -28,12 +28,50 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { MyReportsFilters } from 'src/app/core/models/my-reports-filters.model';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { FyHeaderComponent } from '../../shared/components/fy-header/fy-header.component';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { ReportsCardComponent } from '../../shared/components/reports-card/reports-card.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
   styleUrls: ['./my-reports.page.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    FooterComponent,
+    FormsModule,
+    FyFilterPillsComponent,
+    FyHeaderComponent,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonRefresher,
+    IonRefresherContent,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    ReportsCardComponent,
+    RouterLink,
+    TranslocoPipe
+  ],
 })
 export class MyReportsPage {
   private networkService = inject(NetworkService);

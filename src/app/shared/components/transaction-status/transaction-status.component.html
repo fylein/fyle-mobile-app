@@ -3,7 +3,7 @@
     class="transaction-status__status-indicator"
     [ngClass]="{
       pending: transactionStatus === TransactionStatus.PENDING,
-      posted: transactionStatus === TransactionStatus.POSTED
+      posted: transactionStatus === TransactionStatus.POSTED,
     }"
   ></div>
   <div class="transaction-status__status-label">{{ 'transactionStatus.statusLabel' | transloco }}</div>

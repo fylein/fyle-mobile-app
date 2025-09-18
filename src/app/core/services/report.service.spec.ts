@@ -49,51 +49,51 @@ describe('ReportService', () => {
     });
 
     TestBed.configureTestingModule({
-    imports: [],
-    providers: [
+      imports: [],
+      providers: [
         ReportService,
         DatePipe,
         LaunchDarklyService,
         {
-            provide: TransactionService,
-            useValue: transactionServiceSpy,
+          provide: TransactionService,
+          useValue: transactionServiceSpy,
         },
         {
-            provide: UserEventService,
-            useValue: userEventServiceSpy,
+          provide: UserEventService,
+          useValue: userEventServiceSpy,
         },
         {
-            provide: SpenderPlatformV1ApiService,
-            useValue: spenderPlatformV1ApiServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
-            provide: ApproverPlatformApiService,
-            useValue: approverPlatformApiServiceSpy,
+          provide: ApproverPlatformApiService,
+          useValue: approverPlatformApiServiceSpy,
         },
         {
-            provide: PermissionsService,
-            useValue: permissionsServiceSpy,
+          provide: PermissionsService,
+          useValue: permissionsServiceSpy,
         },
         {
-            provide: PAGINATION_SIZE,
-            useValue: 2,
+          provide: PAGINATION_SIZE,
+          useValue: 2,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-});
+      ],
+    });
 
     reportService = TestBed.inject(ReportService);
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     approverPlatformApiService = TestBed.inject(
-      ApproverPlatformApiService
+      ApproverPlatformApiService,
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
@@ -198,7 +198,7 @@ describe('ReportService', () => {
         expect(permissionsService.allowedActions).toHaveBeenCalledOnceWith(
           'reports',
           ['approve', 'create', 'delete'],
-          orgSettingsRes
+          orgSettingsRes,
         );
         done();
       });
