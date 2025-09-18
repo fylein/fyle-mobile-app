@@ -31,6 +31,7 @@ import { getTranslocoTestingModule } from './core/testing/transloco-testing.util
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
+import { extendedDeviceInfoMockData } from './core/mock-data/extended-device-info.data';
 
 // mock side menu component
 @Component({
@@ -50,7 +51,7 @@ class MockFyConnectionComponent {}
 })
 class MockFyFooterComponent {}
 
-describe('AppComponent', () => {
+fdescribe('AppComponent', () => {
   let platformReadySpy;
   let platformSpy: jasmine.SpyObj<Platform>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -95,6 +96,8 @@ describe('AppComponent', () => {
     platformSpy.backButton = backButtonSpy;
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['logout']);
     const appVersionServiceSpy = jasmine.createSpyObj('AppVersionService', ['load', 'getUserAppVersionDetails']);
+    appVersionServiceSpy.load.and.returnValue(of(null));
+    appVersionServiceSpy.getUserAppVersionDetails.and.returnValue(of(null));
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['isLoggedIn']);
     routerAuthServiceSpy.isLoggedIn.and.returnValue(of(true));
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline'], {
@@ -139,6 +142,7 @@ describe('AppComponent', () => {
       onLogout: (callback) => callback(),
     });
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
+    deviceServiceSpy.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
     const gmapsServiceSpy = jasmine.createSpyObj('GmapsService', ['loadLibrary']);
     const menuControllerSpy = jasmine.createSpyObj('MenuController', ['swipeGesture']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);

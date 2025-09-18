@@ -30,6 +30,7 @@ import { DelegatedAccMessageComponent } from './shared/components/delegated-acc-
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-root',
@@ -43,7 +44,7 @@ import { FyConnectionComponent } from './shared/components/fy-connection/fy-conn
     IonFooter,
     IonRouterOutlet,
     NgClass,
-    SidemenuComponent
+    SidemenuComponent,
   ],
 })
 export class AppComponent implements OnInit, AfterViewInit {
@@ -166,16 +167,20 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
 
     this.platform.ready().then(async () => {
-      await StatusBar.setStyle({
-        style: Style.Default,
-      });
+      if (Capacitor.isNativePlatform()) {
+        await StatusBar.setStyle({
+          style: Style.Default,
+        });
+      }
 
       /*
        * Use the app's font size irrespective of the user's device font size.
        * This is to ensure that the app's UI is consistent across devices.
        * Ref: https://www.npmjs.com/package/@capacitor/text-zoom
        */
-      await TextZoom.set({ value: 1 });
+      if (Capacitor.isNativePlatform()) {
+        await TextZoom.set({ value: 1 });
+      }
 
       from(this.routerAuthService.isLoggedIn())
         .pipe(
