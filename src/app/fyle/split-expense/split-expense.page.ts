@@ -30,7 +30,7 @@ import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
@@ -109,7 +109,7 @@ export class SplitExpensePage implements OnDestroy {
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private dependentFieldsService = inject(DependentFieldsService);
 

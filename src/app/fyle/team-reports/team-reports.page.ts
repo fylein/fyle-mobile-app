@@ -17,7 +17,7 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import dayjs from 'dayjs';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
@@ -54,7 +54,7 @@ export class TeamReportsPage implements OnInit {
 
   private tasksService = inject(TasksService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private reportStatePipe = inject(ReportState);
 

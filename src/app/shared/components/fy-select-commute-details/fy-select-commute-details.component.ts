@@ -8,7 +8,7 @@ import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Location } from 'src/app/core/models/location.model';
 import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
 import { LocationService } from 'src/app/core/services/location.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -30,7 +30,7 @@ export class FySelectCommuteDetailsComponent implements OnInit {
 
   private employeesService = inject(EmployeesService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private matSnackBar = inject(MatSnackBar);
 

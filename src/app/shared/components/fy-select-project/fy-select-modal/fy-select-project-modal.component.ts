@@ -18,7 +18,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ProjectOption } from 'src/app/core/models/project-options.model';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -47,7 +47,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private categoriesService = inject(CategoriesService);
 
