@@ -62,13 +62,13 @@ export const dependentFieldsMappingForCostCenter: dependentFieldMapping = deepFr
   16743: [
     {
       name: 'Dependent Field Of Cost Center',
-      value: 'Dep. Value 1',
+      value: 'Dep. Value 3',
     },
   ],
   16744: [
     {
       name: 'Dependent Field Of Cost Center',
-      value: 'Dep. Value 3',
+      value: 'Dep. Value 1',
     },
   ],
 });

@@ -11,8 +11,6 @@ import { MergeExpensesService } from 'src/app/core/services/merge-expenses.servi
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
-import { expenseList2, transformedPlatformedExpense1 } from 'src/app/core/mock-data/expense.data';
-import { mergeExpensesOptionsData } from 'src/app/core/mock-data/merge-expenses-option.data';
 import { of } from 'rxjs';
 import {
   optionsData10,
@@ -35,10 +33,13 @@ import {
   optionsData9,
 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
 import { combinedOptionsData1 } from 'src/app/core/mock-data/combined-options.data';
-import { expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { apiExpenses3 } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { expensesInfo } from 'src/app/core/mock-data/platform/v1/expenses-info.data';
+import {
+  expenseToKeepOptionsData,
+  receiptOptionsData,
+} from 'src/app/core/mock-data/platform/v1/merge-expenses-option.data';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -55,7 +56,6 @@ export function TestCases1(getTestBed) {
     let mergeExpensesService: jasmine.SpyObj<MergeExpensesService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
     let formBuilder: UntypedFormBuilder;
-    let transactionService: jasmine.SpyObj<TransactionService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
 
     beforeEach(waitForAsync(() => {
@@ -72,11 +72,10 @@ export function TestCases1(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       mergeExpensesService = TestBed.inject(MergeExpensesService) as jasmine.SpyObj<MergeExpensesService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-      transactionService = TestBed.inject(TransactionService);
       expensesService = TestBed.inject(ExpensesService);
       formBuilder = TestBed.inject(UntypedFormBuilder);
       component.fg = formBuilder.group({
-        target_txn_id: [, Validators.required],
+        target_expense_id: [, Validators.required],
         genericFields: [],
         categoryDependent: [],
         custom_inputs: [],
@@ -119,11 +118,9 @@ export function TestCases1(getTestBed) {
     describe('ionViewWillEnter():', () => {
       beforeEach(() => {
         expensesService.getAllExpenses.and.returnValue(of(apiExpenses3));
-        transactionService.transformRawExpense.and.returnValue(transformedPlatformedExpense1[0]);
-        transactionService.transformRawExpense.and.returnValue(transformedPlatformedExpense1[1]);
         categoriesService.getSystemCategories.and.returnValue(['Bus', 'Airlines', 'Lodging', 'Train']);
-        mergeExpensesService.generateExpenseToKeepOptions.and.returnValue(of(mergeExpensesOptionsData));
-        mergeExpensesService.generateReceiptOptions.and.returnValue(of(mergeExpensesOptionsData));
+        mergeExpensesService.generateExpenseToKeepOptions.and.returnValue(of(expenseToKeepOptionsData));
+        mergeExpensesService.generateReceiptOptions.and.returnValue(of(receiptOptionsData));
         mergeExpensesService.generateAmountOptions.and.returnValue(of(optionsData3));
         mergeExpensesService.generateDateOfSpendOptions.and.returnValue(of(optionsData6));
         mergeExpensesService.generatePaymentModeOptions.and.returnValue(of(optionsData7));
@@ -153,11 +150,11 @@ export function TestCases1(getTestBed) {
       });
 
       it('should setup class observables', () => {
-        component.expenses = transformedPlatformedExpense1;
+        component.expenses = apiExpenses3;
         component.ionViewWillEnter();
 
-        expect(component.fg.controls.target_txn_id.value).toBeNull();
-        expect(component.fg.controls.target_txn_id.validator).toBe(Validators.required);
+        expect(component.fg.controls.target_expense_id.value).toBeNull();
+        expect(component.fg.controls.target_expense_id.validator).toBe(Validators.required);
         expect(component.fg.controls.genericFields.value).toBeNull();
         expect(component.fg.controls.categoryDependent.value).toBeNull();
         expect(component.fg.controls.custom_inputs.value).toBeNull();
@@ -170,79 +167,69 @@ export function TestCases1(getTestBed) {
           },
         });
 
-        expect(transactionService.transformRawExpense).toHaveBeenCalledWith(apiExpenses3[0]);
-        expect(transactionService.transformRawExpense).toHaveBeenCalledWith(apiExpenses3[1]);
         expect(categoriesService.getSystemCategories).toHaveBeenCalledTimes(1);
-        expect(mergeExpensesService.generateReceiptOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
+        expect(mergeExpensesService.generateReceiptOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         expect(component.systemCategories).toEqual(['Bus', 'Airlines', 'Lodging', 'Train']);
-        expect(component.receiptOptions).toEqual(mergeExpensesOptionsData);
+        expect(component.receiptOptions).toEqual(receiptOptionsData);
 
         component.expenseOptions$.subscribe((res) => {
-          expect(res).toEqual(mergeExpensesOptionsData);
-          expect(mergeExpensesService.generateExpenseToKeepOptions).toHaveBeenCalledOnceWith(
-            transformedPlatformedExpense1,
-          );
+          expect(res).toEqual(expenseToKeepOptionsData);
+          expect(mergeExpensesService.generateExpenseToKeepOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.amountOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData3);
-          expect(mergeExpensesService.generateAmountOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
+          expect(mergeExpensesService.generateAmountOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.dateOfSpendOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData6);
-          expect(mergeExpensesService.generateDateOfSpendOptions).toHaveBeenCalledOnceWith(
-            transformedPlatformedExpense1,
-          );
+          expect(mergeExpensesService.generateDateOfSpendOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.paymentModeOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData7);
-          expect(mergeExpensesService.generatePaymentModeOptions).toHaveBeenCalledOnceWith(
-            transformedPlatformedExpense1,
-          );
+          expect(mergeExpensesService.generatePaymentModeOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.projectOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData9);
-          expect(mergeExpensesService.generateProjectOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
+          expect(mergeExpensesService.generateProjectOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.billableOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData2);
-          expect(mergeExpensesService.generateBillableOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
+          expect(mergeExpensesService.generateBillableOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.vendorOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData8);
-          expect(mergeExpensesService.generateVendorOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
+          expect(mergeExpensesService.generateVendorOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.categoryOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData10);
-          expect(mergeExpensesService.generateCategoryOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
+          expect(mergeExpensesService.generateCategoryOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.taxGroupOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData11);
-          expect(mergeExpensesService.generateTaxGroupOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
+          expect(mergeExpensesService.generateTaxGroupOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.taxAmountOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData12);
-          expect(mergeExpensesService.generateTaxAmountOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
+          expect(mergeExpensesService.generateTaxAmountOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.constCenterOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData13);
-          expect(mergeExpensesService.generateCostCenterOptions).toHaveBeenCalledOnceWith(
-            transformedPlatformedExpense1,
-          );
+          expect(mergeExpensesService.generateCostCenterOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.purposeOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData14);
-          expect(mergeExpensesService.generatePurposeOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
+          expect(mergeExpensesService.generatePurposeOptions).toHaveBeenCalledOnceWith(apiExpenses3);
         });
 
         component.location1OptionsData$.subscribe((res) => {
@@ -253,8 +240,8 @@ export function TestCases1(getTestBed) {
         });
 
         expect(mergeExpensesService.generateLocationOptions).toHaveBeenCalledTimes(2);
-        expect(mergeExpensesService.generateLocationOptions).toHaveBeenCalledWith(transformedPlatformedExpense1, 0);
-        expect(mergeExpensesService.generateLocationOptions).toHaveBeenCalledWith(transformedPlatformedExpense1, 1);
+        expect(mergeExpensesService.generateLocationOptions).toHaveBeenCalledWith(apiExpenses3, 0);
+        expect(mergeExpensesService.generateLocationOptions).toHaveBeenCalledWith(apiExpenses3, 1);
 
         component.onwardDateOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData16);
@@ -263,8 +250,8 @@ export function TestCases1(getTestBed) {
           expect(res).toEqual(optionsData16);
         });
 
-        expect(mergeExpensesService.generateOnwardDateOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
-        expect(mergeExpensesService.generateReturnDateOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
+        expect(mergeExpensesService.generateOnwardDateOptions).toHaveBeenCalledOnceWith(apiExpenses3);
+        expect(mergeExpensesService.generateReturnDateOptions).toHaveBeenCalledOnceWith(apiExpenses3);
 
         component.flightJourneyTravelClassOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData17);
@@ -280,19 +267,11 @@ export function TestCases1(getTestBed) {
           expect(res).toEqual(optionsData19);
         });
 
-        expect(mergeExpensesService.generateTrainTravelClassOptions).toHaveBeenCalledOnceWith(
-          transformedPlatformedExpense1,
-        );
-        expect(mergeExpensesService.generateBusTravelClassOptions).toHaveBeenCalledOnceWith(
-          transformedPlatformedExpense1,
-        );
+        expect(mergeExpensesService.generateTrainTravelClassOptions).toHaveBeenCalledOnceWith(apiExpenses3);
+        expect(mergeExpensesService.generateBusTravelClassOptions).toHaveBeenCalledOnceWith(apiExpenses3);
 
-        expect(mergeExpensesService.generateFlightJourneyTravelClassOptions).toHaveBeenCalledOnceWith(
-          transformedPlatformedExpense1,
-        );
-        expect(mergeExpensesService.generateFlightReturnTravelClassOptions).toHaveBeenCalledOnceWith(
-          transformedPlatformedExpense1,
-        );
+        expect(mergeExpensesService.generateFlightJourneyTravelClassOptions).toHaveBeenCalledOnceWith(apiExpenses3);
+        expect(mergeExpensesService.generateFlightReturnTravelClassOptions).toHaveBeenCalledOnceWith(apiExpenses3);
 
         component.distanceOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData20);
@@ -303,21 +282,19 @@ export function TestCases1(getTestBed) {
 
         expect(component.setupDefaultReceipts).toHaveBeenCalledTimes(1);
 
-        expect(mergeExpensesService.generateDistanceOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
-        expect(mergeExpensesService.generateDistanceUnitOptions).toHaveBeenCalledOnceWith(
-          transformedPlatformedExpense1,
-        );
+        expect(mergeExpensesService.generateDistanceOptions).toHaveBeenCalledOnceWith(apiExpenses3);
+        expect(mergeExpensesService.generateDistanceUnitOptions).toHaveBeenCalledOnceWith(apiExpenses3);
       });
     });
 
     describe('setupDefaultReceipts():', () => {
       beforeEach(() => {
-        component.expenses = cloneDeep(transformedPlatformedExpense1);
+        component.expenses = cloneDeep(apiExpenses3);
         component.genericFieldsOptions$ = of(cloneDeep(combinedOptionsData1));
       });
 
       it('should set receipts_from as transaction ID if any of the merged expense has receipt', () => {
-        component.expenses[1].tx_file_ids = ['fi2xk29232qwr'];
+        component.expenses[1].file_ids = ['fi2xk29232qwr'];
         component.setupDefaultReceipts(component.expenses);
         expect(component.fg.controls.genericFields.value.receipts_from).toEqual('txZA0Oj6TV9c');
       });
@@ -330,7 +307,7 @@ export function TestCases1(getTestBed) {
 
     describe('loadGenericFieldsOptions(): ', () => {
       beforeEach(() => {
-        component.expenses = expenseList2;
+        component.expenses = apiExpenses3;
         component.genericFieldsOptions$ = of(cloneDeep(combinedOptionsData1));
         mergeExpensesService.getFieldValue.and.returnValues(
           40.67,
@@ -372,18 +349,18 @@ export function TestCases1(getTestBed) {
 
       it('should call setInitialExpenseToKeepDetails once with expensesInfo and isAllAdvanceExpenses flag', () => {
         component.loadGenericFieldsOptions();
-        expect(mergeExpensesService.setDefaultExpenseToKeep).toHaveBeenCalledOnceWith(expenseList2);
-        expect(mergeExpensesService.isAllAdvanceExpenses).toHaveBeenCalledOnceWith(expenseList2);
+        expect(mergeExpensesService.setDefaultExpenseToKeep).toHaveBeenCalledOnceWith(apiExpenses3);
+        expect(mergeExpensesService.isAllAdvanceExpenses).toHaveBeenCalledOnceWith(apiExpenses3);
         expect(component.setInitialExpenseToKeepDetails).toHaveBeenCalledOnceWith(expensesInfo, true);
       });
     });
 
-    it('subscribeExpenseChange(): should call onExpenseChanged and patchCategoryDependentFields once if target_txn_id value changes', () => {
-      component.expenses = expenseList2;
+    it('subscribeExpenseChange(): should call onExpenseChanged and patchCategoryDependentFields once if target_expense_id value changes', () => {
+      component.expenses = apiExpenses3;
       spyOn(component, 'onExpenseChanged');
       spyOn(component, 'patchCategoryDependentFields');
       component.subscribeExpenseChange();
-      component.fg.patchValue({ target_txn_id: 'tx3nHShG60zq' });
+      component.fg.patchValue({ target_expense_id: apiExpenses3[1].id });
       expect(component.onExpenseChanged).toHaveBeenCalledOnceWith(1);
       expect(component.patchCategoryDependentFields).toHaveBeenCalledOnceWith(1);
     });

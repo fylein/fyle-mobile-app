@@ -786,8 +786,10 @@
     "status": "Status",
     "optOut": "Opt-out",
     "optedIn": "Opted-in",
+    "optedOut": "Opted-out",
     "mobileNumber": "Mobile number",
     "usageDescription": "You can now text your receipts to Fyle at 302-440-2921",
+    "optInMessage": "Opt-in to receive text message by sending <strong>START</strong> to <strong>302-440-2921</strong>",
     "notOptedIn": "Not opted-in",
     "nonUSNumberInfo": "Add a +1 country code to your mobile number to receive text message receipts.",
     "updateAndOptIn": "Update and opt-in"

@@ -12,6 +12,10 @@ import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-t
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
+import {
+  expenseCustomFieldsWithDependentFields1,
+  expenseCustomFieldsWithDependentFields2,
+} from './expense-custom-field.data';
 
 export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},
@@ -2247,7 +2251,7 @@ export const apiExpenses3: Expense[] = deepFreeze([
     claim_amount: 4.8,
     code: null,
     cost_center: null,
-    cost_center_id: null,
+    cost_center_id: 12488,
     created_at: new Date('2024-03-03T06:19:50.179Z'),
     creator_user_id: 'ouokfwl9OEdl',
     currency: 'USD',
@@ -2300,7 +2304,7 @@ export const apiExpenses3: Expense[] = deepFreeze([
     hotel_is_breakfast_provided: false,
     id: 'txZA0Oj6TV9c',
     invoice_number: null,
-    is_billable: null,
+    is_billable: false,
     is_corporate_card_transaction_auto_matched: false,
     is_exported: null,
     is_manually_flagged: null,
@@ -2315,7 +2319,7 @@ export const apiExpenses3: Expense[] = deepFreeze([
     locations: [],
     matched_corporate_card_transaction_ids: [],
     matched_corporate_card_transactions: [],
-    merchant: null,
+    merchant: 'ramdev baba',
     mileage_calculated_amount: null,
     mileage_calculated_distance: null,
     mileage_is_round_trip: null,
@@ -2339,8 +2343,8 @@ export const apiExpenses3: Expense[] = deepFreeze([
       violations: null,
     },
     project: null,
-    project_id: null,
-    purpose: null,
+    project_id: 3812,
+    purpose: 'Others',
     report: null,
     report_id: null,
     report_last_approved_at: null,
@@ -2358,9 +2362,9 @@ export const apiExpenses3: Expense[] = deepFreeze([
     started_at: null,
     state: ExpenseState.COMPLETE,
     state_display_name: 'Complete',
-    tax_amount: null,
+    tax_amount: 0.32,
     tax_group: null,
-    tax_group_id: null,
+    tax_group_id: 'tgFDWBpJL3vy',
     travel_classes: [],
     unreportable: false,
     updated_at: new Date('2024-03-03T06:19:55.582Z'),
@@ -3202,4 +3206,56 @@ export const expensesList: Expense[] = deepFreeze([
   {
     ...platformExpenseData,
   },
+]);
+
+const expensesWithDependentFields: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], custom_fields: expenseCustomFieldsWithDependentFields1 },
+  { ...apiExpenses3[1], custom_fields: expenseCustomFieldsWithDependentFields2 },
+]);
+
+export const expensesWithDependentFieldsAndCostCenter: Expense[] = deepFreeze([
+  { ...expensesWithDependentFields[0], cost_center_id: 16743 },
+  { ...expensesWithDependentFields[1], cost_center_id: 16744 },
+]);
+
+export const expensesWithDependentFieldsAndSameProject: Expense[] = deepFreeze([
+  { ...expensesWithDependentFields[1], project_id: 316992 },
+  { ...expensesWithDependentFields[0], project_id: 316992 },
+]);
+
+export const expensesWithDependentFieldsAndDifferentProject: Expense[] = deepFreeze([
+  { ...expensesWithDependentFields[0], project_id: 316992 },
+  { ...expensesWithDependentFields[1], project_id: 316908 },
+]);
+
+export const expensesWithSameProject: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], project_id: 316992 },
+  { ...apiExpenses3[1], project_id: 316992 },
+]);
+
+export const advanceExpenses: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], source_account: { id: 'accDDeaVIs6p6', type: AccountType.PERSONAL_ADVANCE_ACCOUNT } },
+  { ...apiExpenses3[1], source_account: { id: 'accDDeaVIs6p6', type: AccountType.PERSONAL_ADVANCE_ACCOUNT } },
+]);
+
+export const approvedAndAboveExpenses: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], state: ExpenseState.APPROVED },
+  { ...apiExpenses3[1], state: ExpenseState.PAYMENT_PENDING },
+  { ...apiExpenses3[0], state: ExpenseState.PAYMENT_PROCESSING },
+  { ...apiExpenses3[1], state: ExpenseState.PAID },
+]);
+
+export const reportedExpenses: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], state: ExpenseState.APPROVER_PENDING },
+  { ...apiExpenses3[1], state: ExpenseState.APPROVER_PENDING },
+]);
+
+export const belowReportedExpenses: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], state: ExpenseState.DRAFT },
+  { ...apiExpenses3[1], state: ExpenseState.COMPLETE },
+]);
+
+export const reportedAndAboveExpenses: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], state: ExpenseState.APPROVER_PENDING },
+  { ...apiExpenses3[1], state: ExpenseState.APPROVED },
 ]);

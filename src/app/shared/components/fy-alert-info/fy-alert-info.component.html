@@ -11,7 +11,13 @@
   @if (type === 'danger') {
     <mat-icon class="alert-info-container--icon--danger" svgIcon="danger-fill"></mat-icon>
   }
-  <div class="alert-info-container--message">{{ message }}</div>
+  <div class="alert-info-container--message">
+    @if (allowHtml) {
+      <span [innerHTML]="message"></span>
+    } @else {
+      {{ message }}
+    }
+  </div>
   @if (showActionButton) {
     <div class="alert-info-container--button-container">
       <ion-button
