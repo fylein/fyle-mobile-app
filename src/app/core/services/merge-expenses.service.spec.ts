@@ -122,7 +122,7 @@ import {
   mergeExpensesWithTrainTravelClass,
   mergeExpensesWithZeroAmount,
 } from '../mock-data/platform/v1/merge-expense.service.data';
-import { getTranslocoModule } from '../testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from '../testing/transloco-testing.utils';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -155,7 +155,7 @@ describe('MergeExpensesService', () => {
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
-      imports: [getTranslocoModule()],
+      imports: [getTranslocoTestingModule()],
       providers: [
         MergeExpensesService,
         { provide: FileService, useValue: fileServiceSpy },
