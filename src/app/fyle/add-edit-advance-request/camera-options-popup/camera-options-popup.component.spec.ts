@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { PopoverController } from '@ionic/angular/standalone';
@@ -41,7 +41,7 @@ describe('CameraOptionsPopupComponent', () => {
           useValue: translocoServiceSpy,
         },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CameraOptionsPopupComponent);

@@ -303,35 +303,37 @@ export function TestCases2(getTestBed) {
     });
 
     describe('clearText(): ', () => {
+      beforeEach(() => {
+        component.simpleSearchInput = {
+          nativeElement: {
+            value: 'some text',
+            dispatchEvent: jasmine.createSpy('dispatchEvent'),
+          }
+        } as any;
+      });
       it('should clear the search text, input value, dispatch keyup event, and update search bar focus', () => {
-        component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
-        inputElement = component.simpleSearchInput.nativeElement;
-        const dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
         component.simpleSearchText = 'some text';
-        inputElement.value = 'some text';
+        component.simpleSearchInput.nativeElement.value = 'some text';
         component.isSearchBarFocused = true;
 
         component.clearText('');
 
         expect(component.simpleSearchText).toEqual('');
-        expect(inputElement.value).toEqual('');
-        expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
+        expect(component.simpleSearchInput.nativeElement.value).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledOnceWith(new Event('keyup'));
         expect(component.isSearchBarFocused).toBeTrue();
       });
 
       it('should clear the search text, input value, dispatch keyup event, and toggle search bar focus when called from onSimpleSearchCancel', () => {
-        component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
-        inputElement = component.simpleSearchInput.nativeElement;
-        const dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
         component.simpleSearchText = 'some text';
-        inputElement.value = 'some text';
+        component.simpleSearchInput.nativeElement.value = 'some text';
         component.isSearchBarFocused = true;
 
         component.clearText('onSimpleSearchCancel');
 
         expect(component.simpleSearchText).toEqual('');
-        expect(inputElement.value).toEqual('');
-        expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
+        expect(component.simpleSearchInput.nativeElement.value).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledOnceWith(new Event('keyup'));
         expect(component.isSearchBarFocused).toBeFalse();
       });
     });

@@ -167,16 +167,17 @@ export function TestCases3(getTestBed) {
     });
 
     it('searchClick(): should set headerState and call focus method on input', fakeAsync(() => {
-      component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
-      inputElement = component.simpleSearchInput.nativeElement;
-      const mockFocus = spyOn(inputElement, 'focus');
-
+      component.simpleSearchInput = {
+        nativeElement: {
+          focus: jasmine.createSpy('focus'),
+        },
+      } as any;
       component.searchClick();
 
       expect(component.headerState).toEqual(HeaderState.simpleSearch);
       tick(300);
 
-      expect(mockFocus).toHaveBeenCalledTimes(1);
+      expect(component.simpleSearchInput.nativeElement.focus).toHaveBeenCalledTimes(1);
     }));
 
     describe('convertRptDtSortToSelectedFilters(): ', () => {

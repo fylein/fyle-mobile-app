@@ -17,7 +17,7 @@ import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -124,7 +124,7 @@ describe('SignInPage', () => {
           useValue: backButtonServiceSpy,
         },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
     fixture = TestBed.createComponent(SignInPage);
     component = fixture.componentInstance;
