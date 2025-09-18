@@ -1,13 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { Observable, map, of } from 'rxjs';
-import { OrgSettingsService } from '../services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BetaPageFeatureFlagGuard {
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private router = inject(Router);
 

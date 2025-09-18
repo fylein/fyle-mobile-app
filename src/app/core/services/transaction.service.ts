@@ -15,7 +15,7 @@ import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
-import { OrgSettingsService } from './org-settings.service';
+import { PlatformOrgSettingsService } from './platform/v1/spender/org-settings.service';
 import { AccountsService } from './accounts.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
@@ -66,7 +66,7 @@ export class TransactionService {
 
   private paymentModesService = inject(PaymentModesService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private accountsService = inject(AccountsService);
 
