@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -32,27 +31,27 @@ describe('PopupWithBulletsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, PopupWithBulletsComponent],
-    providers: [
+      imports: [ TranslocoModule, PopupWithBulletsComponent],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: ClipboardService,
-            useValue: clipboardServiceSpy,
+          provide: ClipboardService,
+          useValue: clipboardServiceSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesServiceSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesServiceSpy,
         },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(PopupWithBulletsComponent);
     component = fixture.componentInstance;
 
@@ -136,7 +135,7 @@ describe('PopupWithBulletsComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
       'success',
       { message },
-      'check-circle-outline'
+      'check-circle-outline',
     );
   });
 });

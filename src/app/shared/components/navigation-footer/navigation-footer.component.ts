@@ -9,10 +9,10 @@ import { Observable } from 'rxjs';
 import { FyNavFooterComponent } from './fy-nav-footer/fy-nav-footer.component';
 
 @Component({
-    selector: 'app-navigation-footer',
-    templateUrl: './navigation-footer.component.html',
-    styleUrls: ['./navigation-footer.component.scss'],
-    imports: [FyNavFooterComponent],
+  selector: 'app-navigation-footer',
+  templateUrl: './navigation-footer.component.html',
+  styleUrls: ['./navigation-footer.component.scss'],
+  imports: [FyNavFooterComponent],
 })
 export class NavigationFooterComponent implements OnInit {
   private router = inject(Router);

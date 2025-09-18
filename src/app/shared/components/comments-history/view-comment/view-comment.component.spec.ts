@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
@@ -10,7 +9,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TrackingService } from '../../../../core/services/tracking.service';
 import { ViewCommentComponent } from './view-comment.component';
 import { ElementRef } from '@angular/core';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
@@ -79,8 +78,17 @@ describe('ViewCommentComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule, ViewCommentComponent, DateFormatPipe, DateWithTimezonePipe],
-    providers: [
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        ViewCommentComponent,
+        DateFormatPipe,
+        DateWithTimezonePipe,
+      ],
+      providers: [
         { provide: StatusService, useValue: statusService },
         { provide: AuthService, useValue: authService },
         { provide: ModalController, useValue: modalController },
@@ -97,8 +105,8 @@ describe('ViewCommentComponent', () => {
         { provide: AdvanceRequestService, useValue: advanceRequestService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     authService.getEou.and.resolveTo(apiEouRes);
     const mockCommentResponse = cloneDeep(apiCommentsResponse);

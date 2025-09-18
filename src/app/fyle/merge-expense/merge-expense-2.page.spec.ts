@@ -4,11 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { NavController } from '@ionic/angular';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { NavController } from '@ionic/angular/standalone';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -122,7 +119,7 @@ export function TestCases2(getTestBed) {
           'tgXEJA6YUoZ1',
           0.01,
           '213',
-          'Outing'
+          'Outing',
         );
       });
 
@@ -324,7 +321,7 @@ export function TestCases2(getTestBed) {
           null,
           'AC',
           null,
-          null
+          null,
         );
       });
 

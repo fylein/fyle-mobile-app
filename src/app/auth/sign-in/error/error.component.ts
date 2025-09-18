@@ -1,13 +1,17 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-error',
-    templateUrl: './error.component.html',
-    styleUrls: ['./error.component.scss'],
-    imports: [IonicModule, TranslocoPipe],
+  selector: 'app-error',
+  templateUrl: './error.component.html',
+  styleUrls: ['./error.component.scss'],
+  imports: [
+    IonButton,
+    IonIcon,
+    TranslocoPipe
+  ],
 })
 export class ErrorComponent implements OnInit {
   private popoverController = inject(PopoverController);

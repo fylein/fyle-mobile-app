@@ -10,8 +10,20 @@ import {
   input,
   output,
 } from '@angular/core';
-import { AbstractControl, ControlValueAccessor, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import {
+  AbstractControl,
+  ControlValueAccessor,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { ModalController } from '@ionic/angular/standalone';
 import { intersection, isEqual } from 'lodash';
 import { Subscription, distinctUntilChanged } from 'rxjs';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
@@ -25,32 +37,32 @@ import { FyNumberComponent } from '../fy-number/fy-number.component';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-route-selector',
-    templateUrl: './route-selector.component.html',
-    styleUrls: ['./route-selector.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            multi: true,
-            useExisting: RouteSelectorComponent,
-        },
-        {
-            provide: NG_VALIDATORS,
-            useExisting: RouteSelectorComponent,
-            multi: true,
-        },
-    ],
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        NgClass,
-        FyLocationComponent,
-        MatIcon,
-        MatCheckbox,
-        FyNumberComponent,
-        TitleCasePipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-route-selector',
+  templateUrl: './route-selector.component.html',
+  styleUrls: ['./route-selector.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      multi: true,
+      useExisting: RouteSelectorComponent,
+    },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: RouteSelectorComponent,
+      multi: true,
+    },
+  ],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    NgClass,
+    FyLocationComponent,
+    MatIcon,
+    MatCheckbox,
+    FyNumberComponent,
+    TitleCasePipe,
+    TranslocoPipe,
+  ],
 })
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
   private fb = inject(UntypedFormBuilder);

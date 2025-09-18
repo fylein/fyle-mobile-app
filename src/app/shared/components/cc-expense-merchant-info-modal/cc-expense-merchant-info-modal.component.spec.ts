@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { CCExpenseMerchantInfoModalComponent } from './cc-expense-merchant-info-modal.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('CCExpenseMerchantInfoComponent', () => {
   let component: CCExpenseMerchantInfoModalComponent;
@@ -21,18 +22,19 @@ describe('CCExpenseMerchantInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, CCExpenseMerchantInfoModalComponent],
-    providers: [
+      imports: [TranslocoModule, CCExpenseMerchantInfoModalComponent,
+        MatIconTestingModule],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CCExpenseMerchantInfoModalComponent);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;

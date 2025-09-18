@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -31,27 +31,33 @@ describe('FyCurrencyExchangeRateComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyCurrencyExchangeRateComponent],
-    providers: [
+      imports: [
+        
+        FormsModule,
+        ReactiveFormsModule,
+        TranslocoModule,
+        FyCurrencyExchangeRateComponent,
+      ],
+      providers: [
         UntypedFormBuilder,
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyCurrencyExchangeRateComponent);
     component = fixture.componentInstance;

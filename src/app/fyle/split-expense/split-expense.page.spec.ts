@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
@@ -25,9 +24,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { FileObject } from 'src/app/core/models/file-obj.model';
-import { IconModule } from 'src/app/shared/icon/icon.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -242,9 +240,8 @@ describe('SplitExpensePage', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [
-        IonicModule.forRoot(),
-        IconModule,
+      imports: [
+        
         FormsModule,
         ReactiveFormsModule,
         MatFormFieldModule,
@@ -254,17 +251,18 @@ describe('SplitExpensePage', () => {
         RouterTestingModule,
         MatIconTestingModule,
         TranslocoModule,
-        SplitExpensePage, FyAlertInfoComponent,
-    ],
-    providers: [
+        SplitExpensePage,
+        FyAlertInfoComponent,
+      ],
+      providers: [
         UntypedFormBuilder,
         {
-            provide: CategoriesService,
-            useValue: categoriesServiceSpy,
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
         },
         {
-            provide: DateService,
-            useValue: dateServiceSpy,
+          provide: DateService,
+          useValue: dateServiceSpy,
         },
         { provide: SplitExpenseService, useValue: splitExpenseServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
@@ -284,42 +282,43 @@ describe('SplitExpensePage', () => {
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         { provide: ProjectsService, useValue: projectsServiceSpy },
         {
-            provide: NavController,
-            useValue: navControllerSpy,
+          provide: NavController,
+          useValue: navControllerSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        currencyObj: '{"currency":"USD","symbol":"$","id":"USD"}',
-                        splitConfig: '{"category":{"is_mandatory":false,"is_visible":true},"costCenter":{"is_mandatory":false,"is_visible":true},"project":{"is_mandatory":true,"is_visible":true}}',
-                        txnFields: '{"project_id":"test","cost_center_id":"test"}',
-                        fileObjs: '[{"url":"mockUrl"}]',
-                        txn: '{"project_id": "3943"}',
-                        selectedCCCTransaction: '{"id":"tx3qwe4ty"}',
-                        selectedReportId: '"rpt3qwe4ty"',
-                        selectedProject: JSON.stringify(expectedProjectsResponse[0]),
-                        expenseFields: JSON.stringify(expenseFieldResponse),
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                currencyObj: '{"currency":"USD","symbol":"$","id":"USD"}',
+                splitConfig:
+                  '{"category":{"is_mandatory":false,"is_visible":true},"costCenter":{"is_mandatory":false,"is_visible":true},"project":{"is_mandatory":true,"is_visible":true}}',
+                txnFields: '{"project_id":"test","cost_center_id":"test"}',
+                fileObjs: '[{"url":"mockUrl"}]',
+                txn: '{"project_id": "3943"}',
+                selectedCCCTransaction: '{"id":"tx3qwe4ty"}',
+                selectedReportId: '"rpt3qwe4ty"',
+                selectedProject: JSON.stringify(expectedProjectsResponse[0]),
+                expenseFields: JSON.stringify(expenseFieldResponse),
+              },
             },
+          },
         },
         {
-            provide: TimezoneService,
-            useValue: timezoneServiceSpy,
+          provide: TimezoneService,
+          useValue: timezoneServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
     fixture = TestBed.createComponent(SplitExpensePage);
     component = fixture.componentInstance;
 

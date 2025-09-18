@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -15,6 +15,7 @@ import {
 import { finalize, of, take } from 'rxjs';
 import { currencies } from 'src/app/core/mock-data/recently-used.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyCurrencyChooseCurrencyComponent', () => {
   let component: FyCurrencyChooseCurrencyComponent;
@@ -37,27 +38,28 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, FyCurrencyChooseCurrencyComponent],
-    providers: [
+      imports: [TranslocoModule, FyCurrencyChooseCurrencyComponent,
+        MatIconTestingModule],
+      providers: [
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyCurrencyChooseCurrencyComponent);
     component = fixture.componentInstance;

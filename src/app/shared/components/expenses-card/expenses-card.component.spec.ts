@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -12,8 +11,8 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
-import { ExpensesCardComponent } from './expenses-card.component';
-import { PopoverController, ModalController, Platform } from '@ionic/angular';
+import { ExpensesCardV1Component } from './expenses-card.component';
+import { PopoverController, ModalController, Platform } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -45,8 +44,8 @@ import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.d
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('ExpensesCardComponent', () => {
-  let component: ExpensesCardComponent;
-  let fixture: ComponentFixture<ExpensesCardComponent>;
+  let component: ExpensesCardV1Component;
+  let fixture: ComponentFixture<ExpensesCardV1Component>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
@@ -110,16 +109,19 @@ describe('ExpensesCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-    imports: [
-        IonicModule.forRoot(),
+      imports: [
+        
         MatIconModule,
         MatIconTestingModule,
         MatCheckboxModule,
         FormsModule,
         TranslocoModule,
-        ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe, ExpenseState,
-    ],
-    providers: [
+        ExpensesCardV1Component,
+        DateFormatPipe,
+        HumanizeCurrencyPipe,
+        ExpenseState,
+      ],
+      providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
@@ -139,8 +141,8 @@ describe('ExpensesCardComponent', () => {
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
         { provide: ExpenseState, useValue: expenseStateSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
@@ -222,7 +224,7 @@ describe('ExpensesCardComponent', () => {
     });
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
-    fixture = TestBed.createComponent(ExpensesCardComponent);
+    fixture = TestBed.createComponent(ExpensesCardV1Component);
     component = fixture.componentInstance;
 
     component.receiptIcon = 'assets/svg/file-pdf.svg';

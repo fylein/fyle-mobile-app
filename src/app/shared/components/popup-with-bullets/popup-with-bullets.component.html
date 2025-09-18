@@ -8,10 +8,7 @@
   <div class="popup-with-bullets__list-header">{{ listHeader }}</div>
 
   @for (item of listItems; track item; let lastItem = $last) {
-    <div
-      class="popup-with-bullets__list-item"
-      [ngClass]="{ 'popup-with-bullets__list-item--last': lastItem }"
-      >
+    <div class="popup-with-bullets__list-item" [ngClass]="{ 'popup-with-bullets__list-item--last': lastItem }">
       <div class="d-flex">
         <div>
           <ion-icon

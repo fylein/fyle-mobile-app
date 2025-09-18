@@ -2,10 +2,10 @@ import { Component, Input, OnInit, input } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 @Component({
-    selector: 'app-policy-violation-action',
-    templateUrl: './policy-violation-action.component.html',
-    styleUrls: ['./policy-violation-action.component.scss'],
-    imports: [NgClass],
+  selector: 'app-policy-violation-action',
+  templateUrl: './policy-violation-action.component.html',
+  styleUrls: ['./policy-violation-action.component.scss'],
+  imports: [NgClass],
 })
 export class PolicyViolationActionComponent implements OnInit {
   readonly message = input<string>(undefined);

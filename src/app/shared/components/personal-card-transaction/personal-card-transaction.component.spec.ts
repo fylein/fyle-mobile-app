@@ -1,7 +1,5 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IconModule } from '../../icon/icon.module';
 import { PersonalCardTransactionComponent } from './personal-card-transaction.component';
-import { IonicModule } from '@ionic/angular';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
@@ -43,17 +41,26 @@ describe('PersonalCardTransactionComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), IconModule, MatIconTestingModule, MatIconModule, TranslocoModule, PersonalCardTransactionComponent, DateFormatPipe, ExactCurrencyPipe, FyCurrencyPipe],
-    providers: [
+      imports: [
+        
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
+        PersonalCardTransactionComponent,
+        DateFormatPipe,
+        ExactCurrencyPipe,
+        FyCurrencyPipe,
+      ],
+      providers: [
         {
-            provide: DateFormatPipe,
-            useValue: dateFormatPipeSpy,
+          provide: DateFormatPipe,
+          useValue: dateFormatPipeSpy,
         },
         FyCurrencyPipe,
         CurrencyPipe,
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PersonalCardTransactionComponent);
     component = fixture.componentInstance;

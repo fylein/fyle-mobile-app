@@ -1,5 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from '../core/services/loader.service';
 import { AdvanceRequestService } from '../core/services/advance-request.service';
@@ -46,8 +45,8 @@ describe('DeepLinkRedirectionPage', () => {
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportById']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), DeepLinkRedirectionPage],
-    providers: [
+      imports: [ DeepLinkRedirectionPage],
+      providers: [
         { provide: Router, useValue: routerSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
@@ -58,18 +57,18 @@ describe('DeepLinkRedirectionPage', () => {
         { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
         { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        id: '123',
-                        sub_module: 'testParam',
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                id: '123',
+                sub_module: 'testParam',
+              },
             },
+          },
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;

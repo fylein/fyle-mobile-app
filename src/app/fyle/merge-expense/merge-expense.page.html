@@ -11,7 +11,7 @@
   @if (fg) {
     <form #formContainer [formGroup]="fg" class="merge-expenses--form">
       <div class="merge-expenses--internal-block">
-        @if (expenseOptions$|async; as expenseOptions) {
+        @if (expenseOptions$ | async; as expenseOptions) {
           <app-fy-select
             [disabled]="disableFormElements || disableExpenseToKeep"
             [label]="'Expense to Keep'"
@@ -23,22 +23,19 @@
             formControlName="target_txn_id"
             [touchedInParent]="fg.controls.target_txn_id.touched"
             [validInParent]="fg.controls.target_txn_id.valid"
-            >
+          >
           </app-fy-select>
         }
       </div>
       @if (fg.controls.target_txn_id.touched && fg.controls.target_txn_id.invalid) {
-        <div class="merge-expenses--error">
-          Please select a valid expense
-        </div>
+        <div class="merge-expenses--error">Please select a valid expense</div>
       }
       @if (expenseToKeepInfoText) {
-        <app-fy-alert-info [message]="expenseToKeepInfoText" [type]="'information'">
-        </app-fy-alert-info>
+        <app-fy-alert-info [message]="expenseToKeepInfoText" [type]="'information'"> </app-fy-alert-info>
       }
-      @if (genericFieldsOptions$|async; as genericFieldsOptions) {
-        @if (projectDependentFieldsMapping$|async; as projectDependentFieldsMapping) {
-          @if (costCenterDependentFieldsMapping$|async; as costCenterDependentFieldsMapping) {
+      @if (genericFieldsOptions$ | async; as genericFieldsOptions) {
+        @if (projectDependentFieldsMapping$ | async; as projectDependentFieldsMapping) {
+          @if (costCenterDependentFieldsMapping$ | async; as costCenterDependentFieldsMapping) {
             <app-generic-fields-form
               formControlName="genericFields"
               [amountOptionsData]="genericFieldsOptions.amountOptionsData"
@@ -70,7 +67,7 @@
       }
       <ng-template #categoryDependentFields>
         @if (systemCategories?.includes(selectedCategoryName)) {
-          @if (categoryDependentFieldsOptions$|async; as categoryDependentFieldsOptions) {
+          @if (categoryDependentFieldsOptions$ | async; as categoryDependentFieldsOptions) {
             <app-category-dependent-fields-form
               formControlName="categoryDependent"
               [location1OptionsData]="categoryDependentFieldsOptions.location1OptionsData"
@@ -113,7 +110,7 @@
             appFormButtonValidation
             class="btn-primary"
             (click)="mergeExpense()"
-            >
+          >
             Save
           </ion-button>
         </ion-buttons>

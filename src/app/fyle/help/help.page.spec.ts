@@ -1,6 +1,5 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -32,35 +31,35 @@ describe('HelpPage', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), HelpPage],
-    providers: [
+      imports: [ HelpPage],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: EmployeesService,
-            useValue: employeesServiceSpy,
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: BrowserHandlerService,
-            useValue: browserHandlerServiceSpy,
+          provide: BrowserHandlerService,
+          useValue: browserHandlerServiceSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
     fixture = TestBed.createComponent(HelpPage);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;

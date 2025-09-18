@@ -4,7 +4,13 @@ import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { cloneDeep } from 'lodash';
 import { Subscription, of } from 'rxjs';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';

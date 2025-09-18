@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { CardStatsComponent } from './card-stats.component';
 import { Component, input } from '@angular/core';
@@ -25,13 +25,15 @@ import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { tap } from 'rxjs/operators';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { AddCardComponent } from 'src/app/shared/components/add-card/add-card.component';
+import { SpentCardsComponent } from 'src/app/shared/components/spent-cards/spent-cards.component';
 
 @Component({
-    selector: 'app-spent-cards',
-    template: '<div></div>',
-    imports: [TranslocoModule],
+  selector: 'app-spent-cards',
+  template: '<div></div>',
+  imports: [],
 })
 class MockSpentCardsComponent {
   readonly cardDetails = input<PlatformCorporateCardDetail[]>(undefined);
@@ -44,9 +46,9 @@ class MockSpentCardsComponent {
 }
 
 @Component({
-    selector: 'app-add-card',
-    template: '<div></div>',
-    imports: [TranslocoModule],
+  selector: 'app-add-card',
+  template: '<div></div>',
+  imports: [],
 })
 class MockAddCardComponent {
   readonly showZeroStateMessage = input<boolean>(undefined);
@@ -68,7 +70,6 @@ describe('CardStatsComponent', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let virtualCardsService: jasmine.SpyObj<VirtualCardsService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -83,54 +84,53 @@ describe('CardStatsComponent', () => {
     ]);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const virtualCardsServiceSpy = jasmine.createSpyObj('VirtualCardsService', ['getCardDetailsMap']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, CardStatsComponent, MockSpentCardsComponent, MockAddCardComponent],
-    providers: [
+      imports: [
+        getTranslocoTestingModule(),
+        CardStatsComponent,
+      ],
+      providers: [
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: DashboardService,
-            useValue: dashboardServiceSpy,
+          provide: DashboardService,
+          useValue: dashboardServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: platformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-            provide: CorporateCreditCardExpenseService,
-            useValue: corporateCreditCardExpenseServiceSpy,
+          provide: CorporateCreditCardExpenseService,
+          useValue: corporateCreditCardExpenseServiceSpy,
         },
         {
-            provide: VirtualCardsService,
-            useValue: virtualCardsServiceSpy,
+          provide: VirtualCardsService,
+          useValue: virtualCardsServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
-        {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
-        },
-    ],
-}).compileComponents();
+      ],
+    }).overrideComponent(CardStatsComponent, {
+      remove: {
+        imports: [AddCardComponent, SpentCardsComponent],
+      },
+      add: {
+        imports: [MockSpentCardsComponent, MockAddCardComponent],
+      },
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CardStatsComponent);
     component = fixture.componentInstance;
@@ -147,23 +147,6 @@ describe('CardStatsComponent', () => {
       CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'cardStats.myCards': 'My cards',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
 
     // Default return values
     currencyService.getHomeCurrency.and.returnValue(of('USD'));

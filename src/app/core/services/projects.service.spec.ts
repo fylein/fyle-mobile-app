@@ -56,7 +56,7 @@ describe('ProjectsService', () => {
     });
     projectsService = TestBed.inject(ProjectsService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
@@ -77,7 +77,7 @@ describe('ProjectsService', () => {
         });
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
           platformProjectSingleRes.data,
-          testActiveCategoryList
+          testActiveCategoryList,
         );
         expect(res).toEqual(apiV2ResponseSingle.data[0]);
         done();
@@ -112,7 +112,7 @@ describe('ProjectsService', () => {
         });
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
           platformProjectSingleRes.data,
-          undefined
+          undefined,
         );
         expect(res).toEqual(apiV2ResponseSingle.data[0]);
         done();
@@ -133,7 +133,7 @@ describe('ProjectsService', () => {
         });
         expect(projectsService.transformToV1Response).toHaveBeenCalledOnceWith(
           platformAPIResponseActiveOnly.data,
-          testActiveCategoryList
+          testActiveCategoryList,
         );
         expect(res).toEqual(expectedReponseActiveOnly);
         done();
@@ -152,7 +152,7 @@ describe('ProjectsService', () => {
         });
         expect(projectsService.transformToV1Response).toHaveBeenCalledOnceWith(
           platformAPIResponseActiveOnly.data,
-          null
+          null,
         );
         expect(res).toEqual(expectedReponseActiveOnly);
         done();
@@ -171,7 +171,7 @@ describe('ProjectsService', () => {
         });
         expect(projectsService.transformToV1Response).toHaveBeenCalledOnceWith(
           platformAPIResponseActiveOnly.data,
-          undefined
+          undefined,
         );
         expect(res).toEqual(expectedReponseActiveOnly);
         done();
@@ -187,7 +187,7 @@ describe('ProjectsService', () => {
       projectsService.getByParamsUnformatted({}, true).subscribe((res) => {
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
           platformAPIResponseMultiple.data,
-          undefined
+          undefined,
         );
         expect(res).toEqual(fixDate(apiV2ResponseMultiple.data));
         done();
@@ -201,7 +201,7 @@ describe('ProjectsService', () => {
       projectsService.getByParamsUnformatted({}, true, testActiveCategoryList).subscribe((res) => {
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
           platformAPIResponseMultiple.data,
-          testActiveCategoryList
+          testActiveCategoryList,
         );
         expect(res).toEqual(fixDate(apiV2ResponseMultiple.data));
         done();
@@ -243,7 +243,7 @@ describe('ProjectsService', () => {
         });
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
           platformAPIResponseMultiple.data,
-          undefined
+          undefined,
         );
         expect(res).toEqual(expectedProjectsResponse);
         done();
@@ -260,7 +260,7 @@ describe('ProjectsService', () => {
         });
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
           platformAPIResponseMultiple.data,
-          testActiveCategoryList
+          testActiveCategoryList,
         );
         expect(res).toEqual(expectedProjectsResponse);
         done();
@@ -279,7 +279,7 @@ describe('ProjectsService', () => {
         });
         expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
           platformAPIResponseMultiple.data,
-          testActiveCategoryList
+          testActiveCategoryList,
         );
         expect(res).toEqual(expectedProjectsResponse);
         done();
@@ -388,7 +388,7 @@ describe('ProjectsService', () => {
     it('should handle platformProject with category_ids as null', () => {
       const result = projectsService.transformToV2Response(
         platformAPIResponseNullCategories.data,
-        testActiveCategoryList
+        testActiveCategoryList,
       );
       expect(result).toEqual(expectedV2WithAllCategories);
     });

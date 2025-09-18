@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { DelegatedAccMessageComponent } from './delegated-acc-message.component';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { EllipsisPipe } from '../../pipes/ellipses.pipe';
@@ -23,18 +22,18 @@ describe('DelegatedAccMessageComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, DelegatedAccMessageComponent, EllipsisPipe],
-    providers: [
+      imports: [ TranslocoModule, DelegatedAccMessageComponent, EllipsisPipe],
+      providers: [
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DelegatedAccMessageComponent);
     component = fixture.componentInstance;
@@ -69,7 +68,7 @@ describe('DelegatedAccMessageComponent', () => {
     tick();
     fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.delegated-acc'))).toEqual(
-      `You're now managing Abhishek Jain's account`
+      `You're now managing Abhishek Jain's account`,
     );
   }));
 });

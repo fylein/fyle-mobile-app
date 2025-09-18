@@ -1,21 +1,18 @@
 import { Component, inject, output } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
-import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-dashboard-email-opt-in',
-    templateUrl: './dashboard-email-opt-in.component.html',
-    styleUrls: ['./dashboard-email-opt-in.component.scss'],
-    imports: [MatIcon, TranslocoPipe],
+  selector: 'app-dashboard-email-opt-in',
+  templateUrl: './dashboard-email-opt-in.component.html',
+  styleUrls: ['./dashboard-email-opt-in.component.scss'],
+  imports: [MatIcon, TranslocoPipe],
 })
 export class DashboardEmailOptInComponent {
   private popoverController = inject(PopoverController);
-
-  private trackingService = inject(TrackingService);
 
   private router = inject(Router);
 

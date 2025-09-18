@@ -1,6 +1,6 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonButton, IonicModule } from '@ionic/angular';
+import { IonButton } from '@ionic/angular/standalone';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReviewFooterComponent } from './review-footer.component';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
@@ -26,13 +26,13 @@ describe('ReviewFooterComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, ReviewFooterComponent],
-    providers: [
+      imports: [ TranslocoModule, ReviewFooterComponent],
+      providers: [
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ReviewFooterComponent);
     reviewFooterComponent = fixture.componentInstance;

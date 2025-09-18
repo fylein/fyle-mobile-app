@@ -30,8 +30,16 @@
                 ></app-spent-cards>
               } @else {
                 <div class="card-stats__shimmers">
-                  <ion-skeleton-text data-testid="shimmer" animated class="card-stats__shimmers__card"></ion-skeleton-text>
-                  <ion-skeleton-text data-testid="shimmer" animated class="card-stats__shimmers__card-lg"></ion-skeleton-text>
+                  <ion-skeleton-text
+                    data-testid="shimmer"
+                    animated
+                    class="card-stats__shimmers__card"
+                  ></ion-skeleton-text>
+                  <ion-skeleton-text
+                    data-testid="shimmer"
+                    animated
+                    class="card-stats__shimmers__card-lg"
+                  ></ion-skeleton-text>
                 </div>
               }
             }
@@ -39,7 +47,11 @@
           <ng-template #shimmers>
             <div class="card-stats__shimmers">
               <ion-skeleton-text data-testid="shimmer" animated class="card-stats__shimmers__card"></ion-skeleton-text>
-              <ion-skeleton-text data-testid="shimmer" animated class="card-stats__shimmers__card-lg"></ion-skeleton-text>
+              <ion-skeleton-text
+                data-testid="shimmer"
+                animated
+                class="card-stats__shimmers__card-lg"
+              ></ion-skeleton-text>
             </div>
           </ng-template>
           <!-- Show add card empty state when the user doesn't have any cards, and has visa / mastercard rtf enabled to allow adding cards -->

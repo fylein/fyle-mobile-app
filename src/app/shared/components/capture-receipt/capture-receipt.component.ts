@@ -10,7 +10,7 @@ import {
   input,
 } from '@angular/core';
 import { CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -44,10 +44,10 @@ type Image = Partial<{
 }>;
 
 @Component({
-    selector: 'app-capture-receipt',
-    templateUrl: './capture-receipt.component.html',
-    styleUrls: ['./capture-receipt.component.scss'],
-    imports: [CameraPreviewComponent, AsyncPipe],
+  selector: 'app-capture-receipt',
+  templateUrl: './capture-receipt.component.html',
+  styleUrls: ['./capture-receipt.component.scss'],
+  imports: [CameraPreviewComponent, AsyncPipe],
 })
 export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
   private modalController = inject(ModalController);

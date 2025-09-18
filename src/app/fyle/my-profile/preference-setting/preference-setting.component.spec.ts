@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PreferenceSettingComponent } from './preference-setting.component';
@@ -26,22 +26,29 @@ describe('PreferenceSettingComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule, PreferenceSettingComponent],
-    providers: [
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        PreferenceSettingComponent,
+      ],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;

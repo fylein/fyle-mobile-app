@@ -1,6 +1,5 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FyMenuIconComponent } from '../fy-menu-icon/fy-menu-icon.component';
@@ -23,18 +22,18 @@ describe('FyHeaderComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, FyHeaderComponent, FyMenuIconComponent],
-    providers: [
+      imports: [ TranslocoModule, FyHeaderComponent, FyMenuIconComponent],
+      providers: [
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {

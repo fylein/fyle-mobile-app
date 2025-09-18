@@ -10,20 +10,20 @@ import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe'
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 @Component({
-    selector: 'app-reports-card',
-    templateUrl: './reports-card.component.html',
-    styleUrls: ['./reports-card.component.scss'],
-    imports: [
-        MatRipple,
-        NgClass,
-        MatIcon,
-        DatePipe,
-        TranslocoPipe,
-        EllipsisPipe,
-        ReportState,
-        SnakeCaseToSpaceCase,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-reports-card',
+  templateUrl: './reports-card.component.html',
+  styleUrls: ['./reports-card.component.scss'],
+  imports: [
+    MatRipple,
+    NgClass,
+    MatIcon,
+    DatePipe,
+    TranslocoPipe,
+    EllipsisPipe,
+    ReportState,
+    SnakeCaseToSpaceCase,
+    ExactCurrencyPipe,
+  ],
 })
 export class ReportsCardComponent implements OnInit {
   // TODO: Skipped for migration because:

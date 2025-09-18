@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -22,24 +22,29 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-multiselect-modal',
-    templateUrl: './fy-multiselect-modal.component.html',
-    styleUrls: ['./fy-multiselect-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        MatFormField,
-        MatChipGrid,
-        MatChipRow,
-        MatChipRemove,
-        MatPrefix,
-        FormsModule,
-        MatChipInput,
-        MatCheckbox,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-multiselect-modal',
+  templateUrl: './fy-multiselect-modal.component.html',
+  styleUrls: ['./fy-multiselect-modal.component.scss'],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatChipGrid,
+    MatChipInput,
+    MatChipRemove,
+    MatChipRow,
+    MatFormField,
+    MatIcon,
+    MatPrefix,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FyMultiselectModalComponent implements AfterViewInit {
   private modalController = inject(ModalController);

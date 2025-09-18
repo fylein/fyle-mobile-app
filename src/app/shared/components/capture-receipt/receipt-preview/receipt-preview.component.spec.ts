@@ -1,12 +1,11 @@
 //@ts-nocheck
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReceiptPreviewComponent } from './receipt-preview.component';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
@@ -31,8 +30,8 @@ describe('ReceiptPreviewComponent', () => {
     selector: 'swiper',
     template: '',
     providers: [{ provide: SwiperComponent, useClass: SwiperStubComponent }],
-    imports: [MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent,],
-})
+    imports: [MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent],
+  })
   class SwiperStubComponent {
     readonly pagination = input(undefined);
 
@@ -76,35 +75,43 @@ describe('ReceiptPreviewComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent, ReceiptPreviewComponent, SwiperStubComponent],
-    providers: [
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        PinchZoomComponent,
+        ReceiptPreviewComponent,
+        SwiperStubComponent,
+      ],
+      providers: [
         Platform,
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: MatBottomSheet,
-            useValue: matBottomSheetSpy,
+          provide: MatBottomSheet,
+          useValue: matBottomSheetSpy,
         },
         {
-            provide: ImagePicker,
-            useValue: imagePickerSpy,
+          provide: ImagePicker,
+          useValue: imagePickerSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ReceiptPreviewComponent);
     component = fixture.componentInstance;

@@ -4,7 +4,7 @@ import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { switchMap, map, shareReplay, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, ModalController } from '@ionic/angular/standalone';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -41,29 +41,37 @@ import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-z
 import { ReportsCardComponent } from '../../shared/components/reports-card/reports-card.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 @Component({
-    selector: 'app-my-reports',
-    templateUrl: './my-reports.page.html',
-    styleUrls: ['./my-reports.page.scss'],
-    imports: [
-        FyHeaderComponent,
-        IonicModule,
-        RouterLink,
-        MatFormField,
-        MatIcon,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatIconButton,
-        MatSuffix,
-        NgClass,
-        FyFilterPillsComponent,
-        FyLoadingScreenComponent,
-        FyZeroStateComponent,
-        ReportsCardComponent,
-        FooterComponent,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-my-reports',
+  templateUrl: './my-reports.page.html',
+  styleUrls: ['./my-reports.page.scss'],
+  imports: [
+    AsyncPipe,
+    FooterComponent,
+    FormsModule,
+    FyFilterPillsComponent,
+    FyHeaderComponent,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonRefresher,
+    IonRefresherContent,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    ReportsCardComponent,
+    RouterLink,
+    TranslocoPipe
+  ],
 })
 export class MyReportsPage {
   private networkService = inject(NetworkService);

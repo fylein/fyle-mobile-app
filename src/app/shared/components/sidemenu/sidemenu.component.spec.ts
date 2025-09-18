@@ -1,6 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -12,11 +10,11 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { Router } from '@angular/router';
-import { MenuController } from '@ionic/angular';
+import { MenuController } from '@ionic/angular/standalone';
 import { SidemenuComponent } from './sidemenu.component';
 import { of, take } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, NO_ERRORS_SCHEMA, Output, input } from '@angular/core';
+import { Component, EventEmitter, NO_ERRORS_SCHEMA} from '@angular/core';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { currentEouRes } from 'src/app/core/test-data/org-user.service.spec.data';
@@ -35,6 +33,11 @@ import {
 } from 'src/app/core/mock-data/sidemenu.data';
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { SidemenuContentComponent } from './sidemenu-content/sidemenu-content.component';
+import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
+import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.component';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -52,21 +55,26 @@ describe('SidemenuComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
+
+  // mocks
   @Component({
-    selector: 'app-sidemenu',
-    template: '<ion-menu></ion-menu>',
-    standalone: false,
+    selector: 'app-sidemenu-content',
+    template: '',
   })
-  class MockIonMenuComponent {
-    readonly side = input<string>(undefined);
+  class SidemenuContentStubComponent {}
 
-    readonly class = input<string>(undefined);
+  @Component({
+    selector: 'app-sidemenu-footer',
+    template: '',
+  })
+  class SidemenuFooterStubComponent {}
 
-    readonly contentId = input<string>(undefined);
+  @Component({
+    selector: 'app-sidemenu-header',
+    template: '',
+  })
+  class SidemenuHeaderStubComponent {}
 
-    readonly swipeGesture = input<boolean>(undefined);
-  }
   beforeEach(waitForAsync(() => {
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['isLoggedIn']);
@@ -89,16 +97,10 @@ describe('SidemenuComponent', () => {
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, SidemenuComponent],
-    providers: [
+      imports: [ SidemenuComponent,
+        getTranslocoTestingModule(), MatIconTestingModule],
+      providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -112,10 +114,11 @@ describe('SidemenuComponent', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+    }).overrideComponent(SidemenuComponent, {
+      remove: {imports: [SidemenuContentComponent, SidemenuFooterComponent, SidemenuHeaderComponent]},
+      add: {imports: [SidemenuContentStubComponent, SidemenuFooterStubComponent, SidemenuHeaderStubComponent], schemas: [NO_ERRORS_SCHEMA]},
+    }).compileComponents();
 
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
@@ -132,34 +135,6 @@ describe('SidemenuComponent', () => {
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'sidemenu.personalCards': 'Personal cards',
-        'sidemenu.expenseReports': 'Expense reports',
-        'sidemenu.advances': 'Advances',
-        'sidemenu.home': 'Home',
-        'sidemenu.getStarted': 'Get started',
-        'sidemenu.myExpenses': 'My expenses',
-        'sidemenu.cards': 'Cards',
-        'sidemenu.myExpenseReports': 'My expense reports',
-        'sidemenu.myAdvances': 'My advances',
-        'sidemenu.team': 'Team',
-        'sidemenu.settings': 'Settings',
-        'sidemenu.delegatedAccounts': 'Delegated accounts',
-        'sidemenu.switchBackToMyAccount': 'Switch back to my account',
-        'sidemenu.switchOrganization': 'Switch organization',
-        'sidemenu.liveChat': 'Live chat',
-        'sidemenu.help': 'Help',
-      };
-      let translation = translations[key] || key;
-      if (params) {
-        Object.keys(params).forEach((key) => {
-          translation = translation.replace(`{{${key}}}`, params[key]);
-        });
-      }
-      return translation;
-    });
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
 
     spyOn(document, 'getElementById').and.returnValue(document.createElement('div'));

@@ -31,7 +31,17 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { DateService } from 'src/app/core/services/date.service';
 import dayjs from 'dayjs';
@@ -47,7 +57,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { ModalController, NavController, PopoverController, Platform, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -111,7 +121,6 @@ import { FormatDateDirective } from '../../shared/directive/format-date.directiv
 import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
 import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { DependentFieldsComponent as DependentFieldsComponent_1 } from '../../shared/components/dependent-fields/dependent-fields.component';
 import { VirtualSelectComponent } from '../../shared/components/virtual-select/virtual-select.component';
 import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
 import { FyMultiselectComponent } from '../../shared/components/fy-multiselect/fy-multiselect.component';
@@ -121,41 +130,50 @@ import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-z
 import { ReviewFooterComponent } from '../../shared/components/review-footer/review-footer.component';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
-import { FyCurrencyPipe as FyCurrencyPipe_1 } from '../../shared/pipes/fy-currency.pipe';
+import { addIcons } from 'ionicons';
+import { chevronUp, chevronDown } from 'ionicons/icons';
 
 @Component({
-    selector: 'app-add-edit-per-diem',
-    templateUrl: './add-edit-per-diem.page.html',
-    styleUrls: ['./add-edit-per-diem.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        NgIf,
-        FormsModule,
-        ReactiveFormsModule,
-        FyPolicyViolationInfoComponent,
-        MatIcon,
-        FySelectComponent,
-        FormatDateDirective,
-        FyNumberComponent,
-        FySelectProjectComponent,
-        MatCheckbox,
-        DependentFieldsComponent_1,
-        VirtualSelectComponent,
-        FyLocationComponent,
-        FyMultiselectComponent,
-        FyAddToReportComponent,
-        FyAlertInfoComponent,
-        FyZeroStateComponent,
-        ReviewFooterComponent,
-        FormButtonValidationDirective,
-        AsyncPipe,
-        SlicePipe,
-        DecimalPipe,
-        CurrencyPipe,
-        EllipsisPipe,
-        FyCurrencyPipe_1,
-    ],
+  selector: 'app-add-edit-per-diem',
+  templateUrl: './add-edit-per-diem.page.html',
+  styleUrls: ['./add-edit-per-diem.page.scss'],
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    DecimalPipe,
+    DependentFieldsComponent,
+    EllipsisPipe,
+    FormButtonValidationDirective,
+    FormatDateDirective,
+    FormsModule,
+    FyAddToReportComponent,
+    FyAlertInfoComponent,
+    FyCurrencyPipe,
+    FyLocationComponent,
+    FyMultiselectComponent,
+    FyNumberComponent,
+    FyPolicyViolationInfoComponent,
+    FySelectComponent,
+    FySelectProjectComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    NgIf,
+    ReactiveFormsModule,
+    ReviewFooterComponent,
+    SlicePipe,
+    VirtualSelectComponent
+  ],
 })
 export class AddEditPerDiemPage implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
@@ -2457,5 +2475,9 @@ export class AddEditPerDiemPage implements OnInit {
     if (currentCount > 0) {
       this.loadingOperations$.next(currentCount - 1);
     }
+  }
+
+  constructor() {
+    addIcons({ chevronUp, chevronDown });
   }
 }

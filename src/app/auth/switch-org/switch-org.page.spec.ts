@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -16,15 +15,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { SwitchOrgPage } from './switch-org.page';
-import { ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
+import { ChangeDetectorRef, Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { Platform, PopoverController } from '@ionic/angular';
+import { Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { finalize, of, throwError } from 'rxjs';
 import { orgData1, orgData2 } from 'src/app/core/mock-data/org.data';
@@ -35,7 +29,6 @@ import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-devi
 import { By } from '@angular/platform-browser';
 import { ActiveOrgCardComponent } from './active-org-card/active-org-card.component';
 import { OrgCardComponent } from './org-card/org-card.component';
-import { FyZeroStateComponent } from 'src/app/shared/components/fy-zero-state/fy-zero-state.component';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -47,11 +40,25 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { orgSettingsCardsDisabled, orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
+
+// OrgCardComponent mock
+@Component({
+  selector: 'app-org-card',
+  template: '',
+})
+class OrgCardComponentStubComponent {}
+
+// ActiveOrgCardComponent mock
+@Component({
+  selector: 'app-active-org-card',
+  template: '',
+})
+class ActiveOrgCardComponentStubComponent {}
 
 describe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
@@ -79,7 +86,6 @@ describe('SwitchOrgPage', () => {
   let deepLinkService: jasmine.SpyObj<DeepLinkService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -120,144 +126,129 @@ describe('SwitchOrgPage', () => {
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
-    imports: [
-        IonicModule.forRoot(),
+      imports: [
         MatIconTestingModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        BrowserAnimationsModule,
-        FormsModule,
-        ReactiveFormsModule,
-        TranslocoModule,
-        SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent,
-    ],
-    providers: [
+        getTranslocoTestingModule(),
+        SwitchOrgPage,
+      ],
+      providers: [
         UrlSerializer,
         ChangeDetectorRef,
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        navigate_back: false,
-                        choose: JSON.stringify(true),
-                        invite_link: JSON.stringify(true),
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                navigate_back: false,
+                choose: JSON.stringify(true),
+                invite_link: JSON.stringify(true),
+              },
             },
+          },
         },
         {
-            provide: LaunchDarklyService,
-            useValue: ldSpy,
+          provide: LaunchDarklyService,
+          useValue: ldSpy,
         },
         {
-            provide: Platform,
-            useValue: platformSpy,
+          provide: Platform,
+          useValue: platformSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: SpenderOnboardingService,
-            useValue: spenderOnboardingServiceSpy,
+          provide: SpenderOnboardingService,
+          useValue: spenderOnboardingServiceSpy,
         },
         {
-            provide: UserService,
-            useValue: userServiceSpy,
+          provide: UserService,
+          useValue: userServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: SecureStorageService,
-            useValue: secureStorageServiceSpy,
+          provide: SecureStorageService,
+          useValue: secureStorageServiceSpy,
         },
         {
-            provide: StorageService,
-            useValue: storageServiceSpy,
+          provide: StorageService,
+          useValue: storageServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: OrgService,
-            useValue: orgServiceSpy,
+          provide: OrgService,
+          useValue: orgServiceSpy,
         },
         {
-            provide: UserEventService,
-            useValue: userEventServiceSpy,
+          provide: UserEventService,
+          useValue: userEventServiceSpy,
         },
         {
-            provide: RecentLocalStorageItemsService,
-            useValue: recentLocalStorageItemsServiceSpy,
+          provide: RecentLocalStorageItemsService,
+          useValue: recentLocalStorageItemsServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: DeviceService,
-            useValue: deviceServiceSpy,
+          provide: DeviceService,
+          useValue: deviceServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: OrgUserService,
-            useValue: orgUserServiceSpy,
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
         },
         {
-            provide: AppVersionService,
-            useValue: appVersionServiceSpy,
+          provide: AppVersionService,
+          useValue: appVersionServiceSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: RouterAuthService,
-            useValue: routerAuthServiceSpy,
+          provide: RouterAuthService,
+          useValue: routerAuthServiceSpy,
         },
         {
-            provide: TransactionService,
-            useValue: transactionServiceSpy,
+          provide: TransactionService,
+          useValue: transactionServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
-            provide: DeepLinkService,
-            useValue: deepLinkServiceSpy,
+          provide: DeepLinkService,
+          useValue: deepLinkServiceSpy,
         },
-        {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
-        },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).overrideComponent(SwitchOrgPage, {
+      remove: { imports: [ActiveOrgCardComponent, OrgCardComponent] },
+      add: { imports: [ActiveOrgCardComponentStubComponent, OrgCardComponentStubComponent], schemas: [NO_ERRORS_SCHEMA] }
+    }).compileComponents();
     fixture = TestBed.createComponent(SwitchOrgPage);
     component = fixture.componentInstance;
 
@@ -272,7 +263,7 @@ describe('SwitchOrgPage', () => {
     userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
@@ -287,7 +278,6 @@ describe('SwitchOrgPage', () => {
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));
@@ -504,7 +494,7 @@ describe('SwitchOrgPage', () => {
       component.handleDismissPopup('resend', email, org_id, orgData1);
       expect(component.resendInvite).toHaveBeenCalledOnceWith(email, org_id);
       expect(component.showToastNotification).toHaveBeenCalledOnceWith(
-        'Verification link could not be sent. Please try again!'
+        'Verification link could not be sent. Please try again!',
       );
     });
   });
@@ -619,7 +609,7 @@ describe('SwitchOrgPage', () => {
             'my_dashboard',
             { openSMSOptInDialog: undefined },
           ]);
-        })
+        }),
       )
       .subscribe((res) => {
         expect(res).toEqual(apiEouRes);
@@ -678,7 +668,7 @@ describe('SwitchOrgPage', () => {
         of({
           is_password_required: false,
           is_password_set: true,
-        })
+        }),
       );
     });
 
@@ -758,7 +748,7 @@ describe('SwitchOrgPage', () => {
         of({
           is_password_required: true,
           is_password_set: false,
-        })
+        }),
       );
       spyOn(component, 'handlePendingDetails').and.returnValue(of(apiEouRes));
       const config = {
@@ -775,7 +765,7 @@ describe('SwitchOrgPage', () => {
         expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(
           config.roles,
           config.isFromInviteLink,
-          config.isPasswordSetRequired
+          config.isPasswordSetRequired,
         );
         done();
       });
@@ -802,7 +792,7 @@ describe('SwitchOrgPage', () => {
         },
         lastLoggedInVersion: '5.50.0',
         eou: apiEouRes,
-      })
+      }),
     );
 
     component.proceed();
@@ -986,7 +976,7 @@ describe('SwitchOrgPage', () => {
 
     const resetButton = getElementBySelector(
       fixture,
-      '.switch-org__searchbar-container__searchbar__clear-icon'
+      '.switch-org__searchbar-container__searchbar__clear-icon',
     ) as HTMLElement;
     click(resetButton);
 

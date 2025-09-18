@@ -1,5 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
-import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { switchMap, finalize, concatMap, reduce } from 'rxjs/operators';
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -16,17 +16,22 @@ import { FormsModule } from '@angular/forms';
 import { MatChip } from '@angular/material/chips';
 import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
 @Component({
-    selector: 'app-add-approvers-popover',
-    templateUrl: './add-approvers-popover.component.html',
-    styleUrls: ['./add-approvers-popover.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        FormsModule,
-        MatChip,
-        FyAlertInfoComponent,
-        TranslocoPipe,
-    ],
+  selector: 'app-add-approvers-popover',
+  templateUrl: './add-approvers-popover.component.html',
+  styleUrls: ['./add-approvers-popover.component.scss'],
+  imports: [
+    FormsModule,
+    FyAlertInfoComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatChip,
+    MatIcon,
+    TranslocoPipe
+  ],
 })
 export class AddApproversPopoverComponent {
   private modalController = inject(ModalController);

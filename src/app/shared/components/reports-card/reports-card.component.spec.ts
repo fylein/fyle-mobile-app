@@ -1,5 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { ReportsCardComponent } from './reports-card.component';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,14 +26,20 @@ describe('ReportsCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, TranslocoModule, ReportsCardComponent,
+      imports: [
+        
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
+        ReportsCardComponent,
         EllipsisPipe,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         ReportState,
-        SnakeCaseToSpaceCase],
-    providers: [FyCurrencyPipe, CurrencyPipe, { provide: TranslocoService, useValue: translocoServiceSpy }],
-}).compileComponents();
+        SnakeCaseToSpaceCase,
+      ],
+      providers: [FyCurrencyPipe, CurrencyPipe, { provide: TranslocoService, useValue: translocoServiceSpy }],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ReportsCardComponent);
     component = fixture.componentInstance;

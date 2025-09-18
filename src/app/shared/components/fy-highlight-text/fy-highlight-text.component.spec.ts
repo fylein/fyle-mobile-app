@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { HighlightPipe } from '../../pipes/highlight.pipe';
 import { FyHighlightTextComponent } from './fy-highlight-text.component';
 
@@ -9,8 +8,8 @@ describe('FyHighlightTextComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FyHighlightTextComponent, HighlightPipe],
-}).compileComponents();
+      imports: [ FyHighlightTextComponent, HighlightPipe],
+    }).compileComponents();
   });
 
   beforeEach(() => {

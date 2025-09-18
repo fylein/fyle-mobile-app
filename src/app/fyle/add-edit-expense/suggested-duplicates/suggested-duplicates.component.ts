@@ -1,10 +1,9 @@
 import { Component, Input, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonContent, IonFooter, IonHeader, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { Observable, map, noop } from 'rxjs';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -15,17 +14,21 @@ import { CurrencyPipe } from '@angular/common';
 import { FyCurrencyPipe } from '../../../shared/pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-suggested-duplicates',
-    templateUrl: './suggested-duplicates.component.html',
-    styleUrls: ['./suggested-duplicates.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        ExpensesCardComponent,
-        CurrencyPipe,
-        FyCurrencyPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-suggested-duplicates',
+  templateUrl: './suggested-duplicates.component.html',
+  styleUrls: ['./suggested-duplicates.component.scss'],
+  imports: [
+    CurrencyPipe,
+    ExpensesCardComponent,
+    FyCurrencyPipe,
+    IonButton,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonToolbar,
+    MatIcon,
+    TranslocoPipe
+  ],
 })
 export class SuggestedDuplicatesComponent {
   private modalController = inject(ModalController);
@@ -37,8 +40,6 @@ export class SuggestedDuplicatesComponent {
   private snackbarProperties = inject(SnackbarPropertiesService);
 
   private matSnackBar = inject(MatSnackBar);
-
-  private orgSettingsService = inject(OrgSettingsService);
 
   private translocoService = inject(TranslocoService);
 

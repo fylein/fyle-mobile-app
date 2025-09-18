@@ -6,7 +6,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, takeUntil, take, filter } from 'rxjs/operators';
-import { PopoverController, ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -30,7 +30,7 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { ExpenseState as ExpenseStateEnum } from 'src/app/core/models/expense-state.enum';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
@@ -46,31 +46,40 @@ import { ViewDependentFieldsComponent } from '../../shared/components/view-depen
 import { NavigationFooterComponent } from '../../shared/components/navigation-footer/navigation-footer.component';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
-import { ExpenseState as ExpenseState_1 } from '../../shared/pipes/expense-state.pipe';
+import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 import { MileageRateName } from '../../shared/pipes/mileage-rate-name.pipe';
 
 @Component({
-    selector: 'app-view-mileage',
-    templateUrl: './view-mileage.page.html',
-    styleUrls: ['./view-mileage.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        FyPolicyViolationInfoComponent,
-        ReceiptPreviewThumbnailComponent,
-        ViewDependentFieldsComponent,
-        NavigationFooterComponent,
-        AsyncPipe,
-        TitleCasePipe,
-        CurrencyPipe,
-        DatePipe,
-        ExactCurrencyPipe,
-        SnakeCaseToSpaceCase,
-        ExpenseState_1,
-        FyCurrencyPipe,
-        MileageRateName,
-    ],
+  selector: 'app-view-mileage',
+  templateUrl: './view-mileage.page.html',
+  styleUrls: ['./view-mileage.page.scss'],
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    DatePipe,
+    ExactCurrencyPipe,
+    ExpenseStatePipe,
+    FyCurrencyPipe,
+    FyPolicyViolationInfoComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
+    MileageRateName,
+    NavigationFooterComponent,
+    NgClass,
+    ReceiptPreviewThumbnailComponent,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    ViewDependentFieldsComponent
+  ],
 })
 export class ViewMileagePage {
   private activatedRoute = inject(ActivatedRoute);
@@ -453,7 +462,7 @@ export class ViewMileagePage {
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state),
+          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(expense.state),
       ),
     );
 

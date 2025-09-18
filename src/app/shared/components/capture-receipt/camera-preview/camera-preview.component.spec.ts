@@ -1,6 +1,5 @@
 /* eslint-disable custom-rules/prefer-resolve-to-reject-with */
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { CameraPreviewComponent } from './camera-preview.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { CameraState } from 'src/app/core/enums/camera-state.enum';
@@ -26,22 +25,22 @@ describe('CameraPreviewComponent', () => {
     ]);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, CameraPreviewComponent],
-    providers: [
+      imports: [ MatIconModule, MatIconTestingModule, CameraPreviewComponent],
+      providers: [
         {
-            provide: DEVICE_PLATFORM,
-            useValue: 'Ios',
+          provide: DEVICE_PLATFORM,
+          useValue: 'Ios',
         },
         {
-            provide: CameraService,
-            useValue: cameraServiceSpy,
+          provide: CameraService,
+          useValue: cameraServiceSpy,
         },
         {
-            provide: CameraPreviewService,
-            useValue: cameraPreviewServiceSpy,
+          provide: CameraPreviewService,
+          useValue: cameraPreviewServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CameraPreviewComponent);
     component = fixture.componentInstance;
@@ -60,7 +59,7 @@ describe('CameraPreviewComponent', () => {
         Promise.resolve({
           camera: 'granted',
           photos: 'granted',
-        })
+        }),
       );
 
       spyOn(component, 'startCameraPreview');
@@ -78,7 +77,7 @@ describe('CameraPreviewComponent', () => {
         Promise.resolve({
           camera: 'denied',
           photos: 'granted',
-        })
+        }),
       );
       spyOn(component.permissionDenied, 'emit');
 
@@ -136,7 +135,7 @@ describe('CameraPreviewComponent', () => {
       cameraPreviewService.getSupportedFlashModes.and.returnValue(
         Promise.resolve({
           result: ['on', 'off'],
-        })
+        }),
       );
       cameraPreviewService.setFlashMode.and.stub();
 
@@ -150,7 +149,7 @@ describe('CameraPreviewComponent', () => {
       cameraPreviewService.getSupportedFlashModes.and.returnValue(
         Promise.resolve({
           result: [],
-        })
+        }),
       );
 
       component.flashMode = 'on';

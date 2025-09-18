@@ -12,10 +12,18 @@ import {
   inject,
   viewChild,
 } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, NavController, PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSkeletonText, IonTitle, IonToolbar, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import dayjs from 'dayjs';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import {
@@ -127,12 +135,10 @@ import { NgClass, NgIf, AsyncPipe, SlicePipe, CurrencyPipe } from '@angular/comm
 import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
 import { MatIcon } from '@angular/material/icon';
 import { RouteVisualizerComponent } from '../../shared/components/route-visualizer/route-visualizer.component';
-import { RouteSelectorComponent as RouteSelectorComponent_1 } from '../../shared/components/route-selector/route-selector.component';
 import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
 import { FormatDateDirective } from '../../shared/directive/format-date.directive';
 import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { DependentFieldsComponent as DependentFieldsComponent_1 } from '../../shared/components/dependent-fields/dependent-fields.component';
 import { VirtualSelectComponent } from '../../shared/components/virtual-select/virtual-select.component';
 import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
 import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
@@ -145,42 +151,55 @@ import { FormButtonValidationDirective } from '../../shared/directive/form-butto
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 import { SingularPipe } from '../../shared/pipes/singular.pipe';
+import { addIcons } from 'ionicons';
+import { chevronUp, chevronDown } from 'ionicons/icons';
 
 @Component({
-    selector: 'app-add-edit-mileage',
-    templateUrl: './add-edit-mileage.page.html',
-    styleUrls: ['./add-edit-mileage.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        NgIf,
-        FyPolicyViolationInfoComponent,
-        MatIcon,
-        RouteVisualizerComponent,
-        FormsModule,
-        ReactiveFormsModule,
-        RouteSelectorComponent_1,
-        FySelectComponent,
-        FormatDateDirective,
-        FySelectProjectComponent,
-        MatCheckbox,
-        DependentFieldsComponent_1,
-        VirtualSelectComponent,
-        FyNumberComponent,
-        FyLocationComponent,
-        FyMultiselectComponent,
-        FyAddToReportComponent,
-        FyAlertInfoComponent,
-        FyZeroStateComponent,
-        ReviewFooterComponent,
-        FormButtonValidationDirective,
-        AsyncPipe,
-        SlicePipe,
-        CurrencyPipe,
-        EllipsisPipe,
-        FyCurrencyPipe,
-        SingularPipe,
-    ],
+  selector: 'app-add-edit-mileage',
+  templateUrl: './add-edit-mileage.page.html',
+  styleUrls: ['./add-edit-mileage.page.scss'],
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    DependentFieldsComponent,
+    EllipsisPipe,
+    FormButtonValidationDirective,
+    FormatDateDirective,
+    FormsModule,
+    FyAddToReportComponent,
+    FyAlertInfoComponent,
+    FyCurrencyPipe,
+    FyLocationComponent,
+    FyMultiselectComponent,
+    FyNumberComponent,
+    FyPolicyViolationInfoComponent,
+    FySelectComponent,
+    FySelectProjectComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    NgIf,
+    ReactiveFormsModule,
+    ReviewFooterComponent,
+    RouteSelectorComponent,
+    RouteVisualizerComponent,
+    SingularPipe,
+    SlicePipe,
+    VirtualSelectComponent
+  ],
 })
 export class AddEditMileagePage implements OnInit {
   private router = inject(Router);
@@ -3164,5 +3183,9 @@ export class AddEditMileagePage implements OnInit {
       // If user closes the modal without saving the commute details, reset the commute deduction field to null
       this.fg.patchValue({ commuteDeduction: null }, { emitEvent: false });
     }
+  }
+
+  constructor() {
+    addIcons({ chevronUp, chevronDown });
   }
 }

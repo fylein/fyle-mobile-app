@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { InfoCardComponent } from './info-card.component';
 import { By } from '@angular/platform-browser';
@@ -13,9 +12,9 @@ describe('InfoCardComponent', () => {
   beforeEach(waitForAsync(() => {
     const clipboardServiceSpy = jasmine.createSpyObj('ClipboardService', ['writeString']);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), InfoCardComponent],
-    providers: [{ provide: ClipboardService, useValue: clipboardServiceSpy }],
-}).compileComponents();
+      imports: [ InfoCardComponent],
+      providers: [{ provide: ClipboardService, useValue: clipboardServiceSpy }],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(InfoCardComponent);
     component = fixture.componentInstance;

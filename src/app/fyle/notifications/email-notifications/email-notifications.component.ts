@@ -1,5 +1,5 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { ModalController, Platform, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { finalize, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
@@ -11,15 +11,20 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'app-email-notifications',
-    templateUrl: './email-notifications.component.html',
-    styleUrls: ['./email-notifications.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatCheckbox,
-        FormsModule,
-    ],
+  selector: 'app-email-notifications',
+  templateUrl: './email-notifications.component.html',
+  styleUrls: ['./email-notifications.component.scss'],
+  imports: [
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon
+  ],
 })
 export class EmailNotificationsComponent implements OnInit {
   // TODO: Skipped for migration because:

@@ -7,12 +7,11 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import {
   ActionSheetController,
-  IonicModule,
   ModalController,
   NavController,
   Platform,
   PopoverController,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -47,16 +46,11 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { DependentFieldComponent } from 'src/app/shared/components/dependent-fields/dependent-field/dependent-field.component';
-import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
-import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
-import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { TestCases1 } from './add-edit-mileage-1.spec';
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { LocationService } from 'src/app/core/services/location.service';
-import { FyLocationComponent } from 'src/app/shared/components/fy-location/fy-location.component';
 import { TestCases2 } from '../add-edit-mileage/add-edit-mileage-2.spec';
 import { TestCases3 } from '../add-edit-mileage/add-edit-mileage-3.spec';
 import { TestCases4 } from './add-edit-mileage-4.spec';
@@ -64,8 +58,8 @@ import { TestCases5 } from './add-edit-mileage-5.spec';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -105,7 +99,6 @@ describe('AddEditMileagePage', () => {
       'addExpenses',
     ]);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
     const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', [
       'standardizeCustomFields',
@@ -242,235 +235,232 @@ describe('AddEditMileagePage', () => {
       'getGeocode',
     ]);
 
-    const platformHandlerService = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
-
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, AddEditMileagePage,
-        MaskNumber,
-        FySelectComponent,
-        EllipsisPipe,
-        DependentFieldComponent,
-        FyLocationComponent],
-    providers: [
+      imports: [
+        RouterTestingModule,
+        AddEditMileagePage,
+        getTranslocoTestingModule(),
+      ],
+      providers: [
         UntypedFormBuilder,
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        id: 'txyeiYbLDSOy',
-                        bankTxn: '',
-                        persist_filters: false,
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                id: 'txyeiYbLDSOy',
+                bankTxn: '',
+                persist_filters: false,
+              },
             },
+          },
         },
         { provide: PAGINATION_SIZE, useValue: 2 },
         {
-            provide: AccountsService,
-            useValue: accountsServiceSpy,
+          provide: AccountsService,
+          useValue: accountsServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: CategoriesService,
-            useValue: categoriesServiceSpy,
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
         },
         {
-            provide: DateService,
-            useValue: dateServiceSpy,
+          provide: DateService,
+          useValue: dateServiceSpy,
         },
         {
-            provide: ProjectsService,
-            useValue: projectsServiceSpy,
+          provide: ProjectsService,
+          useValue: projectsServiceSpy,
         },
         {
-            provide: ReportService,
-            useValue: reportServiceSpy,
+          provide: ReportService,
+          useValue: reportServiceSpy,
         },
         {
-            provide: SpenderReportsService,
-            useValue: platformSpenderReportsServiceSpy,
+          provide: SpenderReportsService,
+          useValue: platformSpenderReportsServiceSpy,
         },
         {
-            provide: CustomInputsService,
-            useValue: customInputsServiceSpy,
+          provide: CustomInputsService,
+          useValue: customInputsServiceSpy,
         },
         {
-            provide: CustomFieldsService,
-            useValue: customFieldsServiceSpy,
+          provide: CustomFieldsService,
+          useValue: customFieldsServiceSpy,
         },
         {
-            provide: TransactionService,
-            useValue: transactionServiceSpy,
+          provide: TransactionService,
+          useValue: transactionServiceSpy,
         },
         {
-            provide: PolicyService,
-            useValue: policyServiceSpy,
+          provide: PolicyService,
+          useValue: policyServiceSpy,
         },
         {
-            provide: TransactionsOutboxService,
-            useValue: transactionOutboxServiceSpy,
+          provide: TransactionsOutboxService,
+          useValue: transactionOutboxServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ExpenseCommentService,
-            useValue: expenseCommentServiceSpy,
+          provide: ExpenseCommentService,
+          useValue: expenseCommentServiceSpy,
         },
         {
-            provide: FileService,
-            useValue: fileServiceSpy,
+          provide: FileService,
+          useValue: fileServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: NavController,
-            useValue: navControllerSpy,
+          provide: NavController,
+          useValue: navControllerSpy,
         },
         {
-            provide: CorporateCreditCardExpenseService,
-            useValue: corporateCreditCardExpenseServiceSpy,
+          provide: CorporateCreditCardExpenseService,
+          useValue: corporateCreditCardExpenseServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: RecentLocalStorageItemsService,
-            useValue: recentLocalStorageItemsServiceSpy,
+          provide: RecentLocalStorageItemsService,
+          useValue: recentLocalStorageItemsServiceSpy,
         },
         {
-            provide: RecentlyUsedItemsService,
-            useValue: recentlyUsedItemsServiceSpy,
+          provide: RecentlyUsedItemsService,
+          useValue: recentlyUsedItemsServiceSpy,
         },
         {
-            provide: TokenService,
-            useValue: tokenServiceSpy,
+          provide: TokenService,
+          useValue: tokenServiceSpy,
         },
         {
-            provide: ExpenseFieldsService,
-            useValue: expenseFieldsServiceSpy,
+          provide: ExpenseFieldsService,
+          useValue: expenseFieldsServiceSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         {
-            provide: ActionSheetController,
-            useValue: actionSheetControllerSpy,
+          provide: ActionSheetController,
+          useValue: actionSheetControllerSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: Sanitizer,
-            useValue: sanitizerSpy,
+          provide: Sanitizer,
+          useValue: sanitizerSpy,
         },
         {
-            provide: PersonalCardsService,
-            useValue: personalCardsServiceSpy,
+          provide: PersonalCardsService,
+          useValue: personalCardsServiceSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: TitleCasePipe,
-            useValue: titleCasePipeSpy,
+          provide: TitleCasePipe,
+          useValue: titleCasePipeSpy,
         },
         {
-            provide: PaymentModesService,
-            useValue: paymentModesServiceSpy,
+          provide: PaymentModesService,
+          useValue: paymentModesServiceSpy,
         },
         {
-            provide: TaxGroupService,
-            useValue: taxGroupServiceSpy,
+          provide: TaxGroupService,
+          useValue: taxGroupServiceSpy,
         },
         {
-            provide: CostCentersService,
-            useValue: costCentersServiceSpy,
+          provide: CostCentersService,
+          useValue: costCentersServiceSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: platformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-            provide: StorageService,
-            useValue: storageServiceSpy,
+          provide: StorageService,
+          useValue: storageServiceSpy,
         },
         {
-            provide: LaunchDarklyService,
-            useValue: launchDarklyServiceSpy,
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
         },
         {
-            provide: Platform,
-            useValue: platformSpy,
+          provide: Platform,
+          useValue: platformSpy,
         },
         {
-            provide: PlatformHandlerService,
-            useValue: platformHandlerServiceSpy,
+          provide: PlatformHandlerService,
+          useValue: platformHandlerServiceSpy,
         },
         {
-            provide: MileageService,
-            useValue: mileageServiceSpy,
+          provide: MileageService,
+          useValue: mileageServiceSpy,
         },
         {
-            provide: MileageRatesService,
-            useValue: mileageRateServiceSpy,
+          provide: MileageRatesService,
+          useValue: mileageRateServiceSpy,
         },
         {
-            provide: LocationService,
-            useValue: locationServiceSpy,
+          provide: LocationService,
+          useValue: locationServiceSpy,
         },
         {
-            provide: PlatformHandlerService,
-            useValue: platformHandlerServiceSpy,
+          provide: PlatformHandlerService,
+          useValue: platformHandlerServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
-            provide: EmployeesService,
-            useValue: employeesServiceSpy,
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
         },
         {
-            provide: AdvanceWalletsService,
-            useValue: advanceWalletsServiceSpy,
+          provide: AdvanceWalletsService,
+          useValue: advanceWalletsServiceSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-});
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    });
 
     return TestBed;
   };

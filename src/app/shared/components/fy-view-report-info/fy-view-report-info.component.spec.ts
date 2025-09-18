@@ -8,7 +8,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ModalController, SegmentCustomEvent } from '@ionic/angular';
+import { ModalController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { DatePipe, KeyValue } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -19,6 +19,7 @@ import { cloneDeep } from 'lodash';
 import { expenseResponseData, expenseResponseData2 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyViewReportInfoComponent', () => {
   let component: FyViewReportInfoComponent;
@@ -52,44 +53,45 @@ describe('FyViewReportInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [TranslocoModule, FyViewReportInfoComponent],
-    providers: [
+      imports: [TranslocoModule, FyViewReportInfoComponent,
+        MatIconTestingModule],
+      providers: [
         {
-            provide: SharedExpensesService,
-            useValue: mockSharedExpensesServiceSpy,
+          provide: SharedExpensesService,
+          useValue: mockSharedExpensesServiceSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: mockPlatformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: mockPlatformEmployeeSettingsServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: mockTrackingServiceSpy,
+          provide: TrackingService,
+          useValue: mockTrackingServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: mockAuthServiceSpy,
+          provide: AuthService,
+          useValue: mockAuthServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: mockOrgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: mockOrgSettingsServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: mockModalControllerSpy,
+          provide: ModalController,
+          useValue: mockModalControllerSpy,
         },
         DatePipe,
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyViewReportInfoComponent);
     component = fixture.componentInstance;
     sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
     datePipe = TestBed.inject(DatePipe);
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
@@ -369,7 +371,7 @@ describe('FyViewReportInfoComponent', () => {
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).toHaveBeenCalledOnceWith(
-        platformReportData.employee.id
+        platformReportData.employee.id,
       );
       expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
     }));
@@ -395,7 +397,7 @@ describe('FyViewReportInfoComponent', () => {
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).not.toHaveBeenCalledOnceWith(
-        platformReportData.employee.id
+        platformReportData.employee.id,
       );
       expect(component.employeeDetails['Allowed Cost Centers']).not.toEqual(expectedAllowedCostCenters);
     }));
@@ -430,7 +432,7 @@ describe('FyViewReportInfoComponent', () => {
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).toHaveBeenCalledOnceWith(
-        modifiedPlatformReportData.employee.id
+        modifiedPlatformReportData.employee.id,
       );
       expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
     }));

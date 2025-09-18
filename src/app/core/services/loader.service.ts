@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController } from '@ionic/angular/standalone';
 import { noop } from 'rxjs';
 import { TranslocoService } from '@jsverse/transloco';
 

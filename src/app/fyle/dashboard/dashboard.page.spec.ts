@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, ModalController, NavController, Platform } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular/standalone';
 
 import { DashboardPage } from './dashboard.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -11,7 +11,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { Subject, Subscription, of } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -42,8 +42,42 @@ import {
 } from 'src/app/core/mock-data/feature-config.data';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
-import { TranslocoService } from '@jsverse/transloco';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { CardStatsComponent } from './card-stats/card-stats.component';
+import { StatsComponent } from './stats/stats.component';
+import { TasksComponent } from './tasks/tasks.component';
+import { FyMenuIconComponent } from 'src/app/shared/components/fy-menu-icon/fy-menu-icon.component';
+import { DashboardEmailOptInComponent } from 'src/app/shared/components/dashboard-email-opt-in/dashboard-email-opt-in.component';
+import { DashboardOptInComponent } from 'src/app/shared/components/dashboard-opt-in/dashboard-opt-in.component';
+
+// mocks
+@Component({
+  selector: 'app-card-stats',
+})
+class MockCardStatsComponent {}
+@Component({
+  selector: 'app-stats',
+})
+class MockStatsComponent {}
+@Component({
+  selector: 'app-tasks',
+})
+class MockTasksComponent {}
+
+@Component({
+  selector: 'app-dashboard-email-opt-in',
+})
+class MockDashboardEmailOptInComponent {}
+@Component({
+  selector: 'app-dashboard-opt-in',
+})
+class MockDashboardOptInComponent {}
+@Component({
+  selector: 'app-fy-menu-icon',
+})
+class MockFyMenuIconComponent {}
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -69,7 +103,6 @@ describe('DashboardPage', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let footerService: jasmine.SpyObj<FooterService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   let walkthroughService: jasmine.SpyObj<WalkthroughService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -119,7 +152,6 @@ describe('DashboardPage', () => {
     });
 
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['setTimezone']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
       'getNavBarWalkthroughConfig',
       'setIsOverlayClicked',
@@ -128,8 +160,9 @@ describe('DashboardPage', () => {
       'getIsOverlayClicked',
     ]);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), DashboardPage],
-    providers: [
+      imports: [DashboardPage,
+        MatIconTestingModule, getTranslocoTestingModule()],
+      providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -144,15 +177,15 @@ describe('DashboardPage', () => {
         { provide: NavController, useValue: navControllerSpy },
         Platform,
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    queryParams: {
-                        state: 'tasks',
-                    },
-                    params: {},
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParams: {
+                state: 'tasks',
+              },
+              params: {},
             },
+          },
         },
         { provide: UtilityService, useValue: utilityServiceSpy },
         { provide: FeatureConfigService, useValue: featureConfigServiceSpy },
@@ -160,29 +193,32 @@ describe('DashboardPage', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         { provide: FooterService, useValue: footerServiceSpy },
         {
-            provide: TimezoneService,
-            useValue: timezoneServiceSpy,
+          provide: TimezoneService,
+          useValue: timezoneServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
         },
-        {
-            provide: WalkthroughService,
-            useValue: walkthroughServiceSpy,
-        },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).overrideComponent(DashboardPage, {
+      remove: {
+        imports: [CardStatsComponent, StatsComponent, TasksComponent, DashboardEmailOptInComponent, DashboardOptInComponent, FyMenuIconComponent],
+      },
+      add: {
+        imports: [MockCardStatsComponent, MockStatsComponent, MockTasksComponent, MockDashboardEmailOptInComponent, MockDashboardOptInComponent, MockFyMenuIconComponent],
+      },
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardPage);
     component = fixture.componentInstance;
@@ -210,7 +246,6 @@ describe('DashboardPage', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
     fixture.detectChanges();
   }));

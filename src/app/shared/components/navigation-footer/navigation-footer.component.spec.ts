@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NavigationFooterComponent } from './navigation-footer.component';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -33,41 +32,41 @@ describe('NavigationFooterComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, NavigationFooterComponent, FyNavFooterComponent],
-    providers: [
+      imports: [ TranslocoModule, NavigationFooterComponent, FyNavFooterComponent],
+      providers: [
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        txnIds: JSON.stringify(['tx5fBcPBAxLv', 'txOJVaaPxo9O', 'tx3nHShG60zq']),
-                        view: ExpenseView.individual,
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                txnIds: JSON.stringify(['tx5fBcPBAxLv', 'txOJVaaPxo9O', 'tx3nHShG60zq']),
+                view: ExpenseView.individual,
+              },
             },
+          },
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: SpenderExpensesService,
-            useValue: spenderExpensesServiceSpy,
+          provide: SpenderExpensesService,
+          useValue: spenderExpensesServiceSpy,
         },
         {
-            provide: ApproverExpensesService,
-            useValue: approverExpensesServiceSpy,
+          provide: ApproverExpensesService,
+          useValue: approverExpensesServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(NavigationFooterComponent);
     component = fixture.componentInstance;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;

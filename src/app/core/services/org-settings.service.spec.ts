@@ -108,32 +108,32 @@ describe('OrgSettingsService', () => {
 
   it('should be able to set outgoing tally account object', () => {
     expect(orgSettingsService.setOutgoingAccountingObject(incomingTallyAccountObject)).toEqual(
-      outgoingTallyAccountObject
+      outgoingTallyAccountObject,
     );
   });
 
   it('should be able to get incoming quick books account object', () => {
     const mockAccountingObject = cloneDeep(outgoingQuickbooksAccountObject);
     expect(orgSettingsService.getIncomingAccountingObject(mockAccountingObject)).toEqual(
-      incomingQuickBooksAccountObject
+      incomingQuickBooksAccountObject,
     );
   });
 
   it('should be able to set outgoing quickbooks account object', () => {
     expect(orgSettingsService.setOutgoingAccountingObject(incomingQuickBooksAccountObject)).toEqual(
-      outgoingQuickbooksAccountObject
+      outgoingQuickbooksAccountObject,
     );
   });
 
   it('should be able to get incoming account settings object', () => {
     expect(orgSettingsService.getIncomingAccountingObject(outgoingAccountSettingsObject)).toEqual(
-      incomingAccountSettingsObject
+      incomingAccountSettingsObject,
     );
   });
 
   it('should be able to set outgoing account settings object', () => {
     expect(orgSettingsService.setOutgoingAccountingObject(incomingAccountSettingsObject)).toEqual(
-      outgoingAccountSettingsObject
+      outgoingAccountSettingsObject,
     );
   });
 
@@ -143,13 +143,13 @@ describe('OrgSettingsService', () => {
 
   it('should be able to set outgoing tally accounting object with empty settings', () => {
     expect(orgSettingsService.setOutgoingAccountingObject(incomingTallyAccountingObjectWithoutSettings)).toEqual(
-      outgoingAccountingTallyObjectWithoutSettings
+      outgoingAccountingTallyObjectWithoutSettings,
     );
   });
 
   it('should be able to set outgoing quickbooks accounting object with empty settings', () => {
     expect(orgSettingsService.setOutgoingAccountingObject(incomingQuickbooksAccountingObjectWithoutSettings)).toEqual(
-      outgoingAccountingQuickbooksObjectWithoutSettings
+      outgoingAccountingQuickbooksObjectWithoutSettings,
     );
   });
 

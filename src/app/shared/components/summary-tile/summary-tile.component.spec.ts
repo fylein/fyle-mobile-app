@@ -1,7 +1,6 @@
 import { SimpleChange } from '@angular/core';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { AdvanceRequestApprover } from 'src/app/core/mock-data/advance-request-approver.data';
 import { EllipsisPipe } from '../../pipes/ellipses.pipe';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
@@ -25,23 +24,27 @@ describe('FySummaryTileComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     await TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, FySummaryTileComponent,
+      imports: [
+        
+        TranslocoModule,
+        FySummaryTileComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         FyCurrencyPipe,
         SnakeCaseToSpaceCase,
-        EllipsisPipe],
-    providers: [
+        EllipsisPipe,
+      ],
+      providers: [
         {
-            provide: FyCurrencyPipe,
-            useValue: fyCurrencyPipeSpy,
+          provide: FyCurrencyPipe,
+          useValue: fyCurrencyPipeSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

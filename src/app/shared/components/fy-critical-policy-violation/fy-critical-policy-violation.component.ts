@@ -1,21 +1,23 @@
 import { Component, Input, inject, input } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonFooter, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { MatIcon } from '@angular/material/icon';
 import { PolicyViolationRuleComponent } from '../policy-violation-rule/policy-violation-rule.component';
 import { FyAlertInfoComponent } from '../fy-alert-info/fy-alert-info.component';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-critical-policy-violation',
-    templateUrl: './fy-critical-policy-violation.component.html',
-    styleUrls: ['./fy-critical-policy-violation.component.scss'],
-    imports: [
-        MatIcon,
-        PolicyViolationRuleComponent,
-        FyAlertInfoComponent,
-        IonicModule,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-critical-policy-violation',
+  templateUrl: './fy-critical-policy-violation.component.html',
+  styleUrls: ['./fy-critical-policy-violation.component.scss'],
+  imports: [
+    FyAlertInfoComponent,
+    IonButton,
+    IonFooter,
+    IonToolbar,
+    MatIcon,
+    PolicyViolationRuleComponent,
+    TranslocoPipe
+  ],
 })
 export class FyCriticalPolicyViolationComponent {
   private modalController = inject(ModalController);

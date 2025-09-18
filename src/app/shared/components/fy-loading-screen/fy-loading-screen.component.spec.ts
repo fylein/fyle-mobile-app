@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { getAllElementsBySelector, getElementAttributeValue, getElementBySelector } from 'src/app/core/dom-helpers';
 
 import { FyLoadingScreenComponent } from './fy-loading-screen.component';
@@ -10,8 +9,8 @@ describe('FyLoadingScreenComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FyLoadingScreenComponent],
-}).compileComponents();
+      imports: [ FyLoadingScreenComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyLoadingScreenComponent);
     component = fixture.componentInstance;

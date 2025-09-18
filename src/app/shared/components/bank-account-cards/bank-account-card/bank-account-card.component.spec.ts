@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -40,38 +39,38 @@ describe('BankAccountCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, BankAccountCardComponent],
-    providers: [
+      imports: [ TranslocoModule, BankAccountCardComponent],
+      providers: [
         {
-            provide: PersonalCardsService,
-            useValue: personalCardsServiceSpy,
+          provide: PersonalCardsService,
+          useValue: personalCardsServiceSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: DateService,
-            useValue: dateServiceSpy,
+          provide: DateService,
+          useValue: dateServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(BankAccountCardComponent);
     personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
@@ -123,10 +122,10 @@ describe('BankAccountCardComponent', () => {
         deleteCardPopOverSpy.onDidDismiss.and.returnValue(
           new Promise((resInt) => {
             resInt({ data: 'delete' });
-          })
+          }),
         );
         resolve(deleteCardPopOverSpy);
-      })
+      }),
     );
 
     component.presentPopover(new PointerEvent('event'));
@@ -171,10 +170,10 @@ describe('BankAccountCardComponent', () => {
             resInt({
               action: 'delete',
             });
-          })
+          }),
         );
         resolve(deleteCardPopOverSpy);
-      })
+      }),
     );
 
     component.confirmPopup();

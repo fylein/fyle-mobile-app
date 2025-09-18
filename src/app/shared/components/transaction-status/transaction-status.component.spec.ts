@@ -1,7 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-
 import { TransactionStatusComponent } from './transaction-status.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
@@ -20,9 +18,9 @@ describe('TransactionStatusComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, TransactionStatusComponent],
-    providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
-}).compileComponents();
+      imports: [ TranslocoModule, TransactionStatusComponent],
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TransactionStatusComponent);
     component = fixture.componentInstance;

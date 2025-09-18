@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { BehaviorSubject, finalize, of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -62,6 +62,8 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { TIMEZONE } from 'src/app/constants';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -127,108 +129,111 @@ describe('ViewTeamReportPageV2', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe, DateWithTimezonePipe],
-    providers: [
+      imports: [
+        ViewTeamReportPage,
+        getTranslocoTestingModule(),
+        MatIconTestingModule],
+      providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        id: 'rpFE5X1Pqi9P',
-                        navigate_back: true,
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                id: 'rpFE5X1Pqi9P',
+                navigate_back: true,
+              },
             },
+          },
         },
         {
-            provide: ApproverExpensesService,
-            useValue: approverExpensesServiceSpy,
+          provide: ApproverExpensesService,
+          useValue: approverExpensesServiceSpy,
         },
         {
-            provide: ReportService,
-            useValue: reportServiceSpy,
+          provide: ReportService,
+          useValue: reportServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: LaunchDarklyService,
-            useValue: launchDarklyService,
+          provide: LaunchDarklyService,
+          useValue: launchDarklyService,
         },
         {
-            provide: RefinerService,
-            useValue: refinerService,
+          provide: RefinerService,
+          useValue: refinerService,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: StatusService,
-            useValue: statusServiceSpy,
+          provide: StatusService,
+          useValue: statusServiceSpy,
         },
         {
-            provide: HumanizeCurrencyPipe,
-            useValue: humanizeCurrencySpy,
+          provide: HumanizeCurrencyPipe,
+          useValue: humanizeCurrencySpy,
         },
         {
-            provide: ExactCurrencyPipe,
-            useValue: exactCurrencySpy,
+          provide: ExactCurrencyPipe,
+          useValue: exactCurrencySpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: ApproverReportsService,
-            useValue: approverReportsServiceSpy,
+          provide: ApproverReportsService,
+          useValue: approverReportsServiceSpy,
         },
         {
-            provide: BrowserHandlerService,
-            useValue: browserHandlerServiceSpy,
+          provide: BrowserHandlerService,
+          useValue: browserHandlerServiceSpy,
         },
         {
-            provide: TIMEZONE,
-            useValue: new BehaviorSubject<string>('UTC'),
+          provide: TIMEZONE,
+          useValue: new BehaviorSubject<string>('UTC'),
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
     fixture = TestBed.createComponent(ViewTeamReportPage);
     component = fixture.componentInstance;
 

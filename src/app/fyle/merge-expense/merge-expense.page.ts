@@ -1,8 +1,15 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController, IonicModule } from '@ionic/angular';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
 import { BehaviorSubject, Observable, forkJoin, noop } from 'rxjs';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { CategoryDependentFieldsFormValues } from 'src/app/core/models/category-dependent-fields-form-values.model';
@@ -42,21 +49,28 @@ import { FormButtonValidationDirective } from '../../shared/directive/form-butto
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-merge-expense',
-    templateUrl: './merge-expense.page.html',
-    styleUrls: ['./merge-expense.page.scss'],
-    imports: [
-        IonicModule,
-        FormsModule,
-        ReactiveFormsModule,
-        FySelectComponent,
-        FyAlertInfoComponent,
-        GenericFieldsFormComponent,
-        CategoryDependentFieldsFormComponent,
-        CustomInputsFieldsFormComponent,
-        FormButtonValidationDirective,
-        AsyncPipe,
-    ],
+  selector: 'app-merge-expense',
+  templateUrl: './merge-expense.page.html',
+  styleUrls: ['./merge-expense.page.scss'],
+  imports: [
+    AsyncPipe,
+    CategoryDependentFieldsFormComponent,
+    CustomInputsFieldsFormComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyAlertInfoComponent,
+    FySelectComponent,
+    GenericFieldsFormComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    ReactiveFormsModule
+  ],
 })
 export class MergeExpensePage implements OnInit, AfterViewChecked {
   private router = inject(Router);

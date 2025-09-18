@@ -1,22 +1,26 @@
 import { Component, Input, output } from '@angular/core';
 import { ReportStates } from './report-states.enum';
 import { MatRipple } from '@angular/material/core';
-import { IonicModule } from '@ionic/angular';
 import { NgClass } from '@angular/common';
 import { HumanizeCurrencyPipe } from '../../../shared/pipes/humanize-currency.pipe';
 import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
+import { IonCol, IonGrid, IonRow, IonSkeletonText } from '@ionic/angular/standalone';
+
 
 @Component({
-    selector: 'app-stat-badge',
-    templateUrl: './stat-badge.component.html',
-    styleUrls: ['./stat-badge.component.scss'],
-    imports: [
-        MatRipple,
-        IonicModule,
-        NgClass,
-        HumanizeCurrencyPipe,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-stat-badge',
+  templateUrl: './stat-badge.component.html',
+  styleUrls: ['./stat-badge.component.scss'],
+  imports: [
+    ExactCurrencyPipe,
+    HumanizeCurrencyPipe,
+    IonCol,
+    IonGrid,
+    IonRow,
+    IonSkeletonText,
+    MatRipple,
+    NgClass
+  ],
 })
 export class StatBadgeComponent {
   // TODO: Skipped for migration because:

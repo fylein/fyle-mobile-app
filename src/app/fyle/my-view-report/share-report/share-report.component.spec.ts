@@ -1,13 +1,12 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule } from '@angular/forms';
 import { getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 import { ShareReportComponent } from './share-report.component';
 import { of } from 'rxjs';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('ShareReportComponent', () => {
   let component: ShareReportComponent;
@@ -23,9 +22,16 @@ describe('ShareReportComponent', () => {
     });
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, getTranslocoModule(), ShareReportComponent],
-    providers: [{ provide: ModalController, useValue: modalController }],
-}).compileComponents();
+      imports: [
+        
+        FormsModule,
+        MatIconModule,
+        MatIconTestingModule,
+        getTranslocoTestingModule(),
+        ShareReportComponent,
+      ],
+      providers: [{ provide: ModalController, useValue: modalController }],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ShareReportComponent);
     component = fixture.componentInstance;

@@ -1,5 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
+import { IonContent, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
@@ -7,14 +7,14 @@ import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-promote-opt-in-modal',
-    templateUrl: './promote-opt-in-modal.component.html',
-    styleUrls: ['./promote-opt-in-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-promote-opt-in-modal',
+  templateUrl: './promote-opt-in-modal.component.html',
+  styleUrls: ['./promote-opt-in-modal.component.scss'],
+  imports: [
+    IonContent,
+    MatIcon,
+    TranslocoPipe
+  ],
 })
 export class PromoteOptInModalComponent {
   private modalController = inject(ModalController);

@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 
 import { DashboardOptInComponent } from './dashboard-opt-in.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('DashboardOptInComponent', () => {
   let component: DashboardOptInComponent;
   let fixture: ComponentFixture<DashboardOptInComponent>;
@@ -26,27 +27,28 @@ describe('DashboardOptInComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, DashboardOptInComponent],
-    providers: [
+      imports: [TranslocoModule, DashboardOptInComponent,
+        MatIconTestingModule],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardOptInComponent);
     component = fixture.componentInstance;

@@ -1,10 +1,9 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular/standalone';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -14,13 +13,14 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 
 import { MergeExpensePage } from './merge-expense.page';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { UntypedFormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TestCases1 } from './merge-expense-1.page.spec';
 import { TestCases2 } from './merge-expense-2.page.spec';
 import { TestCases3 } from './merge-expense-3.page.spec';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('MergeExpensePage', () => {
   const getTestBed = () => {
@@ -86,8 +86,12 @@ describe('MergeExpensePage', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformRawExpense']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule, MergeExpensePage],
-    providers: [
+      imports: [
+        getTranslocoTestingModule(),
+        RouterTestingModule,
+        MergeExpensePage,
+      ],
+      providers: [
         UntypedFormBuilder,
         { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -99,28 +103,28 @@ describe('MergeExpensePage', () => {
         { provide: MatSnackBar, useValue: matSnackbarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         {
-            provide: MergeExpensesService,
-            useValue: mergeExpensesServiceSpy,
+          provide: MergeExpensesService,
+          useValue: mergeExpensesServiceSpy,
         },
         {
-            provide: ExpenseFieldsService,
-            useValue: expenseFieldsServiceSpy,
+          provide: ExpenseFieldsService,
+          useValue: expenseFieldsServiceSpy,
         },
         {
-            provide: DependentFieldsService,
-            useValue: dependentFieldsServiceSpy,
+          provide: DependentFieldsService,
+          useValue: dependentFieldsServiceSpy,
         },
         {
-            provide: TransactionService,
-            useValue: transactionServiceSpy,
+          provide: TransactionService,
+          useValue: transactionServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     return TestBed;
   };

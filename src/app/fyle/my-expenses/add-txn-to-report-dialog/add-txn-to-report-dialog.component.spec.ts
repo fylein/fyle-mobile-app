@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatBottomSheet, MatBottomSheetModule, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule } from '@ionic/angular';
 import { of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -15,7 +14,8 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog.component';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('AddTxnToReportDialogComponent', () => {
   let component: AddTxnToReportDialogComponent;
@@ -29,33 +29,38 @@ describe('AddTxnToReportDialogComponent', () => {
     const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, MatBottomSheetModule, getTranslocoModule(), AddTxnToReportDialogComponent,
+      imports: [RouterTestingModule,
+        RouterModule,
+        MatBottomSheetModule,
+        getTranslocoTestingModule(),
+        AddTxnToReportDialogComponent,
         FyZeroStateComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         ReportState,
-        SnakeCaseToSpaceCase],
-    providers: [
+        SnakeCaseToSpaceCase,
+        MatIconTestingModule],
+      providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: MatBottomSheet,
-            useValue: matBottomsheetSpy,
+          provide: MatBottomSheet,
+          useValue: matBottomsheetSpy,
         },
         {
-            provide: MAT_BOTTOM_SHEET_DATA,
-            useValue: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
+          provide: MAT_BOTTOM_SHEET_DATA,
+          useValue: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddTxnToReportDialogComponent);
     component = fixture.componentInstance;

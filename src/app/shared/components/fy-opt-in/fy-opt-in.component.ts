@@ -1,13 +1,23 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, inject, viewChild } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { Subscription, finalize, from, switchMap } from 'rxjs';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { NgOtpInputConfig, NgOtpInputComponent, NgOtpInputModule } from 'ng-otp-input';
+import { NgOtpInputConfig, NgOtpInputComponent } from 'ng-otp-input';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -26,20 +36,27 @@ import { NgClass, DecimalPipe } from '@angular/common';
 import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 
 @Component({
-    selector: 'app-fy-opt-in',
-    templateUrl: './fy-opt-in.component.html',
-    styleUrls: ['./fy-opt-in.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatInput,
-        FormsModule,
-        NgClass,
-        NgOtpInputModule,
-        FormButtonValidationDirective,
-        DecimalPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-opt-in',
+  templateUrl: './fy-opt-in.component.html',
+  styleUrls: ['./fy-opt-in.component.scss'],
+  imports: [
+    DecimalPipe,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    NgClass,
+    NgOtpInputComponent,
+    TranslocoPipe,
+  ],
 })
 export class FyOptInComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);
@@ -293,7 +310,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
   }
 
   onOtpChange(otp: string): void {
-    if (otp.length === 6) {
+    if (otp?.length === 6) {
       this.verifyOtp(otp);
     }
   }

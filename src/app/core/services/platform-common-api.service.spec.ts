@@ -54,7 +54,7 @@ describe('PlatformCommonApiService', () => {
         expect(res).toEqual(apiResponse);
         expect(httpClient.get).toHaveBeenCalledOnceWith(
           'https://staging.fyle.tech/platform/v1/common/currency/list',
-          {}
+          {},
         );
         done();
       });
@@ -69,7 +69,7 @@ describe('PlatformCommonApiService', () => {
           'https://staging.fyle.tech/platform/v1/common/currency/exchange_rate',
           {
             params: requestObj,
-          }
+          },
         );
         done();
       });

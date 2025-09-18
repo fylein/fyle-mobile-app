@@ -6,13 +6,16 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { noop } from 'rxjs';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
-import { IonicModule } from '@ionic/angular';
+import { IonContent } from '@ionic/angular/standalone';
+
 
 @Component({
-    selector: 'app-app-version',
-    templateUrl: './app-version.page.html',
-    styleUrls: ['./app-version.page.scss'],
-    imports: [IonicModule],
+  selector: 'app-app-version',
+  templateUrl: './app-version.page.html',
+  styleUrls: ['./app-version.page.scss'],
+  imports: [
+    IonContent
+  ],
 })
 export class AppVersionPage implements OnInit {
   private deviceService = inject(DeviceService);

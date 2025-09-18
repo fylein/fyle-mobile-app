@@ -7,21 +7,24 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, Reactive
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { IonicModule } from '@ionic/angular';
 import { MatInput } from '@angular/material/input';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { IonButton, IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 
 @Component({
-    selector: 'app-reset-password',
-    templateUrl: './reset-password.page.html',
-    styleUrls: ['./reset-password.page.scss'],
-    imports: [
-        IonicModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatInput,
-        FormButtonValidationDirective,
-    ],
+  selector: 'app-reset-password',
+  templateUrl: './reset-password.page.html',
+  styleUrls: ['./reset-password.page.scss'],
+  imports: [
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonContent,
+    IonIcon,
+    IonSpinner,
+    MatInput,
+    ReactiveFormsModule
+  ],
 })
 export class ResetPasswordPage {
   private formBuilder = inject(UntypedFormBuilder);

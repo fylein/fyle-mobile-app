@@ -1,7 +1,7 @@
 import { Component, OnInit, forwardRef, Input, OnDestroy, inject, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NgClass } from '@angular/common';
@@ -9,22 +9,17 @@ import { MatIcon } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-select-vendor',
-    templateUrl: './fy-select-vendor.component.html',
-    styleUrls: ['./fy-select-vendor.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FySelectVendorComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        NgClass,
-        FormsModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-select-vendor',
+  templateUrl: './fy-select-vendor.component.html',
+  styleUrls: ['./fy-select-vendor.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FySelectVendorComponent),
+      multi: true,
+    },
+  ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FySelectVendorComponent implements OnInit, OnDestroy {
   private modalController = inject(ModalController);

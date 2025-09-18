@@ -9,7 +9,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { getCurrencySymbol, TitleCasePipe } from '@angular/common';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
@@ -23,19 +23,28 @@ import { ReportState } from '../../../pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../../pipes/snake-case-to-space-case.pipe';
 
 @Component({
-    selector: 'app-add-to-report-modal',
-    templateUrl: './fy-add-to-report-modal.component.html',
-    styleUrls: ['./fy-add-to-report-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatRipple,
-        TitleCasePipe,
-        TranslocoPipe,
-        HumanizeCurrencyPipe,
-        ReportState,
-        SnakeCaseToSpaceCase,
-    ],
+  selector: 'app-add-to-report-modal',
+  templateUrl: './fy-add-to-report-modal.component.html',
+  styleUrls: ['./fy-add-to-report-modal.component.scss'],
+  imports: [
+    HumanizeCurrencyPipe,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatRipple,
+    ReportState,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);

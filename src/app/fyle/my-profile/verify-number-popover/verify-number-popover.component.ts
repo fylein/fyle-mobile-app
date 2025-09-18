@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ElementRef, AfterViewInit, inject, ViewChild } from '@angular/core';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonHeader, IonIcon, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
 import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
@@ -12,18 +12,23 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-verify-number-popover',
-    templateUrl: './verify-number-popover.component.html',
-    styleUrls: ['./verify-number-popover.component.scss'],
-    imports: [
-        IonicModule,
-        FormButtonValidationDirective,
-        FyAlertInfoComponent,
-        MatInput,
-        FormsModule,
-        DecimalPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-verify-number-popover',
+  templateUrl: './verify-number-popover.component.html',
+  styleUrls: ['./verify-number-popover.component.scss'],
+  imports: [
+    DecimalPipe,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyAlertInfoComponent,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatInput,
+    TranslocoPipe
+  ],
 })
 export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   private popoverController = inject(PopoverController);

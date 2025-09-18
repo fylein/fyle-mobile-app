@@ -2,10 +2,10 @@ import { Component, Input, input } from '@angular/core';
 import { NgClass, SlicePipe } from '@angular/common';
 
 @Component({
-    selector: 'app-card-number',
-    templateUrl: './card-number.component.html',
-    styleUrls: ['./card-number.component.scss'],
-    imports: [NgClass, SlicePipe],
+  selector: 'app-card-number',
+  templateUrl: './card-number.component.html',
+  styleUrls: ['./card-number.component.scss'],
+  imports: [NgClass, SlicePipe],
 })
 export class CardNumberComponent {
   // TODO: Skipped for migration because:
