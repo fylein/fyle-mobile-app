@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { IonFooter } from '@ionic/angular/standalone';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { StorageService } from './storage.service';

@@ -1,7 +1,18 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, EventEmitter, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, EventEmitter, inject } from '@angular/core';
 import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, ModalController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonIcon,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
+  IonRefresher,
+  IonRefresherContent,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -68,7 +79,7 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
     MatPrefix,
     MatSuffix,
     NgClass,
-    ReportsCardComponent
+    ReportsCardComponent,
   ],
 })
 export class TeamReportsPage implements OnInit {
@@ -159,7 +170,6 @@ export class TeamReportsPage implements OnInit {
   ngOnInit(): void {
     this.setupNetworkWatcher();
   }
-
 
   ionViewWillLeave(): void {
     this.onPageExit.next(null);

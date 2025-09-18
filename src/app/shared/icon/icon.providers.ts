@@ -1,8 +1,8 @@
-import { provideAppInitializer, inject } from '@angular/core';
+import { provideAppInitializer, inject, EnvironmentProviders } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 
-export function provideIcons() {
+export function provideIcons(): EnvironmentProviders {
   return provideAppInitializer(() => {
     const matIconRegistry = inject(MatIconRegistry);
     const domSanitizer = inject(DomSanitizer);
