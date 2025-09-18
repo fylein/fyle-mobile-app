@@ -24,7 +24,7 @@ import { CardProperties } from '../models/card-properties.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { NgClass } from '@angular/common';
-import { NgxMaskModule } from 'ngx-mask';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
 
 @Component({
@@ -37,10 +37,11 @@ import { FormButtonValidationDirective } from '../../../shared/directive/form-bu
     IonButton,
     IonIcon,
     NgClass,
-    NgxMaskModule,
+    NgxMaskDirective,
     ReactiveFormsModule,
     TranslocoPipe
   ],
+  providers: [provideNgxMask()]
 })
 export class SpenderOnboardingConnectCardStepComponent implements OnInit, OnChanges {
   private corporateCreditCardExpensesService = inject(CorporateCreditCardExpenseService);
