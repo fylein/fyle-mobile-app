@@ -74,8 +74,7 @@ describe('PlatformOrgSettingsService', () => {
   });
 
   it('should be able to get the org settings properly', (done) => {
-    const mockApiResponse = cloneDeep(postApiData);
-    apiService.get.and.returnValue(of(mockApiResponse));
+    apiService.get.and.returnValue(of({ data: cloneDeep(postApiData) }));
     orgSettingsService.get().subscribe((res) => {
       expect(res).toEqual(getApiData);
       done();
