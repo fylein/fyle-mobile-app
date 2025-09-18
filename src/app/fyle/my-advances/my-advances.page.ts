@@ -24,29 +24,40 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
-import { IonicModule } from '@ionic/angular';
 import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
 import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
 import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
 import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
 import { MyAdvancesCardComponent } from './my-advances-card/my-advances-card.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonRefresher, IonRefresherContent, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
-    selector: 'app-my-advances',
-    templateUrl: './my-advances.page.html',
-    styleUrls: ['./my-advances.page.scss'],
-    imports: [
-        IonicModule,
-        FyMenuIconComponent,
-        FyFilterPillsComponent,
-        FyLoadingScreenComponent,
-        NgClass,
-        FyZeroStateComponent,
-        MyAdvancesCardComponent,
-        FooterComponent,
-        AsyncPipe,
-    ],
+  selector: 'app-my-advances',
+  templateUrl: './my-advances.page.html',
+  styleUrls: ['./my-advances.page.scss'],
+  imports: [
+    AsyncPipe,
+    FooterComponent,
+    FyFilterPillsComponent,
+    FyLoadingScreenComponent,
+    FyMenuIconComponent,
+    FyZeroStateComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonRefresher,
+    IonRefresherContent,
+    IonTitle,
+    IonToolbar,
+    MyAdvancesCardComponent,
+    NgClass
+  ],
 })
 export class MyAdvancesPage implements AfterViewChecked {
   private advanceRequestService = inject(AdvanceRequestService);

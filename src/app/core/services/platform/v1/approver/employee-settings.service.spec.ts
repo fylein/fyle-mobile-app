@@ -179,7 +179,7 @@ describe('PlatformEmployeeSettingsService', () => {
 
       // Filter cost centers based on employee settings cost_center_ids (service converts costCenter.id to string)
       const expectedCostCenters = costCentersData.filter((costCenter) =>
-        mutableEmployeeSettings.cost_center_ids.includes(costCenter.id.toString())
+        mutableEmployeeSettings.cost_center_ids.includes(costCenter.id.toString()),
       );
 
       service.getAllowedCostCentersByEmployeeId(testEmployeeId).subscribe((result) => {
@@ -275,7 +275,7 @@ describe('PlatformEmployeeSettingsService', () => {
       costCentersService.getAllActive.and.returnValue(of(costCentersData));
 
       const expectedCostCenters = costCentersData.filter((costCenter) =>
-        ['2411', '2428'].includes(costCenter.id.toString())
+        ['2411', '2428'].includes(costCenter.id.toString()),
       );
 
       service.getAllowedCostCentersByEmployeeId(testEmployeeId).subscribe((result) => {
@@ -301,7 +301,7 @@ describe('PlatformEmployeeSettingsService', () => {
       costCentersService.getAllActive.and.returnValue(of(costCentersData2));
 
       const expectedCostCenters = costCentersData2.filter((costCenter) =>
-        mutableEmployeeSettings.cost_center_ids.includes(costCenter.id.toString())
+        mutableEmployeeSettings.cost_center_ids.includes(costCenter.id.toString()),
       );
 
       service.getAllowedCostCentersByEmployeeId(testEmployeeId).subscribe((result) => {

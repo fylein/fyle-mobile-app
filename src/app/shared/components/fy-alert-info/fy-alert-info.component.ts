@@ -1,13 +1,17 @@
 import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
-import { IonicModule } from '@ionic/angular';
+import { IonButton } from '@ionic/angular/standalone';
+
 
 @Component({
-    selector: 'app-fy-alert-info',
-    templateUrl: './fy-alert-info.component.html',
-    styleUrls: ['./fy-alert-info.component.scss'],
-    imports: [MatIcon, IonicModule],
+  selector: 'app-fy-alert-info',
+  templateUrl: './fy-alert-info.component.html',
+  styleUrls: ['./fy-alert-info.component.scss'],
+  imports: [
+    IonButton,
+    MatIcon
+  ],
 })
 export class FyAlertInfoComponent implements OnInit {
   private translocoService = inject(TranslocoService);

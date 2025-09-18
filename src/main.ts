@@ -18,7 +18,7 @@ import { TranslocoHttpLoader } from './app/transloco-http-loader';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
 import { HAMMER_GESTURE_CONFIG, HammerModule, bootstrapApplication } from '@angular/platform-browser';
 import { RouteReuseStrategy, Router } from '@angular/router';
-import { IonicRouteStrategy, IonicModule } from '@ionic/angular';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
 import { HttpConfigInterceptor } from './app/core/interceptors/httpInterceptor';
 import { CurrencyPipe } from '@angular/common';
@@ -35,6 +35,7 @@ import { DecimalPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { ReportState } from './app/shared/pipes/report-state.pipe';
 import { provideIcons } from './app/shared/icon/icon.providers';
+import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 
 // Global cache config
 GlobalCacheConfig.maxAge = 10 * 60 * 1000;
@@ -102,19 +103,12 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(appRoutes, withPreloading(PreloadAllModules)),
-    importProvidersFrom(
-      IonicModule.forRoot({
-        innerHTMLTemplatesEnabled: true,
-        useSetInputAPI: true,
-      }),
-      HammerModule,
-      HammerModule,
-      NgOtpInputModule,
-    ),
+    importProvidersFrom(HammerModule, NgOtpInputModule),
     provideIcons(),
     GooglePlus,
     InAppBrowser,
     Smartlook,
+    ImagePicker,
     provideTransloco({
       config: {
         availableLangs: ['en'],
@@ -187,6 +181,10 @@ bootstrapApplication(AppComponent, {
     },
     provideHttpClient(withInterceptorsFromDi(), withJsonpSupport()),
     provideAnimations(),
+    provideIonicAngular({
+      innerHTMLTemplatesEnabled: true,
+      useSetInputAPI: true,
+    }),
   ],
 }).catch(() => {});
 

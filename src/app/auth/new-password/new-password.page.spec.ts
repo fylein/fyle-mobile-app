@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { NewPasswordPage } from './new-password.page';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -19,6 +17,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('NewPasswordPage', () => {
   let component: NewPasswordPage;
@@ -45,8 +44,8 @@ describe('NewPasswordPage', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), ReactiveFormsModule, RouterTestingModule, NewPasswordPage],
-    providers: [
+      imports: [ ReactiveFormsModule, RouterTestingModule, NewPasswordPage, getTranslocoTestingModule()],
+      providers: [
         UntypedFormBuilder,
         { provide: AuthService, useValue: authServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
@@ -58,16 +57,16 @@ describe('NewPasswordPage', () => {
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: { refreshToken: 'token123' },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: { refreshToken: 'token123' },
             },
+          },
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(NewPasswordPage);
     component = fixture.componentInstance;

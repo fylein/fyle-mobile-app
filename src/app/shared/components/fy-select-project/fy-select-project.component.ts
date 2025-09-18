@@ -1,7 +1,7 @@
 import { Component, forwardRef, Input, OnDestroy, TemplateRef, ElementRef, inject, input, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
 import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -11,22 +11,17 @@ import { MatIcon } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-select-project',
-    templateUrl: './fy-select-project.component.html',
-    styleUrls: ['./fy-select-project.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FySelectProjectComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        NgClass,
-        FormsModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-select-project',
+  templateUrl: './fy-select-project.component.html',
+  styleUrls: ['./fy-select-project.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FySelectProjectComponent),
+      multi: true,
+    },
+  ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy {
   private modalController = inject(ModalController);

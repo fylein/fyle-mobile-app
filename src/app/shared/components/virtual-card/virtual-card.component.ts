@@ -4,26 +4,26 @@ import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { FyPopoverComponent } from '../fy-popover/fy-popover.component';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { NgClass, SlicePipe, TitleCasePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-virtual-card',
-    templateUrl: './virtual-card.component.html',
-    styleUrls: ['./virtual-card.component.scss'],
-    imports: [
-        NgClass,
-        IonicModule,
-        SlicePipe,
-        TitleCasePipe,
-        CurrencyPipe,
-        DatePipe,
-        TranslocoPipe,
-        FyCurrencyPipe,
-    ],
+  selector: 'app-virtual-card',
+  templateUrl: './virtual-card.component.html',
+  styleUrls: ['./virtual-card.component.scss'],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    FyCurrencyPipe,
+    IonIcon,
+    NgClass,
+    SlicePipe,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
 export class VirtualCardComponent implements OnInit {
   private clipboardService = inject(ClipboardService);

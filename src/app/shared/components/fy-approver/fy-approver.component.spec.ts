@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { AddApproversPopoverComponent } from './add-approvers-popover/add-approvers-popover.component';
 import { FyApproverComponent } from './fy-approver.component';
@@ -23,18 +23,18 @@ describe('FyApproverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule, FyApproverComponent],
-    providers: [
+      imports: [ MatIconModule, MatIconTestingModule, TranslocoModule, FyApproverComponent],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyApproverComponent);
     component = fixture.componentInstance;

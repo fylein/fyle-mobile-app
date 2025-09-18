@@ -8,17 +8,10 @@ import { StatusesDiffComponent } from './statuses-diff/statuses-diff.component';
 import { DateWithTimezonePipe } from '../../../pipes/date-with-timezone.pipe';
 
 @Component({
-    selector: 'app-audit-history',
-    templateUrl: './audit-history.component.html',
-    styleUrls: ['./audit-history.component.scss'],
-    imports: [
-        MatIcon,
-        NgClass,
-        StatusesDiffComponent,
-        KeyValuePipe,
-        TranslocoPipe,
-        DateWithTimezonePipe,
-    ],
+  selector: 'app-audit-history',
+  templateUrl: './audit-history.component.html',
+  styleUrls: ['./audit-history.component.scss'],
+  imports: [MatIcon, NgClass, StatusesDiffComponent, KeyValuePipe, TranslocoPipe, DateWithTimezonePipe],
 })
 export class AuditHistoryComponent implements OnInit {
   private expenseFieldsService = inject(ExpenseFieldsService);

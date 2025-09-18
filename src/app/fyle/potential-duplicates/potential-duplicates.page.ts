@@ -9,7 +9,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonSkeletonText, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
 import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
@@ -17,16 +17,24 @@ import { CurrencyPipe } from '@angular/common';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-potential-duplicates',
-    templateUrl: './potential-duplicates.page.html',
-    styleUrls: ['./potential-duplicates.page.scss'],
-    imports: [
-        IonicModule,
-        ExpensesCardComponent,
-        FyLoadingScreenComponent,
-        CurrencyPipe,
-        FyCurrencyPipe,
-    ],
+  selector: 'app-potential-duplicates',
+  templateUrl: './potential-duplicates.page.html',
+  styleUrls: ['./potential-duplicates.page.scss'],
+  imports: [
+    CurrencyPipe,
+    ExpensesCardComponent,
+    FyCurrencyPipe,
+    FyLoadingScreenComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar
+  ],
 })
 export class PotentialDuplicatesPage {
   private expensesService = inject(ExpensesService);

@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
@@ -79,8 +78,8 @@ describe('FyProjectSelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [
-        IonicModule.forRoot(),
+      imports: [
+        
         MatIconModule,
         MatIconTestingModule,
         FormsModule,
@@ -88,48 +87,50 @@ describe('FyProjectSelectModalComponent', () => {
         MatInputModule,
         BrowserAnimationsModule,
         TranslocoModule,
-        FyProjectSelectModalComponent, FyHighlightTextComponent, HighlightPipe,
-    ],
-    providers: [
+        FyProjectSelectModalComponent,
+        FyHighlightTextComponent,
+        HighlightPipe,
+      ],
+      providers: [
         ChangeDetectorRef,
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ProjectsService,
-            useValue: projectsServiceSpy,
+          provide: ProjectsService,
+          useValue: projectsServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: RecentLocalStorageItemsService,
-            useValue: recentLocalStorageItemsServiceSpy,
+          provide: RecentLocalStorageItemsService,
+          useValue: recentLocalStorageItemsServiceSpy,
         },
         {
-            provide: UtilityService,
-            useValue: utilityServiceSpy,
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: platformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-            provide: CategoriesService,
-            useValue: categoriesServiceSpy,
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(FyProjectSelectModalComponent);
     component = fixture.componentInstance;
 
@@ -139,12 +140,12 @@ describe('FyProjectSelectModalComponent', () => {
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
@@ -212,7 +213,7 @@ describe('FyProjectSelectModalComponent', () => {
             limit: 20,
           },
           component.isProjectCategoryRestrictionsEnabled,
-          undefined
+          undefined,
         );
         expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
@@ -242,7 +243,7 @@ describe('FyProjectSelectModalComponent', () => {
             limit: 20,
           },
           component.isProjectCategoryRestrictionsEnabled,
-          undefined
+          undefined,
         );
         expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
@@ -273,7 +274,7 @@ describe('FyProjectSelectModalComponent', () => {
             limit: 20,
           },
           component.isProjectCategoryRestrictionsEnabled,
-          undefined
+          undefined,
         );
         expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
@@ -308,7 +309,7 @@ describe('FyProjectSelectModalComponent', () => {
             limit: 20,
           },
           component.isProjectCategoryRestrictionsEnabled,
-          []
+          [],
         );
         done();
       });
@@ -406,7 +407,7 @@ describe('FyProjectSelectModalComponent', () => {
       expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith(
         component.cacheName,
         { label: 'Staging Project', value: testProjectV2 },
-        'label'
+        'label',
       );
     });
   });
@@ -493,7 +494,7 @@ describe('FyProjectSelectModalComponent', () => {
           label: project.project_name,
           value: project,
         },
-      ])
+      ]),
     );
     fixture.detectChanges();
 

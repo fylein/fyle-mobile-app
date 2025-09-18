@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular/standalone';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
@@ -180,7 +180,7 @@ export function TestCases1(getTestBed) {
         component.expenseOptions$.subscribe((res) => {
           expect(res).toEqual(mergeExpensesOptionsData);
           expect(mergeExpensesService.generateExpenseToKeepOptions).toHaveBeenCalledOnceWith(
-            transformedPlatformedExpense1
+            transformedPlatformedExpense1,
           );
         });
 
@@ -192,14 +192,14 @@ export function TestCases1(getTestBed) {
         component.dateOfSpendOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData6);
           expect(mergeExpensesService.generateDateOfSpendOptions).toHaveBeenCalledOnceWith(
-            transformedPlatformedExpense1
+            transformedPlatformedExpense1,
           );
         });
 
         component.paymentModeOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData7);
           expect(mergeExpensesService.generatePaymentModeOptions).toHaveBeenCalledOnceWith(
-            transformedPlatformedExpense1
+            transformedPlatformedExpense1,
           );
         });
 
@@ -236,7 +236,7 @@ export function TestCases1(getTestBed) {
         component.constCenterOptionsData$.subscribe((res) => {
           expect(res).toEqual(optionsData13);
           expect(mergeExpensesService.generateCostCenterOptions).toHaveBeenCalledOnceWith(
-            transformedPlatformedExpense1
+            transformedPlatformedExpense1,
           );
         });
 
@@ -281,17 +281,17 @@ export function TestCases1(getTestBed) {
         });
 
         expect(mergeExpensesService.generateTrainTravelClassOptions).toHaveBeenCalledOnceWith(
-          transformedPlatformedExpense1
+          transformedPlatformedExpense1,
         );
         expect(mergeExpensesService.generateBusTravelClassOptions).toHaveBeenCalledOnceWith(
-          transformedPlatformedExpense1
+          transformedPlatformedExpense1,
         );
 
         expect(mergeExpensesService.generateFlightJourneyTravelClassOptions).toHaveBeenCalledOnceWith(
-          transformedPlatformedExpense1
+          transformedPlatformedExpense1,
         );
         expect(mergeExpensesService.generateFlightReturnTravelClassOptions).toHaveBeenCalledOnceWith(
-          transformedPlatformedExpense1
+          transformedPlatformedExpense1,
         );
 
         component.distanceOptionsData$.subscribe((res) => {
@@ -305,7 +305,7 @@ export function TestCases1(getTestBed) {
 
         expect(mergeExpensesService.generateDistanceOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
         expect(mergeExpensesService.generateDistanceUnitOptions).toHaveBeenCalledOnceWith(
-          transformedPlatformedExpense1
+          transformedPlatformedExpense1,
         );
       });
     });
@@ -343,7 +343,7 @@ export function TestCases1(getTestBed) {
           'tgXEJA6YUoZ1',
           0.01,
           null,
-          null
+          null,
         );
         mergeExpensesService.setDefaultExpenseToKeep.and.returnValue(expensesInfo);
         mergeExpensesService.isAllAdvanceExpenses.and.returnValue(true);

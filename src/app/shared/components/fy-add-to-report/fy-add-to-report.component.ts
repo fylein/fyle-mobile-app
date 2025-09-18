@@ -13,7 +13,7 @@ import {
 import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -26,22 +26,17 @@ import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-fy-add-to-report',
-    templateUrl: './fy-add-to-report.component.html',
-    styleUrls: ['./fy-add-to-report.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FyAddToReportComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        NgClass,
-        FormsModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-add-to-report',
+  templateUrl: './fy-add-to-report.component.html',
+  styleUrls: ['./fy-add-to-report.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FyAddToReportComponent),
+      multi: true,
+    },
+  ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAccessor {
   private modalController = inject(ModalController);

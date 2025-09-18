@@ -7,7 +7,7 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, filter, take } from 'rxjs/operators';
-import { PopoverController, ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -28,7 +28,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { ExpenseState as ExpenseStateEnum } from 'src/app/core/models/expense-state.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
@@ -37,28 +37,37 @@ import { ViewDependentFieldsComponent } from '../../shared/components/view-depen
 import { NavigationFooterComponent } from '../../shared/components/navigation-footer/navigation-footer.component';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
-import { ExpenseState as ExpenseState_1 } from '../../shared/pipes/expense-state.pipe';
+import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 
 @Component({
-    selector: 'app-view-per-diem',
-    templateUrl: './view-per-diem.page.html',
-    styleUrls: ['./view-per-diem.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        FyPolicyViolationInfoComponent,
-        ViewDependentFieldsComponent,
-        NavigationFooterComponent,
-        AsyncPipe,
-        TitleCasePipe,
-        CurrencyPipe,
-        DatePipe,
-        ExactCurrencyPipe,
-        SnakeCaseToSpaceCase,
-        ExpenseState_1,
-        FyCurrencyPipe,
-    ],
+  selector: 'app-view-per-diem',
+  templateUrl: './view-per-diem.page.html',
+  styleUrls: ['./view-per-diem.page.scss'],
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    DatePipe,
+    ExactCurrencyPipe,
+    ExpenseStatePipe,
+    FyCurrencyPipe,
+    FyPolicyViolationInfoComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
+    NavigationFooterComponent,
+    NgClass,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    ViewDependentFieldsComponent
+  ],
 })
 export class ViewPerDiemPage {
   private activatedRoute = inject(ActivatedRoute);
@@ -321,7 +330,7 @@ export class ViewPerDiemPage {
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state),
+          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(expense.state),
       ),
     );
 

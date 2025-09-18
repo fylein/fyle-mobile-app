@@ -10,17 +10,10 @@ import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-team-adv-card',
-    templateUrl: './team-adv-card.component.html',
-    styleUrls: ['./team-adv-card.component.scss'],
-    imports: [
-        MatRipple,
-        MatIcon,
-        DatePipe,
-        EllipsisPipe,
-        ExactCurrencyPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-team-adv-card',
+  templateUrl: './team-adv-card.component.html',
+  styleUrls: ['./team-adv-card.component.scss'],
+  imports: [MatRipple, MatIcon, DatePipe, EllipsisPipe, ExactCurrencyPipe, TranslocoPipe],
 })
 export class TeamAdvCardComponent implements OnInit {
   private advanceRequestService = inject(AdvanceRequestService);

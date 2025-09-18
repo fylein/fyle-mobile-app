@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'maskNumber', })
+@Pipe({ name: 'maskNumber' })
 export class MaskNumber implements PipeTransform {
   transform(input: string): string {
     if (!input) {

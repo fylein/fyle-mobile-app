@@ -1,9 +1,9 @@
-import { EventEmitter } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { cloneDeep } from 'lodash';
 import { of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
@@ -41,6 +41,15 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FeatureConfig } from 'src/app/core/models/feature-config.model';
+import { Component } from '@angular/core';
+import { EmployeeDetailsCardComponent } from './employee-details-card/employee-details-card.component';
+
+// mock EmployeeDetailsCardComponent
+@Component({
+  selector: 'app-employee-details-card',
+  template: '',
+})
+export class MockEmployeeDetailsCardComponent {}
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -116,115 +125,123 @@ describe('MyProfilePage', () => {
     ]);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterTestingModule, MyProfilePage],
-    providers: [
+      imports: [ RouterTestingModule, MyProfilePage],
+      providers: [
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        openPopover: '',
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                openPopover: '',
+              },
             },
+          },
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: platformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-            provide: UserEventService,
-            useValue: userEventServiceSpy,
+          provide: UserEventService,
+          useValue: userEventServiceSpy,
         },
         {
-            provide: SecureStorageService,
-            useValue: secureStorageServiceSpy,
+          provide: SecureStorageService,
+          useValue: secureStorageServiceSpy,
         },
         {
-            provide: StorageService,
-            useValue: storageServiceSpy,
+          provide: StorageService,
+          useValue: storageServiceSpy,
         },
         {
-            provide: DeviceService,
-            useValue: deviceServiceSpy,
+          provide: DeviceService,
+          useValue: deviceServiceSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: TokenService,
-            useValue: tokenServiceSpy,
+          provide: TokenService,
+          useValue: tokenServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: OrgService,
-            useValue: orgServiceSpy,
+          provide: OrgService,
+          useValue: orgServiceSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: PaymentModesService,
-            useValue: paymentModeServiceSpy,
+          provide: PaymentModesService,
+          useValue: paymentModeServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: UtilityService,
-            useValue: utilityServiceSpy,
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
         },
         {
-            provide: OrgUserService,
-            useValue: orgUserServiceSpy,
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
         },
         {
-            provide: SpenderOnboardingService,
-            useValue: spenderOnboardingServiceSpy,
+          provide: SpenderOnboardingService,
+          useValue: spenderOnboardingServiceSpy,
         },
         {
-            provide: EmployeesService,
-            useValue: employeesServiceSpy,
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
         },
         {
-            provide: FeatureConfigService,
-            useValue: featureConfigServiceSpy,
+          provide: FeatureConfigService,
+          useValue: featureConfigServiceSpy,
         },
         {
-            provide: WalkthroughService,
-            useValue: walkthroughServiceSpy,
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
         },
         SpenderService,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ],
-}).compileComponents();
+      ],
+    }).overrideComponent(MyProfilePage, {
+      remove: {
+        imports: [EmployeeDetailsCardComponent],
+      },
+      add: {
+        imports: [MockEmployeeDetailsCardComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      }
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MyProfilePage);
     component = fixture.componentInstance;

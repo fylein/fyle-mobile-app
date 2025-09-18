@@ -5,23 +5,24 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SwiperComponent, SwiperModule } from 'swiper/angular';
 import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
-import { IonicModule } from '@ionic/angular';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { IonSpinner } from '@ionic/angular/standalone';
+
 @Component({
-    selector: 'app-receipt-preview-thumbnail',
-    templateUrl: './receipt-preview-thumbnail.component.html',
-    styleUrls: ['./receipt-preview-thumbnail.component.scss'],
-    imports: [
-        NgClass,
-        MatIcon,
-        IonicModule,
-        SwiperModule,
-        PinchZoomComponent,
-        PdfViewerModule,
-        TranslocoPipe,
-    ],
+  selector: 'app-receipt-preview-thumbnail',
+  templateUrl: './receipt-preview-thumbnail.component.html',
+  styleUrls: ['./receipt-preview-thumbnail.component.scss'],
+  imports: [
+    IonSpinner,
+    MatIcon,
+    NgClass,
+    PdfViewerModule,
+    PinchZoomComponent,
+    SwiperModule,
+    TranslocoPipe
+  ],
 })
 export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   private trackingService = inject(TrackingService);

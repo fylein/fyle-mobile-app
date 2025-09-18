@@ -6,17 +6,10 @@ import { FyCurrencyPipe } from '../../../shared/pipes/fy-currency.pipe';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-card-transaction-preview',
-    templateUrl: './card-transaction-preview.component.html',
-    styleUrls: ['./card-transaction-preview.component.scss'],
-    imports: [
-        MatIcon,
-        CurrencyPipe,
-        DatePipe,
-        EllipsisPipe,
-        FyCurrencyPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-card-transaction-preview',
+  templateUrl: './card-transaction-preview.component.html',
+  styleUrls: ['./card-transaction-preview.component.scss'],
+  imports: [MatIcon, CurrencyPipe, DatePipe, EllipsisPipe, FyCurrencyPipe, TranslocoPipe],
 })
 export class CardTransactionPreviewComponent implements OnInit {
   // TODO: Skipped for migration because:

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { PlatformHandlerService } from './platform-handler.service';
-import { Platform } from '@ionic/angular';
+import { Platform } from '@ionic/angular/standalone';
 import { BackButtonActionPriority } from '../models/back-button-action-priority.enum';
 import { noop } from 'rxjs';
 

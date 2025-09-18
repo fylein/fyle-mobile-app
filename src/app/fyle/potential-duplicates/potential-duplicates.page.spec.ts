@@ -1,11 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject, of } from 'rxjs';
 import { dismissExpenseSnackbarProps } from 'src/app/core/mock-data/snackbar-properties.data';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -17,7 +13,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { cloneDeep } from 'lodash';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { expenseDuplicateSet } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, NavController } from '@ionic/angular/standalone';
 import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
 
 describe('PotentialDuplicatesPage', () => {
@@ -29,6 +25,7 @@ describe('PotentialDuplicatesPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
+  let navController: jasmine.SpyObj<NavController>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -46,41 +43,46 @@ describe('PotentialDuplicatesPage', () => {
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
-    imports: [RouterTestingModule, PotentialDuplicatesPage],
-    providers: [
+      imports: [PotentialDuplicatesPage],
+      providers: [
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+        {
+          provide: NavController,
+          useValue: navControllerSpy,
+        },
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PotentialDuplicatesPage);
     component = fixture.componentInstance;
@@ -92,6 +94,7 @@ describe('PotentialDuplicatesPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
 
     component.loadData$ = new BehaviorSubject<void>(null);
     component.duplicateSets$ = of([]);
@@ -147,7 +150,7 @@ describe('PotentialDuplicatesPage', () => {
   it('addExpenseDetailsToDuplicateSets(): should add expense details to duplicate sets', () => {
     const result = component.addExpenseDetailsToDuplicateSets(
       ['txcSFe6efB6R', 'txDDLtRaflUW'],
-      [apiExpenses1[0], expenseData]
+      [apiExpenses1[0], expenseData],
     );
     expect(result).toEqual([expenseData, apiExpenses1[0]]);
   });
@@ -277,7 +280,7 @@ describe('PotentialDuplicatesPage', () => {
 
       expect(component.dismissDuplicates).toHaveBeenCalledWith(
         ['tx5fBcPBAxLv', 'tx3nHShG60zq'],
-        ['tx5fBcPBAxLv', 'tx3nHShG60zq']
+        ['tx5fBcPBAxLv', 'tx3nHShG60zq'],
       );
 
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);

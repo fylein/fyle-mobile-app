@@ -3,7 +3,7 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { click, getElementBySelector, getElementRef, getTextContent } from 'src/app/core/dom-helpers';
 import { FyInputPopoverComponent } from './fy-input-popover.component';
 import { of } from 'rxjs';
@@ -24,18 +24,25 @@ describe('FyInputPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     await TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule, FyInputPopoverComponent],
-    providers: [
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        FyInputPopoverComponent,
+      ],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {

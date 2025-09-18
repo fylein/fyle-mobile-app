@@ -1,16 +1,12 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ApproverDialogComponent } from './approver-dialog.component';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MatChipInputEvent,
-  MatChipsModule,
-} from '@angular/material/chips';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
@@ -72,8 +68,8 @@ describe('ApproverDialogComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [
-        IonicModule.forRoot(),
+      imports: [
+        
         MatIconTestingModule,
         MatIconModule,
         FormsModule,
@@ -81,26 +77,26 @@ describe('ApproverDialogComponent', () => {
         MatCheckboxModule,
         TranslocoModule,
         ApproverDialogComponent,
-    ],
-    providers: [
+      ],
+      providers: [
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: EmployeesService,
-            useValue: employeesServiceSpy,
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(ApproverDialogComponent);
     component = fixture.componentInstance;
 
@@ -194,7 +190,7 @@ describe('ApproverDialogComponent', () => {
           user_id: 'usvKA4X8Ugcr',
           is_selected: true,
         },
-        { checked: true }
+        { checked: true },
       );
 
       expect(component.getSelectedApproversDict).toHaveBeenCalledTimes(1);
@@ -223,7 +219,7 @@ describe('ApproverDialogComponent', () => {
           user_id: 'usvKA4X8Ugcr',
           is_selected: true,
         },
-        { checked: false }
+        { checked: false },
       );
 
       expect(component.getSelectedApproversDict).toHaveBeenCalledTimes(1);
@@ -386,7 +382,7 @@ describe('ApproverDialogComponent', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--selected-count'))).toEqual(
-      `${component.selectedApproversList.length} selected`
+      `${component.selectedApproversList.length} selected`,
     );
   });
 
@@ -396,7 +392,7 @@ describe('ApproverDialogComponent', () => {
 
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--approver-details__title'))).toEqual('AA23');
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--approver-details__content'))).toEqual(
-      'ajain+12+12+1@fyle.in'
+      'ajain+12+12+1@fyle.in',
     );
   });
 

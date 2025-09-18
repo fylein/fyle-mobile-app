@@ -12,7 +12,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ActivatedRoute, Router } from '@angular/router';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyViewAttachmentComponent', () => {
@@ -29,7 +29,7 @@ describe('FyViewAttachmentComponent', () => {
   let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let router: jasmine.SpyObj<Router>;
-  
+
   beforeEach(waitForAsync(() => {
     const domSantizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -53,61 +53,61 @@ describe('FyViewAttachmentComponent', () => {
     const routerSpy = jasmine.createSpyObj('Router', [], {
       url: '/test-url',
     });
-    
+
     TestBed.configureTestingModule({
-    providers: [
+      providers: [
         {
-            provide: DomSanitizer,
-            useValue: domSantizerSpy,
+          provide: DomSanitizer,
+          useValue: domSantizerSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: SpenderFileService,
-            useValue: spenderFileServiceSpy,
+          provide: SpenderFileService,
+          useValue: spenderFileServiceSpy,
         },
         {
-            provide: ApproverFileService,
-            useValue: approverFileServiceSpy,
+          provide: ApproverFileService,
+          useValue: approverFileServiceSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: FileService,
-            useValue: fileServiceSpy,
+          provide: FileService,
+          useValue: fileServiceSpy,
         },
         {
-            provide: TransactionsOutboxService,
-            useValue: transactionsOutboxServiceSpy,
+          provide: TransactionsOutboxService,
+          useValue: transactionsOutboxServiceSpy,
         },
         {
-            provide: 'API_PAGINATION_SIZE',
-            useValue: 10,
+          provide: 'API_PAGINATION_SIZE',
+          useValue: 10,
         },
         {
-            provide: ActivatedRoute,
-            useValue: activatedRouteSpy,
+          provide: ActivatedRoute,
+          useValue: activatedRouteSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
-    ],
-    imports: [getTranslocoModule(), FyViewAttachmentComponent, MatIconTestingModule],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents()
+      ],
+      imports: [getTranslocoTestingModule(), FyViewAttachmentComponent, MatIconTestingModule],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyViewAttachmentComponent);
     component = fixture.componentInstance;
@@ -122,12 +122,12 @@ describe('FyViewAttachmentComponent', () => {
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    
+
     // Global fetch and fileService.readFile mocks
     spyOn(window, 'fetch').and.callFake(() =>
       Promise.resolve({
         blob: () => Promise.resolve(new Blob(['mock'], { type: 'image/jpeg' })),
-      } as any)
+      } as any),
     );
     fileService.readFile.and.resolveTo('data:image/jpeg;base64,mocked');
     fileService.uploadUrl.and.returnValue(of('upload-url'));
@@ -169,7 +169,7 @@ describe('FyViewAttachmentComponent', () => {
   it('ngOnInit(): should update ', fakeAsync(() => {
     // Reset the spy to ensure clean state
     domSantizer.bypassSecurityTrustUrl.calls.reset();
-    
+
     const expectedSliderOptions = {
       zoom: {
         maxRatio: 1,
@@ -263,13 +263,13 @@ describe('FyViewAttachmentComponent', () => {
               action: 'remove',
             },
           }),
-      }) as any
+      }) as any,
     );
 
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
-    
+
     await component.deleteAttachment();
     tick(1000);
 
@@ -301,13 +301,13 @@ describe('FyViewAttachmentComponent', () => {
               action: 'remove',
             },
           }),
-      }) as any
+      }) as any,
     );
 
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
-    
+
     await component.deleteAttachment();
     tick(1000);
 
@@ -347,13 +347,13 @@ describe('FyViewAttachmentComponent', () => {
               action: 'remove',
             },
           }),
-      }) as any
+      }) as any,
     );
 
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
-    
+
     await component.deleteAttachment();
     tick(1000);
 
@@ -400,7 +400,7 @@ describe('FyViewAttachmentComponent', () => {
               action: 'remove',
             },
           }),
-      }) as any
+      }) as any,
     );
 
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
@@ -451,11 +451,11 @@ describe('FyViewAttachmentComponent', () => {
               action: 'remove',
             },
           }),
-      }) as any
+      }) as any,
     );
 
     approverFileService.deleteFilesBulk.and.returnValue(of(void 0));
-    
+
     await component.deleteAttachment();
     tick(1000);
 
@@ -513,7 +513,7 @@ describe('FyViewAttachmentComponent', () => {
     it('should upload and update attachment if blob is valid', fakeAsync(() => {
       const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
       (window.fetch as jasmine.Spy).and.callFake(() =>
-        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any)
+        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any),
       );
       fileService.uploadUrl.and.returnValue(of('upload-url'));
       transactionsOutboxService.uploadData.and.returnValue(of(null));
@@ -536,7 +536,7 @@ describe('FyViewAttachmentComponent', () => {
       });
       const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
       (window.fetch as jasmine.Spy).and.callFake(() =>
-        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any)
+        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any),
       );
       fileService.uploadUrlForTeamAdvance.and.returnValue(of('upload-url-team-advance'));
       transactionsOutboxService.uploadData.and.returnValue(of(null));
@@ -549,7 +549,7 @@ describe('FyViewAttachmentComponent', () => {
     it('should handle error in observable chain', (done) => {
       const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
       (window.fetch as jasmine.Spy).and.callFake(() =>
-        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any)
+        Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any),
       );
       fileService.uploadUrl.and.returnValue(of('upload-url'));
       transactionsOutboxService.uploadData.and.returnValue(throwError(() => new Error('upload failed')));
@@ -791,9 +791,7 @@ describe('FyViewAttachmentComponent', () => {
 
   it('should track events when saving rotated images', fakeAsync(() => {
     const fakeBlob = new Blob(['test'], { type: 'image/jpeg' });
-    (window.fetch as jasmine.Spy).and.callFake(() =>
-      Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any)
-    );
+    (window.fetch as jasmine.Spy).and.callFake(() => Promise.resolve({ blob: () => Promise.resolve(fakeBlob) } as any));
     fileService.uploadUrl.and.returnValue(of('upload-url'));
     transactionsOutboxService.uploadData.and.returnValue(of(null));
     component.rotatingDirection = RotationDirection.RIGHT;

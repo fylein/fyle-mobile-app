@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 
 import dayjs from 'dayjs';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { clone, cloneDeep } from 'lodash';
-import { BehaviorSubject, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import {
   expectedActionSheetButtonRes,
@@ -129,9 +129,37 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
+import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v2/expenses-card.component';
+import { ExpensesCardV1Component } from 'src/app/shared/components/expenses-card/expenses-card.component';
+
+// mock FooterComponent
+@Component({
+  selector: 'app-fy-footer',
+  template: '',
+})
+class MockFooterComponent {
+}
+
+// mock ExpensesCardComponent
+@Component({
+  selector: 'app-expenses-card-v2',
+  template: '',
+})
+class MockExpensesCardComponent {
+}
+
+// mock ExpensesCardV1Component
+@Component({
+  selector: 'app-expenses-card',
+  template: '',
+})
+class MockExpensesCardV1Component {
+}
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -322,9 +350,14 @@ describe('MyExpensesPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-    schemas: [NO_ERRORS_SCHEMA],
-    imports: [IonicModule.forRoot(), RouterTestingModule, getTranslocoModule(), MyExpensesPage, ReportState, MaskNumber],
-    providers: [
+      schemas: [NO_ERRORS_SCHEMA],
+      imports: [RouterTestingModule,
+        getTranslocoTestingModule(),
+        MyExpensesPage,
+        ReportState,
+        MaskNumber,
+        MatIconTestingModule],
+      providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
@@ -332,114 +365,122 @@ describe('MyExpensesPage', () => {
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate', 'createUrlTree']) },
         {
-            provide: NavController,
-            useValue: navControllerSpy,
+          provide: NavController,
+          useValue: navControllerSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: TransactionsOutboxService,
-            useValue: transactionOutboxServiceSpy,
+          provide: TransactionsOutboxService,
+          useValue: transactionOutboxServiceSpy,
         },
         {
-            provide: MatBottomSheet,
-            useValue: matBottomsheetSpy,
+          provide: MatBottomSheet,
+          useValue: matBottomsheetSpy,
         },
         {
-            provide: MatSnackBar,
-            useValue: matSnackBarSpy,
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
         },
         {
-            provide: MyExpensesService,
-            useValue: myExpensesServiceSpy,
+          provide: MyExpensesService,
+          useValue: myExpensesServiceSpy,
         },
         {
-            provide: TokenService,
-            useValue: tokenServiceSpy,
+          provide: TokenService,
+          useValue: tokenServiceSpy,
         },
         {
-            provide: ActionSheetController,
-            useValue: actionSheetControllerSpy,
+          provide: ActionSheetController,
+          useValue: actionSheetControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         {
-            provide: StorageService,
-            useValue: storageServiceSpy,
+          provide: StorageService,
+          useValue: storageServiceSpy,
         },
         {
-            provide: CorporateCreditCardExpenseService,
-            useValue: corporateCreditCardServiceSpy,
+          provide: CorporateCreditCardExpenseService,
+          useValue: corporateCreditCardServiceSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: platformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-            provide: PlatformHandlerService,
-            useValue: platformHandlerServiceSpy,
+          provide: PlatformHandlerService,
+          useValue: platformHandlerServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
         },
         {
-            provide: CategoriesService,
-            useValue: categoriesServiceSpy,
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
-            provide: SharedExpenseService,
-            useValue: sharedExpenseServiceSpy,
+          provide: SharedExpenseService,
+          useValue: sharedExpenseServiceSpy,
         },
         {
-            provide: SpenderReportsService,
-            useValue: spenderReportsServiceSpy,
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
         },
         {
-            provide: UtilityService,
-            useValue: utilityServiceSpy,
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
         },
         {
-            provide: FeatureConfigService,
-            useValue: featureConfigServiceSpy,
+          provide: FeatureConfigService,
+          useValue: featureConfigServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: WalkthroughService,
-            useValue: walkthroughServiceSpy,
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
         },
         ReportState,
         MaskNumber,
         provideHttpClientTesting(),
-    ],
-}).compileComponents();
+      ],
+    }).overrideComponent(MyExpensesPage, {
+      remove: {
+        imports: [FooterComponent, ExpensesCardComponent, ExpensesCardV1Component],
+      },
+      add: {
+        imports: [MockFooterComponent, MockExpensesCardComponent, MockExpensesCardV1Component],
+        schemas: [NO_ERRORS_SCHEMA],
+      },
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MyExpensesPage);
     component = fixture.componentInstance;
@@ -507,10 +548,11 @@ describe('MyExpensesPage', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
       spyOn(component, 'getCardDetail').and.returnValue(of(uniqueCardsData));
-      spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      spyOn(component, 'clearFilters');
-      spyOn(component, 'setupActionSheet');
+      spyOn(component, 'syncOutboxExpenses')
+      spyOn(component, 'setAllExpensesCountAndAmount')
+      spyOn(component, 'clearFilters')
+      spyOn(component, 'setupActionSheet')
+      spyOn(component, 'setupNetworkWatcher')
       //@ts-ignore
       spyOn(component, 'pollDEIncompleteExpenses').and.returnValue(of(apiExpenses1));
       tokenService.getClusterDomain.and.resolveTo(apiAuthRes.cluster_domain);
@@ -530,8 +572,6 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'setModalDelay');
       spyOn(component, 'setNavigationSubscription');
       activatedRoute.snapshot.queryParams.redirected_from_add_expense = 'true';
-      component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
-      inputElement = component.simpleSearchInput.nativeElement;
 
       // Mock featureConfigService.getConfiguration to prevent undefined subscribe error
       featureConfigService.getConfiguration.and.returnValue(
@@ -563,6 +603,12 @@ describe('MyExpensesPage', () => {
 
       // Initialize orgSettings$ observable
       component.orgSettings$ = of({ is_new_critical_policy_violation_flow_enabled: true });
+      component.isCameraPreviewStarted = false;
+      component.headerState = HeaderState.simpleSearch;
+
+      fixture.detectChanges();
+      component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
+      inputElement = component.simpleSearchInput.nativeElement;
     });
 
     it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isMileageEnabled and isPerDiemEnabled to true if orgSettings and employeeSettings properties are enabled', fakeAsync(() => {
@@ -1216,20 +1262,22 @@ describe('MyExpensesPage', () => {
   });
 
   describe('clearText', () => {
-    let dispatchEventSpy: jasmine.Spy;
     beforeEach(() => {
       component.isSearchBarFocused = false;
-      component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
-      inputElement = component.simpleSearchInput.nativeElement;
-      dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
+      component.simpleSearchInput = {
+        nativeElement: {
+          dispatchEvent: jasmine.createSpy('dispatchEvent'),
+          value: 'some text',
+        },
+      } as any;
     });
 
     it('should clear the search text and dispatch keyup event', () => {
       component.clearText('onSimpleSearchCancel');
 
       expect(component.simpleSearchText).toBe('');
-      expect(inputElement.value).toBe('');
-      expect(dispatchEventSpy).toHaveBeenCalledWith(new Event('keyup'));
+      expect(component.simpleSearchInput.nativeElement.value).toBe('');
+      expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event('keyup'));
       expect(component.isSearchBarFocused).toBeTrue();
     });
 
@@ -1237,8 +1285,8 @@ describe('MyExpensesPage', () => {
       component.clearText('');
 
       expect(component.simpleSearchText).toBe('');
-      expect(inputElement.value).toBe('');
-      expect(dispatchEventSpy).toHaveBeenCalledWith(new Event('keyup'));
+      expect(component.simpleSearchInput.nativeElement.value).toBe('');
+      expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event('keyup'));
       expect(component.isSearchBarFocused).toBeFalse();
     });
   });
@@ -1275,9 +1323,7 @@ describe('MyExpensesPage', () => {
 
   it('onSearchBarFocus(): should set isSearchBarFocused to true', () => {
     component.isSearchBarFocused = false;
-    component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
-    inputElement = component.simpleSearchInput.nativeElement;
-    inputElement.dispatchEvent(new Event('focus'));
+    component.onSearchBarFocus();
     expect(component.isSearchBarFocused).toBeTrue();
   });
 
@@ -3307,14 +3353,16 @@ describe('MyExpensesPage', () => {
   });
 
   it('searchClick(): should set headerState and call focus method on input', fakeAsync(() => {
-    component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-    inputElement = component.simpleSearchInput.nativeElement;
-    const mockFocus = spyOn(inputElement, 'focus');
+    component.simpleSearchInput = {
+      nativeElement: {
+        focus: jasmine.createSpy('focus'),
+      },
+    } as any;
 
     component.searchClick();
     expect(component.headerState).toEqual(HeaderState.simpleSearch);
     tick(300);
-    expect(mockFocus).toHaveBeenCalledTimes(1);
+    expect(component.simpleSearchInput.nativeElement.focus).toHaveBeenCalledTimes(1);
   }));
 
   it('mergeExpense(): should navigate to merge_expenses with payload data', () => {
@@ -4298,14 +4346,16 @@ describe('MyExpensesPage', () => {
 
     describe('searchClick', () => {
       it('should set headerState and call focus method on input', fakeAsync(() => {
-        component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-        const inputElement = component.simpleSearchInput.nativeElement;
-        const mockFocus = spyOn(inputElement, 'focus');
+        component.simpleSearchInput = {
+          nativeElement: {
+            focus: jasmine.createSpy('focus'),
+          },
+        } as any;
 
         component.searchClick();
         expect(component.headerState).toEqual(HeaderState.simpleSearch);
         tick(300);
-        expect(mockFocus).toHaveBeenCalledTimes(1);
+        expect(component.simpleSearchInput.nativeElement.focus).toHaveBeenCalledTimes(1);
       }));
     });
 

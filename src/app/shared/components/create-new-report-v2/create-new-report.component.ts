@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject, viewChild } from '@angular/core';
 import { NgModel, FormsModule } from '@angular/forms';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { Observable, Subscription, of } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
@@ -19,20 +19,26 @@ import { FormButtonValidationDirective } from '../../directive/form-button-valid
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 @Component({
-    selector: 'app-create-new-report',
-    templateUrl: './create-new-report.component.html',
-    styleUrls: ['./create-new-report.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        NgClass,
-        FormsModule,
-        MatCheckbox,
-        ExpensesCardComponent,
-        FormButtonValidationDirective,
-        TranslocoPipe,
-        ExactCurrencyPipe,
-    ],
+  selector: 'app-create-new-report',
+  templateUrl: './create-new-report.component.html',
+  styleUrls: ['./create-new-report.component.scss'],
+  imports: [
+    ExactCurrencyPipe,
+    ExpensesCardComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class CreateNewReportComponent implements OnInit {
   private modalController = inject(ModalController);

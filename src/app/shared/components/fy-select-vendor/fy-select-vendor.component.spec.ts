@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FySelectVendorComponent } from './fy-select-vendor.component';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -29,22 +28,29 @@ describe('FySelectVendorComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, FormsModule, TranslocoModule, FySelectVendorComponent],
-    providers: [
+      imports: [
+        
+        MatIconTestingModule,
+        MatIconModule,
+        FormsModule,
+        TranslocoModule,
+        FySelectVendorComponent,
+      ],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(FySelectVendorComponent);
     component = fixture.componentInstance;
 

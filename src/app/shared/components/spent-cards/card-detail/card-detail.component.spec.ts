@@ -3,7 +3,6 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -22,9 +21,9 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CorporateCardComponent } from '../../corporate-card/corporate-card.component';
 
 @Component({
-    selector: 'app-corporate-card',
-    template: '<div></div>',
-    imports: [RouterModule, RouterTestingModule, TranslocoModule,],
+  selector: 'app-corporate-card',
+  template: '<div></div>',
+  imports: [RouterModule, RouterTestingModule, TranslocoModule],
 })
 class MockCorporateCardComponent {
   readonly card = input<PlatformCorporateCard>(undefined);
@@ -54,34 +53,40 @@ describe('CardDetailComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule, TranslocoModule, CardDetailComponent,
+      imports: [
+        
+        RouterModule,
+        RouterTestingModule,
+        TranslocoModule,
+        CardDetailComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         MaskNumber,
-        MockCorporateCardComponent],
-    providers: [
+        MockCorporateCardComponent,
+      ],
+      providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         provideHttpClient(),
         provideHttpClientTesting(),
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CardDetailComponent);
     component = fixture.componentInstance;

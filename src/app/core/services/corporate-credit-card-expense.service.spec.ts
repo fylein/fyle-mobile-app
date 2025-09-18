@@ -57,7 +57,7 @@ describe('CorporateCreditCardExpenseService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     dataTransformService = TestBed.inject(DataTransformService);
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
@@ -121,7 +121,7 @@ describe('CorporateCreditCardExpenseService', () => {
       expect(res).toEqual(expectedAssignedCCCStats);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(
         '/corporate_card_transactions/expenses/stats',
-        config
+        config,
       );
       done();
     });

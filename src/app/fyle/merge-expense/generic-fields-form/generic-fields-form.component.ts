@@ -1,43 +1,52 @@
-import { Component, Injector, Input, OnDestroy, OnInit, TemplateRef, inject, input, output } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, TemplateRef, inject, input, output } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
-import { UntypedFormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, UntypedFormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  UntypedFormBuilder,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
 import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
 import { FySelectComponent } from '../../../shared/components/fy-select/fy-select.component';
-import { IonicModule } from '@ionic/angular';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { ReceiptPreviewThumbnailComponent } from '../../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 import { CardTransactionPreviewComponent } from '../card-transaction-preview/card-transaction-preview.component';
 import { FySelectDisabledComponent } from '../../../shared/components/fy-select-disabled/fy-select-disabled.component';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { IonCol, IonGrid, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
-    selector: 'app-generic-fields-form',
-    templateUrl: './generic-fields-form.component.html',
-    styleUrls: ['./generic-fields-form.component.scss'],
-    providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: GenericFieldsFormComponent, multi: true }],
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        FySelectComponent,
-        IonicModule,
-        NgClass,
-        ReceiptPreviewThumbnailComponent,
-        CardTransactionPreviewComponent,
-        FySelectDisabledComponent,
-        NgTemplateOutlet,
-        TranslocoPipe,
-    ],
+  selector: 'app-generic-fields-form',
+  templateUrl: './generic-fields-form.component.html',
+  styleUrls: ['./generic-fields-form.component.scss'],
+  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: GenericFieldsFormComponent, multi: true }],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    FySelectComponent,
+    IonCol,
+    IonGrid,
+    IonRow,
+    NgClass,
+    ReceiptPreviewThumbnailComponent,
+    CardTransactionPreviewComponent,
+    FySelectDisabledComponent,
+    NgTemplateOutlet,
+    TranslocoPipe,
+  ],
 })
 export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
   private formBuilder = inject(UntypedFormBuilder);
-
-  private injector = inject(Injector);
 
   readonly amountOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 

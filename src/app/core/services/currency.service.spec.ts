@@ -82,7 +82,7 @@ describe('CurrencyService', () => {
       platformCommonApiService.get.and.returnValue(
         of({
           data: { exchange_rate: 82.708499 },
-        })
+        }),
       );
 
       const txnID = 'tx6Oe6FaYDZl';
@@ -105,7 +105,7 @@ describe('CurrencyService', () => {
       platformCommonApiService.get.and.returnValue(
         of({
           data: { exchange_rate: 82.708499 },
-        })
+        }),
       );
 
       currencyService.getExchangeRate('USD', 'INR').subscribe((res) => {

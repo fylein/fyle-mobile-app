@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { Router } from '@angular/router';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 import { ErrorComponent } from './error.component';
@@ -51,13 +51,13 @@ describe('ErrorComponent', () => {
       return translation;
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, ErrorComponent],
-    providers: [
+      imports: [ TranslocoModule, ErrorComponent],
+      providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: Router, useValue: routerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ErrorComponent);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -101,7 +101,7 @@ describe('ErrorComponent', () => {
       const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       const resetLink = getElementBySelector(fixture, '.error-internal__redirect');
       expect(getTextContent(errorMessage)).toContain(
-        'This email address will be temporarily locked after 5 unsuccessful login attempts. Would you like to try resetting your password?'
+        'This email address will be temporarily locked after 5 unsuccessful login attempts. Would you like to try resetting your password?',
       );
       expect(resetLink).toBeTruthy();
     }));
@@ -113,7 +113,7 @@ describe('ErrorComponent', () => {
       fixture.detectChanges();
       const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       expect(getTextContent(errorMessage)).toContain(
-        'Your account is not verified. Please request a verification link, if required'
+        'Your account is not verified. Please request a verification link, if required',
       );
     }));
 
@@ -125,7 +125,7 @@ describe('ErrorComponent', () => {
       const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       const supportLink = getElementBySelector(fixture, 'a');
       expect(getTextContent(errorMessage)).toContain(
-        'Please retry in a while. Send us a note to support@fylehq.com if the problem persists.'
+        'Please retry in a while. Send us a note to support@fylehq.com if the problem persists.',
       );
       expect(supportLink).toBeTruthy();
     }));
@@ -137,7 +137,7 @@ describe('ErrorComponent', () => {
       fixture.detectChanges();
       const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       expect(getTextContent(errorMessage)).toContain(
-        'This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please retry later.'
+        'This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please retry later.',
       );
     }));
 
@@ -148,7 +148,7 @@ describe('ErrorComponent', () => {
       fixture.detectChanges();
       const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       expect(getTextContent(errorMessage)).toContain(
-        'Your organization has restricted Fyle access to its corporate network.'
+        'Your organization has restricted Fyle access to its corporate network.',
       );
     }));
   });

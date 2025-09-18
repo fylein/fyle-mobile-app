@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 
 import { DisabledPage } from './disabled.page';
@@ -15,12 +14,12 @@ describe('DisabledPage', () => {
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), DisabledPage],
-    providers: [
+      imports: [ DisabledPage],
+      providers: [
         { provide: UserEventService, useValue: userEventServiceSpy },
         { provide: Router, useValue: routerSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DisabledPage);
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 
 import { FyAddToReportComponent } from './fy-add-to-report.component';
 import { Injector, NO_ERRORS_SCHEMA } from '@angular/core';
@@ -18,6 +18,7 @@ import {
 import { reportOptionsData, reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
 import { of } from 'rxjs';
 import { cloneDeep } from 'lodash';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyAddToReportComponent', () => {
   let component: FyAddToReportComponent;
@@ -55,45 +56,46 @@ describe('FyAddToReportComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, FyAddToReportComponent],
-    providers: [
+      imports: [TranslocoModule, FyAddToReportComponent,
+        MatIconTestingModule],
+      providers: [
         {
-            provide: Injector,
-            useValue: injectorSpy,
+          provide: Injector,
+          useValue: injectorSpy,
         },
         {
-            provide: NgControl,
-            useValue: {
-                control: new UntypedFormControl(),
-            },
+          provide: NgControl,
+          useValue: {
+            control: new UntypedFormControl(),
+          },
         },
         {
-            provide: SpenderReportsService,
-            useValue: platformSpenderReportsServiceSpy,
+          provide: SpenderReportsService,
+          useValue: platformSpenderReportsServiceSpy,
         },
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyAddToReportComponent);
     component = fixture.componentInstance;

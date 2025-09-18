@@ -29,7 +29,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { Observable, Subject, Subscription, finalize, of } from 'rxjs';
@@ -126,7 +126,7 @@ export function TestCases5(getTestBed) {
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -355,7 +355,7 @@ export function TestCases5(getTestBed) {
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P'
+            'rpFE5X1Pqi9P',
           )
           .componentProps.deleteMethod();
         expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
@@ -368,7 +368,7 @@ export function TestCases5(getTestBed) {
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             false,
-            'tx5n59fvxk4z'
+            'tx5n59fvxk4z',
           )
           .componentProps.deleteMethod();
         expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['tx5n59fvxk4z']);
@@ -409,15 +409,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           true,
           'tx5n59fvxk4z',
-          'rpFE5X1Pqi9P'
+          'rpFE5X1Pqi9P',
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P'
-          )
+            'rpFE5X1Pqi9P',
+          ),
         );
       }));
 
@@ -447,15 +447,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           undefined,
           'tx5n59fvxk4z',
-          undefined
+          undefined,
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             undefined,
             'tx5n59fvxk4z',
-            undefined
-          )
+            undefined,
+          ),
         );
       }));
 
@@ -490,22 +490,22 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           undefined,
           'tx5n59fvxk4z',
-          undefined
+          undefined,
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             undefined,
             'tx5n59fvxk4z',
-            undefined
-          )
+            undefined,
+          ),
         );
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.reviewList[+component.activeIndex]);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           transformedExpenseData,
           component.reviewList,
-          +component.activeIndex
+          +component.activeIndex,
         );
       }));
 
@@ -535,15 +535,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           true,
           'tx5n59fvxk4z',
-          'rpFE5X1Pqi9P'
+          'rpFE5X1Pqi9P',
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P'
-          )
+            'rpFE5X1Pqi9P',
+          ),
         );
         expect(trackingService.clickDeleteExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
       }));

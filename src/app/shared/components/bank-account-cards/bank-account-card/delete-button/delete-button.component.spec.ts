@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { DeleteButtonComponent } from './delete-button-component';
 
@@ -12,9 +11,9 @@ describe('DeleteButtonComponent', () => {
   beforeEach(async () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     await TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), DeleteButtonComponent],
-    providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
-}).compileComponents();
+      imports: [ DeleteButtonComponent],
+      providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
+    }).compileComponents();
   });
 
   beforeEach(() => {

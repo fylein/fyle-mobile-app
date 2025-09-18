@@ -14,8 +14,8 @@ import {
 } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators, FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController, IonicModule } from '@ionic/angular';
-import { NgOtpInputComponent, NgOtpInputConfig, NgOtpInputModule } from 'ng-otp-input';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { NgOtpInputComponent, NgOtpInputConfig } from 'ng-otp-input';
 import { finalize, from, Subscription, switchMap } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
@@ -38,18 +38,19 @@ import { NgClass, DecimalPipe } from '@angular/common';
 import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
 
 @Component({
-    selector: 'app-spender-onboarding-opt-in-step',
-    templateUrl: './spender-onboarding-opt-in-step.component.html',
-    styleUrls: ['./spender-onboarding-opt-in-step.component.scss'],
-    imports: [
-        FormsModule,
-        NgClass,
-        IonicModule,
-        NgOtpInputModule,
-        FormButtonValidationDirective,
-        DecimalPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-spender-onboarding-opt-in-step',
+  templateUrl: './spender-onboarding-opt-in-step.component.html',
+  styleUrls: ['./spender-onboarding-opt-in-step.component.scss'],
+  imports: [
+    DecimalPipe,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonIcon,
+    NgClass,
+    NgOtpInputComponent,
+    TranslocoPipe,
+  ],
 })
 export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   private fb = inject(UntypedFormBuilder);
@@ -344,7 +345,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   }
 
   onOtpChange(otp: string): void {
-    if (otp.length === 6) {
+    if (otp?.length === 6) {
       this.verifyOtp(otp);
     }
   }

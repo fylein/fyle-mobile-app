@@ -1,7 +1,16 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, inject, viewChild } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, Platform, PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { concat, forkJoin, from, iif, noop, Observable, of, timer } from 'rxjs';
 import { concatMap, finalize, map, raceWith, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -52,28 +61,36 @@ import { FormButtonValidationDirective } from '../../shared/directive/form-butto
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 
 @Component({
-    selector: 'app-add-edit-advance-request',
-    templateUrl: './add-edit-advance-request.page.html',
-    styleUrls: ['./add-edit-advance-request.page.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        FormsModule,
-        ReactiveFormsModule,
-        FyCurrencyComponent,
-        ReceiptPreviewThumbnailComponent,
-        FySelectComponent,
-        FySelectProjectComponent,
-        FyNumberComponent,
-        FormatDateDirective,
-        MatCheckbox,
-        FyLocationComponent,
-        FyMultiselectComponent,
-        FyUserlistComponent,
-        FormButtonValidationDirective,
-        AsyncPipe,
-        EllipsisPipe,
-    ],
+  selector: 'app-add-edit-advance-request',
+  templateUrl: './add-edit-advance-request.page.html',
+  styleUrls: ['./add-edit-advance-request.page.scss'],
+  imports: [
+    AsyncPipe,
+    EllipsisPipe,
+    FormButtonValidationDirective,
+    FormatDateDirective,
+    FormsModule,
+    FyCurrencyComponent,
+    FyLocationComponent,
+    FyMultiselectComponent,
+    FyNumberComponent,
+    FySelectComponent,
+    FySelectProjectComponent,
+    FyUserlistComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    NgClass,
+    ReactiveFormsModule,
+    ReceiptPreviewThumbnailComponent
+  ],
 })
 export class AddEditAdvanceRequestPage implements OnInit {
   private activatedRoute = inject(ActivatedRoute);

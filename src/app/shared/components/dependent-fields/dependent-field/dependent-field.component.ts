@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, forwardRef, Input, inject, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { noop } from 'rxjs';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
@@ -9,22 +9,17 @@ import { MatIcon } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-dependent-field',
-    templateUrl: './dependent-field.component.html',
-    styleUrls: ['./dependent-field.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => DependentFieldComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        NgClass,
-        FormsModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-dependent-field',
+  templateUrl: './dependent-field.component.html',
+  styleUrls: ['./dependent-field.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => DependentFieldComponent),
+      multi: true,
+    },
+  ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class DependentFieldComponent implements ControlValueAccessor {
   private modalController = inject(ModalController);

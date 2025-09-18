@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 
@@ -19,14 +18,14 @@ describe('StatusesDiffComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, StatusesDiffComponent, SnakeCaseToSpaceCase],
-    providers: [
+      imports: [ TranslocoModule, StatusesDiffComponent, SnakeCaseToSpaceCase],
+      providers: [
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(StatusesDiffComponent);
     component = fixture.componentInstance;

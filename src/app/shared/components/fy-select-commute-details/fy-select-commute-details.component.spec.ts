@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FySelectCommuteDetailsComponent } from './fy-select-commute-details.component';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
@@ -22,6 +22,7 @@ import { locationData1, locationData2 } from 'src/app/core/mock-data/location.da
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 import { Location } from 'src/app/core/models/location.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FySelectCommuteDetailsComponent', () => {
   let component: FySelectCommuteDetailsComponent;
@@ -55,8 +56,9 @@ describe('FySelectCommuteDetailsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, FySelectCommuteDetailsComponent],
-    providers: [
+      imports: [TranslocoModule, FySelectCommuteDetailsComponent,
+        MatIconTestingModule],
+      providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: LocationService, useValue: locationServiceSpy },
@@ -66,9 +68,9 @@ describe('FySelectCommuteDetailsComponent', () => {
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FySelectCommuteDetailsComponent);
     component = fixture.componentInstance;

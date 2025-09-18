@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { FyPopoverComponent } from './fy-popover.component';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
@@ -25,12 +25,19 @@ describe('FyPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     await TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule, FyPopoverComponent],
-    providers: [
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        FyPopoverComponent,
+      ],
+      providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild, OnDestroy, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
-import { ModalController, Platform, PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { from, Subscription } from 'rxjs';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
@@ -22,17 +22,24 @@ import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 SwiperCore.use([Pagination]);
 
 @Component({
-    selector: 'app-receipt-preview',
-    templateUrl: './receipt-preview.component.html',
-    styleUrls: ['./receipt-preview.component.scss'],
-    imports: [
-        IonicModule,
-        NgClass,
-        MatIcon,
-        SwiperModule,
-        PinchZoomComponent,
-        TranslocoPipe,
-    ],
+  selector: 'app-receipt-preview',
+  templateUrl: './receipt-preview.component.html',
+  styleUrls: ['./receipt-preview.component.scss'],
+  imports: [
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    NgClass,
+    PinchZoomComponent,
+    SwiperModule,
+    TranslocoPipe
+  ],
 })
 export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   private platform = inject(Platform);

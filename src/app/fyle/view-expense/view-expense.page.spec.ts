@@ -1,5 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
@@ -17,7 +16,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ViewExpensePage } from './view-expense.page';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -148,116 +147,116 @@ describe('ViewExpensePage', () => {
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, ViewExpensePage],
-    providers: [
+      imports: [ FormsModule, MatIconModule, MatIconTestingModule, ViewExpensePage],
+      providers: [
         {
-            useValue: loaderServiceSpy,
-            provide: LoaderService,
+          useValue: loaderServiceSpy,
+          provide: LoaderService,
         },
         {
-            useValue: transactionServiceSpy,
-            provide: TransactionService,
+          useValue: transactionServiceSpy,
+          provide: TransactionService,
         },
         {
-            useValue: customInputsServiceSpy,
-            provide: CustomInputsService,
+          useValue: customInputsServiceSpy,
+          provide: CustomInputsService,
         },
         {
-            useValue: spenderExpenseCommentServiceSpy,
-            provide: SpenderExpenseCommentService,
+          useValue: spenderExpenseCommentServiceSpy,
+          provide: SpenderExpenseCommentService,
         },
         {
-            useValue: approverExpenseCommentServiceSpy,
-            provide: ApproverExpenseCommentService,
+          useValue: approverExpenseCommentServiceSpy,
+          provide: ApproverExpenseCommentService,
         },
         {
-            useValue: fileServiceSpy,
-            provide: FileService,
+          useValue: fileServiceSpy,
+          provide: FileService,
         },
         {
-            useValue: modalControllerSpy,
-            provide: ModalController,
+          useValue: modalControllerSpy,
+          provide: ModalController,
         },
         {
-            useValue: routerSpy,
-            provide: Router,
+          useValue: routerSpy,
+          provide: Router,
         },
         {
-            useValue: popoverControllerSpy,
-            provide: PopoverController,
+          useValue: popoverControllerSpy,
+          provide: PopoverController,
         },
         {
-            useValue: networkServiceSpy,
-            provide: NetworkService,
+          useValue: networkServiceSpy,
+          provide: NetworkService,
         },
         {
-            useValue: policyServiceSpy,
-            provide: PolicyService,
+          useValue: policyServiceSpy,
+          provide: PolicyService,
         },
         {
-            useValue: modalPropertiesSpy,
-            provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
         },
         {
-            useValue: trackingServiceSpy,
-            provide: TrackingService,
+          useValue: trackingServiceSpy,
+          provide: TrackingService,
         },
         {
-            useValue: expenseFieldsServiceSpy,
-            provide: ExpenseFieldsService,
+          useValue: expenseFieldsServiceSpy,
+          provide: ExpenseFieldsService,
         },
         {
-            useValue: orgSettingsServiceSpy,
-            provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
         },
         {
-            useValue: categoriesServiceSpy,
-            provide: CategoriesService,
+          useValue: categoriesServiceSpy,
+          provide: CategoriesService,
         },
         {
-            useValue: dependentFieldsServiceSpy,
-            provide: DependentFieldsService,
+          useValue: dependentFieldsServiceSpy,
+          provide: DependentFieldsService,
         },
         {
-            useValue: approverExpensesServiceSpy,
-            provide: ApproverExpensesService,
+          useValue: approverExpensesServiceSpy,
+          provide: ApproverExpensesService,
         },
         {
-            useValue: spenderExpensesServiceSpy,
-            provide: SpenderExpensesService,
+          useValue: spenderExpensesServiceSpy,
+          provide: SpenderExpensesService,
         },
         {
-            useValue: spenderFileServiceSpy,
-            provide: SpenderFileService,
+          useValue: spenderFileServiceSpy,
+          provide: SpenderFileService,
         },
         {
-            useValue: approverFileServiceSpy,
-            provide: ApproverFileService,
+          useValue: approverFileServiceSpy,
+          provide: ApproverFileService,
         },
         {
-            provide: ApproverReportsService,
-            useValue: approverReportsServiceSpy,
+          provide: ApproverReportsService,
+          useValue: approverReportsServiceSpy,
         },
         {
-            provide: SharedExpensesService,
-            useValue: sharedExpensesServiceSpy,
+          provide: SharedExpensesService,
+          useValue: sharedExpensesServiceSpy,
         },
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        id: 'tx5fBcPBAxLv',
-                        view: ExpenseView.individual,
-                        txnIds: ['tx5fBcPBAxLv', 'txCBp2jIK6G3'],
-                        activeIndex: '0',
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                id: 'tx5fBcPBAxLv',
+                view: ExpenseView.individual,
+                txnIds: ['tx5fBcPBAxLv', 'txCBp2jIK6G3'],
+                activeIndex: '0',
+              },
             },
+          },
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ViewExpensePage);
     component = fixture.componentInstance;

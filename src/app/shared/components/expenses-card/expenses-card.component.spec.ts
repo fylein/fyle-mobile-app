@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -13,7 +12,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ExpensesCardV1Component } from './expenses-card.component';
-import { PopoverController, ModalController, Platform } from '@ionic/angular';
+import { PopoverController, ModalController, Platform } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -110,16 +109,19 @@ describe('ExpensesCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-    imports: [
-        IonicModule.forRoot(),
+      imports: [
+        
         MatIconModule,
         MatIconTestingModule,
         MatCheckboxModule,
         FormsModule,
         TranslocoModule,
-        ExpensesCardV1Component, DateFormatPipe, HumanizeCurrencyPipe, ExpenseState,
-    ],
-    providers: [
+        ExpensesCardV1Component,
+        DateFormatPipe,
+        HumanizeCurrencyPipe,
+        ExpenseState,
+      ],
+      providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
@@ -139,8 +141,8 @@ describe('ExpensesCardComponent', () => {
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
         { provide: ExpenseState, useValue: expenseStateSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,

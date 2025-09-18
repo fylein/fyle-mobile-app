@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FySelectComponent } from './fy-select.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -8,6 +8,7 @@ import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.compon
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FySelectComponent', () => {
   let component: FySelectComponent;
@@ -27,23 +28,24 @@ describe('FySelectComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, FySelectComponent],
-    providers: [
+      imports: [TranslocoModule, FySelectComponent,
+        MatIconTestingModule],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesServiceSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FySelectComponent);
     component = fixture.componentInstance;

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { Injector, NO_ERRORS_SCHEMA } from '@angular/core';
 import { VirtualSelectComponent } from './virtual-select.component';
@@ -9,6 +9,7 @@ import { UntypedFormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { virtualSelectModalControllerParams } from 'src/app/core/mock-data/modal-controller.data';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('VirtualSelectModalComponent', () => {
   let component: VirtualSelectComponent;
@@ -28,33 +29,34 @@ describe('VirtualSelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, VirtualSelectComponent],
-    providers: [
+      imports: [TranslocoModule, VirtualSelectComponent,
+        MatIconTestingModule],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesServiceSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesServiceSpy,
         },
         {
-            provide: Injector,
-            useValue: injectorSpy,
+          provide: Injector,
+          useValue: injectorSpy,
         },
         {
-            provide: NgControl,
-            useValue: {
-                control: new UntypedFormControl(),
-            },
+          provide: NgControl,
+          useValue: {
+            control: new UntypedFormControl(),
+          },
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(VirtualSelectComponent);
     component = fixture.componentInstance;

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { Observable } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { Router } from '@angular/router';
@@ -12,18 +12,25 @@ import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-add-expenses-to-report',
-    templateUrl: './add-expenses-to-report.component.html',
-    styleUrls: ['./add-expenses-to-report.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatCheckbox,
-        FormsModule,
-        ExpensesCardComponent,
-        ExactCurrencyPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-add-expenses-to-report',
+  templateUrl: './add-expenses-to-report.component.html',
+  styleUrls: ['./add-expenses-to-report.component.scss'],
+  imports: [
+    ExactCurrencyPipe,
+    ExpensesCardComponent,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    TranslocoPipe
+  ],
 })
 export class AddExpensesToReportComponent implements OnInit {
   private modalController = inject(ModalController);

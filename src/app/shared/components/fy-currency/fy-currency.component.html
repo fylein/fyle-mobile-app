@@ -11,7 +11,7 @@
           (click)="openCurrencyModal()"
           formControlName="currency"
           (blur)="onBlur()"
-          />
+        />
       </div>
       @if (currencyAutoCodeMessage) {
         <div class="fy-currency__auto-coded">
@@ -30,7 +30,7 @@
           [placeholder]="'fyCurrency.amountPlaceholder' | transloco"
           formControlName="amount"
           [isAmount]="true"
-          >
+        >
         </app-fy-number>
       </div>
       @if (amountAutoCodeMessage) {
@@ -46,19 +46,19 @@
   <div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
     <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="info-circle-fill"></mat-icon>
     <div class="fy-currency--exchange-rate-message">
-      <strong>{{ value.amount | currency : value.currency : 'code' }}</strong>
+      <strong>{{ value.amount | currency: value.currency : 'code' }}</strong>
       {{
-      'fyCurrency.exchangeRateInfo'
-      | transloco
-      : {
-      exchangeRate: (exchangeRate | number : '1.0-6'),
-      currency: value.currency,
-      origCurrency: value.orig_currency
-    }
-    }}
+        'fyCurrency.exchangeRateInfo'
+          | transloco
+            : {
+                exchangeRate: (exchangeRate | number: '1.0-6'),
+                currency: value.currency,
+                origCurrency: value.orig_currency,
+              }
+      }}
+    </div>
+    <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">
+      {{ 'fyCurrency.modifyButton' | transloco }}
+    </button>
   </div>
-  <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">
-    {{ 'fyCurrency.modifyButton' | transloco }}
-  </button>
-</div>
 }

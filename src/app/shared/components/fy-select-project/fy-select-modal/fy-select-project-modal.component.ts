@@ -10,7 +10,7 @@ import {
   input,
 } from '@angular/core';
 import { Observable, fromEvent, iif, of, from, forkJoin } from 'rxjs';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime, shareReplay } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -34,24 +34,29 @@ import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-t
 import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-fy-select-modal',
-    templateUrl: './fy-select-project-modal.component.html',
-    styleUrls: ['./fy-select-project-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatFormField,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatSuffix,
-        MatIconButton,
-        MatRipple,
-        FyHighlightTextComponent,
-        NgTemplateOutlet,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-select-modal',
+  templateUrl: './fy-select-project-modal.component.html',
+  styleUrls: ['./fy-select-project-modal.component.scss'],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    FyHighlightTextComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatRipple,
+    MatSuffix,
+    NgTemplateOutlet,
+    TranslocoPipe
+  ],
 })
 export class FyProjectSelectModalComponent implements AfterViewInit {
   private modalController = inject(ModalController);

@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { from, throwError, Observable, of, noop, Subscription } from 'rxjs';
-import { PopoverController, IonicModule } from '@ionic/angular';
+import { IonButton, IonContent, IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { ErrorComponent } from './error/error.component';
 import { shareReplay, filter, finalize, switchMap, map, tap, take } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -25,18 +25,20 @@ import { MatInput, MatSuffix } from '@angular/material/input';
 import { NgClass } from '@angular/common';
 
 @Component({
-    selector: 'app-sign-in',
-    templateUrl: './sign-in.page.html',
-    styleUrls: ['./sign-in.page.scss'],
-    imports: [
-        IonicModule,
-        FormButtonValidationDirective,
-        FormsModule,
-        ReactiveFormsModule,
-        MatInput,
-        NgClass,
-        MatSuffix,
-    ],
+  selector: 'app-sign-in',
+  templateUrl: './sign-in.page.html',
+  styleUrls: ['./sign-in.page.scss'],
+  imports: [
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonContent,
+    IonIcon,
+    MatInput,
+    MatSuffix,
+    NgClass,
+    ReactiveFormsModule
+  ],
 })
 export class SignInPage implements OnInit {
   private formBuilder = inject(UntypedFormBuilder);

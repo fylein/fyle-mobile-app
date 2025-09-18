@@ -8,10 +8,10 @@ import { AsyncPipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-connection',
-    templateUrl: './fy-connection.component.html',
-    styleUrls: ['./fy-connection.component.scss'],
-    imports: [AsyncPipe, TranslocoPipe],
+  selector: 'app-fy-connection',
+  templateUrl: './fy-connection.component.html',
+  styleUrls: ['./fy-connection.component.scss'],
+  imports: [AsyncPipe, TranslocoPipe],
 })
 export class FyConnectionComponent implements OnInit {
   private networkService = inject(NetworkService);

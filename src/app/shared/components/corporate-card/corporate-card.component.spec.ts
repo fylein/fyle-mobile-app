@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { CorporateCardComponent } from './corporate-card.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -15,12 +13,12 @@ import {
 import { bankFeedSourcesData } from 'src/app/core/mock-data/bank-feed-sources.data';
 import { Component, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { of } from 'rxjs';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { CardNumberComponent } from '../card-number/card-number.component';
 @Component({
-    selector: 'app-card-number',
-    template: '<div></div>',
-    imports: [TranslocoModule],
+  selector: 'app-card-number',
+  template: '<div></div>',
+  imports: [],
 })
 class MockCardNumberComponent {
   readonly cardNumber = input<string>(undefined);
@@ -30,33 +28,29 @@ class MockCardNumberComponent {
 describe('CorporateCardComponent', () => {
   let component: CorporateCardComponent;
   let fixture: ComponentFixture<CorporateCardComponent>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
 
   beforeEach(waitForAsync(() => {
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getBankFeedSources',
     ]);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, CorporateCardComponent, MockCardNumberComponent],
-    providers: [
+      imports: [ getTranslocoTestingModule(), CorporateCardComponent],
+      providers: [
         {
-            provide: CorporateCreditCardExpenseService,
-            useValue: corporateCreditCardExpenseServiceSpy,
+          provide: CorporateCreditCardExpenseService,
+          useValue: corporateCreditCardExpenseServiceSpy,
         },
-        {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
-        },
-    ],
-}).compileComponents();
+
+      ],
+    }).overrideComponent(CorporateCardComponent, {
+      remove: {
+        imports: [CardNumberComponent],
+      },
+      add: {
+        imports: [MockCardNumberComponent],
+      },
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CorporateCardComponent);
     component = fixture.componentInstance;
@@ -64,29 +58,6 @@ describe('CorporateCardComponent', () => {
     corporateCreditCardExpenseService = TestBed.inject(
       CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'corporateCard.badge': 'Corporate card',
-        'corporateCard.transactionsFeed': 'Transactions feed',
-        'corporateCard.live': 'Live',
-        'corporateCard.lastSynced': 'Last synced',
-        'corporateCard.syncedUsing': 'Synced using',
-        'corporateCard.statementUpload': 'Statement upload',
-        'corporateCard.bankFeed': 'Bank Feed',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
 
     corporateCreditCardExpenseService.getBankFeedSources.and.returnValue(bankFeedSourcesData);
 

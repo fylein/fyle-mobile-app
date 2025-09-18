@@ -3,7 +3,7 @@ import { PopoverController } from '@ionic/angular/standalone';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { FyAlertInfoComponent } from '../fy-alert-info/fy-alert-info.component';
 import { PopupAlertComponent } from './popup-alert.component';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('PopupAlertComponent', () => {
   let component: PopupAlertComponent;
@@ -13,14 +13,14 @@ describe('PopupAlertComponent', () => {
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     TestBed.configureTestingModule({
-    imports: [getTranslocoModule(), PopupAlertComponent, FyAlertInfoComponent],
-    providers: [
+      imports: [getTranslocoTestingModule(), PopupAlertComponent, FyAlertInfoComponent],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PopupAlertComponent);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;

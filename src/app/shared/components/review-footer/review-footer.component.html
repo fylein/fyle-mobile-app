@@ -8,7 +8,7 @@
           [loading]="saveAndPrevLoader"
           appFormButtonValidation
           class="fy-footer-cta fy-footer-cta--tertiary-secondary"
-          >
+        >
           {{ 'reviewFooter.saveAndPrevious' | transloco }}
         </ion-button>
       }
@@ -18,12 +18,12 @@
         [loading]="saveAndNextLoader"
         appFormButtonValidation
         class="fy-footer-cta fy-footer-cta--primary"
-        >
+      >
         {{
-        (reviewList.length > 0 && !(activeIndex === reviewList.length - 1)
-        ? 'reviewFooter.saveAndNext'
-        : 'reviewFooter.save'
-        ) | transloco
+          (reviewList.length > 0 && !(activeIndex === reviewList.length - 1)
+            ? 'reviewFooter.saveAndNext'
+            : 'reviewFooter.save'
+          ) | transloco
         }}
       </ion-button>
     </div>

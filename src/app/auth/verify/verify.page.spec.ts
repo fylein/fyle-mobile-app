@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { VerifyPage } from './verify.page';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -28,38 +26,38 @@ describe('VerifyPage', () => {
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterTestingModule, VerifyPage],
-    providers: [
+      imports: [ RouterTestingModule, VerifyPage],
+      providers: [
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: RouterAuthService,
-            useValue: routerAuthServiceSpy,
+          provide: RouterAuthService,
+          useValue: routerAuthServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: { verification_code: 'ouX8dwsbLCLv', org_id: 'orNVthTo2Zyo' },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: { verification_code: 'ouX8dwsbLCLv', org_id: 'orNVthTo2Zyo' },
             },
+          },
         },
         {
-            provide: UserEventService,
-            useValue: userEventServiceSpy,
+          provide: UserEventService,
+          useValue: userEventServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(VerifyPage);
     component = fixture.componentInstance;

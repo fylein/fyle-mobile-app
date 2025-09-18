@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -13,7 +12,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ExpensesCardComponent } from './expenses-card.component';
-import { PopoverController, ModalController, Platform } from '@ionic/angular';
+import { PopoverController, ModalController, Platform } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -48,7 +47,7 @@ import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expen
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { TranslocoService } from '@jsverse/transloco';
 import { mandatoryExpenseFields } from 'src/app/core/mock-data/expense-field.data';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 describe('ExpensesCardComponent', () => {
@@ -113,13 +112,13 @@ describe('ExpensesCardComponent', () => {
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
-    imports: [
-        IonicModule.forRoot(),
+      imports: [
+        
         MatIconModule,
         MatIconTestingModule,
         MatCheckboxModule,
         FormsModule,
-        getTranslocoModule(),
+        getTranslocoTestingModule(),
         ExpensesCardComponent,
         DateFormatPipe,
         HumanizeCurrencyPipe,
@@ -127,8 +126,8 @@ describe('ExpensesCardComponent', () => {
         ExactCurrencyPipe,
         CurrencySymbolPipe,
         FyCurrencyPipe,
-    ],
-    providers: [
+      ],
+      providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: SharedExpenseService, useValue: sharedExpenseServiceSpy },
@@ -151,8 +150,8 @@ describe('ExpensesCardComponent', () => {
         { provide: CurrencySymbolPipe, useValue: jasmine.createSpyObj('CurrencySymbolPipe', ['transform']) },
         { provide: ExactCurrencyPipe, useValue: jasmine.createSpyObj('ExactCurrencyPipe', ['transform']) },
         { provide: FyCurrencyPipe, useValue: jasmine.createSpyObj('FyCurrencyPipe', ['transform']) },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
@@ -1901,8 +1900,8 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), ExpensesCardComponent],
-    providers: [
+      imports: [ ExpensesCardComponent],
+      providers: [
         { provide: TransactionService, useValue: {} },
         { provide: SharedExpenseService, useValue: {} },
         { provide: PlatformEmployeeSettingsService, useValue: {} },
@@ -1914,17 +1913,17 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
         { provide: Platform, useValue: { is: (): boolean => false } },
         { provide: MatSnackBar, useValue: {} },
         { provide: SnackbarPropertiesService, useValue: { setSnackbarProperties: (): object => ({}) } },
-        { provide: TrackingService, useValue: { addAttachment: (): void => { }, showToastMessage: (): void => { } } },
-        { provide: CurrencyService, useValue: { getHomeCurrency: (): void => { } } },
+        { provide: TrackingService, useValue: { addAttachment: (): void => {}, showToastMessage: (): void => {} } },
+        { provide: CurrencyService, useValue: { getHomeCurrency: (): void => {} } },
         {
-            provide: ExpenseFieldsService,
-            useValue: { getAllMap: (): void => { }, getMandatoryExpenseFields: (): void => { } },
+          provide: ExpenseFieldsService,
+          useValue: { getAllMap: (): void => {}, getMandatoryExpenseFields: (): void => {} },
         },
-        { provide: OrgSettingsService, useValue: { get: (): void => { } } },
+        { provide: OrgSettingsService, useValue: { get: (): void => {} } },
         { provide: ExpensesService, useValue: {} },
         { provide: TranslocoService, useValue: { translate: (): string => '' } },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

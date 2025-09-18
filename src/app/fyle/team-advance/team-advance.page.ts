@@ -15,13 +15,14 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 import { TitleCasePipe, AsyncPipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { IonicModule } from '@ionic/angular';
 import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
 import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
 import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
 import { TeamAdvCardComponent } from './team-adv-card/team-adv-card.component';
 import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+
 
 // eslint-disable-next-line
 type Filters = Partial<{
@@ -30,19 +31,30 @@ type Filters = Partial<{
   sortDir: SortingDirection;
 }>;
 @Component({
-    selector: 'app-team-advance',
-    templateUrl: './team-advance.page.html',
-    styleUrls: ['./team-advance.page.scss'],
-    imports: [
-        IonicModule,
-        FyMenuIconComponent,
-        FyFilterPillsComponent,
-        FyLoadingScreenComponent,
-        TeamAdvCardComponent,
-        FyZeroStateComponent,
-        FooterComponent,
-        AsyncPipe,
-    ],
+  selector: 'app-team-advance',
+  templateUrl: './team-advance.page.html',
+  styleUrls: ['./team-advance.page.scss'],
+  imports: [
+    AsyncPipe,
+    FooterComponent,
+    FyFilterPillsComponent,
+    FyLoadingScreenComponent,
+    FyMenuIconComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonTitle,
+    IonToolbar,
+    TeamAdvCardComponent
+  ],
 })
 export class TeamAdvancePage implements AfterViewChecked {
   private advanceRequestService = inject(AdvanceRequestService);

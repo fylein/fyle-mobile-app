@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number.component';
@@ -35,26 +34,34 @@ describe('UpdateMobileNumberComponent', () => {
     });
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule, UpdateMobileNumberComponent, FormButtonValidationDirective],
-    providers: [
+      imports: [
+        
+        FormsModule,
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        UpdateMobileNumberComponent,
+        FormButtonValidationDirective,
+      ],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: OrgUserService,
-            useValue: orgUserServiceSpy,
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(UpdateMobileNumberComponent);
     component = fixture.componentInstance;
 

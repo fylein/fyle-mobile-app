@@ -1,7 +1,7 @@
 import { Component, forwardRef, Input, TemplateRef, inject, input, output } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -11,22 +11,17 @@ import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-fy-select',
-    templateUrl: './fy-select.component.html',
-    styleUrls: ['./fy-select.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FySelectComponent),
-            multi: true,
-        },
-    ],
-    imports: [
-        NgClass,
-        FormsModule,
-        MatIcon,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-select',
+  templateUrl: './fy-select.component.html',
+  styleUrls: ['./fy-select.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FySelectComponent),
+      multi: true,
+    },
+  ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FySelectComponent implements ControlValueAccessor {
   private modalController = inject(ModalController);

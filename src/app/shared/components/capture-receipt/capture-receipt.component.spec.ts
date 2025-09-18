@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -12,7 +11,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CaptureReceiptComponent } from './capture-receipt.component';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -75,7 +74,7 @@ describe('CaptureReceiptComponent', () => {
     template: '',
     providers: [{ provide: CameraPreviewComponent, useClass: CameraPreviewStubComponent }],
     imports: [RouterTestingModule],
-})
+  })
   class CameraPreviewStubComponent {
     setUpAndStartCamera() {
       return of(null);
@@ -119,83 +118,83 @@ describe('CaptureReceiptComponent', () => {
     const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['requestCameraPermissions']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterTestingModule, CaptureReceiptComponent, CameraPreviewStubComponent],
-    providers: [
+      imports: [ RouterTestingModule, CaptureReceiptComponent, CameraPreviewStubComponent],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: NavController,
-            useValue: navControllerSpy,
+          provide: NavController,
+          useValue: navControllerSpy,
         },
         {
-            provide: TransactionsOutboxService,
-            useValue: transactionsOutboxServiceSpy,
+          provide: TransactionsOutboxService,
+          useValue: transactionsOutboxServiceSpy,
         },
         {
-            provide: ImagePicker,
-            useValue: imagePickerSpy,
+          provide: ImagePicker,
+          useValue: imagePickerSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: OrgService,
-            useValue: orgServiceSpy,
+          provide: OrgService,
+          useValue: orgServiceSpy,
         },
         {
-            provide: PlatformEmployeeSettingsService,
-            useValue: platformEmployeeSettingsServiceSpy,
+          provide: PlatformEmployeeSettingsService,
+          useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-            provide: MatSnackBar,
-            useClass: MatSnackBarStub,
+          provide: MatSnackBar,
+          useClass: MatSnackBarStub,
         },
         {
-            provide: SnackbarPropertiesService,
-            useValue: snackbarPropertiesServiceSpy,
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: DEVICE_PLATFORM,
-            useValue: 'android',
+          provide: DEVICE_PLATFORM,
+          useValue: 'android',
         },
         {
-            provide: CameraPreviewService,
-            useValue: cameraPreviewServiceSpy,
+          provide: CameraPreviewService,
+          useValue: cameraPreviewServiceSpy,
         },
         {
-            provide: CameraService,
-            useValue: cameraServiceSpy,
+          provide: CameraService,
+          useValue: cameraServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
     fixture = TestBed.createComponent(CaptureReceiptComponent);
     component = fixture.componentInstance;
 

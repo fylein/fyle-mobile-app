@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { ViewExpenseSkeletonLoaderComponent } from './view-expense-skeleton-loader.component';
 
 describe('ViewExpenseSkeletonLoaderComponent', () => {
@@ -9,8 +7,8 @@ describe('ViewExpenseSkeletonLoaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), ViewExpenseSkeletonLoaderComponent],
-}).compileComponents();
+      imports: [ ViewExpenseSkeletonLoaderComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

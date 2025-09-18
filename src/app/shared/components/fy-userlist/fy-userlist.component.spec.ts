@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyUserlistComponent } from './fy-userlist.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,22 +26,29 @@ describe('FyUserlistComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule, FyUserlistComponent],
-    providers: [
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        FyUserlistComponent,
+      ],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesSpy,
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;

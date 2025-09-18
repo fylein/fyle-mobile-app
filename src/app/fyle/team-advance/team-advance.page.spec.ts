@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
@@ -19,6 +17,7 @@ import { FiltersHelperService } from 'src/app/core/services/filters-helper.servi
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TeamAdvancePage } from './team-advance.page';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('TeamAdvancePage', () => {
   let component: TeamAdvancePage;
@@ -46,37 +45,37 @@ describe('TeamAdvancePage', () => {
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TeamAdvancePage],
-    providers: [
+      imports: [TeamAdvancePage, getTranslocoTestingModule()],
+      providers: [
         ChangeDetectorRef,
         TitleCasePipe,
         {
-            provide: AdvanceRequestService,
-            useValue: advanceRequestServiceSpy,
+          provide: AdvanceRequestService,
+          useValue: advanceRequestServiceSpy,
         },
         {
-            provide: TasksService,
-            useValue: tasksServiceSpy,
+          provide: TasksService,
+          useValue: tasksServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: FiltersHelperService,
-            useValue: filtersHelperServiceSpy,
+          provide: FiltersHelperService,
+          useValue: filtersHelperServiceSpy,
         },
         {
-            provide: ExpenseFieldsService,
-            useValue: expenseFieldsServiceSpy,
+          provide: ExpenseFieldsService,
+          useValue: expenseFieldsServiceSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TeamAdvancePage);
     component = fixture.componentInstance;
@@ -200,7 +199,7 @@ describe('TeamAdvancePage', () => {
     expect(filtersHelperService.openFilterModal).toHaveBeenCalledTimes(1);
     expect(filtersHelperService.generateFilterPills).toHaveBeenCalledOnceWith(
       component.filters,
-      component.projectFieldName
+      component.projectFieldName,
     );
   }));
 

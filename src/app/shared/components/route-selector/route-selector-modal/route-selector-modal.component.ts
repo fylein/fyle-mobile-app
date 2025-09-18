@@ -1,6 +1,15 @@
 import { Component, Input, OnInit, inject, input } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ModalController, IonicModule } from '@ionic/angular';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { switchMap } from 'rxjs/operators';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
 import { MileageService } from 'src/app/core/services/mileage.service';
@@ -11,23 +20,31 @@ import { MatIcon } from '@angular/material/icon';
 import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { addIcons } from 'ionicons';
+import { chevronBackOutline } from 'ionicons/icons';
 
 @Component({
-    selector: 'app-route-selector-modal',
-    templateUrl: './route-selector-modal.component.html',
-    styleUrls: ['./route-selector-modal.component.scss'],
-    imports: [
-        IonicModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgClass,
-        FyLocationComponent,
-        MatIcon,
-        FyAlertInfoComponent,
-        MatCheckbox,
-        TitleCasePipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-route-selector-modal',
+  templateUrl: './route-selector-modal.component.html',
+  styleUrls: ['./route-selector-modal.component.scss'],
+  imports: [
+    FormsModule,
+    FyAlertInfoComponent,
+    FyLocationComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    ReactiveFormsModule,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
 export class RouteSelectorModalComponent implements OnInit {
   private fb = inject(UntypedFormBuilder);
@@ -196,5 +213,9 @@ export class RouteSelectorModalComponent implements OnInit {
 
   close(): void {
     this.modalController.dismiss();
+  }
+
+  constructor() {
+    addIcons({ chevronBackOutline });
   }
 }

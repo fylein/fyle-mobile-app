@@ -1,9 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { RouteSelectorComponent } from './route-selector.component';
-import { Injector, NO_ERRORS_SCHEMA, SimpleChanges, Component } from '@angular/core';
+import { Injector, NO_ERRORS_SCHEMA, SimpleChanges, Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import {
   UntypedFormArray,
   UntypedFormBuilder,
@@ -16,28 +14,26 @@ import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 import { expenseFieldsMapResponse3 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { mileageLocationData1, mileageLocationData4 } from '../../../core/mock-data/mileage-location.data';
-import { of } from 'rxjs';
+
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 import { cloneDeep } from 'lodash';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
-    selector: 'mat-checkbox',
-    template: '<div class="mock-checkbox"></div>',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: MockMatCheckboxComponent,
-            multi: true,
-        },
-    ],
-    imports: [ReactiveFormsModule,
-        MatIconTestingModule,
-        MatIconModule,
-        TranslocoModule,],
+  selector: 'mat-checkbox',
+  template: '<div class="mock-checkbox"></div>',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: MockMatCheckboxComponent,
+      multi: true,
+    },
+  ],
+  imports: [ReactiveFormsModule, MatIconTestingModule, MatIconModule],
 })
 class MockMatCheckboxComponent implements ControlValueAccessor {
   writeValue(value: any): void {}
@@ -51,74 +47,36 @@ describe('RouteSelectorComponent', () => {
   let fixture: ComponentFixture<RouteSelectorComponent>;
   let fb: UntypedFormBuilder;
   let modalController: jasmine.SpyObj<ModalController>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
-    imports: [
-        IonicModule.forRoot(),
-        ReactiveFormsModule,
+      imports: [
         MatIconTestingModule,
         MatIconModule,
-        TranslocoModule,
-        NoopAnimationsModule,
-        RouteSelectorComponent, MockMatCheckboxComponent,
-    ],
-    providers: [
+        getTranslocoTestingModule(),
+        RouteSelectorComponent,
+      ],
+      providers: [
         UntypedFormBuilder,
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: Injector,
-            useValue: injectorSpy,
+          provide: Injector,
+          useValue: injectorSpy,
         },
-        {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
-        },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).overrideComponent(RouteSelectorComponent, {
+      remove: {imports: [MatCheckbox]},
+      add: {imports: [MockMatCheckboxComponent],schemas: [CUSTOM_ELEMENTS_SCHEMA]}
+    }).compileComponents();
     fixture = TestBed.createComponent(RouteSelectorComponent);
     component = fixture.componentInstance;
     fb = TestBed.inject(UntypedFormBuilder);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'routeSelector.routeLabel': 'Route',
-        'routeSelector.startLabel': 'Start',
-        'routeSelector.selectLocationError': 'Please select location',
-        'routeSelector.intermediateStop': 'Stop',
-        'routeSelector.stopLabel': 'Stop',
-        'routeSelector.enterRoute': 'Enter route',
-        'routeSelector.roundTripLabel': 'Round trip',
-        'routeSelector.distanceLabel': 'Distance',
-        'routeSelector.enterDistance': 'Enter distance',
-        'routeSelector.invalidDistance': 'Please enter valid distance',
-        'routeSelector.distance': 'Distance',
-        'routeSelector.roundTrip': 'Round Trip',
-        'routeSelector.oneWay': 'One Way',
-        'routeSelector.addMore': 'Add more',
-      };
-      let translation = translations[key] || key;
-      if (params) {
-        Object.keys(params).forEach((key) => {
-          translation = translation.replace(`{{${key}}}`, params[key]);
-        });
-      }
-      return translation;
-    });
     const mockOrgSettings = cloneDeep(orgSettingsRes);
     component.mileageConfig = mockOrgSettings.mileage;
     component.formInitialized = true;

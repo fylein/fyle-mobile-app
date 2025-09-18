@@ -3,14 +3,10 @@ import { NgClass, NgStyle } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-zero-state',
-    templateUrl: './fy-zero-state.component.html',
-    styleUrls: ['./fy-zero-state.component.scss'],
-    imports: [
-        NgClass,
-        NgStyle,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-zero-state',
+  templateUrl: './fy-zero-state.component.html',
+  styleUrls: ['./fy-zero-state.component.scss'],
+  imports: [NgClass, NgStyle, TranslocoPipe],
 })
 export class FyZeroStateComponent implements AfterViewInit {
   readonly messageRef = viewChild<ElementRef<HTMLDivElement>>('messageRef');

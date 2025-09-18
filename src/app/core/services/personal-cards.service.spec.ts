@@ -89,7 +89,7 @@ describe('PersonalCardsService', () => {
     dateService = TestBed.inject(DateService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
@@ -101,7 +101,7 @@ describe('PersonalCardsService', () => {
   describe('helper functions', () => {
     it('addTransactionTypeToTxns: should add transactionType property to personal card txn.', () => {
       expect(personalCardsService.addTransactionTypeToTxns(platformPersonalCardTxns.data)).toEqual(
-        platformPersonalCardTxns.data
+        platformPersonalCardTxns.data,
       );
     });
   });

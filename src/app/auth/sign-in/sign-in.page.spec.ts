@@ -1,38 +1,30 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
-import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
 import { SignInPage } from './sign-in.page';
-import { UntypedFormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { of, Subscription, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { ErrorComponent } from './error/error.component';
 import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/core/mock-data/auth-response.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import {
-  MatButton,
-  MatButtonModule,
-} from '@angular/material/button';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SignInPageState } from './sign-in-page-state.enum';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('SignInPage', () => {
   let component: SignInPage;
@@ -45,7 +37,6 @@ describe('SignInPage', () => {
   let router: jasmine.SpyObj<Router>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let googleAuthService: jasmine.SpyObj<GoogleAuthService>;
-  let inAppBrowser: jasmine.SpyObj<InAppBrowser>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let deviceService: jasmine.SpyObj<DeviceService>;
   let loginInfoService: jasmine.SpyObj<LoginInfoService>;
@@ -66,7 +57,6 @@ describe('SignInPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['refreshEou']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const googleAuthServiceSpy = jasmine.createSpyObj('GoogleAuthService', ['login']);
-    const inAppBrowserSpy = jasmine.createSpyObj('InAppBrowser', ['create']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['onSignin', 'eventTrack']);
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const loginInfoServiceSpy = jasmine.createSpyObj('LoginInfoService', ['addLoginInfo']);
@@ -74,79 +64,68 @@ describe('SignInPage', () => {
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
     TestBed.configureTestingModule({
-    imports: [
-        IonicModule.forRoot(),
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        BrowserAnimationsModule,
-        MatButtonModule,
-        RouterModule,
+      imports: [
         RouterTestingModule,
         SignInPage,
-    ],
-    providers: [
+        getTranslocoTestingModule()
+      ],
+      providers: [
         UntypedFormBuilder,
         {
-            provide: ActivatedRoute,
-            useValue: { snapshot: { params: { email: 'ajain@fyle.in' } } },
+          provide: ActivatedRoute,
+          useValue: { snapshot: { params: { email: 'ajain@fyle.in' } } },
         },
         {
-            provide: RouterAuthService,
-            useValue: routerAuthServiceSpy,
+          provide: RouterAuthService,
+          useValue: routerAuthServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: AuthService,
-            useValue: authServiceSpy,
+          provide: AuthService,
+          useValue: authServiceSpy,
         },
         {
-            provide: GoogleAuthService,
-            useValue: googleAuthServiceSpy,
+          provide: GoogleAuthService,
+          useValue: googleAuthServiceSpy,
         },
         {
-            provide: InAppBrowser,
-            useValue: inAppBrowserSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: DeviceService,
+          useValue: deviceServiceSpy,
         },
         {
-            provide: DeviceService,
-            useValue: deviceServiceSpy,
+          provide: LoginInfoService,
+          useValue: loginInfoServiceSpy,
         },
         {
-            provide: LoginInfoService,
-            useValue: loginInfoServiceSpy,
+          provide: InAppBrowserService,
+          useValue: inAppBrowserServiceSpy,
         },
         {
-            provide: InAppBrowserService,
-            useValue: inAppBrowserServiceSpy,
+          provide: PlatformHandlerService,
+          useValue: platformHandlerServiceSpy,
         },
         {
-            provide: PlatformHandlerService,
-            useValue: platformHandlerServiceSpy,
+          provide: BackButtonService,
+          useValue: backButtonServiceSpy,
         },
-        {
-            provide: BackButtonService,
-            useValue: backButtonServiceSpy,
-        },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
     fixture = TestBed.createComponent(SignInPage);
     component = fixture.componentInstance;
 
@@ -158,7 +137,6 @@ describe('SignInPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     googleAuthService = TestBed.inject(GoogleAuthService) as jasmine.SpyObj<GoogleAuthService>;
-    inAppBrowser = TestBed.inject(InAppBrowser) as jasmine.SpyObj<InAppBrowser>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     loginInfoService = TestBed.inject(LoginInfoService) as jasmine.SpyObj<LoginInfoService>;
@@ -296,7 +274,7 @@ describe('SignInPage', () => {
       routerAuthService.checkEmailExists.and.returnValue(
         of({
           saml: true,
-        })
+        }),
       );
       fixture.detectChanges();
 
@@ -570,7 +548,7 @@ describe('SignInPage', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.sign-in__enter-email__error-message'))).toEqual(
-      'Please enter a valid email.'
+      'Please enter a valid email.',
     );
   });
 
@@ -582,7 +560,7 @@ describe('SignInPage', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.sign-in__enter-email__error-message'))).toEqual(
-      'Please enter a valid email.'
+      'Please enter a valid email.',
     );
   });
 
@@ -607,7 +585,7 @@ describe('SignInPage', () => {
       fixture.detectChanges();
       const continueButton: HTMLButtonElement = getElementBySelector(
         fixture,
-        '.sign-in__enter-email ion-button'
+        '.sign-in__enter-email ion-button',
       ) as HTMLButtonElement;
       expect(continueButton.disabled).toBeTrue();
     });
@@ -638,7 +616,7 @@ describe('SignInPage', () => {
 
       const googleSignInButton: HTMLButtonElement = getElementBySelector(
         fixture,
-        '.sign-in__secondary-cta__btn'
+        '.sign-in__secondary-cta__btn',
       ) as HTMLButtonElement;
       googleSignInButton.click();
 

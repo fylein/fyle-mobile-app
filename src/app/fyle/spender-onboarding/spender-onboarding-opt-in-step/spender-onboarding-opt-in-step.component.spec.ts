@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -66,8 +66,8 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, SpenderOnboardingOptInStepComponent],
-    providers: [
+      imports: [ TranslocoModule, SpenderOnboardingOptInStepComponent],
+      providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
@@ -82,9 +82,9 @@ describe('SpenderOnboardingOptInStepComponent', () => {
         { provide: UserEventService, useValue: userEventServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SpenderOnboardingOptInStepComponent);
     component = fixture.componentInstance;

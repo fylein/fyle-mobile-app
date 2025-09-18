@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { EmployeeDetailsCardComponent } from './employee-details-card.component';
 import { InitialsPipe } from 'src/app/shared/pipes/initials.pipe';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -26,18 +25,18 @@ describe('EmployeeDetailsCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, EmployeeDetailsCardComponent, InitialsPipe],
-    providers: [
+      imports: [ TranslocoModule, EmployeeDetailsCardComponent, InitialsPipe],
+      providers: [
         {
-            provide: UtilityService,
-            useValue: utilityServiceSpy,
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
     fixture = TestBed.createComponent(EmployeeDetailsCardComponent);
     component = fixture.componentInstance;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
@@ -77,7 +76,7 @@ describe('EmployeeDetailsCardComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.employee-details-card__icon-container__text'))).toEqual('AJ');
     expect(getTextContent(getElementBySelector(fixture, '.employee-details-card__header'))).toEqual('Abhishek Jain');
     expect(getTextContent(getElementBySelector(fixture, '.employee-details-card__employee-id'))).toEqual(
-      'Employee ID - 12345'
+      'Employee ID - 12345',
     );
   }));
 

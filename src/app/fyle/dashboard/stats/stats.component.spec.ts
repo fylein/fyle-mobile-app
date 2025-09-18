@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { StatsComponent } from './stats.component';
 import { DashboardService } from '../dashboard.service';
 import { Router } from '@angular/router';
@@ -61,46 +59,46 @@ describe('StatsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, StatsComponent],
-    providers: [
+      imports: [ TranslocoModule, StatsComponent],
+      providers: [
         {
-            provide: DashboardService,
-            useValue: dashboardServiceSpy,
+          provide: DashboardService,
+          useValue: dashboardServiceSpy,
         },
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: NetworkService,
-            useValue: networkServiceSpy,
+          provide: NetworkService,
+          useValue: networkServiceSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: OrgService,
-            useValue: orgServiceSpy,
+          provide: OrgService,
+          useValue: orgServiceSpy,
         },
         {
-            provide: PaymentModesService,
-            useValue: paymentModeServiceSpy,
+          provide: PaymentModesService,
+          useValue: paymentModeServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(StatsComponent);
     component = fixture.componentInstance;

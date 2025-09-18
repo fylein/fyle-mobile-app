@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, shareReplay } from 'rxjs/operators';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -27,25 +27,31 @@ import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-t
 import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-fy-select-modal',
-    templateUrl: './fy-select-modal.component.html',
-    styleUrls: ['./fy-select-modal.component.scss'],
-    imports: [
-        IonicModule,
-        MatIcon,
-        MatFormField,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatIconButton,
-        MatSuffix,
-        FyZeroStateComponent,
-        MatRipple,
-        FyHighlightTextComponent,
-        NgTemplateOutlet,
-        AsyncPipe,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-select-modal',
+  templateUrl: './fy-select-modal.component.html',
+  styleUrls: ['./fy-select-modal.component.scss'],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    FyHighlightTextComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatRipple,
+    MatSuffix,
+    NgTemplateOutlet,
+    TranslocoPipe
+  ],
 })
 export class FySelectModalComponent implements AfterViewInit {
   private modalController = inject(ModalController);

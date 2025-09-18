@@ -1,12 +1,13 @@
 import { TestBed, ComponentFixture, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { FyLocationComponent } from './fy-location.component';
 import { FormsModule } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyLocationComponent', () => {
   let component: FyLocationComponent;
@@ -26,19 +27,20 @@ describe('FyLocationComponent', () => {
     });
 
     TestBed.configureTestingModule({
-    imports: [FormsModule, TranslocoModule, FyLocationComponent],
-    providers: [
+      imports: [FormsModule, TranslocoModule, FyLocationComponent,
+        MatIconTestingModule],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyLocationComponent);
     component = fixture.componentInstance;

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, input } from '@angular/core';
-import { MenuController, IonicModule } from '@ionic/angular';
+import { IonList, MenuController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -10,10 +10,13 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SidemenuContentItemComponent } from './sidemenu-content-item/sidemenu-content-item.component';
 
 @Component({
-    selector: 'app-sidemenu-content',
-    templateUrl: './sidemenu-content.component.html',
-    styleUrls: ['./sidemenu-content.component.scss'],
-    imports: [IonicModule, SidemenuContentItemComponent],
+  selector: 'app-sidemenu-content',
+  templateUrl: './sidemenu-content.component.html',
+  styleUrls: ['./sidemenu-content.component.scss'],
+  imports: [
+    IonList,
+    SidemenuContentItemComponent
+  ],
 })
 export class SidemenuContentComponent implements OnInit {
   private router = inject(Router);

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild, inject, input, output } from '@angular/core';
-import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from, of, forkJoin } from 'rxjs';
@@ -23,25 +23,26 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 
 @Component({
-    selector: 'app-fy-view-attachment',
-    templateUrl: './fy-view-attachment.component.html',
-    styleUrls: ['./fy-view-attachment.component.scss'],
-    imports: [
-        IonHeader,
-        IonButtons,
-        IonButton,
-        IonFooter,
-        IonContent,
-        IonToolbar,
-        IonTitle,
-        NgClass,
-        MatIcon,
-        SwiperModule,
-        PinchZoomComponent,
-        PdfViewerModule,
-        FormButtonValidationDirective,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-view-attachment',
+  templateUrl: './fy-view-attachment.component.html',
+  styleUrls: ['./fy-view-attachment.component.scss'],
+  imports: [
+    FormButtonValidationDirective,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    NgClass,
+    PdfViewerModule,
+    PinchZoomComponent,
+    SwiperModule,
+    TranslocoPipe
+  ],
 })
 export class FyViewAttachmentComponent implements OnInit {
   private modalController = inject(ModalController);

@@ -1,7 +1,7 @@
 import { TestBed, ComponentFixture, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { FyLocationModalComponent } from './fy-location-modal.component';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
@@ -24,6 +24,7 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import * as NativeSettings from 'capacitor-native-settings';
 import { AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyLocationModalComponent', () => {
   let component: FyLocationModalComponent;
@@ -47,62 +48,63 @@ describe('FyLocationModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, TranslocoModule, FyLocationModalComponent],
-    providers: [
+      imports: [FormsModule, ReactiveFormsModule, TranslocoModule, FyLocationModalComponent,
+        MatIconTestingModule],
+      providers: [
         {
-            provide: ModalController,
-            useValue: jasmine.createSpyObj('ModalController', ['dismiss']),
+          provide: ModalController,
+          useValue: jasmine.createSpyObj('ModalController', ['dismiss']),
         },
         {
-            provide: LocationService,
-            useValue: jasmine.createSpyObj('LocationService', [
-                'getCurrentLocation',
-                'getAutocompletePredictions',
-                'getGeocode',
-                'clearCurrentLocationCache',
-            ]),
+          provide: LocationService,
+          useValue: jasmine.createSpyObj('LocationService', [
+            'getCurrentLocation',
+            'getAutocompletePredictions',
+            'getGeocode',
+            'clearCurrentLocationCache',
+          ]),
         },
         {
-            provide: AuthService,
-            useValue: jasmine.createSpyObj('AuthService', ['getEou']),
+          provide: AuthService,
+          useValue: jasmine.createSpyObj('AuthService', ['getEou']),
         },
         {
-            provide: LoaderService,
-            useValue: jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']),
+          provide: LoaderService,
+          useValue: jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']),
         },
         {
-            provide: RecentLocalStorageItemsService,
-            useValue: jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']),
+          provide: RecentLocalStorageItemsService,
+          useValue: jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']),
         },
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: Geolocation,
-            useValue: jasmine.createSpyObj('Geolocation', ['requestPermissions', 'requestPermissions']),
+          provide: Geolocation,
+          useValue: jasmine.createSpyObj('Geolocation', ['requestPermissions', 'requestPermissions']),
         },
         {
-            provide: GmapsService,
-            useValue: jasmine.createSpyObj('GMapsService', ['getGeocode']),
+          provide: GmapsService,
+          useValue: jasmine.createSpyObj('GMapsService', ['getGeocode']),
         },
         {
-            provide: DEVICE_PLATFORM,
-            useValue: 'android',
+          provide: DEVICE_PLATFORM,
+          useValue: 'android',
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FyLocationModalComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
@@ -215,7 +217,7 @@ describe('FyLocationModalComponent', () => {
     const mockRecentItemsFilteredList = [{ display: 'Bengaluru' }];
 
     const getRecentlyUsedItemsSpy = spyOn(component, 'getRecentlyUsedItems').and.returnValue(
-      of(mockRecentItemsFilteredList)
+      of(mockRecentItemsFilteredList),
     );
 
     component.ngAfterViewInit();
@@ -256,7 +258,7 @@ describe('FyLocationModalComponent', () => {
     const mockRecentItemsFilteredList = [{ display: undefined }];
 
     const getRecentlyUsedItemsSpy = spyOn(component, 'getRecentlyUsedItems').and.returnValue(
-      of(mockRecentItemsFilteredList)
+      of(mockRecentItemsFilteredList),
     );
 
     component.ngAfterViewInit();
@@ -294,7 +296,7 @@ describe('FyLocationModalComponent', () => {
     const mockRecentItemsFilteredList = [{ display: 'Location 1' }];
 
     const getRecentlyUsedItemsSpy = spyOn(component, 'getRecentlyUsedItems').and.returnValue(
-      of(mockRecentItemsFilteredList)
+      of(mockRecentItemsFilteredList),
     );
 
     component.ngAfterViewInit();
@@ -314,7 +316,7 @@ describe('FyLocationModalComponent', () => {
     expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
       'location 1',
       'usvKA4X8Ugcr',
-      '10.12,89.67'
+      '10.12,89.67',
     );
     expect(component.loader).toBeFalse();
     expect(component.lookupFailed).toBeTrue();
@@ -336,7 +338,7 @@ describe('FyLocationModalComponent', () => {
     const mockRecentItemsFilteredList = [{ display: 'Location 1' }];
 
     const getRecentlyUsedItemsSpy = spyOn(component, 'getRecentlyUsedItems').and.returnValue(
-      of(mockRecentItemsFilteredList)
+      of(mockRecentItemsFilteredList),
     );
 
     component.ngAfterViewInit();
@@ -373,7 +375,7 @@ describe('FyLocationModalComponent', () => {
     const mockRecentItemsFilteredList = [{ display: 'Location 1' }];
 
     const getRecentlyUsedItemsSpy = spyOn(component, 'getRecentlyUsedItems').and.returnValue(
-      of(mockRecentItemsFilteredList)
+      of(mockRecentItemsFilteredList),
     );
 
     component.ngAfterViewInit();
@@ -505,11 +507,11 @@ describe('FyLocationModalComponent', () => {
     expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
       'Example Location',
       'usvKA4X8Ugcr',
-      '10.12,89.67'
+      '10.12,89.67',
     );
     expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
       'ChIJbU60yXAWrjsR4E9-UejD3_g',
-      'Bengaluru, Karnataka, India'
+      'Bengaluru, Karnataka, India',
     );
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: locationData1 });
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
@@ -532,11 +534,11 @@ describe('FyLocationModalComponent', () => {
     expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
       'Example Location',
       'usvKA4X8Ugcr',
-      '10.12,89.67'
+      '10.12,89.67',
     );
     expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
       'ChIJbU60yXAWrjsR4E9-UejD3_g',
-      'Bengaluru, Karnataka, India'
+      'Bengaluru, Karnataka, India',
     );
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
@@ -561,11 +563,11 @@ describe('FyLocationModalComponent', () => {
     expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
       'Example Location',
       'usvKA4X8Ugcr',
-      '10.12,89.67'
+      '10.12,89.67',
     );
     expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
       'ChIJbU60yXAWrjsR4E9-UejD3_g',
-      'Bengaluru, Karnataka, India'
+      'Bengaluru, Karnataka, India',
     );
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: geocodedLocation });
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
@@ -583,7 +585,7 @@ describe('FyLocationModalComponent', () => {
 
     expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
       'examplePlaceId',
-      'Tollygunge, Kolkata, West Bengal, India'
+      'Tollygunge, Kolkata, West Bengal, India',
     );
     expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith(component.cacheName, locationData1);
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: locationData1 });

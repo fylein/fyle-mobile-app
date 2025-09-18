@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { CardAddedComponent } from './card-added.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
@@ -23,18 +23,18 @@ describe('CardAddedComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, CardAddedComponent],
-    providers: [
+      imports: [ TranslocoModule, CardAddedComponent],
+      providers: [
         {
-            provide: PopoverController,
-            useValue: popoverControllerSpy,
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CardAddedComponent);
     component = fixture.componentInstance;

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -18,6 +18,7 @@ import {
 } from 'src/app/core/mock-data/virtual-select-option.data';
 import { cloneDeep } from 'lodash';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('VirtualSelectModalComponent', () => {
   let component: VirtualSelectModalComponent;
@@ -40,33 +41,34 @@ describe('VirtualSelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), TranslocoModule, VirtualSelectModalComponent],
-    providers: [
+      imports: [TranslocoModule, VirtualSelectModalComponent,
+        MatIconTestingModule],
+      providers: [
         {
-            provide: ModalController,
-            useValue: modalControllerSpy,
+          provide: ModalController,
+          useValue: modalControllerSpy,
         },
         {
-            provide: RecentLocalStorageItemsService,
-            useValue: recentLocalStorageItemsServiceSpy,
+          provide: RecentLocalStorageItemsService,
+          useValue: recentLocalStorageItemsServiceSpy,
         },
         {
-            provide: UtilityService,
-            useValue: utilityServiceSpy,
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
         },
         {
-            provide: TranslocoService,
-            useValue: translocoServiceSpy,
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(VirtualSelectModalComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
@@ -131,7 +133,7 @@ describe('VirtualSelectModalComponent', () => {
       spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(virtualSelectOptionData5));
       utilityService.searchArrayStream.and.returnValues(
         () => of(virtualSelectOptionData5),
-        () => of([virtualSelectOptionData5[1]])
+        () => of([virtualSelectOptionData5[1]]),
       );
       component.ngAfterViewInit();
       inputElement.value = '';

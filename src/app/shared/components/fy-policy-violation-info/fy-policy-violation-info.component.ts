@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
@@ -11,14 +11,10 @@ import { NgClass } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-fy-policy-violation-info',
-    templateUrl: './fy-policy-violation-info.component.html',
-    styleUrls: ['./fy-policy-violation-info.component.scss'],
-    imports: [
-        MatIcon,
-        NgClass,
-        TranslocoPipe,
-    ],
+  selector: 'app-fy-policy-violation-info',
+  templateUrl: './fy-policy-violation-info.component.html',
+  styleUrls: ['./fy-policy-violation-info.component.scss'],
+  imports: [MatIcon, NgClass, TranslocoPipe],
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
   private modalController = inject(ModalController);

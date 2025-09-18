@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild, ElementRef, EventEmitter, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, EventEmitter, inject } from '@angular/core';
 import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { ModalController, IonicModule } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, ModalController } from '@ionic/angular/standalone';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -41,27 +41,35 @@ import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-z
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
-    selector: 'app-team-reports',
-    templateUrl: './team-reports.page.html',
-    styleUrls: ['./team-reports.page.scss'],
-    imports: [
-        FyHeaderComponent,
-        IonicModule,
-        MatFormField,
-        MatIcon,
-        MatPrefix,
-        MatInput,
-        FormsModule,
-        MatIconButton,
-        MatSuffix,
-        NgClass,
-        FyFilterPillsComponent,
-        ReportsCardComponent,
-        FyLoadingScreenComponent,
-        FyZeroStateComponent,
-        FooterComponent,
-        AsyncPipe,
-    ],
+  selector: 'app-team-reports',
+  templateUrl: './team-reports.page.html',
+  styleUrls: ['./team-reports.page.scss'],
+  imports: [
+    AsyncPipe,
+    FooterComponent,
+    FormsModule,
+    FyFilterPillsComponent,
+    FyHeaderComponent,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonRefresher,
+    IonRefresherContent,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    ReportsCardComponent
+  ],
 })
 export class TeamReportsPage implements OnInit {
   private networkService = inject(NetworkService);
@@ -151,6 +159,7 @@ export class TeamReportsPage implements OnInit {
   ngOnInit(): void {
     this.setupNetworkWatcher();
   }
+
 
   ionViewWillLeave(): void {
     this.onPageExit.next(null);

@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { selectedExpense1, selectedExpenses } from 'src/app/core/mock-data/expense.data';
@@ -30,6 +29,8 @@ import { orgSettingsPendingRestrictions, orgSettingsRes } from 'src/app/core/moc
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from '../../core/mock-data/platform-report.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
@@ -63,59 +64,66 @@ describe('MyCreateReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-    imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, MatCheckboxModule, MyCreateReportPage, HumanizeCurrencyPipe, ExactCurrencyPipe],
-    providers: [
+      imports: [getTranslocoTestingModule(),
+        RouterTestingModule,
+        FormsModule,
+        MatCheckboxModule,
+        MyCreateReportPage,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        MatIconTestingModule],
+      providers: [
         FyCurrencyPipe,
         CurrencyPipe,
         {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: {
-                    params: {
-                        txnIds: [],
-                    },
-                },
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                txnIds: [],
+              },
             },
+          },
         },
         {
-            provide: OrgSettingsService,
-            useValue: orgSettingsServiceSpy,
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
-            provide: TransactionService,
-            useValue: transactionServiceSpy,
+          provide: TransactionService,
+          useValue: transactionServiceSpy,
         },
         {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
+          provide: CurrencyService,
+          useValue: currencyServiceSpy,
         },
         {
-            provide: LoaderService,
-            useValue: loaderServiceSpy,
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
         },
         {
-            provide: Router,
-            useValue: routerSpy,
+          provide: Router,
+          useValue: routerSpy,
         },
         {
-            provide: TrackingService,
-            useValue: trackingServiceSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
         {
-            provide: StorageService,
-            useValue: storageServiceSpy,
+          provide: StorageService,
+          useValue: storageServiceSpy,
         },
         {
-            provide: ExpensesService,
-            useValue: expensesServiceSpy,
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
-            provide: SpenderReportsService,
-            useValue: spenderReportsServiceSpy,
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
         },
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-}).compileComponents();
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
     fixture = TestBed.createComponent(MyCreateReportPage);
     component = fixture.componentInstance;
 
