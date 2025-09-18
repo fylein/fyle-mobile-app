@@ -71,6 +71,19 @@ describe('AppComponent', () => {
   let menuController: jasmine.SpyObj<MenuController>;
   let backButtonService: jasmine.SpyObj<BackButtonService>;
   beforeEach(waitForAsync(() => {
+    // Mock Capacitor plugins before component creation
+    // Create spies that return resolved promises
+    const splashScreenHideSpy = jasmine.createSpy('hide').and.resolveTo();
+    const statusBarSetStyleSpy = jasmine.createSpy('setStyle').and.resolveTo();
+    const textZoomSetSpy = jasmine.createSpy('set').and.resolveTo();
+    const appAddListenerSpy = jasmine.createSpy('addListener').and.resolveTo({ remove: jasmine.createSpy('remove') });
+
+    // Replace the methods on the imported modules
+    Object.defineProperty(SplashScreen, 'hide', { value: splashScreenHideSpy, writable: true });
+    Object.defineProperty(StatusBar, 'setStyle', { value: statusBarSetStyleSpy, writable: true });
+    Object.defineProperty(TextZoom, 'set', { value: textZoomSetSpy, writable: true });
+    Object.defineProperty(App, 'addListener', { value: appAddListenerSpy, writable: true });
+
     platformReadySpy = Promise.resolve();
     platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
     const backButtonSpy = jasmine.createSpyObj('backButton', ['subscribeWithPriority']);
@@ -197,60 +210,13 @@ describe('AppComponent', () => {
   }));
 
   describe('ngAfterViewInit', () => {
-    let splashScreenSpy: jasmine.SpyObj<typeof SplashScreen>;
-    let statusBarSpy: jasmine.SpyObj<typeof StatusBar>;
-    let textZoomSpy: jasmine.SpyObj<typeof TextZoom>;
-    let appSpy: jasmine.SpyObj<typeof App>;
-
     beforeEach(() => {
-      splashScreenSpy = jasmine.createSpyObj('SplashScreen', ['hide']);
-      splashScreenSpy.hide.and.resolveTo();
-
-      statusBarSpy = jasmine.createSpyObj('StatusBar', ['setStyle']);
-      statusBarSpy.setStyle.and.resolveTo();
-
-      textZoomSpy = jasmine.createSpyObj('TextZoom', ['set']);
-      textZoomSpy.set.and.resolveTo();
-
-      appSpy = jasmine.createSpyObj('App', ['addListener']);
-      appSpy.addListener.and.resolveTo({ remove: jasmine.createSpy('remove') });
-
-      // Replace the global Capacitor plugin objects
-      Object.defineProperty(window, 'SplashScreen', {
-        value: splashScreenSpy,
-        writable: true,
-        configurable: true,
-      });
-
-      Object.defineProperty(window, 'StatusBar', {
-        value: statusBarSpy,
-        writable: true,
-        configurable: true,
-      });
-
-      Object.defineProperty(window, 'TextZoom', {
-        value: textZoomSpy,
-        writable: true,
-        configurable: true,
-      });
-
-      Object.defineProperty(window, 'App', {
-        value: appSpy,
-        writable: true,
-        configurable: true,
-      });
-
       jasmine.clock().install();
       jasmine.clock().mockDate();
     });
 
     afterEach(() => {
       jasmine.clock().uninstall();
-      // Clean up the global Capacitor plugin objects
-      delete (window as any).SplashScreen;
-      delete (window as any).StatusBar;
-      delete (window as any).TextZoom;
-      delete (window as any).App;
     });
 
     it('should initialize after view is ready', async () => {
