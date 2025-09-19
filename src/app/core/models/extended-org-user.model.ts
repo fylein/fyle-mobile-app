@@ -19,5 +19,9 @@ export interface ExtendedOrgUser {
   commute_details: CommuteDetails;
   approver_user_ids: string[];
   commute_details_id: string;
+  org: {
+    currency: string;
+  };
+  mileage_settings: Record<string, unknown>;
   flattened_custom_field: Record<string, unknown>;
 }

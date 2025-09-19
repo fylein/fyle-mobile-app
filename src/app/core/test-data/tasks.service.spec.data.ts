@@ -139,6 +139,10 @@ export const extendedOrgUserResponse: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: 'sdh',
     cost_center_ids: [2422, 2423, 11725, 11726],
   },
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
   us: {
     id: 'usN0bYiJRI5V',
     created_at: new Date('2019-02-04T10:26:36.763Z'),
@@ -167,7 +171,7 @@ export const extendedOrgUserResponse: ExtendedOrgUser = deepFreeze({
     display_name: 'Engineering - Backend',
   },
   approver_user_ids: ['ouE1vAIIx0fA', null, null],
-  approver_users: [{ id: 'ouE1vAIIx0fA', full_name: 'Manager One', email: 'manager1@fyle.in' }, null, null],
+  approver_users: [{ id: 'ouE1vAIIx0fA', full_name: 'Manager One', email: 'manager1@fyle.in' }],
   delegatees: [],
   locale: {
     timezone: 'Asia/Kolkata',

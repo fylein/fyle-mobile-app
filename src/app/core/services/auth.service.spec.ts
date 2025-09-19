@@ -13,7 +13,7 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { EouPlatformApiResponse } from '../models/employee-response.model';
+import { EmployeeResponse } from '../models/employee-response.model';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -41,7 +41,7 @@ describe('AuthService', () => {
     ]);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
-    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['transformExtOrgUserResponse']);
+    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['transformEmployeeResponse']);
     const jwtHelperServiceSpy = jasmine.createSpyObj('JwtHelperService', ['decodeToken']);
     TestBed.configureTestingModule({
       providers: [
@@ -100,15 +100,15 @@ describe('AuthService', () => {
 
   it('refreshEou(): should refresh extended org user in memory', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(
-      of({ data: eouPlatformApiResponse } as PlatformApiResponse<EouPlatformApiResponse>),
+      of({ data: eouPlatformApiResponse } as PlatformApiResponse<EmployeeResponse>),
     );
-    dataTransformService.transformExtOrgUserResponse.and.returnValue(eouRes3);
+    dataTransformService.transformEmployeeResponse.and.returnValue(eouRes3);
     storageService.set.and.resolveTo(null);
 
     authService.refreshEou().subscribe((res) => {
       expect(res).toEqual(eouRes3);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/employees/current');
-      expect(dataTransformService.transformExtOrgUserResponse).toHaveBeenCalledOnceWith(eouPlatformApiResponse);
+      expect(dataTransformService.transformEmployeeResponse).toHaveBeenCalledOnceWith(eouPlatformApiResponse);
       expect(storageService.set).toHaveBeenCalledOnceWith('user', eouRes3);
       done();
     });
@@ -224,7 +224,7 @@ describe('AuthService', () => {
 
   it('refreshEou(): should handle api failure when spender platform service fails', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(throwError(() => new Error('API Error')));
-    dataTransformService.transformExtOrgUserResponse.and.returnValue(eouRes3);
+    dataTransformService.transformEmployeeResponse.and.returnValue(eouRes3);
 
     authService.refreshEou().subscribe({
       next: () => {
@@ -233,7 +233,7 @@ describe('AuthService', () => {
       error: (error) => {
         expect(error.message).toBe('API Error');
         expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/employees/current');
-        expect(dataTransformService.transformExtOrgUserResponse).not.toHaveBeenCalled();
+        expect(dataTransformService.transformEmployeeResponse).not.toHaveBeenCalled();
         expect(storageService.set).not.toHaveBeenCalled();
         done();
       },

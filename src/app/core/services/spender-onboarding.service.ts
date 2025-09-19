@@ -10,7 +10,6 @@ import { AuthService } from './auth.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgSettings } from '../models/org-settings.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
-import { CurrencyService } from './currency.service';
 
 const spenderOnboardingCacheBuster$ = new Subject<void>();
 @Injectable({
@@ -25,8 +24,6 @@ export class SpenderOnboardingService {
 
   private orgSettingsService = inject(OrgSettingsService);
 
-  private currencyService = inject(CurrencyService);
-
   onboardingComplete$: BehaviorSubject<boolean> = new BehaviorSubject(true);
 
   @Cacheable({
@@ -37,14 +34,14 @@ export class SpenderOnboardingService {
       this.orgSettingsService.get(),
       this.getOnboardingStatus(),
       from(this.utilityService.isUserFromINCluster()),
-      this.currencyService.getHomeCurrency(),
+      this.authService.getEou(),
     ]).pipe(
-      map(([orgSettings, onboardingStatus, isUserFromINCluster, homeCurrency]) => {
+      map(([orgSettings, onboardingStatus, isUserFromINCluster, eou]) => {
         const isCCCEnabled = this.checkCCCEnabled(orgSettings);
         const isCardFeedEnabled = this.checkCardFeedEnabled(orgSettings);
         const restrictedOrgs = this.isRestrictedOrg(orgSettings, isUserFromINCluster);
         return this.shouldProceedToOnboarding(
-          homeCurrency,
+          eou.org.currency,
           restrictedOrgs,
           isCCCEnabled && isCardFeedEnabled,
           onboardingStatus,

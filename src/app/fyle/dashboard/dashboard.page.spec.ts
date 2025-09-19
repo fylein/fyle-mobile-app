@@ -851,7 +851,6 @@ describe('DashboardPage', () => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = true;
       component.eou$ = of(mockEou);
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
 
       const result$ = component.setShowOptInBanner();
 
@@ -868,8 +867,8 @@ describe('DashboardPage', () => {
     it('should set canShowOptInBanner to false if user currency is not USD or CAD', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
+      mockEou.org.currency = 'USD';
       component.eou$ = of(mockEou);
-      currencyService.getHomeCurrency.and.returnValue(of('INR'));
 
       const result$ = component.setShowOptInBanner();
 
@@ -886,9 +885,9 @@ describe('DashboardPage', () => {
     it('should set canShowOptInBanner to false if user mobile number does not start with +1', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
+      mockEou.org.currency = 'USD';
       mockEou.ou.mobile = '+911234567890';
       component.eou$ = of(mockEou);
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
 
       const result$ = component.setShowOptInBanner();
 
@@ -905,9 +904,9 @@ describe('DashboardPage', () => {
     it('should set canShowOptInBanner to false if feature config value is greater than 0', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
+      mockEou.org.currency = 'USD';
       mockEou.ou.mobile = '+911234567890';
       component.eou$ = of(mockEou);
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       const mockFeatureConfig = cloneDeep(featureConfigOptInData);
       mockFeatureConfig.value.count = 1;
       featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
@@ -927,9 +926,9 @@ describe('DashboardPage', () => {
     it('should set canShowOptInBanner to true if feature config data is null', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
+      mockEou.org.currency = 'USD';
       mockEou.ou.mobile = '+11234567890';
       featureConfigService.getConfiguration.and.returnValue(of(null));
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
 
       component.eou$ = of(mockEou);
 

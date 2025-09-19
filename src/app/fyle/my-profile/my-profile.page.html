@@ -29,24 +29,22 @@
             <!-- Hide Opt-in flow for IN cluster -->
             @if (!(isUserFromINCluster$ | async)) {
               @if (eou$ | async; as eou) {
-                @if (homeCurrency$ | async; as homeCurrency) {
-                  @if (homeCurrency === 'CAD' || homeCurrency === 'USD') {
-                    <app-profile-opt-in-card
-                      [extendedOrgUser]="eou"
-                      (copiedText)="showToastMessage($event, 'success')"
-                      (optInClicked)="optInMobileNumber($event)"
-                      (optOutClicked)="optOutClick()"
-                      (editMobileNumberClicked)="optInMobileNumber($event)"
-                      (deleteMobileNumberClicked)="onDeleteCTAClicked()"
-                    ></app-profile-opt-in-card>
-                  } @else {
-                    <app-mobile-number-card
-                      [extendedOrgUser]="eou"
-                      (addMobileNumberClicked)="updateMobileNumber($event)"
-                      (deleteMobileNumberClicked)="onDeleteCTAClicked()"
-                      (editMobileNumberClicked)="updateMobileNumber($event)"
-                    ></app-mobile-number-card>
-                  }
+                @if (eou.org.currency === 'CAD' || eou.org.currency === 'USD') {
+                  <app-profile-opt-in-card
+                    [extendedOrgUser]="eou"
+                    (copiedText)="showToastMessage($event, 'success')"
+                    (optInClicked)="optInMobileNumber($event)"
+                    (optOutClicked)="optOutClick()"
+                    (editMobileNumberClicked)="optInMobileNumber($event)"
+                    (deleteMobileNumberClicked)="onDeleteCTAClicked()"
+                  ></app-profile-opt-in-card>
+                } @else {
+                  <app-mobile-number-card
+                    [extendedOrgUser]="eou"
+                    (addMobileNumberClicked)="updateMobileNumber($event)"
+                    (deleteMobileNumberClicked)="onDeleteCTAClicked()"
+                    (editMobileNumberClicked)="updateMobileNumber($event)"
+                  ></app-mobile-number-card>
                 }
               }
             } @else {

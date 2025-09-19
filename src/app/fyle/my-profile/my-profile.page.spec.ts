@@ -41,7 +41,6 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FeatureConfig } from 'src/app/core/models/feature-config.model';
-import { CurrencyService } from 'src/app/core/services/currency.service';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -69,7 +68,6 @@ describe('MyProfilePage', () => {
   let employeesService: jasmine.SpyObj<EmployeesService>;
   let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
   let walkthroughService: jasmine.SpyObj<WalkthroughService>;
-  let currencyService: jasmine.SpyObj<CurrencyService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -116,7 +114,6 @@ describe('MyProfilePage', () => {
       'getIsOverlayClicked',
       'getProfileEmailOptInWalkthroughConfig',
     ]);
-    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -224,10 +221,6 @@ describe('MyProfilePage', () => {
           provide: WalkthroughService,
           useValue: walkthroughServiceSpy,
         },
-        {
-          provide: CurrencyService,
-          useValue: currencyServiceSpy,
-        },
         SpenderService,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -262,7 +255,6 @@ describe('MyProfilePage', () => {
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
     walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
-    currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
 
     component.eou$ = of(apiEouRes);
 
@@ -399,7 +391,6 @@ describe('MyProfilePage', () => {
       tokenService.getClusterDomain.and.resolveTo('domain');
       spyOn(component, 'reset');
       utilityService.isUserFromINCluster.and.resolveTo(false);
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       fixture.detectChanges();
 
       component.ionViewWillEnter();

@@ -12,7 +12,7 @@ import { AuthResponse } from '../models/auth-response.model';
 import { AccessTokenData } from '../models/access-token-data.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { EouPlatformApiResponse } from '../models/employee-response.model';
+import { EmployeeResponse } from '../models/employee-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -36,8 +36,8 @@ export class AuthService {
 
   refreshEou(): Observable<ExtendedOrgUser> {
     return this.spenderPlatformV1ApiService.get('/employees/current').pipe(
-      switchMap((response: PlatformApiResponse<EouPlatformApiResponse>) => {
-        const extendedOrgUser = this.dataTransformService.transformExtOrgUserResponse(response.data);
+      switchMap((response: PlatformApiResponse<EmployeeResponse>) => {
+        const extendedOrgUser = this.dataTransformService.transformEmployeeResponse(response.data);
         return from(this.storageService.set('user', extendedOrgUser)).pipe(map(() => extendedOrgUser));
       }),
     );

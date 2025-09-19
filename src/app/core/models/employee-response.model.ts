@@ -6,12 +6,14 @@ import { Delegatee } from './delegatees.model';
 import { Locale } from './locale.model';
 import { CustomField } from './custom_field.model';
 
-export interface EouPlatformApiResponse {
+export interface EmployeeResponse {
   id: string;
   created_at: string;
   updated_at: string;
   joined_at: string;
   org_id: string;
+  org_name: string;
+  currency: string;
   user_id: string;
   user: User;
   code: string;
@@ -35,6 +37,7 @@ export interface EouPlatformApiResponse {
   mobile: string;
   is_mobile_verified: string;
   custom_fields: CustomField[];
+  mileage_settings: Record<string, unknown>;
   flattened_custom_field: Record<string, unknown>;
   commute_details_id: string;
   commute_details: CommuteDetails;

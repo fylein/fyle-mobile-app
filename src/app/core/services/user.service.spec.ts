@@ -79,6 +79,10 @@ const extendedOrgUser = {
     default_cost_center_code: null,
     cost_center_ids: [],
   },
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),

@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { DataTransformService } from './data-transform.service';
 import { flattenedData, unflattenedData } from '../mock-data/data-transform.data';
 import { CustomField } from '../models/custom_field.model';
-import { EouPlatformApiResponse } from '../models/employee-response.model';
+import { EmployeeResponse } from '../models/employee-response.model';
 import { eouPlatformApiResponse2 } from '../mock-data/extended-org-user.data';
 
 describe('DataTransformService', () => {
@@ -116,9 +116,65 @@ describe('DataTransformService', () => {
     });
   });
 
-  describe('transformExtOrgUserResponse():', () => {
-    it('should transform platform API response to ExtendedOrgUser', () => {
-      const result = dataTransformService.transformExtOrgUserResponse(eouPlatformApiResponse2);
+  describe('transformOrgUser():', () => {
+    it('should transform EmployeeResponse to OrgUser', () => {
+      const result = dataTransformService.transformOrgUser(eouPlatformApiResponse2);
+
+      expect(result.id).toBe('ou123');
+      expect(result.created_at).toBe(eouPlatformApiResponse2.created_at);
+      expect(result.updated_at).toBe(eouPlatformApiResponse2.updated_at);
+      expect(result.joining_dt).toBe(eouPlatformApiResponse2.joined_at);
+      expect(result.org_id).toBe('org123');
+      expect(result.org_name).toBe('Test Organization');
+      expect(result.user_id).toBe('user123');
+      expect(result.employee_id).toBe('EMP001');
+      expect(result.location).toBe('Mumbai');
+      expect(result.level).toBe('Senior');
+      expect(result.level_id).toBe('lvl123');
+      expect(result.band).toBe('L5');
+      expect(result.business_unit).toBe('Engineering');
+      expect(result.department_id).toBe('dept123');
+      expect(result.department).toBe('Engineering');
+      expect(result.sub_department).toBe('Backend');
+      expect(result.roles).toEqual(['EMPLOYEE']);
+      expect(result.special_email).toBe('special@example.com');
+      expect(result.approver1_id).toBe('ap1');
+      expect(result.approver2_id).toBe('ap2');
+      expect(result.approver3_id).toBe('ap3');
+      expect(result.title).toBe('Software Engineer');
+      expect(result.status).toBe('ACTIVE');
+      expect(result.branch_ifsc).toBe('IFSC001');
+      expect(result.branch_account).toBe('ACC001');
+      expect(result.mobile).toBe('+1234567890');
+      expect(result.mobile_verified).toBeTrue();
+      expect(result.mobile_verification_attempts_left).toBe(3);
+      expect(result.is_primary).toBeTrue();
+      expect(result.custom_field_values).toEqual([
+        { name: 'field1', value: 'value1' },
+        { name: 'field2', value: 123 },
+      ]);
+    });
+
+    it('should handle approvers gracefully', () => {
+      const oneApproverRes: EmployeeResponse = {
+        ...eouPlatformApiResponse2,
+        approver_user_ids: ['ap1'],
+        approver_users: [{ id: 'ap1', full_name: 'Approver 1', email: 'ap1@example.com' }],
+      };
+      const result = dataTransformService.transformEmployeeResponse(oneApproverRes);
+      expect(result.ou.approver1_id).toBe('ap1');
+      expect(result.ou.approver2_id).toBeUndefined();
+      expect(result.ou.approver3_id).toBeUndefined();
+
+      // Ensure new fields are still properly set
+      expect(result.org.currency).toBe(oneApproverRes.currency);
+      expect(result.mileage_settings).toBe(oneApproverRes.mileage_settings);
+    });
+  });
+
+  describe('transformEmployeeResponse():', () => {
+    it('should transform employee response to ExtendedOrgUser', () => {
+      const result = dataTransformService.transformEmployeeResponse(eouPlatformApiResponse2);
 
       expect(result.ou.id).toBe('ou123');
       expect(result.ou.created_at).toBe(eouPlatformApiResponse2.created_at);
@@ -171,18 +227,8 @@ describe('DataTransformService', () => {
       expect(result.commute_details).toBe(eouPlatformApiResponse2.commute_details);
       expect(result.commute_details_id).toBe(eouPlatformApiResponse2.commute_details_id);
       expect(result.flattened_custom_field).toBe(eouPlatformApiResponse2.flattened_custom_field);
-    });
-
-    it('should handle <= 3 approvers gracefully', () => {
-      const oneApproverRes: EouPlatformApiResponse = {
-        ...eouPlatformApiResponse2,
-        approver_user_ids: ['ap1'],
-        approver_users: [{ id: 'ap1', full_name: 'Approver 1', email: 'ap1@example.com' }],
-      };
-      const result = dataTransformService.transformExtOrgUserResponse(oneApproverRes);
-      expect(result.ou.approver1_id).toBe('ap1');
-      expect(result.ou.approver2_id).toBeUndefined();
-      expect(result.ou.approver3_id).toBeUndefined();
+      expect(result.org.currency).toBe(eouPlatformApiResponse2.currency);
+      expect(result.mileage_settings).toBe(eouPlatformApiResponse2.mileage_settings);
     });
   });
 });

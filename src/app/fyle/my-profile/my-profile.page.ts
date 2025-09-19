@@ -49,7 +49,6 @@ import { CommonEmployeeSettings } from 'src/app/core/models/common-employee-sett
 import { driver } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
-import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -112,8 +111,6 @@ export class MyProfilePage {
 
   private featureConfigService = inject(FeatureConfigService);
 
-  private currencyService = inject(CurrencyService);
-
   employeeSettings: EmployeeSettings;
 
   orgSettings: OrgSettings;
@@ -168,8 +165,6 @@ export class MyProfilePage {
   isLoading: boolean;
 
   overlayClickCount = 0;
-
-  homeCurrency$: Observable<string>;
 
   emailOptInWalkthrough(): void {
     const emailOptInWalkthroughSteps = this.walkthroughService.getProfileEmailOptInWalkthroughConfig();
@@ -326,7 +321,6 @@ export class MyProfilePage {
     this.setupNetworkWatcher();
     this.eou$ = from(this.authService.getEou());
     this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.onboardingPending$ = this.spenderOnboardingService.checkForRedirectionToOnboarding().pipe(
       map((redirectionAllowed) => ({
         hideOtherOptions: redirectionAllowed,

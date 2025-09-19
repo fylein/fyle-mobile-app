@@ -114,6 +114,10 @@ export const currentEouRes: ExtendedOrgUser = deepFreeze({
     },
   },
   commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
   flattened_custom_field: {},
 });
 
@@ -354,6 +358,10 @@ export const eouListWithDisabledUser = deepFreeze([
       work_location: null,
     },
     commute_details_id: null,
+    org: {
+      currency: 'INR',
+    },
+    mileage_settings: {},
     flattened_custom_field: {},
   },
   {
@@ -435,6 +443,10 @@ export const eouListWithDisabledUser = deepFreeze([
       work_location: null,
     },
     commute_details_id: null,
+    org: {
+      currency: 'INR',
+    },
+    mileage_settings: {},
     flattened_custom_field: {},
   },
 ]);
@@ -599,6 +611,10 @@ export const extendedOrgUserResponse = deepFreeze({
     },
   },
   commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
   flattened_custom_field: {},
 });
 

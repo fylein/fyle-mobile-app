@@ -2,7 +2,7 @@ import deepFreeze from 'deep-freeze-strict';
 
 import { EouApiResponse } from '../models/eou-api-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { EouPlatformApiResponse } from '../models/employee-response.model';
+import { EmployeeResponse } from '../models/employee-response.model';
 
 export const apiEouRes: ExtendedOrgUser = deepFreeze({
   ou: {
@@ -117,6 +117,10 @@ export const apiEouRes: ExtendedOrgUser = deepFreeze({
   },
   approver_user_ids: [],
   commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
   flattened_custom_field: {},
 });
 
@@ -212,6 +216,10 @@ export const eouRes2: ExtendedOrgUser = deepFreeze({
   },
   approver_user_ids: [],
   commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
   flattened_custom_field: {},
 });
 
@@ -342,6 +350,10 @@ export const eouRes3: ExtendedOrgUser = deepFreeze({
   },
   approver_user_ids: [],
   commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
   flattened_custom_field: {},
 });
 
@@ -564,6 +576,10 @@ export const eouUnFlattended: ExtendedOrgUser = deepFreeze({
   },
   approver_user_ids: [],
   commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
   flattened_custom_field: {},
 });
 
@@ -583,12 +599,14 @@ export const eouWithPendingDetails: ExtendedOrgUser = deepFreeze({
   },
 });
 
-export const eouPlatformApiResponse: EouPlatformApiResponse = deepFreeze({
+export const eouPlatformApiResponse: EmployeeResponse = deepFreeze({
   id: 'ouX8dwsbLCLv',
   created_at: '2018-02-01T02:32:25.267Z',
   updated_at: '2023-01-02T00:00:00.000Z',
   joined_at: '2017-07-25T00:00:00.000Z',
   org_id: 'orNVthTo2Zyo',
+  org_name: 'Staging Loaded',
+  currency: 'INR',
   user_id: 'usvKA4X8Ugcr',
   user: {
     id: 'usvKA4X8Ugcr',
@@ -689,14 +707,17 @@ export const eouPlatformApiResponse: EouPlatformApiResponse = deepFreeze({
   },
   mobile_verification_attempts_left: '3',
   is_primary: true,
+  mileage_settings: {},
 });
 
-export const eouPlatformApiResponse2: EouPlatformApiResponse = deepFreeze({
+export const eouPlatformApiResponse2: EmployeeResponse = deepFreeze({
   id: 'ou123',
   created_at: '2023-01-01T00:00:00.000Z',
   updated_at: '2023-01-02T00:00:00.000Z',
   joined_at: '2023-01-01T00:00:00.000Z',
   org_id: 'org123',
+  org_name: 'Test Organization',
+  currency: 'USD',
   user_id: 'user123',
   code: 'EMP001',
   location: 'Mumbai',
@@ -765,5 +786,6 @@ export const eouPlatformApiResponse2: EouPlatformApiResponse = deepFreeze({
     },
   },
   commute_details_id: 'commute123',
+  mileage_settings: {},
   flattened_custom_field: {},
 });

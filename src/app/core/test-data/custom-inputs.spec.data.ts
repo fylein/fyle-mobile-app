@@ -303,6 +303,10 @@ export const authRespone = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
   },
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -331,7 +335,7 @@ export const authRespone = deepFreeze({
     display_name: '0000000',
   },
   approver_user_ids: ['oudZdj614Xj6'],
-  approver_users: [{ id: 'oudZdj614Xj6', full_name: 'Approver One', email: 'approver1@fyle.in' }, null, null],
+  approver_users: [{ id: 'oudZdj614Xj6', full_name: 'Approver One', email: 'approver1@fyle.in' }],
   delegatees: [],
   locale: {
     timezone: 'Asia/Kolkata',

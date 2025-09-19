@@ -5,7 +5,6 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { ErrorType } from './error-type.model';
 import { TranslocoService } from '@jsverse/transloco';
-import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-verify-number-popover',
@@ -19,8 +18,6 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   private mobileNumberVerificationService = inject(MobileNumberVerificationService);
 
   private translocoService = inject(TranslocoService);
-
-  private currencyService = inject(CurrencyService);
 
   @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
@@ -120,9 +117,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
       .pipe(finalize(() => (this.verifyingOtp = false)))
       .subscribe({
         complete: () => {
-          this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
-            this.popoverController.dismiss({ action: 'SUCCESS', homeCurrency });
-          });
+          this.popoverController.dismiss({ action: 'SUCCESS', homeCurrency: this.extendedOrgUser.org.currency });
         },
         error: () => this.setError('INVALID_OTP'),
       });

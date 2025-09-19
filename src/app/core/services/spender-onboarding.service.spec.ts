@@ -1,22 +1,19 @@
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { SpenderOnboardingService } from './spender-onboarding.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { OnboardingStepStatus } from '../models/onboarding-step-status.model';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { onboardingStatusData } from '../mock-data/onboarding-status.data';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
 import { UtilityService } from './utility.service';
-import { OrgSettings } from '../models/org-settings.model';
 import { OrgSettingsService } from './org-settings.service';
 import { AuthService } from './auth.service';
 import { orgSettingsCardsDisabled, orgSettingsData } from '../test-data/org-settings.service.spec.data';
 import { OnboardingState } from '../models/onboarding-state.enum';
 import { orgSettingsCCCDisabled3 } from '../mock-data/org-settings.data';
-import { extendedOrgUserResponse } from '../test-data/tasks.service.spec.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { CurrencyService } from './currency.service';
 
 describe('SpenderOnboardingService', () => {
   let spenderOnboardingService: SpenderOnboardingService;
@@ -24,14 +21,12 @@ describe('SpenderOnboardingService', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-  let currencyService: jasmine.SpyObj<CurrencyService>;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
-    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     TestBed.configureTestingModule({
       providers: [
         SpenderOnboardingService,
@@ -52,10 +47,6 @@ describe('SpenderOnboardingService', () => {
             provide: UtilityService,
             useValue: utilityServiceSpy,
           },
-          {
-            provide: CurrencyService,
-            useValue: currencyServiceSpy,
-          },
         ],
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -66,7 +57,6 @@ describe('SpenderOnboardingService', () => {
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService);
   });
@@ -189,7 +179,6 @@ describe('SpenderOnboardingService', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(apiEouRes)));
     utilityService.isUserFromINCluster.and.resolveTo(false);
-    currencyService.getHomeCurrency.and.returnValue(of('USD'));
     const result = await spenderOnboardingService.checkForRedirectionToOnboarding().toPromise();
     expect(result).toBeTrue();
   });

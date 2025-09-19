@@ -19,20 +19,17 @@ import { FeatureConfigService } from './platform/v1/spender/feature-config.servi
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { featureConfigOptInData } from '../mock-data/feature-config.data';
-import { CurrencyService } from './currency.service';
 
 describe('UtilityService', () => {
   let utilityService: UtilityService;
   let tokenService: jasmine.SpyObj<TokenService>;
   let authService: jasmine.SpyObj<AuthService>;
   let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
-  let currencyService: jasmine.SpyObj<CurrencyService>;
 
   beforeEach(() => {
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['getConfiguration']);
-    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -49,17 +46,12 @@ describe('UtilityService', () => {
           provide: FeatureConfigService,
           useValue: featureConfigServiceSpy,
         },
-        {
-          provide: CurrencyService,
-          useValue: currencyServiceSpy,
-        },
       ],
     });
     utilityService = TestBed.inject(UtilityService);
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
-    currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
   });
 
   it('should be created', () => {
@@ -275,8 +267,9 @@ describe('UtilityService', () => {
         key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
       };
       spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
-      authService.getEou.and.resolveTo(apiEouRes);
-      currencyService.getHomeCurrency.and.returnValue(of('INR'));
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.org.currency = 'INR';
+      authService.getEou.and.resolveTo(mockEou);
 
       utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
         expect(result).toBeFalse();
@@ -309,7 +302,6 @@ describe('UtilityService', () => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
       authService.getEou.and.resolveTo(mockEou);
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigOptInData));
 
       utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
@@ -327,7 +319,6 @@ describe('UtilityService', () => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
       authService.getEou.and.resolveTo(mockEou);
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       const mockFeatureConfig = cloneDeep(featureConfigOptInData);
       mockFeatureConfig.value = null;
       featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
@@ -347,7 +338,6 @@ describe('UtilityService', () => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
       authService.getEou.and.resolveTo(mockEou);
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
       featureConfigService.getConfiguration.and.returnValue(of(undefined));
 
       utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
@@ -372,23 +362,6 @@ describe('UtilityService', () => {
         expect(result).toBeFalse();
         done();
       });
-    });
-  });
-
-  it('canShowOptInModal(): should return false when currency service fails to get home currency', (done) => {
-    const featureConfig = {
-      feature: 'OPT_IN',
-      key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
-    };
-    spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
-    const mockEou = cloneDeep(apiEouRes);
-    mockEou.ou.mobile = '+11234567890';
-    authService.getEou.and.resolveTo(mockEou);
-    currencyService.getHomeCurrency.and.returnValue(throwError(() => new Error('Currency API Error')));
-
-    utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
-      expect(result).toBeFalse();
-      done();
     });
   });
 });
