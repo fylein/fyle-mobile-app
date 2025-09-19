@@ -12,9 +12,9 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators, FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { NgOtpInputComponent, NgOtpInputConfig } from 'ng-otp-input';
 import { finalize, from, Subscription, switchMap } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
@@ -33,13 +33,24 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass, DecimalPipe } from '@angular/common';
+import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
 
 @Component({
   selector: 'app-spender-onboarding-opt-in-step',
   templateUrl: './spender-onboarding-opt-in-step.component.html',
   styleUrls: ['./spender-onboarding-opt-in-step.component.scss'],
-  standalone: false,
+  imports: [
+    DecimalPipe,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonIcon,
+    NgClass,
+    NgOtpInputComponent,
+    TranslocoPipe,
+  ],
 })
 export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   private fb = inject(UntypedFormBuilder);
@@ -334,7 +345,7 @@ export class SpenderOnboardingOptInStepComponent implements OnInit, OnChanges {
   }
 
   onOtpChange(otp: string): void {
-    if (otp.length === 6) {
+    if (otp?.length === 6) {
       this.verifyOtp(otp);
     }
   }

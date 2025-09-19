@@ -1,8 +1,11 @@
 import { Component, OnInit, forwardRef, Input, inject, input } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-location',
@@ -15,7 +18,7 @@ import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.
       multi: true,
     },
   ],
-  standalone: false,
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FyLocationComponent implements ControlValueAccessor, OnInit {
   private modalController = inject(ModalController);

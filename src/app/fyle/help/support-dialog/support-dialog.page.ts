@@ -1,15 +1,22 @@
 import { Component, inject, input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { NavParams } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonToolbar, ModalController, NavParams } from '@ionic/angular/standalone';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { HelpAdminInfo } from 'src/app/core/models/help-admin-info.model';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-support-dialog',
   templateUrl: './support-dialog.page.html',
   styleUrls: ['./support-dialog.page.scss'],
-  standalone: false,
+  imports: [
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonToolbar,
+    MatIcon
+  ],
 })
 export class SupportDialogPage {
   private modalController = inject(ModalController);

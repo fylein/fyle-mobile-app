@@ -1,7 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-
 import { MobileNumberCardComponent } from './mobile-number-card.component';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { cloneDeep } from 'lodash';
@@ -20,8 +18,7 @@ describe('MobileNumberCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [MobileNumberCardComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [ TranslocoModule, MobileNumberCardComponent],
       providers: [
         {
           provide: TranslocoService,

@@ -2,11 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { ApproverFileService } from './file.service';
 import { ApproverPlatformApiService } from '../../../approver-platform-api.service';
 import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
-import { 
-  platformFileData, 
-  platformFileBulkData, 
-  platformFilePostRequestPayload, 
-  platformFilePostRequestBulkPayload 
+import {
+  platformFileData,
+  platformFileBulkData,
+  platformFilePostRequestPayload,
+  platformFilePostRequestBulkPayload,
 } from 'src/app/core/mock-data/platform-file.data';
 import { of } from 'rxjs';
 
@@ -49,7 +49,9 @@ describe('ApproverFileService', () => {
 
     service.createFilesBulk(platformFilePostRequestBulkPayload).subscribe((response) => {
       expect(response).toEqual(platformFileBulkData);
-      expect(approverPlatformApiService.post).toHaveBeenCalledWith('/files/bulk', { data: platformFilePostRequestBulkPayload });
+      expect(approverPlatformApiService.post).toHaveBeenCalledWith('/files/bulk', {
+        data: platformFilePostRequestBulkPayload,
+      });
       done();
     });
   });
@@ -87,8 +89,8 @@ describe('ApproverFileService', () => {
 
     service.deleteFilesBulk(fileIds).subscribe((response) => {
       expect(response).toBeUndefined();
-      expect(approverPlatformApiService.post).toHaveBeenCalledWith('/files/delete/bulk', { 
-        data: [{ id: 'fi1' }, { id: 'fi2' }] 
+      expect(approverPlatformApiService.post).toHaveBeenCalledWith('/files/delete/bulk', {
+        data: [{ id: 'fi1' }, { id: 'fi2' }],
       });
       done();
     });

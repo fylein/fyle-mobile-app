@@ -1,35 +1,29 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ModalController } from '@ionic/angular/standalone';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { SplitExpensePolicyViolationComponent } from './split-expense-policy-violation.component';
-import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import {
   filteredSplitPolicyViolationsData,
   filteredSplitPolicyViolationsData2,
 } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
-import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { CurrencyPipe } from '@angular/common';
 
 describe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
   let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let comments: UntypedFormArray;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
+    const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
-      declarations: [SplitExpensePolicyViolationComponent],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, TranslocoModule],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      imports: [getTranslocoTestingModule(), SplitExpensePolicyViolationComponent,
+        MatIconTestingModule],
+      schemas: [NO_ERRORS_SCHEMA],
       providers: [
         UntypedFormBuilder,
         {
@@ -37,8 +31,8 @@ describe('SplitExpensePolicyViolationComponent', () => {
           useValue: modalControllerSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+          provide: CurrencyPipe,
+          useValue: currencyPipeSpy,
         },
       ],
     }).compileComponents();
@@ -51,30 +45,6 @@ describe('SplitExpensePolicyViolationComponent', () => {
       1: cloneDeep(filteredSplitPolicyViolationsData2),
     };
     comments = component.form.controls.comments as UntypedFormArray;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'splitExpensePolicyViolation.policyViolationFound': 'Policy Violation Found',
-        'splitExpensePolicyViolation.expenseCannotBeSplit': 'Expense cannot be split',
-        'splitExpensePolicyViolation.splitBlockedMessage': 'Expense cannot be split as it violates policies.',
-        'splitExpensePolicyViolation.resolveViolationsMessage': 'Resolve the violations before splitting.',
-        'splitExpensePolicyViolation.critical': 'Critical',
-        'splitExpensePolicyViolation.policyViolation': 'Policy Violation',
-        'splitExpensePolicyViolation.pluralS': '(s)',
-        'splitExpensePolicyViolation.additionalDetailsHeader': 'Please provide additional details for approval',
-        'splitExpensePolicyViolation.detailsPlaceholder': 'Enter the details here',
-        'splitExpensePolicyViolation.cancel': 'Cancel',
-        'splitExpensePolicyViolation.continue': 'Continue',
-        'splitExpensePolicyViolation.gotIt': 'Got it',
-      };
-      let translation = translations[key] || key;
-      if (params) {
-        Object.keys(params).forEach((key) => {
-          translation = translation.replace(`{{${key}}}`, params[key]);
-        });
-      }
-      return translation;
-    });
     fixture.detectChanges();
   }));
 

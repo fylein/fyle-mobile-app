@@ -35,7 +35,7 @@ describe('ApproverReportsService', () => {
     });
     approverReportsService = TestBed.inject(ApproverReportsService);
     approverPlatformApiService = TestBed.inject(
-      ApproverPlatformApiService
+      ApproverPlatformApiService,
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
   });
 

@@ -1,7 +1,7 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { IonicModule, Platform, MenuController } from '@ionic/angular';
+import { Platform, MenuController } from '@ionic/angular/standalone';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -17,15 +17,39 @@ import { TasksService } from './core/services/tasks.service';
 import { of } from 'rxjs';
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { TrackingService } from './core/services/tracking.service';
-import { NavController } from '@ionic/angular';
-import { TranslocoService } from '@jsverse/transloco';
+import { NavController } from '@ionic/angular/standalone';
 import { UserEventService } from './core/services/user-event.service';
 import { DeviceService } from './core/services/device.service';
 import { GmapsService } from './core/services/gmaps.service';
 
 import { SplashScreen } from '@capacitor/splash-screen';
-import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
+import { StatusBar } from '@capacitor/status-bar';
+import { TextZoom } from '@capacitor/text-zoom';
+import { App } from '@capacitor/app';
 import { BackButtonService } from './core/services/back-button.service';
+import { getTranslocoTestingModule } from './core/testing/transloco-testing.utils';
+import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
+import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
+import { extendedDeviceInfoMockData } from './core/mock-data/extended-device-info.data';
+
+// mock side menu component
+@Component({
+  selector: 'app-sidemenu',
+})
+class MockSidemenuComponent {}
+
+// mock connection component
+@Component({
+  selector: 'app-fy-connection',
+})
+class MockFyConnectionComponent {}
+
+// mock footer component
+@Component({
+  selector: 'app-fy-footer',
+})
+class MockFyFooterComponent {}
 
 describe('AppComponent', () => {
   let platformReadySpy;
@@ -42,13 +66,25 @@ describe('AppComponent', () => {
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let navController: jasmine.SpyObj<NavController>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let deviceService: jasmine.SpyObj<DeviceService>;
   let gmapsService: jasmine.SpyObj<GmapsService>;
   let menuController: jasmine.SpyObj<MenuController>;
   let backButtonService: jasmine.SpyObj<BackButtonService>;
   beforeEach(waitForAsync(() => {
+    // Mock Capacitor plugins before component creation
+    // Create spies that return resolved promises
+    const splashScreenHideSpy = jasmine.createSpy('hide').and.resolveTo();
+    const statusBarSetStyleSpy = jasmine.createSpy('setStyle').and.resolveTo();
+    const textZoomSetSpy = jasmine.createSpy('set').and.resolveTo();
+    const appAddListenerSpy = jasmine.createSpy('addListener').and.resolveTo({ remove: jasmine.createSpy('remove') });
+
+    // Replace the methods on the imported modules
+    Object.defineProperty(SplashScreen, 'hide', { value: splashScreenHideSpy, writable: true });
+    Object.defineProperty(StatusBar, 'setStyle', { value: statusBarSetStyleSpy, writable: true });
+    Object.defineProperty(TextZoom, 'set', { value: textZoomSetSpy, writable: true });
+    Object.defineProperty(App, 'addListener', { value: appAddListenerSpy, writable: true });
+
     platformReadySpy = Promise.resolve();
     platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
     const backButtonSpy = jasmine.createSpyObj('backButton', ['subscribeWithPriority']);
@@ -60,6 +96,8 @@ describe('AppComponent', () => {
     platformSpy.backButton = backButtonSpy;
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['logout']);
     const appVersionServiceSpy = jasmine.createSpyObj('AppVersionService', ['load', 'getUserAppVersionDetails']);
+    appVersionServiceSpy.load.and.returnValue(of(null));
+    appVersionServiceSpy.getUserAppVersionDetails.and.returnValue(of(null));
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['isLoggedIn']);
     routerAuthServiceSpy.isLoggedIn.and.returnValue(of(true));
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline'], {
@@ -99,12 +137,12 @@ describe('AppComponent', () => {
     ]);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateRoot', 'back']);
     spenderOnboardingServiceSpy.setOnboardingStatusAsComplete.and.returnValue(of(null));
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', {
       onSetToken: (callback) => callback(),
       onLogout: (callback) => callback(),
     });
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
+    deviceServiceSpy.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
     const gmapsServiceSpy = jasmine.createSpyObj('GmapsService', ['loadLibrary']);
     const menuControllerSpy = jasmine.createSpyObj('MenuController', ['swipeGesture']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
@@ -113,8 +151,7 @@ describe('AppComponent', () => {
     trackingServiceSpy.updateIdentityIfNotPresent = jasmine.createSpy('updateIdentityIfNotPresent').and.resolveTo();
     trackingServiceSpy.onSignOut = jasmine.createSpy('onSignOut');
     TestBed.configureTestingModule({
-      declarations: [AppComponent],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      imports: [getTranslocoTestingModule(), AppComponent],
       providers: [
         { provide: Platform, useValue: platformSpy },
         { provide: AuthService, useValue: authServiceSpy },
@@ -139,15 +176,23 @@ describe('AppComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: NavController, useValue: navControllerSpy },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: GmapsService, useValue: gmapsServiceSpy },
         { provide: MenuController, useValue: menuControllerSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
       ],
-      imports: [IonicModule.forRoot()],
-    }).compileComponents();
+    })
+      .overrideComponent(AppComponent, {
+        remove: {
+          imports: [SidemenuComponent, FyConnectionComponent, FooterComponent],
+        },
+        add: {
+          imports: [MockSidemenuComponent, MockFyConnectionComponent, MockFyFooterComponent],
+          schemas: [NO_ERRORS_SCHEMA],
+        },
+      })
+      .compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -161,8 +206,6 @@ describe('AppComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
-    // adding transloco service to the testbed
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;
@@ -171,25 +214,13 @@ describe('AppComponent', () => {
   }));
 
   describe('ngAfterViewInit', () => {
-    let splashScreenSpy: jasmine.SpyObj<typeof SplashScreen>;
-
     beforeEach(() => {
-      splashScreenSpy = jasmine.createSpyObj('SplashScreen', ['hide']);
-      splashScreenSpy.hide.and.resolveTo();
-      // Replace the global SplashScreen object
-      Object.defineProperty(window, 'SplashScreen', {
-        value: splashScreenSpy,
-        writable: true,
-        configurable: true,
-      });
       jasmine.clock().install();
       jasmine.clock().mockDate();
     });
 
     afterEach(() => {
       jasmine.clock().uninstall();
-      // Clean up the global SplashScreen object
-      delete (window as any).SplashScreen;
     });
 
     it('should initialize after view is ready', async () => {

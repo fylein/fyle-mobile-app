@@ -1,30 +1,53 @@
 <ng-container>
   <div class="profile-opt-in-card__container">
     <div>
-      <div (click)="clickedOnOptIn()" class="profile-opt-in-card__title-container">
+      <div (click)="!isOptedOutViaSms && clickedOnOptIn()" class="profile-opt-in-card__title-container">
         <div class="profile-opt-in-card__title">
           <span>{{ 'profileOptInCard.title' | transloco }}</span>
           <div class="profile-opt-in-card__description">
             {{ 'profileOptInCard.description' | transloco }}
           </div>
         </div>
-        @if (!isUserOptedIn && !isMobileAddedButNotVerified) {
-          <span class="profile-opt-in-card__opt-in-btn">{{
-            'profileOptInCard.optIn' | transloco
-          }}</span>
+        @if (!isUserOptedIn && !isMobileAddedButNotVerified && !isOptedOutViaSms) {
+          <span class="profile-opt-in-card__opt-in-btn">{{ 'profileOptInCard.optIn' | transloco }}</span>
         }
       </div>
 
-      @if (isUserOptedIn) {
+      @if (isOptedOutViaSms) {
+        <div class="profile-opt-in-card__alert-info">
+          <app-fy-alert-info
+            [message]="'profileOptInCard.optInMessage' | transloco"
+            type="warning"
+            [allowHtml]="true"
+          ></app-fy-alert-info>
+        </div>
+      }
+
+      @if (isUserOptedIn || isOptedOutViaSms) {
         <div class="profile-opt-in-card__status__label">
           <span>{{ 'profileOptInCard.status' | transloco }}</span>
-          <span class="profile-opt-in-card__opt-out-btn" (click)="clickedOnOptOut()">
-            {{ 'profileOptInCard.optOut' | transloco }}
+          <span
+            class="profile-opt-in-card__opt-out-btn"
+            [class.profile-opt-in-card__opt-in-btn--disabled]="isOptedOutViaSms"
+            [style.pointer-events]="isOptedOutViaSms ? 'none' : 'auto'"
+            (click)="!isOptedOutViaSms && clickedOnOptOut()"
+          >
+            {{
+              (isUserOptedIn && !isOptedOutViaSms ? 'profileOptInCard.optOut' : 'profileOptInCard.optIn') | transloco
+            }}
           </span>
         </div>
         <div class="profile-opt-in-card__status__icon-container">
-          <div class="profile-opt-in-card__status__icon"></div>
-          <div class="profile-opt-in-card__status__text">{{ 'profileOptInCard.optedIn' | transloco }}</div>
+          <div
+            class="profile-opt-in-card__status__icon"
+            [class.profile-opt-in-card__status__icon--inactive]="!isUserOptedIn || isOptedOutViaSms"
+          ></div>
+          <div class="profile-opt-in-card__status__text">
+            {{
+              (isUserOptedIn && !isOptedOutViaSms ? 'profileOptInCard.optedIn' : 'profileOptInCard.optedOut')
+                | transloco
+            }}
+          </div>
         </div>
         <div class="profile-opt-in-card__divider"></div>
         <div class="profile-opt-in-card__mobile">
@@ -40,23 +63,25 @@
               class="fy-icon profile-opt-in-card__mobile__edit-icon"
             ></ion-icon>
           </div>
-          <div class="profile-opt-in-card__divider"></div>
-          <div class="profile-opt-in-card__usage-description" (click)="copyToClipboard()">
-            <div class="profile-opt-in-card__usage-description__text">
-              {{ 'profileOptInCard.usageDescription' | transloco }}
+          @if (!isOptedOutViaSms) {
+            <div class="profile-opt-in-card__divider"></div>
+            <div class="profile-opt-in-card__usage-description" (click)="copyToClipboard()">
+              <div class="profile-opt-in-card__usage-description__text">
+                {{ 'profileOptInCard.usageDescription' | transloco }}
+              </div>
+              <div>
+                <ion-icon
+                  src="../../../../../assets/svg/duplicate.svg"
+                  slot="icon-only"
+                  class="fy-icon profile-opt-in-card__copy-icon"
+                ></ion-icon>
+              </div>
             </div>
-            <div>
-              <ion-icon
-                src="../../../../../assets/svg/duplicate.svg"
-                slot="icon-only"
-                class="fy-icon profile-opt-in-card__copy-icon"
-              ></ion-icon>
-            </div>
-          </div>
+          }
         </div>
       }
 
-      @if (isMobileAddedButNotVerified) {
+      @if (isMobileAddedButNotVerified && !isOptedOutViaSms) {
         <div (click)="clickedOnOptIn()">
           <div class="profile-opt-in-card__status__label">
             <span>{{ 'profileOptInCard.status' | transloco }}</span>

@@ -1,11 +1,13 @@
 import { Component, OnInit, Input, inject, input } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
+import { MatRipple } from '@angular/material/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-advance-actions',
   templateUrl: './advance-actions.component.html',
   styleUrls: ['./advance-actions.component.scss'],
-  standalone: false,
+  imports: [MatRipple, TranslocoPipe],
 })
 export class AdvanceActionsComponent implements OnInit {
   private popoverController = inject(PopoverController);

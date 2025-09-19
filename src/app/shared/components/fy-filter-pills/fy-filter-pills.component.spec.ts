@@ -1,5 +1,4 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 
@@ -21,8 +20,7 @@ describe('FyFilterPillsComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [FyFilterPillsComponent, SnakeCaseToSpaceCase],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [ TranslocoModule, FyFilterPillsComponent, SnakeCaseToSpaceCase],
       providers: [
         {
           provide: TranslocoService,

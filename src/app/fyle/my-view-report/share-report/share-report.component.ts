@@ -1,11 +1,25 @@
 import { AfterViewInit, Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-share-report',
   templateUrl: './share-report.component.html',
   styleUrls: ['./share-report.component.scss'],
-  standalone: false,
+  imports: [
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    TranslocoPipe
+  ],
 })
 export class ShareReportComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);

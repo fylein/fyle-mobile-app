@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
-import { IonContent, ModalController, Platform, PopoverController } from '@ionic/angular';
+import { IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonRow, IonSegment, IonSegmentButton, IonSpinner, IonToolbar, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { from, Observable, Subject } from 'rxjs';
 import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -12,16 +12,40 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { Router } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass } from '@angular/common';
+import { AuditHistoryComponent } from '../audit-history/audit-history.component';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-view-comment',
   templateUrl: './view-comment.component.html',
   styleUrls: ['./view-comment.component.scss'],
   providers: [DateWithTimezonePipe],
-  standalone: false,
+  imports: [
+    AuditHistoryComponent,
+    DateWithTimezonePipe,
+    FormsModule,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonRow,
+    IonSegment,
+    IonSegmentButton,
+    IonSpinner,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class ViewCommentComponent implements OnInit {
   private statusService = inject(StatusService);

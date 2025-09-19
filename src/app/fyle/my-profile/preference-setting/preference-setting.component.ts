@@ -1,10 +1,16 @@
 import { Component, Input, output } from '@angular/core';
 import { EventData } from './event-data.model';
+import { FormsModule } from '@angular/forms';
+import { IonToggle } from '@ionic/angular/standalone';
+
 @Component({
   selector: 'app-preference-setting',
   templateUrl: './preference-setting.component.html',
   styleUrls: ['./preference-setting.component.scss'],
-  standalone: false,
+  imports: [
+    FormsModule,
+    IonToggle
+  ],
 })
 export class PreferenceSettingComponent {
   // TODO: Skipped for migration because:

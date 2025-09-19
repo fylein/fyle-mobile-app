@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { AddApproversPopoverComponent } from './add-approvers-popover.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ApproverDialogComponent } from './approver-dialog/approver-dialog.component';
@@ -42,8 +42,15 @@ describe('AddApproversPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [AddApproversPopoverComponent, ApproverDialogComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, TranslocoModule],
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        AddApproversPopoverComponent,
+        ApproverDialogComponent,
+      ],
       providers: [
         {
           provide: ModalController,
@@ -174,7 +181,7 @@ describe('AddApproversPopoverComponent', () => {
     expect(advanceRequestService.addApprover).toHaveBeenCalledOnceWith(
       'areqMP09oaYXBf',
       'john.doe@fyle.in',
-      'The request is approved'
+      'The request is approved',
     );
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });
@@ -198,7 +205,7 @@ describe('AddApproversPopoverComponent', () => {
     expect(approverReportsService.addApprover).toHaveBeenCalledOnceWith(
       'repP09oaYXAf',
       'ajain@fyle.in',
-      'The request is approved'
+      'The request is approved',
     );
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });

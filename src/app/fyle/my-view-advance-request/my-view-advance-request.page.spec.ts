@@ -1,39 +1,44 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync, flushMicrotasks } from '@angular/core/testing';
-import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 
 import { MyViewAdvanceRequestPage } from './my-view-advance-request.page';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
+import { ActivatedRoute, Router, UrlSerializer, NavigationEnd } from '@angular/router';
 
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.constants';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { cloneDeep } from 'lodash';
 import {
   advanceRequestFileUrlData,
   advanceRequestFileUrlData2,
   expectedFileData1,
-  fileObject10,
   fileObject4,
 } from 'src/app/core/mock-data/file-object.data';
-import { of } from 'rxjs';
+import { of, BehaviorSubject } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import { publicAdvanceRequestRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-actions.data';
-import { advanceReqApprovals, advanceReqApprovalsPublic } from 'src/app/core/mock-data/approval.data';
+import { advanceReqApprovalsPublic } from 'src/app/core/mock-data/approval.data';
 import { advanceRequestCustomFieldData2 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { customFields } from 'src/app/core/mock-data/custom-field.data';
-import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { advanceRequestPlatform } from 'src/app/core/mock-data/platform/v1/advance-request-platform.data';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import { modalControllerParams8, modalControllerParams9 } from 'src/app/core/mock-data/modal-controller.data';
+import { modalControllerParams8 } from 'src/app/core/mock-data/modal-controller.data';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { ReceiptPreviewThumbnailComponent } from 'src/app/shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+
+// mock for app-receipt-preview-thumbnail
+@Component({
+  selector: 'app-receipt-preview-thumbnail',
+  template: '<div></div>',
+})
+class MockReceiptPreviewThumbnailComponent {}
 
 describe('MyViewAdvanceRequestPage', () => {
   let component: MyViewAdvanceRequestPage;
@@ -62,7 +67,11 @@ describe('MyViewAdvanceRequestPage', () => {
       'getCustomFieldsForSpender',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByAdvanceRequestId', 'downloadUrl']);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const routerEventsSubject = new BehaviorSubject(new NavigationEnd(1, '/test', '/test'));
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate'], {
+      events: routerEventsSubject.asObservable(),
+      url: '/test'
+    });
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
@@ -75,15 +84,13 @@ describe('MyViewAdvanceRequestPage', () => {
     loaderServiceSpy.hideLoader.and.resolveTo();
 
     TestBed.configureTestingModule({
-      declarations: [MyViewAdvanceRequestPage],
-      imports: [IonicModule.forRoot()],
+      imports: [MyViewAdvanceRequestPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
-
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
@@ -106,6 +113,13 @@ describe('MyViewAdvanceRequestPage', () => {
         { provide: NavController, useValue: navControllerSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
+    }).overrideComponent(MyViewAdvanceRequestPage, {
+      remove: {
+        imports: [ReceiptPreviewThumbnailComponent]
+      },
+      add: {
+        imports: [MockReceiptPreviewThumbnailComponent]
+      }
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyViewAdvanceRequestPage);
@@ -121,8 +135,6 @@ describe('MyViewAdvanceRequestPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
-
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
@@ -285,7 +297,6 @@ describe('MyViewAdvanceRequestPage', () => {
   });
 
   it('pullBack(): should pull back advance request and navigate to my_advances page', fakeAsync(() => {
-    const mockPlatformResponse = { data: advanceRequestPlatform.data[0] };
     advanceRequestService.pullBackAdvanceRequest.and.returnValue(of(advanceRequestPlatform.data[0]));
     const pullBackPopoverSpy = jasmine.createSpyObj('pullBackPopover', ['present', 'onWillDismiss']);
     pullBackPopoverSpy.onWillDismiss.and.resolveTo({ data: { comment: 'test comment' } });

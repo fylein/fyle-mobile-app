@@ -1,5 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
@@ -17,7 +16,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ViewExpensePage } from './view-expense.page';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -148,8 +147,7 @@ describe('ViewExpensePage', () => {
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewExpensePage],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
+      imports: [ FormsModule, MatIconModule, MatIconTestingModule, ViewExpensePage],
       providers: [
         {
           useValue: loaderServiceSpy,

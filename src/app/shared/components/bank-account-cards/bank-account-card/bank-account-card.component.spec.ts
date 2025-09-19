@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -40,8 +39,7 @@ describe('BankAccountCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [BankAccountCardComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [ TranslocoModule, BankAccountCardComponent],
       providers: [
         {
           provide: PersonalCardsService,
@@ -124,10 +122,10 @@ describe('BankAccountCardComponent', () => {
         deleteCardPopOverSpy.onDidDismiss.and.returnValue(
           new Promise((resInt) => {
             resInt({ data: 'delete' });
-          })
+          }),
         );
         resolve(deleteCardPopOverSpy);
-      })
+      }),
     );
 
     component.presentPopover(new PointerEvent('event'));
@@ -172,10 +170,10 @@ describe('BankAccountCardComponent', () => {
             resInt({
               action: 'delete',
             });
-          })
+          }),
         );
         resolve(deleteCardPopOverSpy);
-      })
+      }),
     );
 
     component.confirmPopup();

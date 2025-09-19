@@ -1,10 +1,11 @@
-import { CUSTOM_ELEMENTS_SCHEMA, DebugElement, signal } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { FileService } from 'src/app/core/services/file.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup.component';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('CameraOptionsPopupComponent', () => {
   let component: CameraOptionsPopupComponent;
@@ -25,8 +26,7 @@ describe('CameraOptionsPopupComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [CameraOptionsPopupComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [ TranslocoModule, CameraOptionsPopupComponent, MatIconTestingModule],
       providers: [
         {
           provide: PopoverController,
@@ -41,7 +41,7 @@ describe('CameraOptionsPopupComponent', () => {
           useValue: translocoServiceSpy,
         },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CameraOptionsPopupComponent);

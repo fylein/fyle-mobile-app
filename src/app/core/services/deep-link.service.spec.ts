@@ -2,11 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { DeepLinkService } from './deep-link.service';
 import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { appRoutes } from '../../app-routing.module';
-import { fyleRoutes } from '../../fyle/fyle-routing.module';
 import { TrackingService } from './tracking.service';
 import { unflattenedTxnData } from '../mock-data/unflattened-txn.data';
 import { expenseRouteData } from '../test-data/deep-link.service.spec.data';
+import { appRoutes } from 'src/app/app-routes';
+import { fyleRoutes } from 'src/app/fyle/fyle.routes';
 
 describe('DeepLinkService', () => {
   let deepLinkService: DeepLinkService;

@@ -8,6 +8,10 @@
     padding: 16px;
   }
 
+  &__alert-info {
+    margin: 20px 0;
+  }
+
   &__title-container {
     display: flex;
     justify-content: space-between;
@@ -25,6 +29,11 @@
     color: colors.$brand-primary;
     white-space: nowrap;
     font-weight: 500;
+
+    &--disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
   }
 
   &__description {

@@ -45,7 +45,7 @@ describe('FreshChatService', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
   });
@@ -98,7 +98,7 @@ describe('FreshChatService', () => {
 
     it('should not setup freshchat sdk if fresh chat settings is undefined', fakeAsync(() => {
       platformEmployeeSettingsService.get.and.returnValue(
-        of({ ...employeeSettingsData, in_app_chat_settings: undefined })
+        of({ ...employeeSettingsData, in_app_chat_settings: undefined }),
       );
       freshChatService.setupNetworkWatcher();
       tick(100);

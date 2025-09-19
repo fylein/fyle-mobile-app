@@ -10,19 +10,47 @@ import {
   viewChild,
 } from '@angular/core';
 import { Observable, fromEvent, from, of } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonSpinner, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipGrid, MatChipRow, MatChipRemove, MatChipInput } from '@angular/material/chips';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
   selector: 'app-fy-userlist-modal',
   templateUrl: './fy-userlist-modal.component.html',
   styleUrls: ['./fy-userlist-modal.component.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonSpinner,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatChipGrid,
+    MatChipInput,
+    MatChipRemove,
+    MatChipRow,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FyUserlistModalComponent implements OnInit, AfterViewInit {
   private modalController = inject(ModalController);

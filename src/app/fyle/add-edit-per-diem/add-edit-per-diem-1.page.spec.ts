@@ -30,30 +30,20 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
-import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { popoverControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
 import { of } from 'rxjs';
-import { expectedUnflattendedTxnData3, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { expectedUnflattendedTxnData3 } from 'src/app/core/mock-data/unflattened-txn.data';
 import {
-  unflattenExp1,
   unflattenedTxn,
-  unflattenedExpDataWithAdvanceWallet,
-  unflattenedExpDataWithAdvanceWalletWithoutId,
 } from 'src/app/core/mock-data/unflattened-expense.data';
 import { EventEmitter } from '@angular/core';
 import {
   accountsData,
   paymentModesConfig,
   paymentModesData,
-  unflattenedAccount1Data,
-  paymentModeDataAdvanceWallet,
-  advanceWallet1Data,
-  paymentModesWithAdvanceWalletsResData,
-  orgSettingsData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { cloneDeep } from 'lodash';
@@ -68,10 +58,7 @@ import { txnFieldsData2 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import {
   orgSettingsCCCDisabled,
-  orgSettingsRes,
-  orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
-import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import {
   platformExpenseData,
@@ -161,7 +148,7 @@ export function TestCases1(getTestBed) {
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -400,7 +387,7 @@ export function TestCases1(getTestBed) {
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(
         transformedExpenseDataWithSubCategory,
         component.reviewList,
-        1
+        1,
       );
     });
 
@@ -481,7 +468,7 @@ export function TestCases1(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       const mockTxnFieldData = cloneDeep(txnFieldsData2);
       expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
@@ -491,7 +478,7 @@ export function TestCases1(getTestBed) {
         expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
           expenseFieldsMapResponse,
           fields,
-          perDiemCategory
+          perDiemCategory,
         );
         expect(res).toEqual(mockTxnFieldData);
         done();
@@ -507,7 +494,7 @@ export function TestCases1(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
       expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData2);
@@ -526,7 +513,7 @@ export function TestCases1(getTestBed) {
       expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
         expenseFieldsMapResponse,
         fields,
-        perDiemCategory
+        perDiemCategory,
       );
       expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(mockTxnFieldData);
       expect(component.fg.controls.costCenter.value).toEqual(15818);
@@ -540,7 +527,7 @@ export function TestCases1(getTestBed) {
       advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
       orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(paymentModesData);
@@ -555,7 +542,7 @@ export function TestCases1(getTestBed) {
         expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
           accountsData,
           [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
-          paymentModesConfig
+          paymentModesConfig,
         );
         done();
       });
@@ -566,7 +553,7 @@ export function TestCases1(getTestBed) {
       accountsService.getMyAccounts.and.returnValue(of(accountsData));
       orgSettingsService.get.and.returnValue(of(null));
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(paymentModesData);

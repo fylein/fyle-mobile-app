@@ -1,8 +1,7 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { ToastController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular/standalone';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -13,7 +12,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { InvitedUserPage } from './invited-user.page';
 import { UntypedFormBuilder } from '@angular/forms';
 import { of, take } from 'rxjs';
-import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import {
   currentEouRes,
   extendedOrgUserResponse,
@@ -21,14 +20,21 @@ import {
 } from 'src/app/core/test-data/org-user.service.spec.data';
 import { cloneDeep } from 'lodash';
 import { eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
-import { OrgService } from 'src/app/core/services/org.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
-import { onboardingStatusData } from 'src/app/core/mock-data/onboarding-status.data';
 import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { PasswordCheckTooltipComponent } from 'src/app/shared/components/password-check-tooltip/password-check-tooltip.component';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+
+// mock for password check tooltip component
+@Component({
+  selector: 'app-password-check-tooltip',
+  template: '<div>Mock Password Check Tooltip Component</div>',
+})
+class MockPasswordCheckTooltipComponent {
+}
 
 describe('InvitedUserPage', () => {
   let component: InvitedUserPage;
@@ -65,8 +71,7 @@ describe('InvitedUserPage', () => {
       'checkForRedirectionToOnboarding',
     ]);
     TestBed.configureTestingModule({
-      declarations: [InvitedUserPage],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, RouterTestingModule],
+      imports: [ MatIconTestingModule, RouterTestingModule, InvitedUserPage, getTranslocoTestingModule()],
       providers: [
         UntypedFormBuilder,
         UrlSerializer,
@@ -83,7 +88,12 @@ describe('InvitedUserPage', () => {
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    })
+    .overrideComponent(InvitedUserPage, {
+      remove: { imports: [PasswordCheckTooltipComponent] },
+      add: { imports: [MockPasswordCheckTooltipComponent] }
+    })
+    .compileComponents();
 
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     fb = TestBed.inject(UntypedFormBuilder);

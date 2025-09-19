@@ -1,11 +1,24 @@
 import { Component, Input, OnInit, output } from '@angular/core';
 import { FilterPill } from './filter-pill.interface';
+import { TitleCasePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
+import { IonCol, IonGrid, IonIcon, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-filter-pills',
   templateUrl: './fy-filter-pills.component.html',
   styleUrls: ['./fy-filter-pills.component.scss'],
-  standalone: false,
+  imports: [
+    IonCol,
+    IonGrid,
+    IonIcon,
+    IonRow,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
 export class FyFilterPillsComponent implements OnInit {
   // TODO: Skipped for migration because:

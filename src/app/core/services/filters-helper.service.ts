@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { SortingParam } from '../models/sorting-param.model';

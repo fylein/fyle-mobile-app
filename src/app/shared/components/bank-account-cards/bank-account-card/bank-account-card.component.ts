@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject, input, output } from '@angular/core';
 import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
-import { PopoverController } from '@ionic/angular';
+import { IonCol, IonGrid, IonIcon, IonRow, PopoverController } from '@ionic/angular/standalone';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -11,12 +11,20 @@ import { SnackbarPropertiesService } from '../../../../core/services/snackbar-pr
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { DateService } from 'src/app/core/services/date.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',
   styleUrls: ['./bank-account-card.component.scss'],
-  standalone: false,
+  imports: [
+    DatePipe,
+    IonCol,
+    IonGrid,
+    IonIcon,
+    IonRow,
+    TranslocoPipe
+  ],
 })
 export class BankAccountCardComponent implements OnInit {
   private personalCardsService = inject(PersonalCardsService);

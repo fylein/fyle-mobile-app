@@ -1,10 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
+import {  ActionSheetButton, ActionSheetController, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { EMPTY, Subject, forkJoin, from } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { catchError, concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, take } from 'rxjs/operators';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.constants';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { ApprovalPublic } from 'src/app/core/models/approval-public.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -27,12 +27,37 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
+import { NgClass, AsyncPipe, DatePipe } from '@angular/common';
+import { FySummaryTileComponent } from '../../shared/components/summary-tile/summary-tile.component';
+import { ReceiptPreviewThumbnailComponent } from '../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-statistic.component';
+import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
 
 @Component({
   selector: 'app-view-team-advance',
   templateUrl: './view-team-advance-request.page.html',
   styleUrls: ['./view-team-advance-request.page.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    DatePipe,
+    FyStatisticComponent,
+    FySummaryTileComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    NgClass,
+    ReceiptPreviewThumbnailComponent,
+    SnakeCaseToSpaceCase
+  ],
 })
 export class ViewTeamAdvanceRequestPage implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
@@ -140,7 +165,9 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     this.attachedFiles$ = this.getAttachedReceipts(id);
 
-    this.customFields$ = this.advanceRequestService.getCustomFieldsForApprover(this.activatedRoute.snapshot.params.id as string);
+    this.customFields$ = this.advanceRequestService.getCustomFieldsForApprover(
+      this.activatedRoute.snapshot.params.id as string,
+    );
 
     this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$.pipe(take(1)),

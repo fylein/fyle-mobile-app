@@ -1,6 +1,14 @@
 import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit, inject, input } from '@angular/core';
-import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, NgControl, Validators } from '@angular/forms';
-import { Platform } from '@ionic/angular';
+import {
+  ControlValueAccessor,
+  UntypedFormControl,
+  NG_VALUE_ACCESSOR,
+  NgControl,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { Platform } from '@ionic/angular/standalone';
 import { noop } from 'rxjs';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
@@ -15,7 +23,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
       multi: true,
     },
   ],
-  standalone: false,
+  imports: [FormsModule, ReactiveFormsModule],
 })
 export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterViewInit {
   private platform = inject(Platform);

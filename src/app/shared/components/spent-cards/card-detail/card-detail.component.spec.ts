@@ -3,7 +3,6 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -16,12 +15,15 @@ import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-cor
 import { By } from '@angular/platform-browser';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { of } from 'rxjs';
-import { orgSettingsWithV2ExpensesPage, orgSettingsWoV2ExpensesPage } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsWithV2ExpensesPage } from 'src/app/core/mock-data/org-settings.data';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { CorporateCardComponent } from '../../corporate-card/corporate-card.component';
 
 @Component({
   selector: 'app-corporate-card',
   template: '<div></div>',
-  standalone: false,
+  imports: [RouterModule, RouterTestingModule, TranslocoModule],
 })
 class MockCorporateCardComponent {
   readonly card = input<PlatformCorporateCard>(undefined);
@@ -51,17 +53,22 @@ describe('CardDetailComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [
+      imports: [
+        
+        RouterModule,
+        RouterTestingModule,
+        TranslocoModule,
         CardDetailComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
         MaskNumber,
         MockCorporateCardComponent,
       ],
-      imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule, TranslocoModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
+        provideHttpClient(),
+        provideHttpClientTesting(),
         {
           provide: Router,
           useValue: routerSpy,
@@ -106,11 +113,11 @@ describe('CardDetailComponent', () => {
   });
 
   it('should display the card correctly', () => {
-    const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
+    const card = fixture.debugElement.query(By.directive(CorporateCardComponent));
     expect(card).toBeTruthy();
 
-    expect(card.componentInstance.card()).toEqual(component.cardDetail.card);
-    expect(card.componentInstance.hideOptionsMenu()).toBeTrue();
+    expect(card.componentInstance.card).toEqual(component.cardDetail.card);
+    expect(card.componentInstance.hideOptionsMenu).toBeTrue();
   });
 
   describe('goToExpensesPage():', () => {

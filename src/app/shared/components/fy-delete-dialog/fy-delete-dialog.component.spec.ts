@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angul
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { of, throwError } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
@@ -27,8 +27,15 @@ describe('FyDeleteDialogComponent', () => {
     });
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     TestBed.configureTestingModule({
-      declarations: [FyDeleteDialogComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconTestingModule, MatIconModule, TranslocoModule],
+      imports: [
+        
+        FormsModule,
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
+        FyDeleteDialogComponent,
+        FormButtonValidationDirective,
+      ],
       providers: [
         {
           provide: PopoverController,
@@ -78,7 +85,7 @@ describe('FyDeleteDialogComponent', () => {
 
     expect(getTextContent(getElementBySelector(fixture, '.fy-delete-dialog--header'))).toEqual('Header');
     expect(getTextContent(getElementBySelector(fixture, '.fy-delete-dialog--info-container__message'))).toEqual(
-      'Message'
+      'Message',
     );
     expect(getTextContent(getElementBySelector(fixture, '.fy-delete-dialog--delete'))).toEqual('Are you sure?');
   });

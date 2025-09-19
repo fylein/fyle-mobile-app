@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { TransactionsShimmerComponent } from './transactions-shimmer.component';
 
 describe('TransactionsShimmerComponent', () => {
@@ -9,8 +7,7 @@ describe('TransactionsShimmerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TransactionsShimmerComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ TransactionsShimmerComponent],
     }).compileComponents();
   });
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit, inject } from '@angular/core';
-import { Platform, MenuController, NavController } from '@ionic/angular';
+import { IonApp, IonFooter, IonRouterOutlet, MenuController, NavController, Platform } from '@ionic/angular/standalone';
 import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params, UrlTree } from '@angular/router';
@@ -26,12 +26,26 @@ import { SpenderOnboardingService } from './core/services/spender-onboarding.ser
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { FooterService } from './core/services/footer.service';
 import { TasksService } from './core/services/tasks.service';
+import { DelegatedAccMessageComponent } from './shared/components/delegated-acc-message/delegated-acc-message.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
+import { NgClass } from '@angular/common';
+import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
-  standalone: false,
+  imports: [
+    DelegatedAccMessageComponent,
+    FooterComponent,
+    FyConnectionComponent,
+    IonApp,
+    IonFooter,
+    IonRouterOutlet,
+    NgClass,
+    SidemenuComponent,
+  ],
 })
 export class AppComponent implements OnInit, AfterViewInit {
   private platform = inject(Platform);
@@ -153,16 +167,20 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
 
     this.platform.ready().then(async () => {
-      await StatusBar.setStyle({
-        style: Style.Default,
-      });
+      if (Capacitor.isNativePlatform()) {
+        await StatusBar.setStyle({
+          style: Style.Default,
+        });
+      }
 
       /*
        * Use the app's font size irrespective of the user's device font size.
        * This is to ensure that the app's UI is consistent across devices.
        * Ref: https://www.npmjs.com/package/@capacitor/text-zoom
        */
-      await TextZoom.set({ value: 1 });
+      if (Capacitor.isNativePlatform()) {
+        await TextZoom.set({ value: 1 });
+      }
 
       from(this.routerAuthService.isLoggedIn())
         .pipe(

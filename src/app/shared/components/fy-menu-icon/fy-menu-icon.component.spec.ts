@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { FyMenuIconComponent } from './fy-menu-icon.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
@@ -12,8 +10,7 @@ describe('FyMenuIconComponent', () => {
   beforeEach(waitForAsync(() => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['menuButtonClicked']);
     TestBed.configureTestingModule({
-      declarations: [FyMenuIconComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ FyMenuIconComponent],
       providers: [
         {
           provide: TrackingService,

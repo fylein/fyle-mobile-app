@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { DismissDialogComponent } from './dismiss-dialog.component';
 import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
@@ -28,8 +28,15 @@ describe('DismissDialogComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [DismissDialogComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconTestingModule, MatIconModule, TranslocoModule],
+      imports: [
+        
+        FormsModule,
+        MatIconTestingModule,
+        MatIconModule,
+        TranslocoModule,
+        DismissDialogComponent,
+        FormButtonValidationDirective,
+      ],
       providers: [
         {
           provide: PopoverController,
@@ -76,7 +83,7 @@ describe('DismissDialogComponent', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.dismiss-dialog--header'))).toEqual(
-      'Dismiss duplicate expenses'
+      'Dismiss duplicate expenses',
     );
     expect(getTextContent(getElementBySelector(fixture, '.dismiss-dialog--dismiss'))).toEqual('Yes, dismiss');
   });

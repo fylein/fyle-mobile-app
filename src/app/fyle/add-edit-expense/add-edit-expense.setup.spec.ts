@@ -7,12 +7,11 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import {
   ActionSheetController,
-  IonicModule,
   ModalController,
   NavController,
   Platform,
   PopoverController,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -64,7 +63,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -117,7 +116,6 @@ describe('AddEditExpensePage', () => {
       'upsert',
       'review',
       'matchCCCExpense',
-      'transformRawExpense',
     ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
@@ -237,12 +235,20 @@ describe('AddEditExpensePage', () => {
       'deleteExpenses',
     ]);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, getTranslocoModule()],
+      imports: [
+        
+        RouterTestingModule,
+        RouterModule,
+        getTranslocoTestingModule(),
+        AddEditExpensePage,
+        MaskNumber,
+        FySelectComponent,
+        EllipsisPipe,
+        DependentFieldComponent,
+      ],
       providers: [
         UntypedFormBuilder,
         {
@@ -442,7 +448,6 @@ describe('AddEditExpensePage', () => {
           provide: AdvanceWalletsService,
           useValue: advanceWalletsServiceSpy,
         },
-
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],

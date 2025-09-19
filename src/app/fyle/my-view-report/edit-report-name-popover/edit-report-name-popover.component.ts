@@ -1,11 +1,25 @@
 import { Component, OnInit, Input, ElementRef, inject, viewChild } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { IonButton, IonButtons, IonHeader, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-edit-report-name-popover',
   templateUrl: './edit-report-name-popover.component.html',
   styleUrls: ['./edit-report-name-popover.component.scss'],
-  standalone: false,
+  imports: [
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    TranslocoPipe
+  ],
 })
 export class EditReportNamePopoverComponent implements OnInit {
   private popoverController = inject(PopoverController);

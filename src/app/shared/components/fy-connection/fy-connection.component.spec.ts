@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { ConnectionMessageStatus } from './connection-status.enum';
 import { NetworkService } from '../../../core/services/network.service';
 import { FyConnectionComponent } from './fy-connection.component';
@@ -26,8 +25,7 @@ describe('FyConnectionComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyConnectionComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [ TranslocoModule, FyConnectionComponent],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FyOptInComponent } from './fy-opt-in.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -23,6 +23,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyOptInComponent', () => {
   let component: FyOptInComponent;
@@ -72,8 +73,8 @@ describe('FyOptInComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyOptInComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [TranslocoModule, FyOptInComponent,
+        MatIconTestingModule],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },

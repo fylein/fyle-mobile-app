@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { ActivatedRoute, Router, RouterLinkActive, RouterLink } from '@angular/router';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { forkJoin, from, Observable } from 'rxjs';
 import { finalize, map, reduce, shareReplay, switchMap, concatMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -14,22 +14,49 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.constants';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass, AsyncPipe, TitleCasePipe, DatePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
 import { ApprovalPublic } from 'src/app/core/models/approval-public.model';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
 import { AdvanceRequestPopoverData } from 'src/app/core/models/popover-data.model';
+import { FySummaryTileComponent } from '../../shared/components/summary-tile/summary-tile.component';
+import { ReceiptPreviewThumbnailComponent } from '../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-statistic.component';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 
 @Component({
   selector: 'app-my-view-advance-request',
   templateUrl: './my-view-advance-request.page.html',
   styleUrls: ['./my-view-advance-request.page.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    DatePipe,
+    EllipsisPipe,
+    FyStatisticComponent,
+    FySummaryTileComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    NgClass,
+    ReceiptPreviewThumbnailComponent,
+    RouterLink,
+    RouterLinkActive,
+    TitleCasePipe
+  ],
 })
 export class MyViewAdvanceRequestPage {
   private activatedRoute = inject(ActivatedRoute);
