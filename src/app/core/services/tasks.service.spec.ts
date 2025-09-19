@@ -1137,6 +1137,7 @@ describe('TasksService', () => {
     it('should not return any task if user is from IN cluster', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
+      eou.org.currency = 'USD';
       authService.getEou.and.resolveTo(eou);
       utilityService.isUserFromINCluster.and.resolveTo(true);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
@@ -1178,6 +1179,23 @@ describe('TasksService', () => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledTimes(1);
         expect(res).toEqual([addMobileNumberTask]);
+        done();
+      });
+    });
+
+    it('should not return any task if user currency is not USD or CAD', (done) => {
+      const eou = cloneDeep(extendedOrgUserResponse);
+      eou.ou.mobile_verified = false;
+      eou.org.currency = 'INR';
+      authService.getEou.and.resolveTo(eou);
+      utilityService.isUserFromINCluster.and.resolveTo(false);
+      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
+
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(utilityService.isUserFromINCluster).toHaveBeenCalledOnceWith();
+        expect(res).toEqual([]);
+        expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
         done();
       });
     });

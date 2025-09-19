@@ -2,6 +2,7 @@ import deepFreeze from 'deep-freeze-strict';
 
 import { EouApiResponse } from '../models/eou-api-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { EmployeeResponse } from '../models/employee-response.model';
 
 export const apiEouRes: ExtendedOrgUser = deepFreeze({
   ou: {
@@ -73,10 +74,6 @@ export const apiEouRes: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794, 14018, 13795],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'USD',
-  },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -97,13 +94,34 @@ export const apiEouRes: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    name: 'Engineering',
+    code: 'ENG',
+    sub_department: null,
+    display_name: 'Engineering',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_users: [],
+  delegatees: [],
+  locale: {
+    timezone: 'America/New_York',
+    abbreviation: 'EST',
+    offset: '-05:00',
   },
+  commute_details: {
+    id: 123,
+    home_location: null,
+    work_location: null,
+    distance: 0,
+    distance_unit: 'km',
+  },
+  approver_user_ids: [],
+  commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
+  flattened_custom_field: {},
 });
 
 export const eouRes2: ExtendedOrgUser = deepFreeze({
@@ -155,10 +173,6 @@ export const eouRes2: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'USD',
-  },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -179,13 +193,34 @@ export const eouRes2: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    name: 'Engineering',
+    code: 'ENG',
+    sub_department: null,
+    display_name: 'Engineering',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_users: [],
+  delegatees: [],
+  locale: {
+    timezone: 'America/New_York',
+    abbreviation: 'EST',
+    offset: '-05:00',
   },
+  commute_details: {
+    id: 123,
+    home_location: null,
+    work_location: null,
+    distance: 0,
+    distance_unit: 'km',
+  },
+  approver_user_ids: [],
+  commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
+  flattened_custom_field: {},
 });
 
 export const eouRes3: ExtendedOrgUser = deepFreeze({
@@ -272,10 +307,6 @@ export const eouRes3: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'INR',
-  },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -296,13 +327,34 @@ export const eouRes3: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    name: 'Engineering',
+    code: 'ENG',
+    sub_department: null,
+    display_name: 'Engineering',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_users: [],
+  delegatees: [],
+  locale: {
+    timezone: 'America/New_York',
+    abbreviation: 'EST',
+    offset: '-05:00',
   },
+  commute_details: {
+    id: 123,
+    home_location: null,
+    work_location: null,
+    distance: 0,
+    distance_unit: 'km',
+  },
+  approver_user_ids: [],
+  commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
+  flattened_custom_field: {},
 });
 
 export const eouFlattended: EouApiResponse = deepFreeze({
@@ -481,10 +533,6 @@ export const eouUnFlattended: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'INR',
-  },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -505,13 +553,34 @@ export const eouUnFlattended: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    name: 'Engineering',
+    code: 'ENG',
+    sub_department: null,
+    display_name: 'Engineering',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_users: [],
+  delegatees: [],
+  locale: {
+    timezone: 'America/New_York',
+    abbreviation: 'EST',
+    offset: '-05:00',
   },
+  commute_details: {
+    id: 123,
+    home_location: null,
+    work_location: null,
+    distance: 0,
+    distance_unit: 'km',
+  },
+  approver_user_ids: [],
+  commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
+  flattened_custom_field: {},
 });
 
 export const eouWithNoAttempts: ExtendedOrgUser = deepFreeze({
@@ -528,4 +597,195 @@ export const eouWithPendingDetails: ExtendedOrgUser = deepFreeze({
     ...apiEouRes.ou,
     status: 'PENDING_DETAILS',
   },
+});
+
+export const eouPlatformApiResponse: EmployeeResponse = deepFreeze({
+  id: 'ouX8dwsbLCLv',
+  created_at: '2018-02-01T02:32:25.267Z',
+  updated_at: '2023-01-02T00:00:00.000Z',
+  joined_at: '2017-07-25T00:00:00.000Z',
+  org_id: 'orNVthTo2Zyo',
+  org_name: 'Staging Loaded',
+  currency: 'INR',
+  user_id: 'usvKA4X8Ugcr',
+  user: {
+    id: 'usvKA4X8Ugcr',
+    full_name: 'Abhishek Jain',
+    email: 'ajain@fyle.in',
+  },
+  code: '',
+  location: 'Mumbai',
+  level_id: 'lvlPtroPaClQy',
+  level: {
+    id: 'lvlPtroPaClQy',
+    name: '123',
+    band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
+  },
+  business_unit:
+    'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+  department_id: 'deptpmQ0SsMO0S',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    code: 'ENG',
+    name: '0000000',
+    sub_department: null,
+    display_name: 'Engineering',
+  },
+  roles: ['ADMIN', 'APPROVER', 'FYLER', 'HOP', 'HOD', 'OWNER'],
+  approver_user_ids: ['ouy8gYhZRK4E'],
+  approver_users: [
+    {
+      id: 'ouy8gYhZRK4E',
+      full_name: 'Aditya Gupta',
+      email: 'aditya.g@fyle.in',
+    },
+  ],
+  delegatees: [],
+  title: 'director',
+  special_email: 'receipts+ajain_6@fyle.ai',
+  is_enabled: true,
+  has_accepted_invite: true,
+  branch_ifsc: 'ICIC0002322',
+  branch_account: '12123412221',
+  locale: {
+    timezone: 'America/New_York',
+    abbreviation: 'EST',
+    offset: '-05:00',
+  },
+  mobile: '+12025559975',
+  is_mobile_verified: 'false',
+  custom_fields: [
+    {
+      id: 685,
+      name: 'Hybrid human',
+      value: null,
+    },
+    {
+      id: 430,
+      name: 'UNum1',
+      value: 1,
+    },
+    {
+      id: 138,
+      name: 'Driver salary limit',
+      value: 1122,
+    },
+    {
+      id: 139,
+      name: 'Fuel limit',
+      value: 1,
+    },
+    {
+      id: 459,
+      name: 'multi',
+      value: '',
+    },
+    {
+      id: 456,
+      name: 'Place',
+      value: null,
+    },
+    {
+      id: 458,
+      name: 'Location',
+      value: null,
+    },
+    {
+      id: 609,
+      name: 'TCF',
+      value: null,
+    },
+  ],
+  flattened_custom_field: {},
+  commute_details_id: 'commute123',
+  commute_details: {
+    id: 123,
+    home_location: null,
+    work_location: null,
+    distance: 0,
+    distance_unit: 'km',
+  },
+  mobile_verification_attempts_left: '3',
+  is_primary: true,
+  mileage_settings: {},
+});
+
+export const eouPlatformApiResponse2: EmployeeResponse = deepFreeze({
+  id: 'ou123',
+  created_at: '2023-01-01T00:00:00.000Z',
+  updated_at: '2023-01-02T00:00:00.000Z',
+  joined_at: '2023-01-01T00:00:00.000Z',
+  org_id: 'org123',
+  org_name: 'Test Organization',
+  currency: 'USD',
+  user_id: 'user123',
+  code: 'EMP001',
+  location: 'Mumbai',
+  level: { id: 'lvl123', name: 'Senior', band: 'L5' },
+  level_id: 'lvl123',
+  business_unit: 'Engineering',
+  department_id: 'dept123',
+  department: {
+    id: 'dept123',
+    code: 'ENG',
+    name: 'Engineering',
+    sub_department: 'Backend',
+    display_name: 'Engineering - Backend',
+  },
+  roles: ['EMPLOYEE'],
+  approver_user_ids: ['ap1', 'ap2', 'ap3'],
+  title: 'Software Engineer',
+  special_email: 'special@example.com',
+  is_enabled: true,
+  has_accepted_invite: true,
+  branch_ifsc: 'IFSC001',
+  branch_account: 'ACC001',
+  mobile: '+1234567890',
+  is_mobile_verified: 'true',
+  mobile_verification_attempts_left: '3',
+  is_primary: true,
+  custom_fields: [
+    { name: 'field1', value: 'value1' },
+    { name: 'field2', value: 123 },
+  ],
+  user: {
+    id: 'user123',
+    full_name: 'John Doe',
+    email: 'john@example.com',
+  },
+  approver_users: [
+    { id: 'ap1', full_name: 'Approver 1', email: 'ap1@example.com' },
+    { id: 'ap2', full_name: 'Approver 2', email: 'ap2@example.com' },
+    { id: 'ap3', full_name: 'Approver 3', email: 'ap3@example.com' },
+  ],
+  delegatees: [],
+  locale: {
+    timezone: 'Asia/Kolkata',
+    abbreviation: 'IST',
+    offset: '+05:30',
+  },
+  commute_details: {
+    id: 123,
+    distance: 10.5,
+    distance_unit: 'km',
+    home_location: {
+      city: 'Mumbai',
+      country: 'India',
+      formatted_address: 'Mumbai, Maharashtra, India',
+      latitude: 19.076,
+      longitude: 72.8777,
+      state: 'Maharashtra',
+    },
+    work_location: {
+      city: 'Mumbai',
+      country: 'India',
+      formatted_address: 'Mumbai, Maharashtra, India',
+      latitude: 19.076,
+      longitude: 72.8777,
+      state: 'Maharashtra',
+    },
+  },
+  commute_details_id: 'commute123',
+  mileage_settings: {},
+  flattened_custom_field: {},
 });

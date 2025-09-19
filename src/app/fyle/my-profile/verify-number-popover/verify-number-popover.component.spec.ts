@@ -13,6 +13,8 @@ import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-he
 import { ErrorType } from './error-type.model';
 import { errorMappings } from 'src/app/core/mock-data/error-mapping-for-verify-number-popover.data';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('VerifyNumberPopoverComponent', () => {
   let component: VerifyNumberPopoverComponent;
@@ -50,6 +52,8 @@ describe('VerifyNumberPopoverComponent', () => {
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: MobileNumberVerificationService, useValue: mobileNumberVerificationServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
 
@@ -287,6 +291,12 @@ describe('VerifyNumberPopoverComponent', () => {
     it('should verify otp if input is valid', () => {
       mobileNumberVerificationService.verifyOtp.and.returnValue(of({ message: '' }));
       component.value = '123456';
+      component.extendedOrgUser = {
+        ...component.extendedOrgUser,
+        org: {
+          currency: 'USD',
+        },
+      };
 
       click(verifyCta);
       fixture.detectChanges();
@@ -361,4 +371,22 @@ describe('VerifyNumberPopoverComponent', () => {
     expect(clearInterval).toHaveBeenCalledOnceWith(jasmine.any(Number));
     expect(component.showOtpTimer).toBeFalse();
   }));
+
+  it('verifyOtp(): should handle error and set error message', () => {
+    mobileNumberVerificationService.verifyOtp.and.returnValue(throwError(() => new Error('API Error')));
+    component.value = '123456';
+    component.extendedOrgUser = {
+      ...component.extendedOrgUser,
+      org: {
+        currency: 'USD',
+      },
+    };
+    spyOn(component, 'setError');
+
+    component.verifyOtp();
+
+    expect(mobileNumberVerificationService.verifyOtp).toHaveBeenCalledOnceWith(component.value);
+    expect(component.setError).toHaveBeenCalledOnceWith('INVALID_OTP');
+    expect(popoverController.dismiss).not.toHaveBeenCalled();
+  });
 });

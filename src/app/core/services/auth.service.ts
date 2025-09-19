@@ -10,6 +10,9 @@ import { JwtHelperService } from './jwt-helper.service';
 import { ResendEmailVerification } from '../models/resend-email-verification.model';
 import { AuthResponse } from '../models/auth-response.model';
 import { AccessTokenData } from '../models/access-token-data.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { EmployeeResponse } from '../models/employee-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -25,14 +28,16 @@ export class AuthService {
 
   private jwtHelperService = inject(JwtHelperService);
 
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
   getEou(): Promise<ExtendedOrgUser> {
     return this.storageService.get<ExtendedOrgUser>('user');
   }
 
   refreshEou(): Observable<ExtendedOrgUser> {
-    return this.apiService.get('/eous/current').pipe(
-      switchMap((data) => {
-        const extendedOrgUser = this.dataTransformService.unflatten<ExtendedOrgUser, unknown>(data);
+    return this.spenderPlatformV1ApiService.get('/employees/current').pipe(
+      switchMap((response: PlatformApiResponse<EmployeeResponse>) => {
+        const extendedOrgUser = this.dataTransformService.transformEmployeeResponse(response.data);
         return from(this.storageService.set('user', extendedOrgUser)).pipe(map(() => extendedOrgUser));
       }),
     );

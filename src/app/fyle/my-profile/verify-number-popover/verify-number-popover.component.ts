@@ -134,8 +134,9 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
       .verifyOtp(this.value)
       .pipe(finalize(() => (this.verifyingOtp = false)))
       .subscribe({
-        complete: () =>
-          this.popoverController.dismiss({ action: 'SUCCESS', homeCurrency: this.extendedOrgUser.org.currency }),
+        complete: () => {
+          this.popoverController.dismiss({ action: 'SUCCESS', homeCurrency: this.extendedOrgUser.org.currency });
+        },
         error: () => this.setError('INVALID_OTP'),
       });
   }

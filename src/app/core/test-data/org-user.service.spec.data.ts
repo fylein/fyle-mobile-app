@@ -57,10 +57,6 @@ export const currentEouRes: ExtendedOrgUser = deepFreeze({
     default_cost_center_code: null,
     cost_center_ids: [13792, 13793, 13794],
   },
-  org: {
-    domain: 'fyle.in',
-    currency: 'INR',
-  },
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -81,13 +77,48 @@ export const currentEouRes: ExtendedOrgUser = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    code: '0000000',
+    name: '0000000',
+    sub_department: null,
+    display_name: '0000000',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_user_ids: [null, 'oubQzXeZbwbS', null],
+  approver_users: [null, { id: 'oubQzXeZbwbS', full_name: 'AA23', email: 'ajain+12+12+1@fyle.in' }, null],
+  delegatees: [],
+  locale: {
+    timezone: 'Asia/Kolkata',
+    abbreviation: 'IST',
+    offset: '+05:30',
   },
+  commute_details: {
+    id: 123,
+    distance: 15.2,
+    distance_unit: 'km',
+    home_location: {
+      latitude: 19.076,
+      longitude: 72.8777,
+      city: 'Mumbai',
+      country: 'India',
+      formatted_address: 'Mumbai, Maharashtra, India',
+      state: 'Maharashtra',
+    },
+    work_location: {
+      latitude: 19.076,
+      longitude: 72.8777,
+      city: 'Mumbai',
+      country: 'India',
+      formatted_address: 'Mumbai, Maharashtra, India',
+      state: 'Maharashtra',
+    },
+  },
+  commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
+  flattened_custom_field: {},
 });
 
 export const currentEouUnflatted: EouApiResponse = deepFreeze({
@@ -282,14 +313,7 @@ export const eouListWithDisabledUser = deepFreeze([
       ],
       org_name: 'Staging Loaded',
       settings_id: 'ousn9VC3oWNVc',
-      default_cost_center_id: null,
-      default_cost_center_name: null,
-      default_cost_center_code: null,
       cost_center_ids: [13794, 13790],
-    },
-    org: {
-      domain: 'fyle.in',
-      currency: 'INR',
     },
     us: {
       id: 'us6kdyOIYUCM',
@@ -311,13 +335,34 @@ export const eouListWithDisabledUser = deepFreeze([
       full_name: null,
       email: null,
     },
-    bb: {
-      bank_name: null,
+    department: {
+      id: null,
+      code: null,
+      name: null,
+      sub_department: null,
+      display_name: null,
     },
-    dwolla: {
-      customer_id: null,
-      bank_account_added: null,
+    approver_user_ids: [],
+    approver_users: [],
+    delegatees: [],
+    locale: {
+      timezone: 'Asia/Kolkata',
+      abbreviation: 'IST',
+      offset: '+05:30',
     },
+    commute_details: {
+      id: null,
+      distance: 0,
+      distance_unit: 'km',
+      home_location: null,
+      work_location: null,
+    },
+    commute_details_id: null,
+    org: {
+      currency: 'INR',
+    },
+    mileage_settings: {},
+    flattened_custom_field: {},
   },
   {
     ou: {
@@ -339,9 +384,6 @@ export const eouListWithDisabledUser = deepFreeze([
       approver1_id: null,
       approver2_id: null,
       approver3_id: null,
-      delegatee_id: 'ouX8dwsbLCLv',
-      delegation_start_at: new Date('2019-12-17T15:51:28.753Z'),
-      delegation_end_at: null,
       title: null,
       status: 'DISABLED',
       branch_ifsc: null,
@@ -356,14 +398,7 @@ export const eouListWithDisabledUser = deepFreeze([
       custom_field_values: [],
       org_name: 'Staging Loaded',
       settings_id: 'ousksWx362FIX',
-      default_cost_center_id: null,
-      default_cost_center_name: null,
-      default_cost_center_code: null,
       cost_center_ids: [13696, 13701, 6281],
-    },
-    org: {
-      domain: 'fyle.in',
-      currency: 'INR',
     },
     us: {
       id: 'usQo18yCqdts',
@@ -385,13 +420,34 @@ export const eouListWithDisabledUser = deepFreeze([
       full_name: null,
       email: null,
     },
-    bb: {
-      bank_name: null,
+    department: {
+      id: null,
+      code: null,
+      name: null,
+      sub_department: null,
+      display_name: null,
     },
-    dwolla: {
-      customer_id: null,
-      bank_account_added: null,
+    approver_user_ids: [],
+    approver_users: [],
+    delegatees: [],
+    locale: {
+      timezone: 'Asia/Kolkata',
+      abbreviation: 'IST',
+      offset: '+05:30',
     },
+    commute_details: {
+      id: null,
+      distance: 0,
+      distance_unit: 'km',
+      home_location: null,
+      work_location: null,
+    },
+    commute_details_id: null,
+    org: {
+      currency: 'INR',
+    },
+    mileage_settings: {},
+    flattened_custom_field: {},
   },
 ]);
 
@@ -468,8 +524,6 @@ export const extendedOrgUserResponse = deepFreeze({
     approver2_id: null,
     approver3_id: 'ouwu0kuvZMT1',
     delegatee_id: 'ourw7Hi4mmpO',
-    delegation_start_at: new Date('2019-12-18T10:00:00.000Z'),
-    delegation_end_at: null,
     title: 'C-Suite',
     status: 'ACTIVE',
     branch_ifsc: null,
@@ -495,14 +549,7 @@ export const extendedOrgUserResponse = deepFreeze({
     ],
     org_name: 'Staging Loaded',
     settings_id: 'ous4ZBukeQJrN',
-    default_cost_center_id: null,
-    default_cost_center_name: null,
-    default_cost_center_code: null,
     cost_center_ids: [13696, 14018],
-  },
-  org: {
-    domain: 'fyle.in',
-    currency: 'INR',
   },
   us: {
     id: 'usBkJD1Um174',
@@ -524,13 +571,51 @@ export const extendedOrgUserResponse = deepFreeze({
     full_name: 'Arun tvs',
     email: 'arun.tvs@fyle.in',
   },
-  bb: {
-    bank_name: null,
+  department: {
+    id: 'deptYSONXoGd64',
+    code: 'BLAH',
+    name: 'blah',
+    sub_department: null,
+    display_name: 'blah',
   },
-  dwolla: {
-    customer_id: 'dwcMdzMqqWLD9Ds',
-    bank_account_added: null,
+  approver_user_ids: ['ouHgqeUOCrFP', 'ouwu0kuvZMT1'],
+  approver_users: [
+    { id: 'ouHgqeUOCrFP', full_name: 'Pradeep g', email: 'pradeep.gupta@fyle.in' },
+    { id: 'ouwu0kuvZMT1', full_name: 'Arun tvs', email: 'arun.tvs@fyle.in' },
+  ],
+  delegatees: [],
+  locale: {
+    timezone: 'Asia/Kolkata',
+    abbreviation: 'IST',
+    offset: '+05:30',
   },
+  commute_details: {
+    id: 123,
+    distance: 8.7,
+    distance_unit: 'km',
+    home_location: {
+      latitude: 12.9716,
+      longitude: 77.5946,
+      city: 'Bangalore',
+      country: 'India',
+      formatted_address: 'Bangalore, Karnataka, India',
+      state: 'Karnataka',
+    },
+    work_location: {
+      latitude: 12.9716,
+      longitude: 77.5946,
+      city: 'Bangalore',
+      country: 'India',
+      formatted_address: 'Bangalore, Karnataka, India',
+      state: 'Karnataka',
+    },
+  },
+  commute_details_id: 'commute123',
+  org: {
+    currency: 'INR',
+  },
+  mileage_settings: {},
+  flattened_custom_field: {},
 });
 
 export const postUserParam = deepFreeze({
