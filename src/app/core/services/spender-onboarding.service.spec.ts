@@ -177,7 +177,13 @@ describe('SpenderOnboardingService', () => {
   it('checkForRedirectionToOnboarding(): should return true when conditions are met', async () => {
     spyOn(spenderOnboardingService, 'getOnboardingStatus').and.returnValue(of(onboardingStatusData));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    authService.getEou.and.returnValue(new Promise((resolve) => resolve(apiEouRes)));
+    const mockEou = {
+      ...apiEouRes,
+      org: {
+        currency: 'USD',
+      },
+    };
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(mockEou)));
     utilityService.isUserFromINCluster.and.resolveTo(false);
     const result = await spenderOnboardingService.checkForRedirectionToOnboarding().toPromise();
     expect(result).toBeTrue();

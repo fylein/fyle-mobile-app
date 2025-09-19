@@ -284,7 +284,12 @@ describe('VerifyNumberPopoverComponent', () => {
     it('should verify otp if input is valid', () => {
       mobileNumberVerificationService.verifyOtp.and.returnValue(of({ message: '' }));
       component.value = '123456';
-      component.extendedOrgUser.org.currency = 'USD';
+      component.extendedOrgUser = {
+        ...component.extendedOrgUser,
+        org: {
+          currency: 'USD',
+        },
+      };
 
       click(verifyCta);
       fixture.detectChanges();
@@ -363,7 +368,12 @@ describe('VerifyNumberPopoverComponent', () => {
   it('verifyOtp(): should handle error and set error message', () => {
     mobileNumberVerificationService.verifyOtp.and.returnValue(throwError(() => new Error('API Error')));
     component.value = '123456';
-    component.extendedOrgUser.org.currency = 'USD';
+    component.extendedOrgUser = {
+      ...component.extendedOrgUser,
+      org: {
+        currency: 'USD',
+      },
+    };
     spyOn(component, 'setError');
 
     component.verifyOtp();
