@@ -10,7 +10,6 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
@@ -63,8 +62,6 @@ export class DashboardPage {
   private actionSheetController = inject(ActionSheetController);
 
   private tasksService = inject(TasksService);
-
-  private smartlookService = inject(SmartlookService);
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
@@ -549,7 +546,6 @@ export class DashboardPage {
     };
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
-    this.smartlookService.init();
     this.footerService.footerCurrentStateIndex$.subscribe((index) => {
       this.currentStateIndex = index;
     });
