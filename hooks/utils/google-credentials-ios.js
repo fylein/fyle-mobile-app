@@ -9,8 +9,6 @@ module.exports.getGoogleCredentialsIos = (NATIVE_CONFIG) =>
       <string>${process.env.FYLE_MOBILE_CLIENT_ID_2}</string>
       <key>REVERSED_CLIENT_ID</key>
       <string>${process.env.FYLE_MOBILE_REVERSED_CLIENT_ID}</string>
-      <key>API_KEY</key>
-      <string>${process.env.FYLE_MOBILE_API_KEY}</string>
       <key>GCM_SENDER_ID</key>
       <string>${process.env.FYLE_MOBILE_PROJECT_NUMBER}</string>
       <key>PLIST_VERSION</key>

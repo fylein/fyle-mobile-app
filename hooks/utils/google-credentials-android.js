@@ -21,11 +21,6 @@ module.exports.getGoogleCredentialsAndroid = (NATIVE_CONFIG) => `
             "client_type": 3
         }
         ],
-        "api_key": [
-        {
-            "current_key": "${process.env.FYLE_MOBILE_CURRENT_KEY}"
-        }
-        ],
         "services": {
         "appinvite_service": {
             "other_platform_oauth_client": [
