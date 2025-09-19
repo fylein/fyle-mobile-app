@@ -31,7 +31,7 @@ export class DataTransformService {
     return res as T;
   }
 
-  getStatus(isEnabled: boolean, hasAcceptedInvite: boolean): string {
+  getStatus(isEnabled: boolean, hasAcceptedInvite: boolean): 'DISABLED' | 'PENDING_INVITE' | 'ACTIVE' {
     if (!isEnabled) return 'DISABLED';
     if (!hasAcceptedInvite) return 'PENDING_INVITE';
     return 'ACTIVE';

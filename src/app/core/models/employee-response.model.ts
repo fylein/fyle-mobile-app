@@ -2,7 +2,7 @@ import { CommuteDetails } from './platform/v1/commute-details.model';
 import { User } from './user.model';
 import { Level } from './platform/v1/level.model';
 import { Department } from './department.model';
-import { Delegatee } from './delegatees.model';
+import { Delegatee } from './delegatee.model';
 import { Locale } from './locale.model';
 import { CustomField } from './custom_field.model';
 

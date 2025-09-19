@@ -2,7 +2,7 @@ import { OrgUser } from './org-user.model';
 import { User } from './user.model';
 import { Approver } from './approver.model';
 import { CommuteDetails } from './platform/v1/commute-details.model';
-import { Delegatee } from './delegatees.model';
+import { Delegatee } from './delegatee.model';
 import { Department } from './department.model';
 import { Locale } from './locale.model';
 
