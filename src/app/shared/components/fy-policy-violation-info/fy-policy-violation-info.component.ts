@@ -1,17 +1,20 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { PolicyDetail } from 'src/app/core/models/policy-detail.model';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-policy-violation-info',
   templateUrl: './fy-policy-violation-info.component.html',
   styleUrls: ['./fy-policy-violation-info.component.scss'],
-  standalone: false,
+  imports: [MatIcon, NgClass, TranslocoPipe],
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
   private modalController = inject(ModalController);

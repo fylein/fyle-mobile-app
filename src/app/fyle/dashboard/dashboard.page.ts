@@ -1,7 +1,7 @@
 import { Component, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
-import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
+import {  ActionSheetButton, ActionSheetController, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, NavController, Platform } from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
@@ -38,7 +38,14 @@ import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import SwiperCore, { Pagination, Autoplay } from 'swiper';
 import { PaginationOptions, Swiper, SwiperOptions } from 'swiper/types';
-import { SwiperComponent } from 'swiper/angular';
+import { SwiperComponent, SwiperModule } from 'swiper/angular';
+import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { MatTabGroup, MatTab } from '@angular/material/tabs';
+import { DashboardOptInComponent } from '../../shared/components/dashboard-opt-in/dashboard-opt-in.component';
+import { DashboardEmailOptInComponent } from '../../shared/components/dashboard-email-opt-in/dashboard-email-opt-in.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -47,7 +54,29 @@ SwiperCore.use([Pagination, Autoplay]);
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    CardStatsComponent,
+    DashboardEmailOptInComponent,
+    DashboardOptInComponent,
+    FyMenuIconComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatTab,
+    MatTabGroup,
+    NgClass,
+    StatsComponent,
+    SwiperModule,
+    TasksComponent,
+    TranslocoPipe
+  ],
 })
 export class DashboardPage {
   private currencyService = inject(CurrencyService);

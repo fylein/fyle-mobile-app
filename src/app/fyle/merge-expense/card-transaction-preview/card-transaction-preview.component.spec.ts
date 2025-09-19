@@ -1,36 +1,29 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { IonicModule } from '@ionic/angular';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
-import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { CardTransactionPreviewComponent } from './card-transaction-preview.component';
-import { of } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { CurrencyPipe } from '@angular/common';
 
 describe('CardTransactionPreviewComponent', () => {
   let component: CardTransactionPreviewComponent;
   let fixture: ComponentFixture<CardTransactionPreviewComponent>;
-
-  let translocoService: jasmine.SpyObj<TranslocoService>;
+  let currencyPipe: jasmine.SpyObj<CurrencyPipe>;
 
   beforeEach(waitForAsync(() => {
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
+    const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
-      declarations: [CardTransactionPreviewComponent, EllipsisPipe],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        MatIconTestingModule,
+        getTranslocoTestingModule(),
+        CardTransactionPreviewComponent,
+      ],
       providers: [
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+          provide: CurrencyPipe,
+          useValue: currencyPipeSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -38,24 +31,8 @@ describe('CardTransactionPreviewComponent', () => {
 
     fixture = TestBed.createComponent(CardTransactionPreviewComponent);
     component = fixture.componentInstance;
+    currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;
 
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'cardTransactionPreview.header': 'Card transaction',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
     fixture.detectChanges();
   }));
 
@@ -71,6 +48,7 @@ describe('CardTransactionPreviewComponent', () => {
       amount: 100,
       currency: 'USD',
     };
+    currencyPipe.transform.and.returnValue('$100.00');
     component.transactionDetails = mockTransactionDetails;
     fixture.detectChanges();
     tick();

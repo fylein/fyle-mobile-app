@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { selectedExpense1, selectedExpenses } from 'src/app/core/mock-data/expense.data';
@@ -30,6 +29,8 @@ import { orgSettingsPendingRestrictions, orgSettingsRes } from 'src/app/core/moc
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from '../../core/mock-data/platform-report.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
@@ -63,8 +64,14 @@ describe('MyCreateReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [MyCreateReportPage, HumanizeCurrencyPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, MatCheckboxModule],
+      imports: [getTranslocoTestingModule(),
+        RouterTestingModule,
+        FormsModule,
+        MatCheckboxModule,
+        MyCreateReportPage,
+        HumanizeCurrencyPipe,
+        ExactCurrencyPipe,
+        MatIconTestingModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,

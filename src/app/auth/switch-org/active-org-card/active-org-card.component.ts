@@ -1,11 +1,20 @@
 import { Component, OnInit, Input, output } from '@angular/core';
 import { Org } from 'src/app/core/models/org.model';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { IonCol, IonGrid, IonRow, IonSkeletonText } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-active-org-card',
   templateUrl: './active-org-card.component.html',
   styleUrls: ['./active-org-card.component.scss'],
-  standalone: false,
+  imports: [
+    IonCol,
+    IonGrid,
+    IonRow,
+    IonSkeletonText,
+    TranslocoPipe
+  ],
 })
 export class ActiveOrgCardComponent implements OnInit {
   // TODO: Skipped for migration because:

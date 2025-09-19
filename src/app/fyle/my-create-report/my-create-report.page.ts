@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, viewChild } from '@angular/core';
-import { NgModel } from '@angular/forms';
+import { NgModel, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, noop, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -13,11 +13,38 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from '../../core/models/platform/v1/report.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { MatIcon } from '@angular/material/icon';
+import { NgIf, NgFor } from '@angular/common';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonRow, IonSkeletonText, IonToolbar } from '@ionic/angular/standalone';
+
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
   styleUrls: ['./my-create-report.page.scss'],
-  standalone: false,
+  imports: [
+    ExactCurrencyPipe,
+    ExpensesCardComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonRow,
+    IonSkeletonText,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    NgFor,
+    NgIf
+  ],
 })
 export class MyCreateReportPage implements OnInit {
   private activatedRoute = inject(ActivatedRoute);

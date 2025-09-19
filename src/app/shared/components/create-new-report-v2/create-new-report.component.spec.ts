@@ -1,25 +1,30 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { CreateNewReportComponent } from './create-new-report.component';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { of } from 'rxjs';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { apiExpenses1, nonReimbursableExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
-import { getTranslocoModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { ExpensesCardComponent } from '../expenses-card-v2/expenses-card.component';
+
+// mock expenses card
+@Component({
+  selector: 'app-expenses-card',
+  template: '<div></div>',
+})
+export class MockExpensesCardComponent {
+}
 
 describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
@@ -45,15 +50,10 @@ describe('CreateNewReportComponent', () => {
     const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
-      declarations: [CreateNewReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe, FyCurrencyPipe],
       imports: [
-        IonicModule.forRoot(),
-        MatIconModule,
         MatIconTestingModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatCheckboxModule,
-        getTranslocoModule(),
+        getTranslocoTestingModule(),
+        CreateNewReportComponent,
       ],
       providers: [
         { provide: ModalController, useValue: modalController },
@@ -65,7 +65,14 @@ describe('CreateNewReportComponent', () => {
         { provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy },
         { provide: SpenderReportsService, useValue: spenderReportsService },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).overrideComponent(CreateNewReportComponent, {
+      remove: {
+        imports: [ExpensesCardComponent],
+      },
+      add: {
+        imports: [MockExpensesCardComponent],
+        schemas: [NO_ERRORS_SCHEMA]
+      },
     }).compileComponents();
 
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;

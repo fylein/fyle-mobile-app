@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FySelectProjectComponent } from './fy-select-project.component';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
@@ -30,14 +29,14 @@ describe('FySelectProjectComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FySelectProjectComponent],
       imports: [
-        IonicModule.forRoot(),
+        
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,
+        FySelectProjectComponent,
       ],
       providers: [
         {

@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FyZeroStateComponent } from './fy-zero-state.component';
 import { of } from 'rxjs';
@@ -18,8 +17,7 @@ describe('FyZeroStateComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyZeroStateComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [ TranslocoModule, FyZeroStateComponent],
       providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
 

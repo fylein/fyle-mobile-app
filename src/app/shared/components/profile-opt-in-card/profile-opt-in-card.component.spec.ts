@@ -1,7 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { IonicModule } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 
@@ -16,6 +13,7 @@ import { platformEmployeeData } from 'src/app/core/mock-data/platform/v1/platfor
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { PlatformEmployee } from 'src/app/core/models/platform/platform-employee.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('ProfileOptInCardComponent', () => {
   let component: ProfileOptInCardComponent;
@@ -23,7 +21,6 @@ describe('ProfileOptInCardComponent', () => {
   let clipboardService: jasmine.SpyObj<ClipboardService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const clipboardServiceSpy = jasmine.createSpyObj('ClipboardService', ['writeString']);
@@ -34,21 +31,12 @@ describe('ProfileOptInCardComponent', () => {
       'clickedOnDeleteNumber',
     ]);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getByParams']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
-      declarations: [ProfileOptInCardComponent],
-      imports: [IonicModule.forRoot(), HttpClientTestingModule, TranslocoModule],
+      imports: [ getTranslocoTestingModule(), ProfileOptInCardComponent],
       providers: [
         { provide: ClipboardService, useValue: clipboardServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: EmployeesService, useValue: employeesServiceSpy },
-        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -57,32 +45,7 @@ describe('ProfileOptInCardComponent', () => {
     component = fixture.componentInstance;
     clipboardService = TestBed.inject(ClipboardService) as jasmine.SpyObj<ClipboardService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'profileOptInCard.copySuccess': 'Phone Number Copied Successfully',
-        'profileOptInCard.title': 'Opt-in to text receipts',
-        'profileOptInCard.description': 'Opt-in to activate text messages for instant expense submission.',
-        'profileOptInCard.optIn': 'Opt-in',
-        'profileOptInCard.status': 'Status',
-        'profileOptInCard.optOut': 'Opt-out',
-        'profileOptInCard.optedIn': 'Opted-in',
-        'profileOptInCard.mobileNumber': 'Mobile number',
-        'profileOptInCard.usageDescription': 'You can now text your receipts to Fyle at 302-440-2921',
-        'profileOptInCard.notOptedIn': 'Not opted-in',
-        'profileOptInCard.nonUSNumberInfo':
-          'Add a +1 country code to your mobile number to receive text message receipts.',
-        'profileOptInCard.updateAndOptIn': 'Update and opt-in',
-      };
-      let translation = translations[key] || key;
-      if (params) {
-        Object.keys(params).forEach((key) => {
-          translation = translation.replace(`{{${key}}}`, params[key]);
-        });
-      }
-      return translation;
-    });
   }));
 
   it('should create', () => {

@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number.component';
@@ -35,8 +34,15 @@ describe('UpdateMobileNumberComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [UpdateMobileNumberComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule, TranslocoModule],
+      imports: [
+        
+        FormsModule,
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        UpdateMobileNumberComponent,
+        FormButtonValidationDirective,
+      ],
       providers: [
         {
           provide: PopoverController,

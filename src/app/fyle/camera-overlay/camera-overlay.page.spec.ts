@@ -1,8 +1,13 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { CameraOverlayPage } from './camera-overlay.page';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+
+// mock for capture receipt component
+@Component({
+  selector: 'app-capture-receipt',
+})
+class MockCaptureReceiptComponent {}
 
 describe('CameraOverlayPage', () => {
   let component: CameraOverlayPage;
@@ -10,9 +15,16 @@ describe('CameraOverlayPage', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [CameraOverlayPage],
-      imports: [IonicModule.forRoot()],
+      imports: [CameraOverlayPage],
       schemas: [NO_ERRORS_SCHEMA],
+    }).overrideComponent(CameraOverlayPage, {
+      remove: {
+        imports: [CaptureReceiptComponent],
+      },
+      add: {
+        imports: [MockCaptureReceiptComponent],
+        schemas: [NO_ERRORS_SCHEMA],
+      },
     }).compileComponents();
 
     fixture = TestBed.createComponent(CameraOverlayPage);

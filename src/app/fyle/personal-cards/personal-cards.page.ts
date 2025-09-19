@@ -39,7 +39,7 @@ import { DateRangeModalComponent } from './date-range-modal/date-range-modal.com
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import { ModalController, Platform } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -49,7 +49,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
-import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatCheckboxChange, MatCheckbox } from '@angular/material/checkbox';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
@@ -60,6 +60,18 @@ import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.mo
 import { PlatformPersonalCardFilterParams } from 'src/app/core/models/platform/platform-personal-card-filter-params.model';
 import { PlatformPersonalCardTxnState } from 'src/app/core/models/platform/platform-personal-card-txn-state.enum';
 import { PlatformPersonalCardQueryParams } from 'src/app/core/models/platform/platform-personal-card-query-params.model';
+import { FyHeaderComponent } from '../../shared/components/fy-header/fy-header.component';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { BankAccountCardsComponent } from '../../shared/components/bank-account-cards/bank-account-cards.component';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { PersonalCardTransactionComponent } from '../../shared/components/personal-card-transaction/personal-card-transaction.component';
+import { TransactionsShimmerComponent } from './transactions-shimmer/transactions-shimmer.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { AsyncPipe } from '@angular/common';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Filters = Partial<PersonalCardFilter>;
@@ -68,7 +80,39 @@ type Filters = Partial<PersonalCardFilter>;
   selector: 'app-personal-cards',
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    BankAccountCardsComponent,
+    FooterComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyFilterPillsComponent,
+    FyHeaderComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonItem,
+    IonRefresher,
+    IonRefresherContent,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonSpinner,
+    IonToolbar,
+    MatCheckbox,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    PersonalCardTransactionComponent,
+    TransactionsShimmerComponent
+  ],
 })
 export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   private personalCardsService = inject(PersonalCardsService);
@@ -379,11 +423,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
     });
     browser.on('loadstart').subscribe((event) => {
       /* As of now yodlee not supported for postmessage for cordova
-         So now added callback url as https://www.fylehq.com ,
-         after success yodlee will redirect to the url with success message on params,
-         while start loading this url below code will parse the success message and
-         close the inappborwser. this url will not visible to users.
-      */
+               So now added callback url as https://www.fylehq.com ,
+               after success yodlee will redirect to the url with success message on params,
+               while start loading this url below code will parse the success message and
+               close the inappborwser. this url will not visible to users.
+            */
       if (event.url.substring(0, 22) === 'https://www.fylehq.com') {
         browser.close();
         this.zone.run(() => {

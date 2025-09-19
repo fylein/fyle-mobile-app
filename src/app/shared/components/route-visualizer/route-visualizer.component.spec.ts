@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { Position } from '@capacitor/geolocation';
 import { of, throwError } from 'rxjs';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -68,8 +67,7 @@ describe('RouteVisualizerComponent', () => {
     const staticMapPropertiesServiceSpy = jasmine.createSpyObj('StaticMapPropertiesService', ['getProperties']);
 
     TestBed.configureTestingModule({
-      declarations: [RouteVisualizerComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ RouteVisualizerComponent],
       providers: [
         {
           provide: LocationService,
@@ -93,7 +91,7 @@ describe('RouteVisualizerComponent', () => {
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;
     staticMapPropertiesService = TestBed.inject(
-      StaticMapPropertiesService
+      StaticMapPropertiesService,
     ) as jasmine.SpyObj<StaticMapPropertiesService>;
 
     locationService.getCurrentLocation.and.returnValue(of(positionData1));
@@ -217,7 +215,7 @@ describe('RouteVisualizerComponent', () => {
         expect(locationService.getDirections).toHaveBeenCalledWith(
           mileageRoute.origin,
           mileageRoute.destination,
-          mileageRoute.waypoints
+          mileageRoute.waypoints,
         );
         expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledWith({
           ...mileageRoute,

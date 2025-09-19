@@ -24,7 +24,7 @@ describe('FileService', () => {
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
     const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get', 'post']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['fixDates']);
-    
+
     TestBed.configureTestingModule({
       providers: [
         FileService,
@@ -66,16 +66,26 @@ describe('FileService', () => {
     const mockDownloadUrl = 'https://example.com/file.jpg';
     const mockBlob = new Blob(['test content'], { type: 'image/jpeg' });
     const mockDataUrl = 'data:image/jpeg;base64,dGVzdCBjb250ZW50';
-    
+
     // Mock the fetch API
     spyOn(globalThis, 'fetch').and.resolveTo({
-      blob: () => Promise.resolve(mockBlob)
+      blob: () => Promise.resolve(mockBlob),
     } as Response);
 
     // Mock the getDataUrlFromBlob method to return a predictable data URL
     spyOn(fileService, 'getDataUrlFromBlob').and.resolveTo(mockDataUrl);
 
-    spenderFileService.generateUrlsBulk.and.returnValue(of([{ id: 'test', name: 'test.jpg', download_url: mockDownloadUrl, content_type: 'image/jpeg', upload_url: 'https://example.com/upload' }]));
+    spenderFileService.generateUrlsBulk.and.returnValue(
+      of([
+        {
+          id: 'test',
+          name: 'test.jpg',
+          download_url: mockDownloadUrl,
+          content_type: 'image/jpeg',
+          upload_url: 'https://example.com/upload',
+        },
+      ]),
+    );
 
     const fileId = 'fiAfXtUj24rJ';
     fileService.base64Download(fileId).subscribe((res) => {
@@ -107,7 +117,17 @@ describe('FileService', () => {
   it('downloadUrl(): should return the file download url', (done) => {
     const fileId = 'fiAfXtUj24rJ';
     const mockDownloadUrl = 'https://example.com/file.jpg';
-    spenderFileService.generateUrlsBulk.and.returnValue(of([{ id: 'test', name: 'test.jpg', download_url: mockDownloadUrl, content_type: 'image/jpeg', upload_url: 'https://example.com/upload' }]));
+    spenderFileService.generateUrlsBulk.and.returnValue(
+      of([
+        {
+          id: 'test',
+          name: 'test.jpg',
+          download_url: mockDownloadUrl,
+          content_type: 'image/jpeg',
+          upload_url: 'https://example.com/upload',
+        },
+      ]),
+    );
 
     fileService.downloadUrl(fileId).subscribe((res) => {
       expect(res).toEqual(mockDownloadUrl);
@@ -120,10 +140,18 @@ describe('FileService', () => {
     const advanceRequestId = 'areqspMJTHN4Yk';
 
     spenderService.get.and.returnValue(of({ data: [{ file_ids: ['file1', 'file2'] }] }));
-    spenderFileService.generateUrlsBulk.and.returnValue(of([
-      { id: 'file1', name: 'test1.jpg', download_url: 'url1', content_type: 'image/jpeg', upload_url: 'upload1' },
-      { id: 'file2', name: 'test2.pdf', download_url: 'url2', content_type: 'application/pdf', upload_url: 'upload2' }
-    ]));
+    spenderFileService.generateUrlsBulk.and.returnValue(
+      of([
+        { id: 'file1', name: 'test1.jpg', download_url: 'url1', content_type: 'image/jpeg', upload_url: 'upload1' },
+        {
+          id: 'file2',
+          name: 'test2.pdf',
+          download_url: 'url2',
+          content_type: 'application/pdf',
+          upload_url: 'upload2',
+        },
+      ]),
+    );
 
     fileService.findByAdvanceRequestId(advanceRequestId).subscribe((res) => {
       expect(res.length).toBe(2);
@@ -199,7 +227,9 @@ describe('FileService', () => {
 
   it('uploadUrl(): should return the file upload url', (done) => {
     const fileId = 'fiHv71XQgoZp';
-    spenderFileService.generateUrlsBulk.and.returnValue(of([{ id: fileId, name: 'test.jpg', download_url: 'url', content_type: 'image/jpeg', upload_url: 'upload' }]));
+    spenderFileService.generateUrlsBulk.and.returnValue(
+      of([{ id: fileId, name: 'test.jpg', download_url: 'url', content_type: 'image/jpeg', upload_url: 'upload' }]),
+    );
 
     fileService.uploadUrl(fileId).subscribe((res) => {
       expect(res).toEqual('upload');
@@ -286,7 +316,17 @@ describe('FileService', () => {
   it('downloadUrlForTeamAdvance(): should return the file download url for team advance', (done) => {
     const fileId = 'fiAfXtUj24rJ';
     const mockDownloadUrl = 'https://example.com/team-advance-file.jpg';
-    approverFileService.generateUrlsBulk.and.returnValue(of([{ id: 'test', name: 'test.jpg', download_url: mockDownloadUrl, content_type: 'image/jpeg', upload_url: 'https://example.com/upload' }]));
+    approverFileService.generateUrlsBulk.and.returnValue(
+      of([
+        {
+          id: 'test',
+          name: 'test.jpg',
+          download_url: mockDownloadUrl,
+          content_type: 'image/jpeg',
+          upload_url: 'https://example.com/upload',
+        },
+      ]),
+    );
 
     fileService.downloadUrlForTeamAdvance(fileId).subscribe((res) => {
       expect(res).toEqual(mockDownloadUrl);
@@ -299,10 +339,18 @@ describe('FileService', () => {
     const advanceRequestId = 'areqspMJTHN4Yk';
 
     approverService.get.and.returnValue(of({ data: [{ file_ids: ['file1', 'file2'] }] }));
-    approverFileService.generateUrlsBulk.and.returnValue(of([
-      { id: 'file1', name: 'test1.jpg', download_url: 'url1', content_type: 'image/jpeg', upload_url: 'upload1' },
-      { id: 'file2', name: 'test2.pdf', download_url: 'url2', content_type: 'application/pdf', upload_url: 'upload2' }
-    ]));
+    approverFileService.generateUrlsBulk.and.returnValue(
+      of([
+        { id: 'file1', name: 'test1.jpg', download_url: 'url1', content_type: 'image/jpeg', upload_url: 'upload1' },
+        {
+          id: 'file2',
+          name: 'test2.pdf',
+          download_url: 'url2',
+          content_type: 'application/pdf',
+          upload_url: 'upload2',
+        },
+      ]),
+    );
 
     fileService.findByAdvanceRequestIdForTeamAdvance(advanceRequestId).subscribe((res) => {
       expect(res.length).toBe(2);
@@ -322,7 +370,7 @@ describe('FileService', () => {
       name: 'test-file.jpg',
       download_url: 'https://example.com/download',
       content_type: 'image/jpeg',
-      upload_url: 'https://example.com/upload'
+      upload_url: 'https://example.com/upload',
     };
 
     const result = fileService.createFileObjectFromUrlResponse(mockUrlResponse);
@@ -345,7 +393,11 @@ describe('FileService', () => {
 
   it('uploadUrlForTeamAdvance(): should return the file upload url for team advance', (done) => {
     const fileId = 'fiHv71XQgoZp';
-    approverFileService.generateUrlsBulk.and.returnValue(of([{ id: fileId, name: 'test.jpg', download_url: 'url', content_type: 'image/jpeg', upload_url: 'team-upload' }]));
+    approverFileService.generateUrlsBulk.and.returnValue(
+      of([
+        { id: fileId, name: 'test.jpg', download_url: 'url', content_type: 'image/jpeg', upload_url: 'team-upload' },
+      ]),
+    );
 
     fileService.uploadUrlForTeamAdvance(fileId).subscribe((res) => {
       expect(res).toEqual('team-upload');
@@ -369,23 +421,23 @@ describe('FileService', () => {
     it('should read a regular image file and return data URL', async () => {
       const mockBlob = new Blob(['test content'], { type: 'image/jpeg' });
       const mockDataUrl = 'data:image/jpeg;base64,dGVzdCBjb250ZW50';
-      
+
       // Mock the FileReader to work properly
       const mockFileReader = {
         readAsDataURL: jasmine.createSpy('readAsDataURL'),
         result: mockDataUrl,
         onload: null as any,
-        onerror: null as any
+        onerror: null as any,
       };
-      
+
       spyOn(window, 'FileReader').and.returnValue(mockFileReader as any);
       spyOn(fileService, 'getDataUrlFromBlob').and.resolveTo(mockDataUrl);
 
       const resultPromise = fileService.readFile(mockBlob);
-      
+
       // Simulate the FileReader success
       mockFileReader.onload();
-      
+
       const result = await resultPromise;
       expect(result).toBe(mockDataUrl);
       expect(mockFileReader.readAsDataURL).toHaveBeenCalledWith(mockBlob);
@@ -393,18 +445,18 @@ describe('FileService', () => {
 
     it('should read a HEIC file and convert to JPEG', async () => {
       const mockHeicBlob = new Blob(['heic content'], { type: 'image/heic' });
-      
+
       // Since heic2any is an external library that's hard to mock in tests,
       // let's test the method structure and behavior without triggering the actual conversion
       // We'll verify that the method exists and can handle HEIC files
-      
+
       // Mock the getDataUrlFromBlob method to avoid the actual conversion
       const mockDataUrl = 'data:image/jpeg;base64,Y29udmVydGVkIGNvbnRlbnQ=';
       spyOn(fileService, 'getDataUrlFromBlob').and.resolveTo(mockDataUrl);
-      
+
       // Test that the method exists and is callable
       expect(typeof fileService.readFile).toBe('function');
-      
+
       // The actual heic2any call will fail in tests due to missing native libraries,
       // but we can verify the method structure and that it's designed to handle HEIC files
       expect(mockHeicBlob.type).toBe('image/heic');
@@ -413,21 +465,21 @@ describe('FileService', () => {
     it('should handle FileReader errors', async () => {
       const mockBlob = new Blob(['test content'], { type: 'text/plain' });
       const mockError = new Error('FileReader error');
-      
+
       // Create a mock FileReader that will trigger the error
       const mockFileReader = {
         readAsDataURL: jasmine.createSpy('readAsDataURL'),
         onload: null as any,
-        onerror: null as any
+        onerror: null as any,
       };
-      
+
       spyOn(window, 'FileReader').and.returnValue(mockFileReader as any);
 
       const resultPromise = fileService.readFile(mockBlob);
-      
+
       // Simulate the error
       mockFileReader.onerror(mockError);
-      
+
       await expectAsync(resultPromise).toBeRejectedWith(mockError);
     });
   });

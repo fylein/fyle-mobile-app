@@ -1,6 +1,5 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FyMenuIconComponent } from '../fy-menu-icon/fy-menu-icon.component';
@@ -23,8 +22,7 @@ describe('FyHeaderComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FyHeaderComponent, FyMenuIconComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [ TranslocoModule, FyHeaderComponent, FyMenuIconComponent],
       providers: [
         {
           provide: TrackingService,

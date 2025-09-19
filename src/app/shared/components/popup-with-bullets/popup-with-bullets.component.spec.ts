@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule } from '@ionic/angular';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -32,8 +31,7 @@ describe('PopupWithBulletsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [PopupWithBulletsComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [ TranslocoModule, PopupWithBulletsComponent],
       providers: [
         {
           provide: PopoverController,
@@ -137,7 +135,7 @@ describe('PopupWithBulletsComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
       'success',
       { message },
-      'check-circle-outline'
+      'check-circle-outline',
     );
   });
 });

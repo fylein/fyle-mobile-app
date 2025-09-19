@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
-import { NavParams } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
+import { NavParams } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
@@ -32,8 +31,7 @@ describe('SupportDialogPage', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
-      declarations: [SupportDialogPage],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
+      imports: [ MatIconTestingModule, MatIconModule, SupportDialogPage],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
@@ -61,7 +59,7 @@ describe('SupportDialogPage', () => {
       expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
       expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
         '#280a31',
-        'https://www.fylehq.com/help'
+        'https://www.fylehq.com/help',
       );
     });
 
@@ -70,7 +68,7 @@ describe('SupportDialogPage', () => {
       expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
       expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
         '#280a31',
-        'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk'
+        'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk',
       );
     });
 
@@ -79,7 +77,7 @@ describe('SupportDialogPage', () => {
       expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
       expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
         '#280a31',
-        'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview'
+        'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview',
       );
     });
   });

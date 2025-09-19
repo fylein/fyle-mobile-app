@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { App } from '@capacitor/app';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { from, noop } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';

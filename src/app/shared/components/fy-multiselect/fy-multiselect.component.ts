@@ -1,11 +1,13 @@
 import { Component, OnInit, forwardRef, Input, inject, input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multiselect-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TranslocoService } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-fy-multiselect',
@@ -18,7 +20,7 @@ import { TranslocoService } from '@jsverse/transloco';
       multi: true,
     },
   ],
-  standalone: false,
+  imports: [NgClass, FormsModule, MatIcon],
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   private modalController = inject(ModalController);

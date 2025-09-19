@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { CCExpenseMerchantInfoModalComponent } from './cc-expense-merchant-info-modal.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('CCExpenseMerchantInfoComponent', () => {
   let component: CCExpenseMerchantInfoModalComponent;
@@ -21,8 +22,8 @@ describe('CCExpenseMerchantInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [CCExpenseMerchantInfoModalComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [TranslocoModule, CCExpenseMerchantInfoModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

@@ -20,7 +20,7 @@ import {
   finalize,
   catchError,
 } from 'rxjs/operators';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSpinner, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { Observable, fromEvent, of, from, forkJoin, noop, throwError } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -32,13 +32,39 @@ import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatFormField, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIcon } from '@angular/material/icon';
+import { MatIconButton } from '@angular/material/button';
+import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
+import { MatRipple } from '@angular/material/core';
+import { AsyncPipe, LowerCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-fy-location-modal',
   templateUrl: './fy-location-modal.component.html',
   styleUrls: ['./fy-location-modal.component.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    FyAlertInfoComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSpinner,
+    IonToolbar,
+    LowerCasePipe,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatRipple,
+    MatSuffix,
+    TranslocoPipe
+  ],
 })
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
   private gmapsService = inject(GmapsService);

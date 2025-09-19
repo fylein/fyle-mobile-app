@@ -1,27 +1,18 @@
-import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, Component } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
-import {
-  MatCheckboxChange,
-  MatCheckboxModule,
-} from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
-import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import { InfiniteScrollCustomEvent, IonicModule, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
+import { InfiniteScrollCustomEvent, ModalController, NavController, Platform, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { IonInfiniteScrollCustomEvent } from '@ionic/core';
-import { BehaviorSubject, of, Subject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { allFilterPills, creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import {
   personalCardQueryParamFiltersData,
-  tasksQueryParamsWithFiltersData,
   tasksQueryParamsWithFiltersData3,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
@@ -46,6 +37,29 @@ import { PersonalCardsPage } from './personal-cards.page';
 import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.model';
 import { platformPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 import { PlatformPersonalCardTxnState } from 'src/app/core/models/platform/platform-personal-card-txn-state.enum';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { BankAccountCardsComponent } from 'src/app/shared/components/bank-account-cards/bank-account-cards.component';
+import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
+import { PersonalCardTransactionComponent } from 'src/app/shared/components/personal-card-transaction/personal-card-transaction.component';
+
+// mock app-bank-account-cards component
+@Component({
+  selector: 'app-bank-account-cards',
+  template: '<div></div>',
+})
+class MockBankAccountCardsComponent {}
+@Component({
+  selector: 'app-footer',
+  template: '<div></div>',
+})
+class MockFooterComponent {}
+
+@Component({
+  selector: 'app-personal-card-transaction',
+  template: '<div></div>',
+})
+class MockPersonalCardTransactionComponent {}
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -64,6 +78,7 @@ describe('PersonalCardsPage', () => {
   let spinnerDialog: jasmine.SpyObj<SpinnerDialog>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
+  let navController: jasmine.SpyObj<NavController>;
 
   beforeEach(waitForAsync(() => {
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', [
@@ -106,19 +121,13 @@ describe('PersonalCardsPage', () => {
       'transactionsHiddenOnPersonalCards',
     ]);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
+    const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
-      declarations: [PersonalCardsPage],
       imports: [
-        IonicModule.forRoot(),
-        RouterTestingModule,
-        FormsModule,
-        MatCheckboxModule,
-        MatFormFieldModule,
-        MatInputModule,
-        BrowserAnimationsModule,
-        NoopAnimationsModule,
-      ],
+        PersonalCardsPage,
+        getTranslocoTestingModule(),
+        MatIconTestingModule],
       providers: [
         ChangeDetectorRef,
         {
@@ -188,8 +197,14 @@ describe('PersonalCardsPage', () => {
           provide: ModalPropertiesService,
           useValue: modalPropertiesSpy,
         },
+        {
+          provide: NavController,
+          useValue: navControllerSpy,
+        },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).overrideComponent(PersonalCardsPage, {
+      remove: {imports: [BankAccountCardsComponent, FooterComponent, PersonalCardTransactionComponent]},
+      add: {imports: [MockBankAccountCardsComponent, MockFooterComponent, MockPersonalCardTransactionComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA]},
     }).compileComponents();
     fixture = TestBed.createComponent(PersonalCardsPage);
     component = fixture.componentInstance;
@@ -207,6 +222,7 @@ describe('PersonalCardsPage', () => {
     spinnerDialog = TestBed.inject(SpinnerDialog) as jasmine.SpyObj<SpinnerDialog>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
 
     personalCardsService.getPersonalCardsCount.and.returnValue(of(2));
@@ -623,7 +639,11 @@ describe('PersonalCardsPage', () => {
     });
 
     it('searchClick(): should open search', fakeAsync(() => {
-      spyOn(component.simpleSearchInput.nativeElement, 'focus');
+      component.simpleSearchInput = {
+        nativeElement: {
+          focus: jasmine.createSpy('focus'),
+        },
+      } as any;
 
       component.searchClick();
       tick(500);
@@ -671,10 +691,21 @@ describe('PersonalCardsPage', () => {
     });
 
     describe('clearText():', () => {
+      beforeEach(() => {
+        component.simpleSearchInput = {
+          nativeElement: {
+            value: 'test',
+            dispatchEvent: jasmine.createSpy('dispatchEvent'),
+          },
+        } as any;
+      });
+
       it('should set search bar if not redirected from cancel', () => {
         component.clearText('onSimpleSearchCancel');
 
         expect(component.simpleSearchText).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.value).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event('keyup'));
         expect(component.isSearchBarFocused).toBeTrue();
       });
 
@@ -682,6 +713,8 @@ describe('PersonalCardsPage', () => {
         component.clearText('notFromCancel');
 
         expect(component.simpleSearchText).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.value).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event('keyup'));
         expect(component.isSearchBarFocused).toBeFalse();
       });
     });
@@ -697,7 +730,7 @@ describe('PersonalCardsPage', () => {
 
         expect(personalCardsService.getMatchedExpensesSuggestions).toHaveBeenCalledOnceWith(
           platformPersonalCardTxns.data[0].amount,
-          '2024-09-22'
+          '2024-09-22',
         );
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -712,14 +745,14 @@ describe('PersonalCardsPage', () => {
         component.selectionMode = false;
         component.loadingMatchedExpenseCount = false;
         personalCardsService.getMatchedExpensesSuggestions.and.returnValue(
-          of(platformPersonalCardTxnExpenseSuggestionsRes.data)
+          of(platformPersonalCardTxnExpenseSuggestionsRes.data),
         );
 
         component.createExpense(platformPersonalCardTxns.data[0]);
 
         expect(personalCardsService.getMatchedExpensesSuggestions).toHaveBeenCalledOnceWith(
           platformPersonalCardTxns.data[0].amount,
-          '2024-09-22'
+          '2024-09-22',
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards_matched_expenses'], {
           state: {
@@ -819,7 +852,7 @@ describe('PersonalCardsPage', () => {
           startDate: '2023-02-20T00:00:00.000Z',
           endDate: '2023-02-24T00:00:00.000Z',
         },
-        {}
+        {},
       );
     }));
 
@@ -891,7 +924,7 @@ describe('PersonalCardsPage', () => {
         inappbrowserSpy.on.withArgs('loadstart').and.returnValue(
           of({
             url: 'https://www.fylehq.com',
-          })
+          }),
         );
         inAppBrowserService.create.and.returnValue(inappbrowserSpy);
         spyOn(component, 'postAccounts');
@@ -919,7 +952,7 @@ describe('PersonalCardsPage', () => {
         inappbrowserSpy.on.withArgs('loadstart').and.returnValue(
           of({
             url: 'https://www.fylehq.com',
-          })
+          }),
         );
         inAppBrowserService.create.and.returnValue(inappbrowserSpy);
         spyOn(component, 'syncTransactions');
@@ -1062,7 +1095,14 @@ describe('PersonalCardsPage', () => {
       spyOn(component, 'loadInfiniteScroll');
       personalCardsService.generateFilterPills.and.returnValue(allFilterPills);
 
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.personal-cards--simple-search-input'));
+      component.simpleSearchInput = {
+        nativeElement: {
+          value: 'test',
+          dispatchEvent: jasmine.createSpy('dispatchEvent'),
+          addEventListener: jasmine.createSpy('addEventListener'),
+          removeEventListener: jasmine.createSpy('removeEventListener'),
+        },
+      } as any;
     });
 
     it('should set navigateBack based on activatedRoute params', () => {

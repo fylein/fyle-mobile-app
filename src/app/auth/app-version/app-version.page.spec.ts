@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
 import { DeviceService } from 'src/app/core/services/device.service';
 
 import { AppVersionPage } from './app-version.page';
@@ -35,8 +34,7 @@ describe('AppVersionPage', () => {
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
 
     TestBed.configureTestingModule({
-      declarations: [AppVersionPage],
-      imports: [IonicModule.forRoot()],
+      imports: [ AppVersionPage],
       providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStubSpy },
@@ -62,7 +60,7 @@ describe('AppVersionPage', () => {
     expect(component.message).toBe(headerMsg);
     expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
       BackButtonActionPriority.ABSOLUTE,
-      noop
+      noop,
     );
   });
 
@@ -74,7 +72,7 @@ describe('AppVersionPage', () => {
     tick(1000);
     expect(browserHandlerService.openLinkWithWindowName).toHaveBeenCalledWith(
       '_system',
-      'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781'
+      'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781',
     );
   }));
 
@@ -86,7 +84,7 @@ describe('AppVersionPage', () => {
     tick(1000);
     expect(browserHandlerService.openLinkWithWindowName).toHaveBeenCalledWith(
       '_system',
-      'https://itunes.apple.com/in/app/fyle/id1137906166'
+      'https://itunes.apple.com/in/app/fyle/id1137906166',
     );
   }));
 });

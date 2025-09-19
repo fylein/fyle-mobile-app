@@ -1,13 +1,15 @@
 import { Component, Input, signal, computed, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { TranslocoService } from '@jsverse/transloco';
+import { ModalController } from '@ionic/angular/standalone';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { PendingGasChargeInfoModalComponent } from '../pending-gas-charge-info-modal/pending-gas-charge-info-modal.component';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-pending-gas-charge-info',
   templateUrl: './pending-gas-charge-info.component.html',
   styleUrls: ['./pending-gas-charge-info.component.scss'],
-  standalone: false,
+  imports: [NgClass, MatIcon, TranslocoPipe],
 })
 export class PendingGasChargeInfoComponent {
   // Signals for reactive state

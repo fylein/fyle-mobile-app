@@ -1,14 +1,19 @@
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, DatePipe } from '@angular/common';
 import { Component, OnInit, Input, inject, output } from '@angular/core';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import dayjs from 'dayjs';
+import { MatRipple } from '@angular/material/core';
+import { MatIcon } from '@angular/material/icon';
+import { EllipsisPipe } from '../../../shared/pipes/ellipses.pipe';
+import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-team-adv-card',
   templateUrl: './team-adv-card.component.html',
   styleUrls: ['./team-adv-card.component.scss'],
-  standalone: false,
+  imports: [MatRipple, MatIcon, DatePipe, EllipsisPipe, ExactCurrencyPipe, TranslocoPipe],
 })
 export class TeamAdvCardComponent implements OnInit {
   private advanceRequestService = inject(AdvanceRequestService);

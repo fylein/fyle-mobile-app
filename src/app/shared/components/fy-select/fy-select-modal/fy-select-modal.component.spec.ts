@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FySelectModalComponent } from './fy-select-modal.component';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
@@ -8,6 +8,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, take } from 'rxjs';
 import { By } from '@angular/platform-browser';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FySelectModalComponent', () => {
   let component: FySelectModalComponent;
@@ -29,8 +30,8 @@ describe('FySelectModalComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      declarations: [FySelectModalComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule],
+      imports: [TranslocoModule, FySelectModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,
@@ -56,7 +57,7 @@ describe('FySelectModalComponent', () => {
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     component.enableSearch = true;
@@ -165,7 +166,7 @@ describe('FySelectModalComponent', () => {
       of([
         { label: 'business', value: 'BUSINESS' },
         { label: 'economy', value: 'ECONOMY' },
-      ])
+      ]),
     );
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'business', value: 'BUSINESS' }]));
     component.ngAfterViewInit();

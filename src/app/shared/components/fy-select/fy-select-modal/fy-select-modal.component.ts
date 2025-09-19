@@ -11,18 +11,47 @@ import {
 } from '@angular/core';
 import { from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, shareReplay } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { ExtendedOption, ModalOption, Option } from './fy-select-modal.interface';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { FyZeroStateComponent } from '../../fy-zero-state/fy-zero-state.component';
+import { MatRipple } from '@angular/material/core';
+import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
+import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-fy-select-modal',
   templateUrl: './fy-select-modal.component.html',
   styleUrls: ['./fy-select-modal.component.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    FyHighlightTextComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatRipple,
+    MatSuffix,
+    NgTemplateOutlet,
+    TranslocoPipe
+  ],
 })
 export class FySelectModalComponent implements AfterViewInit {
   private modalController = inject(ModalController);

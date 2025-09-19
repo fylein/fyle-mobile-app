@@ -1,16 +1,33 @@
 import { Component, OnInit, Input, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { switchMap, finalize, distinctUntilChanged } from 'rxjs/operators';
 import { from } from 'rxjs';
+import { MatIcon } from '@angular/material/icon';
+import { FyNumberComponent } from '../../fy-number/fy-number.component';
+import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-currency-exchange-rate',
   templateUrl: './fy-currency-exchange-rate.component.html',
   styleUrls: ['./fy-currency-exchange-rate.component.scss'],
-  standalone: false,
+  imports: [
+    FormsModule,
+    FyAlertInfoComponent,
+    FyNumberComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonToolbar,
+    MatIcon,
+    ReactiveFormsModule,
+    TranslocoPipe
+  ],
 })
 export class FyCurrencyExchangeRateComponent implements OnInit {
   private modalController = inject(ModalController);

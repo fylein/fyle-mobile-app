@@ -1,11 +1,23 @@
 import { Component, Input, OnInit, input } from '@angular/core';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
+import { NgClass, TitleCasePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { IonCol, IonGrid, IonIcon, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-view-dependent-fields',
   templateUrl: './view-dependent-fields.component.html',
   styleUrls: ['./view-dependent-fields.component.scss'],
-  standalone: false,
+  imports: [
+    IonCol,
+    IonGrid,
+    IonIcon,
+    IonRow,
+    NgClass,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
 export class ViewDependentFieldsComponent implements OnInit {
   // TODO: Skipped for migration because:

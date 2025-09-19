@@ -12,12 +12,26 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
+import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
+import { NgClass } from '@angular/common';
+import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';
+import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
+import { IonButtons, IonContent, IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-spender-onboarding',
   templateUrl: './spender-onboarding.page.html',
   styleUrls: ['./spender-onboarding.page.scss'],
-  standalone: false,
+  imports: [
+    FyMenuIconComponent,
+    IonButtons,
+    IonContent,
+    IonIcon,
+    NgClass,
+    SpenderOnboardingConnectCardStepComponent,
+    SpenderOnboardingOptInStepComponent
+  ],
 })
 export class SpenderOnboardingPage {
   private loaderService = inject(LoaderService);

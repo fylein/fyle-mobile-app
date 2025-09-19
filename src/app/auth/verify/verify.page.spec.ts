@@ -1,13 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { VerifyPage } from './verify.page';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 
@@ -28,8 +26,7 @@ describe('VerifyPage', () => {
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
 
     TestBed.configureTestingModule({
-      declarations: [VerifyPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule],
+      imports: [RouterTestingModule, VerifyPage],
       providers: [
         {
           provide: Router,
@@ -85,6 +82,16 @@ describe('VerifyPage', () => {
       expect(trackingService.onSignin).toHaveBeenCalledOnceWith(apiEouRes.us.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { invite_link: true }]);
     });
+
+    it('should call handleError when email verification fails', () => {
+      const error = { status: 422 };
+      routerAuthService.emailVerify.and.returnValue(throwError(() => error));
+      const handleErrorSpy = spyOn(component, 'handleError');
+
+      fixture.detectChanges();
+
+      expect(handleErrorSpy).toHaveBeenCalledOnceWith(error);
+    });
   });
 
   describe('handleError(): ', () => {
@@ -107,6 +114,16 @@ describe('VerifyPage', () => {
         'pending_verification',
         { hasTokenExpired: true, orgId: 'orNVthTo2Zyo' },
       ]);
+    });
+
+    it('should navigate to auth/reset_password with tmp_pwd_expired query param if status code is 406', () => {
+      const error = {
+        status: 406,
+      };
+      component.handleError(error);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'reset_password'], {
+        queryParams: { tmp_pwd_expired: true },
+      });
     });
 
     it('should change the page status if error code is something else', () => {

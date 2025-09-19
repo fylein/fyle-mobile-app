@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PendingGasChargeInfoModalComponent } from './pending-gas-charge-info-modal.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { IconModule } from '../../icon/icon.module';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('PendingGasChargeInfoModalComponent', () => {
   let component: PendingGasChargeInfoModalComponent;
@@ -25,8 +25,11 @@ describe('PendingGasChargeInfoModalComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [PendingGasChargeInfoModalComponent],
-      imports: [IonicModule.forRoot(), TranslocoModule, MatIconModule, IconModule, HttpClientTestingModule],
+      imports: [TranslocoModule,
+        MatIconModule,
+        HttpClientTestingModule,
+        PendingGasChargeInfoModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,

@@ -1,10 +1,10 @@
 import { Component, ElementRef, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
 import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular';
+import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, ModalController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -12,7 +12,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgFor, NgClass, AsyncPipe, LowerCasePipe, TitleCasePipe, DatePipe } from '@angular/common';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -41,12 +41,62 @@ import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.m
 import * as Sentry from '@sentry/angular';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
-
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { AuditHistoryComponent } from '../../shared/components/comments-history/audit-history/audit-history.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { ReportState as ReportStatePipe } from '../../shared/pipes/report-state.pipe';
+import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
   styleUrls: ['./my-view-report.page.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    AuditHistoryComponent,
+    DatePipe,
+    DateWithTimezonePipe,
+    EllipsisPipe,
+    ExactCurrencyPipe,
+    ExpensesCardComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonSpinner,
+    IonTitle,
+    IonToolbar,
+    LowerCasePipe,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    NgClass,
+    NgFor,
+    ReportStatePipe,
+    RouterLink,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe
+  ],
 })
 export class MyViewReportPage {
   private activatedRoute = inject(ActivatedRoute);

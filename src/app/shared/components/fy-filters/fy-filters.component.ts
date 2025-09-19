@@ -7,14 +7,45 @@ import { Component, Input, OnInit, inject } from '@angular/core';
 import { FilterOptions } from './filter-options.interface';
 import { SelectedFilters } from './selected-filters.interface';
 import { FilterOptionType } from './filter-option-type.enum';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonItem, IonLabel, IonRow, IonSkeletonText, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { forkJoin, Observable, of } from 'rxjs';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatLabel, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatDatepickerInput, MatDatepickerToggle, MatDatepicker } from '@angular/material/datepicker';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-filters',
   templateUrl: './fy-filters.component.html',
   styleUrls: ['./fy-filters.component.scss'],
-  standalone: false,
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonRow,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatDatepicker,
+    MatDatepickerInput,
+    MatDatepickerToggle,
+    MatFormField,
+    MatInput,
+    MatLabel,
+    MatSuffix,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FyFiltersComponent implements OnInit {
   private modalController = inject(ModalController);

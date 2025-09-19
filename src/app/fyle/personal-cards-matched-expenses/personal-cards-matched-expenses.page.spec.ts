@@ -1,20 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Navigation, Router, RouterModule, UrlSerializer, UrlTree } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PersonalCardsMatchedExpensesPage } from './personal-cards-matched-expenses.page';
 import { CurrencyPipe } from '@angular/common';
-import { CurrencySymbolPipe } from 'src/app/shared/pipes/currency-symbol.pipe';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { platformPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 import { linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('PersonalCardsMatchedExpensesPage', () => {
   let component: PersonalCardsMatchedExpensesPage;
@@ -45,8 +44,11 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     TestBed.configureTestingModule({
-      declarations: [PersonalCardsMatchedExpensesPage, CurrencySymbolPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
+      imports: [
+        RouterTestingModule,
+        PersonalCardsMatchedExpensesPage,
+        getTranslocoTestingModule(),
+      ],
       providers: [
         UrlSerializer,
         {
