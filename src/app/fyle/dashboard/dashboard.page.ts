@@ -1,7 +1,21 @@
 import { Component, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
-import {  ActionSheetButton, ActionSheetController, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, NavController, Platform } from '@ionic/angular/standalone';
+import {
+  ActionSheetButton,
+  ActionSheetController,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  NavController,
+  Platform,
+} from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
@@ -10,7 +24,6 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
@@ -75,7 +88,7 @@ SwiperCore.use([Pagination, Autoplay]);
     StatsComponent,
     SwiperModule,
     TasksComponent,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class DashboardPage {
@@ -92,8 +105,6 @@ export class DashboardPage {
   private actionSheetController = inject(ActionSheetController);
 
   private tasksService = inject(TasksService);
-
-  private smartlookService = inject(SmartlookService);
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
@@ -578,7 +589,6 @@ export class DashboardPage {
     };
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
-    this.smartlookService.init();
     this.footerService.footerCurrentStateIndex$.subscribe((index) => {
       this.currentStateIndex = index;
     });
