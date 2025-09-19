@@ -75,12 +75,6 @@ module.exports = function (ctx) {
     'utf8'
   );
 
-  // Creating google-services.json file
-  fs.writeFileSync('android/app/google-services.json', secrets.googleCredentialsAndroid);
-
-  // Creating GoogleService-Info.plist file
-  fs.writeFileSync('ios/App/App/GoogleService-Info.plist', secrets.googleCredentialsIos);
-
   // Creating Info.plist file
   fs.writeFileSync('ios/App/App/Info.plist', secrets.iosInfo);
 };
