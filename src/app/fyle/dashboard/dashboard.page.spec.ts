@@ -6,7 +6,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -88,7 +88,7 @@ describe('DashboardPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let actionSheetController: jasmine.SpyObj<ActionSheetController>;
   let tasksService: jasmine.SpyObj<TasksService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let backButtonService: jasmine.SpyObj<BackButtonService>;
@@ -124,7 +124,7 @@ describe('DashboardPage', () => {
     ]);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
@@ -165,7 +165,7 @@ describe('DashboardPage', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ActionSheetController, useValue: actionSheetControllerSpy },
         { provide: TasksService, useValue: tasksServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
@@ -240,7 +240,7 @@ describe('DashboardPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
