@@ -8,7 +8,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { NotificationsBetaPageService } from './notifications-beta.page.service';
@@ -37,7 +37,7 @@ describe('NotificationsBetaPage', () => {
   let router: jasmine.SpyObj<Router>;
   let authService: jasmine.SpyObj<AuthService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
   let notificationsBetaPageService: jasmine.SpyObj<NotificationsBetaPageService>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -53,7 +53,7 @@ describe('NotificationsBetaPage', () => {
       'post',
       'clearEmployeeSettings',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getByParams']);
     const notificationsBetaPageServiceSpy = jasmine.createSpyObj('NotificationsBetaPageService', [
       'getEmailNotificationsConfig',
@@ -65,8 +65,7 @@ describe('NotificationsBetaPage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule, ReactiveFormsModule, NotificationsBetaPage,
-        MatIconTestingModule],
+      imports: [RouterTestingModule, ReactiveFormsModule, NotificationsBetaPage, MatIconTestingModule],
       providers: [
         {
           provide: Router,
@@ -81,7 +80,7 @@ describe('NotificationsBetaPage', () => {
           useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -120,7 +119,7 @@ describe('NotificationsBetaPage', () => {
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     notificationsBetaPageService = TestBed.inject(
       NotificationsBetaPageService,

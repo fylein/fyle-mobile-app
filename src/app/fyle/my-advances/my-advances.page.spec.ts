@@ -9,7 +9,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { EventEmitter, NO_ERRORS_SCHEMA, Component, Input, Output } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { of } from 'rxjs';
@@ -47,8 +47,7 @@ import { FooterComponent } from 'src/app/shared/components/footer/footer.compone
   selector: 'app-fy-footer',
   template: '<div>Mock Footer Component</div>',
 })
-class MockFooterComponent {
-}
+class MockFooterComponent {}
 
 describe('MyAdvancesPage', () => {
   let component: MyAdvancesPage;
@@ -63,7 +62,7 @@ describe('MyAdvancesPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let tasksService: jasmine.SpyObj<TasksService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
 
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
@@ -86,7 +85,7 @@ describe('MyAdvancesPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['footerHomeTabClicked', 'tasksPageOpened']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getAdvancesTaskCount', 'getTotalTaskCount']);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
       imports: [MyAdvancesPage],
@@ -113,16 +112,16 @@ describe('MyAdvancesPage', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         TitleCasePipe,
         UrlSerializer,
       ],
     })
-    .overrideComponent(MyAdvancesPage, {
-      remove: { imports: [FooterComponent] },
-      add: { imports: [MockFooterComponent], schemas: [NO_ERRORS_SCHEMA] }
-    })
-    .compileComponents();
+      .overrideComponent(MyAdvancesPage, {
+        remove: { imports: [FooterComponent] },
+        add: { imports: [MockFooterComponent], schemas: [NO_ERRORS_SCHEMA] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MyAdvancesPage);
     component = fixture.componentInstance;
@@ -136,7 +135,7 @@ describe('MyAdvancesPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
 
     fixture.detectChanges();
   }));

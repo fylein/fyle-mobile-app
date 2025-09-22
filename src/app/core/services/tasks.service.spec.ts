@@ -41,7 +41,7 @@ import {
   verifyMobileNumberTask2,
 } from '../mock-data/task.data';
 import { mastercardRTFCard, statementUploadedCard, visaRTFCard } from '../mock-data/platform-corporate-card.data';
-import { OrgSettingsService } from './org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate-sets.data';
 import { completeStats, incompleteStats } from '../mock-data/platform/v1/expenses-stats.data';
@@ -84,7 +84,7 @@ describe('TasksService', () => {
   let employeesService: jasmine.SpyObj<EmployeesService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   const mockTaskClearSubject = new Subject();
@@ -102,7 +102,7 @@ describe('TasksService', () => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrencyPipe', ['transform']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
@@ -154,7 +154,7 @@ describe('TasksService', () => {
           useValue: employeesServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -189,7 +189,7 @@ describe('TasksService', () => {
     exactCurrencyPipe = TestBed.inject(ExactCurrencyPipe) as jasmine.SpyObj<ExactCurrencyPipe>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
