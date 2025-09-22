@@ -12,7 +12,7 @@ import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { finalize, of } from 'rxjs';
@@ -58,7 +58,7 @@ describe('ViewPerDiemPage', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
@@ -92,7 +92,7 @@ describe('ViewPerDiemPage', () => {
       'expenseFlagUnflagClicked',
     ]);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
@@ -104,7 +104,7 @@ describe('ViewPerDiemPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      imports: [ ViewPerDiemPage],
+      imports: [ViewPerDiemPage],
       providers: [
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: CustomInputsService, useValue: customInputsServiceSpy },
@@ -116,7 +116,7 @@ describe('ViewPerDiemPage', () => {
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DependentFieldsService, useValue: dependentFieldsServiceSpy },
         { provide: SpenderExpensesService, useValue: spenderExpensesServiceSpy },
         { provide: ApproverExpensesService, useValue: approverExpensesServiceSpy },
@@ -158,7 +158,7 @@ describe('ViewPerDiemPage', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;

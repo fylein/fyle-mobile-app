@@ -13,7 +13,7 @@ import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { NavigationStart, Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { NEVER, Subscription, of, throwError } from 'rxjs';
@@ -63,8 +63,7 @@ class MockCorporateCardComponent {
   selector: 'app-virtual-card',
   template: '<div></div>',
 })
-class MockVirtualCardComponent {
-}
+class MockVirtualCardComponent {}
 
 describe('ManageCorporateCardsPage', () => {
   let component: ManageCorporateCardsPage;
@@ -74,7 +73,7 @@ describe('ManageCorporateCardsPage', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let actionSheetController: jasmine.SpyObj<ActionSheetController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -93,7 +92,7 @@ describe('ManageCorporateCardsPage', () => {
     ]);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', ['getCardType', 'unenroll']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -114,8 +113,7 @@ describe('ManageCorporateCardsPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
-      imports: [ManageCorporateCardsPage,
-        MatIconTestingModule],
+      imports: [ManageCorporateCardsPage, MatIconTestingModule],
       providers: [
         {
           provide: Router,
@@ -134,7 +132,7 @@ describe('ManageCorporateCardsPage', () => {
           useValue: popoverControllerSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -174,10 +172,12 @@ describe('ManageCorporateCardsPage', () => {
           useValue: authServiceSpy,
         },
       ],
-    }).overrideComponent(ManageCorporateCardsPage, {
-      remove: {imports: [CorporateCardComponent, VirtualCardComponent]},
-      add: {imports: [MockCorporateCardComponent, MockVirtualCardComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA]},
-    }).compileComponents();
+    })
+      .overrideComponent(ManageCorporateCardsPage, {
+        remove: { imports: [CorporateCardComponent, VirtualCardComponent] },
+        add: { imports: [MockCorporateCardComponent, MockVirtualCardComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ManageCorporateCardsPage);
     component = fixture.componentInstance;
@@ -188,7 +188,7 @@ describe('ManageCorporateCardsPage', () => {
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;

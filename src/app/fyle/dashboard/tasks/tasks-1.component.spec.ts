@@ -40,7 +40,7 @@ import {
   taskCtaData8,
   taskCtaData9,
 } from 'src/app/core/mock-data/task-cta.data';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 
 export function TestCases1(getTestBed) {
@@ -61,7 +61,7 @@ export function TestCases1(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(TasksComponent);
@@ -80,7 +80,7 @@ export function TestCases1(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     }));
 
     it('should create', () => {
