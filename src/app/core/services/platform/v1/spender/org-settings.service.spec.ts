@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import {
   AccountingExportSettings,
   IncomingAccountObject,
@@ -24,6 +25,7 @@ import {
 import { PlatformOrgSettingsService } from './org-settings.service';
 import { cloneDeep } from 'lodash';
 import { TranslocoService } from '@jsverse/transloco';
+import { DateService } from '../shared/date.service';
 
 const getApiData: OrgSettings = orgSettingsGetData;
 const postApiData: OrgSettingsResponse = orgSettingsPostData;
@@ -39,9 +41,12 @@ describe('PlatformOrgSettingsService', () => {
   let orgSettingsService: PlatformOrgSettingsService;
   let apiService: jasmine.SpyObj<SpenderService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+  let dateService: jasmine.SpyObj<DateService>;
+
   beforeEach(() => {
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const dateServiceSpy = jasmine.createSpyObj('DateService', ['fixDates']);
 
     // Mock translate method to return expected strings
     translocoServiceSpy.translate.and.callFake((key: string) => {
@@ -52,6 +57,7 @@ describe('PlatformOrgSettingsService', () => {
     });
 
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       providers: [
         PlatformOrgSettingsService,
         {
@@ -62,11 +68,16 @@ describe('PlatformOrgSettingsService', () => {
           provide: TranslocoService,
           useValue: translocoServiceSpy,
         },
+        {
+          provide: DateService,
+          useValue: dateServiceSpy,
+        },
       ],
     });
     orgSettingsService = TestBed.inject(PlatformOrgSettingsService);
     apiService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
   });
 
   it('should be created', () => {

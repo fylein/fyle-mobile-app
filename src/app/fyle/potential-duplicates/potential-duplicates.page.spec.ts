@@ -11,7 +11,7 @@ import { PotentialDuplicatesPage } from './potential-duplicates.page';
 import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { cloneDeep } from 'lodash';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { expenseDuplicateSet } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 import { PopoverController, NavController } from '@ionic/angular/standalone';
 import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
@@ -41,7 +41,7 @@ describe('PotentialDuplicatesPage', () => {
       'getDuplicateSets',
       'dismissDuplicates',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
@@ -69,7 +69,7 @@ describe('PotentialDuplicatesPage', () => {
           useValue: expensesServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {

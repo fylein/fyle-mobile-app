@@ -7,7 +7,7 @@ import { onboardingStatusData } from '../mock-data/onboarding-status.data';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
 import { UtilityService } from './utility.service';
 import { OrgSettings } from '../models/org-settings.model';
-import { OrgSettingsService } from './org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { AuthService } from './auth.service';
 import { orgSettingsCardsDisabled, orgSettingsData } from '../test-data/org-settings.service.spec.data';
 import { OnboardingState } from '../models/onboarding-state.enum';
@@ -20,12 +20,12 @@ describe('SpenderOnboardingService', () => {
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let authService: jasmine.SpyObj<AuthService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
     TestBed.configureTestingModule({
       providers: [
@@ -36,7 +36,7 @@ describe('SpenderOnboardingService', () => {
             useValue: spenderPlatformV1ApiServiceSpy,
           },
           {
-            provide: OrgSettingsService,
+            provide: PlatformOrgSettingsService,
             useValue: orgSettingsServiceSpy,
           },
           {
@@ -54,7 +54,7 @@ describe('SpenderOnboardingService', () => {
       SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService);
   });

@@ -10,7 +10,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { TestCases1 } from './team-reports-1.page.spec';
 import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases2 } from './team-reports-2.page.spec';
@@ -28,12 +28,15 @@ import { FooterComponent } from 'src/app/shared/components/footer/footer.compone
   selector: 'app-fy-footer',
   template: '<div>Mock Footer Component</div>',
 })
-class MockFooterComponent {
-}
+class MockFooterComponent {}
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline', 'getConnectionStatus']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', [
+      'connectivityWatcher',
+      'isOnline',
+      'getConnectionStatus',
+    ]);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
@@ -60,7 +63,7 @@ describe('TeamReportsPage', () => {
       'extendQueryParamsForTextSearch',
     ]);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTeamReportsTaskCount']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
       'getReportsByParams',
       'getReportsCount',
@@ -68,7 +71,7 @@ describe('TeamReportsPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     TestBed.configureTestingModule({
-      imports: [ TeamReportsPage, ReportState, MatIconTestingModule, getTranslocoTestingModule()],
+      imports: [TeamReportsPage, ReportState, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
@@ -80,7 +83,7 @@ describe('TeamReportsPage', () => {
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: ExtendQueryParamsService, useValue: extendQueryParamsServiceSpy },
         { provide: TasksService, useValue: tasksServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
@@ -88,11 +91,11 @@ describe('TeamReportsPage', () => {
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
-    .overrideComponent(TeamReportsPage, {
-      remove: { imports: [FooterComponent] },
-      add: { imports: [MockFooterComponent], schemas: [NO_ERRORS_SCHEMA] }
-    })
-    .compileComponents();
+      .overrideComponent(TeamReportsPage, {
+        remove: { imports: [FooterComponent] },
+        add: { imports: [MockFooterComponent], schemas: [NO_ERRORS_SCHEMA] },
+      })
+      .compileComponents();
 
     return TestBed;
   };
