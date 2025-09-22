@@ -24,7 +24,7 @@ import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { orgSettingsPendingRestrictions, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from '../../core/mock-data/platform-report.data';
@@ -43,11 +43,11 @@ describe('MyCreateReportPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let storageService: jasmine.SpyObj<StorageService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getAllExpenses']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -64,14 +64,16 @@ describe('MyCreateReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      imports: [getTranslocoTestingModule(),
+      imports: [
+        getTranslocoTestingModule(),
         RouterTestingModule,
         FormsModule,
         MatCheckboxModule,
         MyCreateReportPage,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
-        MatIconTestingModule],
+        MatIconTestingModule,
+      ],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -86,7 +88,7 @@ describe('MyCreateReportPage', () => {
           },
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -138,7 +140,7 @@ describe('MyCreateReportPage', () => {
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     fixture.detectChanges();
   }));
 
