@@ -865,7 +865,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isOthersComment: true,
     st: {
       category: 'Policy violation',
-      icon: 'warning-fill',
+      icon: 'danger-outline',
     },
   },
   {
@@ -884,7 +884,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Receipt Removed',
+      category: 'Receipt removed',
       icon: 'attachment-none',
     },
   },
@@ -924,7 +924,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Receipt Attached',
+      category: 'Receipt attached',
       icon: 'attachment',
     },
   },
@@ -985,7 +985,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isOthersComment: true,
     st: {
       category: 'Failed to run policies',
-      icon: 'warning-fill',
+      icon: 'danger-outline',
     },
   },
   {
@@ -1044,7 +1044,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Approver Pending',
+      category: 'Approver pending',
       icon: 'radio-circle-outline',
     },
   },
@@ -1084,7 +1084,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Processing Payment',
+      category: 'Processing payment',
       icon: 'clock',
     },
   },
@@ -1144,8 +1144,8 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Expense Issues',
-      icon: 'warning-fill',
+      category: 'Expense issues',
+      icon: 'danger-outline',
     },
   },
   {
@@ -1164,7 +1164,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Policies Ran Successfully',
+      category: 'Policies ran successfully',
       icon: 'check-square-fill',
     },
   },
@@ -1184,7 +1184,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Card Transaction Matched',
+      category: 'Card transaction matched',
       icon: 'card',
     },
   },
@@ -1204,7 +1204,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Expense Unmatched',
+      category: 'Expense unmatched',
       icon: 'card',
     },
   },
@@ -1224,7 +1224,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Expense Matched',
+      category: 'Expense matched',
       icon: 'card',
     },
   },
@@ -1244,7 +1244,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Duplicate Detected',
+      category: 'Duplicate detected',
       icon: 'duplicate',
     },
   },
@@ -1324,7 +1324,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Report Submitted',
+      category: 'Report submitted',
       icon: 'list',
     },
   },
@@ -1344,7 +1344,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Expense Rule Applied',
+      category: 'Expense rule applied',
       icon: 'file-lightning-indicator',
     },
   },
@@ -1365,7 +1365,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Report Name Changed',
+      category: 'Report name changed',
       icon: 'edit',
     },
   },
@@ -1647,7 +1647,7 @@ export const estatusSample = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Report Submitted',
+      category: 'Report submitted',
       icon: 'list',
     },
   },
@@ -2108,7 +2108,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: { category: 'Policy Violation', icon: 'warning-fill' },
+    st: { category: 'Policy Violation', icon: 'danger-outline' },
   },
   {
     st_id: 'st8dHUhDzXxr',

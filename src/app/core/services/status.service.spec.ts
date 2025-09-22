@@ -28,33 +28,33 @@ describe('StatusService', () => {
         'services.status.expensesMergedToThisExpense': '{{count}} expenses merged to this expense',
         'services.status.expenseMerged': 'Expense merged',
         'services.status.typeReversed': '{{type}} Reversed',
-        'services.status.expenseRuleApplied': 'Expense Rule Applied',
+        'services.status.expenseRuleApplied': 'Expense rule applied',
         'services.status.typeCreated': '{{type}} Created',
         'services.status.typeEdited': '{{type}} Edited',
         'services.status.policyViolation': 'Policy violation',
         'services.status.criticalPolicyViolation': 'Critical policy violation found',
         'services.status.expenseAdded': 'Expense added',
-        'services.status.receiptAttached': 'Receipt Attached',
-        'services.status.reportSubmitted': 'Report Submitted',
-        'services.status.receiptRemoved': 'Receipt Removed',
+        'services.status.receiptAttached': 'Receipt attached',
+        'services.status.reportSubmitted': 'Report submitted',
+        'services.status.receiptRemoved': 'Receipt removed',
         'services.status.expenseRemoved': 'Expense removed',
-        'services.status.reportNameChanged': 'Report Name Changed',
+        'services.status.reportNameChanged': 'Report name changed',
         'services.status.report': 'Report',
         'services.status.unflagged': 'Unflagged',
         'services.status.flagged': 'Flagged',
         'services.status.failedToRunPolicies': 'Failed to run policies',
         'services.status.verified': 'Verified',
         'services.status.typeSentBack': '{{type}} Sent Back',
-        'services.status.approverPending': 'Approver Pending',
+        'services.status.approverPending': 'Approver pending',
         'services.status.typeApproved': '{{type}} Approved',
-        'services.status.processingPayment': 'Processing Payment',
+        'services.status.processingPayment': 'Processing payment',
         'services.status.paid': 'Paid',
-        'services.status.expenseIssues': 'Expense Issues',
-        'services.status.policiesRanSuccessfully': 'Policies Ran Successfully',
-        'services.status.cardTransactionMatched': 'Card Transaction Matched',
-        'services.status.expenseUnmatched': 'Expense Unmatched',
-        'services.status.expenseMatched': 'Expense Matched',
-        'services.status.duplicateDetected': 'Duplicate Detected',
+        'services.status.expenseIssues': 'Expense issues',
+        'services.status.policiesRanSuccessfully': 'Policies ran successfully',
+        'services.status.cardTransactionMatched': 'Card transaction matched',
+        'services.status.expenseUnmatched': 'Expense unmatched',
+        'services.status.expenseMatched': 'Expense matched',
+        'services.status.duplicateDetected': 'Duplicate detected',
         'services.status.duplicateIssueResolved': 'Duplicate(s) issue resolved',
         'services.status.others': 'Others',
       };
@@ -163,7 +163,7 @@ describe('StatusService', () => {
       'The policy violation will trigger the following action(s): expense will be flagged for verification and approval, expense could not be added to a report or submitted';
     const result = statusService.getStatusCategory(blockedComment, 'transactions');
     expect(result.category).toBe('Critical policy violation found');
-    expect(result.icon).toBe('warning-fill');
+    expect(result.icon).toBe('danger-outline');
   });
 
   it('should return "Policy violation" for non-blocked policy violations', () => {
@@ -171,6 +171,6 @@ describe('StatusService', () => {
       'The policy violation will trigger the following action(s): expense will be flagged for verification and approval';
     const result = statusService.getStatusCategory(nonBlockedComment, 'transactions');
     expect(result.category).toBe('Policy violation');
-    expect(result.icon).toBe('warning-fill');
+    expect(result.icon).toBe('danger-outline');
   });
 });

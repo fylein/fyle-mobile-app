@@ -28,6 +28,7 @@ $lighter-grey: #ececec !default;
 $dark-grey: #414562 !default;
 $outline-grey: #eaeaeb !default;
 $border-grey: #dfdfe2d7 !default;
+$border-grey-secondary: #ccd6db;
 $border-translucent-grey: #dfdfe24d !default;
 $border-tertiary: #ececee !default;
 $border-info-lighter: #5c98e51a !default;
@@ -59,6 +60,7 @@ $navy-300: #668394;
 $navy-150: #d9e0e4;
 $navy-50: #e6ebed;
 
+$negative-400: #cb374a;
 $negative-500: #cd384b;
 
 $brand-primary: #007e45 !default;
@@ -113,6 +115,9 @@ $walkthrough-text-color: $pure-white;
 $border-light-info: #d9def8;
 $background-lightest-info: #f3f6fa;
 $bg-info-lightest: #d8e7f8;
+
+// Sage brand colors
+$sage-text-tertiary: #595959;
 
 // State Specific Map
 $states: (
