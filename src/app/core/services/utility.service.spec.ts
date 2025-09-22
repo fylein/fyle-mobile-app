@@ -16,7 +16,7 @@ import { cloneDeep } from 'lodash';
 import { TokenService } from './token.service';
 import { AuthService } from './auth.service';
 import { FeatureConfigService } from './platform/v1/spender/feature-config.service';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { featureConfigOptInData } from '../mock-data/feature-config.data';
 
@@ -301,6 +301,7 @@ describe('UtilityService', () => {
       spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
+      mockEou.org.currency = 'USD';
       authService.getEou.and.resolveTo(mockEou);
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigOptInData));
 
@@ -318,6 +319,7 @@ describe('UtilityService', () => {
       spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
+      mockEou.org.currency = 'USD';
       authService.getEou.and.resolveTo(mockEou);
       const mockFeatureConfig = cloneDeep(featureConfigOptInData);
       mockFeatureConfig.value = null;
@@ -337,6 +339,7 @@ describe('UtilityService', () => {
       spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
+      mockEou.org.currency = 'USD';
       authService.getEou.and.resolveTo(mockEou);
       featureConfigService.getConfiguration.and.returnValue(of(undefined));
 
@@ -355,6 +358,7 @@ describe('UtilityService', () => {
       spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
+      mockEou.org.currency = 'USD';
       authService.getEou.and.resolveTo(mockEou);
       featureConfigService.getConfiguration.and.throwError(error);
 

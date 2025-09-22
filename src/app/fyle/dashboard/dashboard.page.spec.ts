@@ -910,7 +910,7 @@ describe('DashboardPage', () => {
     it('should set canShowOptInBanner to false if user currency is not USD or CAD', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
-      mockEou.org.currency = 'INR';
+      mockEou.org.currency = 'USD';
       component.eou$ = of(mockEou);
 
       const result$ = component.setShowOptInBanner();
@@ -925,7 +925,7 @@ describe('DashboardPage', () => {
       });
     });
 
-    it('should set canShowOptInBanner to false if user mobile number does not start wiclth +1', (done) => {
+    it('should set canShowOptInBanner to false if user mobile number does not start with +1', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
       mockEou.org.currency = 'USD';

@@ -1,4 +1,4 @@
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { SpenderOnboardingService } from './spender-onboarding.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { OnboardingStepStatus } from '../models/onboarding-step-status.model';
@@ -6,14 +6,16 @@ import { of } from 'rxjs';
 import { onboardingStatusData } from '../mock-data/onboarding-status.data';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
 import { UtilityService } from './utility.service';
+import { OrgSettingsService } from './org-settings.service';
 import { OrgSettings } from '../models/org-settings.model';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { AuthService } from './auth.service';
 import { orgSettingsCardsDisabled, orgSettingsData } from '../test-data/org-settings.service.spec.data';
 import { OnboardingState } from '../models/onboarding-state.enum';
 import { orgSettingsCCCDisabled3 } from '../mock-data/org-settings.data';
-import { extendedOrgUserResponse } from '../test-data/tasks.service.spec.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('SpenderOnboardingService', () => {
   let spenderOnboardingService: SpenderOnboardingService;
@@ -48,6 +50,8 @@ describe('SpenderOnboardingService', () => {
             useValue: utilityServiceSpy,
           },
         ],
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
     spenderPlatformV1ApiService = TestBed.inject(
@@ -175,7 +179,13 @@ describe('SpenderOnboardingService', () => {
   it('checkForRedirectionToOnboarding(): should return true when conditions are met', async () => {
     spyOn(spenderOnboardingService, 'getOnboardingStatus').and.returnValue(of(onboardingStatusData));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    authService.getEou.and.returnValue(new Promise((resolve) => resolve(apiEouRes)));
+    const mockEou = {
+      ...apiEouRes,
+      org: {
+        currency: 'USD',
+      },
+    };
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(mockEou)));
     utilityService.isUserFromINCluster.and.resolveTo(false);
     const result = await spenderOnboardingService.checkForRedirectionToOnboarding().toPromise();
     expect(result).toBeTrue();
