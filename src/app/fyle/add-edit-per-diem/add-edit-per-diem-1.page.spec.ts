@@ -12,7 +12,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -36,15 +36,9 @@ import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { popoverControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
 import { of } from 'rxjs';
 import { expectedUnflattendedTxnData3 } from 'src/app/core/mock-data/unflattened-txn.data';
-import {
-  unflattenedTxn,
-} from 'src/app/core/mock-data/unflattened-expense.data';
+import { unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
 import { EventEmitter } from '@angular/core';
-import {
-  accountsData,
-  paymentModesConfig,
-  paymentModesData,
-} from 'src/app/core/test-data/accounts.service.spec.data';
+import { accountsData, paymentModesConfig, paymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { expenseFieldsMapResponse } from 'src/app/core/mock-data/expense-fields-map.data';
@@ -56,9 +50,7 @@ import {
 } from 'src/app/core/mock-data/org-category.data';
 import { txnFieldsData2 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
-import {
-  orgSettingsCCCDisabled,
-} from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import {
   platformExpenseData,
@@ -100,7 +92,7 @@ export function TestCases1(getTestBed) {
     let tokenService: jasmine.SpyObj<TokenService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
@@ -142,7 +134,7 @@ export function TestCases1(getTestBed) {
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);

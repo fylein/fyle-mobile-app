@@ -20,7 +20,7 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { cloneDeep, isNumber } from 'lodash';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -125,7 +125,7 @@ export class MyViewReportPage {
 
   private statusService = inject(StatusService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private platformHandlerService = inject(PlatformHandlerService);
 

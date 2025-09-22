@@ -94,7 +94,7 @@ import { MileageRatesService } from 'src/app/core/services/mileage-rates.service
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -272,7 +272,7 @@ export class AddEditMileagePage implements OnInit {
 
   private categoriesService = inject(CategoriesService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private platformHandlerService = inject(PlatformHandlerService);
 

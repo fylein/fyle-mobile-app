@@ -5,7 +5,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { FyProjectSelectModalComponent } from './fy-select-project-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
@@ -54,7 +54,7 @@ describe('FyProjectSelectModalComponent', () => {
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let inputElement: HTMLInputElement;
   let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
@@ -64,7 +64,7 @@ describe('FyProjectSelectModalComponent', () => {
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
       'getAll',
       'filterRequired',
@@ -79,7 +79,6 @@ describe('FyProjectSelectModalComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        
         MatIconModule,
         MatIconTestingModule,
         FormsModule,
@@ -114,7 +113,7 @@ describe('FyProjectSelectModalComponent', () => {
           useValue: utilityServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -143,7 +142,7 @@ describe('FyProjectSelectModalComponent', () => {
       RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;

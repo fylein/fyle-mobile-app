@@ -22,7 +22,7 @@ import { cloneDeep } from 'lodash';
 import { eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { RouterTestingModule } from '@angular/router/testing';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { PasswordCheckTooltipComponent } from 'src/app/shared/components/password-check-tooltip/password-check-tooltip.component';
@@ -33,8 +33,7 @@ import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testin
   selector: 'app-password-check-tooltip',
   template: '<div>Mock Password Check Tooltip Component</div>',
 })
-class MockPasswordCheckTooltipComponent {
-}
+class MockPasswordCheckTooltipComponent {}
 
 describe('InvitedUserPage', () => {
   let component: InvitedUserPage;
@@ -49,7 +48,7 @@ describe('InvitedUserPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
 
   beforeEach(waitForAsync(() => {
@@ -66,12 +65,12 @@ describe('InvitedUserPage', () => {
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
     TestBed.configureTestingModule({
-      imports: [ MatIconTestingModule, RouterTestingModule, InvitedUserPage, getTranslocoTestingModule()],
+      imports: [MatIconTestingModule, RouterTestingModule, InvitedUserPage, getTranslocoTestingModule()],
       providers: [
         UntypedFormBuilder,
         UrlSerializer,
@@ -84,16 +83,16 @@ describe('InvitedUserPage', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
-    .overrideComponent(InvitedUserPage, {
-      remove: { imports: [PasswordCheckTooltipComponent] },
-      add: { imports: [MockPasswordCheckTooltipComponent] }
-    })
-    .compileComponents();
+      .overrideComponent(InvitedUserPage, {
+        remove: { imports: [PasswordCheckTooltipComponent] },
+        add: { imports: [MockPasswordCheckTooltipComponent] },
+      })
+      .compileComponents();
 
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     fb = TestBed.inject(UntypedFormBuilder);
@@ -106,7 +105,7 @@ describe('InvitedUserPage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     networkService.isOnline.and.returnValue(of(true));

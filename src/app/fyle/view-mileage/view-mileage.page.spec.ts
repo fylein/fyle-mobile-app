@@ -8,7 +8,7 @@ import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ViewMileagePage } from './view-mileage.page';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -63,7 +63,7 @@ describe('ViewMileagePage', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let fileService: jasmine.SpyObj<FileService>;
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
@@ -108,7 +108,7 @@ describe('ViewMileagePage', () => {
       'expenseFlagUnflagClicked',
     ]);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
@@ -131,7 +131,7 @@ describe('ViewMileagePage', () => {
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
 
     TestBed.configureTestingModule({
-      imports: [ ViewMileagePage],
+      imports: [ViewMileagePage],
       providers: [
         {
           useValue: loaderServiceSpy,
@@ -183,7 +183,7 @@ describe('ViewMileagePage', () => {
         },
         {
           useValue: orgSettingsServiceSpy,
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
         },
         {
           useValue: dependentFieldsServiceSpy,
@@ -250,7 +250,7 @@ describe('ViewMileagePage', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;

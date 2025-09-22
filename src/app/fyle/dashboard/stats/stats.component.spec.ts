@@ -4,7 +4,7 @@ import { DashboardService } from '../dashboard.service';
 import { Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -27,7 +27,7 @@ describe('StatsComponent', () => {
   let router: jasmine.SpyObj<Router>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let paymentModeService: jasmine.SpyObj<PaymentModesService>;
   let performance: jasmine.SpyObj<Performance>;
@@ -48,7 +48,7 @@ describe('StatsComponent', () => {
       'dashboardLaunchTime',
       'statsClicked',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs', 'getCurrentOrg', 'getPrimaryOrg']);
     const paymentModeServiceSpy = jasmine.createSpyObj('PaymentModesService', ['isNonReimbursableOrg']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
@@ -59,7 +59,7 @@ describe('StatsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, StatsComponent],
+      imports: [TranslocoModule, StatsComponent],
       providers: [
         {
           provide: DashboardService,
@@ -82,7 +82,7 @@ describe('StatsComponent', () => {
           useValue: trackingServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -107,7 +107,7 @@ describe('StatsComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     paymentModeService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;

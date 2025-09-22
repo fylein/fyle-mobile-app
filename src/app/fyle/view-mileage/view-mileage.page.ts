@@ -16,7 +16,7 @@ import { getCurrencySymbol, NgClass, AsyncPipe, TitleCasePipe, CurrencyPipe, Dat
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -104,7 +104,7 @@ export class ViewMileagePage {
 
   private expenseFieldsService = inject(ExpenseFieldsService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private dependentFieldsService = inject(DependentFieldsService);
 

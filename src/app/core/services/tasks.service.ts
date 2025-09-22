@@ -17,7 +17,7 @@ import { CurrencyService } from './currency.service';
 import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
-import { OrgSettingsService } from './org-settings.service';
+import { PlatformOrgSettingsService } from './platform/v1/spender/org-settings.service';
 import { EmployeesService } from './platform/v1/spender/employees.service';
 import { StatsResponse } from '../models/platform/v1/stats-response.model';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
@@ -50,7 +50,7 @@ export class TasksService {
 
   private expensesService = inject(ExpensesService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private employeesService = inject(EmployeesService);
 

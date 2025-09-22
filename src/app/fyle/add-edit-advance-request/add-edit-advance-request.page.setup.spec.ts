@@ -11,7 +11,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -55,7 +55,7 @@ describe('AddEditAdvanceRequestPage', () => {
       'findByAdvanceRequestId',
       'readFile',
     ]);
-    const orgSettingsServiceSpyObj = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpyObj = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const modalPropertiesSpyObj = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const trackingServiceSpyObj = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment']);
@@ -85,7 +85,7 @@ describe('AddEditAdvanceRequestPage', () => {
     const platformSpyObj = jasmine.createSpyObj('Platform', ['is']);
 
     TestBed.configureTestingModule({
-      imports: [ RouterTestingModule, AddEditAdvanceRequestPage],
+      imports: [RouterTestingModule, AddEditAdvanceRequestPage],
       providers: [
         { provide: AuthService, useValue: authServiceSpyObj },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpyObj },
@@ -96,7 +96,7 @@ describe('AddEditAdvanceRequestPage', () => {
         { provide: PopoverController, useValue: popoverControllerSpyObj },
         { provide: TransactionsOutboxService, useValue: transactionsOutboxServiceSpyObj },
         { provide: FileService, useValue: fileServiceSpyObj },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpyObj },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpyObj },
         { provide: NetworkService, useValue: networkServiceSpyObj },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpyObj },
         { provide: TrackingService, useValue: trackingServiceSpyObj },

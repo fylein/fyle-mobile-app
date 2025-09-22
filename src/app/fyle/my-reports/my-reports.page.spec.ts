@@ -7,7 +7,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -86,14 +86,12 @@ import { ReportsCardComponent } from 'src/app/shared/components/reports-card/rep
   selector: 'app-fy-footer',
   template: '',
 })
-class MockFooterComponent {
-}
+class MockFooterComponent {}
 @Component({
   selector: 'app-reports-card',
   template: '',
 })
-class MockReportsCardComponent {
-}
+class MockReportsCardComponent {}
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -103,7 +101,7 @@ describe('MyReportsPage', () => {
   let reportService: jasmine.SpyObj<ReportService>;
   let extendQueryParamsService: jasmine.SpyObj<ExtendQueryParamsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let router: jasmine.SpyObj<Router>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -120,7 +118,7 @@ describe('MyReportsPage', () => {
       'extendQueryParamsForTextSearch',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'connectivityWatcher']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'getThisMonthRange',
@@ -148,15 +146,14 @@ describe('MyReportsPage', () => {
 
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [RouterTestingModule, getTranslocoTestingModule(), MyReportsPage,
-        MatIconTestingModule],
+      imports: [RouterTestingModule, getTranslocoTestingModule(), MyReportsPage, MatIconTestingModule],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: ExtendQueryParamsService, useValue: extendQueryParamsServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate', 'createUrlTree']) },
         {
@@ -187,10 +184,12 @@ describe('MyReportsPage', () => {
         provideHttpClientTesting(),
         ReportState,
       ],
-    }).overrideComponent(MyReportsPage, {
-      remove: { imports: [FooterComponent, ReportsCardComponent] },
-      add: { imports: [MockFooterComponent, MockReportsCardComponent] }
-    }).compileComponents();
+    })
+      .overrideComponent(MyReportsPage, {
+        remove: { imports: [FooterComponent, ReportsCardComponent] },
+        add: { imports: [MockFooterComponent, MockReportsCardComponent] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MyReportsPage);
     component = fixture.componentInstance;
@@ -202,7 +201,7 @@ describe('MyReportsPage', () => {
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     extendQueryParamsService = TestBed.inject(ExtendQueryParamsService) as jasmine.SpyObj<ExtendQueryParamsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -224,7 +223,7 @@ describe('MyReportsPage', () => {
           dispatchEvent: jasmine.createSpy('dispatchEvent'),
           addEventListener: jasmine.createSpy('addEventListener'),
           removeEventListener: jasmine.createSpy('removeEventListener'),
-        }
+        },
       } as any;
     });
     it('should initialize component properties and load data', fakeAsync(() => {
@@ -275,7 +274,7 @@ describe('MyReportsPage', () => {
       // Manually trigger the search functionality by updating loadData$ directly
       component.loadData$.next({
         pageNumber: 1,
-        searchString: 'example'
+        searchString: 'example',
       });
 
       tick(1000);
@@ -403,7 +402,7 @@ describe('MyReportsPage', () => {
 
       component.loadData$.next({
         pageNumber: 1,
-        searchString: ''
+        searchString: '',
       });
 
       tick(1000);
@@ -529,7 +528,7 @@ describe('MyReportsPage', () => {
 
       component.loadData$.next({
         pageNumber: 1,
-        searchString: 'example'
+        searchString: 'example',
       });
 
       tick(1000);
@@ -628,7 +627,6 @@ describe('MyReportsPage', () => {
       orgSettingsService.get.and.returnValue(of({ payment_mode_settings: { allowed: true, enabled: true } }));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
-
       inputElement = component.simpleSearchInput.nativeElement;
 
       spyOn(component, 'setupNetworkWatcher');
@@ -655,7 +653,7 @@ describe('MyReportsPage', () => {
 
       component.loadData$.next({
         pageNumber: 1,
-        searchString: 'example'
+        searchString: 'example',
       });
 
       tick(1000);
@@ -906,7 +904,7 @@ describe('MyReportsPage', () => {
       component.loadData$.next({
         pageNumber: 1,
         searchString: 'example',
-        sortDir: 'desc'
+        sortDir: 'desc',
       });
 
       tick(1000);
@@ -1046,7 +1044,7 @@ describe('MyReportsPage', () => {
       component.loadData$.next({
         pageNumber: 1,
         searchString: 'example',
-        sortDir: 'desc'
+        sortDir: 'desc',
       });
 
       tick(1000);

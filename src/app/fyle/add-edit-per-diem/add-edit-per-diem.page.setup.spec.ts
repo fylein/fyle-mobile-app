@@ -32,7 +32,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -145,7 +145,7 @@ describe('AddEditPerDiemPage', () => {
       'get',
       'getAllowedCostCenters',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['addDaysToDate', 'getUTCDate']);
@@ -273,7 +273,7 @@ describe('AddEditPerDiemPage', () => {
           useValue: platformEmployeeSettingsServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
