@@ -9,7 +9,6 @@ import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 import { TranslocoService } from '@jsverse/transloco';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 @Injectable({
@@ -17,8 +16,6 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 })
 export class MyExpensesService {
   private translocoService = inject(TranslocoService);
-
-  private orgSettingsService = inject(OrgSettingsService);
 
   maskNumber = new MaskNumber();
 
