@@ -12,7 +12,6 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 
 @Component({
@@ -39,8 +38,6 @@ export class InvitedUserPage implements OnInit {
   private matSnackBar = inject(MatSnackBar);
 
   private snackbarProperties = inject(SnackbarPropertiesService);
-
-  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private spenderOnboardingService = inject(SpenderOnboardingService);
 
