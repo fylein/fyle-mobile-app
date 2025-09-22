@@ -7,7 +7,7 @@ import { OnboardingStepStatus } from '../models/onboarding-step-status.model';
 import { OnboardingStatus } from '../models/onboarding-status.model';
 import { UtilityService } from './utility.service';
 import { AuthService } from './auth.service';
-import { OrgSettingsService } from './org-settings.service';
+import { PlatformOrgSettingsService } from './platform/v1/spender/org-settings.service';
 import { OrgSettings } from '../models/org-settings.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 
@@ -22,7 +22,7 @@ export class SpenderOnboardingService {
 
   private authService = inject(AuthService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   onboardingComplete$: BehaviorSubject<boolean> = new BehaviorSubject(true);
 
