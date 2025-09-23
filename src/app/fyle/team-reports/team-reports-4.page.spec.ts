@@ -9,7 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { BehaviorSubject, of } from 'rxjs';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import {
@@ -48,7 +48,7 @@ export function TestCases4(getTestBed) {
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
     let tasksService: jasmine.SpyObj<TasksService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let authService: jasmine.SpyObj<AuthService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -63,7 +63,7 @@ export function TestCases4(getTestBed) {
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
       component.eou$ = of(apiEouRes);
     }));

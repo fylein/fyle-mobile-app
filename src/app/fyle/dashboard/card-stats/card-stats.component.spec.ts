@@ -6,7 +6,7 @@ import { Component, input } from '@angular/core';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { of } from 'rxjs';
@@ -64,7 +64,7 @@ describe('CardStatsComponent', () => {
 
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let dashboardService: jasmine.SpyObj<DashboardService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
@@ -74,7 +74,7 @@ describe('CardStatsComponent', () => {
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const dashboardServiceSpy = jasmine.createSpyObj('DashboardService', ['getCCCDetails']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
@@ -85,10 +85,7 @@ describe('CardStatsComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const virtualCardsServiceSpy = jasmine.createSpyObj('VirtualCardsService', ['getCardDetailsMap']);
     TestBed.configureTestingModule({
-      imports: [
-        getTranslocoTestingModule(),
-        CardStatsComponent,
-      ],
+      imports: [getTranslocoTestingModule(), CardStatsComponent],
       providers: [
         {
           provide: CurrencyService,
@@ -99,7 +96,7 @@ describe('CardStatsComponent', () => {
           useValue: dashboardServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -123,21 +120,23 @@ describe('CardStatsComponent', () => {
           useValue: popoverControllerSpy,
         },
       ],
-    }).overrideComponent(CardStatsComponent, {
-      remove: {
-        imports: [AddCardComponent, SpentCardsComponent],
-      },
-      add: {
-        imports: [MockSpentCardsComponent, MockAddCardComponent],
-      },
-    }).compileComponents();
+    })
+      .overrideComponent(CardStatsComponent, {
+        remove: {
+          imports: [AddCardComponent, SpentCardsComponent],
+        },
+        add: {
+          imports: [MockSpentCardsComponent, MockAddCardComponent],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(CardStatsComponent);
     component = fixture.componentInstance;
 
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     dashboardService = TestBed.inject(DashboardService) as jasmine.SpyObj<DashboardService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,

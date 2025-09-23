@@ -8,7 +8,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
@@ -168,7 +168,7 @@ describe('SplitExpensePage', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let costCentersService: jasmine.SpyObj<CostCentersService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -221,7 +221,7 @@ describe('SplitExpensePage', () => {
       'getAllowedCostCenters',
       'get',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
@@ -241,7 +241,6 @@ describe('SplitExpensePage', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        
         FormsModule,
         ReactiveFormsModule,
         MatFormFieldModule,
@@ -277,7 +276,7 @@ describe('SplitExpensePage', () => {
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: CostCentersService, useValue: costCentersServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DependentFieldsService, useValue: dependentFieldsServiceSpy },
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         { provide: ProjectsService, useValue: projectsServiceSpy },
@@ -340,7 +339,7 @@ describe('SplitExpensePage', () => {
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;

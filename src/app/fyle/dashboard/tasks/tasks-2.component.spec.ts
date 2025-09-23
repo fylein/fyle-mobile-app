@@ -50,7 +50,7 @@ import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
@@ -80,7 +80,7 @@ export function TestCases2(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(TasksComponent);
@@ -112,7 +112,7 @@ export function TestCases2(getTestBed) {
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
       popoverController.create.and.returnValues(Promise.resolve(addCardPopoverSpy));
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       networkService.isOnline.and.returnValue(of(true));
       networkService.connectivityWatcher.and.returnValue(null);
     }));

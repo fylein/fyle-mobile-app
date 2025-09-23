@@ -5,7 +5,7 @@ import { SpenderOnboardingPage } from './spender-onboarding.page';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OnboardingStep } from './models/onboarding-step.enum';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
@@ -38,7 +38,7 @@ describe('SpenderOnboardingPage', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -55,7 +55,7 @@ describe('SpenderOnboardingPage', () => {
       'markWelcomeModalStepAsComplete',
       'setOnboardingStatusEvent',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
       'clearCache',
@@ -69,20 +69,22 @@ describe('SpenderOnboardingPage', () => {
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
       ],
-    }).overrideComponent(SpenderOnboardingPage, {
-      remove: {
-        imports: [SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent],
-      },
-      add: {
-        imports: [MockSpenderOnboardingConnectCardStepComponent, MockSpenderOnboardingOptInStepComponent],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA],
-      },
-    }).compileComponents();
+    })
+      .overrideComponent(SpenderOnboardingPage, {
+        remove: {
+          imports: [SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent],
+        },
+        add: {
+          imports: [MockSpenderOnboardingConnectCardStepComponent, MockSpenderOnboardingOptInStepComponent],
+          schemas: [CUSTOM_ELEMENTS_SCHEMA],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(SpenderOnboardingPage);
     component = fixture.componentInstance;
@@ -90,7 +92,7 @@ describe('SpenderOnboardingPage', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     corporateCreditCardExpenseService = TestBed.inject(
       CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;

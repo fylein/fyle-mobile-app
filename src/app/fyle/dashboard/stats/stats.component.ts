@@ -11,7 +11,7 @@ import { ReportStates } from '../stat-badge/report-states.enum';
 import { getCurrencySymbol, AsyncPipe } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ReportStatsData } from 'src/app/core/models/report-stats-data.model';
@@ -47,7 +47,7 @@ export class StatsComponent implements OnInit {
 
   private trackingService = inject(TrackingService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private orgService = inject(OrgService);
 

@@ -17,7 +17,7 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -64,8 +64,7 @@ import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v
   selector: 'app-expense-card-v2',
   imports: [],
 })
-class MockExpensesCardComponent {
-}
+class MockExpensesCardComponent {}
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -84,7 +83,7 @@ describe('MyViewReportPage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let statusService: jasmine.SpyObj<StatusService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
@@ -116,7 +115,7 @@ describe('MyViewReportPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'addExpenses',
       'getReportById',
@@ -129,11 +128,7 @@ describe('MyViewReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      imports: [
-        MatIconTestingModule,
-        MyViewReportPage,
-        getTranslocoTestingModule(),
-      ],
+      imports: [MatIconTestingModule, MyViewReportPage, getTranslocoTestingModule()],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -202,7 +197,7 @@ describe('MyViewReportPage', () => {
           useValue: statusServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -217,15 +212,17 @@ describe('MyViewReportPage', () => {
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-    }).overrideComponent(MyViewReportPage, {
-      remove: {
-        imports: [ExpensesCardComponent],
-      },
-      add: {
-        imports: [MockExpensesCardComponent],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA]
-      },
-    }).compileComponents();
+    })
+      .overrideComponent(MyViewReportPage, {
+        remove: {
+          imports: [ExpensesCardComponent],
+        },
+        add: {
+          imports: [MockExpensesCardComponent],
+          schemas: [CUSTOM_ELEMENTS_SCHEMA],
+        },
+      })
+      .compileComponents();
     fixture = TestBed.createComponent(MyViewReportPage);
     component = fixture.componentInstance;
 
@@ -242,7 +239,7 @@ describe('MyViewReportPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
