@@ -13,15 +13,13 @@ import {
   PopoverController,
 } from '@ionic/angular/standalone';
 import { Subscription, of } from 'rxjs';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
-import { expenseFieldObjData, txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
+import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { txnFieldsMap2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
-import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import {
   getMarkDismissModalParamsData1,

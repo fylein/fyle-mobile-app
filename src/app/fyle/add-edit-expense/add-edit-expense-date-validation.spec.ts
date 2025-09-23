@@ -3,7 +3,7 @@ import { AbstractControl, UntypedFormBuilder, ValidationErrors } from '@angular/
 import { AddEditExpensePage } from './add-edit-expense.page';
 
 export function TestCasesDateValidation(getTestBed) {
-  return fdescribe('AddEditExpensePage - Date Validation', () => {
+  return describe('AddEditExpensePage - Date Validation', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let formBuilder: UntypedFormBuilder;
