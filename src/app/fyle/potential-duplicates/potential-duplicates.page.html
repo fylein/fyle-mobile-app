@@ -32,6 +32,18 @@
               {{ duplicatesSet[0].amount | currency: duplicatesSet[0].currency : 'symbol-narrow' }}
             </div>
           }
+
+          @if (setIndex === selectedSet && isMileageSet) {
+            <div class="potential-duplicates--alert-container">
+              <app-fy-alert-info
+                [type]="'warning'"
+                [message]="
+                  'Mileage expenses are not supported for merging from the mobile app yet. Please merge from the web app.'
+                "
+              ></app-fy-alert-info>
+            </div>
+          }
+
           @for (expense of duplicatesSet; track expense.id; let i = $index) {
             @if (setIndex === selectedSet) {
               <app-expense-card-v2
@@ -66,7 +78,7 @@
     <div class="potential-duplicates--footer-toolbar">
       <ion-buttons>
         <ion-button (click)="dismissAll()" class="btn-secondary"> Dismiss all </ion-button>
-        <ion-button (click)="mergeExpense()" class="btn-primary"> Merge </ion-button>
+        <ion-button (click)="mergeExpense()" class="btn-primary" [disabled]="isMileageSet"> Merge </ion-button>
       </ion-buttons>
     </div>
   </ion-toolbar>

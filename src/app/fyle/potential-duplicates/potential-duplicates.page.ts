@@ -9,12 +9,24 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
-import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonSkeletonText, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
 import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
 import { CurrencyPipe } from '@angular/common';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
 
 @Component({
   selector: 'app-potential-duplicates',
@@ -33,7 +45,8 @@ import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
     IonHeader,
     IonSkeletonText,
     IonTitle,
-    IonToolbar
+    IonToolbar,
+    FyAlertInfoComponent,
   ],
 })
 export class PotentialDuplicatesPage {
@@ -58,6 +71,8 @@ export class PotentialDuplicatesPage {
   duplicateSetData: string[][];
 
   duplicateExpenses: Expense[][];
+
+  isMileageSet = false;
 
   isLoading = true;
 
@@ -103,6 +118,9 @@ export class PotentialDuplicatesPage {
     );
     this.duplicateSets$.subscribe((duplicateExpenses) => {
       this.duplicateExpenses = duplicateExpenses;
+      this.isMileageSet = this.duplicateExpenses[this.selectedSet].some(
+        (expense) => expense.category.system_category === 'Mileage',
+      );
     });
   }
 
@@ -120,10 +138,16 @@ export class PotentialDuplicatesPage {
 
   next(): void {
     this.selectedSet++;
+    this.isMileageSet = this.duplicateExpenses[this.selectedSet].some(
+      (expense) => expense.category.system_category === 'Mileage',
+    );
   }
 
   prev(): void {
     this.selectedSet--;
+    this.isMileageSet = this.duplicateExpenses[this.selectedSet].some(
+      (expense) => expense.category.system_category === 'Mileage',
+    );
   }
 
   dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {
@@ -184,6 +208,9 @@ export class PotentialDuplicatesPage {
       this.loadData$.next();
       this.duplicateSets$.subscribe((duplicateExpenses) => {
         this.duplicateExpenses = duplicateExpenses;
+        this.isMileageSet = this.duplicateExpenses[this.selectedSet].some(
+          (expense) => expense.category.system_category === 'Mileage',
+        );
       });
     }
   }
