@@ -724,7 +724,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'reports Created',
+      category: 'Reports created',
       icon: 'check',
     },
   },
@@ -744,7 +744,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'reports Edited',
+      category: 'Reports edited',
       icon: 'check',
     },
   },
@@ -844,7 +844,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'reports Reversed',
+      category: 'Reports reversed',
       icon: 'check',
     },
   },
@@ -1024,7 +1024,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'reports Sent Back',
+      category: 'Reports sent back',
       icon: 'danger-outline',
     },
   },
@@ -1064,7 +1064,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'reports Approved',
+      category: 'Reports approved',
       icon: 'check',
     },
   },
