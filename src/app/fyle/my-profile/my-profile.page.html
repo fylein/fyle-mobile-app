@@ -39,14 +39,12 @@
                     (deleteMobileNumberClicked)="onDeleteCTAClicked()"
                   ></app-profile-opt-in-card>
                 } @else {
-                  @if (eou$ | async; as eou) {
-                    <app-mobile-number-card
-                      [extendedOrgUser]="eou"
-                      (addMobileNumberClicked)="updateMobileNumber($event)"
-                      (deleteMobileNumberClicked)="onDeleteCTAClicked()"
-                      (editMobileNumberClicked)="updateMobileNumber($event)"
-                    ></app-mobile-number-card>
-                  }
+                  <app-mobile-number-card
+                    [extendedOrgUser]="eou"
+                    (addMobileNumberClicked)="updateMobileNumber($event)"
+                    (deleteMobileNumberClicked)="onDeleteCTAClicked()"
+                    (editMobileNumberClicked)="updateMobileNumber($event)"
+                  ></app-mobile-number-card>
                 }
               }
             } @else {

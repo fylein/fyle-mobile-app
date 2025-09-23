@@ -7,7 +7,7 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/approver/employee-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ModalController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { DatePipe, KeyValue } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -28,7 +28,7 @@ describe('FyViewReportInfoComponent', () => {
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let authService: jasmine.SpyObj<AuthService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let datePipe: DatePipe;
   let translocoService: jasmine.SpyObj<TranslocoService>;
@@ -43,7 +43,7 @@ describe('FyViewReportInfoComponent', () => {
     ]);
     const mockTrackingServiceSpy = jasmine.createSpyObj('TrackingService', ['viewReportInfo']);
     const mockAuthServiceSpy = jasmine.createSpyObj('AuthService', ['getUserDetails', 'getEou']);
-    const mockOrgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const mockOrgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const mockModalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
@@ -53,8 +53,7 @@ describe('FyViewReportInfoComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [TranslocoModule, FyViewReportInfoComponent,
-        MatIconTestingModule],
+      imports: [TranslocoModule, FyViewReportInfoComponent, MatIconTestingModule],
       providers: [
         {
           provide: SharedExpensesService,
@@ -73,7 +72,7 @@ describe('FyViewReportInfoComponent', () => {
           useValue: mockAuthServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: mockOrgSettingsServiceSpy,
         },
         {
@@ -95,7 +94,7 @@ describe('FyViewReportInfoComponent', () => {
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     component.isReportView = true;
     component.isEmployeeView = false;

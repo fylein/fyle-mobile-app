@@ -37,7 +37,7 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { ExpensesService } from './expenses.service';
 import { cloneDeep } from 'lodash';
 import { DateService } from '../../../date.service';
-import { OrgSettingsService } from '../../../org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { of } from 'rxjs';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { TranslocoService } from '@jsverse/transloco';
@@ -45,10 +45,10 @@ import { TranslocoService } from '@jsverse/transloco';
 describe('ExpensesService', () => {
   let service: ExpensesService;
   let dateService: DateService;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
     // Mock translate method to return expected strings
@@ -87,7 +87,7 @@ describe('ExpensesService', () => {
       providers: [
         DateService,
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -98,7 +98,7 @@ describe('ExpensesService', () => {
     });
     service = TestBed.inject(ExpensesService);
     dateService = TestBed.inject(DateService);
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });

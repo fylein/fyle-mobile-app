@@ -37,7 +37,7 @@ import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { orgSettingsCardsDisabled, orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
@@ -84,7 +84,7 @@ describe('SwitchOrgPage', () => {
   let transactionService: jasmine.SpyObj<TransactionService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let deepLinkService: jasmine.SpyObj<DeepLinkService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
@@ -122,16 +122,12 @@ describe('SwitchOrgPage', () => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
     const ldSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
     TestBed.configureTestingModule({
-      imports: [
-        MatIconTestingModule,
-        getTranslocoTestingModule(),
-        SwitchOrgPage,
-      ],
+      imports: [MatIconTestingModule, getTranslocoTestingModule(), SwitchOrgPage],
       providers: [
         UrlSerializer,
         ChangeDetectorRef,
@@ -160,7 +156,7 @@ describe('SwitchOrgPage', () => {
           useValue: loaderServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -245,10 +241,15 @@ describe('SwitchOrgPage', () => {
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-    }).overrideComponent(SwitchOrgPage, {
-      remove: { imports: [ActiveOrgCardComponent, OrgCardComponent] },
-      add: { imports: [ActiveOrgCardComponentStubComponent, OrgCardComponentStubComponent], schemas: [NO_ERRORS_SCHEMA] }
-    }).compileComponents();
+    })
+      .overrideComponent(SwitchOrgPage, {
+        remove: { imports: [ActiveOrgCardComponent, OrgCardComponent] },
+        add: {
+          imports: [ActiveOrgCardComponentStubComponent, OrgCardComponentStubComponent],
+          schemas: [NO_ERRORS_SCHEMA],
+        },
+      })
+      .compileComponents();
     fixture = TestBed.createComponent(SwitchOrgPage);
     component = fixture.componentInstance;
 
@@ -277,7 +278,7 @@ describe('SwitchOrgPage', () => {
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));

@@ -20,7 +20,7 @@ import { TestCases1 } from './tasks-1.component.spec';
 import { TestCases2 } from './tasks-2.component.spec';
 import { TestCases3 } from './tasks-3.component.spec';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { OrgService } from 'src/app/core/services/org.service';
@@ -41,7 +41,7 @@ describe('TasksComponent', () => {
       'transformExpense',
       'getAllExpenses',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'getAllExpenses']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportAutoSubmissionDetails', 'clearCache']);
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getSpenderAdvanceRequests']);
@@ -87,7 +87,7 @@ describe('TasksComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'onDidDismiss']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     TestBed.configureTestingModule({
-      imports: [ RouterTestingModule, getTranslocoTestingModule(), TasksComponent],
+      imports: [RouterTestingModule, getTranslocoTestingModule(), TasksComponent],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
@@ -103,7 +103,7 @@ describe('TasksComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: NetworkService, useValue: networkServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
         { provide: ApproverReportsService, useValue: approverReportsServiceSpy },

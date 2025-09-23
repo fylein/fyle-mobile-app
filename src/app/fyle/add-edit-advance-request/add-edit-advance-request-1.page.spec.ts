@@ -8,7 +8,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -42,7 +42,7 @@ export function TestCases1(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
     let fileService: jasmine.SpyObj<FileService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let networkService: jasmine.SpyObj<NetworkService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -68,7 +68,7 @@ export function TestCases1(getTestBed) {
         TransactionsOutboxService,
       ) as jasmine.SpyObj<TransactionsOutboxService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;

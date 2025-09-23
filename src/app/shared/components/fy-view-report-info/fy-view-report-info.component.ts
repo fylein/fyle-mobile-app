@@ -6,7 +6,7 @@ import { KeyValue, DatePipe, CurrencyPipe, KeyValuePipe } from '@angular/common'
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PaymentModeSummary } from 'src/app/core/models/payment-mode-summary.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
@@ -57,7 +57,7 @@ export class FyViewReportInfoComponent {
 
   private trackingService = inject(TrackingService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private authService = inject(AuthService);
 

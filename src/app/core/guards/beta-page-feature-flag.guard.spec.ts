@@ -1,23 +1,23 @@
 import { ActivatedRoute, Router } from '@angular/router';
-import { OrgSettingsService } from '../services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { BetaPageFeatureFlagGuard } from './beta-page-feature-flag.guard';
 import { TestBed } from '@angular/core/testing';
 import { Observable, of } from 'rxjs';
 
 describe('BetaPageFeatureFlagGuard', () => {
   let guard: BetaPageFeatureFlagGuard;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let router: jasmine.SpyObj<Router>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
 
   beforeEach(() => {
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['isBetaPageEnabledForPath']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['isBetaPageEnabledForPath']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
       providers: [
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -41,7 +41,7 @@ describe('BetaPageFeatureFlagGuard', () => {
       ],
     });
     guard = TestBed.inject(BetaPageFeatureFlagGuard);
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
   });
