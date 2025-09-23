@@ -120,7 +120,7 @@ export class PotentialDuplicatesPage {
     );
     this.duplicateSets$.subscribe((duplicateExpenses) => {
       this.duplicateExpenses = duplicateExpenses;
-      this.isMileageSet = this.duplicateExpenses[this.selectedSet].some(
+      this.isMileageSet = this.duplicateExpenses[this.selectedSet]?.some(
         (expense) => expense.category.system_category === 'Mileage',
       );
     });
@@ -140,14 +140,14 @@ export class PotentialDuplicatesPage {
 
   next(): void {
     this.selectedSet++;
-    this.isMileageSet = this.duplicateExpenses[this.selectedSet].some(
+    this.isMileageSet = this.duplicateExpenses[this.selectedSet]?.some(
       (expense) => expense.category.system_category === 'Mileage',
     );
   }
 
   prev(): void {
     this.selectedSet--;
-    this.isMileageSet = this.duplicateExpenses[this.selectedSet].some(
+    this.isMileageSet = this.duplicateExpenses[this.selectedSet]?.some(
       (expense) => expense.category.system_category === 'Mileage',
     );
   }
@@ -210,7 +210,7 @@ export class PotentialDuplicatesPage {
       this.loadData$.next();
       this.duplicateSets$.subscribe((duplicateExpenses) => {
         this.duplicateExpenses = duplicateExpenses;
-        this.isMileageSet = this.duplicateExpenses[this.selectedSet].some(
+        this.isMileageSet = this.duplicateExpenses[this.selectedSet]?.some(
           (expense) => expense.category.system_category === 'Mileage',
         );
       });
