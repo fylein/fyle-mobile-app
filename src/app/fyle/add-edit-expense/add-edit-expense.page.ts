@@ -16,7 +16,26 @@ import {
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import {  ActionSheetController, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
+import {
+  ActionSheetController,
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonFooter,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonSkeletonText,
+  IonSpinner,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import dayjs from 'dayjs';
 import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
 import {
@@ -269,7 +288,7 @@ type FormValue = {
     SlicePipe,
     TransactionStatusComponent,
     TranslocoPipe,
-    VirtualSelectComponent
+    VirtualSelectComponent,
   ],
 })
 export class AddEditExpensePage implements OnInit {
@@ -2143,6 +2162,9 @@ export class AddEditExpensePage implements OnInit {
             });
 
             this.fg.controls.custom_inputs.patchValue(customInputValues);
+
+            // Trigger date validation after async operations
+            this.triggerDateValidation();
           }, 600);
 
           this.attachedReceiptsCount = txnReceiptsCount;
@@ -3004,6 +3026,74 @@ export class AddEditExpensePage implements OnInit {
     };
   }
 
+  fromDateValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null;
+    }
+
+    const toDate = this.fg?.get('to_dt')?.value as string;
+    if (toDate) {
+      const fromDate = new Date(control.value as string);
+      const toDateObj = new Date(toDate);
+
+      if (fromDate > toDateObj) {
+        return { fromDateAfterToDate: true };
+      }
+    }
+
+    return null;
+  }
+
+  toDateValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null;
+    }
+
+    const fromDate = this.fg?.get('from_dt')?.value as string;
+    if (fromDate) {
+      const toDate = new Date(control.value as string);
+      const fromDateObj = new Date(fromDate);
+
+      if (toDate < fromDateObj) {
+        return { toDateBeforeFromDate: true };
+      }
+    }
+
+    return null;
+  }
+
+  // Method to validate both date fields
+  validateDateFields(): void {
+    const fromDateControl = this.fg.get('from_dt');
+    const toDateControl = this.fg.get('to_dt');
+
+    if (fromDateControl) {
+      const fromErrors = this.fromDateValidator(fromDateControl);
+      fromDateControl.setErrors(fromErrors);
+    }
+
+    if (toDateControl) {
+      const toErrors = this.toDateValidator(toDateControl);
+      toDateControl.setErrors(toErrors);
+    }
+  }
+
+  // Method to manually trigger date validation for existing expense data
+  triggerDateValidation(): void {
+    const fromDateControl = this.fg.get('from_dt');
+    const toDateControl = this.fg.get('to_dt');
+
+    if (fromDateControl && fromDateControl.value) {
+      const fromErrors = this.fromDateValidator(fromDateControl);
+      fromDateControl.setErrors(fromErrors);
+    }
+
+    if (toDateControl && toDateControl.value) {
+      const toErrors = this.toDateValidator(toDateControl);
+      toDateControl.setErrors(toErrors);
+    }
+  }
+
   initClassObservables(): void {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
@@ -3184,8 +3274,8 @@ export class AddEditExpensePage implements OnInit {
       tax_amount: [, this.taxAmountValidator()],
       location_1: [],
       location_2: [],
-      from_dt: [],
-      to_dt: [],
+      from_dt: [, this.fromDateValidator],
+      to_dt: [, this.toDateValidator],
       flight_journey_travel_class: [],
       flight_return_travel_class: [],
       train_travel_class: [],
@@ -3198,6 +3288,15 @@ export class AddEditExpensePage implements OnInit {
       hotel_is_breakfast_provided: [],
       project_dependent_fields: this.formBuilder.array([]),
       cost_center_dependent_fields: this.formBuilder.array([]),
+    });
+
+    // Add cross-validation for date fields
+    this.fg.get('from_dt')?.valueChanges.subscribe(() => {
+      this.validateDateFields();
+    });
+
+    this.fg.get('to_dt')?.valueChanges.subscribe(() => {
+      this.validateDateFields();
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
