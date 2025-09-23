@@ -2164,7 +2164,7 @@ export class AddEditExpensePage implements OnInit {
             this.fg.controls.custom_inputs.patchValue(customInputValues);
 
             // Trigger date validation after async operations
-            this.triggerDateValidation();
+            this.validateDateFields();
           }, 600);
 
           this.attachedReceiptsCount = txnReceiptsCount;
@@ -3073,22 +3073,6 @@ export class AddEditExpensePage implements OnInit {
     }
 
     if (toDateControl) {
-      const toErrors = this.toDateValidator(toDateControl);
-      toDateControl.setErrors(toErrors);
-    }
-  }
-
-  // Method to manually trigger date validation for existing expense data
-  triggerDateValidation(): void {
-    const fromDateControl = this.fg.get('from_dt');
-    const toDateControl = this.fg.get('to_dt');
-
-    if (fromDateControl && fromDateControl.value) {
-      const fromErrors = this.fromDateValidator(fromDateControl);
-      fromDateControl.setErrors(fromErrors);
-    }
-
-    if (toDateControl && toDateControl.value) {
       const toErrors = this.toDateValidator(toDateControl);
       toDateControl.setErrors(toErrors);
     }
