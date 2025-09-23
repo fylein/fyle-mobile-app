@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { finalize, forkJoin, from, map, Observable, switchMap, tap } from 'rxjs';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { NotificationsBetaPageService } from './notifications-beta.page.service';
 import { NotificationConfig } from 'src/app/core/models/notification-config.model';
@@ -73,7 +73,7 @@ export class NotificationsBetaPage implements OnInit {
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private authService = inject(AuthService);
 

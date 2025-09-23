@@ -17,6 +17,7 @@ import { AccessTokenData } from '../models/access-token-data.model';
 import { Delegator } from '../models/platform/delegator.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { EmployeeResponse } from '../models/employee-response.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -40,7 +41,13 @@ export class OrgUserService {
 
   @Cacheable()
   getCurrent(): Observable<ExtendedOrgUser> {
-    return this.apiService.get('/eous/current').pipe(map((eou) => this.dataTransformService.unflatten(eou)));
+    return this.spenderPlatformV1ApiService
+      .get('/employees/current')
+      .pipe(
+        map((response: PlatformApiResponse<EmployeeResponse>) =>
+          this.dataTransformService.transformEmployeeResponse(response.data),
+        ),
+      );
   }
 
   @CacheBuster({

@@ -20,7 +20,7 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
@@ -126,7 +126,7 @@ export class ViewTeamReportPage {
 
   private exactCurrency = inject(ExactCurrencyPipe);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private approverReportsService = inject(ApproverReportsService);
 

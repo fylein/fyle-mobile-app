@@ -92,7 +92,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
@@ -142,24 +142,21 @@ import { ExpensesCardV1Component } from 'src/app/shared/components/expenses-card
   selector: 'app-fy-footer',
   template: '',
 })
-class MockFooterComponent {
-}
+class MockFooterComponent {}
 
 // mock ExpensesCardComponent
 @Component({
   selector: 'app-expenses-card-v2',
   template: '',
 })
-class MockExpensesCardComponent {
-}
+class MockExpensesCardComponent {}
 
 // mock ExpensesCardV1Component
 @Component({
   selector: 'app-expenses-card',
   template: '',
 })
-class MockExpensesCardV1Component {
-}
+class MockExpensesCardV1Component {}
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -167,7 +164,7 @@ describe('MyExpensesPage', () => {
   let tasksService: jasmine.SpyObj<TasksService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let router: jasmine.SpyObj<Router>;
   let navController: jasmine.SpyObj<NavController>;
@@ -222,7 +219,7 @@ describe('MyExpensesPage', () => {
       'getExpenseDeletionMessage',
       'getCCCExpenseMessage',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'connectivityWatcher']);
@@ -351,17 +348,19 @@ describe('MyExpensesPage', () => {
 
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [RouterTestingModule,
+      imports: [
+        RouterTestingModule,
         getTranslocoTestingModule(),
         MyExpensesPage,
         ReportState,
         MaskNumber,
-        MatIconTestingModule],
+        MatIconTestingModule,
+      ],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate', 'createUrlTree']) },
         {
@@ -472,15 +471,17 @@ describe('MyExpensesPage', () => {
         MaskNumber,
         provideHttpClientTesting(),
       ],
-    }).overrideComponent(MyExpensesPage, {
-      remove: {
-        imports: [FooterComponent, ExpensesCardComponent, ExpensesCardV1Component],
-      },
-      add: {
-        imports: [MockFooterComponent, MockExpensesCardComponent, MockExpensesCardV1Component],
-        schemas: [NO_ERRORS_SCHEMA],
-      },
-    }).compileComponents();
+    })
+      .overrideComponent(MyExpensesPage, {
+        remove: {
+          imports: [FooterComponent, ExpensesCardComponent, ExpensesCardV1Component],
+        },
+        add: {
+          imports: [MockFooterComponent, MockExpensesCardComponent, MockExpensesCardV1Component],
+          schemas: [NO_ERRORS_SCHEMA],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MyExpensesPage);
     component = fixture.componentInstance;
@@ -492,7 +493,7 @@ describe('MyExpensesPage', () => {
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -548,11 +549,11 @@ describe('MyExpensesPage', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
       spyOn(component, 'getCardDetail').and.returnValue(of(uniqueCardsData));
-      spyOn(component, 'syncOutboxExpenses')
-      spyOn(component, 'setAllExpensesCountAndAmount')
-      spyOn(component, 'clearFilters')
-      spyOn(component, 'setupActionSheet')
-      spyOn(component, 'setupNetworkWatcher')
+      spyOn(component, 'syncOutboxExpenses');
+      spyOn(component, 'setAllExpensesCountAndAmount');
+      spyOn(component, 'clearFilters');
+      spyOn(component, 'setupActionSheet');
+      spyOn(component, 'setupNetworkWatcher');
       //@ts-ignore
       spyOn(component, 'pollDEIncompleteExpenses').and.returnValue(of(apiExpenses1));
       tokenService.getClusterDomain.and.resolveTo(apiAuthRes.cluster_domain);

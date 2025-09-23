@@ -14,7 +14,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
@@ -65,7 +65,7 @@ describe('MyProfilePage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let networkService: jasmine.SpyObj<NetworkService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
@@ -102,7 +102,7 @@ describe('MyProfilePage', () => {
     ]);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -125,7 +125,7 @@ describe('MyProfilePage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      imports: [ RouterTestingModule, MyProfilePage],
+      imports: [RouterTestingModule, MyProfilePage],
       providers: [
         {
           provide: ActivatedRoute,
@@ -182,7 +182,7 @@ describe('MyProfilePage', () => {
           useValue: networkServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -233,15 +233,17 @@ describe('MyProfilePage', () => {
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
-    }).overrideComponent(MyProfilePage, {
-      remove: {
-        imports: [EmployeeDetailsCardComponent],
-      },
-      add: {
-        imports: [MockEmployeeDetailsCardComponent],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA],
-      }
-    }).compileComponents();
+    })
+      .overrideComponent(MyProfilePage, {
+        remove: {
+          imports: [EmployeeDetailsCardComponent],
+        },
+        add: {
+          imports: [MockEmployeeDetailsCardComponent],
+          schemas: [CUSTOM_ELEMENTS_SCHEMA],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MyProfilePage);
     component = fixture.componentInstance;
@@ -259,7 +261,7 @@ describe('MyProfilePage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;

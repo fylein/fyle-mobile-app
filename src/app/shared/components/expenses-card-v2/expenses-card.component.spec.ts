@@ -9,7 +9,7 @@ import { SnackbarPropertiesService } from '../../../core/services/snackbar-prope
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ExpensesCardComponent } from './expenses-card.component';
 import { PopoverController, ModalController, Platform } from '@ionic/angular/standalone';
@@ -68,7 +68,7 @@ describe('ExpensesCardComponent', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
@@ -108,12 +108,11 @@ describe('ExpensesCardComponent', () => {
       'getAllMap',
       'getMandatoryExpenseFields',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
       imports: [
-        
         MatIconModule,
         MatIconTestingModule,
         MatCheckboxModule,
@@ -143,7 +142,7 @@ describe('ExpensesCardComponent', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DateFormatPipe, useValue: dateFormatPipeSpy },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
         { provide: ExpenseState, useValue: expenseStateSpy },
@@ -168,7 +167,7 @@ describe('ExpensesCardComponent', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
@@ -1900,7 +1899,7 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [ ExpensesCardComponent],
+      imports: [ExpensesCardComponent],
       providers: [
         { provide: TransactionService, useValue: {} },
         { provide: SharedExpenseService, useValue: {} },
@@ -1919,7 +1918,7 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
           provide: ExpenseFieldsService,
           useValue: { getAllMap: (): void => {}, getMandatoryExpenseFields: (): void => {} },
         },
-        { provide: OrgSettingsService, useValue: { get: (): void => {} } },
+        { provide: PlatformOrgSettingsService, useValue: { get: (): void => {} } },
         { provide: ExpensesService, useValue: {} },
         { provide: TranslocoService, useValue: { translate: (): string => '' } },
       ],

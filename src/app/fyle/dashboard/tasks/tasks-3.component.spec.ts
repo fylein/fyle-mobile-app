@@ -22,7 +22,7 @@ import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-repo
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { unreportedExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
@@ -52,7 +52,7 @@ export function TestCases3(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let networkService: jasmine.SpyObj<NetworkService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
     beforeEach(waitForAsync(() => {
@@ -61,7 +61,7 @@ export function TestCases3(getTestBed) {
       component = fixture.componentInstance;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;

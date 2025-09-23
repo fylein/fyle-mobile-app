@@ -6,7 +6,7 @@ import { FySelectCommuteDetailsComponent } from './fy-select-commute-details.com
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { LocationService } from 'src/app/core/services/location.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -31,7 +31,7 @@ describe('FySelectCommuteDetailsComponent', () => {
   let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
   let locationService: jasmine.SpyObj<LocationService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -41,7 +41,7 @@ describe('FySelectCommuteDetailsComponent', () => {
     const formBuilderSpy = jasmine.createSpyObj('FormBuilder', ['group']);
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['getDistance']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['postCommuteDetails']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -56,14 +56,13 @@ describe('FySelectCommuteDetailsComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [TranslocoModule, FySelectCommuteDetailsComponent,
-        MatIconTestingModule],
+      imports: [TranslocoModule, FySelectCommuteDetailsComponent, MatIconTestingModule],
       providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: LocationService, useValue: locationServiceSpy },
         { provide: EmployeesService, useValue: employeesServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
@@ -78,7 +77,7 @@ describe('FySelectCommuteDetailsComponent', () => {
     formBuilder = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;

@@ -52,7 +52,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
@@ -158,7 +158,7 @@ export function TestCases2(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let actionSheetController: jasmine.SpyObj<ActionSheetController>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let sanitizer: jasmine.SpyObj<DomSanitizer>;
     let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -215,7 +215,7 @@ export function TestCases2(getTestBed) {
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       sanitizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
       personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;

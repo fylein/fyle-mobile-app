@@ -18,7 +18,7 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
@@ -118,7 +118,7 @@ export class ViewExpensePage {
 
   private expenseFieldsService = inject(ExpenseFieldsService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private categoriesService = inject(CategoriesService);
 

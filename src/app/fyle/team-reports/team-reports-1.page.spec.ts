@@ -10,7 +10,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { BehaviorSubject, of } from 'rxjs';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
@@ -42,7 +42,7 @@ export function TestCases1(getTestBed) {
     let trackingService: jasmine.SpyObj<TrackingService>;
     let extendQueryParamsService: jasmine.SpyObj<ExtendQueryParamsService>;
     let tasksService: jasmine.SpyObj<TasksService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
     let authService: jasmine.SpyObj<AuthService>;
     let inputElement: HTMLInputElement;
@@ -62,7 +62,7 @@ export function TestCases1(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       extendQueryParamsService = TestBed.inject(ExtendQueryParamsService) as jasmine.SpyObj<ExtendQueryParamsService>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -113,7 +113,7 @@ export function TestCases1(getTestBed) {
             dispatchEvent: jasmine.createSpy('dispatchEvent'),
             addEventListener: jasmine.createSpy('addEventListener'),
             removeEventListener: jasmine.createSpy('removeEventListener'),
-          }
+          },
         } as any;
       });
 

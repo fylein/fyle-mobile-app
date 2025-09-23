@@ -13,7 +13,7 @@ import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-d
 import { Component, input } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { By } from '@angular/platform-browser';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { of } from 'rxjs';
 import { orgSettingsWithV2ExpensesPage } from 'src/app/core/mock-data/org-settings.data';
 import { provideHttpClient } from '@angular/common/http';
@@ -36,7 +36,7 @@ describe('CardDetailComponent', () => {
   let fixture: ComponentFixture<CardDetailComponent>;
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-  let orgSettingService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -44,7 +44,7 @@ describe('CardDetailComponent', () => {
       'dashboardOnIncompleteCardExpensesClick',
       'dashboardOnCompleteCardExpensesClick',
     ]);
-    const orgSettingServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
         reRenderOnLangChange: true,
@@ -54,7 +54,6 @@ describe('CardDetailComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        
         RouterModule,
         RouterTestingModule,
         TranslocoModule,
@@ -78,7 +77,7 @@ describe('CardDetailComponent', () => {
           useValue: trackingServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingServiceSpy,
         },
         {
@@ -92,7 +91,7 @@ describe('CardDetailComponent', () => {
     component = fixture.componentInstance;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    orgSettingService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     component.cardDetail = cardDetailsRes[cardDetailsRes.length - 1];
     orgSettingService.get.and.returnValue(of(orgSettingsWithV2ExpensesPage));
     fixture.detectChanges();

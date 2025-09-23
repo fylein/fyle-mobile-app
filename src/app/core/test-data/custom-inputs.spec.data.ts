@@ -304,9 +304,9 @@ export const authRespone = deepFreeze({
     cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
   },
   org: {
-    domain: 'fyle.in',
     currency: 'INR',
   },
+  mileage_settings: {},
   us: {
     id: 'usvKA4X8Ugcr',
     created_at: new Date('2016-06-13T12:21:16.803Z'),
@@ -327,13 +327,44 @@ export const authRespone = deepFreeze({
     full_name: null,
     email: null,
   },
-  bb: {
-    bank_name: 'ICICI BANK LIMITED',
+  department: {
+    id: 'deptpmQ0SsMO0S',
+    code: '0000000',
+    name: '0000000',
+    sub_department: null,
+    display_name: '0000000',
   },
-  dwolla: {
-    customer_id: 'dwcJzfwZCgwkdfG',
-    bank_account_added: true,
+  approver_user_ids: ['oudZdj614Xj6'],
+  approver_users: [{ id: 'oudZdj614Xj6', full_name: 'Approver One', email: 'approver1@fyle.in' }],
+  delegatees: [],
+  locale: {
+    timezone: 'Asia/Kolkata',
+    abbreviation: 'IST',
+    offset: '+05:30',
   },
+  commute_details: {
+    id: 123,
+    distance: 12.5,
+    distance_unit: 'km',
+    home_location: {
+      latitude: 19.076,
+      longitude: 72.8777,
+      city: 'Mumbai',
+      country: 'India',
+      formatted_address: 'Mumbai, Maharashtra, India',
+      state: 'Maharashtra',
+    },
+    work_location: {
+      latitude: 19.076,
+      longitude: 72.8777,
+      city: 'Mumbai',
+      country: 'India',
+      formatted_address: 'Mumbai, Maharashtra, India',
+      state: 'Maharashtra',
+    },
+  },
+  commute_details_id: 'commute123',
+  flattened_custom_field: {},
 });
 
 export const filterTestData: ExpenseField[] = deepFreeze([
