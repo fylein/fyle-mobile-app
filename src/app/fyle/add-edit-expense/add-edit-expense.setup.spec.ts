@@ -55,6 +55,7 @@ import { TestCases3 } from './add-edit-expense-3.spec';
 import { TestCases4 } from './add-edit-expense-4.spec';
 import { TestCases5 } from './add-edit-expense-5.spec';
 import { TestCases6 } from './add-edit-expense-6.spec';
+import { TestCasesDateValidation } from './add-edit-expense-date-validation.spec';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
@@ -461,4 +462,5 @@ describe('AddEditExpensePage', () => {
   TestCases4(getTestBed);
   TestCases5(getTestBed);
   TestCases6(getTestBed);
+  TestCasesDateValidation(getTestBed);
 });
