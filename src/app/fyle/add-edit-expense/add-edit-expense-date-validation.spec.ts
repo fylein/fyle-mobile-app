@@ -186,20 +186,6 @@ export function TestCasesDateValidation(getTestBed) {
         // Create a new form with spy set up before valueChanges subscriptions
         const validateDateFieldsSpy = spyOn(component, 'validateDateFields');
 
-        // Re-initialize form with spy in place
-        component.fg = formBuilder.group({
-          from_dt: ['', component.fromDateValidator],
-          to_dt: ['', component.toDateValidator],
-        });
-
-        component.fg.get('from_dt')?.valueChanges.subscribe(() => {
-          component.validateDateFields();
-        });
-
-        component.fg.get('to_dt')?.valueChanges.subscribe(() => {
-          component.validateDateFields();
-        });
-
         component.fg.patchValue({ from_dt: '2025-01-15' });
 
         expect(validateDateFieldsSpy).toHaveBeenCalled();
@@ -208,20 +194,6 @@ export function TestCasesDateValidation(getTestBed) {
       it('should validate both fields when to_dt changes', () => {
         // Create a new form with spy set up before valueChanges subscriptions
         const validateDateFieldsSpy = spyOn(component, 'validateDateFields');
-
-        // Re-initialize form with spy in place
-        component.fg = formBuilder.group({
-          from_dt: ['', component.fromDateValidator],
-          to_dt: ['', component.toDateValidator],
-        });
-
-        component.fg.get('from_dt')?.valueChanges.subscribe(() => {
-          component.validateDateFields();
-        });
-
-        component.fg.get('to_dt')?.valueChanges.subscribe(() => {
-          component.validateDateFields();
-        });
 
         component.fg.patchValue({ to_dt: '2025-01-15' });
 
