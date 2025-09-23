@@ -1279,6 +1279,7 @@
     "openingReport": "Opening your report...",
     "openingAdvance": "Opening your advance request...",
     "addingExpenseToReport": "Adding expense to report",
+    "potentialDuplicatesMileageNotSupported": "Mileage expenses are not supported for merging from the mobile app yet. Please merge from the web app.",
     "viewReport": "View Report",
     "expensesAddedToDraft": "Expenses added to an existing draft report",
     "expensesAddedSuccessfully": "Expenses added to report successfully",
