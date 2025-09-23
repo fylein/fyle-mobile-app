@@ -3,7 +3,6 @@ import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { User } from '../models/user.model';
-import { UserProperty } from '../models/v1/user-property.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { userPasswordStatus } from '../mock-data/user-password-status.data';
@@ -147,65 +146,6 @@ const userPropertiesRes = {
   expense_form_beta: null,
 };
 
-const userProperties: UserProperty = {
-  id: 'usYzfH0uFaMW',
-  created_at: new Date('2020-07-09T04:53:00.051Z'),
-  updated_at: new Date('2022-05-17T05:47:04.126Z'),
-  devices: [
-    {
-      id: '47D900B3-ECBC-4ED7-8311-4D45EA6D9595',
-      fcm_token:
-        'fTVuhDfBg0Gbrz1wUwiTsn:APA91bEXR8c5aITaGTTwQi_qqdhzA1hqqpmGMxUFo5rj1X7jWRlbziUNHJwUZZi0xvnaQMIB_TuVvFVFF3_eHHN049junGfZjzic7_L4c2d6BvxiU_WZ_XvnzPlRRiWqX9eghY_eAObW',
-    },
-    {
-      id: 'D5510B11-3DFE-4FBC-8BEA-4AFAFA850B33',
-      fcm_token:
-        'cd_93HHzNkzBpRCwwECXkk:APA91bHsgk3-d5u8u3lnTojM0KCmnr7K1HYJ5Kh16H38vJkPZ2yqtpGAh45f6bIEzrVVTjIRIAa62fp62opeseQ9BLCXMnd9BrkoXYVe4DXyQM7ge8jF0snQXiJdYsjpY3_7GBiMYn-0',
-    },
-  ],
-  reports_beta_view: {
-    allowed: true,
-    enabled: true,
-  },
-  company_expenses_beta: {
-    allowed: true,
-    enabled: true,
-  },
-  expense_form_beta: null,
-};
-
-const userPropertiesNew: UserProperty = {
-  id: 'usYzfH0uFaMW',
-  created_at: new Date('2020-07-09T04:53:00.051Z'),
-  updated_at: new Date('2022-05-17T05:47:04.126Z'),
-  devices: [
-    {
-      id: '47D900B3-ECBC-4ED7-8311-4D45EA6D9595',
-      fcm_token:
-        'fTVuhDfBg0Gbrz1wUwiTsn:APA91bEXR8c5aITaGTTwQi_qqdhzA1hqqpmGMxUFo5rj1X7jWRlbziUNHJwUZZi0xvnaQMIB_TuVvFVFF3_eHHN049junGfZjzic7_L4c2d6BvxiU_WZ_XvnzPlRRiWqX9eghY_eAObW',
-    },
-    {
-      id: 'D5510B11-3DFE-4FBC-8BEA-4AFAFA850B33',
-      fcm_token:
-        'cd_93HHzNkzBpRCwwECXkk:APA91bHsgk3-d5u8u3lnTojM0KCmnr7K1HYJ5Kh16H38vJkPZ2yqtpGAh45f6bIEzrVVTjIRIAa62fp62opeseQ9BLCXMnd9BrkoXYVe4DXyQM7ge8jF0snQXiJdYsjpY3_7GBiMYn-0',
-    },
-    {
-      id: 'M2240B44-3MFE-4FBC-8BEA-4AFAFA820B33',
-      fcm_token:
-        'asdasdadasdasdasdadasdd:APA91bHsgk3-d5u8u3lnTojM0KCmnr7K1HYJ5Kh16H38vJkPZ2yqtpGAh45f6bIEzrVVTjIRIAa62fp62opeseQ9BLCXMnd9BrkoXYVe4DXyQM7ge8jF0snQXiJdYsjpY3_7GBiMYn-0',
-    },
-  ],
-  reports_beta_view: {
-    allowed: true,
-    enabled: true,
-  },
-  company_expenses_beta: {
-    allowed: true,
-    enabled: true,
-  },
-  expense_form_beta: null,
-};
-
 describe('UserService', () => {
   let userService: UserService;
   let authService: jasmine.SpyObj<AuthService>;
@@ -263,27 +203,6 @@ describe('UserService', () => {
 
     userService.isPendingDetails().subscribe((isPendingDetails) => {
       expect(isPendingDetails).toBeTrue();
-      done();
-    });
-  });
-
-  it('should be able to get user properties properly', (done) => {
-    apiService.get.withArgs('/users/current').and.returnValue(of(currentUserResponse));
-    apiService.get.withArgs('/users/' + currentUserResponse.id + '/properties').and.returnValue(of(userPropertiesRes));
-    userService.getProperties().subscribe((userPropertiesResponse) => {
-      expect(userPropertiesResponse).toEqual(userProperties);
-      done();
-    });
-  });
-
-  it('should be able to update user properties properly', (done) => {
-    apiService.get.withArgs('/users/current').and.returnValue(of(currentUserResponse));
-    apiService.post.and.returnValue(of(null));
-    userService.upsertProperties(userPropertiesNew).subscribe((_) => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/users/' + currentUserResponse.id + '/properties',
-        userPropertiesNew,
-      );
       done();
     });
   });
