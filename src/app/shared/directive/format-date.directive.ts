@@ -1,11 +1,11 @@
 // @Link:  https://stackoverflow.com/a/31162426
 
-import { Directive, ElementRef, OnInit, HostListener, Renderer2, inject } from '@angular/core';
+import { Directive, ElementRef, HostListener, Renderer2, inject, AfterViewInit } from '@angular/core';
 import dayjs from 'dayjs';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Directive({ selector: '[appFormatDate]' })
-export class FormatDateDirective implements OnInit {
+export class FormatDateDirective implements AfterViewInit {
   private elementRef = inject(ElementRef);
 
   private renderer = inject(Renderer2);
@@ -44,7 +44,7 @@ export class FormatDateDirective implements OnInit {
     }
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     const initalValue = this.elementRef.nativeElement as HTMLInputElement;
     this.modifyDisplayValue(initalValue.value);
   }
