@@ -70,9 +70,9 @@ export class PotentialDuplicatesPage {
 
   selectedSet = 0;
 
-  duplicateSetData: string[][];
+  duplicateSetData: string[][] = [];
 
-  duplicateExpenses: Expense[][];
+  duplicateExpenses: Expense[][] = [];
 
   isMileageSet = false;
 
