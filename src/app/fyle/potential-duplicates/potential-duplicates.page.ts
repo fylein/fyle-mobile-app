@@ -27,6 +27,7 @@ import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-scr
 import { CurrencyPipe } from '@angular/common';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { TranslocoModule } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-potential-duplicates',
@@ -47,6 +48,7 @@ import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-a
     IonTitle,
     IonToolbar,
     FyAlertInfoComponent,
+    TranslocoModule,
   ],
 })
 export class PotentialDuplicatesPage {
