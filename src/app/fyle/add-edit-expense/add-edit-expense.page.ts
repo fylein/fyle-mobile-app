@@ -2162,9 +2162,6 @@ export class AddEditExpensePage implements OnInit {
             });
 
             this.fg.controls.custom_inputs.patchValue(customInputValues);
-
-            // Trigger date validation after async operations
-            this.validateDateFields();
           }, 600);
 
           this.attachedReceiptsCount = txnReceiptsCount;
@@ -2709,7 +2706,14 @@ export class AddEditExpensePage implements OnInit {
                 this.systemCategories?.includes(formValues.category.fyle_category) &&
                 isConnected
               ) {
-                control.setValidators(Validators.required);
+                // eslint-disable-next-line max-depth
+                if (txnFieldKey === 'from_dt') {
+                  control.setValidators(Validators.compose([this.fromDateValidator(), Validators.required]));
+                } else if (txnFieldKey === 'to_dt') {
+                  control.setValidators(Validators.compose([this.toDateValidator(), Validators.required]));
+                } else {
+                  control.setValidators(Validators.required);
+                }
               }
             } else if (['distance', 'distance_unit'].includes(txnFieldKey)) {
               if (
@@ -3026,56 +3030,44 @@ export class AddEditExpensePage implements OnInit {
     };
   }
 
-  fromDateValidator(control: AbstractControl): ValidationErrors | null {
-    if (!control.value) {
-      return null;
-    }
-
-    const toDate = this.fg?.get('to_dt')?.value as string;
-    if (toDate) {
-      const fromDate = new Date(control.value as string);
-      const toDateObj = new Date(toDate);
-
-      if (fromDate > toDateObj) {
-        return { fromDateAfterToDate: true };
+  fromDateValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
       }
-    }
 
-    return null;
+      const toDate = this.fg?.get('to_dt')?.value as string;
+      if (toDate) {
+        const fromDate = new Date(control.value as string);
+        const toDateObj = new Date(toDate);
+
+        if (fromDate > toDateObj) {
+          return { fromDateAfterToDate: true };
+        }
+      }
+
+      return null;
+    };
   }
 
-  toDateValidator(control: AbstractControl): ValidationErrors | null {
-    if (!control.value) {
-      return null;
-    }
-
-    const fromDate = this.fg?.get('from_dt')?.value as string;
-    if (fromDate) {
-      const toDate = new Date(control.value as string);
-      const fromDateObj = new Date(fromDate);
-
-      if (toDate < fromDateObj) {
-        return { toDateBeforeFromDate: true };
+  toDateValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
       }
-    }
 
-    return null;
-  }
+      const fromDate = this.fg?.get('from_dt')?.value as string;
+      if (fromDate) {
+        const toDate = new Date(control.value as string);
+        const fromDateObj = new Date(fromDate);
 
-  // Method to validate both date fields
-  validateDateFields(): void {
-    const fromDateControl = this.fg.get('from_dt');
-    const toDateControl = this.fg.get('to_dt');
+        if (toDate < fromDateObj) {
+          return { toDateBeforeFromDate: true };
+        }
+      }
 
-    if (fromDateControl) {
-      const fromErrors = this.fromDateValidator(fromDateControl);
-      fromDateControl.setErrors(fromErrors);
-    }
-
-    if (toDateControl) {
-      const toErrors = this.toDateValidator(toDateControl);
-      toDateControl.setErrors(toErrors);
-    }
+      return null;
+    };
   }
 
   initClassObservables(): void {
@@ -3275,12 +3267,20 @@ export class AddEditExpensePage implements OnInit {
     });
 
     // Add cross-validation for date fields
-    this.fg.get('from_dt')?.valueChanges.subscribe(() => {
-      this.validateDateFields();
+    this.fg.get('from_dt')?.valueChanges.subscribe((value) => {
+      if (value) {
+        this.fg.get('from_dt')?.markAsTouched({ emitEvent: false });
+        // Trigger re-validation of to_dt when from_dt changes
+        this.fg.get('to_dt')?.updateValueAndValidity({ emitEvent: false });
+      }
     });
 
-    this.fg.get('to_dt')?.valueChanges.subscribe(() => {
-      this.validateDateFields();
+    this.fg.get('to_dt')?.valueChanges.subscribe((value) => {
+      if (value) {
+        this.fg.get('to_dt')?.markAsTouched({ emitEvent: false });
+        // Trigger re-validation of from_dt when to_dt changes
+        this.fg.get('from_dt')?.updateValueAndValidity({ emitEvent: false });
+      }
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
