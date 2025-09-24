@@ -43,9 +43,9 @@ describe('FormatDateDirective', () => {
     expect(directive.modifyDisplayValue).toHaveBeenCalledOnceWith('2023-01-02');
   });
 
-  it('ngOnInit(): should call modifyDisplayValue once with the initial value', () => {
+  it('ngAfterViewInit(): should call modifyDisplayValue once with the initial value', () => {
     spyOn(directive, 'modifyDisplayValue');
-    directive.ngOnInit();
+    directive.ngAfterViewInit();
     expect(directive.modifyDisplayValue).toHaveBeenCalledOnceWith('');
   });
 

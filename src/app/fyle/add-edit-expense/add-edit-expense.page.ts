@@ -16,7 +16,26 @@ import {
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import {  ActionSheetController, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
+import {
+  ActionSheetController,
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonFooter,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonSkeletonText,
+  IonSpinner,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import dayjs from 'dayjs';
 import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
 import {
@@ -269,7 +288,7 @@ type FormValue = {
     SlicePipe,
     TransactionStatusComponent,
     TranslocoPipe,
-    VirtualSelectComponent
+    VirtualSelectComponent,
   ],
 })
 export class AddEditExpensePage implements OnInit {
@@ -2687,7 +2706,14 @@ export class AddEditExpensePage implements OnInit {
                 this.systemCategories?.includes(formValues.category.fyle_category) &&
                 isConnected
               ) {
-                control.setValidators(Validators.required);
+                // eslint-disable-next-line max-depth
+                if (txnFieldKey === 'from_dt') {
+                  control.setValidators(Validators.compose([this.fromDateValidator(), Validators.required]));
+                } else if (txnFieldKey === 'to_dt') {
+                  control.setValidators(Validators.compose([this.toDateValidator(), Validators.required]));
+                } else {
+                  control.setValidators(Validators.required);
+                }
               }
             } else if (['distance', 'distance_unit'].includes(txnFieldKey)) {
               if (
@@ -3004,6 +3030,46 @@ export class AddEditExpensePage implements OnInit {
     };
   }
 
+  fromDateValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      const toDate = this.fg?.get('to_dt')?.value as string;
+      if (toDate) {
+        const fromDate = new Date(control.value as string);
+        const toDateObj = new Date(toDate);
+
+        if (fromDate > toDateObj) {
+          return { fromDateAfterToDate: true };
+        }
+      }
+
+      return null;
+    };
+  }
+
+  toDateValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      const fromDate = this.fg?.get('from_dt')?.value as string;
+      if (fromDate) {
+        const toDate = new Date(control.value as string);
+        const fromDateObj = new Date(fromDate);
+
+        if (toDate < fromDateObj) {
+          return { toDateBeforeFromDate: true };
+        }
+      }
+
+      return null;
+    };
+  }
+
   initClassObservables(): void {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
@@ -3184,8 +3250,8 @@ export class AddEditExpensePage implements OnInit {
       tax_amount: [, this.taxAmountValidator()],
       location_1: [],
       location_2: [],
-      from_dt: [],
-      to_dt: [],
+      from_dt: [, this.fromDateValidator],
+      to_dt: [, this.toDateValidator],
       flight_journey_travel_class: [],
       flight_return_travel_class: [],
       train_travel_class: [],
@@ -3198,6 +3264,23 @@ export class AddEditExpensePage implements OnInit {
       hotel_is_breakfast_provided: [],
       project_dependent_fields: this.formBuilder.array([]),
       cost_center_dependent_fields: this.formBuilder.array([]),
+    });
+
+    // Add cross-validation for date fields
+    this.fg.get('from_dt')?.valueChanges.subscribe((value) => {
+      if (value) {
+        this.fg.get('from_dt')?.markAsTouched({ emitEvent: false });
+        // Trigger re-validation of to_dt when from_dt changes
+        this.fg.get('to_dt')?.updateValueAndValidity({ emitEvent: false });
+      }
+    });
+
+    this.fg.get('to_dt')?.valueChanges.subscribe((value) => {
+      if (value) {
+        this.fg.get('to_dt')?.markAsTouched({ emitEvent: false });
+        // Trigger re-validation of from_dt when to_dt changes
+        this.fg.get('from_dt')?.updateValueAndValidity({ emitEvent: false });
+      }
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();

@@ -845,7 +845,11 @@
                         </div>
                         @if (fg.controls.from_dt.touched && !fg.controls.from_dt.valid) {
                           <div class="add-edit-expense--date-error">
-                            Please select a valid {{ txnFields.from_dt?.field_name }}.
+                            @if (fg.controls.from_dt.hasError('fromDateAfterToDate')) {
+                              {{ txnFields.from_dt?.field_name }} cannot be after {{ txnFields.to_dt?.field_name }}.
+                            } @else {
+                              Please select a valid {{ txnFields.from_dt?.field_name }}.
+                            }
                           </div>
                         }
                       </ion-col>
@@ -883,7 +887,11 @@
                         </div>
                         @if (fg.controls.to_dt.touched && !fg.controls.to_dt.valid) {
                           <div class="add-edit-expense--date-error">
-                            Please select a valid {{ txnFields.to_dt?.field_name }}.
+                            @if (fg.controls.to_dt.hasError('toDateBeforeFromDate')) {
+                              {{ txnFields.to_dt?.field_name }} cannot be before {{ txnFields.from_dt?.field_name }}.
+                            } @else {
+                              Please select a valid {{ txnFields.to_dt?.field_name }}.
+                            }
                           </div>
                         }
                       </ion-col>
