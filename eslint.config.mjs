@@ -143,6 +143,7 @@ export default defineConfig([
     extends: compat.extends("plugin:@angular-eslint/template/recommended"),
     rules: {
       "@angular-eslint/template/no-negated-async": "off",
+      "@angular-eslint/template/prefer-control-flow": "error",
       "@fyle/i18n-key-naming-convention": "error",
       "@fyle/no-hardcoded-strings": "warn",
     },
