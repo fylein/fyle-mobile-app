@@ -45,6 +45,7 @@ export function provideIcons(): EnvironmentProviders {
       'crop.svg',
       'cross.svg',
       'danger-fill.svg',
+      'danger-outline.svg',
       'dashboard.svg',
       'duplicate.svg',
       'edit.svg',

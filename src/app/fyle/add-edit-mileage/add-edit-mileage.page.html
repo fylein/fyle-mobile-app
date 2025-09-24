@@ -55,7 +55,7 @@
 
 <ion-content>
   <!-- Skeleton Loading State -->
-  <ng-container *ngIf="isLoading">
+  @if (isLoading) {
     <div class="add-edit-mileage--form">
       <div class="add-edit-mileage--skeleton-container">
         <!-- Map Section Skeleton -->
@@ -91,7 +91,7 @@
         </div>
       </div>
     </div>
-  </ng-container>
+  }
 
   <div>
     @if ((mileageRatesOptions$ | async)?.length > 0 && !isLoading) {
