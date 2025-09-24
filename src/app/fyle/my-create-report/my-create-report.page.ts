@@ -14,12 +14,22 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { Report } from '../../core/models/platform/v1/report.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { MatIcon } from '@angular/material/icon';
-import { NgIf, NgFor } from '@angular/common';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
-import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonRow, IonSkeletonText, IonToolbar } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonFooter,
+  IonGrid,
+  IonHeader,
+  IonRow,
+  IonSkeletonText,
+  IonToolbar,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-my-create-report',
@@ -42,8 +52,6 @@ import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeade
     IonToolbar,
     MatCheckbox,
     MatIcon,
-    NgFor,
-    NgIf
   ],
 })
 export class MyCreateReportPage implements OnInit {
