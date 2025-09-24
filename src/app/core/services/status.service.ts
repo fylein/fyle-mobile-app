@@ -44,7 +44,7 @@ export class StatusService {
   getStatusCategory(comment: string, type: string): StatusCategory {
     let statusCategory: StatusCategory;
     const lowerCaseComment = comment && comment.toLowerCase();
-    type = `${type[0].toUpperCase()}${type.slice(1)}`;
+    type = type ? `${type.charAt(0).toUpperCase()}${type.slice(1)}` : '';
 
     switch (true) {
       case lowerCaseComment.indexOf('automatically merged') > -1:
