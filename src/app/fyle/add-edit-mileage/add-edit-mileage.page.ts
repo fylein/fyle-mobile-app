@@ -23,7 +23,23 @@ import {
 } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSkeletonText, IonTitle, IonToolbar, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonFooter,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  NavController,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import dayjs from 'dayjs';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import {
@@ -131,7 +147,7 @@ import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { MileageSettings } from 'src/app/core/models/mileage-settings.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
-import { NgClass, NgIf, AsyncPipe, SlicePipe, CurrencyPipe } from '@angular/common';
+import { NgClass, AsyncPipe, SlicePipe, CurrencyPipe } from '@angular/common';
 import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
 import { MatIcon } from '@angular/material/icon';
 import { RouteVisualizerComponent } from '../../shared/components/route-visualizer/route-visualizer.component';
@@ -191,14 +207,13 @@ import { chevronUp, chevronDown } from 'ionicons/icons';
     MatCheckbox,
     MatIcon,
     NgClass,
-    NgIf,
     ReactiveFormsModule,
     ReviewFooterComponent,
     RouteSelectorComponent,
     RouteVisualizerComponent,
     SingularPipe,
     SlicePipe,
-    VirtualSelectComponent
+    VirtualSelectComponent,
   ],
 })
 export class AddEditMileagePage implements OnInit {

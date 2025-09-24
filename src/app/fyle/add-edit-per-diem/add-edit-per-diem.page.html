@@ -57,7 +57,7 @@
 
 <ion-content>
   <!-- Skeleton Loading State -->
-  <ng-container *ngIf="isLoading">
+  @if (isLoading) {
     <div class="add-edit-per-diem--form">
       <div class="add-edit-per-diem--skeleton-container">
         <!-- Amount Box Skeleton -->
@@ -92,7 +92,7 @@
         </div>
       </div>
     </div>
-  </ng-container>
+  }
 
   <div>
     @if (fg && !isLoading) {
