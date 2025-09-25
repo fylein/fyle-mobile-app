@@ -1,0 +1,98 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "Build Android APK"
+  lane :build_apk do
+    # Build the web app first
+    sh("npm run build")
+    
+    # Sync Capacitor
+    sh("npx cap sync android")
+    
+    # Build APK using Gradle
+    gradle(
+      task: "assembleDebug",
+      project_dir: "android"
+    )
+  end
+
+  desc "Build Android AAB"
+  lane :build_aab do
+    # Build the web app first
+    sh("npm run build")
+    
+    # Sync Capacitor
+    sh("npx cap sync android")
+    
+    # Build AAB using Gradle
+    gradle(
+      task: "bundleRelease",
+      project_dir: "android"
+    )
+  end
+end
+
+platform :ios do
+  desc "Build iOS app"
+  lane :build_ios do
+    # Build the web app first
+    sh("npm run build")
+    
+    # Sync Capacitor
+    sh("npx cap sync ios")
+    
+    # Install pods
+    cocoapods(
+      podfile: "./ios/Podfile"
+    )
+    
+    # Build iOS app
+    build_app(
+      workspace: "./ios/App.xcworkspace",
+      scheme: "App",
+      configuration: "Debug",
+      export_method: "development",
+      output_directory: "./ios/build",
+      output_name: "Fyle.ipa"
+    )
+  end
+
+  desc "Build iOS app for release"
+  lane :build_ios_release do
+    # Build the web app first
+    sh("npm run build")
+    
+    # Sync Capacitor
+    sh("npx cap sync ios")
+    
+    # Install pods
+    cocoapods(
+      podfile: "./ios/Podfile"
+    )
+    
+    # Build iOS app for release
+    build_app(
+      workspace: "./ios/App.xcworkspace",
+      scheme: "App",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./ios/build",
+      output_name: "Fyle.ipa"
+    )
+  end
+end

@@ -1,0 +1,151 @@
+name: Fastlane Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build from'
+        required: true
+        default: 'master'
+        type: string
+      platform:
+        description: 'Platform to build'
+        required: true
+        default: 'android'
+        type: choice
+        options:
+        - android
+        - ios
+        - both
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'debug'
+        type: choice
+        options:
+        - debug
+        - release
+
+jobs:
+  build-android:
+    if: github.event.inputs.platform == 'android' || github.event.inputs.platform == 'both'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+
+      - name: Install Fastlane
+        run: gem install fastlane
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build Android APK
+        if: github.event.inputs.build_type == 'debug'
+        run: |
+          cd ${{ github.workspace }}
+          fastlane android build_apk
+
+      - name: Build Android AAB
+        if: github.event.inputs.build_type == 'release'
+        run: |
+          cd ${{ github.workspace }}
+          fastlane android build_aab
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: |
+            android/app/build/outputs/apk/debug/*.apk
+            android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
+
+  build-ios:
+    if: github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both'
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+
+      - name: Install Fastlane
+        run: gem install fastlane
+
+      - name: Install CocoaPods
+        run: |
+          sudo gem install cocoapods
+          cd ios && pod install
+
+      - name: Build iOS Debug
+        if: github.event.inputs.build_type == 'debug'
+        run: |
+          cd ${{ github.workspace }}
+          fastlane ios build_ios
+
+      - name: Build iOS Release
+        if: github.event.inputs.build_type == 'release'
+        run: |
+          cd ${{ github.workspace }}
+          fastlane ios build_ios_release
+
+      - name: Upload iOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: ios/build/*.ipa
+          retention-days: 30
+
+  notify:
+    if: always()
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Notify build status
+        if: always()
+        run: |
+          if [ "${{ needs.build-android.result }}" == "success" ] || [ "${{ needs.build-ios.result }}" == "success" ]; then
+            echo "✅ Build completed successfully"
+          else
+            echo "❌ Build failed"
+          fi
