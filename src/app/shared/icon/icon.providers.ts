@@ -117,9 +117,9 @@ export function provideIcons(): EnvironmentProviders {
       'arrow-up.svg',
       'check-circle-outline.svg',
       'question-square-outline.svg',
-      'sparkle.svg',
+      'ai-auto-coded.svg',
+      'ai-icon.svg',
       'arrow-tail-right.svg',
-      'stars-filled.svg',
     ];
 
     svgImageArray.forEach((imageName) => {

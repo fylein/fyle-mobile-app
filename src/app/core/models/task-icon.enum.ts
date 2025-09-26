@@ -4,6 +4,6 @@ export enum TaskIcon {
   ADVANCE = 'wallet',
   MOBILE = 'phone',
   LOCATION = 'location',
-  STARS = 'stars-filled',
+  STARS = 'ai-icon',
   CARD = 'card',
 }
