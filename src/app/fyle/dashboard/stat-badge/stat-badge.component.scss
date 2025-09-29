@@ -51,32 +51,39 @@
     font-weight: 500;
 
     &__open {
-      background-color: map.get(colors.$fdl-state-bg-map, 'draft');
+      background-color: map.get(colors.$fdl-stat-bg-map, 'draft-report');
       color: map.get(colors.$fdl-state-color-map, 'draft');
     }
 
     &__incomplete_expense {
-      background-color: map.get(colors.$fdl-state-bg-map, 'incomplete');
+      background-color: map.get(colors.$fdl-stat-bg-map, 'incomplete');
       color: map.get(colors.$fdl-state-color-map, 'incomplete');
     }
 
-    &__incomplete,
-    &__approver_pending,
+    &__approver_pending {
+      background-color: map.get(colors.$fdl-stat-bg-map, 'submitted');
+      color: map.get(colors.$fdl-state-color-map, 'submitted');
+    }
+
     &__unapproved_team_reports {
-      background-color: map.get(colors.$fdl-state-bg-map, 'submitted');
+      background-color: map.get(colors.$fdl-stat-bg-map, 'unapproved_team_reports');
       color: map.get(colors.$fdl-state-color-map, 'submitted');
     }
 
     &__complete {
-      background-color: map.get(colors.$fdl-state-bg-map, 'complete');
+      background-color: map.get(colors.$fdl-stat-bg-map, 'complete');
       color: map.get(colors.$fdl-state-color-map, 'complete');
     }
 
     &__approved,
-    &__payment_pending,
-    &__payment_processing {
-      background-color: map.get(colors.$fdl-state-bg-map, 'approved');
+    &__payment_pending {
+      background-color: map.get(colors.$fdl-stat-bg-map, 'approved');
       color: map.get(colors.$fdl-state-color-map, 'approved');
+    }
+
+    &__payment_processing {
+      background-color: map.get(colors.$fdl-stat-bg-map, 'processing');
+      color: map.get(colors.$fdl-state-color-map, 'processing');
     }
   }
 
