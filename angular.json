@@ -75,6 +75,14 @@
                 }
               ]
             },
+            "bw": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.bw.ts"
+                }
+              ]
+            },
             "ci": {
               "progress": false
             }
@@ -84,7 +92,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "app:build"
+            "buildTarget": "app:build",
+            "port": 8100
           },
           "configurations": {
             "production": {
@@ -92,6 +101,9 @@
             },
             "staging": {
               "buildTarget": "app:build:staging"
+            },
+            "bw": {
+              "buildTarget": "app:build:bw"
             },
             "ci": {}
           }
@@ -110,7 +122,10 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "codeCoverage": true,
-            "codeCoverageExclude": ["src/app/core/services/tracking.service.ts", "src/app/fyle/fyle-routing.module.ts"],
+            "codeCoverageExclude": [
+              "src/app/core/services/tracking.service.ts",
+              "src/app/fyle/fyle-routing.module.ts"
+            ],
             "styles": [],
             "scripts": [],
             "assets": [
@@ -139,21 +154,6 @@
             "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "app:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "app:serve:production"
-            },
-            "ci": {
-              "devServerTarget": "app:serve:ci"
-            }
-          }
-        },
         "ionic-cordova-build": {
           "builder": "@ionic/angular-toolkit:cordova-build",
           "options": {
@@ -175,6 +175,20 @@
             "production": {
               "cordovaBuildTarget": "app:ionic-cordova-build:production",
               "devServerTarget": "app:serve:production"
+            }
+          }
+        },
+        "e2e": {
+          "builder": "playwright-ng-schematics:playwright",
+          "options": {
+            "devServerTarget": "app:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "app:serve:production"
+            },
+            "bw": {
+              "devServerTarget": "app:serve:bw"
             }
           }
         }
