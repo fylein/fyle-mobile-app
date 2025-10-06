@@ -148,7 +148,7 @@
   "overrides": {
     "async": "^3.2.6",
     "ng2-pdf-viewer": {
-      "tar-fs": "2.1.3"
+      "tar-fs": "2.1.4"
     }
   },
   "prettier": {
