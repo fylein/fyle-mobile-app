@@ -455,7 +455,7 @@
               yyyy') === (fg.controls.dateOfSpend.value | date: 'MMM dd, yyyy')
                   ) {
                     <div class="add-edit-expense--auto-coded">
-                      <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                      <mat-icon class="add-edit-expense--auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
                       {{ 'addEditExpense.dateAutoCodedInfo' | transloco }}
                     </div>
                   }
@@ -668,7 +668,7 @@
                         autoCodedData.category === fg.controls.category.value.displayName
                       ) {
                         <div class="add-edit-expense--auto-coded">
-                          <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                          <mat-icon class="add-edit-expense--auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
                           Category is auto coded.
                         </div>
                       }
@@ -1221,7 +1221,7 @@
                   autoCodedData.vendor_name?.toLowerCase() === fg.controls.vendor_id.value.display_name?.toLowerCase()
                 ) {
                   <div class="add-edit-expense--auto-coded">
-                    <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                    <mat-icon class="add-edit-expense--auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
                     Merchant is auto coded.
                   </div>
                 }
