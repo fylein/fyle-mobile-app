@@ -1,13 +1,20 @@
 @use '../../../../theme/colors.scss';
 
 .policy-violation-info {
+  &--icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 10px;
+    background-color: colors.$negative-400;
+  }
+
   &--container {
     border-radius: 8px;
-    background: colors.$pure-white;
-    border: 1px solid colors.$grey-lighter;
-    padding: 12px 10px;
+    border: 1px solid colors.$negative-400;
     margin: 8px 0;
     position: relative;
+    overflow: hidden;
   }
 
   &--block {
@@ -21,7 +28,6 @@
 
   &--list {
     padding-left: 6px;
-    font-size: 12px;
     margin: 0px 0px 0px 0px;
     &__no-bullet {
       list-style-type: none;
@@ -30,7 +36,8 @@
   }
 
   &--content {
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 400;
     color: colors.$blue-black;
   }
 
@@ -40,7 +47,7 @@
     top: 50%;
     transform: translateY(-50%);
     color: colors.$brand-primary;
-    font-size: 12px;
+    font-size: 14px;
   }
 
   &--icons {

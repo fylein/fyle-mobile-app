@@ -1,58 +1,71 @@
 @use '../../../../theme/colors.scss';
 
 $message: #2c304e;
-$container-border: #dfdfe2;
 
 .alert-info-container {
-  border: 1px solid $container-border;
   border-radius: 8px;
-  padding: 12px 8px;
+  overflow: hidden;
   margin: 8px 0;
   display: flex;
 
-  &--icon {
-    height: 20px;
-    width: 20px;
-    margin-right: 8px;
-    min-width: 20px;
-    color: colors.$highlight-blue;
+  &--information {
+    border: 1px solid colors.$info-500;
+  }
+
+  &--warning {
+    border: 1px solid colors.$caution-500;
+  }
+
+  &--danger {
+    border: 1px solid colors.$negative-400;
+  }
+
+  &--icon-container {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--information {
+      background-color: colors.$info-500;
+    }
+
+    &--warning {
+      background-color: colors.$caution-500;
+    }
 
     &--danger {
-      height: 20px;
-      width: 20px;
-      margin-right: 8px;
-      min-width: 20px;
-      color: colors.$negative-500;
+      background-color: colors.$negative-400;
+    }
+
+    &--icon {
+      height: 16px;
+      width: 16px;
+      min-width: 16px;
     }
   }
 
   &--message {
+    padding: 8px 12px;
+    padding-right: 0;
+    display: flex;
+    align-items: center;
     color: $message;
     font-weight: 400;
-    font-size: 12px;
+    font-size: 14px;
     width: 100%;
   }
 
   &--button {
-    font-size: 12px;
+    font-size: 14px;
     line-height: 15px;
+    font-weight: 500;
     color: colors.$brand-primary;
-    height: 12px;
   }
 
-  @media (max-width: 360px) {
-    padding: 12px 4px;
-    &--message {
-      width: auto;
-    }
-    &--icon {
-      margin-right: 4px;
-    }
-
-    &--button-container {
-      width: 12%;
-      display: flex;
-      justify-content: center;
-    }
+  &--button-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
