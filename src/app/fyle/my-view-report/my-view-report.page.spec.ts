@@ -87,6 +87,7 @@ describe('MyViewReportPage', () => {
   let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+  let orgUserService: jasmine.SpyObj<OrgUserService>;
 
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['updateReportPurpose']);
@@ -248,6 +249,7 @@ describe('MyViewReportPage', () => {
     orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
 
     component.report$ = of(platformReportData);
     component.canEdit$ = of(true);
@@ -1075,6 +1077,10 @@ describe('MyViewReportPage', () => {
   });
 
   describe('ACH Suspension Functionality:', () => {
+    beforeEach(() => {
+      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
+    });
+
     it('should show ACH suspension popup when called', async () => {
       const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
       popoverController.create.and.resolveTo(mockPopover);
@@ -1120,5 +1126,19 @@ describe('MyViewReportPage', () => {
       expect((component as any).checkAchSuspensionBeforeAdd).not.toHaveBeenCalled();
       expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
     });
+
+    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
+      launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component as any, 'performAddExpenses');
+
+      (component as any).checkAchSuspensionBeforeAdd(['tx1']);
+      tick(100);
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
+    }));
   });
 });

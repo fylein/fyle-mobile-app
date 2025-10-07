@@ -88,6 +88,7 @@ import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-par
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { driver } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FyHeaderComponent } from '../../shared/components/fy-header/fy-header.component';
@@ -329,6 +330,8 @@ export class MyExpensesPage implements OnInit {
   private walkthroughService = inject(WalkthroughService);
 
   private orgUserService = inject(OrgUserService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
@@ -2121,12 +2124,21 @@ export class MyExpensesPage implements OnInit {
           this.orgSettings$.pipe(
             take(1),
             switchMap((orgSettings) => {
-              if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
-                return of(false);
-              }
-              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
-                map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
-                catchError(() => of(false)),
+              // Check LaunchDarkly feature flag first
+              return this.launchDarklyService.getVariation('ach_improvement', false).pipe(
+                switchMap((isAchImprovementEnabled) => {
+                  if (!isAchImprovementEnabled) {
+                    return of(false);
+                  }
+
+                  if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+                    return of(false);
+                  }
+                  return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+                    map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
+                    catchError(() => of(false)),
+                  );
+                }),
               );
             }),
           ),

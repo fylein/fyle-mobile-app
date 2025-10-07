@@ -32,6 +32,7 @@ import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expen
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
@@ -140,6 +141,8 @@ export class MyViewReportPage {
 
   private orgUserService = inject(OrgUserService);
 
+  private launchDarklyService = inject(LaunchDarklyService);
+
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
   @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
@@ -231,12 +234,21 @@ export class MyViewReportPage {
         switchMap((eou) =>
           this.orgSettingsService.get().pipe(
             switchMap((orgSettings) => {
-              if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
-                return of(false);
-              }
-              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
-                map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
-                catchError(() => of(false)),
+              // Check LaunchDarkly feature flag first
+              return this.launchDarklyService.getVariation('ach_improvement', false).pipe(
+                switchMap((isAchImprovementEnabled) => {
+                  if (!isAchImprovementEnabled) {
+                    return of(false);
+                  }
+
+                  if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+                    return of(false);
+                  }
+                  return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+                    map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
+                    catchError(() => of(false)),
+                  );
+                }),
               );
             }),
           ),

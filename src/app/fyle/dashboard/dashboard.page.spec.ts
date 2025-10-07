@@ -43,6 +43,7 @@ import {
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { CardStatsComponent } from './card-stats/card-stats.component';
@@ -105,6 +106,7 @@ describe('DashboardPage', () => {
   let walkthroughService: jasmine.SpyObj<WalkthroughService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -161,6 +163,7 @@ describe('DashboardPage', () => {
       'getIsOverlayClicked',
     ]);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     TestBed.configureTestingModule({
       imports: [DashboardPage, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
@@ -213,6 +216,10 @@ describe('DashboardPage', () => {
         {
           provide: OrgUserService,
           useValue: orgUserServiceSpy,
+        },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -269,6 +276,7 @@ describe('DashboardPage', () => {
     walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     fixture.detectChanges();
   }));
 
@@ -1388,6 +1396,7 @@ describe('DashboardPage', () => {
       component.eou$ = of(apiEouRes);
       component.orgSettings$ = of(orgSettingsRes);
       orgUserService.getDwollaCustomer.and.returnValue(of(null));
+      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
     });
 
     it('should show ACH suspension popup when customer is suspended', fakeAsync(() => {
@@ -1514,6 +1523,18 @@ describe('DashboardPage', () => {
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
+      launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
     }));
   });

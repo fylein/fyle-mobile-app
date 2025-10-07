@@ -14,6 +14,7 @@ import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { apiExpenses1, nonReimbursableExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { ExpensesCardComponent } from '../expenses-card-v2/expenses-card.component';
@@ -34,6 +35,7 @@ describe('CreateNewReportComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
 
   beforeEach(waitForAsync(() => {
@@ -47,6 +49,7 @@ describe('CreateNewReportComponent', () => {
       'suggestPurpose',
       'create',
     ]);
+    launchDarklyService = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     popoverController = jasmine.createSpyObj('PopoverController', ['create']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrency', ['transform']);
     const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrency', ['transform']);
@@ -66,6 +69,7 @@ describe('CreateNewReportComponent', () => {
         { provide: ExactCurrencyPipe, useValue: exactCurrencyPipeSpy },
         { provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy },
         { provide: SpenderReportsService, useValue: spenderReportsService },
+        { provide: LaunchDarklyService, useValue: launchDarklyService },
         { provide: PopoverController, useValue: popoverController },
       ],
     }).overrideComponent(CreateNewReportComponent, {
@@ -82,6 +86,7 @@ describe('CreateNewReportComponent', () => {
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
@@ -278,6 +283,10 @@ describe('CreateNewReportComponent', () => {
   });
 
   describe('ACH Suspension Functionality:', () => {
+    beforeEach(() => {
+      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
+    });
+
     it('should show ACH suspension popup when ACH_SUSPENDED error is thrown', fakeAsync(() => {
       const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
       popoverController.create.and.resolveTo(mockPopover);
@@ -367,6 +376,19 @@ describe('CreateNewReportComponent', () => {
       component.ctaClickedEvent('submit_report');
       tick(100);
 
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
+      launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
+      spyOn(component, 'showAchSuspensionPopup');
+      spenderReportsService.create.and.returnValue(throwError(() => new Error('ACH_SUSPENDED')));
+      component.reportTitle = 'Test Report';
+
+      component.ctaClickedEvent('submit_report');
+      tick(100);
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
     }));
   });
