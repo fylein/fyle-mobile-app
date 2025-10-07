@@ -125,6 +125,7 @@ import { corporateCardsResponseData } from 'src/app/core/mock-data/corporate-car
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
@@ -345,6 +346,7 @@ describe('MyExpensesPage', () => {
       'getMyExpensesBlockedStatusPillWalkthroughConfig',
       'getMyExpensesIncompleteStatusPillWalkthroughConfig',
     ]);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
 
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
@@ -466,6 +468,10 @@ describe('MyExpensesPage', () => {
         {
           provide: WalkthroughService,
           useValue: walkthroughServiceSpy,
+        },
+        {
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
         },
         ReportState,
         MaskNumber,
