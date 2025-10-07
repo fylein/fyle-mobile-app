@@ -38,7 +38,7 @@ describe('CreateNewReportComponent', () => {
 
   beforeEach(waitForAsync(() => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
-    trackingService = jasmine.createSpyObj('TrackingService', ['createReport']);
+    trackingService = jasmine.createSpyObj('TrackingService', ['createReport', 'eventTrack']);
     currencyService = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     expenseFieldsService = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
     spenderReportsService = jasmine.createSpyObj('SpenderReportsService', [
@@ -278,12 +278,14 @@ describe('CreateNewReportComponent', () => {
   });
 
   describe('ACH Suspension Functionality:', () => {
-    it('should show ACH suspension popup when ACH_SUSPENDED error is thrown', async () => {
+    it('should show ACH suspension popup when ACH_SUSPENDED error is thrown', fakeAsync(() => {
       const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
       popoverController.create.and.resolveTo(mockPopover);
       spenderReportsService.create.and.returnValue(throwError(() => new Error('ACH_SUSPENDED')));
+      component.reportTitle = 'Test Report';
 
       component.ctaClickedEvent('submit_report');
+      tick(100);
 
       expect(popoverController.create).toHaveBeenCalledWith({
         component: jasmine.any(Function),
@@ -298,15 +300,17 @@ describe('CreateNewReportComponent', () => {
         cssClass: 'pop-up-in-center',
       });
       expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
-    });
+    }));
 
-    it('should not show ACH suspension popup for other errors', () => {
+    it('should not show ACH suspension popup for other errors', fakeAsync(() => {
       spenderReportsService.create.and.returnValue(throwError(() => new Error('Other Error')));
       spyOn(component, 'showAchSuspensionPopup');
+      component.reportTitle = 'Test Report';
 
       component.ctaClickedEvent('submit_report');
+      tick(100);
 
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-    });
+    }));
   });
 });
