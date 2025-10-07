@@ -194,6 +194,7 @@ describe('MyExpensesPage', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
   let authService: jasmine.SpyObj<AuthService>;
+  let orgUserService: jasmine.SpyObj<OrgUserService>;
   let walkthroughService: jasmine.SpyObj<WalkthroughService>;
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
@@ -336,6 +337,7 @@ describe('MyExpensesPage', () => {
       'getConfiguration',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
     const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
       'getMyExpensesBlockedFilterWalkthroughConfig',
       'setIsOverlayClicked',
@@ -346,7 +348,6 @@ describe('MyExpensesPage', () => {
       'getMyExpensesBlockedStatusPillWalkthroughConfig',
       'getMyExpensesIncompleteStatusPillWalkthroughConfig',
     ]);
-    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
 
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
@@ -466,12 +467,12 @@ describe('MyExpensesPage', () => {
           useValue: authServiceSpy,
         },
         {
-          provide: WalkthroughService,
-          useValue: walkthroughServiceSpy,
-        },
-        {
           provide: OrgUserService,
           useValue: orgUserServiceSpy,
+        },
+        {
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
         },
         ReportState,
         MaskNumber,
@@ -529,6 +530,7 @@ describe('MyExpensesPage', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
     component.loadExpenses$ = new BehaviorSubject({});
   }));
@@ -2478,6 +2480,9 @@ describe('MyExpensesPage', () => {
     describe('when restrictPendingTransactionsEnabled is false', () => {
       beforeEach(() => {
         // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(false);
+        authService.getEou.and.resolveTo(apiEouRes);
+        orgUserService.getDwollaCustomer.and.returnValue(of(null));
+        component.orgSettings$ = of(orgSettingsRes);
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
