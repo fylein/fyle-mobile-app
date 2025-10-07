@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
-import { ModalController } from '@ionic/angular/standalone';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -46,6 +46,7 @@ describe('CreateNewReportComponent', () => {
       'suggestPurpose',
       'create',
     ]);
+    const popoverController = jasmine.createSpyObj('PopoverController', ['create']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrency', ['transform']);
     const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
@@ -64,6 +65,7 @@ describe('CreateNewReportComponent', () => {
         { provide: ExactCurrencyPipe, useValue: exactCurrencyPipeSpy },
         { provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy },
         { provide: SpenderReportsService, useValue: spenderReportsService },
+        { provide: PopoverController, useValue: popoverController },
       ],
     }).overrideComponent(CreateNewReportComponent, {
       remove: {
