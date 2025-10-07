@@ -79,7 +79,7 @@ class MockDashboardOptInComponent {}
 })
 class MockFyMenuIconComponent {}
 
-describe('DashboardPage', () => {
+fdescribe('DashboardPage', () => {
   let component: DashboardPage;
   let fixture: ComponentFixture<DashboardPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -103,6 +103,7 @@ describe('DashboardPage', () => {
   let footerService: jasmine.SpyObj<FooterService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let walkthroughService: jasmine.SpyObj<WalkthroughService>;
+  let orgUserService: jasmine.SpyObj<OrgUserService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -265,6 +266,7 @@ describe('DashboardPage', () => {
     footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
+    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     fixture.detectChanges();
   }));
 
@@ -369,6 +371,7 @@ describe('DashboardPage', () => {
       component.isConnected$ = of(true);
       authService.getEou.and.resolveTo(apiEouRes);
       utilityService.isUserFromINCluster.and.resolveTo(false);
+      orgUserService.getDwollaCustomer.and.returnValue(of(null));
       spyOn(component, 'setShowOptInBanner');
       spyOn(component, 'setShowEmailOptInBanner');
       spyOn(component, 'setSwiperConfig');
