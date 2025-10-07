@@ -18,7 +18,6 @@ import {
   noop,
   of,
   timer,
-  combineLatest,
 } from 'rxjs';
 import {
   debounceTime,
@@ -33,7 +32,6 @@ import {
   take,
   takeUntil,
   takeWhile,
-  tap,
   catchError,
 } from 'rxjs/operators';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
@@ -2101,8 +2099,8 @@ export class MyExpensesPage implements OnInit {
     const achSuspensionPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: this.translocoService.translate('dashboard.achSuspendedTitle'),
-        message: this.translocoService.translate('dashboard.achSuspendedMessage'),
+        title: this.translocoService.translate<string>('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate<string>('dashboard.achSuspendedMessage'),
         primaryCta: {
           text: this.translocoService.translate('dashboard.achSuspendedButton'),
           action: 'confirm',

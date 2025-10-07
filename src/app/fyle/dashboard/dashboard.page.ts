@@ -62,7 +62,6 @@ import { DashboardEmailOptInComponent } from '../../shared/components/dashboard-
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { DwollaCustomer } from 'src/app/core/models/dwolla-customer.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
 // install Swiper modules
@@ -892,8 +891,8 @@ export class DashboardPage {
     const achSuspensionPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: this.translocoService.translate('dashboard.achSuspendedTitle'),
-        message: this.translocoService.translate('dashboard.achSuspendedMessage'),
+        title: this.translocoService.translate<string>('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate<string>('dashboard.achSuspendedMessage'),
         primaryCta: {
           text: this.translocoService.translate('dashboard.achSuspendedButton'),
           action: 'confirm',

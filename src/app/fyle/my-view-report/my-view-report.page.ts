@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
-import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, combineLatest, of } from 'rxjs';
+import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, of } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize, catchError } from 'rxjs/operators';
@@ -761,8 +761,8 @@ export class MyViewReportPage {
     const achSuspensionPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: this.translocoService.translate('dashboard.achSuspendedTitle'),
-        message: this.translocoService.translate('dashboard.achSuspendedMessage'),
+        title: this.translocoService.translate<string>('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate<string>('dashboard.achSuspendedMessage'),
         primaryCta: {
           text: this.translocoService.translate('dashboard.achSuspendedButton'),
           action: 'confirm',

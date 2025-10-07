@@ -175,7 +175,7 @@ export class CreateNewReportComponent implements OnInit {
             });
           },
           error: (error) => {
-            if (error.message === 'ACH_SUSPENDED') {
+            if (error instanceof Error && error.message === 'ACH_SUSPENDED') {
               this.showAchSuspensionPopup();
             }
           },
@@ -203,7 +203,7 @@ export class CreateNewReportComponent implements OnInit {
             });
           },
           error: (error) => {
-            if (error.message === 'ACH_SUSPENDED') {
+            if (error instanceof Error && error.message === 'ACH_SUSPENDED') {
               this.showAchSuspensionPopup();
             }
           },
@@ -215,10 +215,10 @@ export class CreateNewReportComponent implements OnInit {
     const achSuspensionPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: this.translocoService.translate('dashboard.achSuspendedTitle'),
-        message: this.translocoService.translate('dashboard.achSuspendedMessage'),
+        title: this.translocoService.translate<string>('createNewReport.achSuspendedTitle'),
+        message: this.translocoService.translate<string>('createNewReport.achSuspendedMessage'),
         primaryCta: {
-          text: this.translocoService.translate('dashboard.achSuspendedButton'),
+          text: this.translocoService.translate('createNewReport.achSuspendedButton'),
           action: 'confirm',
         },
       },
