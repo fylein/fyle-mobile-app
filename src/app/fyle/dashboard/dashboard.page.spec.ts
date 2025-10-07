@@ -382,6 +382,7 @@ describe('DashboardPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       utilityService.isUserFromINCluster.and.resolveTo(false);
       orgUserService.getDwollaCustomer.and.returnValue(of(null));
+      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       spyOn(component, 'setShowOptInBanner');
       spyOn(component, 'setShowEmailOptInBanner');
       spyOn(component, 'setSwiperConfig');
@@ -485,6 +486,8 @@ describe('DashboardPage', () => {
     });
 
     it('should call setSwiperConfig with delay after setting up banner observables', fakeAsync(() => {
+      // Ensure LaunchDarklyService mock is set up for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
       component.ionViewWillEnter();
 
       // Fast-forward the setTimeout for setSwiperConfig
@@ -494,6 +497,8 @@ describe('DashboardPage', () => {
     }));
 
     it('should start navbar walkthrough', fakeAsync(() => {
+      // Ensure LaunchDarklyService mock is set up for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
       component.eou$ = of(apiEouRes);
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
       component.ionViewWillEnter();
