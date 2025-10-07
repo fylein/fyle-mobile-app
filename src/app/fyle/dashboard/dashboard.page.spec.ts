@@ -12,7 +12,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Component, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
-import { Subject, Subscription, of } from 'rxjs';
+import { Subject, Subscription, of, throwError } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
@@ -1458,6 +1458,56 @@ describe('DashboardPage', () => {
         beneficial_owner_retry: false
       };
       orgUserService.getDwollaCustomer.and.returnValue(of(activeCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when org settings do not allow ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: false, enabled: true } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when org settings do not enable ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: true, enabled: false } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not show popup when dialog was already shown in session', fakeAsync(() => {
+      const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
+      sessionStorage.setItem(dialogShownKey, 'true');
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      
+      // Clean up
+      sessionStorage.removeItem(dialogShownKey);
+    }));
+
+    it('should handle API errors gracefully and not show popup', fakeAsync(() => {
+      orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();

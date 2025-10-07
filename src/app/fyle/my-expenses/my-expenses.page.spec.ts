@@ -4557,5 +4557,78 @@ describe('MyExpensesPage', () => {
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
       expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
     }));
+
+    it('should not check ACH when org settings do not allow ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: false, enabled: true } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showNewReportModal');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not check ACH when org settings do not enable ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: true, enabled: false } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showOldReportsMatBottomSheet');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should handle API errors gracefully and proceed with report creation', fakeAsync(() => {
+      orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showNewReportModal');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show ACH suspension popup when called', async () => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      await component.showAchSuspensionPopup();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    });
+
+    it('should check for reimbursable expenses when creating reports', () => {
+      const reimbursableExpense = { ...apiExpenses1[0], is_reimbursable: true };
+      const nonReimbursableExpense = { ...apiExpenses1[0], is_reimbursable: false };
+      component.selectedElements = [reimbursableExpense, nonReimbursableExpense];
+      spyOn(component as any, 'checkAchSuspensionBeforeCreateReport');
+
+      component.openCreateReportWithSelectedIds('newReport');
+
+      expect((component as any).checkAchSuspensionBeforeCreateReport).toHaveBeenCalledWith('newReport');
+    });
   });
 });

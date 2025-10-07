@@ -7,7 +7,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { cloneDeep } from 'lodash';
-import { BehaviorSubject, Subscription, of } from 'rxjs';
+import { BehaviorSubject, Subscription, of, throwError } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -1072,5 +1072,51 @@ describe('MyViewReportPage', () => {
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
     expect(component.loadReportTxns$.next).toHaveBeenCalledTimes(1);
     expect(component.unreportedExpenses).toEqual([expenseData]);
+  });
+
+  describe('ACH Suspension Functionality:', () => {
+    it('should show ACH suspension popup when called', async () => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      await component.showAchSuspensionPopup();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    });
+
+    it('should check for reimbursable expenses before adding to report', () => {
+      const reimbursableExpense = { ...expenseData, is_reimbursable: true };
+      const nonReimbursableExpense = { ...expenseData, is_reimbursable: false };
+      component.unreportedExpenses = [reimbursableExpense, nonReimbursableExpense];
+      spyOn(component as any, 'checkAchSuspensionBeforeAdd');
+
+      component.addExpensesToReport(['tx1', 'tx2']);
+
+      expect((component as any).checkAchSuspensionBeforeAdd).toHaveBeenCalledWith(['tx1', 'tx2']);
+    });
+
+    it('should proceed directly when no reimbursable expenses are selected', () => {
+      const nonReimbursableExpense = { ...expenseData, is_reimbursable: false };
+      component.unreportedExpenses = [nonReimbursableExpense];
+      spyOn(component as any, 'checkAchSuspensionBeforeAdd');
+      spyOn(component as any, 'performAddExpenses');
+
+      component.addExpensesToReport(['tx1']);
+
+      expect((component as any).checkAchSuspensionBeforeAdd).not.toHaveBeenCalled();
+      expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
+    });
   });
 });

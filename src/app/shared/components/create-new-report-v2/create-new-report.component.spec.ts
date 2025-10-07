@@ -312,5 +312,62 @@ describe('CreateNewReportComponent', () => {
 
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
     }));
+
+    it('should show ACH suspension popup when createDraft throws ACH_SUSPENDED error', fakeAsync(() => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+      spenderReportsService.createDraft.and.returnValue(throwError(() => new Error('ACH_SUSPENDED')));
+      component.reportTitle = 'Test Report';
+
+      component.ctaClickedEvent('create_draft_report');
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    }));
+
+    it('should not show ACH suspension popup for other createDraft errors', fakeAsync(() => {
+      spenderReportsService.createDraft.and.returnValue(throwError(() => new Error('Other Error')));
+      spyOn(component, 'showAchSuspensionPopup');
+      component.reportTitle = 'Test Report';
+
+      component.ctaClickedEvent('create_draft_report');
+      tick(100);
+
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should handle null error message gracefully', fakeAsync(() => {
+      spenderReportsService.create.and.returnValue(throwError(() => ({ message: null })));
+      spyOn(component, 'showAchSuspensionPopup');
+      component.reportTitle = 'Test Report';
+
+      component.ctaClickedEvent('submit_report');
+      tick(100);
+
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should handle undefined error gracefully', fakeAsync(() => {
+      spenderReportsService.create.and.returnValue(throwError(() => undefined));
+      spyOn(component, 'showAchSuspensionPopup');
+      component.reportTitle = 'Test Report';
+
+      component.ctaClickedEvent('submit_report');
+      tick(100);
+
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
   });
 });
