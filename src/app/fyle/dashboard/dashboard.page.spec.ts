@@ -1400,6 +1400,8 @@ describe('DashboardPage', () => {
     });
 
     it('should show ACH suspension popup when customer is suspended', fakeAsync(() => {
+      // Ensure LaunchDarkly flag is enabled for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
       const suspendedCustomer = { 
         id: 'test-id',
         created_at: new Date(),
@@ -1445,6 +1447,8 @@ describe('DashboardPage', () => {
     }));
 
     it('should not show popup when customer is not suspended', fakeAsync(() => {
+      // Ensure LaunchDarkly flag is enabled for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
       const activeCustomer = { 
         id: 'test-id',
         created_at: new Date(),
@@ -1516,6 +1520,8 @@ describe('DashboardPage', () => {
     }));
 
     it('should handle API errors gracefully and not show popup', fakeAsync(() => {
+      // Ensure LaunchDarkly flag is enabled for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
       orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
       spyOn(component, 'showAchSuspensionPopup');
 

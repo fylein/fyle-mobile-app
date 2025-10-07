@@ -1103,6 +1103,9 @@ describe('MyViewReportPage', () => {
     });
 
     it('should check for reimbursable expenses before adding to report', () => {
+      // Setup required observables
+      component.eou$ = of(apiEouRes);
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
       const reimbursableExpense = { ...expenseData, id: 'tx1', is_reimbursable: true };
       const nonReimbursableExpense = { ...expenseData, id: 'tx2', is_reimbursable: false };
       component.unreportedExpenses = [reimbursableExpense, nonReimbursableExpense];
@@ -1128,6 +1131,9 @@ describe('MyViewReportPage', () => {
     });
 
     it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
+      // Setup required observables
+      component.eou$ = of(apiEouRes);
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
       launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component as any, 'performAddExpenses');

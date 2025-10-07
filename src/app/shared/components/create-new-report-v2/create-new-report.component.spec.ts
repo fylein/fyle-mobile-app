@@ -381,15 +381,16 @@ describe('CreateNewReportComponent', () => {
 
     it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
       launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
-      spyOn(component, 'showAchSuspensionPopup');
       spenderReportsService.create.and.returnValue(throwError(() => new Error('ACH_SUSPENDED')));
       component.reportTitle = 'Test Report';
 
       component.ctaClickedEvent('submit_report');
       tick(100);
 
+      // The method should still call showAchSuspensionPopup, but showAchSuspensionPopup should check the flag internally
       expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
-      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      // Since the flag is disabled, the popup should not be created
+      expect(popoverController.create).not.toHaveBeenCalled();
     }));
   });
 });
