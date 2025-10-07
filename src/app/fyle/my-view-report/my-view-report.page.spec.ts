@@ -1100,6 +1100,7 @@ describe('MyViewReportPage', () => {
       const reimbursableExpense = { ...expenseData, is_reimbursable: true };
       const nonReimbursableExpense = { ...expenseData, is_reimbursable: false };
       component.unreportedExpenses = [reimbursableExpense, nonReimbursableExpense];
+      spenderReportsService.addExpenses.and.returnValue(of(null));
       spyOn(component as any, 'checkAchSuspensionBeforeAdd');
 
       component.addExpensesToReport(['tx1', 'tx2']);
@@ -1110,6 +1111,7 @@ describe('MyViewReportPage', () => {
     it('should proceed directly when no reimbursable expenses are selected', () => {
       const nonReimbursableExpense = { ...expenseData, is_reimbursable: false };
       component.unreportedExpenses = [nonReimbursableExpense];
+      spenderReportsService.addExpenses.and.returnValue(of(null));
       spyOn(component as any, 'checkAchSuspensionBeforeAdd');
       spyOn(component as any, 'performAddExpenses');
 

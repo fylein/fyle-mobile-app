@@ -4624,6 +4624,7 @@ describe('MyExpensesPage', () => {
       const reimbursableExpense = { ...apiExpenses1[0], is_reimbursable: true };
       const nonReimbursableExpense = { ...apiExpenses1[0], is_reimbursable: false };
       component.selectedElements = [reimbursableExpense, nonReimbursableExpense];
+      component.isReportableExpensesSelected = true;
       spyOn(component as any, 'checkAchSuspensionBeforeCreateReport');
 
       component.openCreateReportWithSelectedIds('newReport');
