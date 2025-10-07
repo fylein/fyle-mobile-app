@@ -1390,7 +1390,7 @@ describe('DashboardPage', () => {
       orgUserService.getDwollaCustomer.and.returnValue(of(null));
     });
 
-    it('should show ACH suspension popup when customer is suspended', async () => {
+    it('should show ACH suspension popup when customer is suspended', fakeAsync(() => {
       const suspendedCustomer = { 
         id: 'test-id',
         created_at: new Date(),
@@ -1417,6 +1417,7 @@ describe('DashboardPage', () => {
       popoverController.create.and.resolveTo(mockPopover);
 
       component.checkAchSuspension();
+      tick(100);
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
       expect(popoverController.create).toHaveBeenCalledWith({
@@ -1432,9 +1433,9 @@ describe('DashboardPage', () => {
         cssClass: 'pop-up-in-center',
       });
       expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
-    });
+    }));
 
-    it('should not show popup when customer is not suspended', () => {
+    it('should not show popup when customer is not suspended', fakeAsync(() => {
       const activeCustomer = { 
         id: 'test-id',
         created_at: new Date(),
@@ -1460,9 +1461,10 @@ describe('DashboardPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
+      tick(100);
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-    });
+    }));
   });
 });
