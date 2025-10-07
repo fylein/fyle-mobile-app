@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject, viewChild } from '@angular/core';
 import { NgModel, FormsModule } from '@angular/forms';
-import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { Observable, Subscription, of } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
@@ -17,6 +17,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { ExpensesCardComponent } from '../expenses-card-v2/expenses-card.component';
 import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
+import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 
 @Component({
   selector: 'app-create-new-report',
@@ -52,6 +53,8 @@ export class CreateNewReportComponent implements OnInit {
   private spenderReportsService = inject(SpenderReportsService);
 
   private translocoService = inject(TranslocoService);
+
+  private popoverController = inject(PopoverController);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -164,11 +167,18 @@ export class CreateNewReportComponent implements OnInit {
             this.saveDraftReportLoader = false;
           }),
         )
-        .subscribe((report) => {
-          this.modalController.dismiss({
-            report,
-            message: this.translocoService.translate('createNewReport.draftSuccessMessage'),
-          });
+        .subscribe({
+          next: (report) => {
+            this.modalController.dismiss({
+              report,
+              message: this.translocoService.translate('createNewReport.draftSuccessMessage'),
+            });
+          },
+          error: (error) => {
+            if (error.message === 'ACH_SUSPENDED') {
+              this.showAchSuspensionPopup();
+            }
+          },
         });
     } else {
       this.submitReportLoader = true;
@@ -185,12 +195,37 @@ export class CreateNewReportComponent implements OnInit {
             this.submitReportLoader = false;
           }),
         )
-        .subscribe((report) => {
-          this.modalController.dismiss({
-            report,
-            message: this.translocoService.translate('createNewReport.submitSuccessMessage'),
-          });
+        .subscribe({
+          next: (report) => {
+            this.modalController.dismiss({
+              report,
+              message: this.translocoService.translate('createNewReport.submitSuccessMessage'),
+            });
+          },
+          error: (error) => {
+            if (error.message === 'ACH_SUSPENDED') {
+              this.showAchSuspensionPopup();
+            }
+          },
         });
     }
+  }
+
+  async showAchSuspensionPopup(): Promise<void> {
+    const achSuspensionPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: this.translocoService.translate('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate('dashboard.achSuspendedMessage'),
+        primaryCta: {
+          text: this.translocoService.translate('dashboard.achSuspendedButton'),
+          action: 'confirm',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await achSuspensionPopover.present();
+    this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
   }
 }

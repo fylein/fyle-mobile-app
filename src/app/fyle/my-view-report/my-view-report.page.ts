@@ -1,13 +1,16 @@
 import { Component, ElementRef, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
-import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
+import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, combineLatest, of } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
+import { map, switchMap, shareReplay, takeUntil, tap, take, finalize, catchError } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, ModalController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
+import { TranslocoService } from '@jsverse/transloco';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -133,6 +136,10 @@ export class MyViewReportPage {
 
   private dateWithTimezonePipe = inject(DateWithTimezonePipe);
 
+  private translocoService = inject(TranslocoService);
+
+  private orgUserService = inject(OrgUserService);
+
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
   @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
@@ -215,6 +222,51 @@ export class MyViewReportPage {
 
   get Segment(): typeof ReportPageSegment {
     return ReportPageSegment;
+  }
+
+  private checkAchSuspensionBeforeAdd(selectedExpenseIds: string[]): void {
+    this.eou$
+      .pipe(
+        take(1),
+        switchMap((eou) =>
+          this.orgSettingsService.get().pipe(
+            switchMap((orgSettings) => {
+              if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+                return of(false);
+              }
+              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+                map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
+                catchError(() => of(false)),
+              );
+            }),
+          ),
+        ),
+      )
+      .subscribe((isSuspended) => {
+        if (isSuspended) {
+          this.showAchSuspensionPopup();
+        } else {
+          this.performAddExpenses(selectedExpenseIds);
+        }
+      });
+  }
+
+  private performAddExpenses(selectedExpenseIds: string[]): void {
+    this.isExpensesLoading = true;
+    this.spenderReportsService.addExpenses(this.reportId, selectedExpenseIds).subscribe({
+      next: () => {
+        this.loadReportDetails$.next();
+        this.loadReportTxns$.next();
+        this.trackingService.addToExistingReport();
+        this.unreportedExpenses = this.unreportedExpenses.filter(
+          (unreportedExpense) => !selectedExpenseIds.includes(unreportedExpense.id),
+        );
+        this.isExpensesLoading = false;
+      },
+      error: () => {
+        this.isExpensesLoading = false;
+      },
+    });
   }
 
   setupNetworkWatcher(): void {
@@ -705,6 +757,24 @@ export class MyViewReportPage {
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
 
+  async showAchSuspensionPopup(): Promise<void> {
+    const achSuspensionPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: this.translocoService.translate('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate('dashboard.achSuspendedMessage'),
+        primaryCta: {
+          text: this.translocoService.translate('dashboard.achSuspendedButton'),
+          action: 'confirm',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await achSuspensionPopover.present();
+    this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
+  }
+
   segmentChanged(event: SegmentCustomEvent): void {
     if (isNumber(event?.detail?.value)) {
       this.segmentValue = event.detail.value;
@@ -763,14 +833,18 @@ export class MyViewReportPage {
   }
 
   addExpensesToReport(selectedExpenseIds: string[]): void {
-    this.isExpensesLoading = true;
-    this.spenderReportsService.addExpenses(this.reportId, selectedExpenseIds).subscribe(() => {
-      this.loadReportDetails$.next();
-      this.loadReportTxns$.next();
-      this.trackingService.addToExistingReport();
-      this.unreportedExpenses = this.unreportedExpenses.filter(
-        (unreportedExpense) => !selectedExpenseIds.includes(unreportedExpense.id),
-      );
-    });
+    // Check if any selected expenses are reimbursable
+    const selectedExpenses = this.unreportedExpenses.filter(expense => 
+      selectedExpenseIds.includes(expense.id)
+    );
+    const hasReimbursableExpenses = selectedExpenses.some(expense => expense.is_reimbursable);
+    
+    if (hasReimbursableExpenses) {
+      // Check ACH suspension before adding reimbursable expenses
+      this.checkAchSuspensionBeforeAdd(selectedExpenseIds);
+    } else {
+      // No reimbursable expenses, proceed directly
+      this.performAddExpenses(selectedExpenseIds);
+    }
   }
 }

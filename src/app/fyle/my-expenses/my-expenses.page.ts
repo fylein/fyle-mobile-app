@@ -18,6 +18,7 @@ import {
   noop,
   of,
   timer,
+  combineLatest,
 } from 'rxjs';
 import {
   debounceTime,
@@ -32,6 +33,8 @@ import {
   take,
   takeUntil,
   takeWhile,
+  tap,
+  catchError,
 } from 'rxjs/operators';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
@@ -80,6 +83,7 @@ import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-op
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
@@ -325,6 +329,8 @@ export class MyExpensesPage implements OnInit {
   private translocoService = inject(TranslocoService);
 
   private walkthroughService = inject(WalkthroughService);
+
+  private orgUserService = inject(OrgUserService);
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
@@ -1444,10 +1450,19 @@ export class MyExpensesPage implements OnInit {
           reportType,
         );
       } else {
-        if (reportType === 'oldReport') {
-          this.showOldReportsMatBottomSheet();
+        // Check if any selected expenses are reimbursable before proceeding
+        const hasReimbursableExpenses = selectedElements.some(expense => expense.is_reimbursable);
+        
+        if (hasReimbursableExpenses) {
+          // Check ACH suspension before creating report with reimbursable expenses
+          this.checkAchSuspensionBeforeCreateReport(reportType);
         } else {
-          this.showNewReportModal();
+          // No reimbursable expenses, proceed directly
+          if (reportType === 'oldReport') {
+            this.showOldReportsMatBottomSheet();
+          } else {
+            this.showNewReportModal();
+          }
         }
       }
     }
@@ -2080,6 +2095,56 @@ export class MyExpensesPage implements OnInit {
         this.startIncompleteStatusPillWalkthrough();
       }
     }
+  }
+
+  async showAchSuspensionPopup(): Promise<void> {
+    const achSuspensionPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: this.translocoService.translate('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate('dashboard.achSuspendedMessage'),
+        primaryCta: {
+          text: this.translocoService.translate('dashboard.achSuspendedButton'),
+          action: 'confirm',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await achSuspensionPopover.present();
+    this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
+  }
+
+  private checkAchSuspensionBeforeCreateReport(reportType: 'oldReport' | 'newReport'): void {
+    from(this.authService.getEou())
+      .pipe(
+        take(1),
+        switchMap((eou) =>
+          this.orgSettings$.pipe(
+            take(1),
+            switchMap((orgSettings) => {
+              if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+                return of(false);
+              }
+              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+                map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
+                catchError(() => of(false)),
+              );
+            }),
+          ),
+        ),
+      )
+      .subscribe((isSuspended) => {
+        if (isSuspended) {
+          this.showAchSuspensionPopup();
+        } else {
+          if (reportType === 'oldReport') {
+            this.showOldReportsMatBottomSheet();
+          } else {
+            this.showNewReportModal();
+          }
+        }
+      });
   }
 
   startBlockedFilterWalkthrough(): void {
