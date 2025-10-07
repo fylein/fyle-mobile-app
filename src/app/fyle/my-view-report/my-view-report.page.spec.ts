@@ -114,6 +114,7 @@ describe('MyViewReportPage', () => {
       'clickViewReportInfo',
       'addToExistingReport',
       'reportNameChange',
+      'eventTrack',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);

@@ -2491,6 +2491,7 @@ describe('MyExpensesPage', () => {
         authService.getEou.and.resolveTo(apiEouRes);
         orgUserService.getDwollaCustomer.and.returnValue(of(null));
         component.orgSettings$ = of(orgSettingsRes);
+        launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
@@ -2537,6 +2538,8 @@ describe('MyExpensesPage', () => {
       }));
 
       it('should call showOldReportsMatBottomSheet if reportType is newReport', fakeAsync(() => {
+        // Ensure LaunchDarklyService mock is set up for this test
+        launchDarklyService.getVariation.and.returnValue(of(true));
         component.selectedElements = cloneDeep(apiExpenses1);
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
@@ -2564,6 +2567,7 @@ describe('MyExpensesPage', () => {
     describe('when restrictPendingTransactionsEnabled is true', () => {
       beforeEach(() => {
         component.restrictPendingTransactionsEnabled = true;
+        launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
