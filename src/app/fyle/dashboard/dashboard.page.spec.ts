@@ -104,6 +104,7 @@ describe('DashboardPage', () => {
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let walkthroughService: jasmine.SpyObj<WalkthroughService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
+  let popoverController: jasmine.SpyObj<PopoverController>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -267,6 +268,7 @@ describe('DashboardPage', () => {
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
+    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     fixture.detectChanges();
   }));
 
@@ -1378,6 +1380,89 @@ describe('DashboardPage', () => {
 
       expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledTimes(1);
       expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe('ACH Suspension Functionality:', () => {
+    beforeEach(() => {
+      component.eou$ = of(apiEouRes);
+      component.orgSettings$ = of(orgSettingsRes);
+      orgUserService.getDwollaCustomer.and.returnValue(of(null));
+    });
+
+    it('should show ACH suspension popup when customer is suspended', async () => {
+      const suspendedCustomer = { 
+        id: 'test-id',
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer_id: 'test-customer-id',
+        customer_email: 'test@test.com',
+        customer_added_by: 'test-user',
+        customer_verified: true,
+        beneficial_owner_added: true,
+        beneficial_owner_verified: true,
+        bank_account_added: true,
+        bank_account_verified: true,
+        bank_account_added_by: 'test-user',
+        customer_document_needed: false,
+        beneficial_owner_document_needed: false,
+        customer_retry: false,
+        customer_suspended: true,
+        micro_deposit_verification_status: 'verified',
+        micro_deposit_verification_attempts: 0,
+        beneficial_owner_retry: false
+      };
+      orgUserService.getDwollaCustomer.and.returnValue(of(suspendedCustomer));
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      component.checkAchSuspension();
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    });
+
+    it('should not show popup when customer is not suspended', () => {
+      const activeCustomer = { 
+        id: 'test-id',
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer_id: 'test-customer-id',
+        customer_email: 'test@test.com',
+        customer_added_by: 'test-user',
+        customer_verified: true,
+        beneficial_owner_added: true,
+        beneficial_owner_verified: true,
+        bank_account_added: true,
+        bank_account_verified: true,
+        bank_account_added_by: 'test-user',
+        customer_document_needed: false,
+        beneficial_owner_document_needed: false,
+        customer_retry: false,
+        customer_suspended: false,
+        micro_deposit_verification_status: 'verified',
+        micro_deposit_verification_attempts: 0,
+        beneficial_owner_retry: false
+      };
+      orgUserService.getDwollaCustomer.and.returnValue(of(activeCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
     });
   });
 });

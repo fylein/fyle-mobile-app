@@ -4470,4 +4470,92 @@ describe('MyExpensesPage', () => {
       });
     });
   });
+
+  describe('ACH Suspension Functionality:', () => {
+    beforeEach(() => {
+      component.orgSettings$ = of(orgSettingsRes);
+      authService.getEou.and.resolveTo(apiEouRes);
+      orgUserService.getDwollaCustomer.and.returnValue(of(null));
+    });
+
+    it('should check ACH suspension and show popup when customer is suspended', fakeAsync(() => {
+      const suspendedCustomer = { 
+        id: 'test-id',
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer_id: 'test-customer-id',
+        customer_email: 'test@test.com',
+        customer_added_by: 'test-user',
+        customer_verified: true,
+        beneficial_owner_added: true,
+        beneficial_owner_verified: true,
+        bank_account_added: true,
+        bank_account_verified: true,
+        bank_account_added_by: 'test-user',
+        customer_document_needed: false,
+        beneficial_owner_document_needed: false,
+        customer_retry: false,
+        customer_suspended: true,
+        micro_deposit_verification_status: 'verified',
+        micro_deposit_verification_attempts: 0,
+        beneficial_owner_retry: false
+      };
+      orgUserService.getDwollaCustomer.and.returnValue(of(suspendedCustomer));
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+      spyOn(component, 'showNewReportModal');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(component.showNewReportModal).not.toHaveBeenCalled();
+    }));
+
+    it('should proceed with report creation when customer is not suspended', fakeAsync(() => {
+      const activeCustomer = { 
+        id: 'test-id',
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer_id: 'test-customer-id',
+        customer_email: 'test@test.com',
+        customer_added_by: 'test-user',
+        customer_verified: true,
+        beneficial_owner_added: true,
+        beneficial_owner_verified: true,
+        bank_account_added: true,
+        bank_account_verified: true,
+        bank_account_added_by: 'test-user',
+        customer_document_needed: false,
+        beneficial_owner_document_needed: false,
+        customer_retry: false,
+        customer_suspended: false,
+        micro_deposit_verification_status: 'verified',
+        micro_deposit_verification_attempts: 0,
+        beneficial_owner_retry: false
+      };
+      orgUserService.getDwollaCustomer.and.returnValue(of(activeCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showOldReportsMatBottomSheet');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
+    }));
+  });
 });

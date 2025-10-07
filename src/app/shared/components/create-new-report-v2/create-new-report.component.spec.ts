@@ -7,7 +7,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { CreateNewReportComponent } from './create-new-report.component';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
@@ -34,6 +34,7 @@ describe('CreateNewReportComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let popoverController: jasmine.SpyObj<PopoverController>;
 
   beforeEach(waitForAsync(() => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -46,7 +47,7 @@ describe('CreateNewReportComponent', () => {
       'suggestPurpose',
       'create',
     ]);
-    const popoverController = jasmine.createSpyObj('PopoverController', ['create']);
+    popoverController = jasmine.createSpyObj('PopoverController', ['create']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrency', ['transform']);
     const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
@@ -274,5 +275,38 @@ describe('CreateNewReportComponent', () => {
         message: 'Expenses submitted for approval',
       });
     }));
+  });
+
+  describe('ACH Suspension Functionality:', () => {
+    it('should show ACH suspension popup when ACH_SUSPENDED error is thrown', async () => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+      spenderReportsService.create.and.returnValue(throwError(() => new Error('ACH_SUSPENDED')));
+
+      component.ctaClickedEvent('submit_report');
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    });
+
+    it('should not show ACH suspension popup for other errors', () => {
+      spenderReportsService.create.and.returnValue(throwError(() => new Error('Other Error')));
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.ctaClickedEvent('submit_report');
+
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    });
   });
 });
