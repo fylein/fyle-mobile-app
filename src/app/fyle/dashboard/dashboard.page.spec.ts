@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular/standalone';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 
 import { DashboardPage } from './dashboard.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -143,6 +143,7 @@ describe('DashboardPage', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex'], {
@@ -189,6 +190,7 @@ describe('DashboardPage', () => {
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
+        { provide: PopoverController, useValue: popoverControllerSpy },
         {
           provide: MatSnackBar,
           useValue: matSnackBarSpy,
