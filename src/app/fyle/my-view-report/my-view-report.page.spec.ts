@@ -15,6 +15,7 @@ import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
@@ -97,6 +98,7 @@ describe('MyViewReportPage', () => {
       'getAllExpenses',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -155,6 +157,10 @@ describe('MyViewReportPage', () => {
         {
           provide: AuthService,
           useValue: authServiceSpy,
+        },
+        {
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
         },
         {
           provide: LoaderService,
