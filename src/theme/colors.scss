@@ -199,3 +199,13 @@ $fdl-state-border-color-map: (
   'disabled': #666666,
   'blocked': #c92214
 );
+
+$fdl-stat-bg-map: (
+  'incomplete': #f7f2de,
+  'complete': #f5edfc,
+  'draft-report': #34495e1a,
+  'submitted': #556ef21a,
+  'approved': #e9f2f1,
+  'processing': #e2efef,
+  'unapproved_team_reports': #ebf0f9,
+);
