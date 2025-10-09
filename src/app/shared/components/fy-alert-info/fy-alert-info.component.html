@@ -1,16 +1,15 @@
-<div class="alert-info-container">
-  @if (type === 'information') {
-    <mat-icon class="alert-info-container--icon" svgIcon="info-circle-fill"></mat-icon>
-  }
-  @if (type === 'warning') {
-    <mat-icon class="alert-info-container--icon icon--alert-warning" svgIcon="warning-fill"></mat-icon>
-  }
-  @if (type === 'error') {
-    <mat-icon class="alert-info-container--icon" svgIcon="warning-fill"></mat-icon>
-  }
-  @if (type === 'danger') {
-    <mat-icon class="alert-info-container--icon--danger" svgIcon="danger-fill"></mat-icon>
-  }
+<div class="alert-info-container alert-info-container--{{ type }}">
+  <div class="alert-info-container--icon-container alert-info-container--icon-container--{{ type }}">
+    @if (type === 'information') {
+      <mat-icon class="alert-info-container--icon-container--icon" svgIcon="alert-info-icon"></mat-icon>
+    }
+    @if (type === 'warning') {
+      <mat-icon class="alert-info-container--icon-container--icon" svgIcon="alert-warning-icon"></mat-icon>
+    }
+    @if (type === 'danger') {
+      <mat-icon class="alert-info-container--icon-container--icon" svgIcon="alert-danger-icon"></mat-icon>
+    }
+  </div>
   <div class="alert-info-container--message">
     @if (allowHtml) {
       <span [innerHTML]="message"></span>
