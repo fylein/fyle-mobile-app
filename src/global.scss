@@ -130,54 +130,36 @@ ion-popover.error-popover {
 
 .msb-success-with-camera-icon {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #24a148;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 133px !important;
   }
 }
 
 .msb-success-with-camera-icon-for-split-exp {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #24a148;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 24px !important;
   }
 }
 
 .msb-failure-with-camera-icon-for-split-exp {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #da1e28;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 24px !important;
   }
 }
 
 .msb-failure-with-camera-icon {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #da1e28;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 133px !important;
   }
 }
 
 .msb-success-with-report-btn {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #24a148;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 84px !important;
   }
 }
 
 .msb-failure-with-report-btn {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #da1e28;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 96px !important;
   }
 }
