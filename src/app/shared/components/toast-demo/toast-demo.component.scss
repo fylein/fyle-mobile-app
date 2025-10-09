@@ -1,0 +1,85 @@
+.demo-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  color: var(--ion-color-primary);
+  margin-bottom: 16px;
+}
+
+p {
+  text-align: center;
+  color: var(--ion-color-medium);
+  margin-bottom: 24px;
+}
+
+ion-card {
+  margin-bottom: 16px;
+}
+
+ion-card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+ion-item h3 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--ion-color-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+ion-item p {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  margin: 0;
+  text-align: left;
+}
+
+.toast-meta {
+  font-size: 0.7rem !important;
+  color: var(--ion-color-medium) !important;
+  margin-top: 4px !important;
+}
+
+ul {
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+code {
+  background-color: var(--ion-color-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+h3 {
+  color: var(--ion-color-primary);
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+ion-icon {
+  font-size: 1.2rem;
+}

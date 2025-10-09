@@ -1,0 +1,94 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Toast Messages Demo</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="demo-container">
+    <h1>Toast Messages Demo</h1>
+    <p>This page demonstrates all the actual toast message types used throughout the Fyle mobile application.</p>
+
+    <!-- All Toasts Section -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="list" color="primary"></ion-icon>
+          All Toast Messages ({{ allToasts.length }} total)
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Click any button to test that specific toast message.</p>
+        <ion-list>
+          <ion-item *ngFor="let toast of allToasts; let i = index">
+            <ion-label>
+              <h3>
+                <ion-icon 
+                  [name]="toast.type === 'success' ? 'checkmark-circle' : toast.type === 'failure' ? 'close-circle' : 'information-circle'" 
+                  [color]="toast.type === 'success' ? 'success' : toast.type === 'failure' ? 'danger' : 'primary'">
+                </ion-icon>
+                {{ toast.message }}
+              </h3>
+              <p>{{ toast.description }}</p>
+              <p class="toast-meta">
+                <strong>Type:</strong> {{ toast.type }} | 
+                <strong>Panel Class:</strong> {{ toast.panelClass.join(', ') }}
+              </p>
+            </ion-label>
+            <ion-button 
+              slot="end" 
+              [fill]="toast.type === 'success' ? 'solid' : toast.type === 'failure' ? 'solid' : 'outline'" 
+              [color]="toast.type === 'success' ? 'success' : toast.type === 'failure' ? 'danger' : 'primary'"
+              size="small" 
+              (click)="showToast(toast)">
+              Show Toast
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Usage Information -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="code" color="medium"></ion-icon>
+          Usage Information
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <h3>Toast Statistics:</h3>
+        <ul>
+          <li><strong>Success Toasts:</strong> {{ getToastCount('success') }} messages</li>
+          <li><strong>Failure Toasts:</strong> {{ getToastCount('failure') }} messages</li>
+          <li><strong>Information Toasts:</strong> {{ getToastCount('information') }} messages</li>
+          <li><strong>Total:</strong> {{ allToasts.length }} messages</li>
+        </ul>
+        
+        <h3>Key Components:</h3>
+        <ul>
+          <li><code>SnackbarPropertiesService</code> - Factory service for toast properties</li>
+          <li><code>ToastMessageComponent</code> - The actual toast display component</li>
+          <li><code>MatSnackBar</code> - Angular Material snackbar service</li>
+        </ul>
+
+        <h3>Toast Icons:</h3>
+        <ul>
+          <li><strong>Success:</strong> check-square-fill</li>
+          <li><strong>Failure:</strong> warning-fill</li>
+          <li><strong>Information:</strong> No default icon</li>
+        </ul>
+
+        <h3>Panel Classes Used:</h3>
+        <ul>
+          <li><code>msb-success</code> - Standard success toast</li>
+          <li><code>msb-failure</code> - Standard failure toast</li>
+          <li><code>msb-info</code> - Standard information toast</li>
+          <li><code>msb-success-with-camera-icon</code> - Success with camera icon</li>
+          <li><code>msb-success-with-camera-icon-for-split-exp</code> - Success for split expenses</li>
+          <li><code>msb-bulkfyle-prompt</code> - Bulk mode prompt</li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

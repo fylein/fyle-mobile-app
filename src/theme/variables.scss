@@ -67,6 +67,15 @@ $fy-theme: mat.m2-define-light-theme(
 // that you are using.
 @include mat.all-component-themes($fy-theme);
 
+.mdc-snackbar {
+  @include mat.snack-bar-overrides((
+    container-shape: 4px,
+    supporting-text-color: #1a1a1a,
+    container-color: #ffffff,
+    supporting-text-size: 14px,
+  ));
+}
+
 // // Ionic Variables and Theming. For more info, please see:
 // // http://ionicframework.com/docs/theming/
 

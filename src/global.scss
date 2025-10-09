@@ -98,31 +98,13 @@ ion-popover.error-popover {
   border-radius: 16px 16px 0px 0px !important;
 }
 
-.msb-success {
-  .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #24a148;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
-    margin: 0 16px 30px !important;
-  }
+.mdc-snackbar__label {
+  padding: 0 !important;
 }
 
-.msb-failure {
-  .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #da1e28;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
-    margin: 0 16px 30px !important;
-  }
-}
-
-.msb-info {
-  .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #1c1f36;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
-    margin: 0 16px 30px !important;
-  }
+.mdc-snackbar__surface {
+  padding-right: 0 !important;
+  margin: 0 16px 30px !important;
 }
 
 .msb-bulkfyle-prompt {
