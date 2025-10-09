@@ -22,15 +22,18 @@ export class SnackbarPropertiesService {
   ): SnackbarProperties {
     if (!snackbarIcon) {
       if (toastMessageType === 'success') {
-        snackbarIcon = 'check-square-fill';
+        snackbarIcon = 'success-toast-icon';
       } else if (toastMessageType === 'failure') {
-        snackbarIcon = 'warning-fill';
+        snackbarIcon = 'failure-toast-icon';
+      } else if (toastMessageType === 'information') {
+        snackbarIcon = 'info-toast-icon';
       }
     }
     return {
       data: {
         icon: snackbarIcon,
         showCloseButton: true,
+        messageType: toastMessageType,
         ...toastMessageData,
       },
       duration: 3000,
