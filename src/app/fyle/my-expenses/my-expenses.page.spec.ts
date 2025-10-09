@@ -125,12 +125,14 @@ import { corporateCardsResponseData } from 'src/app/core/mock-data/corporate-car
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
@@ -193,7 +195,9 @@ describe('MyExpensesPage', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
   let authService: jasmine.SpyObj<AuthService>;
+  let orgUserService: jasmine.SpyObj<OrgUserService>;
   let walkthroughService: jasmine.SpyObj<WalkthroughService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -335,6 +339,7 @@ describe('MyExpensesPage', () => {
       'getConfiguration',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
     const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
       'getMyExpensesBlockedFilterWalkthroughConfig',
       'setIsOverlayClicked',
@@ -345,6 +350,7 @@ describe('MyExpensesPage', () => {
       'getMyExpensesBlockedStatusPillWalkthroughConfig',
       'getMyExpensesIncompleteStatusPillWalkthroughConfig',
     ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
 
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
@@ -464,8 +470,16 @@ describe('MyExpensesPage', () => {
           useValue: authServiceSpy,
         },
         {
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
+        },
+        {
           provide: WalkthroughService,
           useValue: walkthroughServiceSpy,
+        },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
         },
         ReportState,
         MaskNumber,
@@ -523,7 +537,9 @@ describe('MyExpensesPage', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     component.loadExpenses$ = new BehaviorSubject({});
   }));
 
@@ -2472,6 +2488,10 @@ describe('MyExpensesPage', () => {
     describe('when restrictPendingTransactionsEnabled is false', () => {
       beforeEach(() => {
         // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(false);
+        authService.getEou.and.resolveTo(apiEouRes);
+        orgUserService.getDwollaCustomer.and.returnValue(of(null));
+        component.orgSettings$ = of(orgSettingsRes);
+        launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
@@ -2518,6 +2538,8 @@ describe('MyExpensesPage', () => {
       }));
 
       it('should call showOldReportsMatBottomSheet if reportType is newReport', fakeAsync(() => {
+        // Ensure LaunchDarklyService mock is set up for this test
+        launchDarklyService.getVariation.and.returnValue(of(true));
         component.selectedElements = cloneDeep(apiExpenses1);
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
@@ -2545,6 +2567,7 @@ describe('MyExpensesPage', () => {
     describe('when restrictPendingTransactionsEnabled is true', () => {
       beforeEach(() => {
         component.restrictPendingTransactionsEnabled = true;
+        launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
@@ -4458,5 +4481,182 @@ describe('MyExpensesPage', () => {
         expect(component.filterPills).toEqual(creditTxnFilterPill);
       });
     });
+  });
+
+  describe('ACH Suspension Functionality:', () => {
+    beforeEach(() => {
+      component.orgSettings$ = of(orgSettingsRes);
+      authService.getEou.and.resolveTo(apiEouRes);
+      orgUserService.getDwollaCustomer.and.returnValue(of(null));
+      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
+    });
+
+    it('should check ACH suspension and show popup when customer is suspended', fakeAsync(() => {
+      const suspendedCustomer = { 
+        id: 'test-id',
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer_id: 'test-customer-id',
+        customer_email: 'test@test.com',
+        customer_added_by: 'test-user',
+        customer_verified: true,
+        beneficial_owner_added: true,
+        beneficial_owner_verified: true,
+        bank_account_added: true,
+        bank_account_verified: true,
+        bank_account_added_by: 'test-user',
+        customer_document_needed: false,
+        beneficial_owner_document_needed: false,
+        customer_retry: false,
+        customer_suspended: true,
+        micro_deposit_verification_status: 'verified',
+        micro_deposit_verification_attempts: 0,
+        beneficial_owner_retry: false
+      };
+      orgUserService.getDwollaCustomer.and.returnValue(of(suspendedCustomer));
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+      spyOn(component, 'showNewReportModal');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(component.showNewReportModal).not.toHaveBeenCalled();
+    }));
+
+    it('should proceed with report creation when customer is not suspended', fakeAsync(() => {
+      const activeCustomer = { 
+        id: 'test-id',
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer_id: 'test-customer-id',
+        customer_email: 'test@test.com',
+        customer_added_by: 'test-user',
+        customer_verified: true,
+        beneficial_owner_added: true,
+        beneficial_owner_verified: true,
+        bank_account_added: true,
+        bank_account_verified: true,
+        bank_account_added_by: 'test-user',
+        customer_document_needed: false,
+        beneficial_owner_document_needed: false,
+        customer_retry: false,
+        customer_suspended: false,
+        micro_deposit_verification_status: 'verified',
+        micro_deposit_verification_attempts: 0,
+        beneficial_owner_retry: false
+      };
+      orgUserService.getDwollaCustomer.and.returnValue(of(activeCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showOldReportsMatBottomSheet');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not check ACH when org settings do not allow ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: false, enabled: true } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showNewReportModal');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not check ACH when org settings do not enable ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: true, enabled: false } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showOldReportsMatBottomSheet');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should handle API errors gracefully and proceed with report creation', fakeAsync(() => {
+      orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showNewReportModal');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show ACH suspension popup when called', async () => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      await component.showAchSuspensionPopup();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    });
+
+    it('should check for reimbursable expenses when creating reports', () => {
+      const reimbursableExpense = { ...apiExpenses1[0], is_reimbursable: true };
+      const nonReimbursableExpense = { ...apiExpenses1[0], is_reimbursable: false };
+      component.selectedElements = [reimbursableExpense, nonReimbursableExpense];
+      component.isReportableExpensesSelected = true;
+      spyOn(component as any, 'checkAchSuspensionBeforeCreateReport');
+
+      component.openCreateReportWithSelectedIds('newReport');
+
+      expect((component as any).checkAchSuspensionBeforeCreateReport).toHaveBeenCalledWith('newReport');
+    });
+
+    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
+      launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showNewReportModal');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      tick(100);
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
+    }));
   });
 });

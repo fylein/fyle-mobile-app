@@ -1,6 +1,6 @@
 import { Component, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
   ActionSheetButton,
   ActionSheetController,
@@ -15,6 +15,7 @@ import {
   ModalController,
   NavController,
   Platform,
+  PopoverController,
 } from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { StatsComponent } from './stats/stats.component';
@@ -58,7 +59,10 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTabGroup, MatTab } from '@angular/material/tabs';
 import { DashboardOptInComponent } from '../../shared/components/dashboard-opt-in/dashboard-opt-in.component';
 import { DashboardEmailOptInComponent } from '../../shared/components/dashboard-email-opt-in/dashboard-email-opt-in.component';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -137,6 +141,14 @@ export class DashboardPage {
   private footerService = inject(FooterService);
 
   private timezoneService = inject(TimezoneService);
+
+  private translocoService = inject(TranslocoService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private popoverController = inject(PopoverController);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -698,6 +710,9 @@ export class DashboardPage {
         this.router.navigate(['/', 'enterprise', 'my_dashboard', { queryParams }]);
       }
     });
+
+    // Check ACH suspension status
+    this.checkAchSuspension();
   }
 
   backButtonActionHandler(): void {
@@ -872,6 +887,24 @@ export class DashboardPage {
     });
   }
 
+  async showAchSuspensionPopup(): Promise<void> {
+    const achSuspensionPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: this.translocoService.translate<string>('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate<string>('dashboard.achSuspendedMessage'),
+        primaryCta: {
+          text: this.translocoService.translate('dashboard.achSuspendedButton'),
+          action: 'confirm',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await achSuspensionPopover.present();
+    this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
+  }
+
   setModalDelay(): void {
     this.optInShowTimer = setTimeout(() => {
       this.showPromoteOptInModal();
@@ -961,5 +994,44 @@ export class DashboardPage {
 
     // Update swiper config when banner is hidden
     this.setSwiperConfig();
+  }
+
+  checkAchSuspension(): void {
+    combineLatest([this.eou$, this.orgSettings$])
+      .pipe(
+        take(1),
+        switchMap(([eou, orgSettings]) => {
+          // Check LaunchDarkly feature flag first
+          return this.launchDarklyService.getVariation('ach_improvement', false).pipe(
+            switchMap((isAchImprovementEnabled) => {
+              if (!isAchImprovementEnabled) {
+                return of(null);
+              }
+
+              // Check if ACH is enabled and user hasn't seen the dialog
+              if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+                return of(null);
+              }
+
+              const dialogShownKey = `ach_suspension_dialog_shown_${eou.ou.id}`;
+              if (sessionStorage.getItem(dialogShownKey)) {
+                return of(null);
+              }
+
+              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+                map((dwollaCustomer) => {
+                  if (dwollaCustomer?.customer_suspended) {
+                    sessionStorage.setItem(dialogShownKey, 'true');
+                    this.showAchSuspensionPopup();
+                  }
+                  return null;
+                }),
+                catchError(() => of(null)),
+              );
+            }),
+          );
+        }),
+      )
+      .subscribe();
   }
 }

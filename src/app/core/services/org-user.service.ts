@@ -18,6 +18,7 @@ import { Delegator } from '../models/platform/delegator.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { EmployeeResponse } from '../models/employee-response.model';
+import { DwollaCustomer } from '../models/dwolla-customer.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -117,5 +118,9 @@ export class OrgUserService {
     const accessTokenPromise = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
     const accessToken: AccessTokenData = await accessTokenPromise;
     return accessToken && !!accessToken.proxy_org_user_id;
+  }
+
+  getDwollaCustomer(orgUserId: string): Observable<DwollaCustomer | null> {
+    return this.apiService.get(`/orgusers/${orgUserId}/dwolla_customers`);
   }
 }
