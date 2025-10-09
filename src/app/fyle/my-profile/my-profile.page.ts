@@ -474,12 +474,8 @@ export class MyProfilePage {
 
   showToastMessage(message: string, type: 'success' | 'failure'): void {
     const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
-    let snackbarIcon: string;
-    if (message.toLowerCase().includes('copied')) {
-      snackbarIcon = 'check-circle-outline';
-    }
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties(type, { message }, snackbarIcon),
+      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
       panelClass,
     });
     this.trackingService.showToastMessage({ ToastContent: message });
