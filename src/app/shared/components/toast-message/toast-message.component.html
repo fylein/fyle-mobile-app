@@ -2,7 +2,7 @@
   <div matSnackBarLabel class="d-flex">
     @if (data.icon) {
       <div class="icon-container type-{{ data.messageType }}">
-        <mat-icon class="toast-message--left-icon icon--toast-danger" svgIcon="{{ data.icon }}"></mat-icon>
+        <mat-icon class="toast-message--left-icon" svgIcon="{{ data.icon }}"></mat-icon>
       </div>
     }
     <div class="toast-message--body" [innerHTML]="data.message"></div>
