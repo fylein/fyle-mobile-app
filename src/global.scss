@@ -1560,7 +1560,7 @@ ion-toggle.toggle-checked {
   height: max-content;
 
   //get state keys for generating state class
-  @each $state in map.keys(colors.$states) {
+  @each $state in colors.$states {
     @include state($state);
   }
 }
