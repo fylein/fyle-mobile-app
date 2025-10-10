@@ -448,7 +448,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   postAccounts(): void {
-    from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
+    from(this.loaderService.showLoader('Linking your card with Sage Expense Management...', 30000))
       .pipe(
         switchMap(() => this.personalCardsService.postBankAccounts()),
         finalize(async () => {
@@ -457,7 +457,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe((data) => {
         const message =
-          data.length === 1 ? '1 card successfully added to Fyle!' : `${data.length} cards successfully added to Fyle!`;
+          data.length === 1 ? '1 card successfully added to Sage Expense Management!' : `${data.length} cards successfully added to Sage Expense Management!`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
           panelClass: ['msb-success'],

@@ -61,7 +61,7 @@ describe('FyLocationComponent', () => {
         'fyLocationModal.cancel': 'Cancel',
         'fyLocationModal.locationPermissionTitle': 'Location permission',
         'fyLocationModal.locationPermissionMessage':
-          "To fetch current location, please allow Fyle to access your Location. Click on 'Open Settings', then enable both 'Location' and 'Precise Location' to continue.",
+          "To fetch current location, please allow Sage Expense Management to access your Location. Click on 'Open Settings', then enable both 'Location' and 'Precise Location' to continue.",
         'fyLocationModal.loadingCurrentLocation': 'Loading current location...',
         'fyLocationModal.search': 'Search',
         'fyLocationModal.clear': 'Clear',

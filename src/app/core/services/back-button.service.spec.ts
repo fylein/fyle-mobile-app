@@ -15,7 +15,7 @@ describe('BackButtonService', () => {
     // Mock translate method to return expected strings
     translocoServiceSpy.translate.and.callFake((key: string) => {
       const translations: { [key: string]: string } = {
-        'services.backButton.title': 'Exit Fyle App',
+        'services.backButton.title': 'Exit Sage Expense Management App',
         'services.backButton.message': 'Are you sure you want to exit the app?',
         'services.backButton.primaryCtaText': 'OK',
         'services.backButton.secondaryCtaText': 'Cancel',

@@ -21,7 +21,7 @@ describe('InfoCardComponent', () => {
     clipboardService = TestBed.inject(ClipboardService) as jasmine.SpyObj<ClipboardService>;
 
     component.title = 'Email Receipts';
-    component.content = 'Forward your receipts to Fyle at receipts@fylehq.com.';
+    component.content = 'Forward your receipts to Sage Expense Management at receipts@fylehq.com.';
     component.contentToCopy = 'receipts@fylehq.com';
     component.toastMessageContent = 'Email Copied Successfully';
     fixture.detectChanges();

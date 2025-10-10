@@ -236,9 +236,9 @@ describe('CaptureReceiptComponent', () => {
         'captureReceipt.photosPermissionTitle': 'Photos permission',
         'captureReceipt.storagePermissionTitle': 'Storage permission',
         'captureReceipt.cameraPermissionMessage':
-          'To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and {galleryPermissionName}',
+          'To capture photos, please allow Sage Expense Management to access your camera. Click Open Settings and allow access to Camera and {galleryPermissionName}',
         'captureReceipt.galleryPermissionMessage':
-          'Please allow Fyle to access device photos. Click Settings and allow {galleryPermissionName} access',
+          'Please allow Sage Expense Management to access device photos. Click Settings and allow {galleryPermissionName} access',
         'captureReceipt.openSettings': 'Open settings',
         'captureReceipt.cancel': 'Cancel',
       };
@@ -642,7 +642,7 @@ describe('CaptureReceiptComponent', () => {
         componentProps: {
           title: 'Camera permission',
           message:
-            'To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and Storage',
+            'To capture photos, please allow Sage Expense Management to access your camera. Click Open Settings and allow access to Camera and Storage',
           primaryCta: {
             text: 'Open settings',
             action: 'OPEN_SETTINGS',
@@ -665,7 +665,7 @@ describe('CaptureReceiptComponent', () => {
         component: PopupAlertComponent,
         componentProps: {
           title: 'Storage permission',
-          message: 'Please allow Fyle to access device photos. Click Settings and allow Storage access',
+          message: 'Please allow Sage Expense Management to access device photos. Click Settings and allow Storage access',
           primaryCta: {
             text: 'Open settings',
             action: 'OPEN_SETTINGS',
