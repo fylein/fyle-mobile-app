@@ -37,7 +37,7 @@ describe('FyHeaderComponent', () => {
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
       const translations: { [key: string]: string } = {
-        'fyHeader.fyle': 'Fyle',
+        'fyHeader.fyle': 'Sage Expense Management',
         'fyHeader.cancel': 'Cancel',
       };
       let translation = translations[key] || key;
