@@ -44,7 +44,7 @@
 </div>
 @if (value?.currency && value?.orig_currency) {
   <div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
-    <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="info-circle-fill"></mat-icon>
+    <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="subtle-alert-info"></mat-icon>
     <div class="fy-currency--exchange-rate-message">
       <strong>{{ value.amount | currency: value.currency : 'code' }}</strong>
       {{

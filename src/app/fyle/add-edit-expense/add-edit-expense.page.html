@@ -136,7 +136,7 @@
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
         @if (showReceiptMandatoryError) {
-          <div class="add-edit-expense--alert-offline receipt-mandatory-error">
+          <div class="receipt-mandatory-error">
             <app-fy-alert-info
               [message]="'addEditExpense.receiptMandatoryError' | transloco"
               type="warning"
@@ -144,30 +144,24 @@
           </div>
         }
         @if (isIncompleteExpense) {
-          <div class="add-edit-expense--alert-offline">
-            <app-fy-alert-info
-              [message]="'addEditExpense.incompleteExpenseError' | transloco"
-              type="warning"
-            ></app-fy-alert-info>
-          </div>
+          <app-fy-alert-info
+            [message]="'addEditExpense.incompleteExpenseError' | transloco"
+            type="warning"
+          ></app-fy-alert-info>
         }
         @if (duplicateExpenses?.length > 0) {
-          <div class="add-edit-expense--alert-offline">
-            <app-fy-alert-info
-              [message]="'addEditExpense.duplicateExpenseWarning' | transloco"
-              [type]="'warning'"
-              [showActionButton]="true"
-              [actionButtonContent]="'addEditExpense.viewButton' | transloco"
-              (actionClick)="showSuggestedDuplicates(duplicateExpenses)"
-            >
-            </app-fy-alert-info>
-          </div>
+          <app-fy-alert-info
+            [message]="'addEditExpense.duplicateExpenseWarning' | transloco"
+            [type]="'warning'"
+            [showActionButton]="true"
+            [actionButtonContent]="'addEditExpense.viewButton' | transloco"
+            (actionClick)="showSuggestedDuplicates(duplicateExpenses)"
+          >
+          </app-fy-alert-info>
         }
         @if (instaFyleCancelled) {
-          <div class="add-edit-expense--alert-offline">
-            <app-fy-alert-info [message]="'addEditExpense.instaFyleCancelledInfo' | transloco" [type]="'information'">
-            </app-fy-alert-info>
-          </div>
+          <app-fy-alert-info [message]="'addEditExpense.instaFyleCancelledInfo' | transloco" [type]="'information'">
+          </app-fy-alert-info>
         }
         @if (etxn$ | async; as etxn) {
           @if (mode === 'edit' && etxn.tx.policy_flag) {
@@ -190,7 +184,7 @@
           @if (isAmountCapped$ | async) {
             @if (!(isCriticalPolicyViolated$ | async)) {
               <div class="capped-info">
-                <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
+                <mat-icon class="capped-icon" svgIcon="subtle-alert-info"></mat-icon>
                 <div class="capped-message">
                   {{
                     'addEditExpense.amountCappedMessage'
@@ -214,7 +208,7 @@
               !etxn?.tx?.report_id && !(reviewList?.length > 1) && isCorporateCreditCardEnabled && canRemoveCardExpense
             ) {
               <div class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border">
-                <mat-icon class="add-edit-expense--split-info-icon" svgIcon="info-circle-fill"></mat-icon>
+                <mat-icon class="add-edit-expense--split-info-icon" svgIcon="subtle-alert-info"></mat-icon>
                 <div class="add-edit-expense--split-info-message">
                   {{ 'addEditExpense.cardDetailsInfo' | transloco }}
                 </div>
@@ -538,6 +532,7 @@
           @if (!isCccExpense) {
             <app-fy-alert-info
               [type]="'information'"
+              [variant]="'subtle'"
               [message]="
                 'Fyle will automatically merge this expense with the corresponding corporate card transaction when it flows into fyle.'
               "

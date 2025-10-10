@@ -158,10 +158,6 @@
     padding: 0 16px;
   }
 
-  &--alert-offline {
-    padding-top: 10px;
-  }
-
   &--alert-split {
     margin: 8px 0;
   }
@@ -312,7 +308,8 @@
   }
 
   &--split-info-icon {
-    color: colors.$highlight-blue;
+    width: 18px;
+    height: 18px;
     margin-right: 10px;
   }
 

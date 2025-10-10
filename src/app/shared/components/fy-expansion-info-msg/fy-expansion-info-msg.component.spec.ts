@@ -119,7 +119,7 @@ describe('FyExpansionInfoMsgComponent', () => {
 
     const infoIcon = fixture.debugElement.query(By.css('.info-icon'));
     expect(infoIcon).toBeTruthy();
-    expect(infoIcon.nativeElement.getAttribute('svgIcon')).toBe('info-circle-fill');
+    expect(infoIcon.nativeElement.getAttribute('svgIcon')).toBe('subtle-alert-info');
   });
 
   it('should set custom help link label', () => {
