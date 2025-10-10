@@ -22,4 +22,8 @@ export class PlatformCommonApiService {
   get<T>(url: string, config = {}): Observable<T> {
     return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/platform/v1/common' + url, config);
   }
+
+  post<T>(url: string, config = {}): Observable<T> {
+    return this.httpClient.post<T>(this.ROOT_ENDPOINT + '/platform/v1/common' + url, config);
+  }
 }

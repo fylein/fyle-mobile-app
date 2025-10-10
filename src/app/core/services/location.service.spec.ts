@@ -3,12 +3,14 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { of, delay } from 'rxjs';
 import { LocationService } from './location.service';
 import { locationData1, locationData2, locationData4, predictedLocation1 } from '../mock-data/location.data';
-import { HttpParams, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { cloneDeep } from 'lodash';
+import { PlatformCommonApiService } from './platform-common-api.service';
 
 describe('LocationService', () => {
   let locationService: LocationService;
   let httpMock: HttpTestingController;
+  let platformCommonApiService: jasmine.SpyObj<PlatformCommonApiService>;
   const rootUrl = 'https://staging.fyle.tech';
 
   const requestObj: Record<string, string> = {
@@ -20,18 +22,26 @@ describe('LocationService', () => {
   };
 
   beforeEach(() => {
+    const platformSpy = jasmine.createSpyObj('PlatformCommonApiService', ['post']);
+
     TestBed.configureTestingModule({
       imports: [],
-      providers: [LocationService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()],
+      providers: [
+        LocationService,
+        { provide: PlatformCommonApiService, useValue: platformSpy },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
     });
 
     locationService = TestBed.inject(LocationService);
     httpMock = TestBed.inject(HttpTestingController);
+    platformCommonApiService = TestBed.inject(PlatformCommonApiService) as jasmine.SpyObj<PlatformCommonApiService>;
     locationService.setRoot(rootUrl);
   });
 
   afterEach(() => {
-    httpMock.verify();
+    platformCommonApiService.post.calls.reset();
   });
 
   it('should be created', () => {
@@ -103,26 +113,30 @@ describe('LocationService', () => {
       const placeId = 'pLcId123';
       const displayName = 'Tollygunge, Kolkata, West Bengal, India';
       const locationDetails = cloneDeep(locationData1);
+      const expectedPayload = { place_id: placeId };
+
+      platformCommonApiService.post.and.returnValue(of({ data: locationDetails }));
+
       locationService.getGeocode(placeId, displayName).subscribe((result) => {
         expect(result).toEqual(locationDetails);
       });
-      const req = httpMock.expectOne(`${rootUrl}/location/geocode/${placeId}`);
-      expect(req.request.body).toBeNull();
-      expect(req.request.method).toEqual('GET');
-      req.flush(locationDetails);
+
+      expect(platformCommonApiService.post).toHaveBeenCalledWith('/location/geocode', expectedPayload);
     });
 
     it('should not add the displayName to locationDetails when displayName is not provided', () => {
       const placeId = '12345';
       const displayName = '';
       const locationDetails = cloneDeep(locationData4);
+      const expectedPayload = { place_id: placeId };
+
+      platformCommonApiService.post.and.returnValue(of({ data: locationDetails }));
+
       locationService.getGeocode(placeId, displayName).subscribe((result) => {
         expect(result).toEqual(locationDetails);
       });
-      const req = httpMock.expectOne(`${rootUrl}/location/geocode/${placeId}`);
-      expect(req.request.body).toBeNull();
-      expect(req.request.method).toEqual('GET');
-      req.flush(locationDetails);
+
+      expect(platformCommonApiService.post).toHaveBeenCalledWith('/location/geocode', expectedPayload);
     });
   });
 
@@ -130,22 +144,22 @@ describe('LocationService', () => {
     const fromLocation = locationData1;
     const toLocation = locationData2;
     const expectedDistance = 13167;
-    const params = {
-      origin_lat: fromLocation.latitude,
-      origin_long: fromLocation.longitude,
-      destination_lat: toLocation.latitude,
-      destination_long: toLocation.longitude,
+    const expectedPayload = {
+      origin_lat: `${fromLocation.latitude}`,
+      origin_long: `${fromLocation.longitude}`,
+      destination_lat: `${toLocation.latitude}`,
+      destination_long: `${toLocation.longitude}`,
       mode: 'driving',
     };
-    const queryParams = new HttpParams({ fromObject: params });
+
+    platformCommonApiService.post.and.returnValue(of({ data: { distance: expectedDistance } }));
+
     locationService.getDistance(fromLocation, toLocation).subscribe((res) => {
       expect(typeof res).toEqual('number');
       expect(res).toEqual(expectedDistance);
     });
-    const req = httpMock.expectOne(`${rootUrl}/location/distance?${queryParams}`);
-    expect(req.request.method).toEqual('GET');
-    expect(req.request.body).toBeNull();
-    req.flush(expectedDistance);
+
+    expect(platformCommonApiService.post).toHaveBeenCalledWith('/location/distance', expectedPayload);
   });
 
   describe('getAutocompletePredictions():', () => {
@@ -153,20 +167,20 @@ describe('LocationService', () => {
       const text = 'Ben';
       const userId = 'usMjLibmye7s';
       const location = '19.0748,72.8856';
-      const params = {
-        text,
+      const expectedPayload = {
+        search_query: text,
         user_id: userId,
         location,
       };
-      const queryParams = new HttpParams({ fromObject: params });
+
+      platformCommonApiService.post.and.returnValue(of({ data: { predictions: predictedLocation1 } }));
+
       locationService.getAutocompletePredictions(text, userId, location).subscribe((res) => {
         expect(typeof res).toEqual('object');
         expect(res).toEqual(predictedLocation1);
       });
-      const req = httpMock.expectOne(`${rootUrl}/location/autocomplete?${queryParams}`);
-      expect(req.request.method).toEqual('GET');
-      expect(req.request.body).toBeNull();
-      req.flush({ predictions: predictedLocation1 });
+
+      expect(platformCommonApiService.post).toHaveBeenCalledWith('/location/autocomplete', expectedPayload);
     });
 
     it('should autocomplete the predictions with the type param ', () => {
@@ -174,21 +188,21 @@ describe('LocationService', () => {
       const userId = 'usMjLibmye7s';
       const location = '19.0748,72.8856';
       const types = 'DummyType1';
-      const params = {
-        text,
+      const expectedPayload = {
+        search_query: text,
         user_id: userId,
         location,
         types,
       };
-      const queryParams = new HttpParams({ fromObject: params });
+
+      platformCommonApiService.post.and.returnValue(of({ data: { predictions: predictedLocation1 } }));
+
       locationService.getAutocompletePredictions(text, userId, location, types).subscribe((res) => {
         expect(typeof res).toEqual('object');
         expect(res).toEqual(predictedLocation1);
       });
-      const req = httpMock.expectOne(`${rootUrl}/location/autocomplete?${queryParams}`);
-      expect(req.request.method).toEqual('GET');
-      expect(req.request.body).toBeNull();
-      req.flush({ predictions: predictedLocation1 });
+
+      expect(platformCommonApiService.post).toHaveBeenCalledWith('/location/autocomplete', expectedPayload);
     });
   });
 });
