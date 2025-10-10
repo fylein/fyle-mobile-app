@@ -8,16 +8,20 @@ $message: #2c304e;
   margin: 8px 0;
   display: flex;
 
-  &--information {
+  &--informationstandard {
     border: 1px solid colors.$info-500;
   }
 
-  &--warning {
+  &--warningstandard {
     border: 1px solid colors.$caution-500;
   }
 
-  &--danger {
+  &--dangerstandard {
     border: 1px solid colors.$negative-400;
+  }
+
+  &--informationsubtle, &--warningsubtle, &--dangersubtle {
+    border: 1px solid colors.$navy-50;
   }
 
   &--icon-container {
@@ -26,15 +30,15 @@ $message: #2c304e;
     align-items: center;
     justify-content: center;
 
-    &--information {
+    &--informationstandard {
       background-color: colors.$info-500;
     }
 
-    &--warning {
+    &--warningstandard {
       background-color: colors.$caution-500;
     }
 
-    &--danger {
+    &--dangerstandard {
       background-color: colors.$negative-400;
     }
 
@@ -42,6 +46,15 @@ $message: #2c304e;
       height: 16px;
       width: 16px;
       min-width: 16px;
+    }
+
+    &--informationsubtle, &--warningsubtle, &--dangersubtle {
+      display: inline;
+      padding-right: 0;
+
+      .alert-info-container--icon-container--icon {
+        vertical-align: bottom;
+      }
     }
   }
 

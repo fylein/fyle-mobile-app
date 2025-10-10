@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject, output, input } from '@angular/core';
+import { Component, Input, OnInit, inject, output, input, computed } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
 import { IonButton } from '@ionic/angular/standalone';
@@ -22,7 +22,9 @@ export class FyAlertInfoComponent implements OnInit {
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
-  @Input() type: 'information' | 'warning' | 'error' | 'danger';
+  type = input<'information' | 'warning' | 'danger'>(null);
+
+  variant = input<'standard' | 'subtle'>('standard');
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -35,6 +37,20 @@ export class FyAlertInfoComponent implements OnInit {
   readonly allowHtml = input(false);
 
   readonly actionClick = output<void>();
+
+  readonly iconName = computed(() => {
+    const standardIconMap = {
+      information: 'alert-info',
+      warning: 'alert-warning',
+      danger: 'alert-danger',
+    };
+    const subtleIconMap = {
+      information: 'subtle-alert-info',
+      warning: 'subtle-alert-warning',
+      danger: 'subtle-alert-danger',
+    };
+    return this.variant() === 'standard' ? standardIconMap[this.type()] : subtleIconMap[this.type()];
+  });
 
   ngOnInit(): void {
     this.actionButtonContent = this.actionButtonContent || this.translocoService.translate('fyAlertInfo.action');

@@ -25,7 +25,7 @@ describe('FyAlertComponent', () => {
     fixture = TestBed.createComponent(FyAlertInfoComponent);
     component = fixture.componentInstance;
     component.message = 'This expense might be a duplicate of an existing expense.';
-    component.type = 'warning';
+    fixture.componentRef.setInput('type', 'warning');
     component.showActionButton = true;
     component.actionButtonContent = 'View';
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;

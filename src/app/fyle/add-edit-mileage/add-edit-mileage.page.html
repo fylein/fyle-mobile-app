@@ -112,7 +112,7 @@
               @if (isAmountCapped$ | async) {
                 @if (!(isCriticalPolicyViolated$ | async)) {
                   <div class="capped-info">
-                    <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
+                    <mat-icon class="capped-icon" svgIcon="subtle-alert-info"></mat-icon>
                     <div class="capped-message">
                       Claimed amount {{ etxn.tx.user_amount | currency: etxn.tx.currency : 'symbol-narrow' }} was capped
                       to {{ etxn.tx.amount | currency: etxn.tx.currency : 'symbol-narrow' }} due to policy

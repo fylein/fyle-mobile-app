@@ -6,6 +6,7 @@ import { EmployeesService } from 'src/app/core/services/platform/v1/spender/empl
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { IonIcon } from '@ionic/angular/standalone';
+import { FyAlertInfoComponent } from '../fy-alert-info/fy-alert-info.component';
 
 
 @Component({
@@ -14,7 +15,8 @@ import { IonIcon } from '@ionic/angular/standalone';
   styleUrls: ['./profile-opt-in-card.component.scss'],
   imports: [
     IonIcon,
-    TranslocoPipe
+    TranslocoPipe,
+    FyAlertInfoComponent
   ],
 })
 export class ProfileOptInCardComponent implements OnInit {
