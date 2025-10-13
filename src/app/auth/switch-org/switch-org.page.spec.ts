@@ -454,6 +454,7 @@ describe('SwitchOrgPage', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: msg,
+        messageType: 'success' as const,
       },
       duration: 3000,
     };

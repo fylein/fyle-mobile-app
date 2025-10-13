@@ -70,6 +70,7 @@ describe('VirtualCardComponent', () => {
         icon: 'success-toast-icon',
         showCloseButton: true,
         message,
+        messageType: 'success' as const,
       },
       duration: 3000,
     };

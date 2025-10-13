@@ -330,6 +330,7 @@ describe('MyProfilePage', () => {
         data: {
           icon: 'check-square-fill',
           showCloseButton: true,
+          messageType: 'success' as const,
           message,
         },
         duration: 3000,
@@ -354,6 +355,7 @@ describe('MyProfilePage', () => {
         data: {
           icon: 'warning-fill',
           showCloseButton: true,
+          messageType: 'failure' as const,
           message,
         },
         duration: 3000,
@@ -379,6 +381,7 @@ describe('MyProfilePage', () => {
           icon: 'success',
           showCloseButton: true,
           message,
+          messageType: 'success' as const,
         },
         duration: 3000,
       };
@@ -392,8 +395,7 @@ describe('MyProfilePage', () => {
       });
       expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
         'success',
-        { message },
-        'check-circle-outline',
+        { message }
       );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,

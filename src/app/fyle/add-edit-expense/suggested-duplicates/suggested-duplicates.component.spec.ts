@@ -114,6 +114,7 @@ describe('SuggestedDuplicatesComponent', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Duplicates were successfully dismissed',
+        messageType: 'success' as const,
       },
       duration: 3000,
     };

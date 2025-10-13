@@ -120,6 +120,7 @@ describe('PopupWithBulletsComponent', () => {
         icon: 'check-circle-outline',
         showCloseButton: true,
         message,
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -135,7 +136,6 @@ describe('PopupWithBulletsComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
       'success',
       { message },
-      'check-circle-outline',
     );
   });
 });

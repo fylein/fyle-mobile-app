@@ -290,6 +290,7 @@ describe('PersonalCardsPage', () => {
             icon: 'check-square-fill',
             showCloseButton: false,
             message,
+            messageType: 'success' as const,
           },
           duration: 3000,
         };
@@ -321,6 +322,7 @@ describe('PersonalCardsPage', () => {
             icon: 'check-square-fill',
             showCloseButton: false,
             message,
+            messageType: 'success' as const,
           },
           duration: 3000,
         };

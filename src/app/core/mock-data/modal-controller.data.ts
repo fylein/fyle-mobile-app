@@ -132,6 +132,7 @@ export const openFromComponentConfig = {
     icon: 'warning-fill',
     showCloseButton: true,
     message: 'Please select one or more expenses to be reported',
+    messageType: 'failure' as const,
   },
   duration: 3000,
   panelClass: ['msb-failure-with-report-btn'],
