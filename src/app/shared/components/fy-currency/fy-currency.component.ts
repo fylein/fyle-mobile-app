@@ -65,7 +65,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
       if (this.fg) {
         if (isDisabled) {
           this.fg.disable();
-        } else {
+        } else if (this.fg.disabled) {
           this.fg.enable();
         }
       }
