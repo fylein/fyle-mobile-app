@@ -109,9 +109,6 @@ ion-popover.error-popover {
 
 .msb-bulkfyle-prompt {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #1c1f36;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px calc(124px + env(safe-area-inset-bottom)) !important;
   }
 

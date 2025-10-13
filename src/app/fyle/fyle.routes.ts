@@ -137,10 +137,6 @@ const routes: Routes = [
     loadComponent: () =>
       import('./manage-corporate-cards/manage-corporate-cards.page').then((m) => m.ManageCorporateCardsPage),
   },
-  {
-    path: 'toast_demo',
-    loadComponent: () => import('../shared/components/toast-demo/toast-demo.component').then((m) => m.ToastDemoComponent),
-  },
 ];
 
 // Apply OptInGuard to all routes
