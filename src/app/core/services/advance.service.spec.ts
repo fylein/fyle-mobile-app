@@ -5,7 +5,6 @@ import {
   extendedAdvWithoutDates,
   extendedAdvWithDates,
 } from '../mock-data/extended-advance.data';
-import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { of } from 'rxjs';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { advancePlatform } from '../mock-data/advance-platform.data';
