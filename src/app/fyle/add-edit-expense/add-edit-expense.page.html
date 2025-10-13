@@ -135,6 +135,15 @@
   @if (fg && !isLoading) {
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
+        @if (isReconciledExpense()) {
+          <div class="add-edit-expense--alert-offline">
+            <app-fy-alert-info
+              [message]="'addEditExpense.reconciledInfo' | transloco"
+              [type]="'information'"
+            ></app-fy-alert-info>
+          </div>
+        }
+
         @if (showReceiptMandatoryError) {
           <div class="add-edit-expense--alert-offline receipt-mandatory-error">
             <app-fy-alert-info
@@ -361,6 +370,7 @@
                   [touchedInParent]="fg?.controls?.currencyObj?.touched"
                   [validInParent]="fg?.controls?.currencyObj?.valid"
                   [autoCodedData]="autoCodedData"
+                  [disable]="isReconciledExpense()"
                 >
                 </app-currency>
                 @if (fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid) {

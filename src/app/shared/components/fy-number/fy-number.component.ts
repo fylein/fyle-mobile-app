@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit, inject, input } from '@angular/core';
+import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit, inject, input, effect } from '@angular/core';
 import {
   ControlValueAccessor,
   UntypedFormControl,
@@ -75,6 +75,19 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
   keysForNegativeExpense = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '.'];
 
   private control: UntypedFormControl;
+
+  constructor() {
+    effect(() => {
+      const isDisabled = this.disabled();
+      if (this.fc) {
+        if (isDisabled) {
+          this.fc.disable();
+        } else {
+          this.fc.enable();
+        }
+      }
+    });
+  }
 
   get value(): number {
     return this.innerValue;
