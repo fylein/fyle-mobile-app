@@ -1505,7 +1505,7 @@
     "amountCappedCannotEdit": " and cannot be edited.",
     "cardDetailsInfo": "If the expense is merged with incorrect card details, click on Options (⋮) to remove the card details.",
     "outstandingBalanceInfo": "You have outstanding balance in your advance account(s)",
-    "autoMergeInfo": "Sage Expense Management will automatically merge this expense with the corresponding corporate card transaction when it flows into Sage Expense Management.",
+    "autoMergeInfo": "This expense will be automatically merged with the corresponding corporate card transaction when it flows into Sage Expense Management.",
     "draftExpenseWarning": "Expense will be saved as a draft. Kindly ensure that it is matched with an appropriate card transaction later, although we will attempt to auto-match it for you.",
     "noProjectsAssignedWarning": "There are no {{projectFieldName}}s assigned to you, so this expense will be saved as a draft. Please contact admin for further help.",
     "noCategoriesAssignedWarning": "There are no Categories assigned to you, so this expense will be saved as a draft. Please contact admin for further help.",
