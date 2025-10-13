@@ -709,7 +709,8 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getFormValues(): FormValue {
-    return this.fg.value as FormValue;
+    // getRawValue is used to get the value of the form fields including the disabled fields
+    return this.fg.getRawValue() as FormValue;
   }
 
   getFormControl(name: string): AbstractControl {
