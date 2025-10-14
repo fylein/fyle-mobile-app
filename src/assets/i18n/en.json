@@ -33,7 +33,8 @@
       "expenseMatched": "Expense matched",
       "duplicateDetected": "Duplicate detected",
       "duplicateIssueResolved": "Duplicate(s) issue resolved",
-      "others": "Others"
+      "others": "Others",
+      "expenseReconciled": "Reconciled"
     },
     "orgSettings": {
       "currencyLayer": "Currency Layer"
