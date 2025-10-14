@@ -8,7 +8,7 @@ module.exports.getIosInfo = () =>
       <key>CFBundleDevelopmentRegion</key>
       <string>en</string>
       <key>CFBundleDisplayName</key>
-      <string>Fyle</string>
+      <string>Sage Exp Mgmt</string>
       <key>CFBundleExecutable</key>
       <string>$(EXECUTABLE_NAME)</string>
       <key>CFBundleIdentifier</key>
@@ -52,19 +52,19 @@ module.exports.getIosInfo = () =>
           <false/>
       </dict>
     <key>NSCameraUsageDescription</key>
-    <string>Fyle needs camera access to capture your receipts and attach them to expenses.</string>
+    <string>Sage Exp Mgmt needs camera access to capture your receipts and attach them to expenses.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>Fyle needs location access to calculate distance in your mileage expenses.</string>
+    <string>Sage Exp Mgmt needs location access to calculate distance in your mileage expenses.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Fyle needs location access to calculate distance in your mileage expenses.</string>
+    <string>Sage Exp Mgmt needs location access to calculate distance in your mileage expenses.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Fyle needs location access to calculate distance in your mileage expenses.</string>
+    <string>Sage Exp Mgmt needs location access to calculate distance in your mileage expenses.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>To Record Audio With Video</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Fyle needs photo library access to save the captured receipts</string>
+    <string>Sage Exp Mgmt needs photo library access to save the captured receipts</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Fyle needs photo library access to upload receipts that you choose.</string>
+    <string>Sage Exp Mgmt needs photo library access to upload receipts that you choose.</string>
       <key>UILaunchStoryboardName</key>
       <string>LaunchScreen</string>
       <key>UIMainStoryboardFile</key>
