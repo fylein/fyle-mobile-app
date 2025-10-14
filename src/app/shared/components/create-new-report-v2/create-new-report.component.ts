@@ -1,14 +1,15 @@
 import { Component, Input, OnInit, inject, viewChild } from '@angular/core';
 import { NgModel, FormsModule } from '@angular/forms';
-import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { Observable, Subscription, of } from 'rxjs';
-import { finalize, map, switchMap, tap } from 'rxjs/operators';
+import { finalize, map, switchMap, tap, take } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
@@ -17,6 +18,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { ExpensesCardComponent } from '../expenses-card-v2/expenses-card.component';
 import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
+import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 
 @Component({
   selector: 'app-create-new-report',
@@ -52,6 +54,10 @@ export class CreateNewReportComponent implements OnInit {
   private spenderReportsService = inject(SpenderReportsService);
 
   private translocoService = inject(TranslocoService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private popoverController = inject(PopoverController);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -164,11 +170,18 @@ export class CreateNewReportComponent implements OnInit {
             this.saveDraftReportLoader = false;
           }),
         )
-        .subscribe((report) => {
-          this.modalController.dismiss({
-            report,
-            message: this.translocoService.translate('createNewReport.draftSuccessMessage'),
-          });
+        .subscribe({
+          next: (report) => {
+            this.modalController.dismiss({
+              report,
+              message: this.translocoService.translate('createNewReport.draftSuccessMessage'),
+            });
+          },
+          error: (error) => {
+            if (error instanceof Error && error.message === 'ACH_SUSPENDED') {
+              this.showAchSuspensionPopup();
+            }
+          },
         });
     } else {
       this.submitReportLoader = true;
@@ -185,12 +198,44 @@ export class CreateNewReportComponent implements OnInit {
             this.submitReportLoader = false;
           }),
         )
-        .subscribe((report) => {
-          this.modalController.dismiss({
-            report,
-            message: this.translocoService.translate('createNewReport.submitSuccessMessage'),
-          });
+        .subscribe({
+          next: (report) => {
+            this.modalController.dismiss({
+              report,
+              message: this.translocoService.translate('createNewReport.submitSuccessMessage'),
+            });
+          },
+          error: (error) => {
+            if (error instanceof Error && error.message === 'ACH_SUSPENDED') {
+              this.showAchSuspensionPopup();
+            }
+          },
         });
     }
+  }
+
+  async showAchSuspensionPopup(): Promise<void> {
+    // Check LaunchDarkly feature flag first
+    const isAchImprovementEnabled = await this.launchDarklyService.getVariation('ach_improvement', false).pipe(take(1)).toPromise();
+    
+    if (!isAchImprovementEnabled) {
+      return;
+    }
+
+    const achSuspensionPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: this.translocoService.translate<string>('createNewReport.achSuspendedTitle'),
+        message: this.translocoService.translate<string>('createNewReport.achSuspendedMessage'),
+        primaryCta: {
+          text: this.translocoService.translate('createNewReport.achSuspendedButton'),
+          action: 'confirm',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await achSuspensionPopover.present();
+    this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
   }
 }
