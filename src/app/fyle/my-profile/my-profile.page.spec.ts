@@ -343,7 +343,7 @@ describe('MyProfilePage', () => {
         ...successToastProperties,
         panelClass: 'msb-success',
       });
-      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message }, undefined);
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
       });
@@ -368,7 +368,7 @@ describe('MyProfilePage', () => {
         ...failureToastProperties,
         panelClass: 'msb-failure',
       });
-      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', { message }, undefined);
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', { message });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
       });
