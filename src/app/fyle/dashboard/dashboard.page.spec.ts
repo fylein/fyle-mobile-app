@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular/standalone';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 
 import { DashboardPage } from './dashboard.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -12,7 +12,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Component, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
-import { Subject, Subscription, of } from 'rxjs';
+import { Subject, Subscription, of, throwError } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
@@ -30,6 +30,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -42,6 +43,7 @@ import {
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { CardStatsComponent } from './card-stats/card-stats.component';
@@ -102,6 +104,9 @@ describe('DashboardPage', () => {
   let footerService: jasmine.SpyObj<FooterService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let walkthroughService: jasmine.SpyObj<WalkthroughService>;
+  let orgUserService: jasmine.SpyObj<OrgUserService>;
+  let popoverController: jasmine.SpyObj<PopoverController>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -142,6 +147,7 @@ describe('DashboardPage', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex'], {
@@ -156,6 +162,8 @@ describe('DashboardPage', () => {
       'getActiveWalkthroughIndex',
       'getIsOverlayClicked',
     ]);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     TestBed.configureTestingModule({
       imports: [DashboardPage, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
@@ -187,6 +195,7 @@ describe('DashboardPage', () => {
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
+        { provide: PopoverController, useValue: popoverControllerSpy },
         {
           provide: MatSnackBar,
           useValue: matSnackBarSpy,
@@ -203,6 +212,14 @@ describe('DashboardPage', () => {
         {
           provide: WalkthroughService,
           useValue: walkthroughServiceSpy,
+        },
+        {
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
+        },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -257,6 +274,9 @@ describe('DashboardPage', () => {
     footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
+    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
+    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     fixture.detectChanges();
   }));
 
@@ -361,6 +381,8 @@ describe('DashboardPage', () => {
       component.isConnected$ = of(true);
       authService.getEou.and.resolveTo(apiEouRes);
       utilityService.isUserFromINCluster.and.resolveTo(false);
+      orgUserService.getDwollaCustomer.and.returnValue(of(null));
+      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       spyOn(component, 'setShowOptInBanner');
       spyOn(component, 'setShowEmailOptInBanner');
       spyOn(component, 'setSwiperConfig');
@@ -464,6 +486,8 @@ describe('DashboardPage', () => {
     });
 
     it('should call setSwiperConfig with delay after setting up banner observables', fakeAsync(() => {
+      // Ensure LaunchDarklyService mock is set up for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
       component.ionViewWillEnter();
 
       // Fast-forward the setTimeout for setSwiperConfig
@@ -473,6 +497,8 @@ describe('DashboardPage', () => {
     }));
 
     it('should start navbar walkthrough', fakeAsync(() => {
+      // Ensure LaunchDarklyService mock is set up for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
       component.eou$ = of(apiEouRes);
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
       component.ionViewWillEnter();
@@ -1367,6 +1393,186 @@ describe('DashboardPage', () => {
 
       expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledTimes(1);
       expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe('ACH Suspension Functionality:', () => {
+    beforeEach(() => {
+      component.eou$ = of(apiEouRes);
+      component.orgSettings$ = of(orgSettingsRes);
+      orgUserService.getDwollaCustomer.and.returnValue(of(null));
+      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
+    });
+
+    it('should show ACH suspension popup when customer is suspended', fakeAsync(() => {
+      // Ensure LaunchDarkly flag is enabled for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      const suspendedCustomer = { 
+        id: 'test-id',
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer_id: 'test-customer-id',
+        customer_email: 'test@test.com',
+        customer_added_by: 'test-user',
+        customer_verified: true,
+        beneficial_owner_added: true,
+        beneficial_owner_verified: true,
+        bank_account_added: true,
+        bank_account_verified: true,
+        bank_account_added_by: 'test-user',
+        customer_document_needed: false,
+        beneficial_owner_document_needed: false,
+        customer_retry: false,
+        customer_suspended: true,
+        micro_deposit_verification_status: 'verified',
+        micro_deposit_verification_attempts: 0,
+        beneficial_owner_retry: false
+      };
+      orgUserService.getDwollaCustomer.and.returnValue(of(suspendedCustomer));
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    }));
+
+    it('should not show popup when customer is not suspended', fakeAsync(() => {
+      // Ensure LaunchDarkly flag is enabled for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      const activeCustomer = { 
+        id: 'test-id',
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer_id: 'test-customer-id',
+        customer_email: 'test@test.com',
+        customer_added_by: 'test-user',
+        customer_verified: true,
+        beneficial_owner_added: true,
+        beneficial_owner_verified: true,
+        bank_account_added: true,
+        bank_account_verified: true,
+        bank_account_added_by: 'test-user',
+        customer_document_needed: false,
+        beneficial_owner_document_needed: false,
+        customer_retry: false,
+        customer_suspended: false,
+        micro_deposit_verification_status: 'verified',
+        micro_deposit_verification_attempts: 0,
+        beneficial_owner_retry: false
+      };
+      orgUserService.getDwollaCustomer.and.returnValue(of(activeCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when org settings do not allow ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: false, enabled: true } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when org settings do not enable ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: true, enabled: false } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not show popup when dialog was already shown in session', fakeAsync(() => {
+      const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
+      sessionStorage.setItem(dialogShownKey, 'true');
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      
+      // Clean up
+      sessionStorage.removeItem(dialogShownKey);
+    }));
+
+    it('should handle API errors gracefully and not show popup', fakeAsync(() => {
+      // Clear session storage to ensure clean state
+      const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
+      sessionStorage.removeItem(dialogShownKey);
+      
+      // Ensure LaunchDarkly flag is enabled for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
+      launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      tick(100);
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should show ACH suspension popup with correct translations', async () => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      await component.showAchSuspensionPopup();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: jasmine.any(String),
+          message: jasmine.any(String),
+          primaryCta: {
+            text: jasmine.any(String),
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(mockPopover.present).toHaveBeenCalledTimes(1);
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
     });
   });
 });
