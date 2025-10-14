@@ -1552,5 +1552,27 @@ describe('DashboardPage', () => {
       expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
     }));
+
+    it('should show ACH suspension popup with correct translations', async () => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      await component.showAchSuspensionPopup();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: jasmine.any(String),
+          message: jasmine.any(String),
+          primaryCta: {
+            text: jasmine.any(String),
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(mockPopover.present).toHaveBeenCalledTimes(1);
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    });
   });
 });
