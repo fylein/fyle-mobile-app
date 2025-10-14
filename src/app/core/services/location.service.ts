@@ -10,6 +10,10 @@ import { PredictedLocations } from '../models/location.model';
 import { Location } from '../models/location.model';
 import { MileageLocation } from 'src/app/shared/components/route-visualizer/mileage-locations.interface';
 import { MileageRoute } from 'src/app/shared/components/route-visualizer/mileage-route.interface';
+import { PlatformCommonApiService } from './platform-common-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { LocationDirectionsResponse } from '../models/platform/location-directions-response.model';
+import { LocationDistanceResponse } from '../models/platform/location-distance-response.model';
 
 const currentLocationCacheBuster$ = new Subject<void>();
 
@@ -18,6 +22,8 @@ const currentLocationCacheBuster$ = new Subject<void>();
 })
 export class LocationService {
   private httpClient = inject(HttpClient);
+
+  private platformCommonApiService = inject(PlatformCommonApiService);
 
   ROOT_ENDPOINT: string;
 
@@ -78,22 +84,21 @@ export class LocationService {
     destination: google.maps.LatLngLiteral,
     waypoints?: google.maps.LatLngLiteral[],
   ): Observable<string> {
-    const config = {
-      params: {
-        origin_lat: origin.lat,
-        origin_long: origin.lng,
-        destination_lat: destination.lat,
-        destination_long: destination.lng,
-        waypoints: waypoints.reduce(
-          (acc, waypoint, i) =>
-            i === 0 ? `${waypoint.lat},${waypoint.lng}` : `${acc}|${waypoint.lat},${waypoint.lng}`,
-          '',
-        ),
-        mode: 'driving',
-      },
+    const payload = {
+      origin_lat: `${origin.lat}`,
+      origin_long: `${origin.lng}`,
+      destination_lat: `${destination.lat}`,
+      destination_long: `${destination.lng}`,
+      mode: 'driving',
+      waypoints: waypoints.reduce(
+        (acc, waypoint, i) => (i === 0 ? `${waypoint.lat},${waypoint.lng}` : `${acc}|${waypoint.lat},${waypoint.lng}`),
+        '',
+      ),
     };
 
-    return this.get<string>('/directions', config);
+    return this.platformCommonApiService
+      .post<PlatformApiResponse<LocationDirectionsResponse>>('/location/directions', payload)
+      .pipe(map((response: PlatformApiResponse<LocationDirectionsResponse>) => response.data.direction));
   }
 
   getAutocompletePredictions(
@@ -102,38 +107,36 @@ export class LocationService {
     currentLocation?: string,
     types?: string,
   ): Observable<PredictedLocation[]> {
-    const data: Record<string, Record<string, string>> = {
-      params: {
-        text,
-        user_id: userId,
-      },
+    const payload: Record<string, string> = {
+      search_query: text,
+      user_id: userId,
     };
-
     if (currentLocation) {
-      data.params.location = currentLocation;
+      payload.location = currentLocation;
     }
     if (types) {
-      data.params.types = types;
+      payload.types = types;
     }
-    return this.get('/autocomplete', data).pipe(map((res: PredictedLocations) => res.predictions));
+    return this.platformCommonApiService
+      .post<PlatformApiResponse<PredictedLocations>>('/location/autocomplete', payload)
+      .pipe(map((res: PlatformApiResponse<PredictedLocations>) => res.data.predictions));
   }
 
   getDistance(fromLocation: Location, toLocation: Location): Observable<number> {
-    const data = {
-      params: {
-        origin_lat: fromLocation.latitude,
-        origin_long: fromLocation.longitude,
-        destination_lat: toLocation.latitude,
-        destination_long: toLocation.longitude,
-        mode: 'driving',
-      },
+    const payload = {
+      origin_lat: `${fromLocation.latitude}`,
+      origin_long: `${fromLocation.longitude}`,
+      destination_lat: `${toLocation.latitude}`,
+      destination_long: `${toLocation.longitude}`,
+      mode: 'driving',
     };
-
-    return this.get('/distance', data).pipe(map((res) => res as number));
+    return this.platformCommonApiService
+      .post<PlatformApiResponse<LocationDistanceResponse>>('/location/distance', payload)
+      .pipe(map((res: PlatformApiResponse<LocationDistanceResponse>) => res.data.distance));
   }
 
   /**
-   * This method gets details from /location/geocode and
+   * This method gets details from /platform/v1/common/location/geocode and
    * adds the param displayName to details.display
    *
    * @params {string} placeId
@@ -144,8 +147,15 @@ export class LocationService {
    * "formatted_address": "Thane, Maharashtra, India", "latitude": 19.2183307, "longitude": 72.9780897}
    */
   getGeocode(placeId: string, displayName: string): Observable<Location> {
-    return this.get('/geocode/' + placeId).pipe(
-      map((locationDetails: Location) => {
+    const payload = {
+      place_id: placeId,
+    };
+
+    return this.platformCommonApiService.post<PlatformApiResponse<Location>>('/location/geocode', payload).pipe(
+      map((response: PlatformApiResponse<Location>) => {
+        // Extract location details from the nested data property
+        const locationDetails: Location = response.data;
+
         // locationDetails does not contain the `display` key
         if (displayName) {
           locationDetails.display = displayName;
