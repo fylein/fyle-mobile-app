@@ -1525,6 +1525,10 @@ describe('DashboardPage', () => {
     }));
 
     it('should handle API errors gracefully and not show popup', fakeAsync(() => {
+      // Clear session storage to ensure clean state
+      const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
+      sessionStorage.removeItem(dialogShownKey);
+      
       // Ensure LaunchDarkly flag is enabled for this test
       launchDarklyService.getVariation.and.returnValue(of(true));
       orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
