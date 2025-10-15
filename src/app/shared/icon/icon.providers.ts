@@ -50,7 +50,7 @@ export function provideIcons(): EnvironmentProviders {
       'edit.svg',
       'envelope.svg',
       'fyle-logo-dark.svg',
-      'fyle-logo-light.svg',
+      'sage-logo.svg',
       'file-pdf.svg',
       'filter-applied.svg',
       'filter.svg',

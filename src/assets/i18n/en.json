@@ -33,7 +33,8 @@
       "expenseMatched": "Expense matched",
       "duplicateDetected": "Duplicate detected",
       "duplicateIssueResolved": "Duplicate(s) issue resolved",
-      "others": "Others"
+      "others": "Others",
+      "expenseReconciled": "Reconciled"
     },
     "orgSettings": {
       "currencyLayer": "Currency Layer"
@@ -948,7 +949,10 @@
     "submittingReport": "Submitting Report",
     "submitReport": "Submit report",
     "draftSuccessMessage": "Expenses added to a new report",
-    "submitSuccessMessage": "Expenses submitted for approval"
+    "submitSuccessMessage": "Expenses submitted for approval",
+    "achSuspendedTitle": "ACH reimbursements suspended",
+    "achSuspendedMessage": "ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.",
+    "achSuspendedButton": "Got it"
   },
   "viewDependentFields": {
     "unspecified": "Unspecified",
@@ -1743,7 +1747,10 @@
   },
   "dashboard": {
     "pendingTask": "You have {{count}} pending task",
-    "pendingTasks": "You have {{count}} pending tasks"
+    "pendingTasks": "You have {{count}} pending tasks",
+    "achSuspendedTitle": "ACH reimbursements suspended",
+    "achSuspendedMessage": "ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.",
+    "achSuspendedButton": "Got it"
   },
   "pendingGasChargeInfoModal": {
     "title": "Why am I seeing a $1 expense?",
