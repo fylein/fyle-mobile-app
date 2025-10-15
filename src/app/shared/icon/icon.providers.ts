@@ -49,7 +49,6 @@ export function provideIcons(): EnvironmentProviders {
       'duplicate.svg',
       'edit.svg',
       'envelope.svg',
-      'fyle-logo-dark.svg',
       'sage-logo.svg',
       'file-pdf.svg',
       'filter-applied.svg',
