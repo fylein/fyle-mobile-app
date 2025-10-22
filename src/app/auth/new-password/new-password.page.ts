@@ -100,7 +100,7 @@ export class NewPasswordPage implements OnInit {
   }
 
   changePassword(): void {
-    const refreshToken = this.activatedRoute.snapshot.params.refreshToken as string;
+    const refreshToken = this.activatedRoute.snapshot.params.token as string;
     this.isLoading = true;
     from(this.loaderService.showLoader())
       .pipe(
