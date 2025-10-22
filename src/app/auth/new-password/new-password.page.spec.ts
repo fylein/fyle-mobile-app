@@ -89,7 +89,7 @@ describe('NewPasswordPage', () => {
   describe('changePassword', () => {
     const passwordValue = 'DummyPassword@123';
     const refreshToken = 'token123';
-    const resetPasswordRes = { ...apiEouRes, token: refreshToken };
+    const resetPasswordRes = { ...apiEouRes, refreshToken: refreshToken };
 
     it('should change the password and show success message on success', fakeAsync(() => {
       const message = 'Password changed successfully';
