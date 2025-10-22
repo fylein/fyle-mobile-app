@@ -60,12 +60,12 @@ jobs:
 
       - name: Install System Image
         run: |
-          echo "Checking if Android 34 system image is installed..."
-          if sdkmanager --list | grep -q "system-images;android-34;google_apis;x86_64.*installed"; then
-            echo "Android 34 system image already installed"
+          echo "Checking if Android 30 system image is installed..."
+          if sdkmanager --list | grep -q "system-images;android-30;default;x86_64.*installed"; then
+            echo "Android 30 system image already installed"
           else
-            echo "Installing Android 34 system image..."
-            sdkmanager "system-images;android-34;google_apis;x86_64"
+            echo "Installing Android 30 system image (faster boot)..."
+            sdkmanager "system-images;android-30;default;x86_64"
             echo "System image installed successfully"
           fi
 
@@ -120,8 +120,8 @@ jobs:
           echo "Available system images:"
           avdmanager list target
           
-          # Create AVD with proper error handling
-          echo "no" | avdmanager create avd -n test_avd -k "system-images;android-34;google_apis;x86_64" --force
+          # Create AVD with faster Android 30 system image
+          echo "no" | avdmanager create avd -n test_avd -k "system-images;android-30;default;x86_64" --force
           
           # Verify AVD was created
           echo "Created AVDs:"
@@ -131,23 +131,23 @@ jobs:
 
       - name: Start Emulator
         run: |
-          echo "Starting emulator..."
-          emulator -avd test_avd -no-audio -no-window -gpu swiftshader_indirect -memory 2048 -partition-size 1024 &
-          echo "Emulator started in background"
+          echo "Starting emulator with optimized boot settings..."
+          emulator -avd test_avd -no-audio -no-window -gpu swiftshader_indirect -memory 2048 -partition-size 1024 -no-snapshot -no-boot-anim --cold-boot-none &
+          echo "Emulator started in background with fast boot options"
 
       - name: Wait for Emulator
         run: |
-          echo "Waiting for emulator to boot..."
+          echo "Waiting for emulator to boot (optimized with longer timeout)..."
           # Wait for emulator to be detected
-          timeout 300 bash -c 'until adb devices | grep -q "emulator.*device"; do sleep 5; echo "Waiting for emulator..."; done'
+          timeout 600 bash -c 'until adb devices | grep -q "emulator.*device"; do sleep 5; echo "Waiting for emulator..."; done'
           
-          # Wait for boot completion
+          # Wait for boot completion with extended timeout
           echo "Waiting for boot completion..."
-          timeout 300 bash -c 'until adb shell getprop sys.boot_completed | grep -q 1; do sleep 5; echo "Waiting for boot..."; done'
+          timeout 600 bash -c 'until adb shell getprop sys.boot_completed | grep -q 1; do sleep 5; echo "Waiting for boot..."; done'
           
-          # Additional wait for system to stabilize
+          # Reduced stabilization time due to optimized boot
           echo "Waiting for system to stabilize..."
-          sleep 30
+          sleep 15
           
           # Check final status
           echo "Final emulator status:"
