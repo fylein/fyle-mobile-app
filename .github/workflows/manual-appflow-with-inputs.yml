@@ -48,6 +48,13 @@ jobs:
           token: ${{ secrets.DIAWI_TOKEN }}
           file: android.apk
 
+      - name: Upload APK as GitHub artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: android.apk
+          retention-days: 7
+
   build-ios:
     runs-on: ubuntu-latest
     outputs:
@@ -74,6 +81,13 @@ jobs:
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
           file: ios.ipa
+
+      - name: Upload IPA as GitHub artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: ios.ipa
+          retention-days: 7
 
   send-to-slack:
     needs: [build-android, build-ios]

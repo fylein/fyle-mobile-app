@@ -1,0 +1,127 @@
+name: Maestro E2E Tests
+
+# This workflow can run in two ways:
+# 1. Automatically after the manual Appflow workflow completes
+# 2. Manually with a custom APK file input
+on:
+  workflow_run:
+    workflows: ["Manual workflow with inputs"]
+    types: [completed]
+  pull_request:
+  types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      apk_url:
+        description: 'URL to Android APK file to test'
+        required: false
+        type: string
+      test_file:
+        description: 'Maestro test file to run (default: basic-flow.yaml)'
+        required: false
+        type: string
+        default: 'basic-flow.yaml'
+      environment:
+        description: 'Environment to test against'
+        required: false
+        type: choice
+        options:
+          - staging
+          - production
+          - development
+        default: 'staging'
+
+jobs:
+  maestro-e2e-tests:
+    runs-on: ubuntu-latest
+    # Run if either:
+    # 1. Manual workflow was successful (automatic trigger)
+    # 2. Manual dispatch was triggered
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: 34.0.0
+          ndk-version: 25.1.8937393
+
+      - name: Install Maestro CLI
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Download APK from previous workflow
+        if: github.event_name == 'workflow_run'
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: manual-appflow-with-inputs.yml
+          pr: ${{ github.event.workflow_run.pull_requests[0].number }}
+          name: android-apk
+          path: .
+
+      - name: Download custom APK file
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.apk_url != ''
+        run: |
+          # Download APK from the provided URL
+          echo "Downloading APK from: ${{ github.event.inputs.apk_url }}"
+          wget -O android.apk "${{ github.event.inputs.apk_url }}"
+          echo "APK downloaded successfully"
+
+      - name: Validate APK file
+        run: |
+          if [ ! -f "android.apk" ]; then
+            echo "Error: android.apk file not found!"
+            echo "Make sure either:"
+            echo "1. The manual Appflow workflow completed successfully, or"
+            echo "2. You provided a valid APK URL in the manual trigger"
+            exit 1
+          fi
+          echo "APK file found: $(ls -la android.apk)"
+          file android.apk
+
+      - name: Setup Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          script: |
+            # Wait for emulator to be ready
+            adb wait-for-device
+            adb shell input keyevent 82
+            
+            # Install the APK on the emulator
+            adb install android.apk
+            
+            # Run Maestro tests
+            maestro test maestro-tests/${{ github.event.inputs.test_file || 'basic-flow.yaml' }} --format junit --output maestro-results.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: maestro-test-results
+          path: |
+            maestro-results.xml
+            maestro-tests/results/
+            *.log
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Maestro Test Results
+          path: maestro-results.xml
+          reporter: java-junit

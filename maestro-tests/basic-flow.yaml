@@ -1,0 +1,43 @@
+appId: com.fyle.mobileapp
+
+---
+# Maestro E2E test flow for Fyle mobile app
+# This test covers basic app functionality
+
+- launchApp
+- assertVisible: "Fyle" # App name or welcome screen
+- tapOn: "Get Started" # Start button or similar
+- assertVisible: "Login" # Login screen
+
+# Login flow (adjust selectors based on actual UI)
+- tapOn: "Email"
+- inputText: "test@fyle.in"
+- tapOn: "Password" 
+- inputText: "testpassword"
+- tapOn: "Sign In"
+
+# Wait for dashboard to load
+- assertVisible: "Dashboard"
+- assertVisible: "Expenses" # Main expense section
+
+# Navigate to add expense
+- tapOn: "Add Expense"
+- assertVisible: "Add Expense"
+
+# Fill expense form
+- tapOn: "Amount"
+- inputText: "150.00"
+- tapOn: "Category"
+- tapOn: "Food & Dining"
+- tapOn: "Description"
+- inputText: "Test expense for Maestro E2E"
+- tapOn: "Save"
+
+# Verify expense was created
+- assertVisible: "Expense saved"
+- back
+- assertVisible: "Dashboard"
+
+# Verify expense appears in list
+- assertVisible: "150.00"
+- assertVisible: "Food & Dining"
