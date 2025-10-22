@@ -100,11 +100,11 @@ export class NewPasswordPage implements OnInit {
   }
 
   changePassword(): void {
-    const refreshToken = this.activatedRoute.snapshot.params.token as string;
+    const token = this.activatedRoute.snapshot.params.token as string;
     this.isLoading = true;
     from(this.loaderService.showLoader())
       .pipe(
-        switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value as string)),
+        switchMap(() => this.routerAuthService.resetPassword(token, this.fg.controls.password.value as string)),
         switchMap(() => this.authService.refreshEou()),
         tap(async (eou) => {
           this.trackingService.onSignin(eou.us.id);
