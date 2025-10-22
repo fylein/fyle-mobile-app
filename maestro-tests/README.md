@@ -13,11 +13,19 @@ The `maestro-e2e-tests.yml` workflow:
 - **Runs on Pull Requests**: Automatically triggers when PRs are opened or updated
 - **Manual Trigger**: Can be triggered manually with a Diawi URL input
 - **Downloads APK**: From Diawi URL (manual) or placeholder (PR runs)
+- **Caches Dependencies**: Android SDK, Java, and Maestro CLI for faster runs
 - **Sets up Android SDK and emulator**
-- **Installs Maestro CLI**
+- **Installs Maestro CLI** (cached for performance)
 - **Installs the APK on the emulator**
 - **Runs Maestro tests**
 - **Uploads test results and publishes them**
+
+### Performance Optimizations
+
+- **Android SDK Caching**: Caches Android SDK components to avoid re-downloading
+- **Java Caching**: Caches Java and Gradle dependencies
+- **Maestro CLI Caching**: Caches Maestro CLI installation for faster subsequent runs
+- **Smart Installation**: Only installs Maestro CLI if not already cached
 
 ## Usage
 

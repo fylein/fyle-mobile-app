@@ -24,11 +24,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Cache Java
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: java-gradle-${{ runner.os }}-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: |
+            java-gradle-${{ runner.os }}-
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: gradle
+
+      - name: Cache Android SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android
+            ~/android-sdk
+            ~/android-sdk-linux
+          key: android-sdk-${{ runner.os }}-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: |
+            android-sdk-${{ runner.os }}-
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -37,9 +57,22 @@ jobs:
           build-tools: 34.0.0
           ndk-version: 25.1.8937393
 
+      - name: Cache Maestro CLI
+        uses: actions/cache@v4
+        with:
+          path: ~/.maestro
+          key: maestro-cli-${{ runner.os }}-v1.0
+          restore-keys: |
+            maestro-cli-${{ runner.os }}-
+
       - name: Install Maestro CLI
         run: |
-          curl -Ls "https://get.maestro.mobile.dev" | bash
+          if [ ! -f "$HOME/.maestro/bin/maestro" ]; then
+            echo "Installing Maestro CLI..."
+            curl -Ls "https://get.maestro.mobile.dev" | bash
+          else
+            echo "Maestro CLI already installed (from cache)"
+          fi
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
       - name: Restart ADB Server
