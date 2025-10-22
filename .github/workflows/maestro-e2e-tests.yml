@@ -101,46 +101,68 @@ jobs:
           file android.apk
           echo "APK size: $(du -h android.apk)"
 
-      - name: Setup Android Emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          target: google_apis
-          arch: x86_64
-          profile: Nexus 6
-          ram-size: 2048M
-          heap-size: 512M
-          cache-size: 1024M
-          script: |
-            # Wait for emulator to be ready with retry logic
-            echo "Waiting for emulator to be ready..."
-            timeout 300 bash -c 'until adb wait-for-device shell getprop sys.boot_completed | grep -q 1; do sleep 5; done'
-            
-            # Additional wait for system to fully boot
-            echo "Waiting for system to fully boot..."
-            sleep 30
-            
-            # Check emulator status
-            echo "Emulator status:"
-            adb devices
-            adb shell getprop sys.boot_completed
-            
-            # Unlock the device
-            echo "Unlocking device..."
-            adb shell input keyevent 82
-            
-            # Install the APK on the emulator
-            echo "Installing APK on emulator..."
-            adb install -r android.apk
-            
-            # Verify APK installation
-            echo "Verifying APK installation..."
-            adb shell pm list packages | grep fyle
-            
-            # Run Maestro tests
-            TEST_FILE="${{ github.event.inputs.test_file || 'basic-flow.yaml' }}"
-            echo "Running Maestro test: maestro-tests/$TEST_FILE"
-            maestro test maestro-tests/$TEST_FILE --format junit --output maestro-results.xml
+      - name: Create AVD
+        run: |
+          echo "Creating Android Virtual Device..."
+          echo "no" | avdmanager create avd -n test_avd -k "system-images;android-34;google_apis;x86_64" --force
+          echo "AVD created successfully"
+
+      - name: Start Emulator
+        run: |
+          echo "Starting emulator..."
+          emulator -avd test_avd -no-audio -no-window -gpu swiftshader_indirect -memory 2048 -partition-size 1024 &
+          echo "Emulator started in background"
+
+      - name: Wait for Emulator
+        run: |
+          echo "Waiting for emulator to boot..."
+          # Wait for emulator to be detected
+          timeout 300 bash -c 'until adb devices | grep -q "emulator.*device"; do sleep 5; echo "Waiting for emulator..."; done'
+          
+          # Wait for boot completion
+          echo "Waiting for boot completion..."
+          timeout 300 bash -c 'until adb shell getprop sys.boot_completed | grep -q 1; do sleep 5; echo "Waiting for boot..."; done'
+          
+          # Additional wait for system to stabilize
+          echo "Waiting for system to stabilize..."
+          sleep 30
+          
+          # Check final status
+          echo "Final emulator status:"
+          adb devices
+          adb shell getprop sys.boot_completed
+
+      - name: Setup Emulator
+        run: |
+          echo "Setting up emulator..."
+          # Unlock device
+          adb shell input keyevent 82
+          
+          # Disable animations for faster testing
+          adb shell settings put global window_animation_scale 0
+          adb shell settings put global transition_animation_scale 0
+          adb shell settings put global animator_duration_scale 0
+          
+          # Install APK
+          echo "Installing APK..."
+          adb install -r android.apk
+          
+          # Verify installation
+          echo "Verifying APK installation..."
+          adb shell pm list packages | grep fyle
+
+      - name: Run Maestro Tests
+        run: |
+          TEST_FILE="${{ github.event.inputs.test_file || 'basic-flow.yaml' }}"
+          echo "Running Maestro test: maestro-tests/$TEST_FILE"
+          maestro test maestro-tests/$TEST_FILE --format junit --output maestro-results.xml
+
+      - name: Stop Emulator
+        if: always()
+        run: |
+          echo "Stopping emulator..."
+          adb emu kill
+          pkill -f emulator
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
