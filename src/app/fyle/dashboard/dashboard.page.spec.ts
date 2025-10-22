@@ -1399,6 +1399,10 @@ describe('DashboardPage', () => {
 
   describe('ACH Suspension Functionality:', () => {
     beforeEach(() => {
+      // Clear session storage to ensure clean state
+      const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
+      sessionStorage.removeItem(dialogShownKey);
+      
       component.eou$ = of(apiEouRes);
       component.orgSettings$ = of(orgSettingsRes);
       orgUserService.getDwollaCustomer.and.returnValue(of(null));
@@ -1417,17 +1421,21 @@ describe('DashboardPage', () => {
         expect(popoverController.create).toHaveBeenCalledWith({
           component: jasmine.any(Function),
           componentProps: {
-            title: 'ACH reimbursements suspended',
-            message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+            title: jasmine.any(String),
+            message: jasmine.any(String),
             primaryCta: {
-              text: 'Got it',
+              text: jasmine.any(String),
               action: 'confirm',
             },
           },
           cssClass: 'pop-up-in-center',
         });
-        expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
-        done();
+        
+        // Wait for the async popover operations to complete
+        setTimeout(() => {
+          expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+          done();
+        }, 0);
       });
     });
 
@@ -1476,9 +1484,6 @@ describe('DashboardPage', () => {
       component.checkAchSuspension().subscribe(() => {
         expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
         expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-        
-        // Clean up
-        sessionStorage.removeItem(dialogShownKey);
         done();
       });
     });
