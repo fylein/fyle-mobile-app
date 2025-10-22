@@ -72,12 +72,12 @@ jobs:
 
       - name: Install System Image
         run: |
-          echo "Checking if Android 30 ARM system image is installed..."
-          if $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep -q "system-images;android-30;google_apis;arm64-v8a.*installed"; then
-            echo "Android 30 ARM system image already installed"
+          echo "Checking if Android 30 x86_64 system image is installed..."
+          if $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep -q "system-images;android-30;google_apis;x86_64.*installed"; then
+            echo "Android 30 x86_64 system image already installed"
           else
-            echo "Installing Android 30 ARM system image (no hardware acceleration required)..."
-            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis;arm64-v8a"
+            echo "Installing Android 30 x86_64 system image with software emulation..."
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis;x86_64"
             echo "System image installed successfully"
           fi
 
@@ -153,9 +153,9 @@ jobs:
           echo "Available system images:"
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list target
           
-          # Create AVD with Android 30 ARM system image (no hardware acceleration required)
-          echo "Creating AVD with Android 30 ARM system image..."
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_avd -k "system-images;android-30;google_apis;arm64-v8a" --force
+          # Create AVD with Android 30 x86_64 system image (software emulation)
+          echo "Creating AVD with Android 30 x86_64 system image..."
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_avd -k "system-images;android-30;google_apis;x86_64" --force
           
           # Verify AVD was created
           echo "Created AVDs:"
@@ -181,13 +181,13 @@ jobs:
             exit 1
           fi
           
-          # Use more conservative settings for CI reliability with ARM emulation
-          $ANDROID_HOME/emulator/emulator -avd test_avd -no-audio -no-window -gpu swiftshader_indirect -memory 1536 -partition-size 512 -no-snapshot -no-snapshot-save -verbose &
+          # Use software emulation to avoid hardware acceleration requirements
+          $ANDROID_HOME/emulator/emulator -avd test_avd -no-audio -no-window -gpu swiftshader_indirect -memory 1536 -partition-size 512 -no-snapshot -no-snapshot-save -accel off -verbose &
           EMULATOR_PID=$!
           echo "Emulator started with PID: $EMULATOR_PID"
           
-          # Give emulator time to initialize (ARM emulation takes longer)
-          sleep 30
+          # Give emulator time to initialize (software emulation)
+          sleep 20
           
           # Check if emulator process is still running
           if ps -p $EMULATOR_PID > /dev/null; then
@@ -205,15 +205,15 @@ jobs:
           echo "Checking emulator process..."
           ps aux | grep emulator | grep -v grep || echo "No emulator process found"
           
-          # Wait for emulator to be detected with longer intervals for ARM emulation
+          # Wait for emulator to be detected with moderate intervals for software emulation
           echo "Waiting for emulator detection..."
-          for i in {1..40}; do
+          for i in {1..30}; do
             if adb devices | grep -q "emulator.*device"; then
-              echo "Emulator detected after $((i*10)) seconds"
+              echo "Emulator detected after $((i*5)) seconds"
               break
             fi
-            echo "Attempt $i/40: Waiting for emulator..."
-            sleep 10
+            echo "Attempt $i/30: Waiting for emulator..."
+            sleep 5
           done
           
           # Check if emulator was detected
@@ -226,15 +226,15 @@ jobs:
             exit 1
           fi
           
-          # Wait for boot completion with longer intervals for ARM emulation
+          # Wait for boot completion with moderate intervals for software emulation
           echo "Waiting for boot completion..."
           for i in {1..60}; do
             if adb shell getprop sys.boot_completed 2>/dev/null | grep -q 1; then
-              echo "Boot completed after $((i*10)) seconds"
+              echo "Boot completed after $((i*5)) seconds"
               break
             fi
             echo "Boot attempt $i/60: Waiting for boot completion..."
-            sleep 10
+            sleep 5
           done
           
           # Check final status
