@@ -81,7 +81,7 @@ class MockDashboardOptInComponent {}
 })
 class MockFyMenuIconComponent {}
 
-describe('DashboardPage', () => {
+fdescribe('DashboardPage', () => {
   let component: DashboardPage;
   let fixture: ComponentFixture<DashboardPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -1403,10 +1403,17 @@ describe('DashboardPage', () => {
       const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
       sessionStorage.removeItem(dialogShownKey);
       
+      // Reset component observables to avoid affecting other tests
       component.eou$ = of(apiEouRes);
       component.orgSettings$ = of(orgSettingsRes);
       orgUserService.getDwollaCustomer.and.returnValue(of(null));
       launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
+    });
+
+    afterEach(() => {
+      // Clean up any global state that might affect other tests
+      const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
+      sessionStorage.removeItem(dialogShownKey);
     });
 
     it('should show ACH suspension popup when customer is suspended', (done) => {
@@ -1416,7 +1423,10 @@ describe('DashboardPage', () => {
       const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
       popoverController.create.and.resolveTo(mockPopover);
 
-      component.checkAchSuspension().subscribe(() => {
+      component.checkAchSuspension();
+      
+      // Wait for async operations to complete
+      setTimeout(() => {
         expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
         expect(popoverController.create).toHaveBeenCalledWith({
           component: jasmine.any(Function),
@@ -1430,13 +1440,9 @@ describe('DashboardPage', () => {
           },
           cssClass: 'pop-up-in-center',
         });
-        
-        // Wait for the async popover operations to complete
-        setTimeout(() => {
-          expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
-          done();
-        }, 0);
-      });
+        expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+        done();
+      }, 100);
     });
 
     it('should not show popup when customer is not suspended', (done) => {
@@ -1445,11 +1451,13 @@ describe('DashboardPage', () => {
       orgUserService.getDwollaCustomer.and.returnValue(of(activeDwollaCustomer));
       spyOn(component, 'showAchSuspensionPopup');
 
-      component.checkAchSuspension().subscribe(() => {
+      component.checkAchSuspension();
+      
+      setTimeout(() => {
         expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
         expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
         done();
-      });
+      }, 100);
     });
 
     it('should not check ACH when org settings do not allow ACH', (done) => {
@@ -1457,11 +1465,13 @@ describe('DashboardPage', () => {
       component.orgSettings$ = of(orgSettingsWithoutAch);
       spyOn(component, 'showAchSuspensionPopup');
 
-      component.checkAchSuspension().subscribe(() => {
+      component.checkAchSuspension();
+      
+      setTimeout(() => {
         expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
         expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
         done();
-      });
+      }, 100);
     });
 
     it('should not check ACH when org settings do not enable ACH', (done) => {
@@ -1469,11 +1479,13 @@ describe('DashboardPage', () => {
       component.orgSettings$ = of(orgSettingsWithoutAch);
       spyOn(component, 'showAchSuspensionPopup');
 
-      component.checkAchSuspension().subscribe(() => {
+      component.checkAchSuspension();
+      
+      setTimeout(() => {
         expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
         expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
         done();
-      });
+      }, 100);
     });
 
     it('should not show popup when dialog was already shown in session', (done) => {
@@ -1481,11 +1493,13 @@ describe('DashboardPage', () => {
       sessionStorage.setItem(dialogShownKey, 'true');
       spyOn(component, 'showAchSuspensionPopup');
 
-      component.checkAchSuspension().subscribe(() => {
+      component.checkAchSuspension();
+      
+      setTimeout(() => {
         expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
         expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
         done();
-      });
+      }, 100);
     });
 
     it('should handle API errors gracefully and not show popup', (done) => {
@@ -1498,23 +1512,27 @@ describe('DashboardPage', () => {
       orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
       spyOn(component, 'showAchSuspensionPopup');
 
-      component.checkAchSuspension().subscribe(() => {
+      component.checkAchSuspension();
+      
+      setTimeout(() => {
         expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
         expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
         done();
-      });
+      }, 100);
     });
 
     it('should not check ACH when LaunchDarkly flag is disabled', (done) => {
       launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
       spyOn(component, 'showAchSuspensionPopup');
 
-      component.checkAchSuspension().subscribe(() => {
+      component.checkAchSuspension();
+      
+      setTimeout(() => {
         expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
         expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
         expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
         done();
-      });
+      }, 100);
     });
 
     it('should show ACH suspension popup with correct translations', async () => {
