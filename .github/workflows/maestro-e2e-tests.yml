@@ -42,6 +42,13 @@ jobs:
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
+      - name: Restart ADB Server
+        run: |
+          # Restart ADB server to ensure clean connection
+          adb kill-server
+          adb start-server
+          echo "ADB server restarted"
+
       - name: Download APK from Diawi
         run: |
           # Use Diawi URL from manual input or default to Fyle Staging app for PR runs
@@ -68,14 +75,34 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: Nexus 6
+          ram-size: 2048M
+          heap-size: 512M
+          cache-size: 1024M
           script: |
-            # Wait for emulator to be ready
-            adb wait-for-device
+            # Wait for emulator to be ready with retry logic
+            echo "Waiting for emulator to be ready..."
+            timeout 300 bash -c 'until adb wait-for-device shell getprop sys.boot_completed | grep -q 1; do sleep 5; done'
+            
+            # Additional wait for system to fully boot
+            echo "Waiting for system to fully boot..."
+            sleep 30
+            
+            # Check emulator status
+            echo "Emulator status:"
+            adb devices
+            adb shell getprop sys.boot_completed
+            
+            # Unlock the device
+            echo "Unlocking device..."
             adb shell input keyevent 82
             
             # Install the APK on the emulator
             echo "Installing APK on emulator..."
-            adb install android.apk
+            adb install -r android.apk
+            
+            # Verify APK installation
+            echo "Verifying APK installation..."
+            adb shell pm list packages | grep fyle
             
             # Run Maestro tests
             TEST_FILE="${{ github.event.inputs.test_file || 'basic-flow.yaml' }}"

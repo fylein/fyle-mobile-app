@@ -79,13 +79,33 @@ Test results are available as:
 
 ## Troubleshooting
 
-1. **APK Download Issues**: Ensure the manual build workflow completed successfully
-2. **Emulator Issues**: Check Android SDK setup and emulator configuration
-3. **Test Failures**: Verify UI element selectors match your actual app interface
-4. **Maestro CLI Issues**: The workflow installs Maestro automatically, but you can install locally with:
-   ```bash
-   curl -Ls "https://get.maestro.mobile.dev" | bash
-   ```
+### Common Issues
+
+1. **Emulator Offline Error**: 
+   - The workflow now includes ADB server restart and retry logic
+   - Increased emulator resources (RAM, heap, cache) for better stability
+   - Extended timeout for emulator boot completion
+
+2. **APK Download Issues**: 
+   - Ensure Diawi URL is accessible and valid
+   - Check that the APK file is not corrupted
+
+3. **Test Failures**: 
+   - Verify UI element selectors match your actual app interface
+   - Check that the app launches successfully on the emulator
+
+4. **Maestro CLI Issues**: 
+   - The workflow installs Maestro automatically
+   - For local testing, install with: `curl -Ls "https://get.maestro.mobile.dev" | bash`
+
+### Debugging Steps
+
+If the workflow fails:
+
+1. **Check emulator status** in the logs
+2. **Verify APK installation** - look for package verification logs
+3. **Review Maestro test output** for specific UI element issues
+4. **Check ADB connectivity** - ensure device shows as "device" not "offline"
 
 ## Local Testing
 
