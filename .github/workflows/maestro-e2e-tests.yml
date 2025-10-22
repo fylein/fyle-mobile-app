@@ -58,14 +58,24 @@ jobs:
           build-tools: 34.0.0
           ndk-version: 25.1.8937393
 
+      - name: Set up Android environment
+        run: |
+          echo "Setting up Android environment variables..."
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "PATH=$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
+          echo "Android environment variables set"
+          echo "ANDROID_HOME: $ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+
       - name: Install System Image
         run: |
           echo "Checking if Android 30 system image is installed..."
-          if sdkmanager --list | grep -q "system-images;android-30;default;x86_64.*installed"; then
+          if $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep -q "system-images;android-30;default;x86_64.*installed"; then
             echo "Android 30 system image already installed"
           else
             echo "Installing Android 30 system image (faster boot)..."
-            sdkmanager "system-images;android-30;default;x86_64"
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;default;x86_64"
             echo "System image installed successfully"
           fi
 
@@ -113,19 +123,32 @@ jobs:
           file android.apk
           echo "APK size: $(du -h android.apk)"
 
+      - name: Verify Android tools
+        run: |
+          echo "Verifying Android tools are available..."
+          echo "ANDROID_HOME: $ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+          echo "PATH: $PATH"
+          echo "Checking emulator availability:"
+          ls -la $ANDROID_HOME/emulator/emulator || echo "Emulator not found at expected location"
+          echo "Checking avdmanager availability:"
+          ls -la $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager || echo "avdmanager not found at expected location"
+          echo "Checking sdkmanager availability:"
+          ls -la $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager || echo "sdkmanager not found at expected location"
+
       - name: Create AVD
         run: |
           echo "Creating Android Virtual Device..."
           # List available system images
           echo "Available system images:"
-          avdmanager list target
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list target
           
           # Create AVD with faster Android 30 system image
-          echo "no" | avdmanager create avd -n test_avd -k "system-images;android-30;default;x86_64" --force
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_avd -k "system-images;android-30;default;x86_64" --force
           
           # Verify AVD was created
           echo "Created AVDs:"
-          avdmanager list avd
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
           
           echo "AVD created successfully"
 
@@ -133,7 +156,7 @@ jobs:
         run: |
           echo "Starting emulator with conservative settings for CI..."
           # Use more conservative settings for CI reliability
-          emulator -avd test_avd -no-audio -no-window -gpu swiftshader_indirect -memory 1536 -partition-size 512 -verbose &
+          $ANDROID_HOME/emulator/emulator -avd test_avd -no-audio -no-window -gpu swiftshader_indirect -memory 1536 -partition-size 512 -verbose &
           EMULATOR_PID=$!
           echo "Emulator started with PID: $EMULATOR_PID"
           
@@ -229,7 +252,7 @@ jobs:
         run: |
           echo "Stopping emulator..."
           adb emu kill
-          pkill -f emulator
+          pkill -f "$ANDROID_HOME/emulator/emulator"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
