@@ -32,7 +32,7 @@ export class DeepLinkService {
     const redirectUri: string = redirectionParam.redirect_uri;
     const verificationCode: string = redirectionParam.verification_code;
     const orgId: string = redirectionParam.org_id;
-    const refreshToken: string = redirectionParam.refresh_token;
+    const refreshToken: string = redirectionParam.token;
 
     if (redirectUri) {
       if (redirectUri.match('verify')) {
@@ -51,7 +51,7 @@ export class DeepLinkService {
           'auth',
           'new_password',
           {
-            refreshToken,
+            token: refreshToken,
           },
         ]);
       } else if (redirectUri.match('/reports/rp') && redirectUri.split('/reports/').pop().length === 12) {
