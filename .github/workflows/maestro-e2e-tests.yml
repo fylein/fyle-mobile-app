@@ -131,28 +131,73 @@ jobs:
 
       - name: Start Emulator
         run: |
-          echo "Starting emulator with optimized boot settings..."
-          emulator -avd test_avd -no-audio -no-window -gpu swiftshader_indirect -memory 2048 -partition-size 1024 -no-snapshot -no-boot-anim --cold-boot-none &
-          echo "Emulator started in background with fast boot options"
+          echo "Starting emulator with conservative settings for CI..."
+          # Use more conservative settings for CI reliability
+          emulator -avd test_avd -no-audio -no-window -gpu swiftshader_indirect -memory 1536 -partition-size 512 -verbose &
+          EMULATOR_PID=$!
+          echo "Emulator started with PID: $EMULATOR_PID"
+          
+          # Give emulator time to initialize
+          sleep 15
+          
+          # Check if emulator process is still running
+          if ps -p $EMULATOR_PID > /dev/null; then
+            echo "Emulator process is running"
+          else
+            echo "Emulator process died, checking logs..."
+            exit 1
+          fi
 
       - name: Wait for Emulator
         run: |
-          echo "Waiting for emulator to boot (optimized with longer timeout)..."
-          # Wait for emulator to be detected
-          timeout 600 bash -c 'until adb devices | grep -q "emulator.*device"; do sleep 5; echo "Waiting for emulator..."; done'
+          echo "Waiting for emulator to boot (with debugging)..."
           
-          # Wait for boot completion with extended timeout
+          # First, check if emulator process is still alive
+          echo "Checking emulator process..."
+          ps aux | grep emulator | grep -v grep || echo "No emulator process found"
+          
+          # Wait for emulator to be detected with shorter intervals
+          echo "Waiting for emulator detection..."
+          for i in {1..60}; do
+            if adb devices | grep -q "emulator.*device"; then
+              echo "Emulator detected after $((i*5)) seconds"
+              break
+            fi
+            echo "Attempt $i/60: Waiting for emulator..."
+            sleep 5
+          done
+          
+          # Check if emulator was detected
+          if ! adb devices | grep -q "emulator.*device"; then
+            echo "ERROR: Emulator not detected after 5 minutes"
+            echo "ADB devices output:"
+            adb devices
+            echo "Emulator process status:"
+            ps aux | grep emulator | grep -v grep
+            exit 1
+          fi
+          
+          # Wait for boot completion with shorter intervals
           echo "Waiting for boot completion..."
-          timeout 600 bash -c 'until adb shell getprop sys.boot_completed | grep -q 1; do sleep 5; echo "Waiting for boot..."; done'
-          
-          # Reduced stabilization time due to optimized boot
-          echo "Waiting for system to stabilize..."
-          sleep 15
+          for i in {1..120}; do
+            if adb shell getprop sys.boot_completed 2>/dev/null | grep -q 1; then
+              echo "Boot completed after $((i*5)) seconds"
+              break
+            fi
+            echo "Boot attempt $i/120: Waiting for boot completion..."
+            sleep 5
+          done
           
           # Check final status
           echo "Final emulator status:"
           adb devices
-          adb shell getprop sys.boot_completed
+          BOOT_STATUS=$(adb shell getprop sys.boot_completed 2>/dev/null || echo "failed")
+          echo "Boot completed status: $BOOT_STATUS"
+          
+          if [ "$BOOT_STATUS" != "1" ]; then
+            echo "ERROR: Boot did not complete properly"
+            exit 1
+          fi
 
       - name: Setup Emulator
         run: |
