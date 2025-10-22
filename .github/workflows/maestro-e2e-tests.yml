@@ -46,6 +46,7 @@ jobs:
             ~/.android
             ~/android-sdk
             ~/android-sdk-linux
+            ~/.android/avd
           key: android-sdk-${{ runner.os }}-${{ hashFiles('**/gradle-wrapper.properties') }}
           restore-keys: |
             android-sdk-${{ runner.os }}-
@@ -56,6 +57,17 @@ jobs:
           api-level: 34
           build-tools: 34.0.0
           ndk-version: 25.1.8937393
+
+      - name: Install System Image
+        run: |
+          echo "Checking if Android 34 system image is installed..."
+          if sdkmanager --list | grep -q "system-images;android-34;google_apis;x86_64.*installed"; then
+            echo "Android 34 system image already installed"
+          else
+            echo "Installing Android 34 system image..."
+            sdkmanager "system-images;android-34;google_apis;x86_64"
+            echo "System image installed successfully"
+          fi
 
       - name: Cache Maestro CLI
         uses: actions/cache@v4
@@ -104,7 +116,17 @@ jobs:
       - name: Create AVD
         run: |
           echo "Creating Android Virtual Device..."
+          # List available system images
+          echo "Available system images:"
+          avdmanager list target
+          
+          # Create AVD with proper error handling
           echo "no" | avdmanager create avd -n test_avd -k "system-images;android-34;google_apis;x86_64" --force
+          
+          # Verify AVD was created
+          echo "Created AVDs:"
+          avdmanager list avd
+          
           echo "AVD created successfully"
 
       - name: Start Emulator
