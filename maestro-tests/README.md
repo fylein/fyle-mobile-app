@@ -27,7 +27,7 @@ Tests run automatically when:
 - A new pull request is opened
 - A pull request is updated with new commits
 
-**Note**: For PR runs, you'll need to provide a Diawi URL manually or the workflow will use a placeholder.
+**Note**: For PR runs, the workflow will use the Fyle Staging app from Diawi by default.
 
 ### Running Tests Manually
 
@@ -42,8 +42,8 @@ You can run Maestro tests manually with a Diawi URL:
 4. **Click "Run workflow"**
 
 **Example Diawi URLs:**
-- `https://d.diawi.com/abc123/fyle-app.apk`
-- `https://d.diawi.com/xyz789/fyle-staging.apk`
+- Fyle Staging: `https://i.diawi.com/CZESH4` (default for PR runs)
+- Custom build: `https://i.diawi.com/xyz789/fyle-custom.apk`
 
 ### Customizing Tests
 

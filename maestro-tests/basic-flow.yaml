@@ -1,8 +1,8 @@
-appId: com.fyle.mobileapp
+appId: com.ionicframework.fyle595781.staging
 
 ---
-# Maestro E2E test flow for Fyle mobile app
-# This test covers basic app functionality
+# Maestro E2E test flow for Fyle Staging mobile app
+# This test covers basic app functionality for Fyle Staging (v8.6.0)
 
 - launchApp
 - assertVisible: "Fyle" # App name or welcome screen
