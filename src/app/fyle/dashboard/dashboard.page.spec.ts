@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync, flush } from '@angular/core/testing';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 
 import { DashboardPage } from './dashboard.page';
@@ -1416,7 +1416,7 @@ describe('DashboardPage', () => {
       sessionStorage.removeItem(dialogShownKey);
     });
 
-    it('should show ACH suspension popup when customer is suspended', (done) => {
+    it('should show ACH suspension popup when customer is suspended', fakeAsync(() => {
       // Ensure LaunchDarkly flag is enabled for this test
       launchDarklyService.getVariation.and.returnValue(of(true));
       orgUserService.getDwollaCustomer.and.returnValue(of(suspendedDwollaCustomer));
@@ -1425,27 +1425,26 @@ describe('DashboardPage', () => {
 
       component.checkAchSuspension();
       
-      // Wait for async operations to complete
-      setTimeout(() => {
-        expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
-        expect(popoverController.create).toHaveBeenCalledWith({
-          component: jasmine.any(Function),
-          componentProps: {
-            title: jasmine.any(String),
-            message: jasmine.any(String),
-            primaryCta: {
-              text: jasmine.any(String),
-              action: 'confirm',
-            },
-          },
-          cssClass: 'pop-up-in-center',
-        });
-        expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
-        done();
-      }, 100);
-    });
+      // Flush all pending async operations
+      flush();
 
-    it('should not show popup when customer is not suspended', (done) => {
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: jasmine.any(String),
+          message: jasmine.any(String),
+          primaryCta: {
+            text: jasmine.any(String),
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    }));
+
+    it('should not show popup when customer is not suspended', fakeAsync(() => {
       // Ensure LaunchDarkly flag is enabled for this test
       launchDarklyService.getVariation.and.returnValue(of(true));
       orgUserService.getDwollaCustomer.and.returnValue(of(activeDwollaCustomer));
@@ -1453,56 +1452,52 @@ describe('DashboardPage', () => {
 
       component.checkAchSuspension();
       
-      setTimeout(() => {
-        expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
-        expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-        done();
-      }, 100);
-    });
+      flush();
 
-    it('should not check ACH when org settings do not allow ACH', (done) => {
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when org settings do not allow ACH', fakeAsync(() => {
       const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: false, enabled: true } };
       component.orgSettings$ = of(orgSettingsWithoutAch);
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
       
-      setTimeout(() => {
-        expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
-        expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-        done();
-      }, 100);
-    });
+      flush();
 
-    it('should not check ACH when org settings do not enable ACH', (done) => {
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when org settings do not enable ACH', fakeAsync(() => {
       const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: true, enabled: false } };
       component.orgSettings$ = of(orgSettingsWithoutAch);
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
       
-      setTimeout(() => {
-        expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
-        expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-        done();
-      }, 100);
-    });
+      flush();
 
-    it('should not show popup when dialog was already shown in session', (done) => {
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not show popup when dialog was already shown in session', fakeAsync(() => {
       const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
       sessionStorage.setItem(dialogShownKey, 'true');
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
       
-      setTimeout(() => {
-        expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
-        expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-        done();
-      }, 100);
-    });
+      flush();
 
-    it('should handle API errors gracefully and not show popup', (done) => {
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should handle API errors gracefully and not show popup', fakeAsync(() => {
       // Clear session storage to ensure clean state
       const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
       sessionStorage.removeItem(dialogShownKey);
@@ -1514,26 +1509,24 @@ describe('DashboardPage', () => {
 
       component.checkAchSuspension();
       
-      setTimeout(() => {
-        expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
-        expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-        done();
-      }, 100);
-    });
+      flush();
 
-    it('should not check ACH when LaunchDarkly flag is disabled', (done) => {
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
       launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
       
-      setTimeout(() => {
-        expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
-        expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
-        expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-        done();
-      }, 100);
-    });
+      flush();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
 
     it('should show ACH suspension popup with correct translations', async () => {
       const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
