@@ -44,8 +44,8 @@ jobs:
 
       - name: Download APK from Diawi
         run: |
-          # Use Diawi URL from manual input or default to a placeholder for PR runs
-          DIAWI_URL="${{ github.event.inputs.diawi_url || 'https://d.diawi.com/placeholder/fyle-app.apk' }}"
+          # Use Diawi URL from manual input or default to Fyle Staging app for PR runs
+          DIAWI_URL="${{ github.event.inputs.diawi_url || 'https://i.diawi.com/CZESH4' }}"
           echo "Downloading APK from: $DIAWI_URL"
           wget -O android.apk "$DIAWI_URL"
           echo "APK downloaded successfully"
