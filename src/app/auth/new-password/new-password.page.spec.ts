@@ -60,7 +60,7 @@ describe('NewPasswordPage', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              params: { refreshToken: 'token123' },
+              params: { token: 'token123' },
             },
           },
         },
