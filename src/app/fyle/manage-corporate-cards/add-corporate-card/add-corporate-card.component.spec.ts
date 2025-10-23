@@ -420,7 +420,7 @@ describe('AddCorporateCardComponent', () => {
       expect(alertMessageComponent).toBeTruthy();
       expect(alertMessageComponent.componentInstance.type()).toBe('information');
       expect(alertMessageComponent.componentInstance.message()).toBe(
-        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.',
+        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Sage Expense Management Web or contact your admin.',
       );
       expect(addCorporateCardBtn.disabled).toBeTrue();
       expect(trackingService.enrollingNonRTFCard).toHaveBeenCalledOnceWith(enrollingNonRTFCardProperties);
