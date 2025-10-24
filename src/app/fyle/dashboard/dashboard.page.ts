@@ -1,6 +1,6 @@
 import { Component, EventEmitter, ViewChild, inject, signal, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import {
   ActionSheetButton,
   ActionSheetController,
@@ -64,6 +64,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { OverlayEventDetail } from '@ionic/core';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -247,6 +248,14 @@ export class DashboardPage {
 
   private get swiperInstance(): Swiper | undefined {
     return this.swiperComponent()?.swiperRef;
+  }
+
+  private startNavbarWalkthrough(eou: ExtendedOrgUser): void {
+    if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
+      this.showNavbarWalkthrough(true);
+    } else {
+      this.showNavbarWalkthrough(false);
+    }
   }
 
   startDashboardAddExpenseWalkthrough(): void {
@@ -644,39 +653,33 @@ export class DashboardPage {
       this.timezoneService.setTimezone(employeeSettings?.locale);
     });
 
-    if (openSMSOptInDialog !== 'true') {
-      this.eou$
-        .pipe(
-          map((eou) => {
-            if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
-              this.showNavbarWalkthrough(true);
-            } else {
-              this.showNavbarWalkthrough(false);
-            }
-
-            this.userName = eou.us.full_name;
-          }),
-        )
-        .subscribe(noop);
-    }
-
     const optInBanner$ = this.setShowOptInBanner();
     const emailOptInBanner$ = this.setShowEmailOptInBanner();
 
     this.canShowOptInBanner$ = optInBanner$;
     this.canShowEmailOptInBanner$ = emailOptInBanner$;
 
+    this.eou$.subscribe((eou) => {
+      this.userName = eou.us.full_name;
+    });
+
     forkJoin({
       optInBanner: optInBanner$,
       emailOptInBanner: emailOptInBanner$,
       showRebrandingPopup: this.canShowRebrandingPopup(),
+      eou: this.eou$,
     })
       .pipe(take(1))
       .subscribe({
-        next: ({ showRebrandingPopup }) => {
+        next: ({ showRebrandingPopup, eou }) => {
           this.setSwiperConfig();
           if (showRebrandingPopup) {
-            this.showRebrandingPopup();
+            this.showRebrandingPopup().then((result) => {
+              this.startNavbarWalkthrough(eou);
+            });
+          } else {
+            this.rebrandingPopupShown.set(true);
+            this.startNavbarWalkthrough(eou);
           }
         },
         error: () => {
@@ -928,7 +931,7 @@ export class DashboardPage {
     this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
   }
 
-  async showRebrandingPopup(): Promise<void> {
+  async showRebrandingPopup(): Promise<OverlayEventDetail<any>> {
     const rebrandingPopover = await this.popoverController.create({
       component: RebrandingPopupComponent,
       cssClass: 'pop-up-in-center',
@@ -945,6 +948,7 @@ export class DashboardPage {
     };
 
     this.featureConfigService.saveConfiguration(rebrandingPopupConfig).subscribe(noop);
+    return rebrandingPopover.onDidDismiss();
   }
 
   setModalDelay(): void {
