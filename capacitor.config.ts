@@ -3,7 +3,7 @@ import { KeyboardStyle } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
   appId: 'com.ionicframework.fyle595781',
-  appName: 'Fyle',
+  appName: 'Sage Exp Mgmt',
   webDir: 'www',
   loggingBehavior: 'debug',
   plugins: {

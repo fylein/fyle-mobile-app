@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-  <string name="app_name">Fyle</string>
-  <string name="title_activity_main">Fyle</string>
+  <string name="app_name">Sage Exp Mgmt</string>
+  <string name="title_activity_main">Sage Exp Mgmt</string>
   <string name="package_name">com.ionicframework.fyle595781</string>
   <string name="custom_url_scheme">com.ionicframework.fyle595781</string>
   <string name="ionic_app_id">32316914</string>
