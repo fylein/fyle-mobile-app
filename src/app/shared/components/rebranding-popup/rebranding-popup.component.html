@@ -1,0 +1,32 @@
+<div class="rebranding-popup">
+  <div class="rebranding-popup--header">
+    {{ 'rebrandingPopup.title' | transloco }} ✨
+  </div>
+
+  <div class="rebranding-popup--body">
+    {{ 'rebrandingPopup.message' | transloco }}
+  </div>
+
+  <div class="rebranding-popup--learn-more-container">
+    <button 
+      type="button" 
+      class="rebranding-popup--learn-more-button"
+      (click)="onLearnMoreClick()"
+    >
+      {{ 'rebrandingPopup.learnMore' | transloco }}
+      <mat-icon class="rebranding-popup--arrow-icon" svgIcon="arrow-right"></mat-icon>
+    </button>
+  </div>
+
+  <div class="rebranding-popup--footer">
+    <div class="rebranding-popup--cta-container">
+      <button
+        type="submit"
+        class="btn-primary btn-auto-dimension rebranding-popup--ok-button"
+        (click)="onOkClick()"
+      >
+        {{ 'rebrandingPopup.ok' | transloco }}
+      </button>
+    </div>
+  </div>
+</div>

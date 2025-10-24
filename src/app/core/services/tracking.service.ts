@@ -889,6 +889,14 @@ export class TrackingService {
     this.eventTrack('Clicked On Dashboard Banner');
   }
 
+  clickedOnRebrandingLearnMore(): void {
+    this.eventTrack('Clicked On Rebranding Learn More');
+  }
+
+  clickedOnRebrandingOk(): void {
+    this.eventTrack('Clicked On Rebranding Ok');
+  }
+
   // Track receipt scan duration event
   receiptScanTime(properties: { duration: number; fileType: string }): void {
     this.eventTrack('Receipt Scan Time', properties);
