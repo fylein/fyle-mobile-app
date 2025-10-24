@@ -589,7 +589,7 @@ export const permissionDeniedPopoverParams = {
   component: PopupAlertComponent,
   componentProps: {
     title: 'Photos permission',
-    message: 'Please allow Fyle to access device photos. Click Settings and allow Photos access',
+    message: 'Please allow Sage Expense Management to access device photos. Click Settings and allow Photos access',
     primaryCta: {
       text: 'Open settings',
       action: 'OPEN_SETTINGS',

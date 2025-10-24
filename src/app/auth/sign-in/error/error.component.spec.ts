@@ -35,7 +35,7 @@ describe('ErrorComponent', () => {
           'Please retry in a while. Send us a note to <a href="mailto:support@fylehq.com">support@fylehq.com</a> if the problem persists.',
         'error.temporarilyLocked':
           'This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please retry later.',
-        'error.restrictedAccess': 'Your organization has restricted Fyle access to its corporate network.',
+        'error.restrictedAccess': 'Your organization has restricted Sage Expense Management access to its corporate network.',
         'error.tryAgain': 'Try again',
       };
       let translation = translations[key] || key;
@@ -148,7 +148,7 @@ describe('ErrorComponent', () => {
       fixture.detectChanges();
       const errorMessage = getElementBySelector(fixture, '.error-internal__details');
       expect(getTextContent(errorMessage)).toContain(
-        'Your organization has restricted Fyle access to its corporate network.',
+        'Your organization has restricted Sage Expense Management access to its corporate network.',
       );
     }));
   });

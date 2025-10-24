@@ -1,4 +1,3 @@
-/* eslint-disable */
 import {
   Component,
   OnInit,
