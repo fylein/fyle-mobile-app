@@ -462,7 +462,7 @@ export class MyProfilePage {
     const allInfoCardsData: InfoCardData[] = [
       {
         title: 'Email receipts',
-        content: `Forward your receipts to Fyle at ${fyleEmail}.`,
+        content: `Forward your receipts to Sage Expense Management at ${fyleEmail}.`,
         contentToCopy: fyleEmail,
         toastMessageContent: 'Email copied successfully',
         isShown: true,
@@ -486,7 +486,7 @@ export class MyProfilePage {
     const listItems = [
       {
         icon: 'envelope',
-        text: `Message your receipts to Fyle at ${fyleMobileNumber} and we will create an expense for you.`,
+        text: `Message your receipts to Sage Expense Management at ${fyleMobileNumber} and we will create an expense for you.`,
         textToCopy: fyleMobileNumber,
       },
       {
