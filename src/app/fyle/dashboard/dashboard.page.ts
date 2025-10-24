@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, ViewChild, inject, signal, viewChild } from '@angular/core';
+import { Component, EventEmitter, ViewChild, inject, signal, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
@@ -644,7 +644,7 @@ export class DashboardPage {
       this.timezoneService.setTimezone(employeeSettings?.locale);
     });
 
-    if (openSMSOptInDialog !== 'true' && this.rebrandingPopupShown()) {
+    if (openSMSOptInDialog !== 'true') {
       this.eou$
         .pipe(
           map((eou) => {
