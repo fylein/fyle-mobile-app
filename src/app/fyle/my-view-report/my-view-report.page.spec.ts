@@ -7,7 +7,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { cloneDeep } from 'lodash';
-import { BehaviorSubject, Subscription, of } from 'rxjs';
+import { BehaviorSubject, Subscription, of, throwError } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -15,6 +15,7 @@ import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
@@ -86,6 +87,7 @@ describe('MyViewReportPage', () => {
   let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+  let orgUserService: jasmine.SpyObj<OrgUserService>;
 
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['updateReportPurpose']);
@@ -97,6 +99,7 @@ describe('MyViewReportPage', () => {
       'getAllExpenses',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -111,6 +114,7 @@ describe('MyViewReportPage', () => {
       'clickViewReportInfo',
       'addToExistingReport',
       'reportNameChange',
+      'eventTrack',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -155,6 +159,10 @@ describe('MyViewReportPage', () => {
         {
           provide: AuthService,
           useValue: authServiceSpy,
+        },
+        {
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
         },
         {
           provide: LoaderService,
@@ -242,6 +250,7 @@ describe('MyViewReportPage', () => {
     orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
 
     component.report$ = of(platformReportData);
     component.canEdit$ = of(true);
@@ -1069,5 +1078,77 @@ describe('MyViewReportPage', () => {
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
     expect(component.loadReportTxns$.next).toHaveBeenCalledTimes(1);
     expect(component.unreportedExpenses).toEqual([expenseData]);
+  });
+
+  describe('ACH Suspension Functionality:', () => {
+    beforeEach(() => {
+      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
+    });
+
+    it('should show ACH suspension popup when called', async () => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      await component.showAchSuspensionPopup();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    });
+
+    it('should check for reimbursable expenses before adding to report', () => {
+      // Setup required observables
+      component.eou$ = of(apiEouRes);
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      const reimbursableExpense = { ...expenseData, id: 'tx1', is_reimbursable: true };
+      const nonReimbursableExpense = { ...expenseData, id: 'tx2', is_reimbursable: false };
+      component.unreportedExpenses = [reimbursableExpense, nonReimbursableExpense];
+      spenderReportsService.addExpenses.and.returnValue(of(null));
+      spyOn(component as any, 'checkAchSuspensionBeforeAdd');
+
+      component.addExpensesToReport(['tx1', 'tx2']);
+
+      expect((component as any).checkAchSuspensionBeforeAdd).toHaveBeenCalledWith(['tx1', 'tx2']);
+    });
+
+    it('should proceed directly when no reimbursable expenses are selected', () => {
+      const nonReimbursableExpense = { ...expenseData, id: 'tx1', is_reimbursable: false };
+      component.unreportedExpenses = [nonReimbursableExpense];
+      spenderReportsService.addExpenses.and.returnValue(of(null));
+      spyOn(component as any, 'checkAchSuspensionBeforeAdd');
+      spyOn(component as any, 'performAddExpenses');
+
+      component.addExpensesToReport(['tx1']);
+
+      expect((component as any).checkAchSuspensionBeforeAdd).not.toHaveBeenCalled();
+      expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
+    });
+
+    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
+      // Setup required observables
+      component.eou$ = of(apiEouRes);
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component as any, 'performAddExpenses');
+
+      (component as any).checkAchSuspensionBeforeAdd(['tx1']);
+      tick(100);
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
+    }));
   });
 });

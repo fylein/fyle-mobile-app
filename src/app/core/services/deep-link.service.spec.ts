@@ -112,7 +112,7 @@ describe('DeepLinkService', () => {
     it('should navigate to the new password page when the redirect URI contains "/new_password"', () => {
       deepLinkService.redirect({
         redirect_uri: `${baseURL}/new_password/`,
-        refresh_token: 'token',
+        token: 'token',
       });
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -120,7 +120,7 @@ describe('DeepLinkService', () => {
         'auth',
         'new_password',
         {
-          refreshToken: 'token',
+          token: 'token',
         },
       ]);
     });
