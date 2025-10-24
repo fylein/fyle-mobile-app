@@ -657,6 +657,7 @@ describe('MyViewReportPage', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Report resubmitted successfully.',
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -691,6 +692,7 @@ describe('MyViewReportPage', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Report submitted successfully.',
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -865,6 +867,7 @@ describe('MyViewReportPage', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: 'PDF download link has been emailed to aj@fyle.com',
+        messageType: 'success' as const,
       },
       duration: 3000,
     };

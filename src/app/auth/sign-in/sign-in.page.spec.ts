@@ -403,6 +403,21 @@ describe('SignInPage', () => {
 
       expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'disabled']);
     });
+
+    it('should navigate to reset password page with tmp_pwd_expired query param if error status is 406', async () => {
+      const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
+      popoverController.create.and.returnValue(errorPopoverSpy);
+
+      const error = { status: 406 } as HttpErrorResponse;
+
+      await component.handleError(error);
+
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('Go to Password Expired page');
+      expect(router.navigate).toHaveBeenCalledWith(
+        ['/', 'auth', 'reset_password', { email: component.fg.controls.email.value }],
+        { queryParams: { tmp_pwd_expired: true } }
+      );
+    });
   });
 
   describe('signInUser(): ', () => {

@@ -19,17 +19,17 @@ describe('SnackbarPropertiesService', () => {
     //act
     const properties = service.setSnackbarProperties('success', { message: 'Success message' });
     //assert
-    expect(properties.data.icon).toEqual('check-square-fill');
+    expect(properties.data.icon).toEqual('success-toast-icon');
   });
 
   it('should return the correct icon for a failure toast message', () => {
     const properties = service.setSnackbarProperties('failure', { message: 'Failure message' });
-    expect(properties.data.icon).toEqual('warning-fill');
+    expect(properties.data.icon).toEqual('failure-toast-icon');
   });
 
   it('should return correct icon for a information toast message', () => {
     const properties = service.setSnackbarProperties('information', { message: 'Information message' });
-    expect(properties.data.icon).toBeUndefined();
+    expect(properties.data.icon).toEqual('info-toast-icon');
   });
 
   it('should return the correct duration', () => {

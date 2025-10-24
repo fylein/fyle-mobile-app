@@ -1,4 +1,5 @@
 @use '@angular/material' as mat;
+@use './colors.scss';
 
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
@@ -66,6 +67,17 @@ $fy-theme: mat.m2-define-light-theme(
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include mat.all-component-themes($fy-theme);
+
+.mdc-snackbar {
+  @include mat.snack-bar-overrides(
+    (
+      container-shape: 4px,
+      supporting-text-color: colors.$grayscale-90,
+      container-color: colors.$pure-white,
+      supporting-text-size: 14px,
+    )
+  );
+}
 
 // // Ionic Variables and Theming. For more info, please see:
 // // http://ionicframework.com/docs/theming/

@@ -262,6 +262,7 @@ export function TestCases3(getTestBed) {
             icon: 'check-square-fill',
             showCloseButton: true,
             message,
+            messageType: 'success' as const,
           },
           duration: 3000,
         };
@@ -286,6 +287,7 @@ export function TestCases3(getTestBed) {
             icon: 'warning-fill',
             showCloseButton: true,
             message,
+            messageType: 'failure' as const,
           },
           duration: 3000,
         };
