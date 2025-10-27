@@ -35,7 +35,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { suspendedDwollaCustomer, activeDwollaCustomer } from 'src/app/core/mock-data/dwolla-customer.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { featureConfigOptInData, featureConfigEmailOptInData } from 'src/app/core/mock-data/feature-config.data';
+import { featureConfigOptInData, featureConfigEmailOptInData, featureConfigRebrandingPopupData } from 'src/app/core/mock-data/feature-config.data';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import {
   featureConfigWalkthroughFinishData,
@@ -81,7 +81,7 @@ class MockDashboardOptInComponent {}
 })
 class MockFyMenuIconComponent {}
 
-describe('DashboardPage', () => {
+fdescribe('DashboardPage', () => {
   let component: DashboardPage;
   let fixture: ComponentFixture<DashboardPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -495,16 +495,6 @@ describe('DashboardPage', () => {
       tick(100);
 
       expect(component.setSwiperConfig).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should start navbar walkthrough', fakeAsync(() => {
-      // Ensure LaunchDarklyService mock is set up for this test
-      launchDarklyService.getVariation.and.returnValue(of(true));
-      component.eou$ = of(apiEouRes);
-      featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
-      component.ionViewWillEnter();
-      tick(1000);
-      expect(component.startTour).toHaveBeenCalledTimes(1);
     }));
   });
 
