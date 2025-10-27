@@ -12,11 +12,11 @@ import { ReportStates } from '../stat-badge/report-states.enum';
 import { of } from 'rxjs';
 import { EventEmitter } from '@angular/core';
 import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
+import { expectedReportStats, expectedSentBackResponse } from 'src/app/core/mock-data/report-stats.data';
 import { reportStatsData1, reportStatsData2 } from 'src/app/core/mock-data/report-stats-data.data';
 import { expectedIncompleteExpStats, expectedUnreportedExpStats } from 'src/app/core/mock-data/stats.data';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
-import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { orgData1, orgData3 } from 'src/app/core/mock-data/org.data';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('StatsComponent', () => {
@@ -37,6 +37,7 @@ describe('StatsComponent', () => {
       'getReportsStats',
       'getUnreportedExpensesStats',
       'getIncompleteExpensesStats',
+      'getUnapprovedTeamReportsStats',
       'getReportStateMapping',
       'isUserAnApprover',
     ]);
@@ -224,6 +225,40 @@ describe('StatsComponent', () => {
     });
   });
 
+  describe('initializeUnapprovedTeamReportsStats():', () => {
+    it('should set unapprovedTeamReportsStats$ when currentOrg is primaryOrg', (done) => {
+      orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+      orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
+      dashboardService.getUnapprovedTeamReportsStats.and.returnValue(of(expectedSentBackResponse));
+
+      component.initializeUnapprovedTeamReportsStats();
+
+      component.unapprovedTeamReportsStats$.subscribe((res) => {
+        expect(res).toEqual(expectedSentBackResponse);
+        expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
+        expect(orgService.getPrimaryOrg).toHaveBeenCalledTimes(1);
+        expect(dashboardService.getUnapprovedTeamReportsStats).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should set unapprovedTeamReportsStats$ to null when currentOrg is not primaryOrg', (done) => {
+      orgService.getCurrentOrg.and.returnValue(of(orgData3[0]));
+      orgService.getPrimaryOrg.and.returnValue(of(orgData3[1]));
+      dashboardService.getUnapprovedTeamReportsStats.and.returnValue(of(expectedSentBackResponse));
+
+      component.initializeUnapprovedTeamReportsStats();
+
+      component.unapprovedTeamReportsStats$.subscribe((res) => {
+        expect(res).toBeNull();
+        expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
+        expect(orgService.getPrimaryOrg).toHaveBeenCalledTimes(1);
+        expect(dashboardService.getUnapprovedTeamReportsStats).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
   describe('trackOrgLaunchTime()', () => {
     it('should track org launch time if getEntriesByName() returns empty array', () => {
       const performance = {
@@ -349,18 +384,35 @@ describe('StatsComponent', () => {
     });
   });
 
-  it('goToReportsPage(): should navigate to reports page with query params', () => {
-    dashboardService.getReportStateMapping.and.returnValue('Approved');
+  describe('goToReportsPage():', () => {
+    it('should navigate to reports page with query params', () => {
+      dashboardService.getReportStateMapping.and.returnValue('Approved');
 
-    component.goToReportsPage(ReportStates.APPROVED);
+      component.goToReportsPage(ReportStates.APPROVED);
 
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
-      queryParams: {
-        filters: JSON.stringify({ state: [ReportStates.APPROVED.toString()] }),
-      },
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: [ReportStates.APPROVED.toString()] }),
+        },
+      });
+      expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+        event: 'Clicked On Approved Reports',
+      });
     });
-    expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
-      event: 'Clicked On Approved Reports',
+
+    it('should navigate to reports page with DRAFT and APPROVER_INQUIRY states when OPEN', () => {
+      dashboardService.getReportStateMapping.and.returnValue('Open');
+
+      component.goToReportsPage(ReportStates.OPEN);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['DRAFT', 'APPROVER_INQUIRY'] }),
+        },
+      });
+      expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+        event: 'Clicked On Open Reports',
+      });
     });
   });
 
