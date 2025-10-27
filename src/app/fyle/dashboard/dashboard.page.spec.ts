@@ -35,7 +35,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { suspendedDwollaCustomer, activeDwollaCustomer } from 'src/app/core/mock-data/dwolla-customer.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { featureConfigOptInData, featureConfigEmailOptInData, featureConfigRebrandingPopupData } from 'src/app/core/mock-data/feature-config.data';
+import { featureConfigOptInData, featureConfigEmailOptInData } from 'src/app/core/mock-data/feature-config.data';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import {
   featureConfigWalkthroughFinishData,

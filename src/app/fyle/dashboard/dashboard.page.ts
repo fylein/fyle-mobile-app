@@ -931,7 +931,7 @@ export class DashboardPage {
     this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
   }
 
-  async showRebrandingPopup(): Promise<OverlayEventDetail<{}>> {
+  async showRebrandingPopup(): Promise<OverlayEventDetail<{value: string}>> {
     const rebrandingPopover = await this.popoverController.create({
       component: RebrandingPopupComponent,
       cssClass: 'pop-up-in-center',
