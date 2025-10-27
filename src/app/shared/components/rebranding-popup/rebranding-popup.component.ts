@@ -15,6 +15,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 })
 export class RebrandingPopupComponent {
   private popoverController = inject(PopoverController);
+
   private trackingService = inject(TrackingService);
 
   readonly popupDismissed = output<void>();

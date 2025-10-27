@@ -1,6 +1,6 @@
 import { Component, EventEmitter, ViewChild, inject, signal, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
   ActionSheetButton,
   ActionSheetController,
@@ -219,7 +219,7 @@ export class DashboardPage {
 
   swiperConfig: SwiperOptions;
 
-  rebrandingPopupShown = signal<boolean>(false);
+  readonly rebrandingPopupShown = signal<boolean>(false);
 
   optInBannerPagination: PaginationOptions = {
     dynamicBullets: true,
@@ -674,7 +674,7 @@ export class DashboardPage {
         next: ({ showRebrandingPopup, eou }) => {
           this.setSwiperConfig();
           if (showRebrandingPopup) {
-            this.showRebrandingPopup().then((result) => {
+            this.showRebrandingPopup().then(() => {
               this.startNavbarWalkthrough(eou);
             });
           } else {
@@ -931,7 +931,7 @@ export class DashboardPage {
     this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
   }
 
-  async showRebrandingPopup(): Promise<OverlayEventDetail<any>> {
+  async showRebrandingPopup(): Promise<OverlayEventDetail<{}>> {
     const rebrandingPopover = await this.popoverController.create({
       component: RebrandingPopupComponent,
       cssClass: 'pop-up-in-center',
