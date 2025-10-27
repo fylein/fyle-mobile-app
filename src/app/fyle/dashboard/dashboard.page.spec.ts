@@ -81,7 +81,7 @@ class MockDashboardOptInComponent {}
 })
 class MockFyMenuIconComponent {}
 
-fdescribe('DashboardPage', () => {
+describe('DashboardPage', () => {
   let component: DashboardPage;
   let fixture: ComponentFixture<DashboardPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
