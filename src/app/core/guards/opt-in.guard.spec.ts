@@ -168,5 +168,22 @@ describe('OptInGuard', () => {
         done();
       });
     });
+
+    it('should return true if the current route does not match any specific conditions', (done) => {
+      const currentRoute = 'some_other_route';
+      const nextRoute = 'another_route';
+      Object.defineProperty(router, 'routerState', { writable: true, value: { snapshot: { url: currentRoute } } });
+
+      const canActivate = guard.canActivate(new ActivatedRoute().snapshot, {
+        url: nextRoute,
+      } as RouterStateSnapshot);
+
+      // Since it returns boolean directly (not Observable), we can assert directly
+      expect(canActivate).toBeTrue();
+      expect(utilityService.canShowOptInAfterExpenseCreation).not.toHaveBeenCalled();
+      expect(utilityService.canShowOptInAfterAddingCard).not.toHaveBeenCalled();
+      expect(utilityService.canShowOptInModal).not.toHaveBeenCalled();
+      done();
+    });
   });
 });

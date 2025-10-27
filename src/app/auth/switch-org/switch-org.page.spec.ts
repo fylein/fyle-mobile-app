@@ -366,6 +366,18 @@ describe('SwitchOrgPage', () => {
 
       expect(component.redirectToExpensePage).toHaveBeenCalledOnceWith(orgId, txnId);
     });
+
+    it('should redirect to dashboard if openSMSOptInDialog is true and orgId is present', () => {
+      spyOn(component, 'redirectToDashboard').and.returnValue();
+      const orgId = 'orNVthTo2Zyo';
+      activatedRoute.snapshot.params = {
+        openSMSOptInDialog: 'true',
+        orgId,
+      };
+      component.ionViewWillEnter();
+
+      expect(component.redirectToDashboard).toHaveBeenCalledOnceWith(orgId);
+    });
   });
 
   it('resendInvite(): should resend invite to an org', (done) => {
@@ -960,6 +972,35 @@ describe('SwitchOrgPage', () => {
     expect(component.resetSearch).toHaveBeenCalledTimes(1);
     expect(contentClassList.contains('switch-org__content-container__content-block--hide')).toBeFalse();
     expect(searchBarClassList.contains('switch-org__content-container__search-block--show')).toBeFalse();
+  });
+
+  describe('trackSwitchOrgLaunchTime():', () => {
+    beforeAll(() => {
+      // allow re-spying on the same method across tests
+      jasmine.getEnv().allowRespy(true);
+    });
+
+    it('should not track if already measured', () => {
+      const existingMeasure = {
+        name: 'switch org launch time',
+      };
+      spyOn(performance, 'getEntriesByName').and.returnValue([existingMeasure] as any);
+      spyOn(performance, 'mark');
+      spyOn(performance, 'measure');
+
+      component.trackSwitchOrgLaunchTime();
+
+      expect(performance.mark).not.toHaveBeenCalled();
+      expect(performance.measure).not.toHaveBeenCalled();
+      expect(trackingService.switchOrgLaunchTime).not.toHaveBeenCalled();
+    });
+
+    it('should handle errors gracefully', () => {
+      spyOn(performance, 'getEntriesByName').and.throwError('Error');
+      spyOn(performance, 'mark').and.throwError('Error');
+
+      expect(() => component.trackSwitchOrgLaunchTime()).not.toThrow();
+    });
   });
 
   it('should cancel search when clicking on CANCEL button', () => {
