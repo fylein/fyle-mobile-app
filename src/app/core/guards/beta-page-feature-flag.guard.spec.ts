@@ -72,5 +72,15 @@ describe('BetaPageFeatureFlagGuard', () => {
         done();
       });
     });
+
+    it('should return true if the current path is not present', (done) => {
+      // @ts-ignore
+      activatedRoute.snapshot.routeConfig = null;
+      const canActivate = guard.canActivate(activatedRoute.snapshot) as Observable<boolean>;
+      canActivate.subscribe((res) => {
+        expect(res).toBeTrue();
+        done();
+      });
+    });
   });
 });
