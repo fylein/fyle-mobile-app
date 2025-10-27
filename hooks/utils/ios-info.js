@@ -8,7 +8,7 @@ module.exports.getIosInfo = () =>
       <key>CFBundleDevelopmentRegion</key>
       <string>en</string>
       <key>CFBundleDisplayName</key>
-      <string>Sage Expense Management</string>
+      <string>Sage Exp Mgmt</string>
       <key>CFBundleExecutable</key>
       <string>$(EXECUTABLE_NAME)</string>
       <key>CFBundleIdentifier</key>

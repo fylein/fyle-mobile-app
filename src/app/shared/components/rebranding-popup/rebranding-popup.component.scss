@@ -1,0 +1,59 @@
+@use '../../../../theme/colors';
+
+.rebranding-popup {
+  color: colors.$grayscale-90;
+  padding: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+
+  &--header {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 1.3;
+    padding-bottom: 16px;
+    text-align: left;
+  }
+
+  &--body {
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+
+  &--learn-more-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 24px;
+  }
+
+  &--learn-more-button {
+    background: none;
+    border: none;
+    color: colors.$brand-primary;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    text-decoration: underline;
+  }
+
+  &--arrow-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &--cta-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &--ok-button {
+    padding: 8px 24px;
+  }
+}

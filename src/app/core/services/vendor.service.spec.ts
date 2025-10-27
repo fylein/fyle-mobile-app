@@ -68,6 +68,11 @@ describe('VendorService', () => {
     expect(vendorService).toBeTruthy();
   });
 
+  it('setRoot(): should set the root endpoint', () => {
+    vendorService.setRoot('https://staging.fyle.tech');
+    expect(vendorService.ROOT_ENDPOINT).toBe('https://staging.fyle.tech');
+  });
+
   it('should return merchants after querying with search string', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(mockApiResponse));
 

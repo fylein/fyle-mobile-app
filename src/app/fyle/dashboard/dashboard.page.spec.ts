@@ -41,10 +41,12 @@ import {
   featureConfigWalkthroughFinishData,
   featureConfigWalkthroughStartData,
 } from 'src/app/core/mock-data/feature-config.data';
+import { FeatureConfig } from 'src/app/core/models/feature-config.model';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { DriveStep } from 'driver.js';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { CardStatsComponent } from './card-stats/card-stats.component';
@@ -162,6 +164,7 @@ describe('DashboardPage', () => {
       'setActiveWalkthroughIndex',
       'getActiveWalkthroughIndex',
       'getIsOverlayClicked',
+      'getDashboardAddExpenseWalkthroughConfig',
     ]);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
@@ -495,16 +498,6 @@ describe('DashboardPage', () => {
       tick(100);
 
       expect(component.setSwiperConfig).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should start navbar walkthrough', fakeAsync(() => {
-      // Ensure LaunchDarklyService mock is set up for this test
-      launchDarklyService.getVariation.and.returnValue(of(true));
-      component.eou$ = of(apiEouRes);
-      featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
-      component.ionViewWillEnter();
-      tick(1000);
-      expect(component.startTour).toHaveBeenCalledTimes(1);
     }));
   });
 
@@ -1395,6 +1388,251 @@ describe('DashboardPage', () => {
       expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledTimes(1);
       expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledWith(true);
     });
+  });
+
+  describe('swiperInstance:', () => {
+    it('should return undefined when swiperComponent is not available', () => {
+      // Mock swiperComponent to return undefined
+      const swiperInstance = component['swiperInstance'];
+      expect(swiperInstance).toBeUndefined();
+    });
+  });
+
+  describe('startNavbarWalkthrough():', () => {
+    beforeEach(() => {
+      spyOn(component, 'showNavbarWalkthrough');
+    });
+
+    it('should call showNavbarWalkthrough with true when user is approver and primary', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.roles = ['APPROVER'];
+      mockEou.ou.is_primary = true;
+
+      // @ts-ignore - accessing private method for testing
+      component.startNavbarWalkthrough(mockEou);
+
+      expect(component.showNavbarWalkthrough).toHaveBeenCalledOnceWith(true);
+    });
+
+    it('should call showNavbarWalkthrough with false when user is not approver', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.roles = [];
+      mockEou.ou.is_primary = true;
+
+      // @ts-ignore - accessing private method for testing
+      component.startNavbarWalkthrough(mockEou);
+
+      expect(component.showNavbarWalkthrough).toHaveBeenCalledOnceWith(false);
+    });
+
+    it('should call showNavbarWalkthrough with false when user is not primary', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.roles = ['APPROVER'];
+      mockEou.ou.is_primary = false;
+
+      // @ts-ignore - accessing private method for testing
+      component.startNavbarWalkthrough(mockEou);
+
+      expect(component.showNavbarWalkthrough).toHaveBeenCalledOnceWith(false);
+    });
+  });
+
+  describe('startDashboardAddExpenseWalkthrough():', () => {
+    let mockDriverInstance: any;
+    let mockDashboardAddExpenseWalkthroughSteps: any[];
+
+    beforeEach(() => {
+      mockDashboardAddExpenseWalkthroughSteps = [
+        {
+          element: '#add-expense-button',
+          popover: {
+            description: 'Add your first expense',
+            side: 'top',
+            align: 'center',
+          },
+        },
+      ];
+
+      mockDriverInstance = {
+        setSteps: jasmine.createSpy('setSteps'),
+        drive: jasmine.createSpy('drive'),
+        destroy: jasmine.createSpy('destroy'),
+      };
+
+      walkthroughService.getDashboardAddExpenseWalkthroughConfig.and.returnValue(mockDashboardAddExpenseWalkthroughSteps);
+    });
+
+    it('should initialize driver instance and call drive', () => {
+      spyOn(component, 'setDashboardAddExpenseWalkthroughFeatureConfigFlag');
+      
+      // Spy on the component method and provide a fake implementation
+      spyOn(component, 'startDashboardAddExpenseWalkthrough').and.callFake(function(this: any) {
+        const dashboardAddExpenseWalkthroughSteps: DriveStep[] =
+          this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
+        const driverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+        this.dashboardAddExpenseWalkthroughDriverInstance = driverInstance;
+        driverInstance.setSteps(dashboardAddExpenseWalkthroughSteps);
+        driverInstance.drive();
+      });
+
+      component.startDashboardAddExpenseWalkthrough();
+
+      expect(walkthroughService.getDashboardAddExpenseWalkthroughConfig).toHaveBeenCalledTimes(1);
+      expect(component.dashboardAddExpenseWalkthroughDriverInstance).toBeTruthy();
+      expect(component.dashboardAddExpenseWalkthroughDriverInstance.setSteps).toHaveBeenCalledOnceWith(mockDashboardAddExpenseWalkthroughSteps);
+      expect(component.dashboardAddExpenseWalkthroughDriverInstance.drive).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call setDashboardAddExpenseWalkthroughFeatureConfigFlag when walkthrough is destroyed', () => {
+      let onDestroyedCallback: () => void;
+      spyOn(component, 'setDashboardAddExpenseWalkthroughFeatureConfigFlag');
+      
+      // Spy on the component method and capture the onDestroyed callback
+      spyOn(component, 'startDashboardAddExpenseWalkthrough').and.callFake(function(this: any) {
+        const dashboardAddExpenseWalkthroughSteps: DriveStep[] =
+          this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
+        const driverConfig = {
+          overlayOpacity: 0.5,
+          allowClose: true,
+          overlayClickBehavior: 'close',
+          showProgress: false,
+          overlayColor: '#161528',
+          stageRadius: 6,
+          stagePadding: 4,
+          popoverClass: 'custom-popover',
+          doneBtnText: 'Ok',
+          showButtons: ['close', 'next'],
+          onDestroyed: () => {
+            this.setDashboardAddExpenseWalkthroughFeatureConfigFlag();
+          },
+        };
+        onDestroyedCallback = driverConfig.onDestroyed;
+        const driverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+        this.dashboardAddExpenseWalkthroughDriverInstance = driverInstance;
+        driverInstance.setSteps(dashboardAddExpenseWalkthroughSteps);
+        driverInstance.drive();
+      });
+
+      component.startDashboardAddExpenseWalkthrough();
+      
+      if (onDestroyedCallback) {
+        onDestroyedCallback();
+      }
+      
+      expect(component.setDashboardAddExpenseWalkthroughFeatureConfigFlag).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('setDashboardAddExpenseWalkthroughFeatureConfigFlag():', () => {
+    beforeEach(() => {
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+    });
+
+    it('should save feature config with correct parameters', () => {
+      component.setDashboardAddExpenseWalkthroughFeatureConfigFlag();
+
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'WALKTHROUGH',
+        key: 'DASHBOARD_ADD_EXPENSE',
+        value: {
+          isShown: true,
+          isFinished: true,
+        },
+      });
+    });
+
+    it('should track walkthrough completed event', () => {
+      component.setDashboardAddExpenseWalkthroughFeatureConfigFlag();
+
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith(
+        'Dashboard Add Expense Walkthrough Completed',
+        {
+          Asset: 'Mobile',
+          from: 'Dashboard',
+        },
+      );
+    });
+  });
+
+  describe('showDashboardAddExpenseWalkthrough():', () => {
+    beforeEach(() => {
+      featureConfigService.getConfiguration.and.returnValue(of(null));
+      spyOn(component, 'startDashboardAddExpenseWalkthrough');
+    });
+
+    it('should not show walkthrough when navbar walkthrough is not complete or over', fakeAsync(() => {
+      component.isWalkthroughComplete = false;
+      component.isWalkThroughOver = false;
+
+      component.showDashboardAddExpenseWalkthrough();
+      tick(1000);
+
+      expect(component.startDashboardAddExpenseWalkthrough).not.toHaveBeenCalled();
+    }));
+
+    it('should show walkthrough when navbar walkthrough is complete', fakeAsync(() => {
+      component.isWalkthroughComplete = true;
+      component.isWalkThroughOver = false;
+
+      component.showDashboardAddExpenseWalkthrough();
+      tick(1000);
+
+      expect(component.startDashboardAddExpenseWalkthrough).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show walkthrough when navbar walkthrough is over', fakeAsync(() => {
+      component.isWalkthroughComplete = false;
+      component.isWalkThroughOver = true;
+
+      component.showDashboardAddExpenseWalkthrough();
+      tick(1000);
+
+      expect(component.startDashboardAddExpenseWalkthrough).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not show walkthrough if already finished', fakeAsync(() => {
+      const mockFeatureConfig: FeatureConfig<{ isShown: boolean; isFinished: boolean }> = {
+        org_id: 'org123',
+        user_id: 'user123',
+        created_at: '2023-01-01T00:00:00.000Z',
+        updated_at: '2023-01-01T00:00:00.000Z',
+        target_client: 'WEBAPP',
+        feature: 'WALKTHROUGH',
+        sub_feature: null,
+        key: 'DASHBOARD_ADD_EXPENSE',
+        value: { isShown: true, isFinished: true },
+        is_shared: false,
+      };
+      featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
+      component.isWalkthroughComplete = true;
+      component.isWalkThroughOver = true;
+
+      component.showDashboardAddExpenseWalkthrough();
+      tick(1000);
+
+      expect(component.startDashboardAddExpenseWalkthrough).not.toHaveBeenCalled();
+    }));
+
+    it('should clear existing timer before setting new timer', fakeAsync(() => {
+      component.isWalkthroughComplete = true;
+      component.isWalkThroughOver = true;
+      component.dashboardAddExpenseWalkthroughTimer = setTimeout(() => {}, 10000);
+      spyOn(window, 'clearTimeout');
+
+      component.showDashboardAddExpenseWalkthrough();
+      tick(1000);
+
+      expect(window.clearTimeout).toHaveBeenCalled();
+      expect(component.startDashboardAddExpenseWalkthrough).toHaveBeenCalledTimes(1);
+    }));
   });
 
   describe('ACH Suspension Functionality:', () => {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
+import { Component, EventEmitter, ViewChild, inject, signal, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
@@ -24,6 +24,7 @@ import { FooterState } from '../../shared/components/footer/footer-state.enum';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { RebrandingPopupComponent } from 'src/app/shared/components/rebranding-popup/rebranding-popup.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
@@ -63,6 +64,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { OverlayEventDetail } from '@ionic/core';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -217,6 +219,8 @@ export class DashboardPage {
 
   swiperConfig: SwiperOptions;
 
+  readonly rebrandingPopupShown = signal<boolean>(false);
+
   optInBannerPagination: PaginationOptions = {
     dynamicBullets: true,
     renderBullet(index, className): string {
@@ -244,6 +248,14 @@ export class DashboardPage {
 
   private get swiperInstance(): Swiper | undefined {
     return this.swiperComponent()?.swiperRef;
+  }
+
+  private startNavbarWalkthrough(eou: ExtendedOrgUser): void {
+    if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
+      this.showNavbarWalkthrough(true);
+    } else {
+      this.showNavbarWalkthrough(false);
+    }
   }
 
   startDashboardAddExpenseWalkthrough(): void {
@@ -512,6 +524,22 @@ export class DashboardPage {
     );
   }
 
+  canShowRebrandingPopup(): Observable<boolean> {
+    if (this.rebrandingPopupShown()) {
+      return of(false);
+    }
+    const rebrandingPopupConfig = {
+      feature: 'DASHBOARD_REBRANDING_POPUP',
+      key: 'REBRANDING_POPUP_SHOWN',
+    };
+
+    return this.featureConfigService.getConfiguration(rebrandingPopupConfig).pipe(
+      map((config) => config?.value),
+      map((isPopupShown) => !isPopupShown),
+      shareReplay(1),
+    );
+  }
+
   setSwiperConfig(): void {
     // Set default config when observables are not ready
     if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
@@ -625,36 +653,34 @@ export class DashboardPage {
       this.timezoneService.setTimezone(employeeSettings?.locale);
     });
 
-    if (openSMSOptInDialog !== 'true') {
-      this.eou$
-        .pipe(
-          map((eou) => {
-            if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
-              this.showNavbarWalkthrough(true);
-            } else {
-              this.showNavbarWalkthrough(false);
-            }
-
-            this.userName = eou.us.full_name;
-          }),
-        )
-        .subscribe(noop);
-    }
-
     const optInBanner$ = this.setShowOptInBanner();
     const emailOptInBanner$ = this.setShowEmailOptInBanner();
 
     this.canShowOptInBanner$ = optInBanner$;
     this.canShowEmailOptInBanner$ = emailOptInBanner$;
 
+    this.eou$.subscribe((eou) => {
+      this.userName = eou.us.full_name;
+    });
+
     forkJoin({
       optInBanner: optInBanner$,
       emailOptInBanner: emailOptInBanner$,
+      showRebrandingPopup: this.canShowRebrandingPopup(),
+      eou: this.eou$,
     })
       .pipe(take(1))
       .subscribe({
-        next: () => {
+        next: ({ showRebrandingPopup, eou }) => {
           this.setSwiperConfig();
+          if (showRebrandingPopup) {
+            this.showRebrandingPopup().then(() => {
+              this.startNavbarWalkthrough(eou);
+            });
+          } else {
+            this.rebrandingPopupShown.set(true);
+            this.startNavbarWalkthrough(eou);
+          }
         },
         error: () => {
           // If there's an error, still set up default swiper config
@@ -903,6 +929,26 @@ export class DashboardPage {
 
     await achSuspensionPopover.present();
     this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
+  }
+
+  async showRebrandingPopup(): Promise<OverlayEventDetail<{value: string}>> {
+    const rebrandingPopover = await this.popoverController.create({
+      component: RebrandingPopupComponent,
+      cssClass: 'pop-up-in-center',
+    });
+
+    await rebrandingPopover.present();
+    this.rebrandingPopupShown.set(true);
+
+    // Mark the popup as shown in feature configs
+    const rebrandingPopupConfig = {
+      feature: 'DASHBOARD_REBRANDING_POPUP',
+      key: 'REBRANDING_POPUP_SHOWN',
+      value: true,
+    };
+
+    this.featureConfigService.saveConfiguration(rebrandingPopupConfig).subscribe(noop);
+    return rebrandingPopover.onDidDismiss();
   }
 
   setModalDelay(): void {

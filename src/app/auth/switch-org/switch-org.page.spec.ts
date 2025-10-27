@@ -366,6 +366,18 @@ describe('SwitchOrgPage', () => {
 
       expect(component.redirectToExpensePage).toHaveBeenCalledOnceWith(orgId, txnId);
     });
+
+    it('should redirect to dashboard if openSMSOptInDialog is true and orgId is present', () => {
+      spyOn(component, 'redirectToDashboard').and.returnValue();
+      const orgId = 'orNVthTo2Zyo';
+      activatedRoute.snapshot.params = {
+        openSMSOptInDialog: 'true',
+        orgId,
+      };
+      component.ionViewWillEnter();
+
+      expect(component.redirectToDashboard).toHaveBeenCalledOnceWith(orgId);
+    });
   });
 
   it('resendInvite(): should resend invite to an org', (done) => {
