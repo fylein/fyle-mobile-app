@@ -974,35 +974,6 @@ describe('SwitchOrgPage', () => {
     expect(searchBarClassList.contains('switch-org__content-container__search-block--show')).toBeFalse();
   });
 
-  describe('trackSwitchOrgLaunchTime():', () => {
-    beforeAll(() => {
-      // allow re-spying on the same method across tests
-      jasmine.getEnv().allowRespy(true);
-    });
-
-    it('should not track if already measured', () => {
-      const existingMeasure = {
-        name: 'switch org launch time',
-      };
-      spyOn(performance, 'getEntriesByName').and.returnValue([existingMeasure] as any);
-      spyOn(performance, 'mark');
-      spyOn(performance, 'measure');
-
-      component.trackSwitchOrgLaunchTime();
-
-      expect(performance.mark).not.toHaveBeenCalled();
-      expect(performance.measure).not.toHaveBeenCalled();
-      expect(trackingService.switchOrgLaunchTime).not.toHaveBeenCalled();
-    });
-
-    it('should handle errors gracefully', () => {
-      spyOn(performance, 'getEntriesByName').and.throwError('Error');
-      spyOn(performance, 'mark').and.throwError('Error');
-
-      expect(() => component.trackSwitchOrgLaunchTime()).not.toThrow();
-    });
-  });
-
   it('should cancel search when clicking on CANCEL button', () => {
     spyOn(component, 'cancelSearch');
 

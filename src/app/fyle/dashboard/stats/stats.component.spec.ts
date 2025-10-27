@@ -392,6 +392,34 @@ describe('StatsComponent', () => {
     });
   });
 
+  describe('goToTeamReportsPage():', () => {
+    it('should navigate to team reports page with UNAPPROVED_TEAM_REPORTS state converted to APPROVER_PENDING', () => {
+      component.goToTeamReportsPage(ReportStates.UNAPPROVED_TEAM_REPORTS);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: [ReportStates.APPROVER_PENDING.toString()] }),
+        },
+      });
+      expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+        event: 'Clicked On Unapproved Team Reports',
+      });
+    });
+
+    it('should navigate to team reports page with other report states', () => {
+      component.goToTeamReportsPage(ReportStates.APPROVED);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: [ReportStates.APPROVED.toString()] }),
+        },
+      });
+      expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+        event: 'Clicked On Unapproved Team Reports',
+      });
+    });
+  });
+
   describe('trackDashboardLaunchTime():', () => {
     it('should track dashboard launch time', () => {
       const performance = {
