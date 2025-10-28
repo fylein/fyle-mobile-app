@@ -1,8 +1,7 @@
 import { Component, Input, OnInit, ViewChild, OnDestroy, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
-import { from, Subscription } from 'rxjs';
+import { from, Subscription, switchMap } from 'rxjs';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -17,6 +16,8 @@ import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
+import { Camera } from '@capacitor/camera';
+import { UtilityService } from 'src/app/core/services/utility.service';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -50,13 +51,13 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   private matBottomSheet = inject(MatBottomSheet);
 
-  private imagePicker = inject(ImagePicker);
-
   private trackingService = inject(TrackingService);
 
   private router = inject(Router);
 
   private translocoService = inject(TranslocoService);
+
+  private utilityService = inject(UtilityService)
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -234,29 +235,17 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     }
   }
 
-  galleryUpload(): void {
-    this.imagePicker.hasReadPermission().then((permission: boolean) => {
-      if (permission) {
-        const options = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
-        from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings: string[]) => {
-          if (Array.isArray(imageBase64Strings) && imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String: string) => {
-              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-              this.base64ImagesWithSource.push({
-                source: 'MOBILE_DASHCAM_GALLERY',
-                base64Image: base64PictureData,
-              });
-            });
-          }
-        });
-      } else {
-        this.imagePicker.requestReadPermission();
-        this.galleryUpload();
-      }
+  async galleryUpload(): Promise<void> {
+    const images = await Camera.pickImages({
+      limit: 10,
+      quality: 70,
+    })
+    images.photos.forEach(async (file) => {
+      const base64 = await this.utilityService.webPathToBase64(file.webPath)
+      this.base64ImagesWithSource.push({
+        source: 'MOBILE_DASHCAM_GALLERY',
+        base64Image: base64,
+      });
     });
   }
 
