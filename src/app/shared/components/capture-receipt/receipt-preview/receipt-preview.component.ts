@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild, OnDestroy, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
-import { from, Subscription, switchMap } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -16,8 +16,8 @@ import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
-import { Camera } from '@capacitor/camera';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { CameraService } from 'src/app/core/services/camera.service';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -57,7 +57,9 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   private translocoService = inject(TranslocoService);
 
-  private utilityService = inject(UtilityService)
+  private utilityService = inject(UtilityService);
+
+  private cameraService = inject(CameraService);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -236,17 +238,17 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   }
 
   async galleryUpload(): Promise<void> {
-    const images = await Camera.pickImages({
+    const images = await this.cameraService.pickImages({
       limit: 10,
       quality: 70,
-    })
-    images.photos.forEach(async (file) => {
+    });
+    for (const file of images.photos) {
       const base64 = await this.utilityService.webPathToBase64(file.webPath)
       this.base64ImagesWithSource.push({
         source: 'MOBILE_DASHCAM_GALLERY',
         base64Image: base64,
       });
-    });
+    }
   }
 
   captureReceipts(): void {

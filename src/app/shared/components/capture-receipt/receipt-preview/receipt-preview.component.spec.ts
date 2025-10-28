@@ -2,7 +2,6 @@
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReceiptPreviewComponent } from './receipt-preview.component';
 import { ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
@@ -14,6 +13,8 @@ import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
 import { Component, input } from '@angular/core';
 import { Subscription, of } from 'rxjs';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { CameraService } from 'src/app/core/services/camera.service';
 
 describe('ReceiptPreviewComponent', () => {
   let component: ReceiptPreviewComponent;
@@ -22,7 +23,8 @@ describe('ReceiptPreviewComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let matBottomSheet: jasmine.SpyObj<MatBottomSheet>;
-  let imagePicker: jasmine.SpyObj<ImagePicker>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
+  let cameraService: jasmine.SpyObj<CameraService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
 
@@ -60,11 +62,8 @@ describe('ReceiptPreviewComponent', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'dismiss']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matBottomSheetSpy = jasmine.createSpyObj('MatBottomSheet', ['open']);
-    const imagePickerSpy = jasmine.createSpyObj('ImagePicker', [
-      'hasReadPermission',
-      'getPictures',
-      'requestReadPermission',
-    ]);
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['webPathToBase64']);
+    const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['pickImages']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt', 'eventTrack', 'discardReceipt']);
     const swiperSpy = jasmine.createSpyObj('SwiperStubComponent', ['update', 'slidePrev', 'slideNext']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
@@ -99,8 +98,12 @@ describe('ReceiptPreviewComponent', () => {
           useValue: matBottomSheetSpy,
         },
         {
-          provide: ImagePicker,
-          useValue: imagePickerSpy,
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
+        },
+        {
+          provide: CameraService,
+          useValue: cameraServiceSpy,
         },
         {
           provide: TrackingService,
@@ -120,7 +123,8 @@ describe('ReceiptPreviewComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     matBottomSheet = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
-    imagePicker = TestBed.inject(ImagePicker) as jasmine.SpyObj<ImagePicker>;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
+    cameraService = TestBed.inject(CameraService) as jasmine.SpyObj<CameraService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     translocoService.translate.and.callFake((key: any, params?: any) => {
@@ -153,6 +157,17 @@ describe('ReceiptPreviewComponent', () => {
     });
     component.base64ImagesWithSource = images;
     component.swiper = swiperSpy;
+    
+    // Mock CameraService.pickImages
+    cameraService.pickImages.and.resolveTo({
+      photos: [
+        { webPath: 'photo1.webp', format: 'jpeg' },
+      ],
+    });
+    
+    // Mock webPathToBase64
+    utilityService.webPathToBase64.and.resolveTo('base64encodedcontent1');
+    
     fixture.detectChanges();
   }));
 
@@ -287,20 +302,37 @@ describe('ReceiptPreviewComponent', () => {
   });
 
   describe('galleryUpload(): ', () => {
-    it('should update the images list if upload from gallery is successful', async () => {
-      imagePicker.hasReadPermission.and.resolveTo(true);
-      imagePicker.getPictures.and.resolveTo(['encodedcontent1']);
-
-      const options = {
-        maximumImagesCount: 10,
-        outputType: 1,
+    it('should update the images list if upload from gallery is successful', fakeAsync(() => {
+      const initialLength = component.base64ImagesWithSource.length;
+      
+      cameraService.pickImages.and.resolveTo({
+        photos: [
+          { webPath: 'photo1.webp', format: 'jpeg' },
+        ],
+      });
+      
+      utilityService.webPathToBase64.and.resolveTo('base64encodedcontent1');
+      
+      component.galleryUpload();
+      
+      // Wait for pickImages to resolve
+      tick();
+      
+      // Wait for webPathToBase64 to resolve and for the for...of loop to complete
+      tick();
+      
+      // Flush any remaining async operations
+      tick(100);
+      
+      expect(cameraService.pickImages).toHaveBeenCalledWith({
+        limit: 10,
         quality: 70,
-      };
-
-      await component.galleryUpload();
-      expect(imagePicker.hasReadPermission).toHaveBeenCalledTimes(1);
-      expect(imagePicker.getPictures).toHaveBeenCalledOnceWith(options);
-    });
+      });
+      expect(utilityService.webPathToBase64).toHaveBeenCalledWith('photo1.webp');
+      expect(component.base64ImagesWithSource.length).toBe(initialLength + 1);
+      expect(component.base64ImagesWithSource[component.base64ImagesWithSource.length - 1].source).toBe('MOBILE_DASHCAM_GALLERY');
+      expect(component.base64ImagesWithSource[component.base64ImagesWithSource.length - 1].base64Image).toBe('base64encodedcontent1');
+    }));
   });
 
   it('captureReceipts(): should close the modal and save the captured receipts', async () => {
@@ -637,27 +669,4 @@ describe('ReceiptPreviewComponent', () => {
     expect(component.closeModal).toHaveBeenCalled();
   });
 
-  it('should request permission and call galleryUpload again if permission is denied', fakeAsync(() => {
-    let callCount = 0;
-    const requestReadPermissionSpy = jasmine.createSpy('requestReadPermission');
-    component.imagePicker = {
-      hasReadPermission: () => Promise.resolve(false),
-      requestReadPermission: requestReadPermissionSpy,
-    } as any;
-
-    // Patch galleryUpload to only allow one recursion
-    const originalGalleryUpload = component.galleryUpload.bind(component);
-    spyOn(component, 'galleryUpload').and.callFake(function () {
-      callCount++;
-      if (callCount < 2) {
-        // Call the original method only once to avoid infinite recursion
-        return originalGalleryUpload();
-      }
-    });
-
-    component.galleryUpload();
-
-    tick(10);
-    expect(requestReadPermissionSpy).toHaveBeenCalled();
-  }));
 });

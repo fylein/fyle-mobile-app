@@ -3,13 +3,11 @@ import { TranslocoService } from '@jsverse/transloco';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { AuthService } from 'src/app/core/services/auth.service';
 import { CaptureReceiptComponent } from './capture-receipt.component';
 import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -19,15 +17,15 @@ import { CameraPreviewComponent } from './camera-preview/camera-preview.componen
 import { of } from 'rxjs';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from '../../../core/mock-data/org.data';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, NO_ERRORS_SCHEMA } from '@angular/core';
-import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { permissionDeniedPopoverParams } from 'src/app/core/mock-data/modal-controller.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { CameraService } from 'src/app/core/services/camera.service';
 
 class MatSnackBarStub {
   openFromComponent(props: any) {
@@ -45,7 +43,7 @@ describe('CaptureReceiptComponent', () => {
   let router: jasmine.SpyObj<Router>;
   let navController: jasmine.SpyObj<NavController>;
   let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
-  let imagePicker: jasmine.SpyObj<ImagePicker>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -53,10 +51,9 @@ describe('CaptureReceiptComponent', () => {
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
-  let authService: jasmine.SpyObj<AuthService>;
-  let cameraService: jasmine.SpyObj<CameraService>;
   let cameraPreviewService: jasmine.SpyObj<CameraPreviewService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+  let cameraService: jasmine.SpyObj<CameraService>;
 
   const images = [
     {
@@ -103,7 +100,7 @@ describe('CaptureReceiptComponent', () => {
       'incrementSingleCaptureCount',
       'singleCaptureCount',
     ]);
-    const imagePickerSpy = jasmine.createSpyObj('ImagePicker', ['hasReadPermission', 'getPictures']);
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['webPathToBase64']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -112,10 +109,9 @@ describe('CaptureReceiptComponent', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const performanceSpy = jasmine.createSpyObj('peformance', ['getEntriesByName', 'mark', 'measure']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const cameraPreviewSpy = jasmine.createSpyObj('CameraPreviewComponent', ['setUpAndStartCamera', 'stopCamera']);
     const cameraPreviewServiceSpy = jasmine.createSpyObj('CameraPreviewService', ['capture']);
-    const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['requestCameraPermissions']);
+    const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['pickImages']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       imports: [ RouterTestingModule, CaptureReceiptComponent, CameraPreviewStubComponent],
@@ -141,8 +137,8 @@ describe('CaptureReceiptComponent', () => {
           useValue: transactionsOutboxServiceSpy,
         },
         {
-          provide: ImagePicker,
-          useValue: imagePickerSpy,
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
         },
         {
           provide: NetworkService,
@@ -173,10 +169,6 @@ describe('CaptureReceiptComponent', () => {
           useValue: snackbarPropertiesServiceSpy,
         },
         {
-          provide: AuthService,
-          useValue: authServiceSpy,
-        },
-        {
           provide: DEVICE_PLATFORM,
           useValue: 'android',
         },
@@ -185,12 +177,12 @@ describe('CaptureReceiptComponent', () => {
           useValue: cameraPreviewServiceSpy,
         },
         {
-          provide: CameraService,
-          useValue: cameraServiceSpy,
-        },
-        {
           provide: TranslocoService,
           useValue: translocoServiceSpy,
+        },
+        {
+          provide: CameraService,
+          useValue: cameraServiceSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
@@ -203,7 +195,7 @@ describe('CaptureReceiptComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
-    imagePicker = TestBed.inject(ImagePicker) as jasmine.SpyObj<ImagePicker>;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
@@ -213,11 +205,26 @@ describe('CaptureReceiptComponent', () => {
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     cameraPreviewService = TestBed.inject(CameraPreviewService) as jasmine.SpyObj<CameraPreviewService>;
     cameraService = TestBed.inject(CameraService) as jasmine.SpyObj<CameraService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.cameraPreview = cameraPreviewSpy;
+    
+    // Mock CameraService.pickImages
+    cameraService.pickImages.and.resolveTo({
+      photos: [
+        { webPath: 'photo1.webp', format: 'jpeg' },
+        { webPath: 'photo2.webp', format: 'jpeg' },
+      ],
+    });
+    
+    // Mock webPathToBase64 to return different base64 content for each call
+    let callCount = 0;
+    utilityService.webPathToBase64.and.callFake(() => {
+      callCount++;
+      return Promise.resolve(`base64encodedcontent${callCount}`);
+    });
+    
     networkService.isOnline.and.returnValue(of(true));
     orgService.getOrgs.and.returnValue(of(orgData1));
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
@@ -722,38 +729,6 @@ describe('CaptureReceiptComponent', () => {
     }));
   });
 
-  xdescribe('onGalleryUpload():', () => {
-    it('should upload images to gallery if permission graneted', () => {
-      imagePicker.hasReadPermission.and.resolveTo(true);
-      imagePicker.getPictures.and.resolveTo(['encodedcontent1', 'encodedcontent2']);
-
-      fixture.detectChanges();
-
-      component.onGalleryUpload();
-      expect(trackingService.instafyleGalleryUploadOpened).toHaveBeenCalledOnceWith({});
-      expect(imagePicker.hasReadPermission).toHaveBeenCalledTimes(1);
-    });
-
-    it('should request camera permission if permission is denied', fakeAsync(() => {
-      cameraService.requestCameraPermissions.and.resolveTo({
-        photos: 'denied',
-        camera: 'denied',
-      });
-      spyOn(component, 'showPermissionDeniedPopover');
-      imagePicker.hasReadPermission.and.resolveTo(false);
-
-      fixture.detectChanges();
-
-      component.onGalleryUpload();
-      tick(100);
-
-      expect(trackingService.instafyleGalleryUploadOpened).toHaveBeenCalledOnceWith({});
-      expect(imagePicker.hasReadPermission).toHaveBeenCalledTimes(1);
-      expect(cameraService.requestCameraPermissions).toHaveBeenCalledOnceWith(['photos']);
-      expect(component.showPermissionDeniedPopover).toHaveBeenCalledOnceWith('GALLERY');
-    }));
-  });
-
   it('setUpAndStartCamera(): should setup and start camera', () => {
     spyOn(component.cameraPreview, 'setUpAndStartCamera').and.returnValue(null);
     spyOn(component, 'showBulkModeToastMessage').and.returnValue(null);
@@ -763,6 +738,47 @@ describe('CaptureReceiptComponent', () => {
     expect(component.cameraPreview.setUpAndStartCamera).toHaveBeenCalledTimes(1);
     expect(component.showBulkModeToastMessage).toHaveBeenCalledTimes(1);
     expect(component.isBulkModePromptShown).toBeTrue();
+  });
+
+  describe('onGalleryUpload():', () => {
+    it('should upload images from gallery and open receipt preview modal', fakeAsync(() => {
+      const openReceiptPreviewModalSpy = spyOn(component, 'openReceiptPreviewModal');
+      component.base64ImagesWithSource = [];
+      
+      cameraService.pickImages.and.resolveTo({
+        photos: [
+          { webPath: 'photo1.webp', format: 'jpeg' },
+          { webPath: 'photo2.webp', format: 'jpeg' },
+        ],
+      });
+      
+      let callCount = 0;
+      utilityService.webPathToBase64.and.callFake(() => {
+        callCount++;
+        return Promise.resolve(`base64encodedcontent${callCount}`);
+      });
+      
+      component.onGalleryUpload();
+      
+      // Wait for pickImages to resolve
+      tick();
+      
+      // Wait for webPathToBase64 calls and for...of loop to complete
+      tick();
+      tick();
+      
+      expect(trackingService.instafyleGalleryUploadOpened).toHaveBeenCalledOnceWith({});
+      expect(cameraService.pickImages).toHaveBeenCalledWith({
+        limit: 10,
+        quality: 70,
+      });
+      expect(utilityService.webPathToBase64).toHaveBeenCalledTimes(2);
+      expect(component.base64ImagesWithSource.length).toBe(2);
+      expect(component.base64ImagesWithSource[0].source).toBe('MOBILE_DASHCAM_GALLERY');
+      expect(component.base64ImagesWithSource[0].base64Image).toBe('base64encodedcontent1');
+      expect(component.base64ImagesWithSource[1].base64Image).toBe('base64encodedcontent2');
+      expect(openReceiptPreviewModalSpy).toHaveBeenCalledTimes(1);
+    }));
   });
 
   describe('onSingleCapture(): ', () => {

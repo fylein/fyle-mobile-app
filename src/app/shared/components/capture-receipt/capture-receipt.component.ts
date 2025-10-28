@@ -15,7 +15,7 @@ import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.compo
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { concat, forkJoin, from, noop, Observable, of } from 'rxjs';
+import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -33,8 +33,8 @@ import { CameraPreviewService } from 'src/app/core/services/camera-preview.servi
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
 import { TranslocoService } from '@jsverse/transloco';
 import { AsyncPipe } from '@angular/common';
-import { Camera } from '@capacitor/camera';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { CameraService } from 'src/app/core/services/camera.service';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Image = Partial<{
@@ -80,6 +80,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   private translocoService = inject(TranslocoService);
 
   private utilityService = inject(UtilityService);
+
+  private cameraService = inject(CameraService);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -484,17 +486,17 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   async onGalleryUpload(): Promise<void> {
     this.trackingService.instafyleGalleryUploadOpened({});
-    const images = await Camera.pickImages({
+    const images = await this.cameraService.pickImages({
       limit: 10,
       quality: 70,
-    })
-    images.photos.forEach(async (file) => {
+    });
+    for (const file of images.photos) {
       const base64 = await this.utilityService.webPathToBase64(file.webPath)
       this.base64ImagesWithSource.push({
         source: 'MOBILE_DASHCAM_GALLERY',
         base64Image: base64,
       });
-    });
+    }
     this.openReceiptPreviewModal();
   }
 
