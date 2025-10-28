@@ -3669,7 +3669,17 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getBillable(): boolean {
-    return this.getFormValues()?.billable;
+    const formValues = this.getFormValues();
+    const billableValue = formValues?.billable;
+
+    // If billable checkbox is visible (project selected + org has billable option),
+    // return the actual checkbox value (true/false),
+    // otherwise return billableValue `undefined` because billable checkbox is hidden
+    if (formValues?.project && this.showBillable) {
+      return billableValue === true;
+    }
+
+    return billableValue;
   }
 
   getSkipRemibursement(): boolean {
