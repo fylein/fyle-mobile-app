@@ -502,7 +502,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           });
         }
         await this.loaderService.hideLoader();
-        this.openReceiptPreviewModal();
+        return this.openReceiptPreviewModal();
+      } catch (error) {
+        this.setUpAndStartCamera();
+        throw error;
       } finally {
         await this.loaderService.hideLoader();
       }
@@ -510,7 +513,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       await this.cameraService.requestCameraPermissions(['photos']);
       return this.onGalleryUpload();
     } else {
-      this.showPermissionDeniedPopover('GALLERY');
+      return this.showPermissionDeniedPopover('GALLERY');
     }
   }
 

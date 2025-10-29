@@ -870,6 +870,32 @@ describe('CaptureReceiptComponent', () => {
       expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
       expect(showPermissionDeniedPopoverSpy).toHaveBeenCalledOnceWith('GALLERY');
     }));
+
+    it('should restart camera and rethrow error if gallery upload fails', fakeAsync(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      component.base64ImagesWithSource = [];
+      
+      const setUpAndStartCameraSpy = spyOn(component, 'setUpAndStartCamera');
+      
+      cameraService.checkPermissions.and.resolveTo({ photos: 'granted', camera: 'granted' });
+      const error = new Error('Gallery upload failed');
+      cameraService.pickImages.and.rejectWith(error);
+      
+      component.onGalleryUpload();
+      
+      tick(); // checkPermissions
+      tick(); // showLoader
+      tick(); // pickImages rejects
+      tick(); // hideLoader in finally
+      
+      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 0);
+      expect(cameraService.pickImages).toHaveBeenCalledTimes(1);
+      expect(setUpAndStartCameraSpy).toHaveBeenCalledTimes(1);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2); // Once in finally block
+      expect(component.base64ImagesWithSource.length).toBe(0);
+    }));
   });
 
   describe('onSingleCapture(): ', () => {
