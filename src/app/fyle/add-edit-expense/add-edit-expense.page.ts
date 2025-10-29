@@ -3668,13 +3668,16 @@ export class AddEditExpensePage implements OnInit {
     return null;
   }
 
-  getBillable(): boolean {
+  /**
+   * If billable checkbox is visible (project selected + org has billable option),
+   *
+   * @returns the actual checkbox value (true/false),
+   *  otherwise return billableValue `undefined` because billable checkbox is hidden
+   */
+  getBillable(): boolean | undefined {
     const formValues = this.getFormValues();
     const billableValue = formValues?.billable;
 
-    // If billable checkbox is visible (project selected + org has billable option),
-    // return the actual checkbox value (true/false),
-    // otherwise return billableValue `undefined` because billable checkbox is hidden
     if (formValues?.project && this.showBillable) {
       return billableValue === true;
     }
