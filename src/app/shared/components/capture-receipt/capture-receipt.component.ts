@@ -486,18 +486,32 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   async onGalleryUpload(): Promise<void> {
     this.trackingService.instafyleGalleryUploadOpened({});
-    const images = await this.cameraService.pickImages({
-      limit: 10,
-      quality: 70,
-    });
-    for (const file of images.photos) {
-      const base64 = await this.utilityService.webPathToBase64(file.webPath)
-      this.base64ImagesWithSource.push({
-        source: 'MOBILE_DASHCAM_GALLERY',
-        base64Image: base64,
-      });
+    const permissions = await this.cameraService.checkPermissions();
+    if (permissions?.photos === 'granted' || permissions?.photos === 'limited') {
+      await this.loaderService.showLoader(this.translocoService.translate('captureReceipt.pleaseWait'), 0);
+      try {
+        const images = await this.cameraService.pickImages({
+          limit: 10,
+          quality: 70,
+        });
+        for (const file of images.photos) {
+          const base64 = await this.utilityService.webPathToBase64(file.webPath);
+          this.base64ImagesWithSource.push({
+            source: 'MOBILE_DASHCAM_GALLERY',
+            base64Image: base64,
+          });
+        }
+        await this.loaderService.hideLoader();
+        this.openReceiptPreviewModal();
+      } finally {
+        await this.loaderService.hideLoader();
+      }
+    } else if (permissions?.photos === 'prompt' || permissions?.photos === 'prompt-with-rationale') {
+      await this.cameraService.requestCameraPermissions(['photos']);
+      return this.onGalleryUpload();
+    } else {
+      this.showPermissionDeniedPopover('GALLERY');
     }
-    this.openReceiptPreviewModal();
   }
 
   ngAfterViewInit(): void {

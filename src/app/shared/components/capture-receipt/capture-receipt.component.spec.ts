@@ -111,7 +111,7 @@ describe('CaptureReceiptComponent', () => {
     const performanceSpy = jasmine.createSpyObj('peformance', ['getEntriesByName', 'mark', 'measure']);
     const cameraPreviewSpy = jasmine.createSpyObj('CameraPreviewComponent', ['setUpAndStartCamera', 'stopCamera']);
     const cameraPreviewServiceSpy = jasmine.createSpyObj('CameraPreviewService', ['capture']);
-    const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['pickImages']);
+    const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['pickImages', 'checkPermissions', 'requestCameraPermissions']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       imports: [ RouterTestingModule, CaptureReceiptComponent, CameraPreviewStubComponent],
@@ -741,10 +741,13 @@ describe('CaptureReceiptComponent', () => {
   });
 
   describe('onGalleryUpload():', () => {
-    it('should upload images from gallery and open receipt preview modal', fakeAsync(() => {
+    it('should upload images from gallery when permissions are granted', fakeAsync(() => {
       const openReceiptPreviewModalSpy = spyOn(component, 'openReceiptPreviewModal');
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
       component.base64ImagesWithSource = [];
       
+      cameraService.checkPermissions.and.resolveTo({ photos: 'granted', camera: 'granted' });
       cameraService.pickImages.and.resolveTo({
         photos: [
           { webPath: 'photo1.webp', format: 'jpeg' },
@@ -760,6 +763,12 @@ describe('CaptureReceiptComponent', () => {
       
       component.onGalleryUpload();
       
+      // Wait for checkPermissions
+      tick();
+      
+      // Wait for showLoader
+      tick();
+      
       // Wait for pickImages to resolve
       tick();
       
@@ -768,16 +777,98 @@ describe('CaptureReceiptComponent', () => {
       tick();
       
       expect(trackingService.instafyleGalleryUploadOpened).toHaveBeenCalledOnceWith({});
+      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 0);
       expect(cameraService.pickImages).toHaveBeenCalledWith({
         limit: 10,
         quality: 70,
       });
       expect(utilityService.webPathToBase64).toHaveBeenCalledTimes(2);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2); // Once normally, once in finally block
       expect(component.base64ImagesWithSource.length).toBe(2);
       expect(component.base64ImagesWithSource[0].source).toBe('MOBILE_DASHCAM_GALLERY');
       expect(component.base64ImagesWithSource[0].base64Image).toBe('base64encodedcontent1');
       expect(component.base64ImagesWithSource[1].base64Image).toBe('base64encodedcontent2');
       expect(openReceiptPreviewModalSpy).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should upload images from gallery when permissions are limited', fakeAsync(() => {
+      const openReceiptPreviewModalSpy = spyOn(component, 'openReceiptPreviewModal');
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      component.base64ImagesWithSource = [];
+      
+      cameraService.checkPermissions.and.resolveTo({ photos: 'limited', camera: 'limited' });
+      cameraService.pickImages.and.resolveTo({
+        photos: [
+          { webPath: 'photo1.webp', format: 'jpeg' },
+        ],
+      });
+      
+      utilityService.webPathToBase64.and.resolveTo('base64encodedcontent1');
+      
+      component.onGalleryUpload();
+      
+      tick(); // checkPermissions
+      tick(); // showLoader
+      tick(); // pickImages
+      tick(); // webPathToBase64
+      tick(); // hideLoader
+      
+      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 0);
+      expect(cameraService.pickImages).toHaveBeenCalledTimes(1);
+      expect(utilityService.webPathToBase64).toHaveBeenCalledTimes(1);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
+      expect(component.base64ImagesWithSource.length).toBe(1);
+      expect(openReceiptPreviewModalSpy).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should request permissions when status is prompt', fakeAsync(() => {
+      cameraService.checkPermissions.and.resolveTo({ photos: 'prompt', camera: 'prompt' });
+      cameraService.requestCameraPermissions.and.resolveTo({ photos: 'granted', camera: 'granted' });
+      
+      // Mock the second call to onGalleryUpload after permission request
+      spyOn(component, 'onGalleryUpload').and.callThrough();
+      
+      component.onGalleryUpload();
+      
+      tick(); // checkPermissions
+      tick(); // requestCameraPermissions
+      
+      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(cameraService.requestCameraPermissions).toHaveBeenCalledOnceWith(['photos']);
+      expect(component.onGalleryUpload).toHaveBeenCalledTimes(2);
+    }));
+
+    it('should request permissions when status is prompt-with-rationale', fakeAsync(() => {
+      cameraService.checkPermissions.and.resolveTo({ photos: 'prompt-with-rationale', camera: 'prompt-with-rationale' });
+      cameraService.requestCameraPermissions.and.resolveTo({ photos: 'granted', camera: 'granted' });
+      
+      // Mock the second call to onGalleryUpload after permission request
+      spyOn(component, 'onGalleryUpload').and.callThrough();
+      
+      component.onGalleryUpload();
+      
+      tick(); // checkPermissions
+      tick(); // requestCameraPermissions
+      
+      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(cameraService.requestCameraPermissions).toHaveBeenCalledOnceWith(['photos']);
+      expect(component.onGalleryUpload).toHaveBeenCalledTimes(2);
+    }));
+
+    it('should show permission denied popover when permissions are denied', fakeAsync(() => {
+      const showPermissionDeniedPopoverSpy = spyOn(component, 'showPermissionDeniedPopover');
+      
+      cameraService.checkPermissions.and.resolveTo({ photos: 'denied', camera: 'denied' });
+      
+      component.onGalleryUpload();
+      
+      tick(); // checkPermissions
+      
+      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(showPermissionDeniedPopoverSpy).toHaveBeenCalledOnceWith('GALLERY');
     }));
   });
 

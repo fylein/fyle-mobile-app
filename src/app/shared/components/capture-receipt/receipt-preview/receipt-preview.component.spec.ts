@@ -1,6 +1,5 @@
 //@ts-nocheck
 import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
-import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReceiptPreviewComponent } from './receipt-preview.component';
@@ -15,6 +14,8 @@ import { Component, input } from '@angular/core';
 import { Subscription, of } from 'rxjs';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { CameraService } from 'src/app/core/services/camera.service';
+import { DEVICE_PLATFORM } from 'src/app/constants';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('ReceiptPreviewComponent', () => {
   let component: ReceiptPreviewComponent;
@@ -26,13 +27,12 @@ describe('ReceiptPreviewComponent', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let cameraService: jasmine.SpyObj<CameraService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   @Component({
     selector: 'swiper',
     template: '',
     providers: [{ provide: SwiperComponent, useClass: SwiperStubComponent }],
-    imports: [MatIconModule, MatIconTestingModule, TranslocoModule, PinchZoomComponent],
+    imports: [MatIconModule, MatIconTestingModule, PinchZoomComponent],
   })
   class SwiperStubComponent {
     readonly pagination = input(undefined);
@@ -63,22 +63,15 @@ describe('ReceiptPreviewComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matBottomSheetSpy = jasmine.createSpyObj('MatBottomSheet', ['open']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['webPathToBase64']);
-    const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['pickImages']);
+    const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['pickImages', 'checkPermissions']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt', 'eventTrack', 'discardReceipt']);
     const swiperSpy = jasmine.createSpyObj('SwiperStubComponent', ['update', 'slidePrev', 'slideNext']);
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     TestBed.configureTestingModule({
       imports: [
         
         MatIconModule,
         MatIconTestingModule,
-        TranslocoModule,
+        getTranslocoTestingModule(),
         PinchZoomComponent,
         ReceiptPreviewComponent,
         SwiperStubComponent,
@@ -110,8 +103,8 @@ describe('ReceiptPreviewComponent', () => {
           useValue: trackingServiceSpy,
         },
         {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
+          provide: DEVICE_PLATFORM,
+          useValue: 'android',
         },
       ],
     }).compileComponents();
@@ -126,35 +119,6 @@ describe('ReceiptPreviewComponent', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     cameraService = TestBed.inject(CameraService) as jasmine.SpyObj<CameraService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
-    translocoService.translate.and.callFake((key: any, params?: any) => {
-      const translations: { [key: string]: string } = {
-        'receiptPreview.receiptPreviews': 'Receipt previews',
-        'receiptPreview.retake': 'Retake',
-        'receiptPreview.addMore': 'Add more',
-        'receiptPreview.finish': 'Finish',
-        'receiptPreview.discardReceiptTitle': 'Discard receipt',
-        'receiptPreview.discardMultipleReceiptsMessage':
-          'Are you sure you want to discard the {{count}} receipts you just captured?',
-        'receiptPreview.discardSingleReceiptMessage': 'Not a good picture? No worries. Discard and click again.',
-        'receiptPreview.discard': 'Discard',
-        'receiptPreview.cancel': 'Cancel',
-        'receiptPreview.removeReceiptTitle': 'Remove Receipt',
-        'receiptPreview.removeReceiptMessage': 'Are you sure you want to remove this receipt?',
-        'receiptPreview.remove': 'Remove',
-      };
-      let translation = translations[key] || key;
-
-      // Handle parameter interpolation
-      if (params && typeof translation === 'string') {
-        Object.keys(params).forEach((paramKey) => {
-          const placeholder = `{{${paramKey}}}`;
-          translation = translation.replace(placeholder, params[paramKey]);
-        });
-      }
-
-      return translation;
-    });
     component.base64ImagesWithSource = images;
     component.swiper = swiperSpy;
     
@@ -305,6 +269,7 @@ describe('ReceiptPreviewComponent', () => {
     it('should update the images list if upload from gallery is successful', fakeAsync(() => {
       const initialLength = component.base64ImagesWithSource.length;
       
+      cameraService.checkPermissions.and.resolveTo({ photos: 'granted', camera: 'granted' });
       cameraService.pickImages.and.resolveTo({
         photos: [
           { webPath: 'photo1.webp', format: 'jpeg' },
@@ -315,6 +280,9 @@ describe('ReceiptPreviewComponent', () => {
       
       component.galleryUpload();
       
+      // Wait for checkPermissions to resolve
+      tick();
+      
       // Wait for pickImages to resolve
       tick();
       
@@ -324,6 +292,7 @@ describe('ReceiptPreviewComponent', () => {
       // Flush any remaining async operations
       tick(100);
       
+      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
       expect(cameraService.pickImages).toHaveBeenCalledWith({
         limit: 10,
         quality: 70,
@@ -361,7 +330,7 @@ describe('ReceiptPreviewComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Remove Receipt',
+          title: 'Remove receipt',
           message: 'Are you sure you want to remove this receipt?',
           primaryCta: {
             text: 'Remove',
@@ -393,7 +362,7 @@ describe('ReceiptPreviewComponent', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
-          title: 'Remove Receipt',
+          title: 'Remove receipt',
           message: 'Are you sure you want to remove this receipt?',
           primaryCta: {
             text: 'Remove',
@@ -667,6 +636,111 @@ describe('ReceiptPreviewComponent', () => {
     } as any;
     component.ionViewWillEnter();
     expect(component.closeModal).toHaveBeenCalled();
+  });
+
+  describe('setupPermissionDeniedPopover():', () => {
+    it('should setup permission denied popover for camera', () => {
+      popoverController.create.and.returnValue(null);
+
+      component.setupPermissionDeniedPopover('CAMERA');
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Camera permission',
+          message:
+            'To capture photos, please allow Sage Expense Management to access your camera. Click Open Settings and allow access to Camera and Storage',
+          primaryCta: {
+            text: 'Open settings',
+            action: 'OPEN_SETTINGS',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'CANCEL',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+        backdropDismiss: false,
+      });
+    });
+
+    it('should setup permission denied popover for gallery', () => {
+      popoverController.create.and.callThrough();
+
+      component.setupPermissionDeniedPopover('GALLERY');
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Storage permission',
+          message: 'Please allow Sage Expense Management to access device photos. Click Settings and allow Storage access',
+          primaryCta: {
+            text: 'Open settings',
+            action: 'OPEN_SETTINGS',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'CANCEL',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+        backdropDismiss: false,
+      });
+    });
+
+    it('should set galleryPermissionName as Photos if device is ios', () => {
+      popoverController.create.and.callThrough();
+      Object.defineProperty(component, 'devicePlatform', { value: 'ios' });
+
+      component.setupPermissionDeniedPopover('GALLERY');
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Photos permission',
+          message: 'Please allow Sage Expense Management to access device photos. Click Settings and allow Photos access',
+          primaryCta: {
+            text: 'Open settings',
+            action: 'OPEN_SETTINGS',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'CANCEL',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+        backdropDismiss: false,
+      });
+    });
+  });
+
+  describe('showPermissionDeniedPopover():', () => {
+    let popoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+    beforeEach(() => {
+      component.nativeSettings = jasmine.createSpyObj('NativeSettings', ['open']);
+      popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'OPEN_SETTINGS',
+        },
+      });
+    });
+
+    it('should show permission denied popover', fakeAsync(() => {
+      spyOn(component, 'setupPermissionDeniedPopover').and.resolveTo(popoverSpy);
+      component.showPermissionDeniedPopover('CAMERA');
+      tick(1000);
+      expect(component.setupPermissionDeniedPopover).toHaveBeenCalledOnceWith('CAMERA');
+      expect(component.nativeSettings.open).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not call "nativeSettings.open" if data is undefined', fakeAsync(() => {
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: undefined,
+      });
+      spyOn(component, 'setupPermissionDeniedPopover').and.resolveTo(popoverSpy);
+      component.showPermissionDeniedPopover('CAMERA');
+      tick(100);
+      expect(component.setupPermissionDeniedPopover).toHaveBeenCalledOnceWith('CAMERA');
+      expect(component.nativeSettings.open).not.toHaveBeenCalled();
+    }));
   });
 
 });
