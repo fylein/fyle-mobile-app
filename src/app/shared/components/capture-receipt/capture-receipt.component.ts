@@ -484,6 +484,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       });
   }
 
+  // eslint-disable-next-line complexity
   async onGalleryUpload(): Promise<void> {
     this.trackingService.instafyleGalleryUploadOpened({});
     const permissions = await this.cameraService.checkPermissions();
