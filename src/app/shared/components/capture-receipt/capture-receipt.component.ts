@@ -15,7 +15,6 @@ import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.compo
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap } from 'rxjs/operators';
@@ -30,12 +29,12 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
 import { TranslocoService } from '@jsverse/transloco';
 import { AsyncPipe } from '@angular/common';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { CameraService } from 'src/app/core/services/camera.service';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Image = Partial<{
@@ -60,8 +59,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   private transactionsOutboxService = inject(TransactionsOutboxService);
 
-  private imagePicker = inject(ImagePicker);
-
   private networkService = inject(NetworkService);
 
   private popoverController = inject(PopoverController);
@@ -76,15 +73,15 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   private snackbarProperties = inject(SnackbarPropertiesService);
 
-  private authService = inject(AuthService);
-
-  private cameraService = inject(CameraService);
-
   private cameraPreviewService = inject(CameraPreviewService);
 
   private devicePlatform = inject(DEVICE_PLATFORM);
 
   private translocoService = inject(TranslocoService);
+
+  private utilityService = inject(UtilityService);
+
+  private cameraService = inject(CameraService);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -487,46 +484,37 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       });
   }
 
-  onGalleryUpload(): void {
+  // eslint-disable-next-line complexity
+  async onGalleryUpload(): Promise<void> {
     this.trackingService.instafyleGalleryUploadOpened({});
-
-    const checkPermission$ = from(this.imagePicker.hasReadPermission()).pipe(shareReplay(1));
-
-    const receiptsFromGallery$ = checkPermission$.pipe(
-      filter((permission) => !!permission),
-      switchMap(() => {
-        const galleryUploadOptions = {
-          maximumImagesCount: 10,
-          outputType: 1,
+    const permissions = await this.cameraService.checkPermissions();
+    if (permissions?.photos === 'granted' || permissions?.photos === 'limited') {
+      await this.loaderService.showLoader(this.translocoService.translate('captureReceipt.pleaseWait'), 0);
+      try {
+        const images = await this.cameraService.pickImages({
+          limit: 10,
           quality: 70,
-        };
-        return from(this.imagePicker.getPictures(galleryUploadOptions));
-      }),
-      shareReplay(1),
-    );
-
-    checkPermission$.subscribe((hasPermission) => {
-      if (!hasPermission) {
-        return this.showPermissionDeniedPopover('GALLERY');
-      }
-    });
-
-    receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery: string[]) => receiptsFromGallery.length > 0))
-      .subscribe((receiptsFromGallery) => {
-        receiptsFromGallery.forEach((receiptBase64) => {
-          const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
+        });
+        for (const file of images.photos) {
+          const base64 = await this.utilityService.webPathToBase64(file.webPath);
           this.base64ImagesWithSource.push({
             source: 'MOBILE_DASHCAM_GALLERY',
-            base64Image: receiptBase64Data,
+            base64Image: base64,
           });
-        });
-        this.openReceiptPreviewModal();
-      });
-
-    receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery: string[]) => !receiptsFromGallery.length))
-      .subscribe(() => this.setUpAndStartCamera());
+        }
+        return this.openReceiptPreviewModal();
+      } catch (error) {
+        this.setUpAndStartCamera();
+        throw error;
+      } finally {
+        await this.loaderService.hideLoader();
+      }
+    } else if (permissions?.photos === 'prompt' || permissions?.photos === 'prompt-with-rationale') {
+      await this.cameraService.requestCameraPermissions(['photos']);
+      this.onGalleryUpload();
+    } else {
+      return this.showPermissionDeniedPopover('GALLERY');
+    }
   }
 
   ngAfterViewInit(): void {

@@ -538,7 +538,13 @@
     "cancel": "Cancel",
     "removeReceiptTitle": "Remove receipt",
     "removeReceiptMessage": "Are you sure you want to remove this receipt?",
-    "remove": "Remove"
+    "remove": "Remove",
+    "cameraPermissionTitle": "Camera permission",
+    "photosPermissionTitle": "Photos permission",
+    "storagePermissionTitle": "Storage permission",
+    "cameraPermissionMessage": "To capture photos, please allow Sage Expense Management to access your camera. Click Open Settings and allow access to Camera and {{galleryPermissionName}}",
+    "galleryPermissionMessage": "Please allow Sage Expense Management to access device photos. Click Settings and allow {{galleryPermissionName}} access",
+    "openSettings": "Open settings"
   },
   "reviewSplitExpense": {
     "title": "Review split expenses"
