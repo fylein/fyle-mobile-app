@@ -784,7 +784,7 @@ fdescribe('CaptureReceiptComponent', () => {
         quality: 70,
       });
       expect(utilityService.webPathToBase64).toHaveBeenCalledTimes(2);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2); // Once normally, once in finally block
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(component.base64ImagesWithSource.length).toBe(2);
       expect(component.base64ImagesWithSource[0].source).toBe('MOBILE_DASHCAM_GALLERY');
       expect(component.base64ImagesWithSource[0].base64Image).toBe('base64encodedcontent1');
@@ -819,7 +819,7 @@ fdescribe('CaptureReceiptComponent', () => {
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 0);
       expect(cameraService.pickImages).toHaveBeenCalledTimes(1);
       expect(utilityService.webPathToBase64).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(component.base64ImagesWithSource.length).toBe(1);
       expect(openReceiptPreviewModalSpy).toHaveBeenCalledTimes(1);
     }));
