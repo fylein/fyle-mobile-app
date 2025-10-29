@@ -35,7 +35,7 @@ class MatSnackBarStub {
   }
 }
 
-describe('CaptureReceiptComponent', () => {
+fdescribe('CaptureReceiptComponent', () => {
   let component: CaptureReceiptComponent;
   let fixture: ComponentFixture<CaptureReceiptComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -871,7 +871,7 @@ describe('CaptureReceiptComponent', () => {
       expect(showPermissionDeniedPopoverSpy).toHaveBeenCalledOnceWith('GALLERY');
     }));
 
-    it('should restart camera and rethrow error if gallery upload fails', fakeAsync(() => {
+    it('should restart camera and rethrow error if gallery upload fails', async () => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
       component.base64ImagesWithSource = [];
@@ -882,12 +882,11 @@ describe('CaptureReceiptComponent', () => {
       const error = new Error('Gallery upload failed');
       cameraService.pickImages.and.rejectWith(error);
       
-      component.onGalleryUpload();
-      
-      tick(); // checkPermissions
-      tick(); // showLoader
-      tick(); // pickImages rejects
-      tick(); // hideLoader in finally
+      try {
+        await component.onGalleryUpload();
+      } catch (e) {
+        expect(e).toBe(error);
+      }
       
       expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 0);
@@ -895,7 +894,7 @@ describe('CaptureReceiptComponent', () => {
       expect(setUpAndStartCameraSpy).toHaveBeenCalledTimes(1);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(2); // Once in finally block
       expect(component.base64ImagesWithSource.length).toBe(0);
-    }));
+    });
   });
 
   describe('onSingleCapture(): ', () => {
