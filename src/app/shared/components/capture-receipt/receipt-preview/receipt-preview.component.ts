@@ -1,8 +1,7 @@
 import { Component, Input, OnInit, ViewChild, OnDestroy, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
-import { from, Subscription } from 'rxjs';
+import { from, Subscription, switchMap, tap } from 'rxjs';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -17,6 +16,10 @@ import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { CameraService } from 'src/app/core/services/camera.service';
+import { DEVICE_PLATFORM } from 'src/app/constants';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -50,13 +53,19 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   private matBottomSheet = inject(MatBottomSheet);
 
-  private imagePicker = inject(ImagePicker);
-
   private trackingService = inject(TrackingService);
 
   private router = inject(Router);
 
   private translocoService = inject(TranslocoService);
+
+  private utilityService = inject(UtilityService);
+
+  private cameraService = inject(CameraService);
+
+  private devicePlatform = inject(DEVICE_PLATFORM);
+
+  nativeSettings = NativeSettings;
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -234,30 +243,77 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     }
   }
 
-  galleryUpload(): void {
-    this.imagePicker.hasReadPermission().then((permission: boolean) => {
-      if (permission) {
-        const options = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
-        from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings: string[]) => {
-          if (Array.isArray(imageBase64Strings) && imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String: string) => {
-              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-              this.base64ImagesWithSource.push({
-                source: 'MOBILE_DASHCAM_GALLERY',
-                base64Image: base64PictureData,
-              });
-            });
-          }
+  async galleryUpload(): Promise<void> {
+    const permissions = await this.cameraService.checkPermissions();
+    if (permissions?.photos === 'granted' || permissions?.photos === 'limited') {
+      const images = await this.cameraService.pickImages({
+        limit: 10,
+        quality: 70,
+      });
+      for (const file of images.photos) {
+        const base64 = await this.utilityService.webPathToBase64(file.webPath);
+        this.base64ImagesWithSource.push({
+          source: 'MOBILE_DASHCAM_GALLERY',
+          base64Image: base64,
         });
-      } else {
-        this.imagePicker.requestReadPermission();
-        this.galleryUpload();
       }
+    } else if (permissions?.photos === 'prompt' || permissions?.photos === 'prompt-with-rationale') {
+      await this.cameraService.requestCameraPermissions(['photos']);
+      return this.galleryUpload();
+    } else {
+      this.showPermissionDeniedPopover('GALLERY');
+    }
+  }
+
+  setupPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY'): Promise<HTMLIonPopoverElement> {
+    const isIos = this.devicePlatform === 'ios';
+
+    const galleryPermissionName = isIos ? 'Photos' : 'Storage';
+    let title = this.translocoService.translate('receiptPreview.cameraPermissionTitle');
+    if (permissionType === 'GALLERY') {
+      title = isIos
+        ? this.translocoService.translate('receiptPreview.photosPermissionTitle')
+        : this.translocoService.translate('receiptPreview.storagePermissionTitle');
+    }
+
+    const message =
+      permissionType === 'CAMERA'
+        ? this.translocoService.translate('receiptPreview.cameraPermissionMessage', { galleryPermissionName })
+        : this.translocoService.translate('receiptPreview.galleryPermissionMessage', { galleryPermissionName });
+
+    return this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title,
+        message,
+        primaryCta: {
+          text: this.translocoService.translate('receiptPreview.openSettings'),
+          action: 'OPEN_SETTINGS',
+        },
+        secondaryCta: {
+          text: this.translocoService.translate('receiptPreview.cancel'),
+          action: 'CANCEL',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+      backdropDismiss: false,
     });
+  }
+
+  showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY'): void {
+    from(this.setupPermissionDeniedPopover(permissionType))
+      .pipe(
+        tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
+        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>()),
+      )
+      .subscribe(({ data }) => {
+        if (data?.action === 'OPEN_SETTINGS') {
+          this.nativeSettings.open({
+            optionAndroid: AndroidSettings.ApplicationDetails,
+            optionIOS: IOSSettings.App,
+          });
+        }
+      });
   }
 
   captureReceipts(): void {

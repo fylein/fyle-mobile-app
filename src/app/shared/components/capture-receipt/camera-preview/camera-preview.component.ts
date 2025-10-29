@@ -75,7 +75,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     if (this.devicePlatform === 'web') {
       this.startCameraPreview();
     } else {
-      from(this.cameraService.requestCameraPermissions()).subscribe((permissions) => {
+      from(this.cameraService.requestCameraPermissions(['camera'])).subscribe((permissions) => {
         if (permissions?.camera === 'denied') {
           this.permissionDenied.emit('CAMERA');
         } else if (permissions?.camera === 'prompt-with-rationale') {
