@@ -35,7 +35,7 @@ class MatSnackBarStub {
   }
 }
 
-fdescribe('CaptureReceiptComponent', () => {
+describe('CaptureReceiptComponent', () => {
   let component: CaptureReceiptComponent;
   let fixture: ComponentFixture<CaptureReceiptComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
