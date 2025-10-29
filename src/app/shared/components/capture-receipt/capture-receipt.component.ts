@@ -501,7 +501,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             base64Image: base64,
           });
         }
-        await this.loaderService.hideLoader();
         return this.openReceiptPreviewModal();
       } catch (error) {
         this.setUpAndStartCamera();

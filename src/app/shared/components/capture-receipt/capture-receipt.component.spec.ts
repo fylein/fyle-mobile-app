@@ -872,7 +872,6 @@ fdescribe('CaptureReceiptComponent', () => {
     }));
 
     it('should restart camera and rethrow error if gallery upload fails', async () => {
-      loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
       component.base64ImagesWithSource = [];
       
@@ -892,7 +891,7 @@ fdescribe('CaptureReceiptComponent', () => {
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 0);
       expect(cameraService.pickImages).toHaveBeenCalledTimes(1);
       expect(setUpAndStartCameraSpy).toHaveBeenCalledTimes(1);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2); // Once in finally block
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(component.base64ImagesWithSource.length).toBe(0);
     });
   });
