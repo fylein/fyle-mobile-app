@@ -69,8 +69,7 @@ describe('CaptureReceiptComponent', () => {
   @Component({
     selector: 'app-camera-preview',
     template: '',
-    providers: [{ provide: CameraPreviewComponent, useClass: CameraPreviewStubComponent }],
-    imports: [RouterTestingModule],
+    imports: [],
   })
   class CameraPreviewStubComponent {
     setUpAndStartCamera() {
@@ -114,7 +113,7 @@ describe('CaptureReceiptComponent', () => {
     const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['pickImages', 'checkPermissions', 'requestCameraPermissions']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-      imports: [ RouterTestingModule, CaptureReceiptComponent, CameraPreviewStubComponent],
+      imports: [CaptureReceiptComponent],
       providers: [
         {
           provide: ModalController,
@@ -186,6 +185,9 @@ describe('CaptureReceiptComponent', () => {
         },
       ],
       schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
+    }).overrideComponent(CameraPreviewComponent, {
+      remove: {imports: [CameraPreviewComponent]},
+      add: {imports: [CameraPreviewStubComponent]},
     }).compileComponents();
     fixture = TestBed.createComponent(CaptureReceiptComponent);
     component = fixture.componentInstance;
@@ -825,37 +827,65 @@ describe('CaptureReceiptComponent', () => {
     }));
 
     it('should request permissions when status is prompt', fakeAsync(() => {
-      cameraService.checkPermissions.and.resolveTo({ photos: 'prompt', camera: 'prompt' });
+      let callCount = 0;
+      cameraService.checkPermissions.and.callFake(() => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve({ photos: 'prompt', camera: 'prompt' });
+        } else {
+          // Second call after permission request
+          return Promise.resolve({ photos: 'granted', camera: 'granted' });
+        }
+      });
       cameraService.requestCameraPermissions.and.resolveTo({ photos: 'granted', camera: 'granted' });
-      
-      // Mock the second call to onGalleryUpload after permission request
-      spyOn(component, 'onGalleryUpload').and.callThrough();
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      cameraService.pickImages.and.resolveTo({ photos: [] });
+      spyOn(component, 'openReceiptPreviewModal');
       
       component.onGalleryUpload();
       
-      tick(); // checkPermissions
+      tick(); // checkPermissions (first call)
       tick(); // requestCameraPermissions
+      tick(); // onGalleryUpload recursive call starts
+      tick(); // checkPermissions (second call)
+      tick(); // showLoader
+      tick(); // pickImages
+      tick(); // hideLoader and openReceiptPreviewModal
       
-      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(2);
       expect(cameraService.requestCameraPermissions).toHaveBeenCalledOnceWith(['photos']);
-      expect(component.onGalleryUpload).toHaveBeenCalledTimes(2);
     }));
 
     it('should request permissions when status is prompt-with-rationale', fakeAsync(() => {
-      cameraService.checkPermissions.and.resolveTo({ photos: 'prompt-with-rationale', camera: 'prompt-with-rationale' });
+      let callCount = 0;
+      cameraService.checkPermissions.and.callFake(() => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve({ photos: 'prompt-with-rationale', camera: 'prompt-with-rationale' });
+        } else {
+          // Second call after permission request
+          return Promise.resolve({ photos: 'granted', camera: 'granted' });
+        }
+      });
       cameraService.requestCameraPermissions.and.resolveTo({ photos: 'granted', camera: 'granted' });
-      
-      // Mock the second call to onGalleryUpload after permission request
-      spyOn(component, 'onGalleryUpload').and.callThrough();
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      cameraService.pickImages.and.resolveTo({ photos: [] });
+      spyOn(component, 'openReceiptPreviewModal');
       
       component.onGalleryUpload();
       
-      tick(); // checkPermissions
+      tick(); // checkPermissions (first call)
       tick(); // requestCameraPermissions
+      tick(); // onGalleryUpload recursive call starts
+      tick(); // checkPermissions (second call)
+      tick(); // showLoader
+      tick(); // pickImages
+      tick(); // hideLoader and openReceiptPreviewModal
       
-      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(cameraService.checkPermissions).toHaveBeenCalledTimes(2);
       expect(cameraService.requestCameraPermissions).toHaveBeenCalledOnceWith(['photos']);
-      expect(component.onGalleryUpload).toHaveBeenCalledTimes(2);
     }));
 
     it('should show permission denied popover when permissions are denied', fakeAsync(() => {

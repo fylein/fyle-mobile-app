@@ -511,7 +511,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       }
     } else if (permissions?.photos === 'prompt' || permissions?.photos === 'prompt-with-rationale') {
       await this.cameraService.requestCameraPermissions(['photos']);
-      return this.onGalleryUpload();
+      this.onGalleryUpload();
     } else {
       return this.showPermissionDeniedPopover('GALLERY');
     }
