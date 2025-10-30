@@ -105,6 +105,11 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
   setDisabledState?(isDisabled: boolean): void {
     this.isDisabled = isDisabled;
+    if (isDisabled) {
+      this.fc?.disable();
+    } else {
+      this.fc?.enable();
+    }
   }
 
   onBlur(): void {
