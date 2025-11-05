@@ -37,6 +37,7 @@ describe('ToastMessageComponent', () => {
       message: 'Test message',
       redirectionText: null,
       showCloseButton: false,
+      messageType: 'success',
     };
     fixture.detectChanges();
     const element = getElementBySelector(fixture, '.toast-message--body');
@@ -56,6 +57,7 @@ describe('ToastMessageComponent', () => {
       message: '',
       redirectionText: 'Go to home',
       showCloseButton: false,
+      messageType: 'success',
     };
     fixture.detectChanges();
 
@@ -71,6 +73,7 @@ describe('ToastMessageComponent', () => {
       message: '',
       redirectionText: '',
       showCloseButton: true,
+      messageType: 'success',
     };
     fixture.detectChanges();
 

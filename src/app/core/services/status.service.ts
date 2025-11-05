@@ -244,6 +244,13 @@ export class StatusService {
           icon: 'check',
         };
         break;
+
+      case lowerCaseComment.includes('expense was reconciled'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.expenseReconciled'),
+          icon: 'check',
+        };
+        break;
       default:
         statusCategory = {
           category: this.translocoService.translate('services.status.others'),

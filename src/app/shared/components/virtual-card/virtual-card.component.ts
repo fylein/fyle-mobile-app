@@ -67,7 +67,6 @@ export class VirtualCardComponent implements OnInit {
     const successToastProperties = this.snackbarProperties.setSnackbarProperties(
       'success',
       { message },
-      'check-circle-outline',
     );
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...successToastProperties,

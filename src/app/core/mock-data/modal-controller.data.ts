@@ -132,6 +132,7 @@ export const openFromComponentConfig = {
     icon: 'warning-fill',
     showCloseButton: true,
     message: 'Please select one or more expenses to be reported',
+    messageType: 'failure' as const,
   },
   duration: 3000,
   panelClass: ['msb-failure-with-report-btn'],
@@ -589,7 +590,7 @@ export const permissionDeniedPopoverParams = {
   component: PopupAlertComponent,
   componentProps: {
     title: 'Photos permission',
-    message: 'Please allow Fyle to access device photos. Click Settings and allow Photos access',
+    message: 'Please allow Sage Expense Management to access device photos. Click Settings and allow Photos access',
     primaryCta: {
       text: 'Open settings',
       action: 'OPEN_SETTINGS',

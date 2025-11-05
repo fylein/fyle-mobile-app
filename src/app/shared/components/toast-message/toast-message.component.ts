@@ -20,6 +20,7 @@ export class ToastMessageComponent {
     message: string;
     redirectionText: string;
     showCloseButton: boolean;
+    messageType: 'success' | 'failure' | 'information';
   }>(MAT_SNACK_BAR_DATA);
 
   private snackBarRef = inject<MatSnackBarRef<ToastMessageComponent>>(MatSnackBarRef);

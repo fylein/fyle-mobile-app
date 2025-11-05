@@ -2,7 +2,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { SpenderOnboardingService } from '../services/spender-onboarding.service';
 import { OnboardingGuard } from './onboarding.guard';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { LoaderService } from '../services/loader.service';
 
 describe('OnboardingGuard', () => {
@@ -73,6 +73,17 @@ describe('OnboardingGuard', () => {
       const canActivate = guard.canActivate() as Observable<boolean>;
       // Act
       canActivate.subscribe(() => {
+        expect(spenderOnboardingService.checkForRedirectionToOnboarding).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should return true and allow activation if checkForRedirectionToOnboarding throws an error', (done) => {
+      spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(throwError(() => new Error('Test error')));
+
+      const canActivate = guard.canActivate() as Observable<boolean>;
+      canActivate.subscribe((result) => {
+        expect(result).toBeTrue();
         expect(spenderOnboardingService.checkForRedirectionToOnboarding).toHaveBeenCalledTimes(1);
         done();
       });

@@ -109,6 +109,7 @@ export interface AchSettings extends CommonOrgSettings {
   expedite_source?: boolean;
   expedite_destination?: boolean;
   pipeline_amount_limit?: number;
+  is_suspended?: boolean;
 }
 
 export interface BankStatementParserEndpointSettings {
