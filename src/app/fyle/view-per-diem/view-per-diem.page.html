@@ -142,7 +142,7 @@
           </ion-col>
           <ion-col class="view-per-diem--content-container">
             <div class="view-per-diem--label">Created date</div>
-            <div class="view-per-diem--value">{{ perDiemExpense.created_at | date: 'MMM dd, yyyy' }}</div>
+            <div class="view-per-diem--value">{{ perDiemExpense.created_at | date }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -162,7 +162,7 @@
                   </ion-col>
                   <ion-col class="view-per-diem--content-container">
                     <div class="view-per-diem--label">Onward date</div>
-                    <div class="view-per-diem--value">{{ perDiemExpense.started_at | date: 'MMM dd, yyyy' }}</div>
+                    <div class="view-per-diem--value">{{ perDiemExpense.started_at | date }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -181,7 +181,7 @@
                     </ion-col>
                     <ion-col class="view-per-diem--content-container">
                       <div class="view-per-diem--label">Return date</div>
-                      <div class="view-per-diem--value">{{ perDiemExpense.ended_at | date: 'MMM dd, yyyy' }}</div>
+                      <div class="view-per-diem--value">{{ perDiemExpense.ended_at | date }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
