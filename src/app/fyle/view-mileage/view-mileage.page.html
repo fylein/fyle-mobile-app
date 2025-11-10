@@ -64,7 +64,7 @@
           <div class="view-mileage--card-container__amount-container">
             <span>{{ expenseCurrencySymbol }}</span>
             <span class="view-mileage--card-container__amount">
-              {{ { value: expense.amount || 0, currencyCode: expense.currency, skipSymbol: true } | exactCurrency }}
+              {{ { value: expense.amount || 0, currencyCode: expense.currency } | exactCurrency }}
             </span>
             <ion-icon
               class="view-mileage--card-container__icon"

@@ -1,7 +1,7 @@
 <!-- Report Date -->
 @if (showDate) {
   <div class="reports-card--date">
-    {{ report.created_at | date: 'MMM dd, yyyy' }}
+    {{ report.created_at | date }}
   </div>
 }
 
@@ -24,9 +24,8 @@
           </div>
           <!-- Total amount -->
           <div class="reports-card--amount-block ion-text-nowrap">
-            <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
             <span class="reports-card--amount">
-              {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
+              {{ { value: report.amount || 0, currencyCode: report.currency } | exactCurrency }}
             </span>
           </div>
         </div>
