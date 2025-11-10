@@ -98,7 +98,7 @@
                         {{ report.last_resubmitted_at ? 'Resubmitted date : ' : 'Submitted date : ' }}
                       </span>
                       <span class="view-reports--submitted-date__date">{{
-                        report.last_resubmitted_at || report.last_submitted_at | date: 'MMM dd, yyyy'
+                        report.last_resubmitted_at || report.last_submitted_at | date
                       }}</span>
                     </div>
                   </div>
@@ -277,7 +277,7 @@
                         <ion-row>
                           <ion-col size="12">
                             <div class="view-comment--comment-timestamp">
-                              {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                              {{ estatus.created_at | dateWithTimezone: 'onlyTime' }}
                             </div>
                           </ion-col>
                         </ion-row>
@@ -315,7 +315,7 @@
                         <ion-row>
                           <ion-col size="12">
                             <div class="view-comment--comment-timestamp">
-                              {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                              {{ estatus.created_at | dateWithTimezone: 'onlyTime' }}
                             </div>
                           </ion-col>
                         </ion-row>
