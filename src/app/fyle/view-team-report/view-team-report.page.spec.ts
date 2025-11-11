@@ -853,6 +853,7 @@ describe('ViewTeamReportPageV2', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Report Sent Back successfully',
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -1163,6 +1164,7 @@ describe('ViewTeamReportPageV2', () => {
           icon: 'check-square-fill',
           showCloseButton: true,
           message: 'Report name changed successfully.',
+          messageType: 'success' as const,
         },
         duration: 3000,
       };

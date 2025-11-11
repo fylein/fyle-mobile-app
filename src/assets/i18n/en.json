@@ -4,42 +4,43 @@
       "expenseAutomaticallyMerged": "Expense automatically merged",
       "expensesMergedToThisExpense": "{{count}} expenses merged to this expense",
       "expenseMerged": "Expense merged",
-      "typeReversed": "{{type}} Reversed",
-      "expenseRuleApplied": "Expense Rule Applied",
-      "typeCreated": "{{type}} Created",
-      "typeEdited": "{{type}} Edited",
+      "typeReversed": "{{type}} reversed",
+      "expenseRuleApplied": "Expense rule applied",
+      "typeCreated": "{{type}} created",
+      "typeEdited": "{{type}} edited",
       "policyViolation": "Policy violation",
       "criticalPolicyViolation": "Critical policy violation found",
       "expenseAdded": "Expense added",
-      "receiptAttached": "Receipt Attached",
-      "reportSubmitted": "Report Submitted",
-      "receiptRemoved": "Receipt Removed",
+      "receiptAttached": "Receipt attached",
+      "reportSubmitted": "Report submitted",
+      "receiptRemoved": "Receipt removed",
       "expenseRemoved": "Expense removed",
-      "reportNameChanged": "Report Name Changed",
+      "reportNameChanged": "Report name changed",
       "report": "Report",
       "unflagged": "Unflagged",
       "flagged": "Flagged",
       "failedToRunPolicies": "Failed to run policies",
       "verified": "Verified",
-      "typeSentBack": "{{type}} Sent Back",
-      "approverPending": "Approver Pending",
-      "typeApproved": "{{type}} Approved",
-      "processingPayment": "Processing Payment",
+      "typeSentBack": "{{type}} sent back",
+      "approverPending": "Approver pending",
+      "typeApproved": "{{type}} approved",
+      "processingPayment": "Processing payment",
       "paid": "Paid",
-      "expenseIssues": "Expense Issues",
-      "policiesRanSuccessfully": "Policies Ran Successfully",
-      "cardTransactionMatched": "Card Transaction Matched",
-      "expenseUnmatched": "Expense Unmatched",
-      "expenseMatched": "Expense Matched",
-      "duplicateDetected": "Duplicate Detected",
+      "expenseIssues": "Expense issues",
+      "policiesRanSuccessfully": "Policies ran successfully",
+      "cardTransactionMatched": "Card transaction matched",
+      "expenseUnmatched": "Expense unmatched",
+      "expenseMatched": "Expense matched",
+      "duplicateDetected": "Duplicate detected",
       "duplicateIssueResolved": "Duplicate(s) issue resolved",
-      "others": "Others"
+      "others": "Others",
+      "expenseReconciled": "Reconciled"
     },
     "orgSettings": {
       "currencyLayer": "Currency Layer"
     },
     "backButton": {
-      "title": "Exit Fyle App",
+      "title": "Exit Sage Expense Management App",
       "message": "Are you sure you want to exit the app?",
       "primaryCtaText": "OK",
       "secondaryCtaText": "Cancel"
@@ -476,7 +477,7 @@
     "notVerified": "Your account is not verified. Please request a verification link, if required",
     "serverError": "Please retry in a while. Send us a note to <a href=\"mailto:support@fylehq.com\">support@fylehq.com</a> if the problem persists.",
     "temporarilyLocked": "This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please retry later.",
-    "restrictedAccess": "Your organization has restricted Fyle access to its corporate network.",
+    "restrictedAccess": "Your organization has restricted Sage Expense Management access to its corporate network.",
     "tryAgain": "Try again"
   },
   "fySelect": {
@@ -519,8 +520,8 @@
     "cameraPermissionTitle": "Camera permission",
     "photosPermissionTitle": "Photos permission",
     "storagePermissionTitle": "Storage permission",
-    "cameraPermissionMessage": "To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and {{galleryPermissionName}}",
-    "galleryPermissionMessage": "Please allow Fyle to access device photos. Click Settings and allow {{galleryPermissionName}} access",
+    "cameraPermissionMessage": "To capture photos, please allow Sage Expense Management to access your camera. Click Open Settings and allow access to Camera and {{galleryPermissionName}}",
+    "galleryPermissionMessage": "Please allow Sage Expense Management to access device photos. Click Settings and allow {{galleryPermissionName}} access",
     "openSettings": "Open settings",
     "cancel": "Cancel"
   },
@@ -537,13 +538,19 @@
     "cancel": "Cancel",
     "removeReceiptTitle": "Remove receipt",
     "removeReceiptMessage": "Are you sure you want to remove this receipt?",
-    "remove": "Remove"
+    "remove": "Remove",
+    "cameraPermissionTitle": "Camera permission",
+    "photosPermissionTitle": "Photos permission",
+    "storagePermissionTitle": "Storage permission",
+    "cameraPermissionMessage": "To capture photos, please allow Sage Expense Management to access your camera. Click Open Settings and allow access to Camera and {{galleryPermissionName}}",
+    "galleryPermissionMessage": "Please allow Sage Expense Management to access device photos. Click Settings and allow {{galleryPermissionName}} access",
+    "openSettings": "Open settings"
   },
   "reviewSplitExpense": {
     "title": "Review split expenses"
   },
   "fyHeader": {
-    "fyle": "Fyle",
+    "fyle": "Sage Expense Management",
     "cancel": "Cancel"
   },
   "fyUserlist": {
@@ -788,7 +795,7 @@
     "optedIn": "Opted-in",
     "optedOut": "Opted-out",
     "mobileNumber": "Mobile number",
-    "usageDescription": "You can now text your receipts to Fyle at 302-440-2921",
+    "usageDescription": "You can now text your receipts to Sage Expense Management at 302-440-2921",
     "optInMessage": "Opt-in to receive text message by sending <strong>START</strong> to <strong>302-440-2921</strong>",
     "notOptedIn": "Not opted-in",
     "nonUSNumberInfo": "Add a +1 country code to your mobile number to receive text message receipts.",
@@ -948,7 +955,10 @@
     "submittingReport": "Submitting Report",
     "submitReport": "Submit report",
     "draftSuccessMessage": "Expenses added to a new report",
-    "submitSuccessMessage": "Expenses submitted for approval"
+    "submitSuccessMessage": "Expenses submitted for approval",
+    "achSuspendedTitle": "ACH reimbursements suspended",
+    "achSuspendedMessage": "ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.",
+    "achSuspendedButton": "Got it"
   },
   "viewDependentFields": {
     "unspecified": "Unspecified",
@@ -1183,7 +1193,7 @@
     "openSettings": "Open settings",
     "cancel": "Cancel",
     "locationPermissionTitle": "Location permission",
-    "locationPermissionMessage": "To fetch current location, please allow Fyle to access your Location. Click on 'Open Settings', then enable both 'Location' and 'Precise Location' to continue.",
+    "locationPermissionMessage": "To fetch current location, please allow Sage Expense Management to access your Location. Click on 'Open Settings', then enable both 'Location' and 'Precise Location' to continue.",
     "loadingCurrentLocation": "Loading current location...",
     "search": "Search",
     "clear": "Clear",
@@ -1244,7 +1254,7 @@
   },
   "spenderOnboardingConnectCardStep": {
     "title": "Connect corporate card",
-    "subTitle": "This will help you bring your card transactions into Fyle as expenses instantly.",
+    "subTitle": "This will help you bring your card transactions into Sage Expense Management as expenses instantly.",
     "cardLabel": "Corporate card",
     "cardNumberPlaceholder": "XXXX XXXX XXXX",
     "invalidCardNumberError": "Please enter a valid card number.",
@@ -1377,13 +1387,13 @@
     "errorInvalidCardNetworkBoth": "Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.",
     "errorInvalidCardNetworkVisa": "Enter a valid Visa number. If you have other cards, please contact your admin.",
     "errorInvalidCardNetworkMastercard": "Enter a valid Mastercard number. If you have other cards, please contact your admin.",
-    "infoNonRtfYodlee": "Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.",
+    "infoNonRtfYodlee": "Enter a valid Visa or Mastercard number. If you have other cards, please add them on Sage Expense Management Web or contact your admin.",
     "viewTnc": "View Terms and conditions",
     "tncHeading": "By enrolling your card and clicking on 'add', you hereby agree to:",
     "tncListItem1Part1": "Allow your employer,",
     "tncListItem1Part2": "card network",
-    "tncListItem1Part3": " and Fyle Inc. to access details of all transactions made using the enrolled card. This includes the transaction amount, the name of the merchant, the date and time of the transaction, and any other relevant information deemed necessary to provide services.",
-    "tncListItem2": "Allow Fyle to use the above details to create expenses on your behalf and enable program notifications.",
+    "tncListItem1Part3": " and Sage Expense Management Inc. to access details of all transactions made using the enrolled card. This includes the transaction amount, the name of the merchant, the date and time of the transaction, and any other relevant information deemed necessary to provide services.",
+    "tncListItem2": "Allow Sage Expense Management to use the above details to create expenses on your behalf and enable program notifications.",
     "tncListItem3Part1": "Agree to our",
     "tncLink1": "Terms and conditions",
     "tncListItem3Part2": " and ",
@@ -1505,7 +1515,7 @@
     "amountCappedCannotEdit": " and cannot be edited.",
     "cardDetailsInfo": "If the expense is merged with incorrect card details, click on Options (⋮) to remove the card details.",
     "outstandingBalanceInfo": "You have outstanding balance in your advance account(s)",
-    "autoMergeInfo": "Fyle will automatically merge this expense with the corresponding corporate card transaction when it flows into fyle.",
+    "autoMergeInfo": "This expense will be automatically merged with the corresponding corporate card transaction when it flows into Sage Expense Management.",
     "draftExpenseWarning": "Expense will be saved as a draft. Kindly ensure that it is matched with an appropriate card transaction later, although we will attempt to auto-match it for you.",
     "noProjectsAssignedWarning": "There are no {{projectFieldName}}s assigned to you, so this expense will be saved as a draft. Please contact admin for further help.",
     "noCategoriesAssignedWarning": "There are no Categories assigned to you, so this expense will be saved as a draft. Please contact admin for further help.",
@@ -1566,7 +1576,8 @@
     "projectDisabledError": "Project disabled, select a different one.",
     "pleaseSelectProjectError": "Please select a project.",
     "billableLabel": "Billable",
-    "cancelButton": "Cancel"
+    "cancelButton": "Cancel",
+    "reconciledInfo": "Some details can't be edited because this expense is already reconciled."
   },
   "myExpensesPage": {
     "title": "My expenses",
@@ -1743,19 +1754,22 @@
   },
   "dashboard": {
     "pendingTask": "You have {{count}} pending task",
-    "pendingTasks": "You have {{count}} pending tasks"
+    "pendingTasks": "You have {{count}} pending tasks",
+    "achSuspendedTitle": "ACH reimbursements suspended",
+    "achSuspendedMessage": "ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.",
+    "achSuspendedButton": "Got it"
   },
   "pendingGasChargeInfoModal": {
     "title": "Why am I seeing a $1 expense?",
     "description": "Gas stations often place a temporary $1 hold amount when you swipe your card. This placeholder amount is updated to the actual amount within a few days of your purchase.",
     "step1Description": "You swipe your card at the gas station",
     "step2Description": "The gas station places a temporary $1 hold on your card",
-    "step3Description": "The $1 charge shows up in your Fyle account",
+    "step3Description": "The $1 charge shows up in your Sage Expense Management account",
     "step4Description": "After a few days, the gas station sends the actual amount to your bank",
-    "step5Description": "The $1 hold in your Fyle account automatically gets updated to reflect the actual amount",
+    "step5Description": "The $1 hold in your Sage Expense Management account automatically gets updated to reflect the actual amount",
     "additionalInfoTitle": "Why am I seeing duplicate expenses for the same purchase?",
     "additionalInfoDescription": "If you've uploaded your receipt through text or email, you might see temporary duplicate expenses in your account for a few days. These expenses will automatically merge into a single expense once the gas station sends the final amount to your bank. You can also manually merge the 2 expenses on your own.",
-    "readMoreText": "Read more on how gas stations expenses are captured in Fyle",
+    "readMoreText": "Read more on how gas stations expenses are captured in Sage Expense Management",
     "readMoreLinkText": "here",
     "gotItButton": "Got it"
   },
@@ -1763,5 +1777,11 @@
     "expenseListViewText": "Pending gas charge",
     "text": "What is $1 pending gas charge?"
   },
-  "criticalPolicyViolated": "Critical policy violated"
+  "criticalPolicyViolated": "Critical policy violated",
+  "rebrandingPopup": {
+    "title": "Fyle is now Sage Expense Management!",
+    "message": "You'll notice our new name and logo across the app. Your workflows and data remain exactly the same - it's the same product you know and love, just with a new name.",
+    "learnMore": "Learn More",
+    "ok": "OK"
+  }
 }

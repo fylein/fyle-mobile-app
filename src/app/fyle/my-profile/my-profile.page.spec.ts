@@ -330,6 +330,7 @@ describe('MyProfilePage', () => {
         data: {
           icon: 'check-square-fill',
           showCloseButton: true,
+          messageType: 'success' as const,
           message,
         },
         duration: 3000,
@@ -342,7 +343,7 @@ describe('MyProfilePage', () => {
         ...successToastProperties,
         panelClass: 'msb-success',
       });
-      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message }, undefined);
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
       });
@@ -354,6 +355,7 @@ describe('MyProfilePage', () => {
         data: {
           icon: 'warning-fill',
           showCloseButton: true,
+          messageType: 'failure' as const,
           message,
         },
         duration: 3000,
@@ -366,7 +368,7 @@ describe('MyProfilePage', () => {
         ...failureToastProperties,
         panelClass: 'msb-failure',
       });
-      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', { message }, undefined);
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', { message });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
       });
@@ -379,6 +381,7 @@ describe('MyProfilePage', () => {
           icon: 'success',
           showCloseButton: true,
           message,
+          messageType: 'success' as const,
         },
         duration: 3000,
       };
@@ -392,8 +395,7 @@ describe('MyProfilePage', () => {
       });
       expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
         'success',
-        { message },
-        'check-circle-outline',
+        { message }
       );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
@@ -795,7 +797,7 @@ describe('MyProfilePage', () => {
         listItems: [
           {
             icon: 'envelope',
-            text: 'Message your receipts to Fyle at (302) 440-2921 and we will create an expense for you.',
+            text: 'Message your receipts to Sage Expense Management at (302) 440-2921 and we will create an expense for you.',
             textToCopy: '(302) 440-2921',
           },
           {

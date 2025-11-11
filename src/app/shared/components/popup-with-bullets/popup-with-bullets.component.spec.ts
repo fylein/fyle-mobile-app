@@ -77,7 +77,7 @@ describe('PopupWithBulletsComponent', () => {
     component.listItems = [
       {
         icon: 'envelope',
-        text: 'Message your receipts to Fyle at (302) 440-2921 and we will create an expense for you.',
+        text: 'Message your receipts to Sage Expense Management at (302) 440-2921 and we will create an expense for you.',
         textToCopy: '(302) 440-2921',
       },
     ];
@@ -120,6 +120,7 @@ describe('PopupWithBulletsComponent', () => {
         icon: 'check-circle-outline',
         showCloseButton: true,
         message,
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -135,7 +136,6 @@ describe('PopupWithBulletsComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
       'success',
       { message },
-      'check-circle-outline',
     );
   });
 });

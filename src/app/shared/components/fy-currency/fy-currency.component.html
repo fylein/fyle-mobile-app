@@ -15,7 +15,7 @@
       </div>
       @if (currencyAutoCodeMessage) {
         <div class="fy-currency__auto-coded">
-          <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
+          <mat-icon class="fy-currency__auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
           {{ currencyAutoCodeMessage }}
         </div>
       }
@@ -30,12 +30,13 @@
           [placeholder]="'fyCurrency.amountPlaceholder' | transloco"
           formControlName="amount"
           [isAmount]="true"
+          [disabled]="disable()"
         >
         </app-fy-number>
       </div>
       @if (amountAutoCodeMessage) {
         <div class="fy-currency__auto-coded">
-          <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
+          <mat-icon class="fy-currency__auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
           {{ amountAutoCodeMessage }}
         </div>
       }

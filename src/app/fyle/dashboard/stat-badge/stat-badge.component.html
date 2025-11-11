@@ -13,12 +13,8 @@
             </div>
           }
           @if (!loading && expenseState) {
-            <div>
-              @if (!loading) {
-                <div [ngClass]="'stat-badge--count stat-badge--count__' + expenseState.toString().toLowerCase()">
-                  {{ count }}
-                </div>
-              }
+            <div [ngClass]="'stat-badge--count stat-badge--count__' + expenseState.toString().toLowerCase()">
+              {{ count }}
             </div>
           }
           @if (loading) {

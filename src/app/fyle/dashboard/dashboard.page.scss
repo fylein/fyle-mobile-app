@@ -46,6 +46,7 @@
     border-radius: 8px;
     border: 1px solid colors.$lighter-grey;
     margin: 14px 16px 0 16px;
+    background-color: colors.$pure-white;
   }
 
   &--pending-tasks-stat-container {
@@ -73,7 +74,7 @@
 
   &--pending-tasks-stat-icon-pill {
     position: absolute;
-    background-color: colors.$brand-primary;
+    background-color: colors.$stat-badge-blue;
     color: colors.$pure-white;
     line-height: 8px;
     top: -6px;

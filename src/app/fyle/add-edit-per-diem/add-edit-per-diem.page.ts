@@ -57,7 +57,21 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -113,7 +127,7 @@ import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
-import { NgClass, NgIf, AsyncPipe, SlicePipe, DecimalPipe, CurrencyPipe } from '@angular/common';
+import { NgClass, AsyncPipe, SlicePipe, DecimalPipe, CurrencyPipe } from '@angular/common';
 import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
 import { MatIcon } from '@angular/material/icon';
 import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
@@ -168,11 +182,10 @@ import { chevronUp, chevronDown } from 'ionicons/icons';
     MatCheckbox,
     MatIcon,
     NgClass,
-    NgIf,
     ReactiveFormsModule,
     ReviewFooterComponent,
     SlicePipe,
-    VirtualSelectComponent
+    VirtualSelectComponent,
   ],
 })
 export class AddEditPerDiemPage implements OnInit {

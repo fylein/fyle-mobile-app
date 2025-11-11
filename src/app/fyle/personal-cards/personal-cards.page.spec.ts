@@ -284,12 +284,13 @@ describe('PersonalCardsPage', () => {
 
     describe('postAccounts():', () => {
       it('should post account data with 1 card', fakeAsync(() => {
-        const message = '1 card successfully added to Fyle!';
+        const message = '1 card successfully added to Sage Expense Management!';
         const props = {
           data: {
             icon: 'check-square-fill',
             showCloseButton: false,
             message,
+            messageType: 'success' as const,
           },
           duration: 3000,
         };
@@ -315,12 +316,13 @@ describe('PersonalCardsPage', () => {
       }));
 
       it('should post account data for multiple cards', fakeAsync(() => {
-        const message = '2 cards successfully added to Fyle!';
+        const message = '2 cards successfully added to Sage Expense Management!';
         const props = {
           data: {
             icon: 'check-square-fill',
             showCloseButton: false,
             message,
+            messageType: 'success' as const,
           },
           duration: 3000,
         };

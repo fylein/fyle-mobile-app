@@ -98,38 +98,17 @@ ion-popover.error-popover {
   border-radius: 16px 16px 0px 0px !important;
 }
 
-.msb-success {
-  .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #24a148;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
-    margin: 0 16px 30px !important;
-  }
+.mdc-snackbar__label {
+  padding: 0 !important;
 }
 
-.msb-failure {
-  .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #da1e28;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
-    margin: 0 16px 30px !important;
-  }
-}
-
-.msb-info {
-  .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #1c1f36;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
-    margin: 0 16px 30px !important;
-  }
+.mdc-snackbar__surface {
+  padding-right: 0 !important;
+  margin: 0 16px 30px !important;
 }
 
 .msb-bulkfyle-prompt {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #1c1f36;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px calc(124px + env(safe-area-inset-bottom)) !important;
   }
 
@@ -148,60 +127,38 @@ ion-popover.error-popover {
 
 .msb-success-with-camera-icon {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #24a148;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 133px !important;
   }
 }
 
 .msb-success-with-camera-icon-for-split-exp {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #24a148;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 24px !important;
   }
 }
 
 .msb-failure-with-camera-icon-for-split-exp {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #da1e28;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 24px !important;
   }
 }
 
 .msb-failure-with-camera-icon {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #da1e28;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 133px !important;
   }
 }
 
 .msb-success-with-report-btn {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #24a148;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 84px !important;
   }
 }
 
 .msb-failure-with-report-btn {
   .mdc-snackbar__surface {
-    --mat-snack-bar-container-color: #da1e28;
-    color: colors.$pure-white;
-    border-radius: 8px !important;
     margin: 0 16px 96px !important;
   }
-}
-
-.icon--toast-danger {
-  color: colors.$white !important;
 }
 
 .icon--alert-warning {
@@ -1560,7 +1517,7 @@ ion-toggle.toggle-checked {
   height: max-content;
 
   //get state keys for generating state class
-  @each $state in map.keys(colors.$states) {
+  @each $state in colors.$states {
     @include state($state);
   }
 }

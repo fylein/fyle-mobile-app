@@ -67,9 +67,10 @@ describe('VirtualCardComponent', () => {
     const message = 'Copied Successfully!';
     const successToastProperties = {
       data: {
-        icon: 'check-circle-outline',
+        icon: 'success-toast-icon',
         showCloseButton: true,
         message,
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -85,7 +86,6 @@ describe('VirtualCardComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
       'success',
       { message },
-      'check-circle-outline',
     );
   });
 

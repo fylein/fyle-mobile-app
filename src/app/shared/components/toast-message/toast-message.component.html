@@ -1,9 +1,11 @@
-<div class="toast-message--container d-flex">
+<div class="toast-message--container type-{{ data.messageType }} d-flex">
   <div matSnackBarLabel class="d-flex">
     @if (data.icon) {
-      <mat-icon class="toast-message--left-icon icon--toast-danger" svgIcon="{{ data.icon }}"></mat-icon>
+      <div class="icon-container type-{{ data.messageType }}">
+        <mat-icon class="toast-message--left-icon" svgIcon="{{ data.icon }}"></mat-icon>
+      </div>
     }
-    <span class="toast-message--body" [innerHTML]="data.message"></span>
+    <div class="toast-message--body" [innerHTML]="data.message"></div>
   </div>
 
   <div matSnackBarActions class="d-flex ion-text-right">

@@ -135,6 +135,15 @@
   @if (fg && !isLoading) {
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
+        @if (isReconciledExpense()) {
+          <div class="add-edit-expense--alert-offline">
+            <app-fy-alert-info
+              [message]="'addEditExpense.reconciledInfo' | transloco"
+              [type]="'information'"
+            ></app-fy-alert-info>
+          </div>
+        }
+
         @if (showReceiptMandatoryError) {
           <div class="add-edit-expense--alert-offline receipt-mandatory-error">
             <app-fy-alert-info
@@ -361,6 +370,7 @@
                   [touchedInParent]="fg?.controls?.currencyObj?.touched"
                   [validInParent]="fg?.controls?.currencyObj?.valid"
                   [autoCodedData]="autoCodedData"
+                  [disable]="isReconciledExpense()"
                 >
                 </app-currency>
                 @if (fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid) {
@@ -455,7 +465,7 @@
               yyyy') === (fg.controls.dateOfSpend.value | date: 'MMM dd, yyyy')
                   ) {
                     <div class="add-edit-expense--auto-coded">
-                      <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                      <mat-icon class="add-edit-expense--auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
                       {{ 'addEditExpense.dateAutoCodedInfo' | transloco }}
                     </div>
                   }
@@ -538,9 +548,7 @@
           @if (!isCccExpense) {
             <app-fy-alert-info
               [type]="'information'"
-              [message]="
-                'Fyle will automatically merge this expense with the corresponding corporate card transaction when it flows into fyle.'
-              "
+              [message]="'addEditExpense.autoMergeInfo' | transloco"
             ></app-fy-alert-info>
           }
         }
@@ -668,7 +676,7 @@
                         autoCodedData.category === fg.controls.category.value.displayName
                       ) {
                         <div class="add-edit-expense--auto-coded">
-                          <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                          <mat-icon class="add-edit-expense--auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
                           Category is auto coded.
                         </div>
                       }
@@ -845,7 +853,11 @@
                         </div>
                         @if (fg.controls.from_dt.touched && !fg.controls.from_dt.valid) {
                           <div class="add-edit-expense--date-error">
-                            Please select a valid {{ txnFields.from_dt?.field_name }}.
+                            @if (fg.controls.from_dt.hasError('fromDateAfterToDate')) {
+                              {{ txnFields.from_dt?.field_name }} cannot be after {{ txnFields.to_dt?.field_name }}.
+                            } @else {
+                              Please select a valid {{ txnFields.from_dt?.field_name }}.
+                            }
                           </div>
                         }
                       </ion-col>
@@ -883,7 +895,11 @@
                         </div>
                         @if (fg.controls.to_dt.touched && !fg.controls.to_dt.valid) {
                           <div class="add-edit-expense--date-error">
-                            Please select a valid {{ txnFields.to_dt?.field_name }}.
+                            @if (fg.controls.to_dt.hasError('toDateBeforeFromDate')) {
+                              {{ txnFields.to_dt?.field_name }} cannot be before {{ txnFields.from_dt?.field_name }}.
+                            } @else {
+                              Please select a valid {{ txnFields.to_dt?.field_name }}.
+                            }
                           </div>
                         }
                       </ion-col>
@@ -1213,7 +1229,7 @@
                   autoCodedData.vendor_name?.toLowerCase() === fg.controls.vendor_id.value.display_name?.toLowerCase()
                 ) {
                   <div class="add-edit-expense--auto-coded">
-                    <mat-icon class="add-edit-expense--sparkle-icon" svgIcon="sparkle"></mat-icon>
+                    <mat-icon class="add-edit-expense--auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
                     Merchant is auto coded.
                   </div>
                 }

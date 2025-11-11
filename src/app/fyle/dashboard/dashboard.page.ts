@@ -1,6 +1,6 @@
-import { Component, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
+import { Component, EventEmitter, ViewChild, inject, signal, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
   ActionSheetButton,
   ActionSheetController,
@@ -15,6 +15,7 @@ import {
   ModalController,
   NavController,
   Platform,
+  PopoverController,
 } from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { StatsComponent } from './stats/stats.component';
@@ -23,6 +24,7 @@ import { FooterState } from '../../shared/components/footer/footer-state.enum';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { RebrandingPopupComponent } from 'src/app/shared/components/rebranding-popup/rebranding-popup.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
@@ -58,7 +60,11 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTabGroup, MatTab } from '@angular/material/tabs';
 import { DashboardOptInComponent } from '../../shared/components/dashboard-opt-in/dashboard-opt-in.component';
 import { DashboardEmailOptInComponent } from '../../shared/components/dashboard-email-opt-in/dashboard-email-opt-in.component';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { OverlayEventDetail } from '@ionic/core';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -138,6 +144,14 @@ export class DashboardPage {
 
   private timezoneService = inject(TimezoneService);
 
+  private translocoService = inject(TranslocoService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private popoverController = inject(PopoverController);
+
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
@@ -205,6 +219,8 @@ export class DashboardPage {
 
   swiperConfig: SwiperOptions;
 
+  readonly rebrandingPopupShown = signal<boolean>(false);
+
   optInBannerPagination: PaginationOptions = {
     dynamicBullets: true,
     renderBullet(index, className): string {
@@ -232,6 +248,14 @@ export class DashboardPage {
 
   private get swiperInstance(): Swiper | undefined {
     return this.swiperComponent()?.swiperRef;
+  }
+
+  private startNavbarWalkthrough(eou: ExtendedOrgUser): void {
+    if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
+      this.showNavbarWalkthrough(true);
+    } else {
+      this.showNavbarWalkthrough(false);
+    }
   }
 
   startDashboardAddExpenseWalkthrough(): void {
@@ -500,6 +524,22 @@ export class DashboardPage {
     );
   }
 
+  canShowRebrandingPopup(): Observable<boolean> {
+    if (this.rebrandingPopupShown()) {
+      return of(false);
+    }
+    const rebrandingPopupConfig = {
+      feature: 'DASHBOARD_REBRANDING_POPUP',
+      key: 'REBRANDING_POPUP_SHOWN',
+    };
+
+    return this.featureConfigService.getConfiguration(rebrandingPopupConfig).pipe(
+      map((config) => config?.value),
+      map((isPopupShown) => !isPopupShown),
+      shareReplay(1),
+    );
+  }
+
   setSwiperConfig(): void {
     // Set default config when observables are not ready
     if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
@@ -613,36 +653,34 @@ export class DashboardPage {
       this.timezoneService.setTimezone(employeeSettings?.locale);
     });
 
-    if (openSMSOptInDialog !== 'true') {
-      this.eou$
-        .pipe(
-          map((eou) => {
-            if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
-              this.showNavbarWalkthrough(true);
-            } else {
-              this.showNavbarWalkthrough(false);
-            }
-
-            this.userName = eou.us.full_name;
-          }),
-        )
-        .subscribe(noop);
-    }
-
     const optInBanner$ = this.setShowOptInBanner();
     const emailOptInBanner$ = this.setShowEmailOptInBanner();
 
     this.canShowOptInBanner$ = optInBanner$;
     this.canShowEmailOptInBanner$ = emailOptInBanner$;
 
+    this.eou$.subscribe((eou) => {
+      this.userName = eou.us.full_name;
+    });
+
     forkJoin({
       optInBanner: optInBanner$,
       emailOptInBanner: emailOptInBanner$,
+      showRebrandingPopup: this.canShowRebrandingPopup(),
+      eou: this.eou$,
     })
       .pipe(take(1))
       .subscribe({
-        next: () => {
+        next: ({ showRebrandingPopup, eou }) => {
           this.setSwiperConfig();
+          if (showRebrandingPopup) {
+            this.showRebrandingPopup().then(() => {
+              this.startNavbarWalkthrough(eou);
+            });
+          } else {
+            this.rebrandingPopupShown.set(true);
+            this.startNavbarWalkthrough(eou);
+          }
         },
         error: () => {
           // If there's an error, still set up default swiper config
@@ -698,6 +736,9 @@ export class DashboardPage {
         this.router.navigate(['/', 'enterprise', 'my_dashboard', { queryParams }]);
       }
     });
+
+    // Check ACH suspension status
+    this.checkAchSuspension();
   }
 
   backButtonActionHandler(): void {
@@ -872,6 +913,44 @@ export class DashboardPage {
     });
   }
 
+  async showAchSuspensionPopup(): Promise<void> {
+    const achSuspensionPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: this.translocoService.translate<string>('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate<string>('dashboard.achSuspendedMessage'),
+        primaryCta: {
+          text: this.translocoService.translate('dashboard.achSuspendedButton'),
+          action: 'confirm',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await achSuspensionPopover.present();
+    this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
+  }
+
+  async showRebrandingPopup(): Promise<OverlayEventDetail<{value: string}>> {
+    const rebrandingPopover = await this.popoverController.create({
+      component: RebrandingPopupComponent,
+      cssClass: 'pop-up-in-center',
+    });
+
+    await rebrandingPopover.present();
+    this.rebrandingPopupShown.set(true);
+
+    // Mark the popup as shown in feature configs
+    const rebrandingPopupConfig = {
+      feature: 'DASHBOARD_REBRANDING_POPUP',
+      key: 'REBRANDING_POPUP_SHOWN',
+      value: true,
+    };
+
+    this.featureConfigService.saveConfiguration(rebrandingPopupConfig).subscribe(noop);
+    return rebrandingPopover.onDidDismiss();
+  }
+
   setModalDelay(): void {
     this.optInShowTimer = setTimeout(() => {
       this.showPromoteOptInModal();
@@ -961,5 +1040,44 @@ export class DashboardPage {
 
     // Update swiper config when banner is hidden
     this.setSwiperConfig();
+  }
+
+  checkAchSuspension(): void {
+    combineLatest([this.eou$, this.orgSettings$])
+      .pipe(
+        take(1),
+        switchMap(([eou, orgSettings]) => {
+          // Check LaunchDarkly feature flag first
+          return this.launchDarklyService.getVariation('ach_improvement', false).pipe(
+            switchMap((isAchImprovementEnabled) => {
+              if (!isAchImprovementEnabled) {
+                return of(null);
+              }
+
+              // Check if ACH is enabled and user hasn't seen the dialog
+              if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+                return of(null);
+              }
+
+              const dialogShownKey = `ach_suspension_dialog_shown_${eou.ou.id}`;
+              if (sessionStorage.getItem(dialogShownKey)) {
+                return of(null);
+              }
+
+              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+                map((dwollaCustomer) => {
+                  if (dwollaCustomer?.customer_suspended) {
+                    sessionStorage.setItem(dialogShownKey, 'true');
+                    this.showAchSuspensionPopup();
+                  }
+                  return null;
+                }),
+                catchError(() => of(null)),
+              );
+            }),
+          );
+        }),
+      )
+      .subscribe();
   }
 }
