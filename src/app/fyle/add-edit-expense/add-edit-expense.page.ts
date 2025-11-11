@@ -675,6 +675,8 @@ export class AddEditExpensePage implements OnInit {
 
   readonly selectedDisabledProject = signal<ProjectV2 | null>(null);
 
+  readonly isReconciledExpense = signal<boolean>(false);
+
   private sharedExpensesService = inject(SharedExpensesService);
 
   private translocoService = inject(TranslocoService);
@@ -707,7 +709,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getFormValues(): FormValue {
-    return this.fg.value as FormValue;
+    return this.fg.getRawValue() as FormValue;
   }
 
   getFormControl(name: string): AbstractControl {
@@ -2857,6 +2859,22 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1),
     );
     return this.platformExpense$.pipe(
+      switchMap((expense) => {
+        return this.launchDarklyService.getVariation('reconciliation_beta', false).pipe(
+          tap((isReconciliationEnabled) => {
+            if (isReconciliationEnabled) {
+              this.isReconciledExpense.set(true);
+              // this.isReconciledExpense.set(expense?.is_reconciled ?? false);
+              if (this.isReconciledExpense()) {
+                this.fg.controls.dateOfSpend.disable();
+              }
+            }
+          }),
+          map(() => {
+            return expense;
+          }),
+        );
+      }),
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
         this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(expense));

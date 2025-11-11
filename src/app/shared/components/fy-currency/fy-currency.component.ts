@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges, inject } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges, inject, input, effect } from '@angular/core';
 
 import {
   NG_VALUE_ACCESSOR,
@@ -87,6 +87,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   //  Your application code writes to the input. This prevents migration.
   @Input() autoCodedData: ParsedResponse;
 
+  readonly disabled = input<boolean>(false);
+
   currencyAutoCodeMessage = '';
 
   amountAutoCodeMessage = '';
@@ -96,6 +98,23 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   fg: UntypedFormGroup;
 
   innerValue: CurrencyObj;
+
+  constructor() {
+    this.fg = this.fb.group({
+      currency: [], // currency which is currently shown
+      amount: [], // amount which is currently shown
+      homeCurrencyAmount: [], // Amount converted to home currency
+    });
+
+    effect(() => {
+      const isDisabled = this.disabled();
+      if (isDisabled) {
+        this.fg.disable();
+      } else if (this.fg.disabled) {
+        this.fg.enable();
+      }
+    });
+  }
 
   onTouchedCallback: () => void = noop;
 
@@ -124,12 +143,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   }
 
   ngOnInit(): void {
-    this.fg = this.fb.group({
-      currency: [], // currency which is currently shown
-      amount: [], // amount which is currently shown
-      homeCurrencyAmount: [], // Amount converted to home currency
-    });
-
     this.fg.valueChanges
       .pipe(
         switchMap((formValue: CurrencyAmountFormValues) => {

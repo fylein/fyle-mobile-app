@@ -57,7 +57,7 @@
               }
       }}
     </div>
-    <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">
+    <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()" [disabled]="fg.disabled">
       {{ 'fyCurrency.modifyButton' | transloco }}
     </button>
   </div>
