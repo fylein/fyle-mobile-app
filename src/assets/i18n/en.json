@@ -1576,8 +1576,7 @@
     "projectDisabledError": "Project disabled, select a different one.",
     "pleaseSelectProjectError": "Please select a project.",
     "billableLabel": "Billable",
-    "cancelButton": "Cancel",
-    "reconciledInfo": "Some details can't be edited because this expense is already reconciled."
+    "cancelButton": "Cancel"
   },
   "myExpensesPage": {
     "title": "My expenses",

@@ -155,7 +155,6 @@ export function TestCases6(getTestBed) {
       Object.defineProperty(component.fg, 'value', {
         get: () => null,
       });
-      spyOn(component.fg, 'getRawValue').and.returnValue(null);
     }
 
     beforeEach(() => {
