@@ -2863,8 +2863,7 @@ export class AddEditExpensePage implements OnInit {
         return this.launchDarklyService.getVariation('reconciliation_beta', false).pipe(
           tap((isReconciliationEnabled) => {
             if (isReconciliationEnabled) {
-              this.isReconciledExpense.set(true);
-              // this.isReconciledExpense.set(expense?.is_reconciled ?? false);
+              this.isReconciledExpense.set(expense?.is_reconciled ?? false);
               if (this.isReconciledExpense()) {
                 this.fg.controls.dateOfSpend.disable();
               }
