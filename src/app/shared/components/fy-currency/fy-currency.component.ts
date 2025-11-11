@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges, inject, input, effect } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges, inject } from '@angular/core';
 
 import {
   NG_VALUE_ACCESSOR,
@@ -59,19 +59,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   private translocoService = inject(TranslocoService);
 
-  constructor() {
-    effect(() => {
-      const isDisabled = this.disable();
-      if (this.fg) {
-        if (isDisabled) {
-          this.fg.disable();
-        } else if (this.fg.disabled) {
-          this.fg.enable();
-        }
-      }
-    });
-  }
-
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
   @Input() txnDt: Date;
@@ -99,8 +86,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
   @Input() autoCodedData: ParsedResponse;
-
-  readonly disable = input<boolean>(false);
 
   currencyAutoCodeMessage = '';
 

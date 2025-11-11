@@ -669,8 +669,6 @@ export class AddEditExpensePage implements OnInit {
 
   isLoading = true;
 
-  readonly isReconciledExpense = signal<boolean>(false);
-
   readonly isPendingGasCharge = signal<boolean>(false);
 
   readonly isSelectedProjectDisabled = signal(false);
@@ -709,8 +707,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getFormValues(): FormValue {
-    // getRawValue is used to get the value of the form fields including the disabled fields
-    return this.fg.getRawValue() as FormValue;
+    return this.fg.value as FormValue;
   }
 
   getFormControl(name: string): AbstractControl {
@@ -2863,16 +2860,10 @@ export class AddEditExpensePage implements OnInit {
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
         this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(expense));
+
         if (etxn && etxn.tx.extracted_data) {
           this.autoCodedData = etxn.tx.extracted_data;
           this.autoCodedData.vendor_name = etxn.tx.extracted_data.vendor;
-        }
-
-        this.isReconciledExpense.set(expense.is_reconciled);
-
-        if (this.isReconciledExpense()) {
-          this.fg.controls.dateOfSpend.disable();
-          this.fg.controls.currencyObj.disable();
         }
 
         this.isIncompleteExpense = etxn.tx.state === 'DRAFT';
