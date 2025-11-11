@@ -2868,14 +2868,15 @@ export class AddEditExpensePage implements OnInit {
           this.autoCodedData.vendor_name = etxn.tx.extracted_data.vendor;
         }
 
-        const isReconciliationEnaled = this.launchDarklyService.getVariation('reconciliation_beta', false);
-        if (isReconciliationEnaled) {
-          this.isReconciledExpense.set(expense.is_reconciled);
-          if (this.isReconciledExpense()) {
-            this.fg.controls.dateOfSpend.disable();
-            this.fg.controls.currencyObj.disable();
+        this.launchDarklyService.getVariation('reconciliation_beta', false).subscribe((isReconciliationEnabled) => {
+          if (isReconciliationEnabled) {
+            this.isReconciledExpense.set(expense.is_reconciled);
+            if (this.isReconciledExpense()) {
+              this.fg.controls.dateOfSpend?.disable();
+              this.fg.controls.currencyObj?.disable();
+            }
           }
-        }
+        });
 
         this.isIncompleteExpense = etxn.tx.state === 'DRAFT';
         this.source = etxn.tx.source || 'MOBILE';

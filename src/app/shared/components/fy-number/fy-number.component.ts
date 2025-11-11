@@ -36,20 +36,6 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
   readonly disabled = input<boolean>(undefined);
 
-  constructor() {
-    effect(() => {
-      const isDisabled = this.disabled();
-      if (isDisabled !== undefined && this.fc) {
-        this.isDisabled = isDisabled;
-        if (isDisabled) {
-          this.fc.disable();
-        } else if (this.fc.disabled) {
-          this.fc.enable();
-        }
-      }
-    });
-  }
-
   readonly min = input<number>(undefined);
 
   readonly isAmount = input<boolean>(undefined);
@@ -158,6 +144,19 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
       // If the input is for distance, do not allow negative values
       this.fc = new UntypedFormControl(null, Validators.pattern(/^\d*(\.\d+)?$/));
     }
+
+    // Set up effect to watch disabled signal after form control is created
+    effect(() => {
+      const isDisabled = this.disabled();
+      if (isDisabled !== undefined) {
+        this.isDisabled = isDisabled;
+        if (isDisabled) {
+          this.fc.disable();
+        } else if (this.fc.disabled) {
+          this.fc.enable();
+        }
+      }
+    });
 
     this.fc.valueChanges.subscribe((value) => {
       if (typeof value === 'string' && this.fc.valid) {
