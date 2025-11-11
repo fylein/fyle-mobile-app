@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit, inject, input } from '@angular/core';
+import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit, inject, input, effect } from '@angular/core';
 import {
   ControlValueAccessor,
   UntypedFormControl,
@@ -35,6 +35,20 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
   readonly placeholder = input<string>(undefined);
 
   readonly disabled = input<boolean>(undefined);
+
+  constructor() {
+    effect(() => {
+      const isDisabled = this.disabled();
+      if (isDisabled !== undefined && this.fc) {
+        this.isDisabled = isDisabled;
+        if (isDisabled) {
+          this.fc.disable();
+        } else if (this.fc.disabled) {
+          this.fc.enable();
+        }
+      }
+    });
+  }
 
   readonly min = input<number>(undefined);
 
