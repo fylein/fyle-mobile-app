@@ -102,9 +102,13 @@ export class FyCurrencyPipe implements PipeTransform {
     }
 
     const sign = numericValue < 0 ? '-' : '';
+    const needsSpace =
+      !!currencyToken &&
+      !!currencyCode &&
+      currencyToken.toUpperCase() === currencyCode.toUpperCase();
     if (placement === 'after') {
-      return `${sign}${numberCore}${currencyToken ? currencyToken : ''}`;
+      return `${sign}${numberCore}${currencyToken ? (needsSpace ? ' ' : '') + currencyToken : ''}`;
     }
-    return `${sign}${currencyToken ? currencyToken : ''}${numberCore}`;
+    return `${sign}${currencyToken ? currencyToken + (needsSpace ? ' ' : '') : ''}${numberCore}`;
   }
 }
