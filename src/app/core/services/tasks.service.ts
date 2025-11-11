@@ -777,7 +777,6 @@ export class TasksService {
           amount: this.exactCurrency.transform({
             value: aggregate.total_amount,
             currencyCode: homeCurrency,
-            skipSymbol: true,
           }),
           count: aggregate.count,
           header: this.translocoService.translate(
@@ -823,7 +822,6 @@ export class TasksService {
           amount: this.exactCurrency.transform({
             value: aggregate.totalAmount,
             currencyCode: homeCurrency,
-            skipSymbol: true,
           }),
           count: aggregate.totalCount,
           header: headerMessage,
@@ -850,7 +848,6 @@ export class TasksService {
           amount: this.exactCurrency.transform({
             value: aggregate.total_amount,
             currencyCode: homeCurrency,
-            skipSymbol: true,
           }),
           count: aggregate.count,
           header: this.translocoService.translate(
@@ -885,7 +882,6 @@ export class TasksService {
           amount: this.exactCurrency.transform({
             value: aggregate.total_amount,
             currencyCode: homeCurrency,
-            skipSymbol: true,
           }),
           count: aggregate.count,
           header: this.translocoService.translate(
@@ -921,7 +917,6 @@ export class TasksService {
           amount: this.exactCurrency.transform({
             value: aggregate.totalAmount,
             currencyCode: homeCurrency,
-            skipSymbol: true,
           }),
           count: aggregate.totalCount,
           header: this.translocoService.translate(
@@ -958,7 +953,6 @@ export class TasksService {
         amount: this.exactCurrency.transform({
           value: aggregate.totalAmount,
           currencyCode: homeCurrency,
-          skipSymbol: true,
         }),
         count: aggregate.totalCount,
         header: this.translocoService.translate(

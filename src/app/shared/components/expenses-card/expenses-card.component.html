@@ -235,15 +235,11 @@
           }
           <div class="expenses-card--default-view-container">
             <div class="expenses-card--currency-amount-container ion-text-right">
-              <span class="expenses-card--currency">
-                {{ (expense.tx_currency | currencySymbol: 'wide') || (homeCurrency | currencySymbol: 'wide') }}
-              </span>
-
               <span class="expenses-card--amount">
                 @if (expense.tx_currency) {
-                  {{ expense.tx_amount | humanizeCurrency: expense.tx_currency : true }}
+                  {{ expense.tx_amount | humanizeCurrency: expense.tx_currency }}
                 } @else {
-                  {{ expense.tx_amount | humanizeCurrency: homeCurrency : true }}
+                  {{ expense.tx_amount | humanizeCurrency: homeCurrency }}
                 }
               </span>
               @if (showPaymentModeIcon) {

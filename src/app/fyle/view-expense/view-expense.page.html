@@ -81,7 +81,7 @@
               <div class="view-expense--card-container__amount-section">
                 <span class="view-expense--card-container__currency">{{ expenseCurrencySymbol }}</span>
                 <span class="view-expense--card-container__amount">
-                  {{ { value: expense.amount, currencyCode: expense.currency, skipSymbol: true } | exactCurrency }}
+                  {{ { value: expense.amount, currencyCode: expense.currency } | exactCurrency }}
                 </span>
                 @if (isCCCTransaction) {
                   <div>
