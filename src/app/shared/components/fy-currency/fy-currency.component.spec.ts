@@ -1,9 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import {
-  UntypedFormBuilder,
-  UntypedFormControl,
-  UntypedFormGroup,
-} from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular/standalone';
 import { of } from 'rxjs';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -16,7 +12,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { CurrencyPipe } from '@angular/common';
 
-describe('FyCurrencyComponent', () => {
+fdescribe('FyCurrencyComponent', () => {
   let component: FyCurrencyComponent;
   let fixture: ComponentFixture<FyCurrencyComponent>;
   let fb: UntypedFormBuilder;
@@ -30,10 +26,7 @@ describe('FyCurrencyComponent', () => {
     const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
     const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     TestBed.configureTestingModule({
-      imports: [
-        FyCurrencyComponent,
-        getTranslocoTestingModule(),
-        MatIconTestingModule],
+      imports: [FyCurrencyComponent, getTranslocoTestingModule(), MatIconTestingModule],
       providers: [
         {
           provide: ModalController,
@@ -534,4 +527,79 @@ describe('FyCurrencyComponent', () => {
     expect(component.currencyAutoCodeMessage).toBe('');
     expect(component.amountAutoCodeMessage).toBe('');
   });
+
+  it('ngOnChanges(): should not update if fg is not initialized', () => {
+    component.fg = null as any;
+    const prev = new Date('2022-01-01');
+    const curr = new Date('2022-02-01');
+    component.ngOnChanges({ txnDt: new SimpleChange(prev, curr, false) });
+    expect(currencyService.getExchangeRate).not.toHaveBeenCalled();
+  });
+
+  it('ngOnChanges(): should not update if txnDt change is not valid', () => {
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('EUR'),
+      amount: new UntypedFormControl(null),
+      homeCurrencyAmount: new UntypedFormControl(null),
+    });
+    component.ngOnChanges({ txnDt: new SimpleChange(null, null, false) });
+    expect(currencyService.getExchangeRate).not.toHaveBeenCalled();
+  });
+
+  it('showAutoCodeMessage(): should handle when fg is null', () => {
+    component.fg = null as any;
+    component.autoCodedData = { currency: 'USD', amount: 100 } as any;
+    component.showAutoCodeMessage();
+    expect(component.currencyAutoCodeMessage).toBe('');
+    expect(component.amountAutoCodeMessage).toBe('');
+  });
+
+  it('showAutoCodeMessage(): should handle when autoCodedData is null', () => {
+    component.autoCodedData = null as any;
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(100),
+      homeCurrencyAmount: new UntypedFormControl(null),
+    });
+    component.showAutoCodeMessage();
+    expect(component.currencyAutoCodeMessage).toBe('');
+    expect(component.amountAutoCodeMessage).toBe('');
+  });
+
+  it('setExchangeRate(): should handle when modal returns no data', fakeAsync(() => {
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(50),
+      homeCurrencyAmount: new UntypedFormControl(50),
+    });
+    component.homeCurrency = 'EUR';
+    component.value = { currency: 'EUR', orig_amount: 20, orig_currency: 'USD', amount: 100 } as any;
+
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: null }),
+    } as any);
+    component.setExchangeRate();
+    tick();
+    expect(component.fg.value.currency).toBe('USD'); // unchanged
+  }));
+
+  it('setExchangeRate(): should set exchangeRate=null when formValues.amount is 0', fakeAsync(() => {
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(0),
+      homeCurrencyAmount: new UntypedFormControl(0),
+    });
+    component.homeCurrency = 'EUR';
+    component.value = { currency: 'EUR', orig_amount: 0, orig_currency: 'USD', amount: 0 } as any;
+
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
+    } as any);
+
+    component.setExchangeRate('USD');
+    tick();
+    expect(modalController.create.calls.mostRecent().args[0].componentProps.exchangeRate).toBeNull();
+  }));
 });
