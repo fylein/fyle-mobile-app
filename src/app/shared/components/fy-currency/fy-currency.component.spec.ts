@@ -12,7 +12,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { CurrencyPipe } from '@angular/common';
 
-fdescribe('FyCurrencyComponent', () => {
+describe('FyCurrencyComponent', () => {
   let component: FyCurrencyComponent;
   let fixture: ComponentFixture<FyCurrencyComponent>;
   let fb: UntypedFormBuilder;
