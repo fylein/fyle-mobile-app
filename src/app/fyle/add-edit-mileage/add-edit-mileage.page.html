@@ -134,6 +134,14 @@
             </div>
           }
           <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">
+            @if (isReconciledExpense()) {
+              <div class="add-edit-mileage--alert-offline">
+                <app-fy-alert-info
+                  [message]="'addEditMileage.reconciledInfo' | transloco"
+                  [type]="'information'"
+                ></app-fy-alert-info>
+              </div>
+            }
             @if (homeCurrency$ | async; as homeCurrency) {
               <div class="add-edit-mileage--amount-box">
                 <div class="add-edit-mileage--distance">
@@ -318,6 +326,7 @@
                             [max]="maxDate"
                             [min]="minDate"
                             class="add-edit-mileage--date-input date-input__format smartlook-show"
+                            [disabled]="isReconciledExpense()"
                             [name]="txnFields?.txn_dt?.field_name"
                             formControlName="dateOfSpend"
                             type="date"

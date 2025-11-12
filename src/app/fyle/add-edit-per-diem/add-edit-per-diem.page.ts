@@ -1,7 +1,17 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild, inject, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -146,6 +156,8 @@ import { FormButtonValidationDirective } from '../../shared/directive/form-butto
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { addIcons } from 'ionicons';
 import { chevronUp, chevronDown } from 'ionicons/icons';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -185,6 +197,7 @@ import { chevronUp, chevronDown } from 'ionicons/icons';
     ReactiveFormsModule,
     ReviewFooterComponent,
     SlicePipe,
+    TranslocoPipe,
     VirtualSelectComponent,
   ],
 })
@@ -262,6 +275,8 @@ export class AddEditPerDiemPage implements OnInit {
   private storageService = inject(StorageService);
 
   private expensesService = inject(ExpensesService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
 
   private expenseCommentService = inject(ExpenseCommentService);
 
@@ -398,6 +413,8 @@ export class AddEditPerDiemPage implements OnInit {
   selectedProject$: BehaviorSubject<ProjectV2>;
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
+
+  readonly isReconciledExpense = signal<boolean>(false);
 
   private _isExpandedView = false;
 
@@ -768,7 +785,22 @@ export class AddEditPerDiemPage implements OnInit {
     const expenseId = this.activatedRoute.snapshot.params.id as string;
 
     return this.expensesService.getExpenseById(expenseId).pipe(
-      switchMap((expense) => of(this.transactionService.transformExpense(expense))),
+      switchMap((expense) => {
+        return this.launchDarklyService.getVariation('reconciliation_beta', false).pipe(
+          tap((isReconciliationEnabled) => {
+            if (isReconciliationEnabled) {
+              this.isReconciledExpense.set(expense?.is_reconciled ?? false);
+              if (this.isReconciledExpense()) {
+                this.fg.controls.from_dt.disable();
+                this.fg.controls.to_dt.disable();
+              }
+            }
+          }),
+          map(() => {
+            return this.transactionService.transformExpense(expense);
+          }),
+        );
+      }),
       shareReplay(1),
     );
   }

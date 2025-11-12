@@ -1579,6 +1579,12 @@
     "cancelButton": "Cancel",
     "reconciledInfo": "Some details can't be edited because this expense is already reconciled."
   },
+  "addEditPerDiem": {
+    "reconciledInfo": "Some details can't be edited because this per diem is already reconciled."
+  },
+  "addEditMileage": {
+    "reconciledInfo": "Some details can't be edited because this mileage is already reconciled."
+  },
   "myExpensesPage": {
     "title": "My expenses",
     "searchPlaceholder": "Search",

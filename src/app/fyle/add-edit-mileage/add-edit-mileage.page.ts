@@ -10,6 +10,7 @@ import {
   OnInit,
   ViewChild,
   inject,
+  signal,
   viewChild,
 } from '@angular/core';
 import {
@@ -169,6 +170,8 @@ import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 import { SingularPipe } from '../../shared/pipes/singular.pipe';
 import { addIcons } from 'ionicons';
 import { chevronUp, chevronDown } from 'ionicons/icons';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -214,6 +217,7 @@ import { chevronUp, chevronDown } from 'ionicons/icons';
     SingularPipe,
     SlicePipe,
     VirtualSelectComponent,
+    TranslocoPipe,
   ],
 })
 export class AddEditMileagePage implements OnInit {
@@ -300,6 +304,8 @@ export class AddEditMileagePage implements OnInit {
   private changeDetectorRef = inject(ChangeDetectorRef);
 
   private expenseCommentService = inject(ExpenseCommentService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
 
   readonly formContainer = viewChild<ElementRef<HTMLFormElement>>('formContainer');
 
@@ -442,6 +448,8 @@ export class AddEditMileagePage implements OnInit {
   isRedirectedFromReport = false;
 
   canRemoveFromReport = false;
+
+  readonly isReconciledExpense = signal<boolean>(false);
 
   autoSubmissionReportName$: Observable<string>;
 
@@ -1085,7 +1093,22 @@ export class AddEditMileagePage implements OnInit {
     const expenseId = this.activatedRoute.snapshot.params.id as string;
 
     return this.expensesService.getExpenseById(expenseId).pipe(
-      map((expense) => this.transactionService.transformExpense(expense)),
+      switchMap((expense) => {
+        return this.launchDarklyService.getVariation('reconciliation_beta', false).pipe(
+          tap((isReconciliationEnabled) => {
+            if (isReconciliationEnabled) {
+              this.isReconciledExpense.set(expense?.is_reconciled ?? false);
+              this.isReconciledExpense.set(true);
+              if (this.isReconciledExpense()) {
+                this.fg.controls.dateOfSpend.disable();
+              }
+            }
+          }),
+          map(() => {
+            return this.transactionService.transformExpense(expense);
+          }),
+        );
+      }),
       shareReplay(1),
     );
   }
