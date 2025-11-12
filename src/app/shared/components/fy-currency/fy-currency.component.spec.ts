@@ -602,4 +602,34 @@ describe('FyCurrencyComponent', () => {
     tick();
     expect(modalController.create.calls.mostRecent().args[0].componentProps.exchangeRate).toBeNull();
   }));
+
+  it('should keep currency unchanged if modal closes without data', fakeAsync(() => {
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(50),
+      homeCurrencyAmount: new UntypedFormControl(50),
+    });
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: null }),
+    } as any);
+    component.openCurrencyModal();
+    tick(1000);
+    expect(component.fg.controls.currency.value).toBe('USD');
+  }));
+
+  it('should retain currency if modal closes with empty data', fakeAsync(() => {
+    component.fg = new UntypedFormGroup({
+      currency: new UntypedFormControl('USD'),
+      amount: new UntypedFormControl(50),
+      homeCurrencyAmount: new UntypedFormControl(50),
+    });
+    modalController.create.and.resolveTo({
+      present: () => {},
+      onWillDismiss: () => Promise.resolve({ data: {} }),
+    } as any);
+    component.openCurrencyModal();
+    tick(1000);
+    expect(component.fg.controls.currency.value).toBe('USD');
+  }));
 });
