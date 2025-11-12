@@ -23,11 +23,13 @@
 
         <!-- Amount -->
         <div class="advance-card--amount-block">
+          <span class="advance-card--currency">{{ currencySymbol }}</span>
           <span class="advance-card--amount">
             {{
               {
                 value: advanceRequest.orig_amount || advanceRequest.amount || 0,
-                currencyCode: advanceRequest.currency
+                currencyCode: advanceRequest.currency,
+                skipSymbol: true,
               } | exactCurrency
             }}
           </span>
