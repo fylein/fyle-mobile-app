@@ -155,6 +155,8 @@ export function TestCases6(getTestBed) {
       Object.defineProperty(component.fg, 'value', {
         get: () => null,
       });
+      // Mock getRawValue() to return null as well since we're now using getRawValue() instead of value
+      spyOn(component.fg, 'getRawValue').and.returnValue(null);
     }
 
     beforeEach(() => {
