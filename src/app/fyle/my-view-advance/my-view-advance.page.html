@@ -14,7 +14,7 @@
     <div class="view-advance--container">
       <app-summary-tile
         [purpose]="advance.adv_purpose || '-'"
-        [currency]="currencySymbol"
+        [currency]="advance.adv_orig_currency || advance.adv_currency"
         [amount]="advance.adv_orig_amount || advance.adv_amount || 0"
         [status]="'Paid'"
       ></app-summary-tile>

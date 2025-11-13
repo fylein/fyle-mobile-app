@@ -43,7 +43,7 @@
     <div class="view-advance-request--container">
       <app-summary-tile
         [purpose]="advanceRequest.areq_purpose || '-'"
-        [currency]="currencySymbol"
+        [currency]="advanceRequest.areq_currency"
         [amount]="advanceRequest.areq_amount || 0"
         [status]="internalState.name"
         [approvals]="activeApprovals$ | async"

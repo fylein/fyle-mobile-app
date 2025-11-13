@@ -21,13 +21,14 @@
           {{ cardDetail.stats.totalDraftTxns }}
         </div>
         <div class="stats--ccc-classified-amount">
+          {{ currencySymbol() }}
           @if (
             !isSmallScreen &&
             cardDetail.stats.totalDraftAmount > -1000000000 &&
             cardDetail.stats.totalDraftAmount < 1000000000
           ) {
             {{
-              { value: cardDetail.stats.totalDraftAmount, currencyCode: homeCurrency() }
+              { value: cardDetail.stats.totalDraftAmount, currencyCode: homeCurrency(), skipSymbol: true }
                 | exactCurrency
             }}
           } @else {
@@ -51,13 +52,14 @@
           {{ cardDetail.stats.totalCompleteTxns }}
         </div>
         <div class="stats--ccc-classified-amount">
+          {{ currencySymbol() }}
           @if (
             !isSmallScreen &&
             cardDetail.stats.totalCompleteExpensesAmount > -1000000000 &&
             cardDetail.stats.totalCompleteExpensesAmount < 1000000000
           ) {
             {{
-              { value: cardDetail.stats.totalCompleteExpensesAmount, currencyCode: homeCurrency() }
+              { value: cardDetail.stats.totalCompleteExpensesAmount, currencyCode: homeCurrency(), skipSymbol: true }
                 | exactCurrency
             }}
           } @else {
