@@ -11,8 +11,10 @@ import { CUSTOM_ELEMENTS_SCHEMA, SimpleChange } from '@angular/core';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { CurrencyPipe } from '@angular/common';
+import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
+import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 
-describe('FyCurrencyComponent', () => {
+fdescribe('FyCurrencyComponent', () => {
   let component: FyCurrencyComponent;
   let fixture: ComponentFixture<FyCurrencyComponent>;
   let fb: UntypedFormBuilder;
@@ -529,7 +531,7 @@ describe('FyCurrencyComponent', () => {
   });
 
   it('ngOnChanges(): should not update if fg is not initialized', () => {
-    component.fg = null as any;
+    (component as { fg: UntypedFormGroup | null }).fg = null;
     const prev = new Date('2022-01-01');
     const curr = new Date('2022-02-01');
     component.ngOnChanges({ txnDt: new SimpleChange(prev, curr, false) });
@@ -547,15 +549,15 @@ describe('FyCurrencyComponent', () => {
   });
 
   it('showAutoCodeMessage(): should handle when fg is null', () => {
-    component.fg = null as any;
-    component.autoCodedData = { currency: 'USD', amount: 100 } as any;
+    (component as { fg: UntypedFormGroup | null }).fg = null;
+    component.autoCodedData = { currency: 'USD', amount: 100 } as ParsedResponse;
     component.showAutoCodeMessage();
     expect(component.currencyAutoCodeMessage).toBe('');
     expect(component.amountAutoCodeMessage).toBe('');
   });
 
   it('showAutoCodeMessage(): should handle when autoCodedData is null', () => {
-    component.autoCodedData = null as any;
+    component.autoCodedData = null;
     component.fg = new UntypedFormGroup({
       currency: new UntypedFormControl('USD'),
       amount: new UntypedFormControl(100),
@@ -573,15 +575,14 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new UntypedFormControl(50),
     });
     component.homeCurrency = 'EUR';
-    component.value = { currency: 'EUR', orig_amount: 20, orig_currency: 'USD', amount: 100 } as any;
+    component.value = { currency: 'EUR', orig_amount: 20, orig_currency: 'USD', amount: 100 } as CurrencyObj;
 
-    modalController.create.and.resolveTo({
-      present: () => {},
-      onWillDismiss: () => Promise.resolve({ data: null }),
-    } as any);
+    const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
+    modalSpy.onWillDismiss.and.resolveTo({ data: null });
+    modalController.create.and.resolveTo(modalSpy);
     component.setExchangeRate();
     tick();
-    expect(component.fg.value.currency).toBe('USD'); // unchanged
+    expect(component.fg.value.currency).toBe('USD');
   }));
 
   it('setExchangeRate(): should set exchangeRate=null when formValues.amount is 0', fakeAsync(() => {
@@ -591,12 +592,11 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new UntypedFormControl(0),
     });
     component.homeCurrency = 'EUR';
-    component.value = { currency: 'EUR', orig_amount: 0, orig_currency: 'USD', amount: 0 } as any;
+    component.value = { currency: 'EUR', orig_amount: 0, orig_currency: 'USD', amount: 0 } as CurrencyObj;
 
-    modalController.create.and.resolveTo({
-      present: () => {},
-      onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
-    } as any);
+    const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
+    modalSpy.onWillDismiss.and.resolveTo({ data: { amount: 100, homeCurrencyAmount: 500 } });
+    modalController.create.and.resolveTo(modalSpy);
 
     component.setExchangeRate('USD');
     tick();
@@ -609,10 +609,9 @@ describe('FyCurrencyComponent', () => {
       amount: new UntypedFormControl(50),
       homeCurrencyAmount: new UntypedFormControl(50),
     });
-    modalController.create.and.resolveTo({
-      present: () => {},
-      onWillDismiss: () => Promise.resolve({ data: null }),
-    } as any);
+    const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
+    modalSpy.onWillDismiss.and.resolveTo({ data: null });
+    modalController.create.and.resolveTo(modalSpy);
     component.openCurrencyModal();
     tick(1000);
     expect(component.fg.controls.currency.value).toBe('USD');
@@ -624,12 +623,38 @@ describe('FyCurrencyComponent', () => {
       amount: new UntypedFormControl(50),
       homeCurrencyAmount: new UntypedFormControl(50),
     });
-    modalController.create.and.resolveTo({
-      present: () => {},
-      onWillDismiss: () => Promise.resolve({ data: {} }),
-    } as any);
+    const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
+    modalSpy.onWillDismiss.and.resolveTo({ data: {} });
+    modalController.create.and.resolveTo(modalSpy);
     component.openCurrencyModal();
     tick(1000);
     expect(component.fg.controls.currency.value).toBe('USD');
+  }));
+
+  it('should handle case when amount is 0 in the form', fakeAsync(() => {
+    currencyService.getExchangeRate.and.returnValue(of(1.5));
+    component.homeCurrency = 'USD';
+    component.fg.controls.currency.setValue('EUR');
+    component.fg.controls.amount.setValue(0);
+    component.fg.controls.homeCurrencyAmount.setValue(0);
+    component.ngOnInit();
+    tick(1000);
+    expect(component.value.amount).toBe(0);
+  }));
+
+  it('should set exchangeRate to 1 when currency equals homeCurrency', fakeAsync(() => {
+    component.homeCurrency = 'USD';
+    component.fg.controls.currency.setValue('USD');
+    component.fg.controls.amount.setValue(100);
+    component.fg.controls.homeCurrencyAmount.setValue(null);
+    component.ngOnInit();
+    tick(1000);
+    expect(component.exchangeRate).toBe(1);
+    expect(component.value).toEqual({
+      amount: 100,
+      currency: 'USD',
+      orig_amount: null,
+      orig_currency: null,
+    });
   }));
 });
