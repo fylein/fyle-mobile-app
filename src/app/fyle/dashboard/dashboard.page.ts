@@ -1047,34 +1047,25 @@ export class DashboardPage {
       .pipe(
         take(1),
         switchMap(([eou, orgSettings]) => {
-          // Check LaunchDarkly feature flag first
-          return this.launchDarklyService.getVariation('ach_improvement', false).pipe(
-            switchMap((isAchImprovementEnabled) => {
-              if (!isAchImprovementEnabled) {
-                return of(null);
-              }
+          // Check if ACH is enabled and user hasn't seen the dialog
+          if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+            return of(null);
+          }
 
-              // Check if ACH is enabled and user hasn't seen the dialog
-              if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
-                return of(null);
-              }
+          const dialogShownKey = `ach_suspension_dialog_shown_${eou.ou.id}`;
+          if (sessionStorage.getItem(dialogShownKey)) {
+            return of(null);
+          }
 
-              const dialogShownKey = `ach_suspension_dialog_shown_${eou.ou.id}`;
-              if (sessionStorage.getItem(dialogShownKey)) {
-                return of(null);
+          return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+            map((dwollaCustomer) => {
+              if (dwollaCustomer?.customer_suspended) {
+                sessionStorage.setItem(dialogShownKey, 'true');
+                this.showAchSuspensionPopup();
               }
-
-              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
-                map((dwollaCustomer) => {
-                  if (dwollaCustomer?.customer_suspended) {
-                    sessionStorage.setItem(dialogShownKey, 'true');
-                    this.showAchSuspensionPopup();
-                  }
-                  return null;
-                }),
-                catchError(() => of(null)),
-              );
+              return null;
             }),
+            catchError(() => of(null)),
           );
         }),
       )

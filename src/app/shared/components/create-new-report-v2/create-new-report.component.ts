@@ -215,13 +215,6 @@ export class CreateNewReportComponent implements OnInit {
   }
 
   async showAchSuspensionPopup(): Promise<void> {
-    // Check LaunchDarkly feature flag first
-    const isAchImprovementEnabled = await this.launchDarklyService.getVariation('ach_improvement', false).pipe(take(1)).toPromise();
-    
-    if (!isAchImprovementEnabled) {
-      return;
-    }
-
     const achSuspensionPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {

@@ -2491,7 +2491,6 @@ describe('MyExpensesPage', () => {
         authService.getEou.and.resolveTo(apiEouRes);
         orgUserService.getDwollaCustomer.and.returnValue(of(null));
         component.orgSettings$ = of(orgSettingsRes);
-        launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
@@ -2567,7 +2566,6 @@ describe('MyExpensesPage', () => {
     describe('when restrictPendingTransactionsEnabled is true', () => {
       beforeEach(() => {
         component.restrictPendingTransactionsEnabled = true;
-        launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
@@ -4488,7 +4486,6 @@ describe('MyExpensesPage', () => {
       component.orgSettings$ = of(orgSettingsRes);
       authService.getEou.and.resolveTo(apiEouRes);
       orgUserService.getDwollaCustomer.and.returnValue(of(null));
-      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
     });
 
     it('should check ACH suspension and show popup when customer is suspended', fakeAsync(() => {
@@ -4645,18 +4642,5 @@ describe('MyExpensesPage', () => {
       expect((component as any).checkAchSuspensionBeforeCreateReport).toHaveBeenCalledWith('newReport');
     });
 
-    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
-      launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
-      spyOn(component, 'showAchSuspensionPopup');
-      spyOn(component, 'showNewReportModal');
-
-      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
-      tick(100);
-
-      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
-      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
-      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-      expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
-    }));
   });
 });
