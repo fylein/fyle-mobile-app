@@ -14,7 +14,7 @@ import { CurrencyPipe } from '@angular/common';
 import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 
-fdescribe('FyCurrencyComponent', () => {
+describe('FyCurrencyComponent', () => {
   let component: FyCurrencyComponent;
   let fixture: ComponentFixture<FyCurrencyComponent>;
   let fb: UntypedFormBuilder;
