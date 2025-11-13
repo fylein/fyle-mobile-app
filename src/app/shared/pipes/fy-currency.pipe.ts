@@ -87,8 +87,9 @@ export class FyCurrencyPipe implements PipeTransform {
     // Determine token based on display
     const currencyDisplayStyle: 'symbol' | 'code' =
       display === 'code' || display === false ? 'code' : 'symbol';
+    const hideCurrencyToken = display === '';
     let currencyToken = '';
-    if (currencyCode) {
+    if (currencyCode && !hideCurrencyToken) {
       const currencyFormatter = new Intl.NumberFormat(locale || 'en-US', {
         style: 'currency',
         currency: currencyCode,
@@ -102,9 +103,13 @@ export class FyCurrencyPipe implements PipeTransform {
     }
 
     const sign = numericValue < 0 ? '-' : '';
+    const needsSpace =
+      !!currencyToken &&
+      !!currencyCode &&
+      currencyToken.toUpperCase() === currencyCode.toUpperCase();
     if (placement === 'after') {
-      return `${sign}${numberCore}${currencyToken ? currencyToken : ''}`;
+      return `${sign}${numberCore}${currencyToken ? (needsSpace ? ' ' : '') + currencyToken : ''}`;
     }
-    return `${sign}${currencyToken ? currencyToken : ''}${numberCore}`;
+    return `${sign}${currencyToken ? currencyToken + (needsSpace ? ' ' : '') : ''}${numberCore}`;
   }
 }
