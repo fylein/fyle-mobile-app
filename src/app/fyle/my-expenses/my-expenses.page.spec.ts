@@ -339,7 +339,7 @@ describe('MyExpensesPage', () => {
       'getConfiguration',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomerPlatform']);
     const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
       'getMyExpensesBlockedFilterWalkthroughConfig',
       'setIsOverlayClicked',
@@ -2489,7 +2489,7 @@ describe('MyExpensesPage', () => {
       beforeEach(() => {
         // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(false);
         authService.getEou.and.resolveTo(apiEouRes);
-        orgUserService.getDwollaCustomer.and.returnValue(of(null));
+        orgUserService.getDwollaCustomerPlatform.and.returnValue(of(null));
         component.orgSettings$ = of(orgSettingsRes);
         launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       });
@@ -4487,33 +4487,34 @@ describe('MyExpensesPage', () => {
     beforeEach(() => {
       component.orgSettings$ = of(orgSettingsRes);
       authService.getEou.and.resolveTo(apiEouRes);
-      orgUserService.getDwollaCustomer.and.returnValue(of(null));
+      orgUserService.getDwollaCustomerPlatform.and.returnValue(of(null));
       launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
     });
 
     it('should check ACH suspension and show popup when customer is suspended', fakeAsync(() => {
-      const suspendedCustomer = { 
+      const suspendedCustomer = {
         id: 'test-id',
+        org_id: 'orga123',
         created_at: new Date(),
         updated_at: new Date(),
         customer_id: 'test-customer-id',
         customer_email: 'test@test.com',
         customer_added_by: 'test-user',
-        customer_verified: true,
-        beneficial_owner_added: true,
-        beneficial_owner_verified: true,
-        bank_account_added: true,
-        bank_account_verified: true,
+        is_customer_verified: true,
+        is_beneficial_owner_added: true,
+        is_beneficial_owner_verified: true,
+        is_bank_account_added: true,
+        is_bank_account_verified: true,
         bank_account_added_by: 'test-user',
-        customer_document_needed: false,
-        beneficial_owner_document_needed: false,
-        customer_retry: false,
-        customer_suspended: true,
+        is_customer_document_needed: false,
+        is_beneficial_owner_document_needed: false,
+        is_customer_retry: false,
+        is_customer_suspended: true,
         micro_deposit_verification_status: 'verified',
         micro_deposit_verification_attempts: 0,
-        beneficial_owner_retry: false
+        is_beneficial_owner_retry: false,
       };
-      orgUserService.getDwollaCustomer.and.returnValue(of(suspendedCustomer));
+      orgUserService.getDwollaCustomerPlatform.and.returnValue(of(suspendedCustomer));
       const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
       popoverController.create.and.resolveTo(mockPopover);
       spyOn(component, 'showNewReportModal');
@@ -4521,12 +4522,13 @@ describe('MyExpensesPage', () => {
       (component as any).checkAchSuspensionBeforeCreateReport('newReport');
       tick(100);
 
-      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(orgUserService.getDwollaCustomerPlatform).toHaveBeenCalled();
       expect(popoverController.create).toHaveBeenCalledWith({
         component: jasmine.any(Function),
         componentProps: {
           title: 'ACH reimbursements suspended',
-          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          message:
+            'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
           primaryCta: {
             text: 'Got it',
             action: 'confirm',
@@ -4538,35 +4540,36 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should proceed with report creation when customer is not suspended', fakeAsync(() => {
-      const activeCustomer = { 
+      const activeCustomer = {
         id: 'test-id',
+        org_id: 'orga123',
         created_at: new Date(),
         updated_at: new Date(),
         customer_id: 'test-customer-id',
         customer_email: 'test@test.com',
         customer_added_by: 'test-user',
-        customer_verified: true,
-        beneficial_owner_added: true,
-        beneficial_owner_verified: true,
-        bank_account_added: true,
-        bank_account_verified: true,
+        is_customer_verified: true,
+        is_beneficial_owner_added: true,
+        is_beneficial_owner_verified: true,
+        is_bank_account_added: true,
+        is_bank_account_verified: true,
         bank_account_added_by: 'test-user',
-        customer_document_needed: false,
-        beneficial_owner_document_needed: false,
-        customer_retry: false,
-        customer_suspended: false,
+        is_customer_document_needed: false,
+        is_beneficial_owner_document_needed: false,
+        is_customer_retry: false,
+        is_customer_suspended: false,
         micro_deposit_verification_status: 'verified',
         micro_deposit_verification_attempts: 0,
-        beneficial_owner_retry: false
+        is_beneficial_owner_retry: false,
       };
-      orgUserService.getDwollaCustomer.and.returnValue(of(activeCustomer));
+      orgUserService.getDwollaCustomerPlatform.and.returnValue(of(activeCustomer));
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component, 'showOldReportsMatBottomSheet');
 
       (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
       tick(100);
 
-      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(orgUserService.getDwollaCustomerPlatform).toHaveBeenCalled();
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
       expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
     }));
@@ -4580,7 +4583,7 @@ describe('MyExpensesPage', () => {
       (component as any).checkAchSuspensionBeforeCreateReport('newReport');
       tick(100);
 
-      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(orgUserService.getDwollaCustomerPlatform).not.toHaveBeenCalled();
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
       expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
     }));
@@ -4594,20 +4597,20 @@ describe('MyExpensesPage', () => {
       (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
       tick(100);
 
-      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(orgUserService.getDwollaCustomerPlatform).not.toHaveBeenCalled();
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
       expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
     }));
 
     it('should handle API errors gracefully and proceed with report creation', fakeAsync(() => {
-      orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
+      orgUserService.getDwollaCustomerPlatform.and.returnValue(throwError(() => new Error('API Error')));
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component, 'showNewReportModal');
 
       (component as any).checkAchSuspensionBeforeCreateReport('newReport');
       tick(100);
 
-      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(orgUserService.getDwollaCustomerPlatform).toHaveBeenCalled();
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
       expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
     }));
@@ -4622,7 +4625,8 @@ describe('MyExpensesPage', () => {
         component: jasmine.any(Function),
         componentProps: {
           title: 'ACH reimbursements suspended',
-          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          message:
+            'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
           primaryCta: {
             text: 'Got it',
             action: 'confirm',
@@ -4654,7 +4658,7 @@ describe('MyExpensesPage', () => {
       tick(100);
 
       expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
-      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(orgUserService.getDwollaCustomerPlatform).not.toHaveBeenCalled();
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
       expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
     }));
