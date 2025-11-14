@@ -19,6 +19,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { EmployeeResponse } from '../models/employee-response.model';
 import { DwollaCustomer } from '../models/dwolla-customer.model';
+import { DwollaCustomerPlatform } from '../models/dwolla-platform.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -122,5 +123,9 @@ export class OrgUserService {
 
   getDwollaCustomer(orgUserId: string): Observable<DwollaCustomer | null> {
     return this.apiService.get(`/orgusers/${orgUserId}/dwolla_customers`);
+  }
+
+  getDwollaCustomerPlatform(): Observable<DwollaCustomerPlatform | null> {
+    return this.spenderPlatformV1ApiService.get(`/dwolla_customers`);
   }
 }
