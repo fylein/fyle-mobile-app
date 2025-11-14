@@ -99,7 +99,7 @@ describe('MyViewReportPage', () => {
       'getAllExpenses',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomerPlatform']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -1095,7 +1095,8 @@ describe('MyViewReportPage', () => {
         component: jasmine.any(Function),
         componentProps: {
           title: 'ACH reimbursements suspended',
-          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          message:
+            'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
           primaryCta: {
             text: 'Got it',
             action: 'confirm',
@@ -1146,7 +1147,7 @@ describe('MyViewReportPage', () => {
       tick(100);
 
       expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
-      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(orgUserService.getDwollaCustomerPlatform).not.toHaveBeenCalled();
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
       expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
     }));
