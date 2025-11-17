@@ -271,13 +271,13 @@ describe('FyCurrencyComponent', () => {
     expect(formValue3.homeCurrencyAmount).toBeNull();
   });
 
-  it('should call onTouchedCallback', () => {
+  it('onBlur(): should call onTouchedCallback', () => {
     spyOn(component, 'onTouchedCallback');
     component.onBlur();
     expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
   });
 
-  it('should patch form value with inner value', () => {
+  it('writeValue(): should patch form value with inner value', () => {
     spyOn(component.fg, 'patchValue');
     const mockInnerValue = {
       amount: 100,
@@ -294,13 +294,13 @@ describe('FyCurrencyComponent', () => {
     });
   });
 
-  it('should set onChangeCallback function', () => {
+  it('registerOnChange(): should set onChangeCallback function', () => {
     const mockCallback = () => {};
     component.registerOnChange(mockCallback);
     expect(component.onChangeCallback).toEqual(mockCallback);
   });
 
-  it('should set onTouchedCallback function', () => {
+  it('registerOnTouched(): should set onTouchedCallback function', () => {
     const mockCallback = () => {};
     component.registerOnTouched(mockCallback);
     expect(component.onTouchedCallback).toEqual(mockCallback);
@@ -594,7 +594,7 @@ describe('FyCurrencyComponent', () => {
     }));
   });
 
-  it('valid getter: should return true if touchedInParent is true', () => {
+  it('getValid(): should return true if touchedInParent is true', () => {
     component.touchedInParent = true;
     fixture.detectChanges();
     expect(component.valid).toBeTrue();
