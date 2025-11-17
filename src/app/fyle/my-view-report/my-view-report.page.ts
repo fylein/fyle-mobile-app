@@ -4,7 +4,27 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize, catchError } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, ModalController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonFooter,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonSegment,
+  IonSegmentButton,
+  IonSkeletonText,
+  IonSpinner,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  PopoverController,
+  SegmentCustomEvent,
+} from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -99,7 +119,7 @@ import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-cas
     ReportStatePipe,
     RouterLink,
     SnakeCaseToSpaceCase,
-    TitleCasePipe
+    TitleCasePipe,
   ],
 })
 export class MyViewReportPage {
@@ -639,7 +659,37 @@ export class MyViewReportPage {
       });
   }
 
-  submitReport(): void {
+  async submitReport(): Promise<void> {
+    const submitReportModal = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Submit the expense report',
+        message:
+          'The expense report will be sent to your approver for review. You will be notified once they have taken action on it.<br/><br/>Do you want to continue?',
+        leftAlign: true,
+        primaryCta: {
+          text: 'Yes, submit',
+          action: 'submit',
+          type: 'primary',
+        },
+        secondaryCta: {
+          text: 'No, go back',
+          action: 'cancel',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await submitReportModal.present();
+
+    const { data } = (await submitReportModal.onWillDismiss()) as { data: { action: string } };
+
+    if (data && data.action === 'submit') {
+      this.performSubmitReport();
+    }
+  }
+
+  private performSubmitReport(): void {
     this.submitReportLoader = true;
     this.spenderReportsService
       .submit(this.reportId)
@@ -846,11 +896,9 @@ export class MyViewReportPage {
 
   addExpensesToReport(selectedExpenseIds: string[]): void {
     // Check if any selected expenses are reimbursable
-    const selectedExpenses = this.unreportedExpenses.filter(expense => 
-      selectedExpenseIds.includes(expense.id)
-    );
-    const hasReimbursableExpenses = selectedExpenses.some(expense => expense.is_reimbursable);
-    
+    const selectedExpenses = this.unreportedExpenses.filter((expense) => selectedExpenseIds.includes(expense.id));
+    const hasReimbursableExpenses = selectedExpenses.some((expense) => expense.is_reimbursable);
+
     if (hasReimbursableExpenses) {
       // Check ACH suspension before adding reimbursable expenses
       this.checkAchSuspensionBeforeAdd(selectedExpenseIds);
