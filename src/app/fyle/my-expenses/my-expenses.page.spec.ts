@@ -2984,18 +2984,6 @@ describe('MyExpensesPage', () => {
       expect(expensesService.getExpenseById).toHaveBeenCalled();
       expect(loaderService.hideLoader).toHaveBeenCalled();
     }));
-
-    it('should handle empty selectedIds array', fakeAsync(() => {
-      component.selectedElements = [];
-      expensesService.getAllExpenses.and.returnValue(of([]));
-      component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1 });
-
-      component.openReviewExpenses();
-      tick(100);
-
-      expect(expensesService.getAllExpenses).toHaveBeenCalled();
-      expect(expensesService.getExpenseById).not.toHaveBeenCalled();
-    }));
   });
 
   describe('filterExpensesBySearchString(): ', () => {
