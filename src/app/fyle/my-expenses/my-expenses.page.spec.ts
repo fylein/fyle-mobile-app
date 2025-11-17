@@ -570,8 +570,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'clearFilters');
       spyOn(component, 'setupActionSheet');
       spyOn(component, 'setupNetworkWatcher');
-      //@ts-ignore
-      spyOn(component, 'pollDEIncompleteExpenses').and.returnValue(of(apiExpenses1));
+      component['pollDEIncompleteExpenses'] = jasmine.createSpy('pollDEIncompleteExpenses').and.returnValue(of(apiExpenses1));
       tokenService.getClusterDomain.and.resolveTo(apiAuthRes.cluster_domain);
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       expensesService.getExpenseStats.and.returnValue(of(completeStats));
@@ -1082,12 +1081,10 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should call pollDEIncompleteExpenses if expenses not completed DE scan', () => {
-      //@ts-ignore
-      spyOn(component, 'filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
+      component['filterDEIncompleteExpenses'] = jasmine.createSpy('filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
       component.ionViewWillEnter();
 
-      //@ts-ignore
-      expect(component.pollDEIncompleteExpenses).toHaveBeenCalledWith(dEincompleteExpenseIds, apiExpenses1);
+      expect(component['pollDEIncompleteExpenses']).toHaveBeenCalledWith(dEincompleteExpenseIds, apiExpenses1);
     });
   });
 
@@ -1098,8 +1095,7 @@ describe('MyExpensesPage', () => {
   describe('pollDEIncompleteExpenses()', () => {
     beforeEach(() => {
       expensesService.getExpenses.and.returnValue(of(apiExpenses1));
-      //@ts-ignore
-      spyOn(component, 'updateExpensesList').and.returnValue(apiExpenses1);
+      component['updateExpensesList'] = jasmine.createSpy('updateExpensesList').and.returnValue(apiExpenses1);
     });
 
     it('should call expenseService.getExpenses for dE incomplete expenses and return updated expenses', fakeAsync(() => {
@@ -1108,8 +1104,7 @@ describe('MyExpensesPage', () => {
         queryParams: { id: `in.(${dEincompleteExpenseIds.join(',')})` },
       };
 
-      //@ts-ignore
-      component.pollDEIncompleteExpenses(dEincompleteExpenseIds, apiExpenses1).subscribe((result) => {
+      component['pollDEIncompleteExpenses'](dEincompleteExpenseIds, apiExpenses1).subscribe((result: Expense[]) => {
         expect(expensesService.getExpenses).toHaveBeenCalledOnceWith({ ...dEincompleteExpenseIdParams.queryParams });
         expect(result).toEqual(apiExpenses1);
       });
@@ -1119,10 +1114,8 @@ describe('MyExpensesPage', () => {
 
     it('should call expensesService.getExpenses 5 times and stop polling after 30 seconds', fakeAsync(() => {
       const dEincompleteExpenseIds = ['txfCdl3TEZ7K', 'txfCdl3TEZ7l', 'txfCdl3TEZ7m'];
-      //@ts-ignore
-      spyOn(component, 'filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
-      //@ts-ignore
-      component.pollDEIncompleteExpenses(dEincompleteExpenseIds, apiExpenses1).subscribe(() => {});
+      component['filterDEIncompleteExpenses'] = jasmine.createSpy('filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
+      component['pollDEIncompleteExpenses'](dEincompleteExpenseIds, apiExpenses1).subscribe(() => {});
 
       // Simulate 30 seconds of time passing (the polling interval is 5 seconds)
       tick(30000);
@@ -1133,12 +1126,56 @@ describe('MyExpensesPage', () => {
       // Cleanup
       discardPeriodicTasks();
     }));
+
+    it('should stop polling early when all scans complete', fakeAsync(() => {
+      const dEincompleteExpenseIds = ['txfCdl3TEZ7K', 'txfCdl3TEZ7l'];
+      const completedExpenses = [
+        { ...apiExpenses1[0], id: 'txfCdl3TEZ7K', extracted_data: { amount: 100 } },
+        { ...apiExpenses1[1], id: 'txfCdl3TEZ7l', extracted_data: { amount: 200 } },
+      ];
+      component['filterDEIncompleteExpenses'] = jasmine.createSpy('filterDEIncompleteExpenses').and.returnValues(dEincompleteExpenseIds, []);
+      component['updateExpensesList'] = jasmine.createSpy('updateExpensesList').and.returnValue(completedExpenses);
+      expensesService.getExpenses.and.returnValue(of(completedExpenses));
+      component['isExpenseScanComplete'] = jasmine.createSpy('isExpenseScanComplete').and.returnValue(true);
+
+      let result: Expense[];
+      component['pollDEIncompleteExpenses'](dEincompleteExpenseIds, apiExpenses1).subscribe((res: Expense[]) => {
+        result = res;
+      });
+
+      tick(5000); // First poll after 5 seconds
+
+      expect(expensesService.getExpenses).toHaveBeenCalled();
+      expect(result).toBeDefined();
+
+      // Cleanup
+      discardPeriodicTasks();
+    }));
+
+    it('should handle getExpenses error gracefully', fakeAsync(() => {
+      const dEincompleteExpenseIds = ['txfCdl3TEZ7K'];
+      expensesService.getExpenses.and.returnValue(throwError(() => new Error('API Error')));
+      component['filterDEIncompleteExpenses'] = jasmine.createSpy('filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
+
+      let errorOccurred = false;
+      component['pollDEIncompleteExpenses'](dEincompleteExpenseIds, apiExpenses1).subscribe({
+        error: () => {
+          errorOccurred = true;
+        },
+      });
+
+      tick(5000);
+
+      expect(expensesService.getExpenses).toHaveBeenCalled();
+
+      // Cleanup
+      discardPeriodicTasks();
+    }));
   });
 
   describe('updateExpensesList', () => {
     beforeEach(() => {
-      //@ts-ignore
-      spyOn(component, 'isExpenseScanComplete').and.callThrough();
+      component['isExpenseScanComplete'] = jasmine.createSpy('isExpenseScanComplete').and.callThrough();
     });
 
     it('should update expenses with completed scans', () => {
@@ -1147,11 +1184,9 @@ describe('MyExpensesPage', () => {
       ];
       const dEincompleteExpenseIds = [apiExpenses1[0].id];
 
-      //@ts-ignore
-      component.isExpenseScanComplete.and.returnValue(true);
+      (component['isExpenseScanComplete'] as jasmine.Spy).and.returnValue(true);
 
-      //@ts-ignore
-      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+      const result = component['updateExpensesList'](apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
 
       expect(result).toEqual([updatedExpenses[0], apiExpenses1[1]]);
     });
@@ -1163,14 +1198,53 @@ describe('MyExpensesPage', () => {
       const dEincompleteExpenseIds = [apiExpenses1[0].id];
 
       // Mock isExpenseScanComplete to return false for the updated expense
-      //@ts-ignore
-      (component.isExpenseScanComplete as jasmine.Spy).and.returnValue(false);
+      (component['isExpenseScanComplete'] as jasmine.Spy).and.returnValue(false);
 
-      //@ts-ignore
-      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+      const result = component['updateExpensesList'](apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
 
       // Assert
       expect(result).toEqual(apiExpenses1); // No changes should occur
+    });
+
+    it('should not update expense if updatedExpense is undefined', () => {
+      const updatedExpenses: Expense[] = [];
+      const dEincompleteExpenseIds = [apiExpenses1[0].id];
+
+      (component['isExpenseScanComplete'] as jasmine.Spy).and.returnValue(false);
+
+      const result = component['updateExpensesList'](apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+
+      expect(result).toEqual(apiExpenses1);
+    });
+
+    it('should not update expense if expense id is not in dEincompleteExpenseIds', () => {
+      const updatedExpenses: Expense[] = [
+        { ...apiExpenses1[0], extracted_data: { ...apiExpenses1[0].extracted_data, amount: 200 } },
+      ];
+      const dEincompleteExpenseIds = ['someOtherId'];
+
+      (component['isExpenseScanComplete'] as jasmine.Spy).and.returnValue(true);
+
+      const result = component['updateExpensesList'](apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+
+      expect(result).toEqual(apiExpenses1);
+    });
+
+    it('should handle multiple expenses with mixed completion status', () => {
+      const updatedExpenses: Expense[] = [
+        { ...apiExpenses1[0], extracted_data: { ...apiExpenses1[0].extracted_data, amount: 200 } },
+        { ...apiExpenses1[1], extracted_data: { ...apiExpenses1[1].extracted_data, amount: 300 } },
+      ];
+      const dEincompleteExpenseIds = [apiExpenses1[0].id, apiExpenses1[1].id];
+
+      (component['isExpenseScanComplete'] as jasmine.Spy).and.callFake((expense: Expense) => {
+        return expense.id === apiExpenses1[0].id;
+      });
+
+      const result = component['updateExpensesList'](apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+
+      expect(result[0]).toEqual(updatedExpenses[0]);
+      expect(result[1]).toEqual(apiExpenses1[1]);
     });
   });
 
@@ -1182,8 +1256,7 @@ describe('MyExpensesPage', () => {
         claim_amount: null,
         extracted_data: null,
       };
-      //@ts-ignore
-      const result = component.isExpenseScanComplete(expense);
+      const result = component['isExpenseScanComplete'](expense);
       expect(result).toBeTrue();
     });
 
@@ -1194,8 +1267,7 @@ describe('MyExpensesPage', () => {
         claim_amount: 7500,
         extracted_data: null,
       };
-      //@ts-ignore
-      const result = component.isExpenseScanComplete(expense);
+      const result = component['isExpenseScanComplete'](expense);
       expect(result).toBeTrue();
     });
 
@@ -1213,8 +1285,7 @@ describe('MyExpensesPage', () => {
           invoice_dt: null,
         },
       };
-      //@ts-ignore
-      const result = component.isExpenseScanComplete(expense);
+      const result = component['isExpenseScanComplete'](expense);
       expect(result).toBeTrue();
     });
 
@@ -1228,8 +1299,7 @@ describe('MyExpensesPage', () => {
       const oneDaysAfter = dayjs(expense.created_at).add(1, 'day').toDate();
       jasmine.clock().mockDate(oneDaysAfter);
 
-      //@ts-ignore
-      const result = component.isExpenseScanComplete(expense);
+      const result = component['isExpenseScanComplete'](expense);
       expect(result).toBeTrue();
     });
   });
@@ -1241,8 +1311,7 @@ describe('MyExpensesPage', () => {
         amount: 0,
       };
       expense.category.name = 'Per Diem';
-      //@ts-ignore
-      const result = component.isZeroAmountPerDiemOrMileage(expense);
+      const result = component['isZeroAmountPerDiemOrMileage'](expense);
       expect(result).toBeTrue();
     });
 
@@ -1253,8 +1322,7 @@ describe('MyExpensesPage', () => {
         claim_amount: 0,
       };
       expense.category.name = 'Per Diem';
-      //@ts-ignore
-      const result = component.isZeroAmountPerDiemOrMileage(expense);
+      const result = component['isZeroAmountPerDiemOrMileage'](expense);
       expect(result).toBeTrue();
     });
 
@@ -1264,16 +1332,14 @@ describe('MyExpensesPage', () => {
         amount: 0,
       };
       expense.category.name = 'Mileage';
-      //@ts-ignore
-      const result = component.isZeroAmountPerDiemOrMileage(expense);
+      const result = component['isZeroAmountPerDiemOrMileage'](expense);
       expect(result).toBeTrue();
     });
 
     it('should return false if org category is null', () => {
       const expense = cloneDeep(expenseData);
       expense.category.name = null;
-      //@ts-ignore
-      const result = component.isZeroAmountPerDiemOrMileage(expense);
+      const result = component['isZeroAmountPerDiemOrMileage'](expense);
       expect(result).toBeFalse();
     });
   });
@@ -1831,6 +1897,35 @@ describe('MyExpensesPage', () => {
     expect(transactionOutboxService.sync).toHaveBeenCalledTimes(1);
     expect(component.syncing).toBeFalse();
     expect(component.doRefresh).toHaveBeenCalledTimes(1);
+  }));
+
+  it('syncOutboxExpenses(): should not sync when pendingTransactions is empty', fakeAsync(() => {
+    spyOn(component, 'formatTransactions').and.returnValue([]);
+    transactionOutboxService.getPendingTransactions.and.returnValue([]);
+    spyOn(component, 'doRefresh');
+
+    component.syncOutboxExpenses();
+    tick(100);
+
+    expect(component.syncing).toBeFalse();
+    expect(transactionOutboxService.sync).not.toHaveBeenCalled();
+    expect(component.doRefresh).not.toHaveBeenCalled();
+  }));
+
+  it('syncOutboxExpenses(): should handle sync errors gracefully', fakeAsync(() => {
+    const mockFormattedTransactions = cloneDeep(apiExpenseRes);
+    const mockPendingTransactions = cloneDeep(txnList);
+    spyOn(component, 'formatTransactions').and.returnValues(mockFormattedTransactions, mockFormattedTransactions);
+    transactionOutboxService.getPendingTransactions.and.returnValues(mockPendingTransactions, mockPendingTransactions);
+    transactionOutboxService.sync.and.rejectWith(new Error('Sync failed'));
+    spyOn(component, 'doRefresh');
+
+    component.syncOutboxExpenses();
+    tick(100);
+
+    expect(component.syncing).toBeFalse();
+    expect(transactionOutboxService.sync).toHaveBeenCalled();
+    expect(component.doRefresh).not.toHaveBeenCalled();
   }));
 
   describe('generateFilterPills(): ', () => {
@@ -2664,6 +2759,42 @@ describe('MyExpensesPage', () => {
           reportType: 'newReport',
         });
       });
+
+      it('should set proper message when draft and policy violation count is greater than 0', () => {
+        component.reportableExpenseDialogHandler(1, 1, 0, 'oldReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '1 expense is in draft state.<br><br>1 expense with Critical Policy Violations.',
+          reportType: 'oldReport',
+        });
+      });
+
+      it('should set proper message when draft and pendingTransactionsCount is greater than 0', () => {
+        component.reportableExpenseDialogHandler(1, 0, 1, 'newReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '1 expense is in draft state.<br><br>1 expense with pending transactions.',
+          reportType: 'newReport',
+        });
+      });
+
+      it('should set proper message when all three counts are greater than 0', () => {
+        component.reportableExpenseDialogHandler(2, 1, 1, 'newReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '2 expenses are in draft state.<br><br>1 expense with pending transactions.<br><br>1 expense with Critical Policy Violations.',
+          reportType: 'newReport',
+        });
+      });
+
+      it('should handle plural forms correctly for multiple expenses', () => {
+        component.reportableExpenseDialogHandler(2, 2, 2, 'oldReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '2 expenses are in draft state.<br><br>2 expenses with pending transactions.<br><br>2 expenses with Critical Policy Violations.',
+          reportType: 'oldReport',
+        });
+      });
     });
   });
 
@@ -2796,6 +2927,43 @@ describe('MyExpensesPage', () => {
         { id: 'txDDLtRaflUW', txnIds: '["txDDLtRaflUW","tx5WDG9lxBDT"]', activeIndex: 0 },
       ]);
     }));
+
+    it('should handle getAllExpenses error gracefully', fakeAsync(() => {
+      component.selectedElements = [];
+      expensesService.getAllExpenses.and.returnValue(throwError(() => new Error('API Error')));
+      spyOn(console, 'error');
+
+      component.openReviewExpenses();
+      tick(100);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalled();
+      expect(loaderService.hideLoader).toHaveBeenCalled();
+    }));
+
+    it('should handle getExpenseById error gracefully', fakeAsync(() => {
+      component.selectedElements = apiExpenses1;
+      expensesService.getAllExpenses.and.returnValue(of(apiExpenses1));
+      expensesService.getExpenseById.and.returnValue(throwError(() => new Error('API Error')));
+      spyOn(console, 'error');
+
+      component.openReviewExpenses();
+      tick(100);
+
+      expect(expensesService.getExpenseById).toHaveBeenCalled();
+      expect(loaderService.hideLoader).toHaveBeenCalled();
+    }));
+
+    it('should handle empty selectedIds array', fakeAsync(() => {
+      component.selectedElements = [];
+      expensesService.getAllExpenses.and.returnValue(of([]));
+      component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1 });
+
+      component.openReviewExpenses();
+      tick(100);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalled();
+      expect(expensesService.getExpenseById).not.toHaveBeenCalled();
+    }));
   });
 
   describe('filterExpensesBySearchString(): ', () => {
@@ -2809,6 +2977,35 @@ describe('MyExpensesPage', () => {
       const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'Software');
 
       expect(expectedFilteredExpenseRes).toBeFalse();
+    });
+
+    it('should be case insensitive when matching searchString', () => {
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'USVKA4X8UGCR');
+
+      expect(expectedFilteredExpenseRes).toBeTrue();
+    });
+
+    it('should return true for partial matches', () => {
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'usvKA4');
+
+      expect(expectedFilteredExpenseRes).toBeTrue();
+    });
+
+    it('should return false for empty searchString', () => {
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, '');
+
+      expect(expectedFilteredExpenseRes).toBeFalse();
+    });
+
+    it('should handle null or undefined values in expense properties', () => {
+      const expenseWithNulls = {
+        ...expenseData,
+        category: null,
+        amount: null,
+      };
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseWithNulls, 'usvKA4X8Ugcr');
+
+      expect(expectedFilteredExpenseRes).toBeTrue();
     });
   });
 
@@ -2916,6 +3113,41 @@ describe('MyExpensesPage', () => {
       )
       .subscribe(noop);
     done();
+  });
+
+  it('addTransactionsToReport(): should handle errors gracefully', (done) => {
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo(true);
+
+    spenderReportsService.addExpenses.and.returnValue(throwError(() => new Error('API Error')));
+    component
+      .addTransactionsToReport(expectedReportsSinglePage[0], ['tx5fBcPBAxLv'])
+      .subscribe({
+        error: (error) => {
+          expect(error.message).toEqual('API Error');
+          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+          done();
+        },
+      });
+  });
+
+  it('addTransactionsToReport(): should handle empty expense IDs array', (done) => {
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo(true);
+
+    spenderReportsService.addExpenses.and.returnValue(of(null));
+    component
+      .addTransactionsToReport(expectedReportsSinglePage[0], [])
+      .pipe(
+        tap((updatedReport) => {
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', []);
+        }),
+        finalize(() => {
+          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+          done();
+        }),
+      )
+      .subscribe(noop);
   });
 
   describe('showOldReportsMatBottomSheet(): ', () => {
@@ -3048,6 +3280,39 @@ describe('MyExpensesPage', () => {
         component.pendingTransactions,
         expenseList4,
       );
+    });
+
+    it('should handle mixed online and offline expenses', () => {
+      component.expensesToBeDeleted = apiExpenses1;
+      component.outboxExpensesToBeDeleted = expenseList4 as any;
+
+      component.deleteSelectedExpenses(expenseList4);
+
+      expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT']);
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith(
+        component.pendingTransactions,
+        expenseList4,
+      );
+    });
+
+    it('should handle empty expensesToBeDeleted and outboxExpensesToBeDeleted', () => {
+      component.expensesToBeDeleted = [];
+      component.outboxExpensesToBeDeleted = [];
+
+      component.deleteSelectedExpenses([]);
+
+      expect(expensesService.deleteExpenses).not.toHaveBeenCalled();
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalled();
+    });
+
+    it('should handle deleteExpenses error gracefully', () => {
+      component.expensesToBeDeleted = apiExpenses1;
+      expensesService.deleteExpenses.and.returnValue(throwError(() => new Error('Delete failed')));
+      spyOn(console, 'error');
+
+      component.deleteSelectedExpenses([]);
+
+      expect(expensesService.deleteExpenses).toHaveBeenCalled();
     });
   });
 
@@ -3267,6 +3532,39 @@ describe('MyExpensesPage', () => {
       expect(component.allExpensesCount).toBe(2);
       expect(component.isReportableExpensesSelected).toBeTrue();
       expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle empty expenses list when checked is true', () => {
+      expensesService.getAllExpenses.and.returnValue(of([]));
+      component.pendingTransactions = [];
+      component.onSelectAll(true);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalled();
+      expect(component.selectedElements).toEqual([]);
+      expect(component.allExpensesCount).toBe(0);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+    });
+
+    it('should handle getAllExpenses error gracefully', () => {
+      expensesService.getAllExpenses.and.returnValue(throwError(() => new Error('API Error')));
+      component.pendingTransactions = [];
+      spyOn(console, 'error');
+
+      component.onSelectAll(true);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalled();
+    });
+
+    it('should handle searchString with special characters', () => {
+      component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1, searchString: 'Test@123' });
+      expensesService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenses1)));
+      component.pendingTransactions = [];
+
+      component.onSelectAll(true);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalledWith({
+        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)', q: 'Test@123:*' },
+      });
     });
   });
 
@@ -3531,6 +3829,41 @@ describe('MyExpensesPage', () => {
     it('should check and enable the button for offline mode', (done) => {
       component.isConnected$ = of(false);
       component.selectedOutboxExpenses = apiExpenseRes;
+      component.outboxExpensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDeleteDisabled).toBeFalse();
+        done();
+      });
+    });
+
+    it('should disable button when no expenses are selected in online mode', (done) => {
+      component.isConnected$ = of(true);
+      component.selectedElements = [];
+      component.expensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDeleteDisabled).toBeTrue();
+        done();
+      });
+    });
+
+    it('should disable button when no expenses are selected in offline mode', (done) => {
+      component.isConnected$ = of(false);
+      component.selectedOutboxExpenses = [];
+      component.outboxExpensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDeleteDisabled).toBeTrue();
+        done();
+      });
+    });
+
+    it('should handle mixed online and offline selection', (done) => {
+      component.isConnected$ = of(true);
+      component.selectedElements = apiExpenses1;
+      component.selectedOutboxExpenses = apiExpenseRes;
+      component.expensesToBeDeleted = [];
       component.outboxExpensesToBeDeleted = [];
 
       component.checkDeleteDisabled().subscribe(() => {
@@ -4515,7 +4848,7 @@ describe('MyExpensesPage', () => {
       popoverController.create.and.resolveTo(mockPopover);
       spyOn(component, 'showNewReportModal');
 
-      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      component['checkAchSuspensionBeforeCreateReport']('newReport');
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
@@ -4560,7 +4893,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component, 'showOldReportsMatBottomSheet');
 
-      (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
+      component['checkAchSuspensionBeforeCreateReport']('oldReport');
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
@@ -4574,7 +4907,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component, 'showNewReportModal');
 
-      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      component['checkAchSuspensionBeforeCreateReport']('newReport');
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
@@ -4588,7 +4921,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component, 'showOldReportsMatBottomSheet');
 
-      (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
+      component['checkAchSuspensionBeforeCreateReport']('oldReport');
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
@@ -4601,7 +4934,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component, 'showNewReportModal');
 
-      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      component['checkAchSuspensionBeforeCreateReport']('newReport');
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
@@ -4635,11 +4968,11 @@ describe('MyExpensesPage', () => {
       const nonReimbursableExpense = { ...apiExpenses1[0], is_reimbursable: false };
       component.selectedElements = [reimbursableExpense, nonReimbursableExpense];
       component.isReportableExpensesSelected = true;
-      spyOn(component as any, 'checkAchSuspensionBeforeCreateReport');
+      component['checkAchSuspensionBeforeCreateReport'] = jasmine.createSpy('checkAchSuspensionBeforeCreateReport');
 
       component.openCreateReportWithSelectedIds('newReport');
 
-      expect((component as any).checkAchSuspensionBeforeCreateReport).toHaveBeenCalledWith('newReport');
+      expect(component['checkAchSuspensionBeforeCreateReport']).toHaveBeenCalledWith('newReport');
     });
 
   });
