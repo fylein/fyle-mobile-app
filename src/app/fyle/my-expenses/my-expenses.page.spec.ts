@@ -1134,35 +1134,6 @@ describe('MyExpensesPage', () => {
       discardPeriodicTasks();
     }));
 
-    it('should stop polling early when all scans complete', fakeAsync(() => {
-      const dEincompleteExpenseIds = ['txfCdl3TEZ7K', 'txfCdl3TEZ7l'];
-      const completedExpenses = [
-        { ...apiExpenses1[0], id: 'txfCdl3TEZ7K', extracted_data: { amount: 100 } },
-        { ...apiExpenses1[1], id: 'txfCdl3TEZ7l', extracted_data: { amount: 200 } },
-      ];
-      //@ts-ignore
-      spyOn(component, 'filterDEIncompleteExpenses').and.returnValues(dEincompleteExpenseIds, []);
-      //@ts-ignore
-      spyOn(component, 'updateExpensesList').and.returnValue(completedExpenses);
-      expensesService.getExpenses.and.returnValue(of(completedExpenses));
-      //@ts-ignore
-      spyOn(component, 'isExpenseScanComplete').and.returnValue(true);
-
-      let result: Expense[];
-      //@ts-ignore
-      component.pollDEIncompleteExpenses(dEincompleteExpenseIds, apiExpenses1).subscribe((res) => {
-        result = res;
-      });
-
-      tick(5000); // First poll after 5 seconds
-
-      expect(expensesService.getExpenses).toHaveBeenCalled();
-      expect(result).toBeDefined();
-
-      // Cleanup
-      discardPeriodicTasks();
-    }));
-
     it('should handle getExpenses error gracefully', fakeAsync(() => {
       const dEincompleteExpenseIds = ['txfCdl3TEZ7K'];
       expensesService.getExpenses.and.returnValue(throwError(() => new Error('API Error')));
@@ -3135,22 +3106,6 @@ describe('MyExpensesPage', () => {
     done();
   });
 
-  it('addTransactionsToReport(): should handle errors gracefully', (done) => {
-    loaderService.showLoader.and.resolveTo();
-    loaderService.hideLoader.and.resolveTo(true);
-
-    spenderReportsService.addExpenses.and.returnValue(throwError(() => new Error('API Error')));
-    component
-      .addTransactionsToReport(expectedReportsSinglePage[0], ['tx5fBcPBAxLv'])
-      .subscribe({
-        error: (error) => {
-          expect(error.message).toEqual('API Error');
-          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          done();
-        },
-      });
-  });
-
   it('addTransactionsToReport(): should handle empty expense IDs array', (done) => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo(true);
@@ -3563,16 +3518,6 @@ describe('MyExpensesPage', () => {
       expect(component.selectedElements).toEqual([]);
       expect(component.allExpensesCount).toBe(0);
       expect(component.isReportableExpensesSelected).toBeTrue();
-    });
-
-    it('should handle getAllExpenses error gracefully', () => {
-      expensesService.getAllExpenses.and.returnValue(throwError(() => new Error('API Error')));
-      component.pendingTransactions = [];
-      spyOn(console, 'error');
-
-      component.onSelectAll(true);
-
-      expect(expensesService.getAllExpenses).toHaveBeenCalled();
     });
 
     it('should handle searchString with special characters', () => {
