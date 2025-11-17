@@ -570,7 +570,8 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'clearFilters');
       spyOn(component, 'setupActionSheet');
       spyOn(component, 'setupNetworkWatcher');
-      component['pollDEIncompleteExpenses'] = jasmine.createSpy('pollDEIncompleteExpenses').and.returnValue(of(apiExpenses1));
+      //@ts-ignore
+      spyOn(component, 'pollDEIncompleteExpenses').and.returnValue(of(apiExpenses1));
       tokenService.getClusterDomain.and.resolveTo(apiAuthRes.cluster_domain);
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       expensesService.getExpenseStats.and.returnValue(of(completeStats));
@@ -1081,10 +1082,12 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should call pollDEIncompleteExpenses if expenses not completed DE scan', () => {
-      component['filterDEIncompleteExpenses'] = jasmine.createSpy('filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
+      //@ts-ignore
+      spyOn(component, 'filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
       component.ionViewWillEnter();
 
-      expect(component['pollDEIncompleteExpenses']).toHaveBeenCalledWith(dEincompleteExpenseIds, apiExpenses1);
+      //@ts-ignore
+      expect(component.pollDEIncompleteExpenses).toHaveBeenCalledWith(dEincompleteExpenseIds, apiExpenses1);
     });
   });
 
@@ -1095,7 +1098,8 @@ describe('MyExpensesPage', () => {
   describe('pollDEIncompleteExpenses()', () => {
     beforeEach(() => {
       expensesService.getExpenses.and.returnValue(of(apiExpenses1));
-      component['updateExpensesList'] = jasmine.createSpy('updateExpensesList').and.returnValue(apiExpenses1);
+      //@ts-ignore
+      spyOn(component, 'updateExpensesList').and.returnValue(apiExpenses1);
     });
 
     it('should call expenseService.getExpenses for dE incomplete expenses and return updated expenses', fakeAsync(() => {
@@ -1104,7 +1108,8 @@ describe('MyExpensesPage', () => {
         queryParams: { id: `in.(${dEincompleteExpenseIds.join(',')})` },
       };
 
-      component['pollDEIncompleteExpenses'](dEincompleteExpenseIds, apiExpenses1).subscribe((result: Expense[]) => {
+      //@ts-ignore
+      component.pollDEIncompleteExpenses(dEincompleteExpenseIds, apiExpenses1).subscribe((result) => {
         expect(expensesService.getExpenses).toHaveBeenCalledOnceWith({ ...dEincompleteExpenseIdParams.queryParams });
         expect(result).toEqual(apiExpenses1);
       });
@@ -1114,8 +1119,10 @@ describe('MyExpensesPage', () => {
 
     it('should call expensesService.getExpenses 5 times and stop polling after 30 seconds', fakeAsync(() => {
       const dEincompleteExpenseIds = ['txfCdl3TEZ7K', 'txfCdl3TEZ7l', 'txfCdl3TEZ7m'];
-      component['filterDEIncompleteExpenses'] = jasmine.createSpy('filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
-      component['pollDEIncompleteExpenses'](dEincompleteExpenseIds, apiExpenses1).subscribe(() => {});
+      //@ts-ignore
+      spyOn(component, 'filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
+      //@ts-ignore
+      component.pollDEIncompleteExpenses(dEincompleteExpenseIds, apiExpenses1).subscribe(() => {});
 
       // Simulate 30 seconds of time passing (the polling interval is 5 seconds)
       tick(30000);
@@ -1133,13 +1140,17 @@ describe('MyExpensesPage', () => {
         { ...apiExpenses1[0], id: 'txfCdl3TEZ7K', extracted_data: { amount: 100 } },
         { ...apiExpenses1[1], id: 'txfCdl3TEZ7l', extracted_data: { amount: 200 } },
       ];
-      component['filterDEIncompleteExpenses'] = jasmine.createSpy('filterDEIncompleteExpenses').and.returnValues(dEincompleteExpenseIds, []);
-      component['updateExpensesList'] = jasmine.createSpy('updateExpensesList').and.returnValue(completedExpenses);
+      //@ts-ignore
+      spyOn(component, 'filterDEIncompleteExpenses').and.returnValues(dEincompleteExpenseIds, []);
+      //@ts-ignore
+      spyOn(component, 'updateExpensesList').and.returnValue(completedExpenses);
       expensesService.getExpenses.and.returnValue(of(completedExpenses));
-      component['isExpenseScanComplete'] = jasmine.createSpy('isExpenseScanComplete').and.returnValue(true);
+      //@ts-ignore
+      spyOn(component, 'isExpenseScanComplete').and.returnValue(true);
 
       let result: Expense[];
-      component['pollDEIncompleteExpenses'](dEincompleteExpenseIds, apiExpenses1).subscribe((res: Expense[]) => {
+      //@ts-ignore
+      component.pollDEIncompleteExpenses(dEincompleteExpenseIds, apiExpenses1).subscribe((res) => {
         result = res;
       });
 
@@ -1155,10 +1166,12 @@ describe('MyExpensesPage', () => {
     it('should handle getExpenses error gracefully', fakeAsync(() => {
       const dEincompleteExpenseIds = ['txfCdl3TEZ7K'];
       expensesService.getExpenses.and.returnValue(throwError(() => new Error('API Error')));
-      component['filterDEIncompleteExpenses'] = jasmine.createSpy('filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
+      //@ts-ignore
+      spyOn(component, 'filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
 
       let errorOccurred = false;
-      component['pollDEIncompleteExpenses'](dEincompleteExpenseIds, apiExpenses1).subscribe({
+      //@ts-ignore
+      component.pollDEIncompleteExpenses(dEincompleteExpenseIds, apiExpenses1).subscribe({
         error: () => {
           errorOccurred = true;
         },
@@ -1175,7 +1188,8 @@ describe('MyExpensesPage', () => {
 
   describe('updateExpensesList', () => {
     beforeEach(() => {
-      component['isExpenseScanComplete'] = jasmine.createSpy('isExpenseScanComplete').and.callThrough();
+      //@ts-ignore
+      spyOn(component, 'isExpenseScanComplete').and.callThrough();
     });
 
     it('should update expenses with completed scans', () => {
@@ -1184,9 +1198,11 @@ describe('MyExpensesPage', () => {
       ];
       const dEincompleteExpenseIds = [apiExpenses1[0].id];
 
-      (component['isExpenseScanComplete'] as jasmine.Spy).and.returnValue(true);
+      //@ts-ignore
+      component.isExpenseScanComplete.and.returnValue(true);
 
-      const result = component['updateExpensesList'](apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
 
       expect(result).toEqual([updatedExpenses[0], apiExpenses1[1]]);
     });
@@ -1198,9 +1214,11 @@ describe('MyExpensesPage', () => {
       const dEincompleteExpenseIds = [apiExpenses1[0].id];
 
       // Mock isExpenseScanComplete to return false for the updated expense
-      (component['isExpenseScanComplete'] as jasmine.Spy).and.returnValue(false);
+      //@ts-ignore
+      (component.isExpenseScanComplete as jasmine.Spy).and.returnValue(false);
 
-      const result = component['updateExpensesList'](apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
 
       // Assert
       expect(result).toEqual(apiExpenses1); // No changes should occur
@@ -1210,9 +1228,11 @@ describe('MyExpensesPage', () => {
       const updatedExpenses: Expense[] = [];
       const dEincompleteExpenseIds = [apiExpenses1[0].id];
 
-      (component['isExpenseScanComplete'] as jasmine.Spy).and.returnValue(false);
+      //@ts-ignore
+      component.isExpenseScanComplete.and.returnValue(false);
 
-      const result = component['updateExpensesList'](apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
 
       expect(result).toEqual(apiExpenses1);
     });
@@ -1223,9 +1243,11 @@ describe('MyExpensesPage', () => {
       ];
       const dEincompleteExpenseIds = ['someOtherId'];
 
-      (component['isExpenseScanComplete'] as jasmine.Spy).and.returnValue(true);
+      //@ts-ignore
+      component.isExpenseScanComplete.and.returnValue(true);
 
-      const result = component['updateExpensesList'](apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
 
       expect(result).toEqual(apiExpenses1);
     });
@@ -1237,11 +1259,13 @@ describe('MyExpensesPage', () => {
       ];
       const dEincompleteExpenseIds = [apiExpenses1[0].id, apiExpenses1[1].id];
 
-      (component['isExpenseScanComplete'] as jasmine.Spy).and.callFake((expense: Expense) => {
+      //@ts-ignore
+      component.isExpenseScanComplete.and.callFake((expense) => {
         return expense.id === apiExpenses1[0].id;
       });
 
-      const result = component['updateExpensesList'](apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
 
       expect(result[0]).toEqual(updatedExpenses[0]);
       expect(result[1]).toEqual(apiExpenses1[1]);
@@ -1256,7 +1280,8 @@ describe('MyExpensesPage', () => {
         claim_amount: null,
         extracted_data: null,
       };
-      const result = component['isExpenseScanComplete'](expense);
+      //@ts-ignore
+      const result = component.isExpenseScanComplete(expense);
       expect(result).toBeTrue();
     });
 
@@ -1267,7 +1292,8 @@ describe('MyExpensesPage', () => {
         claim_amount: 7500,
         extracted_data: null,
       };
-      const result = component['isExpenseScanComplete'](expense);
+      //@ts-ignore
+      const result = component.isExpenseScanComplete(expense);
       expect(result).toBeTrue();
     });
 
@@ -1285,7 +1311,8 @@ describe('MyExpensesPage', () => {
           invoice_dt: null,
         },
       };
-      const result = component['isExpenseScanComplete'](expense);
+      //@ts-ignore
+      const result = component.isExpenseScanComplete(expense);
       expect(result).toBeTrue();
     });
 
@@ -1299,7 +1326,8 @@ describe('MyExpensesPage', () => {
       const oneDaysAfter = dayjs(expense.created_at).add(1, 'day').toDate();
       jasmine.clock().mockDate(oneDaysAfter);
 
-      const result = component['isExpenseScanComplete'](expense);
+      //@ts-ignore
+      const result = component.isExpenseScanComplete(expense);
       expect(result).toBeTrue();
     });
   });
@@ -1311,7 +1339,8 @@ describe('MyExpensesPage', () => {
         amount: 0,
       };
       expense.category.name = 'Per Diem';
-      const result = component['isZeroAmountPerDiemOrMileage'](expense);
+      //@ts-ignore
+      const result = component.isZeroAmountPerDiemOrMileage(expense);
       expect(result).toBeTrue();
     });
 
@@ -1322,7 +1351,8 @@ describe('MyExpensesPage', () => {
         claim_amount: 0,
       };
       expense.category.name = 'Per Diem';
-      const result = component['isZeroAmountPerDiemOrMileage'](expense);
+      //@ts-ignore
+      const result = component.isZeroAmountPerDiemOrMileage(expense);
       expect(result).toBeTrue();
     });
 
@@ -1332,14 +1362,16 @@ describe('MyExpensesPage', () => {
         amount: 0,
       };
       expense.category.name = 'Mileage';
-      const result = component['isZeroAmountPerDiemOrMileage'](expense);
+      //@ts-ignore
+      const result = component.isZeroAmountPerDiemOrMileage(expense);
       expect(result).toBeTrue();
     });
 
     it('should return false if org category is null', () => {
       const expense = cloneDeep(expenseData);
       expense.category.name = null;
-      const result = component['isZeroAmountPerDiemOrMileage'](expense);
+      //@ts-ignore
+      const result = component.isZeroAmountPerDiemOrMileage(expense);
       expect(result).toBeFalse();
     });
   });
@@ -4848,7 +4880,7 @@ describe('MyExpensesPage', () => {
       popoverController.create.and.resolveTo(mockPopover);
       spyOn(component, 'showNewReportModal');
 
-      component['checkAchSuspensionBeforeCreateReport']('newReport');
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
@@ -4893,7 +4925,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component, 'showOldReportsMatBottomSheet');
 
-      component['checkAchSuspensionBeforeCreateReport']('oldReport');
+      (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
@@ -4907,7 +4939,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component, 'showNewReportModal');
 
-      component['checkAchSuspensionBeforeCreateReport']('newReport');
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
@@ -4921,7 +4953,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component, 'showOldReportsMatBottomSheet');
 
-      component['checkAchSuspensionBeforeCreateReport']('oldReport');
+      (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
@@ -4934,7 +4966,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
       spyOn(component, 'showNewReportModal');
 
-      component['checkAchSuspensionBeforeCreateReport']('newReport');
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
       tick(100);
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
@@ -4968,11 +5000,11 @@ describe('MyExpensesPage', () => {
       const nonReimbursableExpense = { ...apiExpenses1[0], is_reimbursable: false };
       component.selectedElements = [reimbursableExpense, nonReimbursableExpense];
       component.isReportableExpensesSelected = true;
-      component['checkAchSuspensionBeforeCreateReport'] = jasmine.createSpy('checkAchSuspensionBeforeCreateReport');
+      spyOn(component as any, 'checkAchSuspensionBeforeCreateReport');
 
       component.openCreateReportWithSelectedIds('newReport');
 
-      expect(component['checkAchSuspensionBeforeCreateReport']).toHaveBeenCalledWith('newReport');
+      expect((component as any).checkAchSuspensionBeforeCreateReport).toHaveBeenCalledWith('newReport');
     });
 
   });
