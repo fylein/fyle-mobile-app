@@ -2124,21 +2124,12 @@ export class MyExpensesPage implements OnInit {
           this.orgSettings$.pipe(
             take(1),
             switchMap((orgSettings) => {
-              // Check LaunchDarkly feature flag first
-              return this.launchDarklyService.getVariation('ach_improvement', false).pipe(
-                switchMap((isAchImprovementEnabled) => {
-                  if (!isAchImprovementEnabled) {
-                    return of(false);
-                  }
-
-                  if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
-                    return of(false);
-                  }
-                  return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
-                    map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
-                    catchError(() => of(false)),
-                  );
-                }),
+              if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+                return of(false);
+              }
+              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+                map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
+                catchError(() => of(false)),
               );
             }),
           ),
