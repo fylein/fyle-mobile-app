@@ -67,7 +67,7 @@ import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v
 })
 class MockExpensesCardComponent {}
 
-fdescribe('MyViewReportPage', () => {
+describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
