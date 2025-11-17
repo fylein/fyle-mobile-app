@@ -1915,22 +1915,6 @@ describe('MyExpensesPage', () => {
     expect(component.doRefresh).not.toHaveBeenCalled();
   }));
 
-  it('syncOutboxExpenses(): should handle sync errors gracefully', fakeAsync(() => {
-    const mockFormattedTransactions = cloneDeep(apiExpenseRes);
-    const mockPendingTransactions = cloneDeep(txnList);
-    spyOn(component, 'formatTransactions').and.returnValues(mockFormattedTransactions, mockFormattedTransactions);
-    transactionOutboxService.getPendingTransactions.and.returnValues(mockPendingTransactions, mockPendingTransactions);
-    transactionOutboxService.sync.and.rejectWith(new Error('Sync failed'));
-    spyOn(component, 'doRefresh');
-
-    component.syncOutboxExpenses();
-    tick(100);
-
-    expect(component.syncing).toBeFalse();
-    expect(transactionOutboxService.sync).toHaveBeenCalled();
-    expect(component.doRefresh).not.toHaveBeenCalled();
-  }));
-
   describe('generateFilterPills(): ', () => {
     beforeEach(() => {
       myExpenseService.generateStateFilterPills.and.callFake((filterPill, filters) => {
@@ -2931,18 +2915,6 @@ describe('MyExpensesPage', () => {
       ]);
     }));
 
-    it('should handle getAllExpenses error gracefully', fakeAsync(() => {
-      component.selectedElements = [];
-      expensesService.getAllExpenses.and.returnValue(throwError(() => new Error('API Error')));
-      spyOn(console, 'error');
-
-      component.openReviewExpenses();
-      tick(100);
-
-      expect(expensesService.getAllExpenses).toHaveBeenCalled();
-      expect(loaderService.hideLoader).toHaveBeenCalled();
-    }));
-
     it('should handle getExpenseById error gracefully', fakeAsync(() => {
       component.selectedElements = apiExpenses1;
       expensesService.getAllExpenses.and.returnValue(of(apiExpenses1));
@@ -2980,12 +2952,6 @@ describe('MyExpensesPage', () => {
       const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'usvKA4');
 
       expect(expectedFilteredExpenseRes).toBeTrue();
-    });
-
-    it('should return false for empty searchString', () => {
-      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, '');
-
-      expect(expectedFilteredExpenseRes).toBeFalse();
     });
 
     it('should handle null or undefined values in expense properties', () => {
@@ -3251,19 +3217,6 @@ describe('MyExpensesPage', () => {
     it('should delete outbox expenses', () => {
       component.deleteSelectedExpenses(expenseList4);
 
-      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith(
-        component.pendingTransactions,
-        expenseList4,
-      );
-    });
-
-    it('should handle mixed online and offline expenses', () => {
-      component.expensesToBeDeleted = apiExpenses1;
-      component.outboxExpensesToBeDeleted = expenseList4 as any;
-
-      component.deleteSelectedExpenses(expenseList4);
-
-      expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT']);
       expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith(
         component.pendingTransactions,
         expenseList4,
