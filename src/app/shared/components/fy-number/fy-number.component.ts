@@ -105,10 +105,13 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
   setDisabledState?(isDisabled: boolean): void {
     this.isDisabled = isDisabled;
-    if (isDisabled) {
-      this.fc?.disable();
-    } else {
-      this.fc?.enable();
+    // Apply disabled state if fc is already initialized, otherwise it will be applied in ngOnInit
+    if (this.fc) {
+      if (isDisabled) {
+        this.fc.disable({ emitEvent: false });
+      } else {
+        this.fc.enable({ emitEvent: false });
+      }
     }
   }
 
@@ -143,6 +146,11 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
     } else {
       // If the input is for distance, do not allow negative values
       this.fc = new UntypedFormControl(null, Validators.pattern(/^\d*(\.\d+)?$/));
+    }
+
+    // Apply disabled state from input or setDisabledState (which may have been called before ngOnInit)
+    if (this.disabled() || this.isDisabled) {
+      this.fc.disable({ emitEvent: false });
     }
 
     this.fc.valueChanges.subscribe((value) => {

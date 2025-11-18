@@ -394,7 +394,6 @@ describe('DashboardPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       utilityService.isUserFromINCluster.and.resolveTo(false);
       orgUserService.getDwollaCustomer.and.returnValue(of(null));
-      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       spyOn(component, 'setShowOptInBanner');
       spyOn(component, 'setShowEmailOptInBanner');
       spyOn(component, 'setSwiperConfig');
@@ -1654,7 +1653,6 @@ describe('DashboardPage', () => {
       component.eou$ = of(apiEouRes);
       component.orgSettings$ = of(orgSettingsRes);
       orgUserService.getDwollaCustomer.and.returnValue(of(null));
-      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
     });
 
     afterEach(() => {
@@ -1664,8 +1662,6 @@ describe('DashboardPage', () => {
     });
 
     it('should show ACH suspension popup when customer is suspended', fakeAsync(() => {
-      // Ensure LaunchDarkly flag is enabled for this test
-      launchDarklyService.getVariation.and.returnValue(of(true));
       orgUserService.getDwollaCustomer.and.returnValue(of(suspendedDwollaCustomer));
       const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
       popoverController.create.and.resolveTo(mockPopover);
@@ -1762,18 +1758,6 @@ describe('DashboardPage', () => {
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
     }));
 
-    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
-      launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
-      spyOn(component, 'showAchSuspensionPopup');
-
-      component.checkAchSuspension();
-
-      flush();
-
-      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
-      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
-      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-    }));
 
     it('should show ACH suspension popup with correct translations', async () => {
       const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
