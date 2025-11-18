@@ -464,7 +464,7 @@
       <div class="view-reports--cta-container">
         @if (unreportedExpenses) {
           <button class="btn-outline-secondary" (click)="showAddExpensesToReportModal()">
-            <div>Add expense</div>
+            <div>{{ 'myViewReport.addExpense' | transloco }}</div>
           </button>
         }
         @if (canResubmitReport$ | async) {
