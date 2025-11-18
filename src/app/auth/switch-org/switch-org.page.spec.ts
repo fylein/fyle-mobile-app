@@ -607,10 +607,11 @@ describe('SwitchOrgPage', () => {
     });
   });
 
-  it('markUserActive(): should mark the user as active and return the org', (done) => {
+  it('markUserActive(): should mark the user as active and return the org', fakeAsync(() => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     orgUserService.markActive.and.returnValue(of(apiEouRes));
+    spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
 
     component
       .markUserActive()
@@ -629,9 +630,9 @@ describe('SwitchOrgPage', () => {
         expect(res).toEqual(apiEouRes);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(orgUserService.markActive).toHaveBeenCalledTimes(1);
-        done();
       });
-  });
+    tick();
+  }));
 
   describe('handleInviteLinkFlow():', () => {
     it('should handle the flow if user has entered through invite link and navigate to setup page', (done) => {
@@ -924,6 +925,7 @@ describe('SwitchOrgPage', () => {
       spyOn(globalCacheBusterNotifier, 'next');
 
       component.signOut();
+      tick();
       flush();
       expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
       expect(storageService.clearAll).toHaveBeenCalledTimes(1);
