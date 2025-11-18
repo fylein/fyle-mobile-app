@@ -87,8 +87,9 @@ export class FyCurrencyPipe implements PipeTransform {
     // Determine token based on display
     const currencyDisplayStyle: 'symbol' | 'code' =
       display === 'code' || display === false ? 'code' : 'symbol';
+    const hideCurrencyToken = display === '';
     let currencyToken = '';
-    if (currencyCode) {
+    if (currencyCode && !hideCurrencyToken) {
       const currencyFormatter = new Intl.NumberFormat(locale || 'en-US', {
         style: 'currency',
         currency: currencyCode,
