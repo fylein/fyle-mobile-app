@@ -51,19 +51,37 @@ describe('HumanizeCurrencyPipe', () => {
 
     it('should humanize currency | with symbol', () => {
       const expectedAmount = '$651.55K';
-      fyCurrencyPipeSpy.transform.and.returnValue('$651.55');
+      // When display is '', fyCurrencyPipe should return just the number without symbol
+      fyCurrencyPipeSpy.transform.and.callFake((value, currencyCode, display) => {
+        if (display === '') {
+          return '651.55';
+        }
+        return '$651.55';
+      });
       expect(humanizeCurrencyPipe.transform(651547.297922, 'USD', false)).toEqual(expectedAmount);
     });
 
     it('should humanize negtive amount', () => {
       const expectedAmount = '-$122.57';
-      fyCurrencyPipeSpy.transform.and.returnValue('$122.57');
+      // When display is '', fyCurrencyPipe should return just the number without symbol
+      fyCurrencyPipeSpy.transform.and.callFake((value, currencyCode, display) => {
+        if (display === '') {
+          return '122.57';
+        }
+        return '$122.57';
+      });
       expect(humanizeCurrencyPipe.transform(-122.57, 'USD')).toEqual(expectedAmount);
     });
 
     it('should return amount when fraction specified', () => {
       const expectedAmount = '$651.547K';
-      fyCurrencyPipeSpy.transform.and.returnValue('$651.547');
+      // When display is '', fyCurrencyPipe should return just the number without symbol
+      fyCurrencyPipeSpy.transform.and.callFake((value, currencyCode, display) => {
+        if (display === '') {
+          return '651.547';
+        }
+        return '$651.547';
+      });
       expect(humanizeCurrencyPipe.transform(651547.297922, 'USD', false, 3)).toEqual(expectedAmount);
     });
   });

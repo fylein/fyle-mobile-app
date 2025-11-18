@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -924,7 +924,7 @@ describe('SwitchOrgPage', () => {
       spyOn(globalCacheBusterNotifier, 'next');
 
       component.signOut();
-      tick(1000);
+      flush();
       expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
       expect(storageService.clearAll).toHaveBeenCalledTimes(1);
       expect(globalCacheBusterNotifier.next).toHaveBeenCalledTimes(1);
