@@ -916,7 +916,7 @@ describe('TasksService', () => {
     expect(sentBackAdvanceTask).toEqual([
       {
         hideAmount: true,
-        amount: '123370000.00',
+        amount: '₹123370000.00',
         count: 1,
         header: 'Review sent back advance',
         subheader: 'Fix issues in your advance to resubmit.',
