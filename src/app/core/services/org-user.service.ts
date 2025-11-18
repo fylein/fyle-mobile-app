@@ -120,7 +120,7 @@ export class OrgUserService {
     return accessToken && !!accessToken.proxy_org_user_id;
   }
 
-  getDwollaCustomer(orgUserId: string): Observable<DwollaCustomer | null> {
-    return this.apiService.get(`/orgusers/${orgUserId}/dwolla_customers`);
+  getDwollaCustomer(): Observable<DwollaCustomer | null> {
+    return this.spenderPlatformV1ApiService.get(`/dwolla_customers`);
   }
 }

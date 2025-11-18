@@ -4,7 +4,27 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize, catchError } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, ModalController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonFooter,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonSegment,
+  IonSegmentButton,
+  IonSkeletonText,
+  IonSpinner,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  PopoverController,
+  SegmentCustomEvent,
+} from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -99,7 +119,7 @@ import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-cas
     ReportStatePipe,
     RouterLink,
     SnakeCaseToSpaceCase,
-    TitleCasePipe
+    TitleCasePipe,
   ],
 })
 export class MyViewReportPage {
@@ -237,8 +257,8 @@ export class MyViewReportPage {
               if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
                 return of(false);
               }
-              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
-                map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
+              return this.orgUserService.getDwollaCustomer().pipe(
+                map((dwollaCustomer) => dwollaCustomer?.is_customer_suspended || false),
                 catchError(() => of(false)),
               );
             }),
@@ -837,11 +857,9 @@ export class MyViewReportPage {
 
   addExpensesToReport(selectedExpenseIds: string[]): void {
     // Check if any selected expenses are reimbursable
-    const selectedExpenses = this.unreportedExpenses.filter(expense => 
-      selectedExpenseIds.includes(expense.id)
-    );
-    const hasReimbursableExpenses = selectedExpenses.some(expense => expense.is_reimbursable);
-    
+    const selectedExpenses = this.unreportedExpenses.filter((expense) => selectedExpenseIds.includes(expense.id));
+    const hasReimbursableExpenses = selectedExpenses.some((expense) => expense.is_reimbursable);
+
     if (hasReimbursableExpenses) {
       // Check ACH suspension before adding reimbursable expenses
       this.checkAchSuspensionBeforeAdd(selectedExpenseIds);
