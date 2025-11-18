@@ -13,7 +13,7 @@ import { ToastMessageComponent } from '../../toast-message/toast-message.compone
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
+import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
 
 describe('BankAccountCardComponent', () => {
   let component: BankAccountCardComponent;
@@ -70,7 +70,7 @@ describe('BankAccountCardComponent', () => {
           provide: TranslocoService,
           useValue: translocoServiceSpy,
         },
-        ...getCommonTestProviders(),
+        ...getFormatPreferenceProviders(),
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(BankAccountCardComponent);
@@ -119,20 +119,11 @@ describe('BankAccountCardComponent', () => {
     spyOn(component, 'confirmPopup').and.callThrough();
     popoverController.create.and.returnValue(
       new Promise((resolve) => {
-        const deleteCardPopOverSpy = jasmine.createSpyObj('deleteCardPopOver', [
-          'present',
-          'onDidDismiss',
-          'onWillDismiss',
-        ]);
+        const deleteCardPopOverSpy = jasmine.createSpyObj('deleteCardPopOver', ['present', 'onDidDismiss']);
 
         deleteCardPopOverSpy.onDidDismiss.and.returnValue(
           new Promise((resInt) => {
             resInt({ data: 'delete' });
-          }),
-        );
-        deleteCardPopOverSpy.onWillDismiss.and.returnValue(
-          new Promise((resInt) => {
-            resInt({ data: { action: 'delete' } });
           }),
         );
         resolve(deleteCardPopOverSpy);

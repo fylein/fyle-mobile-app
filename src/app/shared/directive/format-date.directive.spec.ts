@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { DatePipe } from '@angular/common';
-import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
+import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
 
 @Component({
   template: `<input appFormatDate type="date" />`,
@@ -21,7 +21,7 @@ describe('FormatDateDirective', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TestFormatDateDirectiveComponent, getTranslocoTestingModule()],
-      providers: [DatePipe, ...getCommonTestProviders()],
+      providers: [DatePipe, ...getFormatPreferenceProviders()],
     });
 
     fixture = TestBed.createComponent(TestFormatDateDirectiveComponent);

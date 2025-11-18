@@ -164,10 +164,9 @@ describe('PersonalCardTransactionComponent', () => {
   it('should display the currency, amount, and type', () => {
     component.currency = 'USD';
     fixture.detectChanges();
-    // Currency is not displayed separately, it's part of the amount via exactCurrency pipe
+
     const amountElement = getElementBySelector(fixture, '.personal-card-transaction--amount');
     expect(amountElement).toBeTruthy();
-    // The exactCurrency pipe formats the amount with currency
     expect(getTextContent(amountElement)).toContain('200');
 
     const typeElement = getElementBySelector(fixture, '.personal-card-transaction--type');

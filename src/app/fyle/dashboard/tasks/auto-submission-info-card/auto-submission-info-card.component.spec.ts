@@ -68,7 +68,6 @@ describe('AutoSubmissionInfoCardComponent', () => {
     component.autoSubmissionReportDate = expectedDate;
     fixture.detectChanges();
     const infoCardDate = getElementBySelector(fixture, '.info-card__date');
-    // DatePipe with default format includes the year
     expect(getTextContent(infoCardDate)).toBe('Nov 30, 2022');
   });
 });

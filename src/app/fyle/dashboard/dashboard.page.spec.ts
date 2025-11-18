@@ -61,7 +61,7 @@ import { TasksComponent } from './tasks/tasks.component';
 import { FyMenuIconComponent } from 'src/app/shared/components/fy-menu-icon/fy-menu-icon.component';
 import { DashboardEmailOptInComponent } from 'src/app/shared/components/dashboard-email-opt-in/dashboard-email-opt-in.component';
 import { DashboardOptInComponent } from 'src/app/shared/components/dashboard-opt-in/dashboard-opt-in.component';
-import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
+import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
 
 // mocks
 @Component({
@@ -232,7 +232,7 @@ describe('DashboardPage', () => {
           provide: LaunchDarklyService,
           useValue: launchDarklyServiceSpy,
         },
-        ...getCommonTestProviders(),
+        ...getFormatPreferenceProviders(),
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -1757,7 +1757,6 @@ describe('DashboardPage', () => {
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
     }));
-
 
     it('should show ACH suspension popup with correct translations', async () => {
       const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);

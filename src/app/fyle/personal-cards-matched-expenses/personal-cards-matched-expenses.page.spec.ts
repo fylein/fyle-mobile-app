@@ -14,7 +14,7 @@ import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platfor
 import { platformPersonalCardTxnExpenseSuggestionsRes } from 'src/app/core/mock-data/personal-card-txn-expense-suggestions.data';
 import { linkedAccounts } from 'src/app/core/mock-data/personal-cards.data';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
-import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
+import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
 
 describe('PersonalCardsMatchedExpensesPage', () => {
   let component: PersonalCardsMatchedExpensesPage;
@@ -62,7 +62,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
         },
         FyCurrencyPipe,
         CurrencyPipe,
-        ...getCommonTestProviders(),
+        ...getFormatPreferenceProviders(),
       ],
     }).compileComponents();
     personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
@@ -92,12 +92,10 @@ describe('PersonalCardsMatchedExpensesPage', () => {
 
     const amountElement = getElementBySelector(fixture, '.matched-expenses--amount');
     expect(amountElement).toBeTruthy();
-    // The exactCurrency pipe formats the amount, so we check it contains the amount
     expect(getTextContent(amountElement)).toContain('200');
 
     const dateElement = getElementBySelector(fixture, '.matched-expenses--date');
     expect(dateElement).toBeTruthy();
-    // The date pipe formats the date, so we check it contains the date parts
     expect(getTextContent(dateElement)).toBeTruthy();
   });
 

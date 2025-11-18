@@ -581,7 +581,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
               user_id: eou.us.id,
             }),
           ),
-          catchError(() => of(null)),
           finalize(() => {
             this.secureStorageService.clearAll();
             this.storageService.clearAll();

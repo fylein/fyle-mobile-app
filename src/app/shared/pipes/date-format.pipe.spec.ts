@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { DateFormatPipe } from './date-format.pipe';
 import { TranslocoService } from '@jsverse/transloco';
 import { DatePipe } from '@angular/common';
-import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
+import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
 
 describe('DateFormatPipe', () => {
   let pipe: DateFormatPipe;
@@ -12,7 +12,11 @@ describe('DateFormatPipe', () => {
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
 
     TestBed.configureTestingModule({
-      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }, DatePipe, ...getCommonTestProviders()],
+      providers: [
+        { provide: TranslocoService, useValue: translocoServiceSpy },
+        DatePipe,
+        ...getFormatPreferenceProviders(),
+      ],
     });
 
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;

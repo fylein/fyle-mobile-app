@@ -17,7 +17,7 @@ import { expensesWithDependentFields } from '../mock-data/dependent-field-expens
 import { CustomInput } from '../models/custom-input.model';
 import { mockExpenseData } from '../mock-data/expense-field.data';
 import { getTranslocoTestingModule } from '../testing/transloco-testing.utils';
-import { getCommonTestProviders } from '../testing/common-test-providers.utils';
+import { getFormatPreferenceProviders } from '../testing/format-preference-providers.utils';
 
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
@@ -43,7 +43,7 @@ describe('CustomInputsService', () => {
           useValue: authServiceSpy,
         },
         DatePipe,
-        ...getCommonTestProviders(),
+        ...getFormatPreferenceProviders(),
       ],
     });
 

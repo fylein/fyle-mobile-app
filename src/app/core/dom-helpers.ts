@@ -8,15 +8,9 @@ import { By } from '@angular/platform-browser';
  * @template T
  * @param element - The element in the fixture component.
  * @returns The text content of the element object.
- * @throws Error if element is null or undefined
  *
  */
-export const getTextContent = (element: Element | null): string => {
-  if (!element) {
-    throw new Error('Cannot get textContent from null or undefined element');
-  }
-  return element.textContent?.trim() || '';
-};
+export const getTextContent = (element: Element): string => element.textContent.trim();
 
 /**
  * Finds an element in a component fixture using its query selector.
@@ -24,10 +18,10 @@ export const getTextContent = (element: Element | null): string => {
  * @template T
  * @param fixture - The component fixture to search in.
  * @param selector - The query selector of the element to find.
- * @returns The found element represented as an Element object, or null if not found.
+ * @returns The found element represented as an Element object.
  *
  */
-export const getElementBySelector = <T>(fixture: ComponentFixture<T>, selector: string): Element | null =>
+export const getElementBySelector = <T>(fixture: ComponentFixture<T>, selector: string): Element =>
   fixture.nativeElement.querySelector(selector);
 
 /**

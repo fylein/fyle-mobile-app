@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -607,11 +607,10 @@ describe('SwitchOrgPage', () => {
     });
   });
 
-  it('markUserActive(): should mark the user as active and return the org', fakeAsync(() => {
+  it('markUserActive(): should mark the user as active and return the org', (done) => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     orgUserService.markActive.and.returnValue(of(apiEouRes));
-    spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
 
     component
       .markUserActive()
@@ -630,9 +629,9 @@ describe('SwitchOrgPage', () => {
         expect(res).toEqual(apiEouRes);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(orgUserService.markActive).toHaveBeenCalledTimes(1);
+        done();
       });
-    tick();
-  }));
+  });
 
   describe('handleInviteLinkFlow():', () => {
     it('should handle the flow if user has entered through invite link and navigate to setup page', (done) => {
@@ -921,12 +920,11 @@ describe('SwitchOrgPage', () => {
 
     it('should clear cache if sign out fails', fakeAsync(() => {
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
-      authService.getEou.and.rejectWith('Error');
+      authService.getEou.and.throwError('Error');
       spyOn(globalCacheBusterNotifier, 'next');
 
       component.signOut();
-      tick();
-      flush();
+      tick(1000);
       expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
       expect(storageService.clearAll).toHaveBeenCalledTimes(1);
       expect(globalCacheBusterNotifier.next).toHaveBeenCalledTimes(1);
