@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { DateWithTimezonePipe } from './date-with-timezone.pipe';
-import { TIMEZONE } from 'src/app/constants';
+import { FORMAT_PREFERENCES, TIMEZONE } from 'src/app/constants';
 import { BehaviorSubject } from 'rxjs';
-import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
+import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 
 describe('DateWithTimezonePipe', () => {
   let pipe: DateWithTimezonePipe;
@@ -10,7 +10,25 @@ describe('DateWithTimezonePipe', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [DateWithTimezonePipe, { provide: TIMEZONE, useValue: mockTimezone$ }, ...getCommonTestProviders()],
+      providers: [
+        DateWithTimezonePipe,
+        { provide: TIMEZONE, useValue: mockTimezone$ },
+        {
+          provide: DATE_PIPE_DEFAULT_OPTIONS,
+          useValue: { dateFormat: 'MMM dd, yyyy' },
+        },
+        {
+          provide: FORMAT_PREFERENCES,
+          useValue: {
+            timeFormat: 'hh:mm a',
+            currencyFormat: {
+              placement: 'before',
+              thousandSeparator: ',',
+              decimalSeparator: '.',
+            },
+          },
+        },
+      ],
     });
 
     pipe = TestBed.inject(DateWithTimezonePipe);
