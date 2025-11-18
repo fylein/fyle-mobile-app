@@ -362,6 +362,7 @@
             <div class="add-edit-expense--currency">
               @if (homeCurrency$ | async; as homeCurrency) {
                 <app-currency
+                  [disabled]="isReconciledExpense()"
                   [formControl]="fg?.controls?.currencyObj"
                   [homeCurrency]="homeCurrency"
                   [recentlyUsed]="recentCurrencies"
@@ -370,7 +371,6 @@
                   [touchedInParent]="fg?.controls?.currencyObj?.touched"
                   [validInParent]="fg?.controls?.currencyObj?.valid"
                   [autoCodedData]="autoCodedData"
-                  [disable]="isReconciledExpense()"
                 >
                 </app-currency>
                 @if (fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid) {
