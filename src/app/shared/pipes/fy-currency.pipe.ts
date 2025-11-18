@@ -47,7 +47,7 @@ export class FyCurrencyPipe implements PipeTransform {
       });
       const resolved = nf.resolvedOptions();
       minFractionDigits = resolved.minimumFractionDigits ?? 2;
-      maxFractionDigits = resolved.maximumFractionDigits ?? (minFractionDigits as number);
+      maxFractionDigits = resolved.maximumFractionDigits ?? minFractionDigits;
     }
 
     // Special-case zero when digitsInfo not explicitly provided: avoid decimals
@@ -85,8 +85,7 @@ export class FyCurrencyPipe implements PipeTransform {
     }
 
     // Determine token based on display
-    const currencyDisplayStyle: 'symbol' | 'code' =
-      display === 'code' || display === false ? 'code' : 'symbol';
+    const currencyDisplayStyle: 'symbol' | 'code' = display === 'code' || display === false ? 'code' : 'symbol';
     const hideCurrencyToken = display === '';
     let currencyToken = '';
     if (currencyCode && !hideCurrencyToken) {
@@ -103,10 +102,7 @@ export class FyCurrencyPipe implements PipeTransform {
     }
 
     const sign = numericValue < 0 ? '-' : '';
-    const needsSpace =
-      !!currencyToken &&
-      !!currencyCode &&
-      currencyToken.toUpperCase() === currencyCode.toUpperCase();
+    const needsSpace = !!currencyToken && !!currencyCode && currencyToken.toUpperCase() === currencyCode.toUpperCase();
     if (placement === 'after') {
       return `${sign}${numberCore}${currencyToken ? (needsSpace ? ' ' : '') + currencyToken : ''}`;
     }
