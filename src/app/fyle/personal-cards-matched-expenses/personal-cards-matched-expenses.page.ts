@@ -1,16 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { Router } from '@angular/router';
-import {
-  IonBackButton,
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonIcon,
-  IonTitle,
-  IonToolbar,
-  ModalController,
-} from '@ionic/angular/standalone';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
@@ -19,11 +10,13 @@ import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-pers
 import { NgClass, DatePipe } from '@angular/common';
 import { ExpenseCardLiteComponent } from '../../shared/components/expense-card-lite/expense-card-lite.component';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { CurrencySymbolPipe } from '../../shared/pipes/currency-symbol.pipe';
 @Component({
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
   styleUrls: ['./personal-cards-matched-expenses.page.scss'],
   imports: [
+    CurrencySymbolPipe,
     DatePipe,
     ExactCurrencyPipe,
     ExpenseCardLiteComponent,
@@ -34,7 +27,7 @@ import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
     IonIcon,
     IonTitle,
     IonToolbar,
-    NgClass,
+    NgClass
   ],
 })
 export class PersonalCardsMatchedExpensesPage {

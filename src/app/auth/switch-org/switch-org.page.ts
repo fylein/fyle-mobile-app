@@ -2,16 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, Vie
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of, catchError, throwError } from 'rxjs';
 import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import {
-  IonBackButton,
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonIcon,
-  IonToolbar,
-  Platform,
-  PopoverController,
-} from '@ionic/angular/standalone';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonToolbar, Platform, PopoverController } from '@ionic/angular/standalone';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -70,7 +61,7 @@ import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-z
     MatPrefix,
     MatSuffix,
     NgClass,
-    OrgCardComponent,
+    OrgCardComponent
   ],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {

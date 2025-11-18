@@ -156,7 +156,6 @@ describe('CardStatsComponent', () => {
     corporateCreditCardExpenseService.getPlatformCorporateCardDetails.and.returnValue(cardDetails);
     networkService.isOnline.and.returnValue(of(true));
     corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
-    virtualCardsService.getCardDetailsMap.and.returnValue(of({}));
 
     spyOn(component.loadCardDetails$, 'next').and.callThrough();
 

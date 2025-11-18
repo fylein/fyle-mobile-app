@@ -10,7 +10,7 @@ import { By } from '@angular/platform-browser';
  * @returns The text content of the element object.
  *
  */
-export const getTextContent = (element: Element): string => element.textContent.trim();
+export const getTextContent = <T>(element: Element): string => element.textContent.trim();
 
 /**
  * Finds an element in a component fixture using its query selector.
