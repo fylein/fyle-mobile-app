@@ -1133,6 +1133,28 @@ describe('MyExpensesPage', () => {
       // Cleanup
       discardPeriodicTasks();
     }));
+
+    it('should handle getExpenses error gracefully', fakeAsync(() => {
+      const dEincompleteExpenseIds = ['txfCdl3TEZ7K'];
+      expensesService.getExpenses.and.returnValue(throwError(() => new Error('API Error')));
+      //@ts-ignore
+      spyOn(component, 'filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
+
+      let errorOccurred = false;
+      //@ts-ignore
+      component.pollDEIncompleteExpenses(dEincompleteExpenseIds, apiExpenses1).subscribe({
+        error: () => {
+          errorOccurred = true;
+        },
+      });
+
+      tick(5000);
+
+      expect(expensesService.getExpenses).toHaveBeenCalled();
+
+      // Cleanup
+      discardPeriodicTasks();
+    }));
   });
 
   describe('updateExpensesList', () => {
@@ -1171,6 +1193,53 @@ describe('MyExpensesPage', () => {
 
       // Assert
       expect(result).toEqual(apiExpenses1); // No changes should occur
+    });
+
+    it('should not update expense if updatedExpense is undefined', () => {
+      const updatedExpenses: Expense[] = [];
+      const dEincompleteExpenseIds = [apiExpenses1[0].id];
+
+      //@ts-ignore
+      component.isExpenseScanComplete.and.returnValue(false);
+
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+
+      expect(result).toEqual(apiExpenses1);
+    });
+
+    it('should not update expense if expense id is not in dEincompleteExpenseIds', () => {
+      const updatedExpenses: Expense[] = [
+        { ...apiExpenses1[0], extracted_data: { ...apiExpenses1[0].extracted_data, amount: 200 } },
+      ];
+      const dEincompleteExpenseIds = ['someOtherId'];
+
+      //@ts-ignore
+      component.isExpenseScanComplete.and.returnValue(true);
+
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+
+      expect(result).toEqual(apiExpenses1);
+    });
+
+    it('should handle multiple expenses with mixed completion status', () => {
+      const updatedExpenses: Expense[] = [
+        { ...apiExpenses1[0], extracted_data: { ...apiExpenses1[0].extracted_data, amount: 200 } },
+        { ...apiExpenses1[1], extracted_data: { ...apiExpenses1[1].extracted_data, amount: 300 } },
+      ];
+      const dEincompleteExpenseIds = [apiExpenses1[0].id, apiExpenses1[1].id];
+
+      //@ts-ignore
+      component.isExpenseScanComplete.and.callFake((expense) => {
+        return expense.id === apiExpenses1[0].id;
+      });
+
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+
+      expect(result[0]).toEqual(updatedExpenses[0]);
+      expect(result[1]).toEqual(apiExpenses1[1]);
     });
   });
 
@@ -1833,6 +1902,19 @@ describe('MyExpensesPage', () => {
     expect(component.doRefresh).toHaveBeenCalledTimes(1);
   }));
 
+  it('syncOutboxExpenses(): should not sync when pendingTransactions is empty', fakeAsync(() => {
+    spyOn(component, 'formatTransactions').and.returnValue([]);
+    transactionOutboxService.getPendingTransactions.and.returnValue([]);
+    spyOn(component, 'doRefresh');
+
+    component.syncOutboxExpenses();
+    tick(100);
+
+    expect(component.syncing).toBeFalse();
+    expect(transactionOutboxService.sync).not.toHaveBeenCalled();
+    expect(component.doRefresh).not.toHaveBeenCalled();
+  }));
+
   describe('generateFilterPills(): ', () => {
     beforeEach(() => {
       myExpenseService.generateStateFilterPills.and.callFake((filterPill, filters) => {
@@ -2491,7 +2573,6 @@ describe('MyExpensesPage', () => {
         authService.getEou.and.resolveTo(apiEouRes);
         orgUserService.getDwollaCustomer.and.returnValue(of(null));
         component.orgSettings$ = of(orgSettingsRes);
-        launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
@@ -2567,7 +2648,6 @@ describe('MyExpensesPage', () => {
     describe('when restrictPendingTransactionsEnabled is true', () => {
       beforeEach(() => {
         component.restrictPendingTransactionsEnabled = true;
-        launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
@@ -2664,6 +2744,42 @@ describe('MyExpensesPage', () => {
           title: "Can't add these expenses...",
           message: '1 expense with pending transactions.<br><br>1 expense with Critical Policy Violations.',
           reportType: 'newReport',
+        });
+      });
+
+      it('should set proper message when draft and policy violation count is greater than 0', () => {
+        component.reportableExpenseDialogHandler(1, 1, 0, 'oldReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '1 expense is in draft state.<br><br>1 expense with Critical Policy Violations.',
+          reportType: 'oldReport',
+        });
+      });
+
+      it('should set proper message when draft and pendingTransactionsCount is greater than 0', () => {
+        component.reportableExpenseDialogHandler(1, 0, 1, 'newReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '1 expense is in draft state.<br><br>1 expense with pending transactions.',
+          reportType: 'newReport',
+        });
+      });
+
+      it('should set proper message when all three counts are greater than 0', () => {
+        component.reportableExpenseDialogHandler(2, 1, 1, 'newReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '2 expenses are in draft state.<br><br>1 expense with pending transactions.<br><br>1 expense with Critical Policy Violations.',
+          reportType: 'newReport',
+        });
+      });
+
+      it('should handle plural forms correctly for multiple expenses', () => {
+        component.reportableExpenseDialogHandler(2, 2, 2, 'oldReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '2 expenses are in draft state.<br><br>2 expenses with pending transactions.<br><br>2 expenses with Critical Policy Violations.',
+          reportType: 'oldReport',
         });
       });
     });
@@ -2798,6 +2914,19 @@ describe('MyExpensesPage', () => {
         { id: 'txDDLtRaflUW', txnIds: '["txDDLtRaflUW","tx5WDG9lxBDT"]', activeIndex: 0 },
       ]);
     }));
+
+    it('should handle getExpenseById error gracefully', fakeAsync(() => {
+      component.selectedElements = apiExpenses1;
+      expensesService.getAllExpenses.and.returnValue(of(apiExpenses1));
+      expensesService.getExpenseById.and.returnValue(throwError(() => new Error('API Error')));
+      spyOn(console, 'error');
+
+      component.openReviewExpenses();
+      tick(100);
+
+      expect(expensesService.getExpenseById).toHaveBeenCalled();
+      expect(loaderService.hideLoader).toHaveBeenCalled();
+    }));
   });
 
   describe('filterExpensesBySearchString(): ', () => {
@@ -2811,6 +2940,29 @@ describe('MyExpensesPage', () => {
       const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'Software');
 
       expect(expectedFilteredExpenseRes).toBeFalse();
+    });
+
+    it('should be case insensitive when matching searchString', () => {
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'USVKA4X8UGCR');
+
+      expect(expectedFilteredExpenseRes).toBeTrue();
+    });
+
+    it('should return true for partial matches', () => {
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'usvKA4');
+
+      expect(expectedFilteredExpenseRes).toBeTrue();
+    });
+
+    it('should handle null or undefined values in expense properties', () => {
+      const expenseWithNulls = {
+        ...expenseData,
+        category: null,
+        amount: null,
+      };
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseWithNulls, 'usvKA4X8Ugcr');
+
+      expect(expectedFilteredExpenseRes).toBeTrue();
     });
   });
 
@@ -2918,6 +3070,25 @@ describe('MyExpensesPage', () => {
       )
       .subscribe(noop);
     done();
+  });
+
+  it('addTransactionsToReport(): should handle empty expense IDs array', (done) => {
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo(true);
+
+    spenderReportsService.addExpenses.and.returnValue(of(null));
+    component
+      .addTransactionsToReport(expectedReportsSinglePage[0], [])
+      .pipe(
+        tap((updatedReport) => {
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', []);
+        }),
+        finalize(() => {
+          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+          done();
+        }),
+      )
+      .subscribe(noop);
   });
 
   describe('showOldReportsMatBottomSheet(): ', () => {
@@ -3050,6 +3221,26 @@ describe('MyExpensesPage', () => {
         component.pendingTransactions,
         expenseList4,
       );
+    });
+
+    it('should handle empty expensesToBeDeleted and outboxExpensesToBeDeleted', () => {
+      component.expensesToBeDeleted = [];
+      component.outboxExpensesToBeDeleted = [];
+
+      component.deleteSelectedExpenses([]);
+
+      expect(expensesService.deleteExpenses).not.toHaveBeenCalled();
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalled();
+    });
+
+    it('should handle deleteExpenses error gracefully', () => {
+      component.expensesToBeDeleted = apiExpenses1;
+      expensesService.deleteExpenses.and.returnValue(throwError(() => new Error('Delete failed')));
+      spyOn(console, 'error');
+
+      component.deleteSelectedExpenses([]);
+
+      expect(expensesService.deleteExpenses).toHaveBeenCalled();
     });
   });
 
@@ -3269,6 +3460,29 @@ describe('MyExpensesPage', () => {
       expect(component.allExpensesCount).toBe(2);
       expect(component.isReportableExpensesSelected).toBeTrue();
       expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle empty expenses list when checked is true', () => {
+      expensesService.getAllExpenses.and.returnValue(of([]));
+      component.pendingTransactions = [];
+      component.onSelectAll(true);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalled();
+      expect(component.selectedElements).toEqual([]);
+      expect(component.allExpensesCount).toBe(0);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+    });
+
+    it('should handle searchString with special characters', () => {
+      component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1, searchString: 'Test@123' });
+      expensesService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenses1)));
+      component.pendingTransactions = [];
+
+      component.onSelectAll(true);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalledWith({
+        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)', q: 'Test@123:*' },
+      });
     });
   });
 
@@ -3533,6 +3747,41 @@ describe('MyExpensesPage', () => {
     it('should check and enable the button for offline mode', (done) => {
       component.isConnected$ = of(false);
       component.selectedOutboxExpenses = apiExpenseRes;
+      component.outboxExpensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDeleteDisabled).toBeFalse();
+        done();
+      });
+    });
+
+    it('should disable button when no expenses are selected in online mode', (done) => {
+      component.isConnected$ = of(true);
+      component.selectedElements = [];
+      component.expensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDeleteDisabled).toBeTrue();
+        done();
+      });
+    });
+
+    it('should disable button when no expenses are selected in offline mode', (done) => {
+      component.isConnected$ = of(false);
+      component.selectedOutboxExpenses = [];
+      component.outboxExpensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDeleteDisabled).toBeTrue();
+        done();
+      });
+    });
+
+    it('should handle mixed online and offline selection', (done) => {
+      component.isConnected$ = of(true);
+      component.selectedElements = apiExpenses1;
+      component.selectedOutboxExpenses = apiExpenseRes;
+      component.expensesToBeDeleted = [];
       component.outboxExpensesToBeDeleted = [];
 
       component.checkDeleteDisabled().subscribe(() => {
@@ -4488,7 +4737,6 @@ describe('MyExpensesPage', () => {
       component.orgSettings$ = of(orgSettingsRes);
       authService.getEou.and.resolveTo(apiEouRes);
       orgUserService.getDwollaCustomer.and.returnValue(of(null));
-      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
     });
 
     it('should check ACH suspension and show popup when customer is suspended', fakeAsync(() => {
@@ -4645,18 +4893,5 @@ describe('MyExpensesPage', () => {
       expect((component as any).checkAchSuspensionBeforeCreateReport).toHaveBeenCalledWith('newReport');
     });
 
-    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
-      launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
-      spyOn(component, 'showAchSuspensionPopup');
-      spyOn(component, 'showNewReportModal');
-
-      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
-      tick(100);
-
-      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
-      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
-      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-      expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
-    }));
   });
 });

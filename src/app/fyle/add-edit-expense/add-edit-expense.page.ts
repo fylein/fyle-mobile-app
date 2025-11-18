@@ -669,13 +669,13 @@ export class AddEditExpensePage implements OnInit {
 
   isLoading = true;
 
-  readonly isReconciledExpense = signal<boolean>(false);
-
   readonly isPendingGasCharge = signal<boolean>(false);
 
   readonly isSelectedProjectDisabled = signal(false);
 
   readonly selectedDisabledProject = signal<ProjectV2 | null>(null);
+
+  readonly isReconciledExpense = signal<boolean>(false);
 
   private sharedExpensesService = inject(SharedExpensesService);
 
@@ -709,7 +709,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getFormValues(): FormValue {
-    // getRawValue is used to get the value of the form fields including the disabled fields
     return this.fg.getRawValue() as FormValue;
   }
 
@@ -2861,18 +2860,27 @@ export class AddEditExpensePage implements OnInit {
     );
     return this.platformExpense$.pipe(
       switchMap((expense) => {
+        return this.launchDarklyService.getVariation('reconciliation_beta', false).pipe(
+          tap((isReconciliationEnabled) => {
+            if (isReconciliationEnabled) {
+              this.isReconciledExpense.set(expense?.is_reconciled ?? false);
+              if (this.isReconciledExpense()) {
+                this.fg.controls.dateOfSpend.disable();
+              }
+            }
+          }),
+          map(() => {
+            return expense;
+          }),
+        );
+      }),
+      switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
         this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(expense));
+
         if (etxn && etxn.tx.extracted_data) {
           this.autoCodedData = etxn.tx.extracted_data;
           this.autoCodedData.vendor_name = etxn.tx.extracted_data.vendor;
-        }
-
-        this.isReconciledExpense.set(expense.is_reconciled);
-
-        if (this.isReconciledExpense()) {
-          this.fg.controls.dateOfSpend.disable();
-          this.fg.controls.currencyObj.disable();
         }
 
         this.isIncompleteExpense = etxn.tx.state === 'DRAFT';

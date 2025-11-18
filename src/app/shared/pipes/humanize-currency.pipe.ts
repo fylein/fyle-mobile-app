@@ -71,10 +71,15 @@ export class HumanizeCurrencyPipe implements PipeTransform {
       }
     }
 
+    const needsSpace =
+      !!currencyToken &&
+      !!currencyCode &&
+      currencyToken.toUpperCase() === currencyCode.toUpperCase();
+
     const composed =
       currencyToken && placement === 'after'
-        ? `${numberWithSuffix} ${currencyToken}`
-        : `${currencyToken || ''}${numberWithSuffix}`;
+        ? `${numberWithSuffix}${needsSpace ? ' ' : ''}${currencyToken}`
+        : `${currencyToken ? currencyToken + (needsSpace ? ' ' : '') : ''}${numberWithSuffix}`;
 
     return `${sign}${composed}`;
   }
