@@ -475,6 +475,10 @@ export function TestCases2(getTestBed) {
     });
 
     describe('getEditExpenseObservable(): ', () => {
+      beforeEach(() => {
+        launchDarklyService.getVariation.and.returnValue(of(false));
+      });
+
       it('should get editable expense observable if the txn is in DRAFT state', (done) => {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         const mockTransformedExpense = cloneDeep(transformedExpenseWithExtractedData);

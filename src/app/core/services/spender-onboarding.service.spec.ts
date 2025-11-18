@@ -6,7 +6,6 @@ import { of } from 'rxjs';
 import { onboardingStatusData } from '../mock-data/onboarding-status.data';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
 import { UtilityService } from './utility.service';
-import { OrgSettingsService } from './org-settings.service';
 import { OrgSettings } from '../models/org-settings.model';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { AuthService } from './auth.service';
