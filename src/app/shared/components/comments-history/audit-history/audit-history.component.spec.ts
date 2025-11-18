@@ -18,6 +18,7 @@ import { getAllElementsBySelector, getElementBySelector, getTextContent } from '
 import { cloneDeep } from 'lodash';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { TIMEZONE } from 'src/app/constants';
+import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
 
 describe('AuditHistoryComponent', () => {
   let component: AuditHistoryComponent;
@@ -36,7 +37,6 @@ describe('AuditHistoryComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        
         MatIconModule,
         MatIconTestingModule,
         TranslocoModule,
@@ -55,6 +55,7 @@ describe('AuditHistoryComponent', () => {
           provide: TranslocoService,
           useValue: translocoServiceSpy,
         },
+        ...getCommonTestProviders(),
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(AuditHistoryComponent);

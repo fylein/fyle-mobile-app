@@ -13,6 +13,7 @@ import { ToastMessageComponent } from '../../toast-message/toast-message.compone
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
 
 describe('BankAccountCardComponent', () => {
   let component: BankAccountCardComponent;
@@ -39,7 +40,7 @@ describe('BankAccountCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, BankAccountCardComponent],
+      imports: [TranslocoModule, BankAccountCardComponent],
       providers: [
         {
           provide: PersonalCardsService,
@@ -69,6 +70,7 @@ describe('BankAccountCardComponent', () => {
           provide: TranslocoService,
           useValue: translocoServiceSpy,
         },
+        ...getCommonTestProviders(),
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(BankAccountCardComponent);

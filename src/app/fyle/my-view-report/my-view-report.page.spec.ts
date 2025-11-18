@@ -59,6 +59,7 @@ import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
 import { TIMEZONE } from 'src/app/constants';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v2/expenses-card.component';
+import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
 
 // mock for expenses card component
 @Component({
@@ -217,6 +218,7 @@ describe('MyViewReportPage', () => {
           useValue: launchDarklyServiceSpy,
         },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
+        ...getCommonTestProviders(),
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
@@ -1095,7 +1097,8 @@ describe('MyViewReportPage', () => {
         component: jasmine.any(Function),
         componentProps: {
           title: 'ACH reimbursements suspended',
-          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          message:
+            'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
           primaryCta: {
             text: 'Got it',
             action: 'confirm',

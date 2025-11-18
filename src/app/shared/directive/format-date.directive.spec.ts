@@ -3,12 +3,13 @@ import { FormatDateDirective } from './format-date.directive';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { DatePipe } from '@angular/common';
+import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
 
-@Component({ 
-  template: `<input appFormatDate type="date" />` ,
-  imports: [FormatDateDirective]
-}
-)
+@Component({
+  template: `<input appFormatDate type="date" />`,
+  imports: [FormatDateDirective],
+})
 class TestFormatDateDirectiveComponent {}
 
 describe('FormatDateDirective', () => {
@@ -20,12 +21,13 @@ describe('FormatDateDirective', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TestFormatDateDirectiveComponent, getTranslocoTestingModule()],
+      providers: [DatePipe, ...getCommonTestProviders()],
     });
 
     fixture = TestBed.createComponent(TestFormatDateDirectiveComponent);
     component = fixture.componentInstance;
     inputEl = fixture.debugElement.query(By.css('input'));
-    directive = inputEl.injector.get(FormatDateDirective)
+    directive = inputEl.injector.get(FormatDateDirective);
   });
 
   it('should create an instance', () => {

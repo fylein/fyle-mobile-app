@@ -920,7 +920,7 @@ describe('SwitchOrgPage', () => {
 
     it('should clear cache if sign out fails', fakeAsync(() => {
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
-      authService.getEou.and.throwError('Error');
+      authService.getEou.and.rejectWith('Error');
       spyOn(globalCacheBusterNotifier, 'next');
 
       component.signOut();

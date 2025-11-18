@@ -2842,6 +2842,8 @@ describe('SplitExpensePage', () => {
       splitExpenseService.filteredMissingFieldsViolations.and.returnValue({
         '1': filteredMissingFieldsViolationsData2,
       });
+      const missingFieldsPopoverSpy = jasmine.createSpyObj('missingFieldsPopover', ['present']);
+      popoverController.create.and.resolveTo(missingFieldsPopoverSpy);
       spyOn(component, 'showMissingFieldsModal').and.callThrough();
       const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
         txnList,

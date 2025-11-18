@@ -1,5 +1,11 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync, flush } from '@angular/core/testing';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 
 import { DashboardPage } from './dashboard.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -55,6 +61,7 @@ import { TasksComponent } from './tasks/tasks.component';
 import { FyMenuIconComponent } from 'src/app/shared/components/fy-menu-icon/fy-menu-icon.component';
 import { DashboardEmailOptInComponent } from 'src/app/shared/components/dashboard-email-opt-in/dashboard-email-opt-in.component';
 import { DashboardOptInComponent } from 'src/app/shared/components/dashboard-opt-in/dashboard-opt-in.component';
+import { getCommonTestProviders } from 'src/app/core/testing/common-test-providers.utils';
 
 // mocks
 @Component({
@@ -225,6 +232,7 @@ describe('DashboardPage', () => {
           provide: LaunchDarklyService,
           useValue: launchDarklyServiceSpy,
         },
+        ...getCommonTestProviders(),
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -1459,14 +1467,16 @@ describe('DashboardPage', () => {
         destroy: jasmine.createSpy('destroy'),
       };
 
-      walkthroughService.getDashboardAddExpenseWalkthroughConfig.and.returnValue(mockDashboardAddExpenseWalkthroughSteps);
+      walkthroughService.getDashboardAddExpenseWalkthroughConfig.and.returnValue(
+        mockDashboardAddExpenseWalkthroughSteps,
+      );
     });
 
     it('should initialize driver instance and call drive', () => {
       spyOn(component, 'setDashboardAddExpenseWalkthroughFeatureConfigFlag');
-      
+
       // Spy on the component method and provide a fake implementation
-      spyOn(component, 'startDashboardAddExpenseWalkthrough').and.callFake(function(this: any) {
+      spyOn(component, 'startDashboardAddExpenseWalkthrough').and.callFake(function (this: any) {
         const dashboardAddExpenseWalkthroughSteps: DriveStep[] =
           this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
         const driverInstance = {
@@ -1483,16 +1493,18 @@ describe('DashboardPage', () => {
 
       expect(walkthroughService.getDashboardAddExpenseWalkthroughConfig).toHaveBeenCalledTimes(1);
       expect(component.dashboardAddExpenseWalkthroughDriverInstance).toBeTruthy();
-      expect(component.dashboardAddExpenseWalkthroughDriverInstance.setSteps).toHaveBeenCalledOnceWith(mockDashboardAddExpenseWalkthroughSteps);
+      expect(component.dashboardAddExpenseWalkthroughDriverInstance.setSteps).toHaveBeenCalledOnceWith(
+        mockDashboardAddExpenseWalkthroughSteps,
+      );
       expect(component.dashboardAddExpenseWalkthroughDriverInstance.drive).toHaveBeenCalledTimes(1);
     });
 
     it('should call setDashboardAddExpenseWalkthroughFeatureConfigFlag when walkthrough is destroyed', () => {
       let onDestroyedCallback: () => void;
       spyOn(component, 'setDashboardAddExpenseWalkthroughFeatureConfigFlag');
-      
+
       // Spy on the component method and capture the onDestroyed callback
-      spyOn(component, 'startDashboardAddExpenseWalkthrough').and.callFake(function(this: any) {
+      spyOn(component, 'startDashboardAddExpenseWalkthrough').and.callFake(function (this: any) {
         const dashboardAddExpenseWalkthroughSteps: DriveStep[] =
           this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
         const driverConfig = {
@@ -1522,11 +1534,11 @@ describe('DashboardPage', () => {
       });
 
       component.startDashboardAddExpenseWalkthrough();
-      
+
       if (onDestroyedCallback) {
         onDestroyedCallback();
       }
-      
+
       expect(component.setDashboardAddExpenseWalkthroughFeatureConfigFlag).toHaveBeenCalledTimes(1);
     });
   });
@@ -1552,13 +1564,10 @@ describe('DashboardPage', () => {
     it('should track walkthrough completed event', () => {
       component.setDashboardAddExpenseWalkthroughFeatureConfigFlag();
 
-      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith(
-        'Dashboard Add Expense Walkthrough Completed',
-        {
-          Asset: 'Mobile',
-          from: 'Dashboard',
-        },
-      );
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Dashboard Add Expense Walkthrough Completed', {
+        Asset: 'Mobile',
+        from: 'Dashboard',
+      });
     });
   });
 
@@ -1640,7 +1649,7 @@ describe('DashboardPage', () => {
       // Clear session storage to ensure clean state
       const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
       sessionStorage.removeItem(dialogShownKey);
-      
+
       // Reset component observables to avoid affecting other tests
       component.eou$ = of(apiEouRes);
       component.orgSettings$ = of(orgSettingsRes);
@@ -1662,7 +1671,7 @@ describe('DashboardPage', () => {
       popoverController.create.and.resolveTo(mockPopover);
 
       component.checkAchSuspension();
-      
+
       // Flush all pending async operations
       flush();
 
@@ -1689,7 +1698,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
-      
+
       flush();
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
@@ -1702,7 +1711,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
-      
+
       flush();
 
       expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
@@ -1715,7 +1724,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
-      
+
       flush();
 
       expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
@@ -1728,7 +1737,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
-      
+
       flush();
 
       expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
@@ -1739,14 +1748,14 @@ describe('DashboardPage', () => {
       // Clear session storage to ensure clean state
       const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
       sessionStorage.removeItem(dialogShownKey);
-      
+
       // Ensure LaunchDarkly flag is enabled for this test
       launchDarklyService.getVariation.and.returnValue(of(true));
       orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
-      
+
       flush();
 
       expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
@@ -1758,7 +1767,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'showAchSuspensionPopup');
 
       component.checkAchSuspension();
-      
+
       flush();
 
       expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);

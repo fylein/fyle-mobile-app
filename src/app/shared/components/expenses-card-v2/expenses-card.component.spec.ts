@@ -49,6 +49,8 @@ import { TranslocoService } from '@jsverse/transloco';
 import { mandatoryExpenseFields } from 'src/app/core/mock-data/expense-field.data';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
+import { DatePipe } from '@angular/common';
+import { LOCALE_ID } from '@angular/core';
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
@@ -149,6 +151,8 @@ describe('ExpensesCardComponent', () => {
         { provide: CurrencySymbolPipe, useValue: jasmine.createSpyObj('CurrencySymbolPipe', ['transform']) },
         { provide: ExactCurrencyPipe, useValue: jasmine.createSpyObj('ExactCurrencyPipe', ['transform']) },
         { provide: FyCurrencyPipe, useValue: jasmine.createSpyObj('FyCurrencyPipe', ['transform']) },
+        { provide: LOCALE_ID, useValue: 'en-US' },
+        { provide: DatePipe, useClass: DatePipe },
       ],
     }).compileComponents();
 
@@ -1921,6 +1925,7 @@ describe('ExpensesCardComponent - Mandatory Fields and Caching', () => {
         { provide: PlatformOrgSettingsService, useValue: { get: (): void => {} } },
         { provide: ExpensesService, useValue: {} },
         { provide: TranslocoService, useValue: { translate: (): string => '' } },
+        DatePipe,
       ],
     }).compileComponents();
   }));
